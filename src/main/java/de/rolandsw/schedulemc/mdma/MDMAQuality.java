@@ -5,12 +5,18 @@ import net.minecraft.network.chat.Component;
 
 /**
  * MDMA/Ecstasy-Qualitätsstufen
+ *
+ * Einheitliches 4-Stufen-System:
+ * - SCHLECHT (Level 0)
+ * - GUT (Level 1)
+ * - SEHR_GUT (Level 2)
+ * - LEGENDAER (Level 3)
  */
 public enum MDMAQuality implements ProductionQuality {
-    SCHLECHT("§7", 0, 0.5),
-    STANDARD("§f", 1, 1.0),
-    GUT("§e", 2, 2.0),
-    PREMIUM("§d§l", 3, 4.0);
+    SCHLECHT("§c", 0, 0.7),
+    GUT("§e", 1, 1.0),
+    SEHR_GUT("§a", 2, 2.0),
+    LEGENDAER("§d§l", 3, 4.0);
 
     private final String colorCode;
     private final int level;
@@ -23,11 +29,11 @@ public enum MDMAQuality implements ProductionQuality {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.mdma_quality." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
     }
 
     public String getDescription() {
-        return Component.translatable("enum.mdma_quality.desc." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
     }
 
     public String getColorCode() { return colorCode; }
@@ -41,18 +47,18 @@ public enum MDMAQuality implements ProductionQuality {
     @Override
     public MDMAQuality upgrade() {
         return switch (this) {
-            case SCHLECHT -> STANDARD;
-            case STANDARD -> GUT;
-            case GUT, PREMIUM -> PREMIUM;
+            case SCHLECHT -> GUT;
+            case GUT -> SEHR_GUT;
+            case SEHR_GUT, LEGENDAER -> LEGENDAER;
         };
     }
 
     @Override
     public MDMAQuality downgrade() {
         return switch (this) {
-            case SCHLECHT, STANDARD -> SCHLECHT;
-            case GUT -> STANDARD;
-            case PREMIUM -> GUT;
+            case SCHLECHT, GUT -> SCHLECHT;
+            case SEHR_GUT -> GUT;
+            case LEGENDAER -> SEHR_GUT;
         };
     }
 
@@ -60,7 +66,7 @@ public enum MDMAQuality implements ProductionQuality {
         for (MDMAQuality q : values()) {
             if (q.level == level) return q;
         }
-        return STANDARD;
+        return SCHLECHT;
     }
 
     /**
@@ -68,9 +74,9 @@ public enum MDMAQuality implements ProductionQuality {
      * @param timingScore 0.0 (schlecht) bis 1.0 (perfekt)
      */
     public static MDMAQuality fromTimingScore(double timingScore) {
-        if (timingScore >= 0.95) return PREMIUM;  // Fast perfekt
-        if (timingScore >= 0.8) return GUT;       // Gut getroffen
-        if (timingScore >= 0.5) return STANDARD;  // Akzeptabel
-        return SCHLECHT;                          // Zu früh/spät
+        if (timingScore >= 0.95) return LEGENDAER;
+        if (timingScore >= 0.80) return SEHR_GUT;
+        if (timingScore >= 0.50) return GUT;
+        return SCHLECHT;
     }
 }

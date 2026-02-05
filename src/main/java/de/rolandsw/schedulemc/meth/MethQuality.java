@@ -4,12 +4,19 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
 
 /**
- * Meth-Qualitätsstufen (Breaking Bad inspiriert)
+ * Meth-Qualitätsstufen
+ *
+ * Einheitliches 4-Stufen-System:
+ * - SCHLECHT (Level 0)
+ * - GUT (Level 1)
+ * - SEHR_GUT (Level 2)
+ * - LEGENDAER (Level 3) - Blue Sky
  */
 public enum MethQuality implements ProductionQuality {
-    STANDARD("§f", 0, 1.0),      // Weißes Meth (niedrigste Qualität)
-    GUT("§e", 1, 2.0),           // Gelbliches Meth
-    BLUE_SKY("§b§l", 2, 5.0);    // Blaues Meth (höchste Qualität - Heisenberg Style)
+    SCHLECHT("§c", 0, 0.7),
+    GUT("§e", 1, 1.0),
+    SEHR_GUT("§a", 2, 2.0),
+    LEGENDAER("§b§l", 3, 5.0);  // Blue Sky Farbe beibehalten
 
     private final String colorCode;
     private final int level;
@@ -22,7 +29,7 @@ public enum MethQuality implements ProductionQuality {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.meth_quality." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
     }
 
     public String getColorCode() {
@@ -37,42 +44,30 @@ public enum MethQuality implements ProductionQuality {
         return priceMultiplier;
     }
 
-    public String getColorDescription() {
-        return Component.translatable("enum.meth_quality.color." + this.name().toLowerCase()).getString();
-    }
-
     public String getColoredName() {
         return colorCode + getDisplayName();
     }
 
     @Override
     public String getDescription() {
-        return switch (this) {
-            case STANDARD -> Component.translatable("enum.meth_quality.desc.standard").getString();
-            case GUT -> Component.translatable("enum.meth_quality.desc.gut").getString();
-            case BLUE_SKY -> Component.translatable("enum.meth_quality.desc.blue_sky").getString();
-        };
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
     }
 
-    /**
-     * Verbessert die Qualität um eine Stufe
-     */
     @Override
     public MethQuality upgrade() {
         return switch (this) {
-            case STANDARD -> GUT;
-            case GUT, BLUE_SKY -> BLUE_SKY;
+            case SCHLECHT -> GUT;
+            case GUT -> SEHR_GUT;
+            case SEHR_GUT, LEGENDAER -> LEGENDAER;
         };
     }
 
-    /**
-     * Verschlechtert die Qualität um eine Stufe
-     */
     @Override
     public MethQuality downgrade() {
         return switch (this) {
-            case STANDARD, GUT -> STANDARD;
-            case BLUE_SKY -> GUT;
+            case SCHLECHT, GUT -> SCHLECHT;
+            case SEHR_GUT -> GUT;
+            case LEGENDAER -> SEHR_GUT;
         };
     }
 
@@ -82,7 +77,7 @@ public enum MethQuality implements ProductionQuality {
                 return quality;
             }
         }
-        return STANDARD;
+        return SCHLECHT;
     }
 
     /**
@@ -90,12 +85,9 @@ public enum MethQuality implements ProductionQuality {
      * @param optimalTimePercent Prozentsatz der Zeit im optimalen Temperaturbereich (0.0 - 1.0)
      */
     public static MethQuality fromTemperaturePerformance(double optimalTimePercent) {
-        if (optimalTimePercent >= 0.9) {
-            return BLUE_SKY; // 90%+ optimal = Blue Sky
-        } else if (optimalTimePercent >= 0.6) {
-            return GUT;      // 60-89% optimal = Gut
-        } else {
-            return STANDARD; // < 60% optimal = Standard
-        }
+        if (optimalTimePercent >= 0.95) return LEGENDAER;
+        if (optimalTimePercent >= 0.80) return SEHR_GUT;
+        if (optimalTimePercent >= 0.60) return GUT;
+        return SCHLECHT;
     }
 }

@@ -1,37 +1,36 @@
 package de.rolandsw.schedulemc.beer;
 
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import net.minecraft.network.chat.Component;
 
 /**
  * Bier-Qualitätsstufen
  *
- * Höhere Qualität = Höherer Preis-Multiplikator
- * Basierend auf Brauqualität, Reinheit und Geschmack
+ * Einheitliches 4-Stufen-System:
+ * - SCHLECHT (Level 0)
+ * - GUT (Level 1)
+ * - SEHR_GUT (Level 2)
+ * - LEGENDAER (Level 3)
  */
 public enum BeerQuality implements ProductionQuality {
-    RAW("Raw", "§7", 0, 0.5, "Unreifes Bier mit schlechter Qualität"),
-    BASIC("Basic", "§f", 1, 0.8, "Einfaches Bier mit Standard-Qualität"),
-    GOOD("Good", "§a", 2, 1.0, "Gutes Bier mit sauberem Geschmack"),
-    PREMIUM("Premium", "§b", 3, 1.3, "Hochwertiges Bier mit ausgezeichnetem Geschmack"),
-    EXCEPTIONAL("Exceptional", "§6", 4, 1.6, "Außergewöhnliches Bier von perfekter Qualität");
+    SCHLECHT("§c", 0, 0.7),
+    GUT("§e", 1, 1.0),
+    SEHR_GUT("§a", 2, 1.5),
+    LEGENDAER("§6§l", 3, 2.5);
 
-    private final String displayName;
     private final String colorCode;
     private final int level;
     private final double priceMultiplier;
-    private final String description;
 
-    BeerQuality(String displayName, String colorCode, int level, double priceMultiplier, String description) {
-        this.displayName = displayName;
+    BeerQuality(String colorCode, int level, double priceMultiplier) {
         this.colorCode = colorCode;
         this.level = level;
         this.priceMultiplier = priceMultiplier;
-        this.description = description;
     }
 
     @Override
     public String getDisplayName() {
-        return displayName;
+        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
     }
 
     @Override
@@ -51,28 +50,28 @@ public enum BeerQuality implements ProductionQuality {
 
     @Override
     public String getDescription() {
-        return description;
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
+    }
+
+    public String getColoredName() {
+        return colorCode + getDisplayName();
     }
 
     @Override
-    public ProductionQuality upgrade() {
+    public BeerQuality upgrade() {
         return switch (this) {
-            case RAW -> BASIC;
-            case BASIC -> GOOD;
-            case GOOD -> PREMIUM;
-            case PREMIUM -> EXCEPTIONAL;
-            case EXCEPTIONAL -> EXCEPTIONAL; // Already at max
+            case SCHLECHT -> GUT;
+            case GUT -> SEHR_GUT;
+            case SEHR_GUT, LEGENDAER -> LEGENDAER;
         };
     }
 
     @Override
-    public ProductionQuality downgrade() {
+    public BeerQuality downgrade() {
         return switch (this) {
-            case RAW -> RAW; // Already at minimum
-            case BASIC -> RAW;
-            case GOOD -> BASIC;
-            case PREMIUM -> GOOD;
-            case EXCEPTIONAL -> PREMIUM;
+            case SCHLECHT, GUT -> SCHLECHT;
+            case SEHR_GUT -> GUT;
+            case LEGENDAER -> SEHR_GUT;
         };
     }
 
@@ -82,10 +81,18 @@ public enum BeerQuality implements ProductionQuality {
     public static BeerQuality determineQuality(double qualityFactor, java.util.Random random) {
         double roll = random.nextDouble() * qualityFactor;
 
-        if (roll >= 1.2) return EXCEPTIONAL;    // ~8% Chance (mit perfektem Factor)
-        if (roll >= 1.0) return PREMIUM;        // ~15% Chance
-        if (roll >= 0.7) return GOOD;           // ~30% Chance
-        if (roll >= 0.4) return BASIC;          // ~30% Chance
-        return RAW;                             // ~17% Chance
+        if (roll >= 0.95) return LEGENDAER;
+        if (roll >= 0.75) return SEHR_GUT;
+        if (roll >= 0.45) return GUT;
+        return SCHLECHT;
+    }
+
+    public static BeerQuality fromLevel(int level) {
+        for (BeerQuality quality : values()) {
+            if (quality.level == level) {
+                return quality;
+            }
+        }
+        return SCHLECHT;
     }
 }

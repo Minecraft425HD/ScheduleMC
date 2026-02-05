@@ -5,13 +5,18 @@ import net.minecraft.network.chat.Component;
 
 /**
  * Crack-Qualitätsstufen
- * Abhängig vom Kochprozess
+ *
+ * Einheitliches 4-Stufen-System:
+ * - SCHLECHT (Level 0)
+ * - GUT (Level 1)
+ * - SEHR_GUT (Level 2)
+ * - LEGENDAER (Level 3)
  */
 public enum CrackQuality implements ProductionQuality {
-    SCHLECHT("§c", 0, 0.6),        // Überkokt oder unterkokt
-    STANDARD("§7", 1, 1.0),        // Normaler Cook
-    GUT("§a", 2, 1.5),             // Guter Cook
-    FISHSCALE("§b§l", 3, 2.5);     // Perfekter Cook, glänzend
+    SCHLECHT("§c", 0, 0.7),
+    GUT("§e", 1, 1.0),
+    SEHR_GUT("§a", 2, 1.5),
+    LEGENDAER("§b§l", 3, 2.5);
 
     private final String colorCode;
     private final int level;
@@ -24,7 +29,7 @@ public enum CrackQuality implements ProductionQuality {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.crack_quality." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
     }
     public String getColorCode() { return colorCode; }
     public String getColoredName() { return colorCode + getDisplayName(); }
@@ -33,29 +38,24 @@ public enum CrackQuality implements ProductionQuality {
 
     @Override
     public String getDescription() {
-        return switch (this) {
-            case SCHLECHT -> Component.translatable("enum.crack_quality.desc.schlecht").getString();
-            case STANDARD -> Component.translatable("enum.crack_quality.desc.standard").getString();
-            case GUT -> Component.translatable("enum.crack_quality.desc.gut").getString();
-            case FISHSCALE -> Component.translatable("enum.crack_quality.desc.fishscale").getString();
-        };
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
     }
 
     @Override
     public CrackQuality upgrade() {
         return switch (this) {
-            case SCHLECHT -> STANDARD;
-            case STANDARD -> GUT;
-            case GUT, FISHSCALE -> FISHSCALE;
+            case SCHLECHT -> GUT;
+            case GUT -> SEHR_GUT;
+            case SEHR_GUT, LEGENDAER -> LEGENDAER;
         };
     }
 
     @Override
     public CrackQuality downgrade() {
         return switch (this) {
-            case SCHLECHT, STANDARD -> SCHLECHT;
-            case GUT -> STANDARD;
-            case FISHSCALE -> GUT;
+            case SCHLECHT, GUT -> SCHLECHT;
+            case SEHR_GUT -> GUT;
+            case LEGENDAER -> SEHR_GUT;
         };
     }
 
@@ -64,9 +64,9 @@ public enum CrackQuality implements ProductionQuality {
      * @param timingScore 0.0 (schlecht) bis 1.0 (perfekt)
      */
     public static CrackQuality fromTimingScore(double timingScore) {
-        if (timingScore >= 0.95) return FISHSCALE;
-        if (timingScore >= 0.80) return GUT;
-        if (timingScore >= 0.50) return STANDARD;
+        if (timingScore >= 0.95) return LEGENDAER;
+        if (timingScore >= 0.80) return SEHR_GUT;
+        if (timingScore >= 0.50) return GUT;
         return SCHLECHT;
     }
 
