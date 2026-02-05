@@ -84,6 +84,7 @@ public class ScenarioEditorScreen extends Screen {
     // Server-Daten fuer Dropdowns
     private final List<String> serverNpcNames;
     private final List<OpenScenarioEditorPacket.PlotInfo> serverPlots;
+    private final List<OpenScenarioEditorPacket.LockInfo> serverLocks;
 
     // Canvas
     private int scrollX = 0, scrollY = 0;
@@ -124,10 +125,18 @@ public class ScenarioEditorScreen extends Screen {
     public ScenarioEditorScreen(List<MissionScenario> scenarios,
                                 List<String> npcNames,
                                 List<OpenScenarioEditorPacket.PlotInfo> plots) {
+        this(scenarios, npcNames, plots, new ArrayList<>());
+    }
+
+    public ScenarioEditorScreen(List<MissionScenario> scenarios,
+                                List<String> npcNames,
+                                List<OpenScenarioEditorPacket.PlotInfo> plots,
+                                List<OpenScenarioEditorPacket.LockInfo> locks) {
         super(Component.literal("Szenario-Editor"));
         this.allScenarios = scenarios != null ? new ArrayList<>(scenarios) : new ArrayList<>();
         this.serverNpcNames = npcNames != null ? npcNames : new ArrayList<>();
         this.serverPlots = plots != null ? plots : new ArrayList<>();
+        this.serverLocks = locks != null ? locks : new ArrayList<>();
         this.currentScenario = new MissionScenario();
 
         for (ObjectiveType.Category cat : ObjectiveType.Category.values()) {
@@ -464,6 +473,7 @@ public class ScenarioEditorScreen extends Screen {
             case DROPDOWN_METHOD -> "\u00A73\u2699 ";
             case DROPDOWN_EVENT -> "\u00A7c? ";
             case DROPDOWN_COLOR -> "\u00A7e\u25CF ";
+            case DROPDOWN_LOCK -> "\u00A7b\uD83D\uDD12 ";
             default -> "\u00A77\u25AA ";
         };
     }
@@ -477,6 +487,10 @@ public class ScenarioEditorScreen extends Screen {
             }
             case DROPDOWN_PLOT -> {
                 for (var p : serverPlots) { if (p.id().equals(val)) { yield p.name() + " (" + p.type() + ")"; } }
+                yield val;
+            }
+            case DROPDOWN_LOCK -> {
+                for (var l : serverLocks) { if (l.lockId().equals(val)) { yield l.lockId() + " (" + l.lockType() + ")"; } }
                 yield val;
             }
             default -> val;
@@ -655,6 +669,7 @@ public class ScenarioEditorScreen extends Screen {
             case DROPDOWN_METHOD -> METHOD_TYPES;
             case DROPDOWN_EVENT -> EVENT_TYPES;
             case DROPDOWN_COLOR -> COLOR_TYPES;
+            case DROPDOWN_LOCK -> serverLocks.stream().map(l -> l.lockId() + "|" + l.lockType() + " @ " + l.x() + "," + l.y() + "," + l.z()).toArray(String[]::new);
             default -> new String[]{};
         };
     }
@@ -671,6 +686,8 @@ public class ScenarioEditorScreen extends Screen {
             String val = obj.getParam(def.key());
             if (def.widget() == ParamWidget.DROPDOWN_PLOT) {
                 for (var p : serverPlots) if (p.id().equals(val)) { val = p.name(); break; }
+            } else if (def.widget() == ParamWidget.DROPDOWN_LOCK) {
+                for (var l : serverLocks) if (l.lockId().equals(val)) { val = l.lockId() + " (" + l.lockType() + ")"; break; }
             }
             lines.add("\u00A77" + def.label() + ": \u00A7f" + (val.isEmpty() ? "-" : val));
         }
@@ -896,6 +913,10 @@ public class ScenarioEditorScreen extends Screen {
                 String selected = items[i];
                 // Fuer Plots: ID extrahieren (format: "id|name")
                 if (def.widget() == ParamWidget.DROPDOWN_PLOT && selected.contains("|")) {
+                    selected = selected.substring(0, selected.indexOf("|"));
+                }
+                // Fuer Locks: ID extrahieren (format: "lockId|lockType @ x,y,z")
+                if (def.widget() == ParamWidget.DROPDOWN_LOCK && selected.contains("|")) {
                     selected = selected.substring(0, selected.indexOf("|"));
                 }
                 // Fuer Difficulty: Zahl extrahieren

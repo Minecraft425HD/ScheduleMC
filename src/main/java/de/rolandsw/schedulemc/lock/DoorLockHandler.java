@@ -24,6 +24,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  *
  * Wenn ein Spieler eine gesperrte Tuer OHNE spezielles Item anklickt,
  * wird das Event gecancelt und die Tuer bleibt zu.
+ *
+ * SHIFT+Rechtsklick zeigt Lock-Info (Lock-ID, Typ, Position).
  */
 public class DoorLockHandler {
 
@@ -40,12 +42,23 @@ public class DoorLockHandler {
             pos = pos.below();
         }
 
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+
         LockManager mgr = LockManager.getInstance();
         if (mgr == null) return;
 
         String dim = level.dimension().location().toString();
         String posKey = LockManager.posKey(dim, pos.getX(), pos.getY(), pos.getZ());
         LockData lockData = mgr.getLock(posKey);
+
+        // ═══════════════════════════════════════════════════════════
+        // SHIFT+Rechtsklick: Lock-Info anzeigen
+        // ═══════════════════════════════════════════════════════════
+        if (player.isShiftKeyDown()) {
+            showLockInfo(player, lockData, pos);
+            event.setCanceled(true);
+            return;
+        }
 
         if (lockData == null) return; // Nicht gesperrt → normal weiter
 
@@ -58,19 +71,17 @@ public class DoorLockHandler {
         if (heldItem.getItem() instanceof HackingToolItem) return;
 
         // Besitzer darf immer oeffnen
-        if (event.getEntity() instanceof ServerPlayer player) {
-            if (lockData.isAuthorized(player.getUUID())) return;
+        if (lockData.isAuthorized(player.getUUID())) return;
 
-            // Reines Zahlenschloss: Code-Eingabe noetig
-            if (lockData.getType() == LockType.COMBINATION || lockData.getType() == LockType.DUAL) {
-                player.sendSystemMessage(Component.literal(
-                        "\u00A7e\u2699 Diese Tuer hat ein Zahlenschloss. " +
-                                "Benutze /lock code " + lockData.getLockId() + " <code>"));
-            } else {
-                player.sendSystemMessage(Component.literal(
-                        "\u00A7c\u2716 Diese Tuer ist mit einem " + lockData.getType().getDisplayName() +
-                                " gesperrt!"));
-            }
+        // Reines Zahlenschloss: Code-Eingabe noetig
+        if (lockData.getType() == LockType.COMBINATION || lockData.getType() == LockType.DUAL) {
+            player.sendSystemMessage(Component.literal(
+                    "\u00A7e\u2699 Diese Tuer hat ein Zahlenschloss. " +
+                            "Benutze /lock code " + lockData.getLockId() + " <code>"));
+        } else {
+            player.sendSystemMessage(Component.literal(
+                    "\u00A7c\u2716 Diese Tuer ist mit einem " + lockData.getType().getDisplayName() +
+                            " gesperrt!"));
         }
 
         // Event abbrechen → Tuer bleibt zu
@@ -78,8 +89,63 @@ public class DoorLockHandler {
     }
 
     /**
-     * Verhindert auch das Oeffnen per Redstone-Signal bei gesperrten Tueren?
-     * Optional: Hier koennte man BlockEvent abfangen.
-     * Fuer jetzt reicht es, Spieler-Interaktion zu blockieren.
+     * Zeigt Lock-Info bei Shift+Rechtsklick.
+     * Hilfreich fuer Missions-Setup und allgemeine Information.
      */
+    private void showLockInfo(ServerPlayer player, LockData lockData, BlockPos pos) {
+        player.sendSystemMessage(Component.literal("\u00A78\u2550\u2550\u2550 \u00A7eTuer-Info \u00A78\u2550\u2550\u2550"));
+        player.sendSystemMessage(Component.literal("\u00A77Position: \u00A7f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()));
+
+        if (lockData == null) {
+            player.sendSystemMessage(Component.literal("\u00A77Status: \u00A7aKein Schloss"));
+            player.sendSystemMessage(Component.literal("\u00A78\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"));
+            return;
+        }
+
+        player.sendSystemMessage(Component.literal("\u00A77Lock-ID: \u00A7b" + lockData.getLockId()));
+        player.sendSystemMessage(Component.literal("\u00A77Schloss-Typ: " + getLockTypeColor(lockData.getType()) + lockData.getType().getDisplayName()));
+        player.sendSystemMessage(Component.literal("\u00A77Besitzer: \u00A7f" + lockData.getOwnerName()));
+
+        // Zeige benoetigte Schluessel-Stufe
+        if (lockData.getType().getKeyTier() >= 0) {
+            String keyTierName = switch (lockData.getType().getKeyTier()) {
+                case 0 -> "\u00A76Kupfer-Schluessel";
+                case 1 -> "\u00A77Eisen-Schluessel";
+                case 2 -> "\u00A75Netherite-Schluessel";
+                default -> "\u00A7fUnbekannt";
+            };
+            player.sendSystemMessage(Component.literal("\u00A77Benoetigt: " + keyTierName));
+        }
+
+        // Zeige ob Code benoetigt wird
+        if (lockData.getType().hasCode()) {
+            player.sendSystemMessage(Component.literal("\u00A77Code: \u00A7e4-stelliger Zahlencode erforderlich"));
+        }
+
+        // Zeige Dietrich-Chance
+        float pickChance = lockData.getType().getPickChance();
+        if (pickChance > 0) {
+            int pct = (int)(pickChance * 100);
+            player.sendSystemMessage(Component.literal("\u00A77Dietrich-Chance: \u00A7a" + pct + "%"));
+        } else if (!lockData.getType().hasCode()) {
+            player.sendSystemMessage(Component.literal("\u00A77Dietrich-Chance: \u00A7c0% (unmoeglich)"));
+        }
+
+        // Zeige Alarm-Status
+        if (lockData.getType().triggersAlarm()) {
+            player.sendSystemMessage(Component.literal("\u00A77Alarm: \u00A7c\u26A0 Loest Alarm aus!"));
+        }
+
+        player.sendSystemMessage(Component.literal("\u00A78\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550"));
+    }
+
+    private String getLockTypeColor(LockType type) {
+        return switch (type) {
+            case SIMPLE -> "\u00A7a";
+            case SECURITY -> "\u00A79";
+            case HIGH_SECURITY -> "\u00A7c";
+            case COMBINATION -> "\u00A76";
+            case DUAL -> "\u00A7d";
+        };
+    }
 }

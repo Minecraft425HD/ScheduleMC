@@ -12,18 +12,20 @@ import java.util.function.Supplier;
 
 /**
  * Server -> Client: Oeffnet den Szenario-Editor mit allen gespeicherten Szenarien
- * plus Server-Daten fuer Dropdowns (NPC-Namen, Grundstuecke).
+ * plus Server-Daten fuer Dropdowns (NPC-Namen, Grundstuecke, Schloesser).
  */
 public class OpenScenarioEditorPacket {
 
     private final String scenariosJson;
     private final List<String> npcNames;
     private final List<PlotInfo> plots;
+    private final List<LockInfo> locks;
 
-    public OpenScenarioEditorPacket(String scenariosJson, List<String> npcNames, List<PlotInfo> plots) {
+    public OpenScenarioEditorPacket(String scenariosJson, List<String> npcNames, List<PlotInfo> plots, List<LockInfo> locks) {
         this.scenariosJson = scenariosJson;
         this.npcNames = npcNames;
         this.plots = plots;
+        this.locks = locks;
     }
 
     public static void encode(OpenScenarioEditorPacket msg, FriendlyByteBuf buf) {
@@ -44,6 +46,18 @@ public class OpenScenarioEditorPacket {
             buf.writeInt(plot.x);
             buf.writeInt(plot.y);
             buf.writeInt(plot.z);
+        }
+
+        // Schloesser
+        buf.writeInt(msg.locks.size());
+        for (LockInfo lock : msg.locks) {
+            buf.writeUtf(lock.lockId, 20);
+            buf.writeUtf(lock.lockType, 30);
+            buf.writeUtf(lock.ownerName, 100);
+            buf.writeInt(lock.x);
+            buf.writeInt(lock.y);
+            buf.writeInt(lock.z);
+            buf.writeBoolean(lock.hasCode);
         }
     }
 
@@ -69,14 +83,28 @@ public class OpenScenarioEditorPacket {
             ));
         }
 
-        return new OpenScenarioEditorPacket(json, npcNames, plots);
+        int lockCount = buf.readInt();
+        List<LockInfo> locks = new ArrayList<>(lockCount);
+        for (int i = 0; i < lockCount; i++) {
+            locks.add(new LockInfo(
+                    buf.readUtf(20),
+                    buf.readUtf(30),
+                    buf.readUtf(100),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readInt(),
+                    buf.readBoolean()
+            ));
+        }
+
+        return new OpenScenarioEditorPacket(json, npcNames, plots, locks);
     }
 
     public static void handle(OpenScenarioEditorPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             List<MissionScenario> scenarios = ScenarioManager.listFromJson(msg.scenariosJson);
             net.minecraft.client.Minecraft.getInstance().setScreen(
-                    new ScenarioEditorScreen(scenarios, msg.npcNames, msg.plots)
+                    new ScenarioEditorScreen(scenarios, msg.npcNames, msg.plots, msg.locks)
             );
         });
         ctx.get().setPacketHandled(true);
@@ -88,6 +116,15 @@ public class OpenScenarioEditorPacket {
     public record PlotInfo(String id, String name, String type, int x, int y, int z) {
         public String getDisplayLabel() {
             return name + " (" + type + ")";
+        }
+    }
+
+    /**
+     * Schloss-Info fuer Client-Dropdowns.
+     */
+    public record LockInfo(String lockId, String lockType, String ownerName, int x, int y, int z, boolean hasCode) {
+        public String getDisplayLabel() {
+            return lockId + " - " + lockType + " @ " + x + "," + y + "," + z;
         }
     }
 }
