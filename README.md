@@ -1561,7 +1561,7 @@ cd ScheduleMC
 
 ### Project Structure
 
-> Complete directory tree listing all **1,407 Java source files**, **19 test files**, and **1,206 resource files**.
+> Complete directory tree listing all **1,419 Java source files**, **19 test files**, and **1,207 resource files**.
 
 <details>
 <summary><strong>Click to expand full project tree (3,000+ lines)</strong></summary>
@@ -1576,8 +1576,9 @@ ScheduleMC/
 │   ├── ARCHITECTURE.md
 │   ├── CONFIGURATION.md
 │   ├── DEVELOPER_GUIDE.md
+│   ├── PROJECT_STRUCTURE.md
 │   ├── TOWING_NPC_INVOICE_SCREEN.md
-│   └── TOWING_SYSTEM_SETUP.md
+│   ├── TOWING_SYSTEM_SETUP.md
 ├── gradle/
 │   └── wrapper
 │       ├── gradle-wrapper.jar
@@ -2552,7 +2553,9 @@ ScheduleMC/
 │   │   │               │   │   │   └── CustomNPCModel.java
 │   │   │               │   │   ├── renderer
 │   │   │               │   │   │   ├── CustomNPCRenderer.java
-│   │   │               │   │   │   └── CustomSkinManager.java
+│   │   │               │   │   │   ├── CustomSkinManager.java
+│   │   │               │   │   │   ├── NPCSirenLayer.java
+│   │   │               │   │   │   └── NPCVehicleLayer.java
 │   │   │               │   │   ├── screen
 │   │   │               │   │   │   ├── BankerScreen.java
 │   │   │               │   │   │   ├── BoerseScreen.java
@@ -2568,6 +2571,9 @@ ScheduleMC/
 │   │   │               │   │   ├── AdminToolsCommand.java
 │   │   │               │   │   └── NPCCommand.java
 │   │   │               │   ├── crime
+│   │   │               │   │   ├── evidence
+│   │   │               │   │   │   ├── Evidence.java
+│   │   │               │   │   │   └── EvidenceManager.java
 │   │   │               │   │   ├── prison
 │   │   │               │   │   │   ├── client
 │   │   │               │   │   │   │   └── PrisonScreen.java
@@ -2587,7 +2593,7 @@ ScheduleMC/
 │   │   │               │   │   ├── BountyManager.java
 │   │   │               │   │   ├── CrimeManager.java
 │   │   │               │   │   ├── CrimeRecord.java
-│   │   │               │   │   └── CrimeType.java
+│   │   │               │   │   └── CrimeRecordCommand.java
 │   │   │               │   ├── data
 │   │   │               │   │   ├── BankCategory.java
 │   │   │               │   │   ├── MerchantCategory.java
@@ -2596,6 +2602,10 @@ ScheduleMC/
 │   │   │               │   │   ├── NPCPersonality.java
 │   │   │               │   │   ├── NPCType.java
 │   │   │               │   │   └── ServiceCategory.java
+│   │   │               │   ├── driving
+│   │   │               │   │   ├── NPCDrivingScheduler.java
+│   │   │               │   │   ├── NPCDrivingTask.java
+│   │   │               │   │   └── NPCVehicleAssignment.java
 │   │   │               │   ├── entity
 │   │   │               │   │   ├── CustomNPCEntity.java
 │   │   │               │   │   └── NPCEntities.java
@@ -2610,8 +2620,12 @@ ScheduleMC/
 │   │   │               │   │   ├── PoliceBackupSystem.java
 │   │   │               │   │   ├── PoliceDoorBlockHandler.java
 │   │   │               │   │   ├── PoliceRaidPenalty.java
+│   │   │               │   │   ├── PoliceRoadblock.java
 │   │   │               │   │   ├── PoliceSearchBehavior.java
-│   │   │               │   │   └── RoomScanner.java
+│   │   │               │   │   ├── PoliceVehiclePursuit.java
+│   │   │               │   │   ├── PoliceWarningSystem.java
+│   │   │               │   │   ├── RoomScanner.java
+│   │   │               │   │   └── TrafficViolationHandler.java
 │   │   │               │   ├── goals
 │   │   │               │   │   ├── MoveToHomeGoal.java
 │   │   │               │   │   ├── MoveToLeisureGoal.java
@@ -2737,7 +2751,8 @@ ScheduleMC/
 │   │   │               │   │   ├── SyncNPCNamesPacket.java
 │   │   │               │   │   ├── SyncStockDataPacket.java
 │   │   │               │   │   ├── UpdateShopItemsPacket.java
-│   │   │               │   │   └── WantedLevelSyncPacket.java
+│   │   │               │   │   ├── WantedLevelSyncPacket.java
+│   │   │               │   │   └── WantedListSyncPacket.java
 │   │   │               │   ├── pathfinding
 │   │   │               │   │   ├── NPCNodeEvaluator.java
 │   │   │               │   │   └── NPCPathNavigation.java
@@ -4487,8 +4502,10 @@ ScheduleMC/
 │   │       │       │   └── blocks
 │   │       │       │       └── fuel_station.json
 │   │       │       └── tags
-│   │       │           └── fluids
-│   │       │               └── fuel_station.json
+│   │       │           ├── fluids
+│   │       │           │   └── fuel_station.json
+│   │       │           └── items
+│   │       │               └── illegal_weapons.json
 │   │       ├── log4j2.xml
 │   │       ├── pack.mcmeta
 │   │       ├── schedulemc-server.toml
@@ -4528,56 +4545,12 @@ ScheduleMC/
 │       └── resources
 │           └── mockito-extensions
 │               └── org.mockito.plugins.MockMaker
-├── wiki/
-│   ├── features
-│   │   ├── Achievement-System.md
-│   │   ├── Economy-System.md
-│   │   ├── Gang-System.md
-│   │   ├── Level-System.md
-│   │   ├── Lock-System.md
-│   │   ├── MapView-System.md
-│   │   ├── Market-System.md
-│   │   ├── Messaging-System.md
-│   │   ├── NPC-System.md
-│   │   ├── Plot-System.md
-│   │   ├── Police-Crime-System.md
-│   │   ├── Smartphone-System.md
-│   │   ├── Territory-System.md
-│   │   ├── Towing-System.md
-│   │   ├── Tutorial-System.md
-│   │   ├── Vehicle-System.md
-│   │   └── Warehouse-System.md
-│   ├── production
-│   │   ├── Beer-System.md
-│   │   ├── Cannabis-System.md
-│   │   ├── Cheese-System.md
-│   │   ├── Chocolate-System.md
-│   │   ├── Coca-System.md
-│   │   ├── Coffee-System.md
-│   │   ├── Honey-System.md
-│   │   ├── LSD-System.md
-│   │   ├── MDMA-System.md
-│   │   ├── Meth-System.md
-│   │   ├── Mushroom-System.md
-│   │   ├── Poppy-System.md
-│   │   ├── Tobacco-System.md
-│   │   └── Wine-System.md
-│   ├── Blocks.md
-│   ├── Commands.md
-│   ├── FAQ.md
-│   ├── Getting-Started.md
-│   ├── Home.md
-│   ├── Items.md
-│   └── Production-Systems.md
-├── .gitignore
-├── LICENSE
-├── README.md
-├── TEXTURES_LIST.md
 ├── build.gradle
-├── gitignore
 ├── gradle.properties
 ├── gradlew
 ├── gradlew.bat
+├── LICENSE
+├── README.md
 ├── settings.gradle
 └── update.json
 ```
