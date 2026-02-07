@@ -944,9 +944,9 @@ The `/health` command is your primary diagnostic tool:
 Now that you have the basics, explore these resources to go deeper:
 
 - [Complete Command Reference](Commands.md) -- All 161+ commands documented
-- [Items Guide](Items.md) -- All 141 items with descriptions
-- [Blocks Guide](Blocks.md) -- All 77+ blocks and their uses
-- [Production Systems](Production-Systems.md) -- Detailed guides for all 8 production chains
+- [Items Guide](Items.md) -- All 354 items with descriptions
+- [Blocks Guide](Blocks.md) -- All 152 blocks and their uses
+- [Production Systems](Production-Systems.md) -- Detailed guides for all 14 production chains
 - [Plot System](features/Plot-System.md) -- Advanced plot management
 - [Economy System](features/Economy-System.md) -- Banking, loans, taxes, investments
 - [NPC System](features/NPC-System.md) -- AI behavior, schedules, shops, relationships

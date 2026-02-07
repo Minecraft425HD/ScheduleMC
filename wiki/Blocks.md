@@ -1,6 +1,6 @@
 # Complete Blocks Reference - ScheduleMC
 
-**Total Blocks:** 210+ blocks across 18 categories
+**Total Blocks:** 152 blocks across 18 categories
 
 Quick Navigation:
 
@@ -935,7 +935,7 @@ Quick Navigation:
 | **Warehouse** | 1 | Mass storage, auto-delivery |
 | **Vehicle** | 4 | Fuel station, garage, diesel fluid |
 
-**Total: 210+ Blocks** (plant blocks have no items)
+**Total: 152 Blocks** (plant blocks have no items)
 
 ---
 

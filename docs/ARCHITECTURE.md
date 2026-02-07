@@ -1,7 +1,7 @@
 # ScheduleMC Architecture Documentation
 
 > Minecraft 1.20.1 Forge mod implementing a complete roleplay/economy server ecosystem.
-> **93,349 LOC** across **1,407 Java files** organized into **35+ modules**.
+> **93,349 LOC** across **1,426 Java files** organized into **35+ modules**.
 
 ---
 
@@ -751,7 +751,7 @@ PacketHandler.handleClientPacket(ctx, () -> {
 
 All handlers wrap execution in `ctx.get().enqueueWork()` for thread safety and call `ctx.get().setPacketHandled(true)`.
 
-### Network Packet Types (50+)
+### Network Packet Types (100)
 
 **Economy packets:**
 - `ATMTransactionPacket` -- ATM deposit/withdraw
@@ -1390,4 +1390,4 @@ This example traces a typical operation through the architecture:
 | commands/ | 5 |
 | market/ | 3 |
 | Other (events, managers, items, config, data, gui, network, player) | ~50 |
-| **Total** | **1,407** |
+| **Total** | **1,426** |

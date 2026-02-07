@@ -26,7 +26,7 @@ Comprehensive answers to common questions about ScheduleMC, the all-in-one rolep
 
 ### Q: What is ScheduleMC?
 
-**A:** ScheduleMC is a professional-grade Minecraft Forge mod that transforms your server into a complete roleplay and economy ecosystem. It provides a full banking system with loans and savings, 14 production chains (8 illegal, 6 legal), schedule-based NPC AI, a GTA-inspired police and crime system with a 5-star wanted level, drivable vehicles with fuel and parts, plot management with apartments and rentals, an in-game smartphone with 11 apps, and much more. With over 93,000 lines of Java code, 141 items, 77+ blocks, and 161+ commands, it is one of the most comprehensive Minecraft mods available.
+**A:** ScheduleMC is a professional-grade Minecraft Forge mod that transforms your server into a complete roleplay and economy ecosystem. It provides a full banking system with loans and savings, 14 production chains (8 illegal, 6 legal), schedule-based NPC AI, a GTA-inspired police and crime system with a 5-star wanted level, drivable vehicles with fuel and parts, plot management with apartments and rentals, an in-game smartphone with 11 apps, and much more. With over 93,000 lines of Java code, 354 items, 152 blocks, and 161+ commands, it is one of the most comprehensive Minecraft mods available.
 
 ---
 
@@ -1024,8 +1024,8 @@ Custom apps appear alongside the built-in 11 apps in the smartphone GUI. You han
 - [Wiki Home](Home.md) - Main wiki page
 - [Getting Started Guide](Getting-Started.md) - Step-by-step beginner's guide
 - [Command Reference](Commands.md) - All 161+ commands documented
-- [Items Guide](Items.md) - Complete item list (141 items)
-- [Blocks Guide](Blocks.md) - Complete block list (77+ blocks)
+- [Items Guide](Items.md) - Complete item list (354 items)
+- [Blocks Guide](Blocks.md) - Complete block list (152 blocks)
 - [Production Overview](Production-Systems.md) - All 14 production chains
 - [GitHub Repository](https://github.com/Minecraft425HD/ScheduleMC) - Source code and issue tracker
 

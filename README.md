@@ -13,8 +13,8 @@
   <img alt="Forge" src="https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge" />
   <img alt="Java" src="https://img.shields.io/badge/Java-17-red?style=for-the-badge&logo=openjdk" />
   <img alt="Lines of Code" src="https://img.shields.io/badge/Lines_of_Code-93%2C349-brightgreen?style=for-the-badge" />
-  <img alt="Items" src="https://img.shields.io/badge/Items-141-purple?style=for-the-badge" />
-  <img alt="Blocks" src="https://img.shields.io/badge/Blocks-77%2B-yellow?style=for-the-badge" />
+  <img alt="Items" src="https://img.shields.io/badge/Items-354-purple?style=for-the-badge" />
+  <img alt="Blocks" src="https://img.shields.io/badge/Blocks-152-yellow?style=for-the-badge" />
   <img alt="Commands" src="https://img.shields.io/badge/Commands-161%2B-blueviolet?style=for-the-badge" />
   <img alt="License" src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" />
 </p>
@@ -52,6 +52,8 @@
   - [Lock System](#lock-system)
   - [Towing System](#towing-system)
   - [Level and XP System](#level-and-xp-system)
+  - [Achievement System](#achievement-system)
+  - [Messaging System](#messaging-system)
   - [Utility System](#utility-system)
 - [Commands Reference](#commands-reference)
   - [Plot Commands](#Service-commands)
@@ -93,13 +95,13 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 
 ### Key Highlights
 
-- **93,349 lines of Java code** across **1,407 source files**
+- **93,349 lines of Java code** across **1,426 source files**
 - **1,206 resource files** (textures, models, sounds, configurations)
-- **141 items**, **77+ blocks**, **161+ commands**
+- **354 items**, **152 blocks**, **161+ commands**
 - **12 API modules** with full external integration support
 - **200+ unit tests** across **19 test files**
-- **29 manager classes**, **32+ GUI screens**, **43+ block entity types**, **50+ network packets**
-- **10 major interconnected systems** with dozens of supporting subsystems
+- **55 manager classes**, **126 GUI screens**, **131 block entity types**, **100 network packets**
+- **17 major interconnected systems** with dozens of supporting subsystems
 - **14 production chains** (8 illegal, 6 legal) each with multi-step crafting processes
 - **137 vehicle system files** with 5 chassis types, 3 engines, 6 tire types
 - **139 NPC behavior goals** driving realistic daily life simulation
@@ -111,18 +113,20 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 | Metric | Count |
 |---|---|
 | Lines of Java Code | 93,349 |
-| Source Files | 1,407 |
+| Source Files | 1,426 |
 | Resource Files | 1,206 |
-| Items | 141 |
-| Blocks | 77+ |
+| Items | 354 |
+| Blocks | 152 |
 | Commands | 161+ |
 | API Modules | 12 |
 | Unit Tests | 200+ |
 | Test Files | 19 |
-| Manager Classes | 29 |
-| GUI Screens | 32+ |
-| Block Entity Types | 43+ |
-| Network Packets | 50+ |
+| Manager Classes | 55 |
+| GUI Screens | 126 |
+| Block Entity Types | 131 |
+| Network Packets | 100 |
+| Event Handlers | 53 files (116 @SubscribeEvent) |
+| Config Options | 228 |
 | NPC Behavior Goals | 139 |
 | Vehicle Files | 137 |
 | MapView Files | 122 |
@@ -1048,6 +1052,36 @@ A progression system tracking player experience across production and other acti
 - **Network synchronization** (`network/` package) for multiplayer state
 - **Smartphone app** (`ProducerLevelAppScreen`) showing current level, XP, and available unlocks
 
+### Achievement System
+
+A comprehensive achievement tracking system with 24 achievements across 5 categories, rewarding players for milestones in production, economy, social, crime, and exploration activities.
+
+**Features:**
+- **24 achievements** across 5 categories: Production, Economy, Social, Crime, and Exploration
+- **5 difficulty tiers**: Bronze, Silver, Gold, Diamond, and Platinum with increasing rewards
+- **Monetary rewards** scaling from 100 EUR (Bronze) to 50,000 EUR (Platinum)
+- **Automatic tracking** of player actions and progress via event listeners
+- **Network synchronization** for multiplayer achievement state
+- **Smartphone app** (`AchievementAppScreen`) for viewing progress and unlocked achievements
+- **Persistent data** (`AchievementData`, `AchievementPlayerData`) stored per player
+
+**Key Classes:** `AchievementManager`, `Achievement`, `AchievementCategory`, `AchievementTier`, `AchievementData`, `AchievementPlayerData`
+
+### Messaging System
+
+A player-to-player and player-to-NPC messaging system with persistent message history and reputation-based NPC interactions.
+
+**Features:**
+- **Player-to-player messaging** with real-time delivery and notification
+- **Player-to-NPC messaging** with reputation-based response behavior
+- **Persistent message history** (`MessageData`) stored per player
+- **Reputation system** affecting NPC willingness to respond and message tone
+- **Network synchronization** (`network/` package) for real-time message delivery
+- **Smartphone integration** via `MessagesAppScreen` and `ContactsAppScreen`
+- **Contact management** with player and NPC contact lists
+
+**Key Classes:** `MessagingManager`, `MessageData`, `MessagingCommand`
+
 ### Utility System
 
 A water and electricity infrastructure system for plots, adding an ongoing maintenance cost to property ownership.
@@ -1277,7 +1311,7 @@ ScheduleMC provides **161+ commands** organized by system. Below is a comprehens
 
 ## Items Reference
 
-ScheduleMC adds **141 items** across all systems. Below is a categorized reference.
+ScheduleMC adds **354 items** across all systems. Below is a categorized reference.
 
 | Category | Count | Item Examples |
 |---|---|---|
@@ -1293,42 +1327,42 @@ ScheduleMC adds **141 items** across all systems. Below is a categorized referen
 | **LSD** | 6 | Ergot Culture (Mutterkorn), Lysergic Acid, LSD Solution, Blotter Paper, Perforated Sheet, LSD Blotter |
 | **MDMA** | 6 | Safrole, MDMA Base, MDMA Crystals, Ecstasy Pills, Binder, Dye |
 | **Mushroom** | 15 | Spore Syringes (3 strains), Substrate, Mist Bags (3 sizes x 3 strains), Fresh Mushrooms (3 strains), Dried Mushrooms (3 strains) |
-| **Coffee** | 5+ | Coffee Seeds, Coffee Cherries, Roasted Beans, Ground Coffee, Coffee Cup |
-| **Wine** | 4+ | Grape Seeds, Grapes, Grape Must, Wine Bottle |
-| **Cheese** | 3+ | Cheese Curds, Cheese Wheel, Aged Cheese |
-| **Honey** | 4+ | Honeycomb, Raw Honey, Filtered Honey, Honey Jar |
-| **Chocolate** | 4+ | Roasted Cocoa, Cocoa Mass, Chocolate Mixture, Chocolate Bar |
-| **Beer** | 5+ | Malt, Hops, Wort, Beer Bottle, Beer Keg |
+| **Coffee** | 20+ | Coffee Seeds (4 strains), Coffee Cherries (4 strains), Green Beans, Roasted Beans (4 roast levels), Ground Coffee (4 grind sizes), Coffee Cups, Packaging (3 sizes) |
+| **Wine** | 18+ | Grape Seeds (4 varieties), Grapes (4 varieties), Grape Must, Wine (4 varieties x sweetness levels), Wine Bottles, Corks |
+| **Cheese** | 16+ | Milk Buckets, Pasteurized Milk, Rennet, Cheese Curds (quality variants), Cheese Wheels (4 types), Cheese Wedges (4 types), Packaging |
+| **Honey** | 19+ | Honeycombs (4 types), Raw Honey Buckets, Beeswax, Liquid Honey, Creamy Honey, Chunk Honey, Honey Jars (4 types), Equipment |
+| **Chocolate** | 18+ | Cocoa Pods, Raw Cocoa Beans, Roasted Beans, Cocoa Nibs, Cocoa Mass, Cocoa Butter, Conched Chocolate, Tempered Chocolate, Chocolate Bars (4 types), Wrapped Bars |
+| **Beer** | 20+ | Grain (various types), Wort Buckets, Hops (4 types: fresh, dried, extract, pellets), Yeast (4 types), Fermenting Beer, Green Beer, Conditioned Beer, Beer Bottles |
 | **Vehicle** | 40+ | Chassis (5), Engines (3), Tires (6), Fenders (3), Fuel Tanks (3), Modules (3), Diesel Can (Empty/Full), Maintenance Kit, Vehicle Key, Battery, Spawn Tool, License Plate |
-| **TOTAL** | **141** | |
+| **TOTAL** | **354** | |
 
 ---
 
 ## Blocks Reference
 
-ScheduleMC adds **77+ blocks** across all systems.
+ScheduleMC adds **152 blocks** across all systems.
 
 | Category | Count | Block Examples |
 |---|---|---|
-| **Tobacco** | 23 | Tobacco Pots (4 tiers: Terracotta/Ceramic/Iron/Golden), Tobacco Plants (4 strains), Drying Racks (3 sizes), Fermentation Barrels (3 sizes), Packaging Tables (3 sizes), Grow Lights (3 tiers), Sink |
+| **Tobacco** | 21 | Tobacco Pots (4 tiers: Terracotta/Ceramic/Iron/Golden), Tobacco Plants (4 strains), Drying Racks (3 sizes), Fermentation Barrels (3 sizes), Packaging Tables (3 sizes), Grow Lights (3 tiers), Sink |
 | **Cannabis** | 9 | Cannabis Plants (4 strains), Drying Net, Trimming Station, Curing Jar, Hash Press, Oil Extractor |
 | **Coca** | 9 | Coca Plants (2 strains), Extraction Vats (3 sizes), Refineries (3 sizes), Crack Cooker |
-| **Poppy** | 7 | Poppy Plants (3 strains), Scoring Machine, Opium Press, Cooking Station, Refinery |
+| **Poppy** | 7 | Poppy Plants (3 strains), Scoring Machine, Opium Press, Cooking Station, Heroin Refinery |
 | **Meth** | 4 | Chemistry Mixer, Reduction Vessel, Crystallizer, Vacuum Dryer |
 | **LSD** | 4 | Fermentation Tank, Distillation Apparatus, Micro Dosing Station, Perforation Press |
 | **MDMA** | 3 | Reaction Vessel, Drying Oven, Pill Press |
 | **Mushroom** | 4 | Climate Lamps (3 tiers), Water Tank |
-| **Coffee** | 4+ | Coffee Plants, Roasting Machine, Coffee Grinder, Brewing Station |
-| **Wine** | 4+ | Grape Vines, Crushing Basin, Fermentation Barrel, Bottling Station |
-| **Cheese** | 3+ | Curdling Vat, Cheese Press, Aging Shelf |
-| **Honey** | 3+ | Bee Hive, Honey Extractor, Filtering Station |
-| **Chocolate** | 4+ | Roasting Drum, Grinding Mill, Conching Machine, Mold Station |
-| **Beer** | 4+ | Malting Floor, Mash Tun, Brew Kettle, Fermenter |
-| **Economy** | 3+ | ATM Block, Cash Block, Shop Counter |
-| **Plot** | 2+ | Plot Info Block, Plot Marker |
+| **Coffee** | 17 | Coffee Pots (4 tiers), Coffee Plants (4 strains), Wet Processing Station, Drying Trays (3 sizes), Coffee Roasters (3 sizes), Coffee Grinder, Packaging Table |
+| **Wine** | 16 | Grapevine, Grapevine Pots (4 varieties), Crushing Station, Wine Presses (3 sizes), Fermentation Tanks (3 sizes), Aging Barrels (3 sizes), Bottling Station |
+| **Cheese** | 9 | Pasteurization Station, Curdling Vat, Cheese Presses (3 sizes), Aging Caves (3 sizes), Packaging Station |
+| **Honey** | 14 | Beehives (3 tiers: Basic/Advanced/Apiary), Extractors (2: Standard/Centrifugal), Filtering Station, Processing Station, Creaming Station, Aging Chambers (3 sizes), Bottling Station, Storage Barrel, Display Case |
+| **Chocolate** | 15 | Roasting Station, Winnowing Machine, Grinding Mill, Pressing Station, Conching Machines (3 sizes), Tempering Station, Molding Stations (3 sizes), Cooling Tunnel, Enrobing Machine, Wrapping Station, Storage Cabinet |
+| **Beer** | 12 | Malting Station, Mash Tun, Brew Kettles (3 sizes), Fermentation Tanks (3 sizes), Conditioning Tanks (3 sizes), Bottling Station |
+| **Economy** | 2 | ATM Block, Cash Block |
+| **Plot** | 1 | Plot Info Block |
 | **Warehouse** | 1 | Warehouse Block |
-| **Vehicle** | 4+ | Fuel Station, Garage Block, Diesel Fluid Block |
-| **TOTAL** | **77+** | |
+| **Vehicle** | 4 | Fuel Station, Fuel Station Top, Garage (Werkstatt), Bio Diesel Fluid |
+| **TOTAL** | **152** | |
 
 ---
 
@@ -1693,7 +1727,7 @@ ScheduleMC/
 |   |   |   |-- gui/                         # === ADDITIONAL GUIs ===
 |   |   |   |   |-- PlotMenuGUI.java         #   Plot management GUI
 |   |   |   |
-|   |   |   |-- network/                     # === CORE NETWORKING (50+ packets) ===
+|   |   |   |-- network/                     # === CORE NETWORKING (100 packets) ===
 |   |   |   |   |-- AbstractPacket.java      #   Base packet class
 |   |   |   |
 |   |   |   |-- commands/                    # === COMMAND REGISTRATION ===
@@ -1727,7 +1761,7 @@ ScheduleMC/
 |   |   |       |-- HealthCheckManager.java  #   System health monitoring
 |   |   |       |-- IncrementalSaveManager.java  # Efficient persistence
 |   |   |
-|   |   |-- resources/                       # === 1,206 RESOURCE FILES ===
+|   |   |-- resources/                       # === 1,206+ RESOURCE FILES ===
 |   |       |-- META-INF/mods.toml           #   Forge mod descriptor
 |   |       |-- pack.mcmeta                  #   Resource pack metadata
 |   |       |-- assets/schedulemc/           #   Client assets
@@ -1742,7 +1776,7 @@ ScheduleMC/
 |   |           |-- tags/                    #   Item and block tags
 |   |
 |   |-- test/
-|   |   |-- java/de/rolandsw/schedulemc/    # === 19 TEST FILES, 200+ TESTS ===
+|   |   |-- java/de/rolandsw/schedulemc/    # === 19 TEST FILES, 200+ UNIT TESTS ===
 |   |       |-- commands/                    #   Command tests
 |   |       |-- economy/                     #   Economy manager tests
 |   |       |-- production/                  #   Production chain tests
@@ -1782,7 +1816,7 @@ The codebase employs the following design patterns consistently across all syste
 | **Observer / Event Bus** | Decoupled cross-system communication via Forge events | `PlayerJoinHandler`, `BlockProtectionHandler`, `UtilityEventHandler`, `RespawnHandler`, `NPCStealingHandler`, `BusinessMetricsUpdateHandler` |
 | **Strategy** | Interchangeable algorithms for NPC behavior and economy | 139 NPC goal strategies (`MoveToHomeGoal`, `PolicePatrolGoal`, etc.), `EconomyCyclePhase` strategies |
 | **Factory** | Object creation for entities, items, and vehicles | NPC entity creation, vehicle component assembly, lock creation by type |
-| **Manager / Service Layer** | Encapsulated business logic in 29 dedicated managers | `EconomyManager`, `PlotManager`, `CrimeManager`, `BountyManager`, `LoanManager`, `GangManager`, `TerritoryManager`, `TowingYardManager`, etc. |
+| **Manager / Service Layer** | Encapsulated business logic in 55 dedicated managers | `EconomyManager`, `PlotManager`, `CrimeManager`, `BountyManager`, `LoanManager`, `GangManager`, `TerritoryManager`, `TowingYardManager`, etc. |
 | **Repository** | Data persistence abstraction | Plot data storage, NPC data, economy records, crime records |
 | **Command Pattern** | Forge command framework | `CommandExecutor` base, `PlotCommand`, `MoneyCommand`, `AdminCommand`, `HealthCommand` |
 | **State** | State machine transitions | NPC schedule states, `EconomyCycle` phases, wanted level states, production growth stages |
@@ -1795,7 +1829,7 @@ The codebase employs the following design patterns consistently across all syste
 | **Registry** | Centralized object registration | Forge `DeferredRegister` for items, blocks, entities; `NPCEntityRegistry`, `NPCNameRegistry`, `UtilityRegistry`, `TowingServiceRegistry` |
 | **Incremental Save** | Efficient periodic persistence | `IncrementalSaveManager` saving only changed data |
 | **Thread Pool** | Asynchronous background operations | `ThreadPoolManager` for non-blocking tasks |
-| **Abstract Packet** | Network communication base | `AbstractPacket` providing shared serialization for 50+ packet types |
+| **Abstract Packet** | Network communication base | `AbstractPacket` providing shared serialization for 100 packet types |
 
 ---
 

@@ -29,16 +29,16 @@
 | **Forge** | 47.4.0 |
 | **Java** | 17 |
 | **Lines of Code** | 93,349 |
-| **Total Files** | 1,407 |
-| **Registered Items** | 141 |
-| **Registered Blocks** | 210+ |
+| **Total Files** | 1,426 |
+| **Registered Items** | 354 |
+| **Registered Blocks** | 152 |
 | **Available Commands** | 161+ |
 | **Production Chains** | 14 (8 illegal + 6 legal) |
 | **API Modules** | 12 |
 | **Unit Tests** | 200+ |
-| **GUI Screens** | 32 |
-| **Manager Classes** | 29 |
-| **BlockEntity Types** | 43 |
+| **GUI Screens** | 126 |
+| **Manager Classes** | 55 |
+| **BlockEntity Types** | 131 |
 | **License** | GNU General Public License v3 |
 | **Author** | Luckas R. Schneider (Minecraft425HD) |
 
@@ -52,8 +52,8 @@
 |---|---|
 | [Getting Started](Getting-Started.md) | Installation guide, prerequisites, first-time setup, and first steps for both players and server administrators |
 | [Commands](Commands.md) | Complete reference for all 161+ commands organized by category with syntax, permissions, and examples |
-| [Items](Items.md) | Full catalog of all 141 registered items with descriptions, categories, and usage information |
-| [Blocks](Blocks.md) | Complete listing of all 210+ registered blocks including multi-block structures and special behaviors |
+| [Items](Items.md) | Full catalog of all 354 registered items with descriptions, categories, and usage information |
+| [Blocks](Blocks.md) | Complete listing of all 152 registered blocks including multi-block structures and special behaviors |
 | [Production Systems](Production-Systems.md) | Overview of all 14 production chains (8 illegal + 6 legal) with flowcharts, item lists, and quality mechanics |
 | [FAQ](FAQ.md) | Frequently asked questions, common issues, and troubleshooting guide |
 
