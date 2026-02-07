@@ -1940,7 +1940,7 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 # 15. Health and Diagnostics Commands
 
 **Base command:** `/health`
-**Description:** System health monitoring and diagnostics for server administrators. Monitors **23 subsystems** across 5 categories.
+**Description:** System health monitoring and diagnostics for server administrators. Monitors **38 subsystems** across 7 categories.
 
 ---
 
@@ -1949,7 +1949,7 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 | | |
 |---|---|
 | **Permission** | Admin (OP 2) |
-| **Description** | Display the overall health report for all 23 ScheduleMC subsystems, grouped by category (Kern, Finanz, NPC/Crime, Spieler, Welt). Shows HEALTHY/DEGRADED/UNHEALTHY status for each system. |
+| **Description** | Display the overall health report for all 38 ScheduleMC subsystems, grouped by 7 categories (Kern, Finanz, NPC/Crime, NPC Life, Spieler, Welt, Infrastruktur). Shows HEALTHY/DEGRADED/UNHEALTHY status for each system. |
 | **Related System** | Health Check System |
 
 **Example:**
@@ -2079,6 +2079,16 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 
 ---
 
+### `/health interest`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show interest system health and initialization status. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
 ### `/health crime`
 
 | | |
@@ -2106,6 +2116,106 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 | **Permission** | Admin (OP 2) |
 | **Description** | Show NPC registry health and initialization status. |
 | **Related System** | Health Check System, NPC System |
+
+---
+
+### `/health prison`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show prison system health and current prisoner count. |
+| **Related System** | Health Check System, Crime System |
+
+---
+
+### `/health witness`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show witness/wanted system health and persistence status. |
+| **Related System** | Health Check System, Crime System |
+
+---
+
+### `/health dialogue`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show NPC dialogue tree system health. |
+| **Related System** | Health Check System, NPC Life System |
+
+---
+
+### `/health quest`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show quest system health and persistence status. |
+| **Related System** | Health Check System, NPC Life System |
+
+---
+
+### `/health companion`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show companion NPC system health. |
+| **Related System** | Health Check System, NPC Life System |
+
+---
+
+### `/health faction`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show faction reputation system health. |
+| **Related System** | Health Check System, NPC Life System |
+
+---
+
+### `/health npcinteraction`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show NPC-to-NPC interaction system health. |
+| **Related System** | Health Check System, NPC Life System |
+
+---
+
+### `/health relationship`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show NPC-player relationship system health, including total relationship and player counts. |
+| **Related System** | Health Check System, NPC Life System |
+
+---
+
+### `/health worldevent`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show world event system health, including active event count. |
+| **Related System** | Health Check System, NPC Life System |
+
+---
+
+### `/health dynamicprice`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show dynamic NPC price system health, including current market condition. |
+| **Related System** | Health Check System, NPC Life System |
 
 ---
 
@@ -2159,6 +2269,26 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 
 ---
 
+### `/health gangmission`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show gang mission system health and initialization status. |
+| **Related System** | Health Check System, Gang System |
+
+---
+
+### `/health scenario`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show scenario system health, including active/total scenario counts. |
+| **Related System** | Health Check System, Gang System |
+
+---
+
 ### `/health lock`
 
 | | |
@@ -2196,6 +2326,26 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 | **Permission** | Admin (OP 2) |
 | **Description** | Show towing yard system health status. |
 | **Related System** | Health Check System, Towing System |
+
+---
+
+### `/health antiexploit`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show anti-exploit detection system health and initialization status. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
+### `/health threadpool`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show thread pool infrastructure health, including IO queue size and computation pool activity. Reports DEGRADED if IO queue exceeds 100. |
+| **Related System** | Health Check System, Infrastructure |
 
 ---
 
@@ -2348,7 +2498,7 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 | Gang Admin | `/gang admin setlevel`, `addxp`, `info`, `/gang task editor` |
 | Lock Admin | `/lock admin remove` |
 | Territory Admin | `/map edit` |
-| Health (all 25) | `/health`, `economy`, `plot`, `wallet`, `loan`, `creditloan`, `creditscore`, `savings`, `tax`, `overdraft`, `recurring`, `shopaccount`, `crime`, `bounty`, `npc`, `gang`, `territory`, `achievement`, `daily`, `message`, `lock`, `market`, `warehouse`, `towing`, `backups`, `log` |
+| Health (all 40) | `/health`, `economy`, `plot`, `wallet`, `loan`, `creditloan`, `creditscore`, `savings`, `tax`, `overdraft`, `recurring`, `shopaccount`, `interest`, `crime`, `bounty`, `npc`, `prison`, `witness`, `dialogue`, `quest`, `companion`, `faction`, `npcinteraction`, `relationship`, `worldevent`, `dynamicprice`, `gang`, `territory`, `achievement`, `daily`, `message`, `gangmission`, `scenario`, `lock`, `market`, `warehouse`, `towing`, `antiexploit`, `threadpool`, `backups`, `log` |
 | Player Levels | `/admin setlevel`, `addxp`, `getlevel` |
 | Admin Tools | `/admintools remover`, `help` |
 

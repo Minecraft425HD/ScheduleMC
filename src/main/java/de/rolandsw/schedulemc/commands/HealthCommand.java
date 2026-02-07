@@ -23,12 +23,14 @@ import java.io.File;
  * - /health backups - Backup-Übersicht
  * - /health log - Loggt Health-Check in Server-Console
  *
- * Verfügbare Systeme:
+ * Verfügbare Systeme (38):
  *   Kern: economy, plot, wallet
- *   Finanz: loan, creditloan, creditscore, savings, tax, overdraft, recurring, shopaccount
- *   NPC/Crime: crime, bounty, npc
- *   Spieler: gang, territory, achievement, daily, message
+ *   Finanz: loan, creditloan, creditscore, savings, tax, overdraft, recurring, shopaccount, interest
+ *   NPC/Crime: crime, bounty, npc, prison, witness
+ *   NPC Life: dialogue, quest, companion, faction, npcinteraction, relationship, worldevent, dynamicprice
+ *   Spieler: gang, territory, achievement, daily, message, gangmission, scenario
  *   Welt: lock, market, warehouse, towing
+ *   Infrastruktur: antiexploit, threadpool
  */
 public class HealthCommand {
 
@@ -60,6 +62,8 @@ public class HealthCommand {
                 .executes(ctx -> showSystemDetail(ctx, "recurring")))
             .then(Commands.literal("shopaccount")
                 .executes(ctx -> showSystemDetail(ctx, "shopaccount")))
+            .then(Commands.literal("interest")
+                .executes(ctx -> showSystemDetail(ctx, "interest")))
             // NPC & Crime
             .then(Commands.literal("crime")
                 .executes(ctx -> showSystemDetail(ctx, "crime")))
@@ -67,6 +71,27 @@ public class HealthCommand {
                 .executes(ctx -> showSystemDetail(ctx, "bounty")))
             .then(Commands.literal("npc")
                 .executes(ctx -> showSystemDetail(ctx, "npc")))
+            .then(Commands.literal("prison")
+                .executes(ctx -> showSystemDetail(ctx, "prison")))
+            .then(Commands.literal("witness")
+                .executes(ctx -> showSystemDetail(ctx, "witness")))
+            // NPC Life
+            .then(Commands.literal("dialogue")
+                .executes(ctx -> showSystemDetail(ctx, "dialogue")))
+            .then(Commands.literal("quest")
+                .executes(ctx -> showSystemDetail(ctx, "quest")))
+            .then(Commands.literal("companion")
+                .executes(ctx -> showSystemDetail(ctx, "companion")))
+            .then(Commands.literal("faction")
+                .executes(ctx -> showSystemDetail(ctx, "faction")))
+            .then(Commands.literal("npcinteraction")
+                .executes(ctx -> showSystemDetail(ctx, "npcinteraction")))
+            .then(Commands.literal("relationship")
+                .executes(ctx -> showSystemDetail(ctx, "relationship")))
+            .then(Commands.literal("worldevent")
+                .executes(ctx -> showSystemDetail(ctx, "worldevent")))
+            .then(Commands.literal("dynamicprice")
+                .executes(ctx -> showSystemDetail(ctx, "dynamicprice")))
             // Spieler-Systeme
             .then(Commands.literal("gang")
                 .executes(ctx -> showSystemDetail(ctx, "gang")))
@@ -78,6 +103,10 @@ public class HealthCommand {
                 .executes(ctx -> showSystemDetail(ctx, "daily")))
             .then(Commands.literal("message")
                 .executes(ctx -> showSystemDetail(ctx, "message")))
+            .then(Commands.literal("gangmission")
+                .executes(ctx -> showSystemDetail(ctx, "gangmission")))
+            .then(Commands.literal("scenario")
+                .executes(ctx -> showSystemDetail(ctx, "scenario")))
             // Welt-Systeme
             .then(Commands.literal("lock")
                 .executes(ctx -> showSystemDetail(ctx, "lock")))
@@ -87,6 +116,11 @@ public class HealthCommand {
                 .executes(ctx -> showSystemDetail(ctx, "warehouse")))
             .then(Commands.literal("towing")
                 .executes(ctx -> showSystemDetail(ctx, "towing")))
+            // Infrastruktur
+            .then(Commands.literal("antiexploit")
+                .executes(ctx -> showSystemDetail(ctx, "antiexploit")))
+            .then(Commands.literal("threadpool")
+                .executes(ctx -> showSystemDetail(ctx, "threadpool")))
             // Utility-Commands
             .then(Commands.literal("backups")
                 .executes(HealthCommand::showBackupInfo))
@@ -100,7 +134,7 @@ public class HealthCommand {
     // ==========================================
 
     /**
-     * Zeigt Overall-Health-Status aller 23 Systeme
+     * Zeigt Overall-Health-Status aller 38 Systeme
      */
     private static int showOverallHealth(CommandContext<CommandSourceStack> context) {
         String report = HealthCheckManager.getHealthReport();

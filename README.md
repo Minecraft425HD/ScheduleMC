@@ -1257,7 +1257,7 @@ ScheduleMC provides commands organized by system. Below is a reference based on 
 
 | Command | Permission | Description |
 |---|---|---|
-| `/health` | Admin | Run system health check overview (all 23 systems) |
+| `/health` | Admin | Run system health check overview (all 38 systems) |
 | `/health economy` | Admin | Economy subsystem health + backup info |
 | `/health plot` | Admin | Plot subsystem health + cache stats + backups |
 | `/health wallet` | Admin | Wallet subsystem health |
@@ -1269,18 +1269,33 @@ ScheduleMC provides commands organized by system. Below is a reference based on 
 | `/health overdraft` | Admin | Overdraft system health |
 | `/health recurring` | Admin | Recurring payment system health |
 | `/health shopaccount` | Admin | Shop account system health |
+| `/health interest` | Admin | Interest system health |
 | `/health crime` | Admin | Crime system health |
 | `/health bounty` | Admin | Bounty system health |
 | `/health npc` | Admin | NPC registry health |
+| `/health prison` | Admin | Prison system health + prisoner count |
+| `/health witness` | Admin | Witness system health |
+| `/health dialogue` | Admin | NPC dialogue system health |
+| `/health quest` | Admin | Quest system health |
+| `/health companion` | Admin | Companion NPC system health |
+| `/health faction` | Admin | Faction system health |
+| `/health npcinteraction` | Admin | NPC interaction system health |
+| `/health relationship` | Admin | NPC relationship system health |
+| `/health worldevent` | Admin | World event system health |
+| `/health dynamicprice` | Admin | Dynamic NPC price system health |
 | `/health gang` | Admin | Gang system health |
 | `/health territory` | Admin | Territory system health |
 | `/health achievement` | Admin | Achievement system health |
 | `/health daily` | Admin | Daily reward system health |
 | `/health message` | Admin | Messaging system health |
+| `/health gangmission` | Admin | Gang mission system health |
+| `/health scenario` | Admin | Scenario system health |
 | `/health lock` | Admin | Lock system health |
 | `/health market` | Admin | Dynamic market health |
 | `/health warehouse` | Admin | Warehouse system health |
 | `/health towing` | Admin | Towing system health |
+| `/health antiexploit` | Admin | Anti-exploit system health |
+| `/health threadpool` | Admin | Thread pool infrastructure health |
 | `/health backups` | Admin | Backup overview for all persistent files |
 | `/health log` | Admin | Log health check to server console |
 | `/admin setlevel <player> <level>` | Admin | Set a player's producer level |
@@ -1876,13 +1891,15 @@ ScheduleMC maintains a comprehensive test suite to ensure reliability across all
 
 **Built-In Health Check System:**
 
-The mod includes a runtime health monitoring system (`HealthCheckManager`) accessible via the `/health` command. The health check monitors **23 subsystems** organized in 5 categories:
+The mod includes a runtime health monitoring system (`HealthCheckManager`) accessible via the `/health` command. The health check monitors **38 subsystems** organized in 7 categories:
 
 - **Kern-Systeme (3):** Economy, Plot, Wallet
-- **Finanz-Systeme (8):** Loan, Credit Loan, Credit Score, Savings, Tax, Overdraft, Recurring Payments, Shop Accounts
-- **NPC & Crime (3):** Crime, Bounty, NPC Registry
-- **Spieler-Systeme (5):** Gang, Territory, Achievement, Daily Reward, Messaging
+- **Finanz-Systeme (9):** Loan, Credit Loan, Credit Score, Savings, Tax, Overdraft, Recurring Payments, Shop Accounts, Interest
+- **NPC & Crime (5):** Crime, Bounty, NPC Registry, Prison, Witness
+- **NPC Life (8):** Dialogue, Quest, Companion, Faction, NPC Interaction, NPC Relationship, World Event, Dynamic Price
+- **Spieler-Systeme (7):** Gang, Territory, Achievement, Daily Reward, Messaging, Gang Mission, Scenario
 - **Welt-Systeme (4):** Lock, Dynamic Market, Warehouse, Towing
+- **Infrastruktur (2):** AntiExploit, ThreadPool
 
 Each system reports HEALTHY, DEGRADED, or UNHEALTHY status. Use `/health <system>` for details on a specific subsystem, or `/health` for the full overview.
 - Economy state is consistent (no negative balances, valid transactions)

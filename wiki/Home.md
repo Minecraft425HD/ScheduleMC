@@ -210,9 +210,9 @@ When you join a ScheduleMC server for the first time, the following happens auto
 
 ### System Monitoring
 
-- Use `/health` to run diagnostics across all 23 subsystems (grouped by category)
-- Use `/health <system>` for detailed status of any specific subsystem (e.g., `/health economy`, `/health gang`, `/health market`)
-- Available systems: economy, plot, wallet, loan, creditloan, creditscore, savings, tax, overdraft, recurring, shopaccount, crime, bounty, npc, gang, territory, achievement, daily, message, lock, market, warehouse, towing
+- Use `/health` to run diagnostics across all 38 subsystems (grouped by 7 categories)
+- Use `/health <system>` for detailed status of any specific subsystem (e.g., `/health economy`, `/health prison`, `/health threadpool`)
+- 7 categories: Kern (3), Finanz (9), NPC/Crime (5), NPC Life (8), Spieler (7), Welt (4), Infrastruktur (2)
 - Use `/health backups` for backup overview, `/health log` to log to console
 - Automatic backup system protects against data corruption
 - Atomic file writes prevent save file corruption

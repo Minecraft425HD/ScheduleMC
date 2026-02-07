@@ -4,14 +4,24 @@ import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.achievement.AchievementManager;
 import de.rolandsw.schedulemc.economy.*;
 import de.rolandsw.schedulemc.gang.GangManager;
+import de.rolandsw.schedulemc.gang.mission.GangMissionManager;
+import de.rolandsw.schedulemc.gang.scenario.ScenarioManager;
 import de.rolandsw.schedulemc.lock.LockManager;
 import de.rolandsw.schedulemc.managers.DailyRewardManager;
-import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
-import de.rolandsw.schedulemc.managers.NPCNameRegistry;
 import de.rolandsw.schedulemc.market.DynamicMarketManager;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.npc.crime.BountyManager;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
+import de.rolandsw.schedulemc.npc.crime.prison.PrisonManager;
+import de.rolandsw.schedulemc.npc.life.companion.CompanionManager;
+import de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager;
+import de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager;
+import de.rolandsw.schedulemc.npc.life.quest.QuestManager;
+import de.rolandsw.schedulemc.npc.life.social.FactionManager;
+import de.rolandsw.schedulemc.npc.life.social.NPCInteractionManager;
+import de.rolandsw.schedulemc.npc.life.witness.WitnessManager;
+import de.rolandsw.schedulemc.npc.life.world.WorldEventManager;
+import de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.territory.TerritoryManager;
 import de.rolandsw.schedulemc.towing.TowingYardManager;
@@ -22,13 +32,16 @@ import org.slf4j.Logger;
 import java.util.*;
 
 /**
- * Zentraler Health-Check-Manager für alle Systeme
+ * Zentraler Health-Check-Manager für alle 38 Systeme
  *
- * Features:
- * - Überwacht Health-Status aller Manager
- * - Aggregierte Health-Reports
- * - Warning-System bei Problemen
- * - Admin-Command Integration
+ * Kategorien:
+ * - Kern-Systeme (3): Economy, Plot, Wallet
+ * - Finanz-Systeme (9): Loan, CreditLoan, CreditScore, Savings, Tax, Overdraft, Recurring, ShopAccount, Interest
+ * - NPC & Crime (5): Crime, Bounty, NPC, Prison, Witness
+ * - NPC Life (8): Dialogue, Quest, Companion, Faction, NPCInteraction, Relationship, WorldEvent, DynamicPrice
+ * - Spieler-Systeme (7): Gang, Territory, Achievement, DailyReward, Message, GangMission, Scenario
+ * - Welt-Systeme (4): Lock, Market, Warehouse, Towing
+ * - Infrastruktur (2): AntiExploit, ThreadPool
  */
 public class HealthCheckManager {
 
@@ -98,17 +111,17 @@ public class HealthCheckManager {
     // ==========================================
 
     /**
-     * Prüft den Health-Status aller Systeme
+     * Prüft den Health-Status aller 38 Systeme
      */
     public static Map<String, ComponentHealth> checkAllSystems() {
         Map<String, ComponentHealth> results = new LinkedHashMap<>();
 
-        // === Kern-Systeme ===
+        // === Kern-Systeme (3) ===
         results.put("economy", checkEconomySystem());
         results.put("plot", checkPlotSystem());
         results.put("wallet", checkWalletSystem());
 
-        // === Finanz-Systeme ===
+        // === Finanz-Systeme (9) ===
         results.put("loan", checkLoanSystem());
         results.put("creditloan", checkCreditLoanSystem());
         results.put("creditscore", checkCreditScoreSystem());
@@ -117,24 +130,43 @@ public class HealthCheckManager {
         results.put("overdraft", checkOverdraftSystem());
         results.put("recurring", checkRecurringPaymentSystem());
         results.put("shopaccount", checkShopAccountSystem());
+        results.put("interest", checkInterestSystem());
 
-        // === NPC & Crime ===
+        // === NPC & Crime (5) ===
         results.put("crime", checkCrimeSystem());
         results.put("bounty", checkBountySystem());
         results.put("npc", checkNPCSystem());
+        results.put("prison", checkPrisonSystem());
+        results.put("witness", checkWitnessSystem());
 
-        // === Spieler-Systeme ===
+        // === NPC Life (8) ===
+        results.put("dialogue", checkDialogueSystem());
+        results.put("quest", checkQuestSystem());
+        results.put("companion", checkCompanionSystem());
+        results.put("faction", checkFactionSystem());
+        results.put("npcinteraction", checkNPCInteractionSystem());
+        results.put("relationship", checkRelationshipSystem());
+        results.put("worldevent", checkWorldEventSystem());
+        results.put("dynamicprice", checkDynamicPriceSystem());
+
+        // === Spieler-Systeme (7) ===
         results.put("gang", checkGangSystem());
         results.put("territory", checkTerritorySystem());
         results.put("achievement", checkAchievementSystem());
         results.put("daily", checkDailyRewardSystem());
         results.put("message", checkMessageSystem());
+        results.put("gangmission", checkGangMissionSystem());
+        results.put("scenario", checkScenarioSystem());
 
-        // === Welt-Systeme ===
+        // === Welt-Systeme (4) ===
         results.put("lock", checkLockSystem());
         results.put("market", checkMarketSystem());
         results.put("warehouse", checkWarehouseSystem());
         results.put("towing", checkTowingSystem());
+
+        // === Infrastruktur (2) ===
+        results.put("antiexploit", checkAntiExploitSystem());
+        results.put("threadpool", checkThreadPoolSystem());
 
         return results;
     }
@@ -186,11 +218,11 @@ public class HealthCheckManager {
     }
 
     // ==========================================
-    // Finanz-Systeme (getInstance-basiert)
+    // Finanz-Systeme
     // ==========================================
 
     private static ComponentHealth checkLoanSystem() {
-        return checkSingletonManager("Loan", LoanManager.class, () -> {
+        return checkSingletonManager("Loan", () -> {
             LoanManager mgr = LoanManager.getInstance();
             if (mgr == null) return notInitialized("Loan");
             return mgr.isHealthy()
@@ -200,7 +232,7 @@ public class HealthCheckManager {
     }
 
     private static ComponentHealth checkCreditLoanSystem() {
-        return checkSingletonManager("Credit Loan", CreditLoanManager.class, () -> {
+        return checkSingletonManager("Credit Loan", () -> {
             CreditLoanManager mgr = CreditLoanManager.getInstance();
             if (mgr == null) return notInitialized("Credit Loan");
             return mgr.isHealthy()
@@ -210,7 +242,7 @@ public class HealthCheckManager {
     }
 
     private static ComponentHealth checkCreditScoreSystem() {
-        return checkSingletonManager("Credit Score", CreditScoreManager.class, () -> {
+        return checkSingletonManager("Credit Score", () -> {
             CreditScoreManager mgr = CreditScoreManager.getInstance();
             if (mgr == null) return notInitialized("Credit Score");
             return mgr.isHealthy()
@@ -220,7 +252,7 @@ public class HealthCheckManager {
     }
 
     private static ComponentHealth checkSavingsSystem() {
-        return checkSingletonManager("Savings", SavingsAccountManager.class, () -> {
+        return checkSingletonManager("Savings", () -> {
             SavingsAccountManager mgr = SavingsAccountManager.getInstance();
             if (mgr == null) return notInitialized("Savings");
             return mgr.isHealthy()
@@ -230,7 +262,7 @@ public class HealthCheckManager {
     }
 
     private static ComponentHealth checkTaxSystem() {
-        return checkSingletonManager("Tax", TaxManager.class, () -> {
+        return checkSingletonManager("Tax", () -> {
             TaxManager mgr = TaxManager.getInstance();
             if (mgr == null) return notInitialized("Tax");
             return mgr.isHealthy()
@@ -240,7 +272,7 @@ public class HealthCheckManager {
     }
 
     private static ComponentHealth checkOverdraftSystem() {
-        return checkSingletonManager("Overdraft", OverdraftManager.class, () -> {
+        return checkSingletonManager("Overdraft", () -> {
             OverdraftManager mgr = OverdraftManager.getInstance();
             if (mgr == null) return notInitialized("Overdraft");
             return mgr.isHealthy()
@@ -250,7 +282,7 @@ public class HealthCheckManager {
     }
 
     private static ComponentHealth checkRecurringPaymentSystem() {
-        return checkSingletonManager("Recurring Payments", RecurringPaymentManager.class, () -> {
+        return checkSingletonManager("Recurring Payments", () -> {
             RecurringPaymentManager mgr = RecurringPaymentManager.getInstance();
             if (mgr == null) return notInitialized("Recurring Payments");
             return mgr.isHealthy()
@@ -268,6 +300,16 @@ public class HealthCheckManager {
             LOGGER.error("Fehler bei ShopAccount Health-Check", e);
             return errorHealth("Shop Accounts", e);
         }
+    }
+
+    private static ComponentHealth checkInterestSystem() {
+        return checkSingletonManager("Interest", () -> {
+            InterestManager mgr = InterestManager.getInstance(null);
+            if (mgr == null) return notInitialized("Interest");
+            return mgr.isHealthy()
+                ? new ComponentHealth("Interest", SystemHealth.HEALTHY, mgr.getHealthInfo())
+                : new ComponentHealth("Interest", determineStatus(mgr.getLastError()), mgr.getHealthInfo());
+        });
     }
 
     // ==========================================
@@ -289,7 +331,7 @@ public class HealthCheckManager {
     }
 
     private static ComponentHealth checkBountySystem() {
-        return checkSingletonManager("Bounty", BountyManager.class, () -> {
+        return checkSingletonManager("Bounty", () -> {
             BountyManager mgr = BountyManager.getInstance();
             if (mgr == null) return notInitialized("Bounty");
             String info = mgr.isHealthy() ? mgr.getHealthInfo() : mgr.getHealthInfo();
@@ -310,12 +352,129 @@ public class HealthCheckManager {
         }
     }
 
+    private static ComponentHealth checkPrisonSystem() {
+        try {
+            PrisonManager mgr = PrisonManager.getInstance();
+            if (mgr == null) return notInitialized("Prison");
+            int count = mgr.getPrisonerCount();
+            return new ComponentHealth("Prison", SystemHealth.HEALTHY,
+                "Aktiv, " + count + " Gefangene");
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei Prison Health-Check", e);
+            return errorHealth("Prison", e);
+        }
+    }
+
+    private static ComponentHealth checkWitnessSystem() {
+        return checkSingletonManager("Witness", () -> {
+            WitnessManager mgr = WitnessManager.getInstance();
+            if (mgr == null) return notInitialized("Witness");
+            return mgr.isHealthy()
+                ? new ComponentHealth("Witness", SystemHealth.HEALTHY, mgr.getHealthInfo())
+                : new ComponentHealth("Witness", determineStatus(mgr.getLastError()), mgr.getHealthInfo());
+        });
+    }
+
+    // ==========================================
+    // NPC Life Systeme
+    // ==========================================
+
+    private static ComponentHealth checkDialogueSystem() {
+        return checkSingletonManager("Dialogue", () -> {
+            DialogueManager mgr = DialogueManager.getInstance();
+            if (mgr == null) return notInitialized("Dialogue");
+            return mgr.isHealthy()
+                ? new ComponentHealth("Dialogue", SystemHealth.HEALTHY, mgr.getHealthInfo())
+                : new ComponentHealth("Dialogue", determineStatus(mgr.getLastError()), mgr.getHealthInfo());
+        });
+    }
+
+    private static ComponentHealth checkQuestSystem() {
+        return checkSingletonManager("Quest", () -> {
+            QuestManager mgr = QuestManager.getInstance();
+            if (mgr == null) return notInitialized("Quest");
+            return mgr.isHealthy()
+                ? new ComponentHealth("Quest", SystemHealth.HEALTHY, mgr.getHealthInfo())
+                : new ComponentHealth("Quest", determineStatus(mgr.getLastError()), mgr.getHealthInfo());
+        });
+    }
+
+    private static ComponentHealth checkCompanionSystem() {
+        return checkSingletonManager("Companion", () -> {
+            CompanionManager mgr = CompanionManager.getInstance();
+            if (mgr == null) return notInitialized("Companion");
+            return mgr.isHealthy()
+                ? new ComponentHealth("Companion", SystemHealth.HEALTHY, mgr.getHealthInfo())
+                : new ComponentHealth("Companion", determineStatus(mgr.getLastError()), mgr.getHealthInfo());
+        });
+    }
+
+    private static ComponentHealth checkFactionSystem() {
+        return checkSingletonManager("Faction", () -> {
+            FactionManager mgr = FactionManager.getInstance();
+            if (mgr == null) return notInitialized("Faction");
+            return mgr.isHealthy()
+                ? new ComponentHealth("Faction", SystemHealth.HEALTHY, mgr.getHealthInfo())
+                : new ComponentHealth("Faction", determineStatus(mgr.getLastError()), mgr.getHealthInfo());
+        });
+    }
+
+    private static ComponentHealth checkNPCInteractionSystem() {
+        return checkSingletonManager("NPC Interaction", () -> {
+            NPCInteractionManager mgr = NPCInteractionManager.getInstance();
+            if (mgr == null) return notInitialized("NPC Interaction");
+            return mgr.isHealthy()
+                ? new ComponentHealth("NPC Interaction", SystemHealth.HEALTHY, mgr.getHealthInfo())
+                : new ComponentHealth("NPC Interaction", determineStatus(mgr.getLastError()), mgr.getHealthInfo());
+        });
+    }
+
+    private static ComponentHealth checkRelationshipSystem() {
+        return checkSingletonManager("NPC Relationship", () -> {
+            NPCRelationshipManager mgr = NPCRelationshipManager.getInstance();
+            if (mgr == null) return notInitialized("NPC Relationship");
+            String info = mgr.isHealthy() ? mgr.getHealthInfo() : mgr.getHealthInfo();
+            int total = mgr.getTotalRelationships();
+            int players = mgr.getPlayerCount();
+            return mgr.isHealthy()
+                ? new ComponentHealth("NPC Relationship", SystemHealth.HEALTHY,
+                    info + " | " + total + " Beziehungen, " + players + " Spieler")
+                : new ComponentHealth("NPC Relationship", determineStatus(mgr.getLastError()), info);
+        });
+    }
+
+    private static ComponentHealth checkWorldEventSystem() {
+        return checkSingletonManager("World Event", () -> {
+            WorldEventManager mgr = WorldEventManager.getInstance();
+            if (mgr == null) return notInitialized("World Event");
+            String info = mgr.isHealthy() ? mgr.getHealthInfo() : mgr.getHealthInfo();
+            int active = mgr.getActiveEvents().size();
+            return mgr.isHealthy()
+                ? new ComponentHealth("World Event", SystemHealth.HEALTHY,
+                    info + " | " + active + " aktive Events")
+                : new ComponentHealth("World Event", determineStatus(mgr.getLastError()), info);
+        });
+    }
+
+    private static ComponentHealth checkDynamicPriceSystem() {
+        return checkSingletonManager("Dynamic Price", () -> {
+            DynamicPriceManager mgr = DynamicPriceManager.getInstance();
+            if (mgr == null) return notInitialized("Dynamic Price");
+            String info = mgr.isHealthy() ? mgr.getHealthInfo() : mgr.getHealthInfo();
+            String condition = mgr.getGlobalMarketCondition().name();
+            return mgr.isHealthy()
+                ? new ComponentHealth("Dynamic Price", SystemHealth.HEALTHY,
+                    info + " | Marktlage: " + condition)
+                : new ComponentHealth("Dynamic Price", determineStatus(mgr.getLastError()), info);
+        });
+    }
+
     // ==========================================
     // Spieler-Systeme
     // ==========================================
 
     private static ComponentHealth checkGangSystem() {
-        return checkSingletonManager("Gang", GangManager.class, () -> {
+        return checkSingletonManager("Gang", () -> {
             GangManager mgr = GangManager.getInstance();
             if (mgr == null) return notInitialized("Gang");
             String info = mgr.isHealthy() ? mgr.getHealthInfo() : mgr.getHealthInfo();
@@ -327,7 +486,7 @@ public class HealthCheckManager {
     }
 
     private static ComponentHealth checkTerritorySystem() {
-        return checkSingletonManager("Territory", TerritoryManager.class, () -> {
+        return checkSingletonManager("Territory", () -> {
             TerritoryManager mgr = TerritoryManager.getInstance();
             if (mgr == null) return notInitialized("Territory");
             String info = mgr.isHealthy() ? mgr.getHealthInfo() : mgr.getHealthInfo();
@@ -339,7 +498,7 @@ public class HealthCheckManager {
     }
 
     private static ComponentHealth checkAchievementSystem() {
-        return checkSingletonManager("Achievement", AchievementManager.class, () -> {
+        return checkSingletonManager("Achievement", () -> {
             AchievementManager mgr = AchievementManager.getInstance();
             if (mgr == null) return notInitialized("Achievement");
             return mgr.isHealthy()
@@ -373,6 +532,32 @@ public class HealthCheckManager {
         } catch (Exception e) {
             LOGGER.error("Fehler bei Message Health-Check", e);
             return errorHealth("Messaging", e);
+        }
+    }
+
+    private static ComponentHealth checkGangMissionSystem() {
+        try {
+            GangMissionManager mgr = GangMissionManager.getInstance();
+            if (mgr == null) return notInitialized("Gang Mission");
+            return new ComponentHealth("Gang Mission", SystemHealth.HEALTHY,
+                "Aktiv, Missions-System betriebsbereit");
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei GangMission Health-Check", e);
+            return errorHealth("Gang Mission", e);
+        }
+    }
+
+    private static ComponentHealth checkScenarioSystem() {
+        try {
+            ScenarioManager mgr = ScenarioManager.getInstance();
+            if (mgr == null) return notInitialized("Scenario");
+            int total = mgr.getScenarioCount();
+            int active = mgr.getActiveCount();
+            return new ComponentHealth("Scenario", SystemHealth.HEALTHY,
+                "Aktiv, " + active + "/" + total + " Szenarien aktiv");
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei Scenario Health-Check", e);
+            return errorHealth("Scenario", e);
         }
     }
 
@@ -435,6 +620,36 @@ public class HealthCheckManager {
     }
 
     // ==========================================
+    // Infrastruktur-Systeme
+    // ==========================================
+
+    private static ComponentHealth checkAntiExploitSystem() {
+        try {
+            AntiExploitManager mgr = AntiExploitManager.getInstance();
+            if (mgr == null) return notInitialized("AntiExploit");
+            return new ComponentHealth("AntiExploit", SystemHealth.HEALTHY,
+                "Aktiv, Exploit-Erkennung betriebsbereit");
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei AntiExploit Health-Check", e);
+            return errorHealth("AntiExploit", e);
+        }
+    }
+
+    private static ComponentHealth checkThreadPoolSystem() {
+        try {
+            String stats = ThreadPoolManager.getStatistics();
+            int ioQueue = ThreadPoolManager.getIOPoolQueueSize();
+            int compActive = ThreadPoolManager.getComputationPoolActiveCount();
+            return new ComponentHealth("ThreadPool",
+                ioQueue > 100 ? SystemHealth.DEGRADED : SystemHealth.HEALTHY,
+                stats + " | IO-Queue: " + ioQueue + ", Compute-Active: " + compActive);
+        } catch (Exception e) {
+            LOGGER.error("Fehler bei ThreadPool Health-Check", e);
+            return errorHealth("ThreadPool", e);
+        }
+    }
+
+    // ==========================================
     // Report-Methoden
     // ==========================================
 
@@ -468,11 +683,24 @@ public class HealthCheckManager {
         appendIfPresent(report, results, "overdraft");
         appendIfPresent(report, results, "recurring");
         appendIfPresent(report, results, "shopaccount");
+        appendIfPresent(report, results, "interest");
 
         report.append("\n§6§lNPC & Crime:§r\n");
         appendIfPresent(report, results, "crime");
         appendIfPresent(report, results, "bounty");
         appendIfPresent(report, results, "npc");
+        appendIfPresent(report, results, "prison");
+        appendIfPresent(report, results, "witness");
+
+        report.append("\n§6§lNPC Life:§r\n");
+        appendIfPresent(report, results, "dialogue");
+        appendIfPresent(report, results, "quest");
+        appendIfPresent(report, results, "companion");
+        appendIfPresent(report, results, "faction");
+        appendIfPresent(report, results, "npcinteraction");
+        appendIfPresent(report, results, "relationship");
+        appendIfPresent(report, results, "worldevent");
+        appendIfPresent(report, results, "dynamicprice");
 
         report.append("\n§6§lSpieler-Systeme:§r\n");
         appendIfPresent(report, results, "gang");
@@ -480,12 +708,18 @@ public class HealthCheckManager {
         appendIfPresent(report, results, "achievement");
         appendIfPresent(report, results, "daily");
         appendIfPresent(report, results, "message");
+        appendIfPresent(report, results, "gangmission");
+        appendIfPresent(report, results, "scenario");
 
         report.append("\n§6§lWelt-Systeme:§r\n");
         appendIfPresent(report, results, "lock");
         appendIfPresent(report, results, "market");
         appendIfPresent(report, results, "warehouse");
         appendIfPresent(report, results, "towing");
+
+        report.append("\n§6§lInfrastruktur:§r\n");
+        appendIfPresent(report, results, "antiexploit");
+        appendIfPresent(report, results, "threadpool");
 
         for (ComponentHealth health : results.values()) {
             switch (health.getStatus()) {
@@ -583,7 +817,7 @@ public class HealthCheckManager {
         ComponentHealth get();
     }
 
-    private static ComponentHealth checkSingletonManager(String name, Class<?> managerClass, HealthSupplier supplier) {
+    private static ComponentHealth checkSingletonManager(String name, HealthSupplier supplier) {
         try {
             return supplier.get();
         } catch (Exception e) {
