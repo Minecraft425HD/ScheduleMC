@@ -1,37 +1,36 @@
 package de.rolandsw.schedulemc.chocolate;
 
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import net.minecraft.network.chat.Component;
 
 /**
  * Schokoladen-Qualitätsstufen
  *
- * Höhere Qualität = Höherer Preis-Multiplikator
- * Basierend auf Kakaoqualität, Verarbeitung und Reinheit
+ * Einheitliches 4-Stufen-System:
+ * - SCHLECHT (Level 0)
+ * - GUT (Level 1)
+ * - SEHR_GUT (Level 2)
+ * - LEGENDAER (Level 3)
  */
 public enum ChocolateQuality implements ProductionQuality {
-    RAW("Raw", "§7", 0, 0.5, "Unverarbeitete Kakaomasse mit Verunreinigungen"),
-    BASIC("Basic", "§f", 1, 0.8, "Einfache Schokolade mit Standard-Verarbeitung"),
-    GOOD("Good", "§a", 2, 1.0, "Gute Schokolade mit sauberer Verarbeitung"),
-    PREMIUM("Premium", "§b", 3, 1.3, "Hochwertige Schokolade mit exzellenter Verarbeitung"),
-    EXCEPTIONAL("Exceptional", "§6", 4, 1.6, "Außergewöhnliche Schokolade von perfekter Qualität");
+    SCHLECHT("§c", 0, 0.7),
+    GUT("§e", 1, 1.0),
+    SEHR_GUT("§a", 2, 1.5),
+    LEGENDAER("§6§l", 3, 2.5);
 
-    private final String displayName;
     private final String colorCode;
     private final int level;
     private final double priceMultiplier;
-    private final String description;
 
-    ChocolateQuality(String displayName, String colorCode, int level, double priceMultiplier, String description) {
-        this.displayName = displayName;
+    ChocolateQuality(String colorCode, int level, double priceMultiplier) {
         this.colorCode = colorCode;
         this.level = level;
         this.priceMultiplier = priceMultiplier;
-        this.description = description;
     }
 
     @Override
     public String getDisplayName() {
-        return displayName;
+        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
     }
 
     @Override
@@ -51,28 +50,28 @@ public enum ChocolateQuality implements ProductionQuality {
 
     @Override
     public String getDescription() {
-        return description;
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
+    }
+
+    public String getColoredName() {
+        return colorCode + getDisplayName();
     }
 
     @Override
-    public ProductionQuality upgrade() {
+    public ChocolateQuality upgrade() {
         return switch (this) {
-            case RAW -> BASIC;
-            case BASIC -> GOOD;
-            case GOOD -> PREMIUM;
-            case PREMIUM -> EXCEPTIONAL;
-            case EXCEPTIONAL -> EXCEPTIONAL; // Already at max
+            case SCHLECHT -> GUT;
+            case GUT -> SEHR_GUT;
+            case SEHR_GUT, LEGENDAER -> LEGENDAER;
         };
     }
 
     @Override
-    public ProductionQuality downgrade() {
+    public ChocolateQuality downgrade() {
         return switch (this) {
-            case RAW -> RAW; // Already at minimum
-            case BASIC -> RAW;
-            case GOOD -> BASIC;
-            case PREMIUM -> GOOD;
-            case EXCEPTIONAL -> PREMIUM;
+            case SCHLECHT, GUT -> SCHLECHT;
+            case SEHR_GUT -> GUT;
+            case LEGENDAER -> SEHR_GUT;
         };
     }
 
@@ -82,10 +81,18 @@ public enum ChocolateQuality implements ProductionQuality {
     public static ChocolateQuality determineQuality(double qualityFactor, java.util.Random random) {
         double roll = random.nextDouble() * qualityFactor;
 
-        if (roll >= 1.4) return EXCEPTIONAL;    // ~6% Chance (mit perfektem Factor)
-        if (roll >= 1.1) return PREMIUM;        // ~20% Chance
-        if (roll >= 0.8) return GOOD;           // ~30% Chance
-        if (roll >= 0.5) return BASIC;          // ~30% Chance
-        return RAW;                             // ~14% Chance
+        if (roll >= 0.95) return LEGENDAER;
+        if (roll >= 0.75) return SEHR_GUT;
+        if (roll >= 0.45) return GUT;
+        return SCHLECHT;
+    }
+
+    public static ChocolateQuality fromLevel(int level) {
+        for (ChocolateQuality quality : values()) {
+            if (quality.level == level) {
+                return quality;
+            }
+        }
+        return SCHLECHT;
     }
 }

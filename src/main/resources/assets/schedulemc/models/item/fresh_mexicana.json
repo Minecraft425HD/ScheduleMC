@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/fresh_mexicana"
+    "layer0": "schedulemc:item/fresh_mexicana",
+    "layer1": "schedulemc:item/quality_frame"
   }
 }

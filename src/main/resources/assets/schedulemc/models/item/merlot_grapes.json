@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "schedulemc:item/merlot_grapes",
+    "layer1": "schedulemc:item/quality_frame"
+  }
+}

@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/cured_cannabis_bud"
+    "layer0": "schedulemc:item/cured_cannabis_bud",
+    "layer1": "schedulemc:item/quality_frame"
   }
 }

@@ -1,35 +1,37 @@
 package de.rolandsw.schedulemc.lsd;
 
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import net.minecraft.network.chat.Component;
 
 /**
- * LSD-Dosierungsstufen
- * Mikrogramm-basiert für realistische Dosierung
+ * LSD-Qualitätsstufen (basierend auf Dosierung)
+ *
+ * Einheitliches 4-Stufen-System:
+ * - SCHLECHT (Level 0) - 50μg
+ * - GUT (Level 1) - 100μg
+ * - SEHR_GUT (Level 2) - 200μg
+ * - LEGENDAER (Level 3) - 300μg (Bicycle Day)
  */
 public enum LSDDosage implements ProductionQuality {
-    SCHWACH("Schwach", "§7", 0, 50, 1.0, "Leichte Effekte"),
-    STANDARD("Standard", "§a", 1, 100, 2.0, "Normale Dosis"),
-    STARK("Stark", "§e", 2, 200, 3.5, "Intensive Erfahrung"),
-    BICYCLE_DAY("Bicycle Day", "§d§l", 3, 300, 6.0, "Hofmann-Dosis");
+    SCHLECHT("§c", 0, 50, 0.7),
+    GUT("§e", 1, 100, 1.0),
+    SEHR_GUT("§a", 2, 200, 2.0),
+    LEGENDAER("§d§l", 3, 300, 4.0);
 
-    private final String displayName;
     private final String colorCode;
     private final int level;
     private final int micrograms;
     private final double priceMultiplier;
-    private final String description;
 
-    LSDDosage(String displayName, String colorCode, int level, int micrograms, double priceMultiplier, String description) {
-        this.displayName = displayName;
+    LSDDosage(String colorCode, int level, int micrograms, double priceMultiplier) {
         this.colorCode = colorCode;
         this.level = level;
         this.micrograms = micrograms;
         this.priceMultiplier = priceMultiplier;
-        this.description = description;
     }
 
     public String getDisplayName() {
-        return displayName;
+        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
     }
 
     public String getColorCode() {
@@ -49,11 +51,11 @@ public enum LSDDosage implements ProductionQuality {
     }
 
     public String getDescription() {
-        return description;
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
     }
 
     public String getColoredName() {
-        return colorCode + displayName;
+        return colorCode + getDisplayName();
     }
 
     public String getDosageString() {
@@ -63,18 +65,18 @@ public enum LSDDosage implements ProductionQuality {
     @Override
     public LSDDosage upgrade() {
         return switch (this) {
-            case SCHWACH -> STANDARD;
-            case STANDARD -> STARK;
-            case STARK, BICYCLE_DAY -> BICYCLE_DAY;
+            case SCHLECHT -> GUT;
+            case GUT -> SEHR_GUT;
+            case SEHR_GUT, LEGENDAER -> LEGENDAER;
         };
     }
 
     @Override
     public LSDDosage downgrade() {
         return switch (this) {
-            case SCHWACH, STANDARD -> SCHWACH;
-            case STARK -> STANDARD;
-            case BICYCLE_DAY -> STARK;
+            case SCHLECHT, GUT -> SCHLECHT;
+            case SEHR_GUT -> GUT;
+            case LEGENDAER -> SEHR_GUT;
         };
     }
 
@@ -84,22 +86,17 @@ public enum LSDDosage implements ProductionQuality {
                 return dosage;
             }
         }
-        return STANDARD;
+        return SCHLECHT;
     }
 
     /**
      * Berechnet Dosierung basierend auf Slider-Wert (0-100)
      */
     public static LSDDosage fromSliderValue(int sliderValue) {
-        if (sliderValue < 25) {
-            return SCHWACH;
-        } else if (sliderValue < 50) {
-            return STANDARD;
-        } else if (sliderValue < 75) {
-            return STARK;
-        } else {
-            return BICYCLE_DAY;
-        }
+        if (sliderValue >= 75) return LEGENDAER;
+        if (sliderValue >= 50) return SEHR_GUT;
+        if (sliderValue >= 25) return GUT;
+        return SCHLECHT;
     }
 
     /**

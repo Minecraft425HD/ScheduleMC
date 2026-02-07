@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/crack_rock"
+    "layer0": "schedulemc:item/crack_rock",
+    "layer1": "schedulemc:item/quality_frame"
   }
 }

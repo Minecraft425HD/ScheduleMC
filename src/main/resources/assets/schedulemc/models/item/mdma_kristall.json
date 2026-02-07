@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/mdma_kristall"
+    "layer0": "schedulemc:item/mdma_kristall",
+    "layer1": "schedulemc:item/quality_frame"
   }
 }

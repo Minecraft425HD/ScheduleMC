@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "schedulemc:item/chocolate_bar_500g",
+    "layer1": "schedulemc:item/quality_frame"
+  }
+}

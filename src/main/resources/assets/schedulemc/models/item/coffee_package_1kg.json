@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "schedulemc:item/coffee_package_1kg",
+    "layer1": "schedulemc:item/quality_frame"
+  }
+}

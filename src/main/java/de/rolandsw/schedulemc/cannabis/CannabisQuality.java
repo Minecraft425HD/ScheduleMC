@@ -5,60 +5,58 @@ import net.minecraft.network.chat.Component;
 
 /**
  * Cannabis-Qualitätsstufen
+ *
+ * Einheitliches 4-Stufen-System:
+ * - SCHLECHT (Level 0)
+ * - GUT (Level 1)
+ * - SEHR_GUT (Level 2)
+ * - LEGENDAER (Level 3)
  */
 public enum CannabisQuality implements ProductionQuality {
-    SCHWAG(Component.translatable("enum.cannabis_quality.schwag").getString(), "§8", 0, 0.5),              // Schlechte Qualität, viele Samen
-    MIDS(Component.translatable("enum.cannabis_quality.mids").getString(), "§7", 1, 1.0),                  // Durchschnitt
-    DANK(Component.translatable("enum.cannabis_quality.dank").getString(), "§a", 2, 2.0),                  // Gute Qualität
-    TOP_SHELF(Component.translatable("enum.cannabis_quality.top_shelf").getString(), "§6", 3, 3.5),        // Premium
-    EXOTIC(Component.translatable("enum.cannabis_quality.exotic").getString(), "§d§l", 4, 5.0);            // Beste Qualität
+    SCHLECHT("§c", 0, 0.7),
+    GUT("§e", 1, 1.0),
+    SEHR_GUT("§a", 2, 2.0),
+    LEGENDAER("§6§l", 3, 4.0);
 
-    private final String displayName;
     private final String colorCode;
     private final int level;
     private final double priceMultiplier;
 
-    CannabisQuality(String displayName, String colorCode, int level, double priceMultiplier) {
-        this.displayName = displayName;
+    CannabisQuality(String colorCode, int level, double priceMultiplier) {
         this.colorCode = colorCode;
         this.level = level;
         this.priceMultiplier = priceMultiplier;
     }
 
-    public String getDisplayName() { return displayName; }
+    public String getDisplayName() {
+        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
+    }
+
     public String getColorCode() { return colorCode; }
-    public String getColoredName() { return colorCode + displayName; }
+    public String getColoredName() { return colorCode + getDisplayName(); }
     public int getLevel() { return level; }
     public double getPriceMultiplier() { return priceMultiplier; }
 
     @Override
     public String getDescription() {
-        return switch (this) {
-            case SCHWAG -> Component.translatable("enum.cannabis_quality.desc.schwag").getString();
-            case MIDS -> Component.translatable("enum.cannabis_quality.desc.mids").getString();
-            case DANK -> Component.translatable("enum.cannabis_quality.desc.dank").getString();
-            case TOP_SHELF -> Component.translatable("enum.cannabis_quality.desc.top_shelf").getString();
-            case EXOTIC -> Component.translatable("enum.cannabis_quality.desc.exotic").getString();
-        };
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
     }
 
     @Override
     public CannabisQuality upgrade() {
         return switch (this) {
-            case SCHWAG -> MIDS;
-            case MIDS -> DANK;
-            case DANK -> TOP_SHELF;
-            case TOP_SHELF, EXOTIC -> EXOTIC;
+            case SCHLECHT -> GUT;
+            case GUT -> SEHR_GUT;
+            case SEHR_GUT, LEGENDAER -> LEGENDAER;
         };
     }
 
     @Override
     public CannabisQuality downgrade() {
         return switch (this) {
-            case SCHWAG, MIDS -> SCHWAG;
-            case DANK -> MIDS;
-            case TOP_SHELF -> DANK;
-            case EXOTIC -> TOP_SHELF;
+            case SCHLECHT, GUT -> SCHLECHT;
+            case SEHR_GUT -> GUT;
+            case LEGENDAER -> SEHR_GUT;
         };
     }
 
@@ -66,28 +64,26 @@ public enum CannabisQuality implements ProductionQuality {
         for (CannabisQuality quality : values()) {
             if (quality.level == level) return quality;
         }
-        return SCHWAG;
+        return SCHLECHT;
     }
 
     /**
      * Berechnet Qualität basierend auf Trim-Score (0.0 - 1.0)
      */
     public static CannabisQuality fromTrimScore(double score) {
-        if (score >= 0.95) return EXOTIC;
-        if (score >= 0.80) return TOP_SHELF;
-        if (score >= 0.60) return DANK;
-        if (score >= 0.40) return MIDS;
-        return SCHWAG;
+        if (score >= 0.90) return LEGENDAER;
+        if (score >= 0.70) return SEHR_GUT;
+        if (score >= 0.40) return GUT;
+        return SCHLECHT;
     }
 
     /**
      * Berechnet Qualität basierend auf Curing-Zeit
      */
     public static CannabisQuality fromCuringTime(int days, CannabisQuality baseQuality) {
-        // Minimum 14 Tage für Upgrade, 28+ für Maximum
-        if (days >= 28 && baseQuality.level < EXOTIC.level) {
+        if (days >= 28 && baseQuality.level < LEGENDAER.level) {
             return baseQuality.upgrade().upgrade();
-        } else if (days >= 14 && baseQuality.level < EXOTIC.level) {
+        } else if (days >= 14 && baseQuality.level < LEGENDAER.level) {
             return baseQuality.upgrade();
         }
         return baseQuality;
