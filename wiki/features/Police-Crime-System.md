@@ -700,6 +700,81 @@ Set patrols in:
 
 ---
 
+## Zeugen-System (WitnessManager)
+
+NPCs koennen Verbrechen beobachten und melden.
+
+### Zeugen-Erkennung
+
+| Parameter | Wert |
+|-----------|------|
+| Zeugen-Reichweite | 20 Bloecke vom Tatort |
+| Voraussetzung | NPC muss wach sein (nicht schlafen) |
+| Glaubwuerdigkeit | 70% + (NPC-Ehrlichkeit x 0,3) |
+| Max. Meldungen pro Spieler | 50 aktive Meldungen |
+| Pruefintervall | Alle 10 Sekunden (200 Ticks) |
+
+### Verarbeitungskette
+
+1. NPC beobachtet Verbrechen innerhalb von 20 Bloecken
+2. Erkennungschance: 90% wenn Polizei in der Naehe, sonst 10%
+3. Meldung wird erstellt mit Glaubwuerdigkeit basierend auf NPC-Ehrlichkeit
+4. Bei Schweregrad >= 7: Spieler wird automatisch auf Fahndungsliste gesetzt
+5. Kopfgeld basiert auf dem Basis-Kopfgeld des Verbrechenstyps
+
+### NPC-Reaktionen auf Verbrechen
+
+- Fuegt "Kriminell" und "Gefaehrlich" Tags zum Spielerprofil hinzu
+- Reduziert das Sicherheitsbeduerfnis des NPC
+- Loest Angst- oder Verdacht-Emotionen aus
+- Informiert die Verhaltens-KI, den Kriminellen zu meiden oder zu melden
+
+---
+
+## Bestechungs-System (BriberySystem)
+
+Spieler koennen Zeugen bestechen, um Meldungen zu unterdruecken.
+
+### Bestechbarkeit
+
+| NPC-Eigenschaft | Bestechbar? |
+|-----------------|-------------|
+| Ehrlichkeit > 80 | Nicht bestechbar |
+| Polizei mit Ehrlichkeit > 30 | Nicht bestechbar |
+| Verbrechensschwere >= 8 | Nur bestechbar wenn Ehrlichkeit < 0 |
+| Sonstige NPCs | Bestechbar |
+
+### Mindestbestechung
+
+```
+Mindestbetrag = Kopfgeld x Gier-Faktor (1,0-1,5) x Ehrlichkeits-Faktor (0,7-3,0) x Schwere-Faktor x Polizei-Faktor (x3)
+Minimum: 50 EUR
+```
+
+### Erfolgsberechnung
+
+Die Erfolgschance haengt vom Verhaeltnis angebotener Betrag zu Mindestbetrag ab:
+- Unter 1,0x: Stark bestraft (0,3x Ratio)
+- 1,0-2,0x: Linear (0,3 + (Ratio-1) x 0,4)
+- Ueber 2,0x: Abnehmender Ertrag (max 0,95)
+
+### Bestechungs-Ergebnisse
+
+| Ergebnis | Effekt |
+|----------|--------|
+| ANGENOMMEN | Zeuge bestochen, Meldung markiert, "Bestechend"-Tag |
+| WILL_MEHR | Betrag zu niedrig, NPC bietet neue Chance |
+| ABGELEHNT | Bestechung abgelehnt, NPC-Aerger +50 |
+| ABGELEHNT_UND_GEMELDET (Polizei) | Zusaetzliches Verbrechen fuer Bestechungsversuch |
+| UNBESTECHBAR | NPC-Prinzipien zu stark |
+
+### Emotionale NPC-Reaktion
+
+- Ehrliche NPCs (Ehrlichkeit > 0): Loesen TRAURIG-Emotion aus (Schuldgefuehle)
+- Unehrliche NPCs: Loesen GLUECKLICH-Emotion aus (Zufriedenheit)
+
+---
+
 <div align="center">
 
 **Police & Crime System - Complete Guide**
@@ -709,9 +784,11 @@ For related systems:
 - [Smartphone System](Smartphone-System.md)
 - [Economy System](Economy-System.md)
 - [Plot System](Plot-System.md)
+- [Gang System](Gang-System.md)
+- [Lock System](Lock-System.md)
 
 [Back to Wiki Home](../Home.md) | [All Commands](../Commands.md)
 
-**Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
+**Last Updated:** 2026-02-07 | **ScheduleMC v3.6.0-beta**
 
 </div>

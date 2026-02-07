@@ -28,6 +28,8 @@
 12. [Social Relationships](#social-relationships)
 13. [Witness System](#witness-system)
 14. [Companion System](#companion-system)
+15. [Dynamic Pricing System](#dynamic-pricing-system)
+16. [Banker-NPC System](#banker-npc-system)
 15. [AI & Pathfinding](#ai--pathfinding)
 16. [NPC Tools](#npc-tools)
 17. [Commands](#commands)
@@ -923,6 +925,85 @@ For players:
 
 ---
 
+## Dynamic Pricing System
+
+NPC-Preise werden durch ein globales Marktsystem beeinflusst, das sich dynamisch veraendert.
+
+### Marktbedingungen
+
+| Bedingung | Multiplikator | Beschreibung |
+|-----------|-------------|-------------|
+| NORMAL | 1,0x | Standardpreise |
+| BOOM | 1,3x | Hohe Nachfrage |
+| REZESSION | 0,8x | Niedrige Nachfrage |
+| KNAPPHEIT | 1,8x | Extreme Knappheit |
+| UEBERFLUSS | 0,6x | Ueberangebot |
+| KRISE | 2,0x | Marktzusammenbruch |
+| INFLATION | 1,4x | Allgemeiner Preisanstieg |
+| DEFLATION | 0,7x | Allgemeiner Preisverfall |
+
+- **Update-Zyklus**: Einmal pro Ingame-Tag (24.000 Ticks) mit 30% Aenderungswahrscheinlichkeit
+- **Preisformel**: `Basispreis x Marktbedingung x temporaere Modifikatoren x Zufallsvariation (+-5%)`
+- **Preisverlauf**: Die letzten 30 Ingame-Tage werden gespeichert
+
+### Verhandlungssystem
+
+Spieler koennen mit NPCs ueber Preise verhandeln:
+
+- **Max. Runden**: 5 pro Verhandlung
+- **Max. Rabatt**: 30% insgesamt erreichbar
+- **Rabatt pro Runde**: 2-8% bei Erfolg
+
+#### Verhandlungstaktiken
+
+| Taktik | Erfolgschance | Rabatt-Multiplikator |
+|--------|-------------|---------------------|
+| NORMAL | +0% | 1,0x |
+| SCHMEICHELEI | +10% | 0,8x (weniger Rabatt, hoehere Chance) |
+| AGGRESSIV | -15% | 1,3x (riskant, groesserer Rabatt) |
+| LOGISCH | +5% | 1,0x (ausgewogen) |
+| MITLEID | 0% | 0,9x (wirkt bei netten NPCs) |
+
+**Persoenlichkeitsfaktoren**: Gier reduziert den Verhandlungserfolg, Ehrlichkeit erhoeht die Schwierigkeit. Aggressives Verhandeln kostet 2 Geduld statt 1.
+
+### Handels-Events
+
+| Transaktionstyp | Wirkung |
+|----------------|---------|
+| Fairer Kauf (>=80% Basispreis) | Neutral |
+| Fairer Verkauf (<=120% Basispreis) | Neutral |
+| Grosszuegiges Ueberzahlen (+10%) | "Grosszuegig"-Tag, HAPPY Emotion, Geruechte |
+| Hochwertiger Handel (>=1.000 EUR) | HAPPY Emotion |
+| Illegaler Kauf | Im Gedaechtnis gespeichert, Geruechte verbreitet |
+| Diebstahlversuch | Negative Tags, Sicherheitsbeduerfnis sinkt |
+
+---
+
+## Banker-NPC System
+
+Der Banker-NPC bietet ein vollstaendiges Banking-Interface mit 6 Tabs:
+
+### Banking-Tabs
+
+| Tab | Funktion |
+|-----|---------|
+| **Uebersicht** | Bargeld, Girokonto, Sparkonto, Gesamtguthaben |
+| **Girokonto** | Ein-/Auszahlung, Einzahlungslimit, Ueberziehungssystem |
+| **Sparkonto** | Ein-/Auszahlung, 10% Strafzins bei vorzeitiger Abhebung |
+| **Ueberweisung** | Geld an andere Spieler senden (Tageslimit) |
+| **Historie** | Scrollbare Liste der letzten Transaktionen (8 sichtbar) |
+| **Dauerauftraege** | Wiederkehrende Zahlungen (taeglich/woechentlich/monatlich/jaehrlich) |
+
+### Ueberziehungs-Konsequenzen
+
+| Tag | Konsequenz |
+|-----|-----------|
+| 1-6 | Automatischer Rueckzahlungs-Countdown |
+| 7-27 | Gefaengnis-Warnung |
+| 28+ | Spieler wird ins Gefaengnis geschickt |
+
+---
+
 <div align="center">
 
 **NPC System - Complete Guide**
@@ -932,9 +1013,10 @@ For related systems:
 - [Economy System](Economy-System.md)
 - [Warehouse System](Warehouse-System.md)
 - [Police & Crime System](Police-Crime-System.md)
+- [Gang System](Gang-System.md)
 
 [Back to Wiki Home](../Home.md) | [All Commands](../Commands.md)
 
-**Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
+**Last Updated:** 2026-02-07 | **ScheduleMC v3.6.0-beta**
 
 </div>
