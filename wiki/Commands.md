@@ -1940,7 +1940,7 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 # 15. Health and Diagnostics Commands
 
 **Base command:** `/health`
-**Description:** System health monitoring and diagnostics for server administrators.
+**Description:** System health monitoring and diagnostics for server administrators. Monitors **23 subsystems** across 5 categories.
 
 ---
 
@@ -1949,7 +1949,7 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 | | |
 |---|---|
 | **Permission** | Admin (OP 2) |
-| **Description** | Display the overall health report for all ScheduleMC subsystems. Shows status of economy, plots, NPCs, persistence, and performance metrics. |
+| **Description** | Display the overall health report for all 23 ScheduleMC subsystems, grouped by category (Kern, Finanz, NPC/Crime, Spieler, Welt). Shows HEALTHY/DEGRADED/UNHEALTHY status for each system. |
 | **Related System** | Health Check System |
 
 **Example:**
@@ -1986,6 +1986,216 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 ```
 /health plot
 ```
+
+---
+
+### `/health wallet`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show wallet subsystem health status and details. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
+### `/health loan`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show loan system health, including initialization status and persistence state. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
+### `/health creditloan`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show credit loan system health and initialization status. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
+### `/health creditscore`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show credit score system health and initialization status. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
+### `/health savings`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show savings account system health and initialization status. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
+### `/health tax`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show tax system health and initialization status. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
+### `/health overdraft`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show overdraft system health and initialization status. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
+### `/health recurring`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show recurring payment system health and initialization status. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
+### `/health shopaccount`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show shop account system health, including registered shop count. |
+| **Related System** | Health Check System, Economy System |
+
+---
+
+### `/health crime`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show crime system health status and details. |
+| **Related System** | Health Check System, Crime System |
+
+---
+
+### `/health bounty`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show bounty system health with statistics. |
+| **Related System** | Health Check System, Crime System |
+
+---
+
+### `/health npc`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show NPC registry health and initialization status. |
+| **Related System** | Health Check System, NPC System |
+
+---
+
+### `/health gang`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show gang system health, including active gang count. |
+| **Related System** | Health Check System, Gang System |
+
+---
+
+### `/health territory`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show territory system health, including territory count. |
+| **Related System** | Health Check System, Territory System |
+
+---
+
+### `/health achievement`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show achievement system health and initialization status. |
+| **Related System** | Health Check System, Achievement System |
+
+---
+
+### `/health daily`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show daily reward system health status. |
+| **Related System** | Health Check System, Daily Reward System |
+
+---
+
+### `/health message`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show messaging system health status. |
+| **Related System** | Health Check System, Messaging System |
+
+---
+
+### `/health lock`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show lock system health, including registered lock count. |
+| **Related System** | Health Check System, Lock System |
+
+---
+
+### `/health market`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show dynamic market system health and enabled/disabled status. |
+| **Related System** | Health Check System, Market System |
+
+---
+
+### `/health warehouse`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show warehouse system health, including registered warehouse count. |
+| **Related System** | Health Check System, Warehouse System |
+
+---
+
+### `/health towing`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show towing yard system health status. |
+| **Related System** | Health Check System, Towing System |
 
 ---
 
@@ -2138,7 +2348,7 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 | Gang Admin | `/gang admin setlevel`, `addxp`, `info`, `/gang task editor` |
 | Lock Admin | `/lock admin remove` |
 | Territory Admin | `/map edit` |
-| Health (all) | `/health`, `economy`, `plot`, `backups`, `log` |
+| Health (all 25) | `/health`, `economy`, `plot`, `wallet`, `loan`, `creditloan`, `creditscore`, `savings`, `tax`, `overdraft`, `recurring`, `shopaccount`, `crime`, `bounty`, `npc`, `gang`, `territory`, `achievement`, `daily`, `message`, `lock`, `market`, `warehouse`, `towing`, `backups`, `log` |
 | Player Levels | `/admin setlevel`, `addxp`, `getlevel` |
 | Admin Tools | `/admintools remover`, `help` |
 
@@ -2227,14 +2437,14 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 ## Daily Maintenance (Admin)
 
 ```
-# Check system health
+# Check all 23 systems at once
 /health
 
-# Review economy status
+# Check specific subsystems
 /health economy
-
-# Check plot system
-/health plot
+/health gang
+/health market
+/health crime
 
 # Review backups
 /health backups

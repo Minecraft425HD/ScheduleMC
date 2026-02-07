@@ -1257,11 +1257,32 @@ ScheduleMC provides commands organized by system. Below is a reference based on 
 
 | Command | Permission | Description |
 |---|---|---|
-| `/health` | Admin | Run system health check overview |
-| `/health economy` | Admin | Check economy subsystem health |
-| `/health plot` | Admin | Check plot subsystem health |
-| `/health backups` | Admin | Check backup system status |
-| `/health log` | Admin | View recent health log entries |
+| `/health` | Admin | Run system health check overview (all 23 systems) |
+| `/health economy` | Admin | Economy subsystem health + backup info |
+| `/health plot` | Admin | Plot subsystem health + cache stats + backups |
+| `/health wallet` | Admin | Wallet subsystem health |
+| `/health loan` | Admin | Loan system health |
+| `/health creditloan` | Admin | Credit loan system health |
+| `/health creditscore` | Admin | Credit score system health |
+| `/health savings` | Admin | Savings account system health |
+| `/health tax` | Admin | Tax system health |
+| `/health overdraft` | Admin | Overdraft system health |
+| `/health recurring` | Admin | Recurring payment system health |
+| `/health shopaccount` | Admin | Shop account system health |
+| `/health crime` | Admin | Crime system health |
+| `/health bounty` | Admin | Bounty system health |
+| `/health npc` | Admin | NPC registry health |
+| `/health gang` | Admin | Gang system health |
+| `/health territory` | Admin | Territory system health |
+| `/health achievement` | Admin | Achievement system health |
+| `/health daily` | Admin | Daily reward system health |
+| `/health message` | Admin | Messaging system health |
+| `/health lock` | Admin | Lock system health |
+| `/health market` | Admin | Dynamic market health |
+| `/health warehouse` | Admin | Warehouse system health |
+| `/health towing` | Admin | Towing system health |
+| `/health backups` | Admin | Backup overview for all persistent files |
+| `/health log` | Admin | Log health check to server console |
 | `/admin setlevel <player> <level>` | Admin | Set a player's producer level |
 | `/admin addxp <player> <amount>` | Admin | Add XP to a player |
 | `/admin getlevel <player>` | Admin | Check a player's producer level |
@@ -1855,13 +1876,15 @@ ScheduleMC maintains a comprehensive test suite to ensure reliability across all
 
 **Built-In Health Check System:**
 
-The mod includes a runtime health monitoring system (`HealthCheckManager`) accessible via the `/health` command. The health check verifies:
+The mod includes a runtime health monitoring system (`HealthCheckManager`) accessible via the `/health` command. The health check monitors **23 subsystems** organized in 5 categories:
 
-- All manager classes are properly initialized
-- API subsystems are responding to requests
-- Data persistence is functioning (read/write tests)
-- Memory usage is within acceptable bounds
-- Thread pools are active and processing tasks
+- **Kern-Systeme (3):** Economy, Plot, Wallet
+- **Finanz-Systeme (8):** Loan, Credit Loan, Credit Score, Savings, Tax, Overdraft, Recurring Payments, Shop Accounts
+- **NPC & Crime (3):** Crime, Bounty, NPC Registry
+- **Spieler-Systeme (5):** Gang, Territory, Achievement, Daily Reward, Messaging
+- **Welt-Systeme (4):** Lock, Dynamic Market, Warehouse, Towing
+
+Each system reports HEALTHY, DEGRADED, or UNHEALTHY status. Use `/health <system>` for details on a specific subsystem, or `/health` for the full overview.
 - Economy state is consistent (no negative balances, valid transactions)
 
 **Quality Assurance Features:**
