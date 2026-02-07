@@ -4,7 +4,7 @@
 
 **Complete Land Ownership, Apartments, Ratings & Property Management**
 
-Advanced spatial indexing with O(log n) lookup and LRU cache O(1) performance
+Chunk-based spatial indexing with O(1) lookup and multi-level LRU cache performance
 
 [Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md)
 
@@ -47,7 +47,7 @@ The Plot Management System is the foundation of ScheduleMC's property and land o
 - **Rental Mechanics** -- Daily rental with security deposits and grace periods
 - **50% Refund** -- On plot abandonment (based on creation cost)
 - **Plot Info Block** -- Physical block that displays plot information
-- **Spatial Indexing** -- QuadTree with LRU cache for O(1)/O(log n) performance
+- **Spatial Indexing** -- Chunk-based spatial index with LRU cache for O(1) performance
 - **Multi-block Protection** -- Comprehensive block, container, entity, and interaction protection
 - **Economy Integration** -- Integrated with economy system for purchases, sales, and rentals
 
@@ -60,8 +60,8 @@ The Plot Management System is the foundation of ScheduleMC's property and land o
 ```
 PlotManager (Singleton)
 |-- PlotRegistry (ConcurrentHashMap<String, PlotRegion>)
-|-- SpatialIndex (QuadTree for fast lookup)
-|   |-- O(log n) for spatial queries
+|-- SpatialIndex (Chunk-based ConcurrentHashMap for fast lookup)
+|   |-- O(1) for chunk-based spatial queries
 |   +-- LRU Cache layer for O(1) repeated lookups
 |-- ApartmentManager (Nested apartment system)
 |-- PlotPersistence (JSON with automatic backup)
@@ -73,10 +73,10 @@ PlotManager (Singleton)
 | Operation | Time Complexity | Average Time |
 |-----------|----------------|--------------|
 | Plot Lookup (cached) | O(1) | < 0.1ms |
-| Plot Lookup (cache miss) | O(log n) | 0.3ms |
-| Add Plot | O(log n) | 0.5ms |
-| Remove Plot | O(log n) | 0.4ms |
-| Overlap Check | O(log n) | 0.6ms |
+| Plot Lookup (cache miss) | O(1) chunk lookup + O(k) iteration | 0.3ms |
+| Add Plot | O(1) | 0.5ms |
+| Remove Plot | O(1) | 0.4ms |
+| Overlap Check | O(k) within chunk | 0.6ms |
 | Protection Check | O(1) | < 1ms |
 | Auto-save | -- | Every 5 minutes |
 
@@ -853,7 +853,7 @@ public class SpatialIndex {
     private QuadTree<Plot> root;
     private LRUCache<BlockPos, Plot> cache;
 
-    // O(1) with cache hit, O(log n) with cache miss
+    // O(1) with cache hit, O(1) chunk-based with cache miss
     public Plot getPlotAt(BlockPos pos) {
         Plot cached = cache.get(pos);
         if (cached != null) return cached;
@@ -869,7 +869,7 @@ public class SpatialIndex {
 
 | Operation | Cache Hit | Cache Miss |
 |-----------|-----------|------------|
-| Plot Lookup | O(1) | O(log n) |
+| Plot Lookup | O(1) | O(1) chunk-based |
 | Typical latency | < 0.1ms | 0.3ms |
 | Cache hit rate | 85-95% (typical) | -- |
 
@@ -927,7 +927,7 @@ IPlotAPI plotAPI = ScheduleMCAPI.getPlotAPI();
 
 | Method | Return | Description |
 |--------|--------|-------------|
-| `getPlotAt(BlockPos)` | `PlotRegion` | Get plot at position (O(1) cached, O(log n) uncached) |
+| `getPlotAt(BlockPos)` | `PlotRegion` | Get plot at position (O(1) cached, O(1) chunk-based uncached) |
 | `getPlot(String)` | `PlotRegion` | Get plot by ID |
 | `hasPlot(String)` | `boolean` | Check if plot exists |
 | `getPlotsByOwner(UUID)` | `List<PlotRegion>` | Get all plots owned by player |

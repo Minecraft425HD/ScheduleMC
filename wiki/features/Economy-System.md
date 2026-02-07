@@ -4,7 +4,7 @@
 
 **Complete Banking, Loans, Savings, Taxes & Investment System**
 
-Thread-safe transaction processing with 11 manager classes and automatic backup
+Thread-safe transaction processing with 16 manager classes and automatic backup
 
 [Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md)
 
@@ -61,7 +61,7 @@ The Economy System is the financial backbone of ScheduleMC, providing a complete
 
 ## Architecture
 
-The Economy System is composed of 11 manager classes, each responsible for a distinct financial subsystem.
+The Economy System is composed of 16 manager classes, each responsible for a distinct financial subsystem.
 
 ### Manager Classes
 
@@ -765,7 +765,9 @@ Tax debt must be paid before certain financial operations (e.g., taking new loan
 
 ## Shop Investments
 
-### Investment System
+> **STATUS: NOT IMPLEMENTED** - The Shop Investment system described below was planned but has not been implemented in the current codebase. No ShopInvestmentManager or related code exists.
+
+### Investment System (Planned)
 
 Players can invest in NPC shops through share purchases, receiving a portion of shop profits.
 

@@ -12,7 +12,7 @@
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-1.20.1-green?style=for-the-badge&logo=mojangstudios" />
   <img alt="Forge" src="https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge" />
   <img alt="Java" src="https://img.shields.io/badge/Java-17-red?style=for-the-badge&logo=openjdk" />
-  <img alt="Lines of Code" src="https://img.shields.io/badge/Lines_of_Code-93%2C349-brightgreen?style=for-the-badge" />
+  <img alt="Lines of Code" src="https://img.shields.io/badge/Lines_of_Code-219%2C500%2B-brightgreen?style=for-the-badge" />
   <img alt="Items" src="https://img.shields.io/badge/Items-354-purple?style=for-the-badge" />
   <img alt="Blocks" src="https://img.shields.io/badge/Blocks-152-yellow?style=for-the-badge" />
   <img alt="Commands" src="https://img.shields.io/badge/Commands-139-blueviolet?style=for-the-badge" />
@@ -94,7 +94,7 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 
 ### Key Highlights
 
-- **93,349 lines of Java code** across **1,407 source files**
+- **219,500+ lines of Java code** across **1,407 source files**
 - **1,206 resource files** (textures, models, sounds, configurations)
 - **354 items**, **152 blocks**, **139 commands**
 - **12 API modules** with full external integration support
@@ -111,7 +111,7 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 
 | Metric | Count |
 |---|---|
-| Lines of Java Code | 93,349 |
+| Lines of Java Code | 219,500+ |
 | Source Files | 1,407 |
 | Resource Files | 1,206 |
 | Items | 354 |
@@ -205,7 +205,7 @@ These mods are not required but provide additional integration features when pre
 
 ### 1. Plot Management System
 
-The plot system provides full land management with spatial indexing for high-performance lookups, an LRU cache for frequently accessed plots, and a comprehensive apartment and rating system. It contains 47 commands for every aspect of plot administration and player interaction.
+The plot system provides full land management with chunk-based spatial indexing for high-performance O(1) lookups, multi-level LRU caching for frequently accessed plots, and a comprehensive apartment and rating system.
 
 **Plot Types:**
 
@@ -220,14 +220,13 @@ The plot system provides full land management with spatial indexing for high-per
 | `TOWING_YARD` | Yes | Yes | Vehicle impound and towing lots |
 
 **Core Features:**
-- **Spatial indexing** with O(log n) lookup performance via `PlotSpatialIndex`
+- **Chunk-based spatial indexing** with O(1) lookup performance via `PlotSpatialIndex` (ConcurrentHashMap with 16x16x16 grid)
 - **Multi-level LRU caching** (`PlotCache` for plot-level, `PlotChunkCache` for chunk-level) for high-frequency spatial queries
 - **Plot protection** preventing unauthorized building, breaking, and interaction through `PlotProtectionHandler`
 - **Apartment system** with individual units within a single plot, each with separate ownership and rent
 - **Plot rating and review** system with 1-5 star ratings and leaderboards
 - **Rent collection** with automatic recurring payments and auto-eviction on non-payment
-- **Dynamic plot resizing** with admin commands for expanding and shrinking boundaries
-- **Plot transfer** between players with configurable refund percentages (default 50%)
+- **Plot transfer** between players with configurable refund percentages (default 50% via abandon)
 - **Trusted players** system for granting build permissions to friends
 - **Visual selection tool** (Plot Wand) for easy boundary definition
 - **Plot info blocks** displaying plot details in the world
@@ -238,7 +237,7 @@ The plot system provides full land management with spatial indexing for high-per
 | Class | Responsibility |
 |---|---|
 | `PlotManager` | Central plot management, CRUD operations, persistence |
-| `PlotSpatialIndex` | R-tree style spatial indexing for O(log n) lookups |
+| `PlotSpatialIndex` | Chunk-based spatial indexing for O(1) lookups |
 | `PlotCache` | LRU cache for frequently accessed plot objects |
 | `PlotChunkCache` | Chunk-level caching for rapid spatial queries |
 | `PlotProtectionHandler` | Block and interaction protection enforcement |
@@ -250,7 +249,7 @@ The plot system provides full land management with spatial indexing for high-per
 
 ### 2. Economy System
 
-A deep and realistic economy simulation with 11 manager classes covering banking, loans, credit scoring, taxes, savings, investments, recurring payments, and anti-exploit measures.
+A deep and realistic economy simulation with 16 manager classes covering banking, loans, credit scoring, taxes, savings, recurring payments, anti-exploit measures, price management, and memory cleanup.
 
 **Banking System:**
 - **Bank accounts** with 1,000 Euro starting balance for every new player, created automatically on first join via `PlayerJoinHandler`
@@ -276,7 +275,6 @@ A deep and realistic economy simulation with 11 manager classes covering banking
 - **Tax system** (`TaxManager`) with property tax, sales tax, income tax, and automatic collection
 - **State treasury** (`StateAccount`) managing government finances
 - **Shop accounts** (`ShopAccountManager`) tracking shop revenue and expenses
-- **Shop investment system** for passive income through share purchases
 - **Daily rewards**: 50 Euro base + 10 Euro per consecutive login streak day, managed by `DailyRewardManager`
 - **Hospital system** with configurable respawn costs via `RespawnHandler`
 - **Anti-exploit measures** (`AntiExploitManager`) with rate limiting (`RateLimiter`) and batch transaction management (`BatchTransactionManager`)
@@ -298,6 +296,11 @@ A deep and realistic economy simulation with 11 manager classes covering banking
 | `OverdraftManager` | Overdraft limits, fees, and enforcement |
 | `RecurringPaymentManager` | Automatic scheduled payment processing |
 | `ShopAccountManager` | Shop revenue, expenses, and profit tracking |
+| `AntiExploitManager` | Detects and blocks common economy exploitation patterns |
+| `BatchTransactionManager` | Groups related transactions for efficiency |
+| `FeeManager` | Transaction fee calculation |
+| `MemoryCleanupManager` | Automatic resource management and cleanup |
+| `PriceManager` | Price range enforcement and management |
 
 **Supporting Infrastructure:**
 
@@ -960,7 +963,7 @@ A comprehensive minimap and world map system spanning **122 files**, providing p
 An organized crime system with full gang management, progression, and missions.
 
 **Features:**
-- **Gang creation and management** with hierarchical rank structures via `GangRank` (Leader, Officer, Member, Recruit)
+- **Gang creation and management** with hierarchical rank structures via `GangRank` (Boss, Underboss, Member, Recruit)
 - **Gang reputation** (`GangReputation`) affecting NPC behavior and police response
 - **Gang perks** (`GangPerk`) unlocked through leveling (e.g., reduced police attention, better prices, shared resources)
 - **Level requirements** (`GangLevelRequirements`) with multiple XP sources (`GangXPSource`) from missions, territory control, production, and crime
@@ -1184,15 +1187,15 @@ ScheduleMC provides commands organized by system. Below is a reference based on 
 | Command | Permission | Description |
 |---|---|---|
 | `/gang create <name>` | Player | Create a new gang |
-| `/gang invite <player>` | Leader/Officer | Invite a player to your gang |
+| `/gang invite <player>` | Boss/Underboss | Invite a player to your gang |
 | `/gang accept` | Player | Accept a gang invitation |
 | `/gang leave` | Member | Leave your current gang |
-| `/gang kick <player>` | Leader | Kick a member from the gang |
-| `/gang promote <player>` | Leader | Promote a gang member |
+| `/gang kick <player>` | Boss | Kick a member from the gang |
+| `/gang promote <player>` | Boss | Promote a gang member |
 | `/gang info` | Player | View gang information |
 | `/gang list` | Player | List all gangs on the server |
-| `/gang disband` | Leader | Disband the gang permanently |
-| `/gang perk <perk>` | Leader | Activate a gang perk |
+| `/gang disband` | Boss | Disband the gang permanently |
+| `/gang perk <perk>` | Boss | Activate a gang perk |
 | `/gang admin setlevel <gang> <level>` | Admin | Set a gang's level |
 | `/gang admin addxp <gang> <amount>` | Admin | Add XP to a gang |
 | `/gang admin info <gang>` | Admin | View admin gang details |
@@ -1356,7 +1359,7 @@ import de.rolandsw.schedulemc.api.ScheduleMCAPI;
 
 ScheduleMCAPI api = ScheduleMCAPI.getInstance();
 
-// Check if all 11 subsystems are initialized
+// Check if all subsystems are initialized
 if (api.isInitialized()) {
     System.out.println("ScheduleMC API v" + api.getVersion() + " is ready!");
     System.out.println(api.getStatus());  // Prints status of each subsystem
@@ -1556,7 +1559,7 @@ ScheduleMC/
 |   |   |   |   |-- market/                  #   IMarketAPI interface
 |   |   |   |   |-- impl/                    #   All API implementation classes
 |   |   |   |
-|   |   |   |-- economy/                     # === ECONOMY SYSTEM (11 managers) ===
+|   |   |   |-- economy/                     # === ECONOMY SYSTEM (16 managers) ===
 |   |   |   |   |-- EconomyManager.java      #   Core balance operations
 |   |   |   |   |-- WalletManager.java       #   Physical cash management
 |   |   |   |   |-- LoanManager.java         #   Loan issuance and repayment
@@ -1580,7 +1583,7 @@ ScheduleMC/
 |   |   |   |
 |   |   |   |-- region/                      # === PLOT MANAGEMENT ===
 |   |   |   |   |-- PlotManager.java         #   Central CRUD + persistence
-|   |   |   |   |-- PlotSpatialIndex.java    #   O(log n) spatial lookups
+|   |   |   |   |-- PlotSpatialIndex.java    #   O(1) chunk-based spatial lookups
 |   |   |   |   |-- PlotCache.java           #   LRU cache (plot-level)
 |   |   |   |   |-- PlotChunkCache.java      #   LRU cache (chunk-level)
 |   |   |   |   |-- PlotProtectionHandler.java  # Block/interaction protection
@@ -1776,7 +1779,7 @@ The codebase employs the following design patterns consistently across all syste
 | **Repository** | Data persistence abstraction | Plot data storage, NPC data, economy records, crime records |
 | **Command Pattern** | Forge command framework | `CommandExecutor` base, `PlotCommand`, `MoneyCommand`, `AdminCommand`, `HealthCommand` |
 | **State** | State machine transitions | NPC schedule states, `EconomyCycle` phases, wanted level states, production growth stages |
-| **Spatial Index** | Efficient geometric queries | `PlotSpatialIndex` for O(log n) plot containment lookups |
+| **Spatial Index** | Efficient geometric queries | `PlotSpatialIndex` for O(1) chunk-based plot containment lookups |
 | **Cache (LRU)** | High-frequency data access optimization | `PlotCache` (plot-level), `PlotChunkCache` (chunk-level) |
 | **Facade** | Unified interface over complex subsystems | `ScheduleMCAPI` exposing 12 subsystem APIs through a single entry point |
 | **Bridge** | Connecting independent system hierarchies | `WarehouseMarketBridge` linking warehouse stock to market pricing |

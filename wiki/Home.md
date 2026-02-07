@@ -28,7 +28,7 @@
 | **Minecraft** | 1.20.1 |
 | **Forge** | 47.4.0 |
 | **Java** | 17 |
-| **Lines of Code** | 93,349 |
+| **Lines of Code** | 219,500+ |
 | **Total Files** | 1,407 |
 | **Registered Items** | 354 |
 | **Registered Blocks** | 152 |
@@ -66,7 +66,7 @@ Detailed documentation for each major game system.
 | Page | System | Summary |
 |---|---|---|
 | [Economy System](features/Economy-System.md) | Banking, Loans, and Taxes | Full financial ecosystem with bank accounts, ATMs, physical cash, 3-tier loans, savings accounts, recurring payments, overdraft protection, shop investments, property/sales/income taxes, daily rewards with streak bonuses, and a government treasury |
-| [Plot System](features/Plot-System.md) | Land Management | 5 plot types (Residential, Commercial, Shop, Public, Government), spatial indexing for O(log n) lookups, apartment sub-leasing, 5-star rating system, trusted player permissions, block and inventory protection, daily rent with auto-eviction, and 50% refund on abandonment |
+| [Plot System](features/Plot-System.md) | Land Management | 5 plot types (Residential, Commercial, Shop, Public, Government), chunk-based spatial indexing for O(1) lookups, apartment sub-leasing, 5-star rating system, trusted player permissions, block and inventory protection, daily rent with auto-eviction, and 50% refund on abandonment |
 | [NPC System](features/NPC-System.md) | AI Characters | Schedule-driven NPCs with 4 personality types, 3 NPC roles (Resident, Merchant, Police), custom player skins, shop and warehouse integration, relationship system, wallet and salary mechanics, pathfinding AI, and interactive dialogue |
 | [Police and Crime System](features/Police-Crime-System.md) | Law Enforcement | GTA-inspired 5-star wanted level system with auto-decay, police AI with chase and arrest mechanics, backup calling, prison system with cells and bail, raid penalties, door blocking during pursuits, and PvP crime detection |
 | [Vehicle System](features/Vehicle-System.md) | Drivable Vehicles | 5 vehicle types (Limousine, Van, Truck, SUV, Sports Car), modular parts system (engines, tires, chassis, fenders, fuel tanks), fuel stations, garage blocks, license plates, vehicle damage, OBJ model support via CoreLib, and 137 dedicated Java files |
@@ -345,7 +345,7 @@ ScheduleMC/
 |   |-- ModCreativeTabs.java        Creative mode tab registration
 |   |-- api/                        Public API (12 modules)
 |   |-- commands/                   Command implementations (139)
-|   |-- economy/                    Economy system (11 manager classes)
+|   |-- economy/                    Economy system (16 manager classes)
 |   |-- region/                     Plot management and spatial indexing
 |   |-- npc/                        NPC AI, schedules, and behaviors
 |   |-- tobacco/                    Tobacco production chain
