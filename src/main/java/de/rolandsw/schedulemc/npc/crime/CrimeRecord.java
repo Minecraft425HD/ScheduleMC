@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.crime;
 
 import com.google.gson.annotations.SerializedName;
+import de.rolandsw.schedulemc.npc.life.witness.CrimeType;
 import net.minecraft.core.BlockPos;
 
 import javax.annotation.Nullable;

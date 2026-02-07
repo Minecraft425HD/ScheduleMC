@@ -31,11 +31,24 @@ public class NPCVehicleAssignment extends SavedData {
         load(tag);
     }
 
+    /** UUIDs von Polizei-NPCs (bekommen immer ein Fahrzeug) */
+    private final Set<UUID> policeNPCs = new HashSet<>();
+
     /**
      * Prueft ob ein NPC ein Fahrzeug besitzt
+     * Polizei-NPCs haben IMMER ein Fahrzeug (Feature 1)
      */
     public boolean hasVehicle(UUID npcId) {
-        return npcsWithVehicle.contains(npcId);
+        return npcsWithVehicle.contains(npcId) || policeNPCs.contains(npcId);
+    }
+
+    /**
+     * Registriert einen NPC als Polizei (bekommt immer Fahrzeug + blaue Farbe)
+     */
+    public void registerPoliceNPC(UUID npcId) {
+        policeNPCs.add(npcId);
+        vehicleColors.put(npcId, 3); // Blau = Index 3
+        setDirty();
     }
 
     /**

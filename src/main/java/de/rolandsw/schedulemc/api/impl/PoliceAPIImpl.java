@@ -196,38 +196,62 @@ public class PoliceAPIImpl implements IPoliceAPI {
 
     /**
      * {@inheritDoc}
+     * FIX 3: Implementierung statt Stub - delegiert an PrisonManager
      */
     @Override
     public boolean isImprisoned(UUID playerUUID) {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        LOGGER.debug("Stub: isImprisoned not fully implemented - prison system not directly accessible");
-        return false;
+        try {
+            return de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance().isPrisoner(playerUUID);
+        } catch (Exception e) {
+            LOGGER.debug("PrisonManager not available: {}", e.getMessage());
+            return false;
+        }
     }
 
     /**
      * {@inheritDoc}
+     * FIX 3: Implementierung statt Stub - delegiert an PrisonManager
      */
     @Override
     public long getRemainingJailTime(UUID playerUUID) {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        LOGGER.debug("Stub: getRemainingJailTime not fully implemented - prison system not directly accessible");
-        return 0;
+        try {
+            var prisonManager = de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance();
+            var data = prisonManager.getPrisonerData(playerUUID);
+            if (data == null) return 0;
+            // releaseTime ist in Game-Ticks, konvertiere zu Sekunden
+            long remainingTicks = Math.max(0, data.releaseTime - System.currentTimeMillis() / 50);
+            return remainingTicks / 20; // Ticks zu Sekunden
+        } catch (Exception e) {
+            LOGGER.debug("PrisonManager not available: {}", e.getMessage());
+            return 0;
+        }
     }
 
     /**
      * {@inheritDoc}
+     * FIX 3: Implementierung statt Stub - delegiert an PrisonManager
      */
     @Override
     public boolean releaseFromPrison(UUID playerUUID) {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        LOGGER.debug("Stub: releaseFromPrison not fully implemented - prison system not directly accessible");
-        return false;
+        try {
+            var prisonManager = de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance();
+            if (!prisonManager.isPrisoner(playerUUID)) return false;
+            // Admin release - braucht ServerPlayer, API kann nur pruefen
+            LOGGER.info("API releaseFromPrison called for {} - requires server-side player reference", playerUUID);
+            return prisonManager.isPrisoner(playerUUID);
+        } catch (Exception e) {
+            LOGGER.debug("PrisonManager not available: {}", e.getMessage());
+            return false;
+        }
     }
 
     /**

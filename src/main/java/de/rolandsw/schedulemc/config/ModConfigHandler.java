@@ -138,6 +138,23 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.IntValue POLICE_PATROL_WAIT_MINUTES;
         public final ForgeConfigSpec.IntValue POLICE_PATROL_RADIUS;
 
+        // NEW: Police Overhaul Features
+        public final ForgeConfigSpec.BooleanValue POLICE_VEHICLE_PURSUIT_ENABLED;
+        public final ForgeConfigSpec.DoubleValue POLICE_VEHICLE_SPEED_MULTIPLIER;
+        public final ForgeConfigSpec.BooleanValue POLICE_SIREN_ENABLED;
+        public final ForgeConfigSpec.IntValue POLICE_SIREN_SOUND_RADIUS;
+        public final ForgeConfigSpec.BooleanValue POLICE_ROADBLOCK_ENABLED;
+        public final ForgeConfigSpec.IntValue POLICE_MAX_ROADBLOCKS;
+        public final ForgeConfigSpec.IntValue POLICE_ROADBLOCK_DURATION_SECONDS;
+        public final ForgeConfigSpec.BooleanValue POLICE_WARNING_ENABLED;
+        public final ForgeConfigSpec.IntValue POLICE_WARNING_TIMEOUT_SECONDS;
+        public final ForgeConfigSpec.BooleanValue POLICE_TRAFFIC_VIOLATIONS_ENABLED;
+        public final ForgeConfigSpec.DoubleValue POLICE_SPEED_LIMIT_DEFAULT;
+        public final ForgeConfigSpec.IntValue POLICE_CONTAINER_SCAN_DEPTH;
+        public final ForgeConfigSpec.BooleanValue POLICE_EVIDENCE_MULTIPLIER_ENABLED;
+        public final ForgeConfigSpec.BooleanValue POLICE_FLANKING_ENABLED;
+        public final ForgeConfigSpec.IntValue POLICE_WANTED_POSTERS_MIN_LEVEL;
+
         // ═══════════════════════════════════════════════════════════
         // STEALING MINIGAME
         // ═══════════════════════════════════════════════════════════
@@ -577,6 +594,53 @@ public class ModConfigHandler {
             POLICE_PATROL_RADIUS = builder
                     .comment("Radius in Blöcken, in dem sich Polizisten um Patrouillenpunkte bewegen")
                     .defineInRange("patrol_radius", 3, 1, 20);
+
+            // NEW: Police Overhaul Features
+            POLICE_VEHICLE_PURSUIT_ENABLED = builder
+                    .comment("Aktiviert Fahrzeugverfolgung durch Polizei")
+                    .define("vehicle_pursuit_enabled", true);
+            POLICE_VEHICLE_SPEED_MULTIPLIER = builder
+                    .comment("Geschwindigkeits-Multiplikator fuer Polizei-Fahrzeuge")
+                    .defineInRange("vehicle_speed_multiplier", 1.3, 1.0, 3.0);
+            POLICE_SIREN_ENABLED = builder
+                    .comment("Aktiviert Polizeisirene und Blaulicht")
+                    .define("siren_enabled", true);
+            POLICE_SIREN_SOUND_RADIUS = builder
+                    .comment("Hoerweite der Sirene in Bloecken")
+                    .defineInRange("siren_sound_radius", 50, 10, 200);
+            POLICE_ROADBLOCK_ENABLED = builder
+                    .comment("Aktiviert Strassensperren bei Wanted >= 4")
+                    .define("roadblock_enabled", true);
+            POLICE_MAX_ROADBLOCKS = builder
+                    .comment("Maximale Anzahl Strassensperren pro Spieler")
+                    .defineInRange("max_roadblocks", 2, 1, 5);
+            POLICE_ROADBLOCK_DURATION_SECONDS = builder
+                    .comment("Dauer einer Strassensperre in Sekunden")
+                    .defineInRange("roadblock_duration_seconds", 300, 60, 1200);
+            POLICE_WARNING_ENABLED = builder
+                    .comment("Aktiviert Verwarnungssystem bei Wanted 1-2")
+                    .define("warning_enabled", true);
+            POLICE_WARNING_TIMEOUT_SECONDS = builder
+                    .comment("Sekunden fuer Verwarnungs-Frist")
+                    .defineInRange("warning_timeout_seconds", 10, 5, 60);
+            POLICE_TRAFFIC_VIOLATIONS_ENABLED = builder
+                    .comment("Aktiviert Verkehrsdelikte (NPC ueberfahren etc.)")
+                    .define("traffic_violations_enabled", true);
+            POLICE_SPEED_LIMIT_DEFAULT = builder
+                    .comment("Standard-Geschwindigkeitslimit fuer Verkehrsdelikte")
+                    .defineInRange("speed_limit_default", 0.5, 0.1, 2.0);
+            POLICE_CONTAINER_SCAN_DEPTH = builder
+                    .comment("Maximale Rekursionstiefe fuer Container-Scanning (Shulker-Boxen)")
+                    .defineInRange("container_scan_depth", 2, 0, 5);
+            POLICE_EVIDENCE_MULTIPLIER_ENABLED = builder
+                    .comment("Aktiviert Strafmultiplikator basierend auf Beweisstaerke")
+                    .define("evidence_multiplier_enabled", true);
+            POLICE_FLANKING_ENABLED = builder
+                    .comment("Aktiviert strategische Flanking-Koordination fuer Polizei")
+                    .define("flanking_enabled", true);
+            POLICE_WANTED_POSTERS_MIN_LEVEL = builder
+                    .comment("Minimum Wanted-Level fuer Fahndungsplakate auf Smartphone")
+                    .defineInRange("wanted_posters_min_level", 3, 1, 5);
 
             builder.pop();
 

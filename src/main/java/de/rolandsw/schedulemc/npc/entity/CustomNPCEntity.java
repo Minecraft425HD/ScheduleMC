@@ -91,6 +91,10 @@ public class CustomNPCEntity extends PathfinderMob {
     private static final EntityDataAccessor<Integer> VEHICLE_COLOR =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
 
+    // Feature 2: Polizei-Sirene - Synced Data für Client-Rendering
+    private static final EntityDataAccessor<Boolean> IS_SIREN_ACTIVE =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.BOOLEAN);
+
     // NPC Daten (Server-Side)
     private NPCData npcData;
 
@@ -134,6 +138,8 @@ public class CustomNPCEntity extends PathfinderMob {
         this.entityData.define(IS_DRIVING, false);
         this.entityData.define(VEHICLE_YAW, 0.0f);
         this.entityData.define(VEHICLE_COLOR, 0);
+        // Feature 2: Polizei-Sirene
+        this.entityData.define(IS_SIREN_ACTIVE, false);
     }
 
     @Override
@@ -791,6 +797,20 @@ public class CustomNPCEntity extends PathfinderMob {
      */
     public void setVehicleColor(int color) {
         this.entityData.set(VEHICLE_COLOR, color);
+    }
+
+    /**
+     * Feature 2: Gibt zurück ob die Sirene aktiv ist (Client+Server)
+     */
+    public boolean isSirenActive() {
+        return this.entityData.get(IS_SIREN_ACTIVE);
+    }
+
+    /**
+     * Feature 2: Setzt den Sirenen-Status (Server-Side)
+     */
+    public void setSirenActive(boolean active) {
+        this.entityData.set(IS_SIREN_ACTIVE, active);
     }
 
     // Verhindern von Despawning
