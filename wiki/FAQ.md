@@ -26,7 +26,7 @@ Comprehensive answers to common questions about ScheduleMC, the all-in-one rolep
 
 ### Q: What is ScheduleMC?
 
-**A:** ScheduleMC is a professional-grade Minecraft Forge mod that transforms your server into a complete roleplay and economy ecosystem. It provides a full banking system with loans and savings, 14 production chains (8 illegal, 6 legal), schedule-based NPC AI, a GTA-inspired police and crime system with a 5-star wanted level, drivable vehicles with fuel and parts, plot management with apartments and rentals, an in-game smartphone with 11 apps, and much more. With over 93,000 lines of Java code, 354 items, 152 blocks, and 161+ commands, it is one of the most comprehensive Minecraft mods available.
+**A:** ScheduleMC is a professional-grade Minecraft Forge mod that transforms your server into a complete roleplay and economy ecosystem. It provides a full banking system with loans and savings, 14 production chains (8 illegal, 6 legal), schedule-based NPC AI, a GTA-inspired police and crime system with a 5-star wanted level, drivable vehicles with fuel and parts, plot management with apartments and rentals, an in-game smartphone with 11 apps, and much more. With over 93,000 lines of Java code, 354 items, 152 blocks, and 139 commands, it is one of the most comprehensive Minecraft mods available.
 
 ---
 
@@ -217,7 +217,7 @@ Daily rewards are managed by the `DailyRewardManager` and are processed via the 
 
 - The loan amount is deposited into your bank account immediately upon approval.
 - Repayment is divided into daily installments automatically deducted from your account.
-- You can repay early with `/loan repay`, which pays off the remaining balance in full.
+- You can repay early through the Smartphone Bank App or NPC banker interaction, which pays off the remaining balance in full.
 - If you fail to make a daily payment (insufficient funds), the debt accumulates.
 
 Additionally, ScheduleMC features an advanced **Credit Score System** (`CreditScoreManager`) and a **Credit Loan Manager** (`CreditLoanManager`) that provide NPC-based lending with credit score tracking, allowing for more dynamic loan terms based on player history.
@@ -235,11 +235,7 @@ Additionally, ScheduleMC features an advanced **Credit Score System** (`CreditSc
 
 **How to use savings:**
 
-```
-/savings create <amount>    - Open a savings account with an initial deposit
-/savings info               - View your savings account details
-/savings withdraw           - Withdraw after the lock period expires
-```
+Savings accounts are managed through the Smartphone Bank App or NPC banker interactions (via `SavingsDepositPacket` and `SavingsWithdrawPacket` network packets). Players can create accounts, view details, and withdraw through the graphical interface.
 
 When you create a savings account, the deposit amount is withdrawn from your main bank account. After the 4-week lock period, you can withdraw your principal plus accumulated interest.
 
@@ -347,7 +343,7 @@ Each type has specific permissions and behaviors. For example, shop plots can be
 - **Leaderboards** that show the top-rated plots on the server
 - **Plot Info Block** that can be placed to display plot information and ratings
 
-Ratings help build reputation and serve as a way for players to showcase their builds. Use `/plot info` while standing in a plot to see its current rating and details.
+Ratings help build reputation and serve as a way for players to showcase their builds. Use `/plot debug` while standing in a plot to check its details, or interact with the Plot Info Block to view the rating.
 
 ---
 
@@ -401,25 +397,20 @@ This is permanent and cannot be undone. Consider transferring the plot to anothe
 
 ### Q: How do I spawn NPCs?
 
-**A:** NPCs are spawned using admin commands. The base command is:
+**A:** NPCs are placed as entities in-world (spawned via spawn eggs or the creative menu). After placing, configure them using the `/npc <name>` command structure:
 
 ```
-/npc spawn <type> <name>
-```
-
-Examples:
-```
-/npc spawn resident Town_Citizen
-/npc spawn merchant Shop_Owner_Hans
-/npc spawn police Officer_Mueller
-```
-
-After spawning, you typically configure the NPC with a schedule and locations:
-
-```
-/npc Hans schedule workstart 0700
-/npc Hans schedule workend 1800
-/npc Hans schedule home 2300
+/npc <name> info                    View NPC details
+/npc <name> name <newName>          Rename an NPC
+/npc <name> speed <value>           Set movement speed
+/npc <name> schedule workstart 0700 Set work schedule start
+/npc <name> schedule workend 1800   Set work schedule end
+/npc <name> schedule home 2300      Set home time
+/npc <name> inventory               Manage NPC inventory
+/npc <name> wallet                  View NPC wallet
+/npc <name> warehouse               Link NPC to warehouse
+/npc <name> movement <true/false>   Enable/disable movement
+/npc <name> leisure add             Add leisure location
 ```
 
 You can also set the NPC's home, work, and leisure locations using the NPC location tools (4 tool items in the NPC creative tab).
@@ -655,10 +646,10 @@ You can also carry fuel using **Diesel Cans** (empty or full variants). Fuel tan
 
 **A:** Vehicles use a modular parts system. You can customize and upgrade your vehicle with different components:
 
-**Engines (3 types):**
-- Normal Motor - Standard performance
-- Performance Motor - Higher speed and acceleration
-- Industrial Motor - Built for heavy loads
+**Engines (3 upgrade tiers):**
+- Normal Motor (Tier 0) - Standard performance
+- Performance Motor (Tier 1) - Higher speed and acceleration
+- Performance 2 Motor (Tier 2) - Maximum performance upgrade
 
 **Tires (6 types):**
 - Standard, Sport, Premium (for cars)
@@ -838,16 +829,16 @@ The protection is managed by the `ISmartphoneAPI` and tracks which players have 
 4. Run `/health plot` to perform a diagnostic check on the plot system.
 5. ScheduleMC maintains automatic backups. Check the backup directory for recovery options.
 
-**NPCs not spawning:**
-1. Use the correct command syntax: `/npc spawn <type> <name>` (e.g., `/npc spawn merchant Hans`).
+**NPCs not working:**
+1. NPCs are placed as entities in-world (via spawn eggs or creative menu). Configure them with `/npc <name> info`.
 2. Ensure you are an operator or have the required permissions.
 3. Check the server console for error messages.
 4. Verify that the spawn location is in a loaded chunk.
 5. Run `/health` to check overall system health.
 
 **Economy not working:**
-1. Check your balance with `/money`.
-2. View the transaction history with `/money history`.
+1. Check the state balance with `/state balance`.
+2. View the transaction history with `/money history` (admin command).
 3. Run `/health economy` for a diagnostic check.
 4. Verify that `config/schedulemc/economy.json` exists and is not corrupted.
 5. If data is corrupted, the backup system should automatically restore from the most recent clean save.
@@ -1023,7 +1014,7 @@ Custom apps appear alongside the built-in 11 apps in the smartphone GUI. You han
 
 - [Wiki Home](Home.md) - Main wiki page
 - [Getting Started Guide](Getting-Started.md) - Step-by-step beginner's guide
-- [Command Reference](Commands.md) - All 161+ commands documented
+- [Command Reference](Commands.md) - All 139 commands documented
 - [Items Guide](Items.md) - Complete item list (354 items)
 - [Blocks Guide](Blocks.md) - Complete block list (152 blocks)
 - [Production Overview](Production-Systems.md) - All 14 production chains

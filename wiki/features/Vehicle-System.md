@@ -202,10 +202,10 @@ Performance Motor:
 - Acceleration: 1.4× chassis accel
 - Fuel Efficiency: 0.8× chassis efficiency (uses more fuel)
 
-Industrial Motor:
-- Max Speed: 0.8× chassis speed
-- Acceleration: 0.7× chassis accel
-- Fuel Efficiency: 1.2× chassis efficiency (uses less fuel)
+Performance 2 Motor (Tier 2):
+- Max Speed: 1.5× chassis speed
+- Acceleration: 1.6× chassis accel
+- Fuel Efficiency: 0.7× chassis efficiency (highest performance, most fuel)
 ```
 
 ---

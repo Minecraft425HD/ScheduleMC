@@ -441,7 +441,7 @@ commands/
   PlotCommand.java         -- Plot management commands (34+ subcommands)
 ```
 
-**CommandExecutor** eliminates boilerplate across 161+ command methods:
+**CommandExecutor** eliminates boilerplate across 139 command methods:
 
 ```java
 // Before: 8 lines per command method

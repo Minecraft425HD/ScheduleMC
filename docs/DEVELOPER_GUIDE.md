@@ -230,7 +230,7 @@ src/main/java/de/rolandsw/schedulemc/
 ├── market/                      Dynamic market pricing (UDPS)
 ├── utility/                     Plot utility management (power, water)
 │
-├── commands/                    Command system (161+ commands)
+├── commands/                    Command system (139 commands)
 │   ├── CommandExecutor.java     Unified command error handling
 │   ├── PlotCommand.java         /plot commands
 │   ├── MoneyCommand.java        /money commands

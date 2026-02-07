@@ -15,7 +15,7 @@
   <img alt="Lines of Code" src="https://img.shields.io/badge/Lines_of_Code-93%2C349-brightgreen?style=for-the-badge" />
   <img alt="Items" src="https://img.shields.io/badge/Items-354-purple?style=for-the-badge" />
   <img alt="Blocks" src="https://img.shields.io/badge/Blocks-152-yellow?style=for-the-badge" />
-  <img alt="Commands" src="https://img.shields.io/badge/Commands-161%2B-blueviolet?style=for-the-badge" />
+  <img alt="Commands" src="https://img.shields.io/badge/Commands-139-blueviolet?style=for-the-badge" />
   <img alt="License" src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" />
 </p>
 
@@ -43,8 +43,7 @@
   - [6. Vehicle System](#6-vehicle-system)
   - [7. Smartphone System](#7-smartphone-system)
   - [8. Warehouse System](#8-warehouse-system)
-  - [9. Tutorial System](#9-tutorial-system)
-  - [10. Dynamic Market System](#10-dynamic-market-system)
+  - [9. Dynamic Market System](#9-dynamic-market-system)
 - [Additional Systems](#additional-systems)
   - [MapView System](#mapview-system)
   - [Gang System](#gang-system)
@@ -97,11 +96,11 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 
 - **93,349 lines of Java code** across **1,407 source files**
 - **1,206 resource files** (textures, models, sounds, configurations)
-- **354 items**, **152 blocks**, **161+ commands**
+- **354 items**, **152 blocks**, **139 commands**
 - **12 API modules** with full external integration support
 - **292 unit tests** across **19 test files**
 - **55 manager classes**, **126 GUI screens**, **131 block entity types**, **100 network packets**
-- **17 major interconnected systems** with dozens of supporting subsystems
+- **16 major interconnected systems** with dozens of supporting subsystems
 - **14 production chains** (8 illegal, 6 legal) each with multi-step crafting processes
 - **137 vehicle system files** with 5 chassis types, 3 engines, 6 tire types
 - **NPC behavior engine** with 9 AI goals, 5 behavior actions, and 14 behavior states driving realistic daily life simulation
@@ -117,7 +116,7 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 | Resource Files | 1,206 |
 | Items | 354 |
 | Blocks | 152 |
-| Commands | 161+ |
+| Commands | 139 |
 | API Modules | 12 |
 | Unit Tests | 292 |
 | Test Files | 19 |
@@ -177,29 +176,28 @@ These mods are not required but provide additional integration features when pre
 
 ### For Players
 
-1. **Join the server.** The 7-step interactive tutorial will guide you through the basics.
-2. **Claim your starting money.** Every new player receives a bank account with **1,000 Euro** starting balance.
-3. **Open your smartphone** (configurable keybind, default: `P`) to access the Map, Bank, Contacts, and other apps.
-4. **Find a plot.** Use `/plot list` to see available plots or explore the city. Plots come in types: Residential, Commercial, Shop, Public, and Government.
-5. **Buy or rent a plot.** Use `/plot buy` while standing on an available plot, or `/plot rent` for temporary residence.
-6. **Start earning money.** Sell items at shops, complete NPC quests, claim daily rewards (`/daily` for 50 Euro + 10 Euro per consecutive day streak), or start your own production business.
-7. **Explore production.** Grow coffee, produce wine, brew beer, make chocolate, harvest honey, or age cheese -- all legally. Or take risks with illegal operations for higher profits.
-8. **Buy a vehicle.** Visit a vehicle dealer, choose your chassis, engine, and tires, fuel up, and explore the city.
-9. **Interact with NPCs.** Talk to residents, buy from merchants, and watch out for the police if your wanted level rises.
-10. **Join a gang.** Create or join a gang with `/gang create <name>` or accept invitations, run missions, and claim territory.
+1. **Join the server.** Every new player receives a bank account with **1,000 Euro** starting balance.
+2. **Open your smartphone** (configurable keybind, default: `P`) to access the Map, Bank, Contacts, and other apps.
+3. **Find a plot.** Explore the city to find available plots. Plots come in types: Residential, Commercial, Shop, Public, and Government.
+4. **Rent an apartment.** Use `/plot apartment rent <name>` to rent an apartment unit.
+5. **Start earning money.** Sell items at shops, complete NPC quests, or start your own production business.
+6. **Explore production.** Grow coffee, produce wine, brew beer, make chocolate, harvest honey, or age cheese -- all legally. Or take risks with illegal operations for higher profits.
+7. **Buy a vehicle.** Visit a vehicle dealer, choose your chassis, engine, and tires, fuel up, and explore the city.
+8. **Interact with NPCs.** Talk to residents, buy from merchants, and watch out for the police if your wanted level rises.
+9. **Join a gang.** Create or join a gang with `/gang create <name>` or accept invitations, and claim territory.
 
 ### For Server Administrators
 
 1. **Create the city layout.** Use the Plot Selection Tool (`/give @s schedulemc:plot_selection_tool`) to define plot boundaries by right-clicking two corners.
 2. **Define plots.** Use `/plot create <name> <type>` to establish Residential, Commercial, Shop, Public, Government, Prison, and Towing Yard plots.
 3. **Set up the economy.** Configure starting balance, tax rates, interest rates, and loan parameters in the config files under `config/schedulemc/`.
-4. **Spawn NPCs.** Use `/npc spawn <type> <name>` to place Resident, Merchant, and Police NPCs throughout the city. Set their schedules with `/npc <name> schedule workstart 0700`.
+4. **Configure NPCs.** NPCs are placed as entities in-world. Use `/npc <name> schedule workstart 0700` to set their daily schedules, `/npc <name> speed <value>` to adjust movement, and `/npc <name> inventory` to manage their items.
 5. **Configure production.** Set up which production chains are available and configure risk/reward balances.
 6. **Set up warehouses.** Place warehouse blocks and link them to shop plots with `/warehouse setshop <shopId>`. Configure auto-delivery schedules.
 7. **Configure the dynamic market.** Adjust supply/demand multiplier ranges and base prices through the market configuration.
 8. **Establish police infrastructure.** Create Prison-type plots, set bail amounts, and configure wanted level decay and escape mechanics.
 9. **Set up the hospital.** Use `/hospital setspawn` and `/hospital setfee <amount>` to configure respawn points and death costs.
-10. **Test everything.** Use `/schedulemc health` to run a comprehensive system health check across all subsystems.
+10. **Test everything.** Use `/health` to run a comprehensive system health check across all subsystems (economy, plots, backups, etc.).
 
 ---
 
@@ -334,20 +332,27 @@ A sophisticated NPC system with three distinct types, a behavior engine with 9 A
 
 The NPC AI is driven by interchangeable behavior goals that determine NPC actions throughout the day:
 
+**Custom ScheduleMC Goals:**
+
 | Goal | Description |
 |---|---|
-| `FloatGoal` | Swimming ability for NPCs |
-| `OpenDoorGoal` | NPCs can open and close doors |
 | `MoveToHomeGoal` | Navigate to home location at end of day |
 | `MoveToWorkGoal` | Navigate to workplace during work hours |
 | `MoveToLeisureGoal` | Navigate to leisure locations during breaks (up to 10 configured) |
 | `PolicePatrolGoal` | Follow configured patrol routes |
 | `PoliceStationGoal` | Return to police station when off duty |
+| `CompanionFollowGoal` | Companion NPCs follow assigned players (inner class in `CompanionBehavior`) |
+
+**Vanilla Minecraft Goals (reused):**
+
+| Goal | Description |
+|---|---|
+| `FloatGoal` | Swimming ability for NPCs |
+| `OpenDoorGoal` | NPCs can open and close doors |
 | `LookAtPlayerGoal` | NPCs face nearby players when idle |
 | `RandomLookAroundGoal` | Idle looking behavior for realism |
-| `CompanionFollowGoal` | Companion NPCs follow assigned players |
 
-**Behavior Actions (via NPCBehaviorEngine):**
+**Behavior Actions (inner classes in `StandardActions`):**
 
 | Action | Description |
 |---|---|
@@ -814,7 +819,7 @@ A complete vehicle system spanning 137 files, covering chassis types, engines, t
 | Component | Options | Details |
 |---|---|---|
 | Chassis Types | 5 | Limousine, Van, Truck, Offroad (SUV), Luxus (Sports) |
-| Engine Types | 3 | Normal Motor, Performance Motor, Industrial Motor |
+| Engine Types | 3 | Normal Motor, Performance Motor, Performance 2 Motor (upgrade tiers 0/1/2) |
 | Tire Types | 6 | Standard, Sport, Premium, Offroad, All-Terrain, Heavy Duty |
 | Fenders | 3 | Basic, Chrome, Sport |
 | Fuel Tanks | 3 | 15L, 30L, 50L |
@@ -927,31 +932,7 @@ A large-scale storage system with 32 slots holding up to 1,024 items each, autom
 
 ---
 
-### 9. Tutorial System
-
-A 7-step interactive onboarding system that guides new players through all essential mod features upon their first join.
-
-**Tutorial Steps:**
-
-| Step | Title | Content |
-|---|---|---|
-| 1 | Welcome | Introduction to ScheduleMC, basic controls, navigation |
-| 2 | Economy Basics | Bank accounts, checking balance, using ATMs, physical cash |
-| 3 | Plot System | Finding plots, buying, renting, managing property |
-| 4 | Smartphone Usage | Opening the phone, browsing apps, sending messages |
-| 5 | Production Introduction | Starting a legal business, growing coffee or brewing beer |
-| 6 | NPC Interaction | Talking to NPCs, accepting quests, trading at shops |
-| 7 | Advanced Features | Vehicles, gangs, territory, locks, and what to explore next |
-
-**Features:**
-- Progress tracking with persistence across sessions
-- Individual step skip options for experienced players
-- Completion rewards (bonus starting money)
-- Extensible tutorial framework for adding custom steps
-
----
-
-### 10. Dynamic Market System
+### 9. Dynamic Market System
 
 A supply-and-demand pricing system that adjusts item prices based on market activity, creating a living economy that responds to player behavior.
 
@@ -1077,9 +1058,9 @@ A comprehensive achievement tracking system with 24 achievements across 5 catego
 - **Automatic tracking** of player actions and progress via event listeners
 - **Network synchronization** for multiplayer achievement state
 - **Smartphone app** (`AchievementAppScreen`) for viewing progress and unlocked achievements
-- **Persistent data** (`AchievementData`, `AchievementPlayerData`) stored per player
+- **Persistent data** (`AchievementData`, `PlayerAchievements`) stored per player
 
-**Key Classes:** `AchievementManager`, `Achievement`, `AchievementCategory`, `AchievementTier`, `AchievementData`, `AchievementPlayerData`
+**Key Classes:** `AchievementManager`, `AchievementTracker`, `Achievement`, `AchievementCategory`, `AchievementTier`, `AchievementData`, `PlayerAchievements`
 
 ### Messaging System
 
@@ -1088,13 +1069,13 @@ A player-to-player and player-to-NPC messaging system with persistent message hi
 **Features:**
 - **Player-to-player messaging** with real-time delivery and notification
 - **Player-to-NPC messaging** with reputation-based response behavior
-- **Persistent message history** (`MessageData`) stored per player
+- **Persistent message history** (`Message`) stored per player
 - **Reputation system** affecting NPC willingness to respond and message tone
 - **Network synchronization** (`network/` package) for real-time message delivery
 - **Smartphone integration** via `MessagesAppScreen` and `ContactsAppScreen`
 - **Contact management** with player and NPC contact lists
 
-**Key Classes:** `MessagingManager`, `MessageData`, `MessagingCommand`
+**Key Classes:** `MessageManager`, `Message`, `MessageNotificationOverlay`, `MessageNetworkHandler`
 
 ### Utility System
 
@@ -1114,212 +1095,173 @@ A water and electricity infrastructure system for plots, adding an ongoing maint
 
 ## Commands Reference
 
-ScheduleMC provides **161+ commands** organized by system. Below is a comprehensive reference.
+ScheduleMC provides commands organized by system. Below is a reference based on the actual registered command handlers.
 
-### Plot Commands (47 commands)
+### Plot Commands (`PlotCommand.java`)
 
 | Command | Permission | Description |
 |---|---|---|
-| `/plot create <name> <type> [price]` | Admin | Create a new plot with specified type |
-| `/plot delete <name>` | Admin | Delete an existing plot |
-| `/plot buy` | Player | Purchase the plot you are standing on |
-| `/plot sell` | Player | Sell your plot back to the server (50% refund) |
-| `/plot rent` | Player | Rent the plot you are standing on |
-| `/plot unrent` | Player | Cancel your plot rental |
-| `/plot info` | Player | View information about the current plot |
-| `/plot list` | Player | List all available plots for sale or rent |
+| `/plot create <name> <type>` | Admin | Create a new plot (types: residential, commercial, shop, public, government, prison, towing_yard) |
+| `/plot setowner <player>` | Admin | Set the owner of a plot |
+| `/plot remove` | Admin | Remove a plot |
+| `/plot reindex` | Admin | Rebuild the spatial index |
+| `/plot debug` | Admin | Toggle debug mode for plots |
 | `/plot settype <type>` | Admin | Change a plot's type |
-| `/plot setprice <amount>` | Admin | Set a plot's purchase price |
-| `/plot setrent <amount>` | Admin | Set a plot's daily rental price |
-| `/plot addmember <player>` | Owner | Add a trusted member to your plot |
-| `/plot removemember <player>` | Owner | Remove a member from your plot |
-| `/plot transfer <player>` | Owner | Transfer plot ownership to another player |
-| `/plot rate <1-5>` | Player | Rate a plot |
-| `/plot top` | Player | View highest-rated plots |
-| `/plot expand <direction> <amount>` | Admin | Expand plot boundaries |
-| `/plot shrink <direction> <amount>` | Admin | Shrink plot boundaries |
-| `/plot tp <name>` | Player | Teleport to a named plot |
-| `/plot wand` | Admin | Get the plot selection tool |
-| `/plot apartment create <name>` | Owner | Create an apartment unit in a plot |
+| `/plot warehouse set` | Admin | Link a warehouse to the current plot |
+| `/plot warehouse clear` | Admin | Remove warehouse link |
+| `/plot warehouse info` | Admin | View warehouse link info |
+| `/plot apartment wand` | Admin | Get the apartment selection tool |
+| `/plot apartment create <name>` | Admin | Create an apartment unit |
+| `/plot apartment delete <name>` | Admin | Delete an apartment unit |
 | `/plot apartment list` | Player | List apartments in the current plot |
+| `/plot apartment info <name>` | Player | View apartment details |
 | `/plot apartment rent <name>` | Player | Rent an apartment unit |
-| `/plot apartment unrent` | Player | Cancel apartment rental |
-| `/plot apartment setdeposit <amount>` | Owner | Set apartment security deposit |
+| `/plot apartment leave` | Player | Leave a rented apartment |
+| `/plot apartment setrent <amount>` | Admin | Set apartment rental price |
+| `/plot apartment evict <player>` | Admin | Evict a tenant from an apartment |
 
-### Economy Commands
+### Economy Commands (`MoneyCommand.java`, `StateCommand.java`, `HospitalCommand.java`)
 
 | Command | Permission | Description |
 |---|---|---|
-| `/money` | Player | Check your bank balance |
-| `/money pay <player> <amount>` | Player | Transfer money to another player |
-| `/money top` | Player | View the wealthiest players leaderboard |
-| `/money history` | Player | View your transaction history |
 | `/money set <player> <amount>` | Admin | Set a player's balance |
 | `/money give <player> <amount>` | Admin | Add money to a player's account |
 | `/money take <player> <amount>` | Admin | Remove money from a player's account |
-| `/daily` | Player | Claim your daily reward (50 Euro + streak bonus) |
-| `/daily streak` | Player | View your current login streak |
-| `/loan request <tier>` | Player | Request a loan (small/medium/large) |
-| `/loan repay <amount>` | Player | Repay a portion of your loan |
-| `/loan info` | Player | View current loan status and balance |
-| `/savings create <amount>` | Player | Open a savings account with initial deposit |
-| `/savings deposit <amount>` | Player | Deposit into savings account |
-| `/savings withdraw <amount>` | Player | Withdraw from savings account |
-| `/savings info` | Player | View savings account details and interest |
-| `/autopay add <player> <amount> <days> <reason>` | Player | Create a recurring payment |
-| `/autopay list` | Player | List your recurring payments |
-| `/autopay remove <id>` | Player | Cancel a recurring payment |
-| `/shopinvest buy <shop> <shares>` | Player | Purchase shares in a shop |
-| `/shopinvest sell <shop> <shares>` | Player | Sell shop shares |
-| `/shopinvest info` | Player | View your investment portfolio |
+| `/money history <player>` | Admin | View a player's transaction history |
 | `/state balance` | Admin | View the state treasury balance |
 | `/state deposit <amount>` | Admin | Add funds to the state treasury |
 | `/state withdraw <amount>` | Admin | Remove funds from the state treasury |
 | `/hospital setspawn` | Admin | Set hospital respawn point |
 | `/hospital setfee <amount>` | Admin | Set hospital respawn fee |
-| `/hospital bill` | Player | View outstanding hospital bills |
+| `/hospital info` | Admin | View hospital configuration |
 
-### NPC Commands
+### NPC Commands (`NPCCommand.java`, `AdminToolsCommand.java`)
 
 | Command | Permission | Description |
 |---|---|---|
-| `/npc spawn <type> <name>` | Admin | Spawn a new NPC (resident/merchant/police) |
-| `/npc remove <name>` | Admin | Remove an NPC from the world |
-| `/npc list` | Admin | List all spawned NPCs |
 | `/npc <name> info` | Admin | View detailed NPC information |
+| `/npc <name> movement <true/false>` | Admin | Enable or disable NPC movement |
+| `/npc <name> speed <value>` | Admin | Set NPC movement speed |
 | `/npc <name> schedule workstart <HHMM>` | Admin | Set NPC work start time |
 | `/npc <name> schedule workend <HHMM>` | Admin | Set NPC work end time |
-| `/npc <name> schedule lunch <HHMM>` | Admin | Set NPC lunch break time |
-| `/npc <name> schedule sleep <HHMM>` | Admin | Set NPC sleep time |
-| `/npc <name> sethome` | Admin | Set NPC home location to current position |
-| `/npc <name> setwork` | Admin | Set NPC work location |
-| `/npc <name> addleisure` | Admin | Add a leisure location (max 10) |
-| `/npc <name> clearleisure` | Admin | Clear all leisure locations |
-| `/npc <name> skin <url>` | Admin | Set NPC custom skin from URL |
-| `/npc <name> personality <trait>` | Admin | Set NPC personality trait |
-| `/npc <name> dialogue` | Admin | Open NPC dialogue editor |
-| `/npc <name> quest assign <quest>` | Admin | Assign a quest to the NPC |
+| `/npc <name> schedule home` | Admin | Set NPC home to current position |
+| `/npc <name> leisure add` | Admin | Add current position as leisure location |
+| `/npc <name> leisure remove <index>` | Admin | Remove a leisure location |
+| `/npc <name> leisure list` | Admin | List all leisure locations |
+| `/npc <name> leisure clear` | Admin | Clear all leisure locations |
+| `/npc <name> inventory give <item> <amount>` | Admin | Give items to NPC inventory |
+| `/npc <name> inventory clear` | Admin | Clear NPC inventory |
+| `/npc <name> wallet set <amount>` | Admin | Set NPC wallet balance |
+| `/npc <name> wallet add <amount>` | Admin | Add money to NPC wallet |
+| `/npc <name> wallet remove <amount>` | Admin | Remove money from NPC wallet |
 | `/npc <name> warehouse set` | Admin | Link NPC to a warehouse |
-| `/npc <name> setshop <shopId>` | Admin | Assign NPC to a shop plot |
-| `/npc <name> salary <amount>` | Admin | Set NPC daily salary |
-| `/npc <name> patrol add` | Admin | Add patrol waypoint at current position |
-| `/npc <name> patrol clear` | Admin | Clear all patrol waypoints |
+| `/npc <name> warehouse clear` | Admin | Remove NPC warehouse link |
+| `/npc <name> warehouse info` | Admin | View NPC warehouse link |
+| `/admintools remover` | Admin | Get the entity remover tool |
+| `/admintools help` | Admin | Show admin tools help |
 
-### Police and Crime Commands
+### Police and Crime Commands (`PrisonCommand.java`, `BountyCommand.java`)
 
 | Command | Permission | Description |
 |---|---|---|
-| `/wanted` | Player | Check your current wanted level |
-| `/wanted <player>` | Admin | Check another player's wanted level |
-| `/wanted set <player> <stars>` | Admin | Set a player's wanted level (0-5) |
-| `/wanted clear <player>` | Admin | Clear a player's wanted level |
-| `/prison send <player> <minutes>` | Admin | Send a player to prison |
-| `/prison release <player>` | Admin | Release a player from prison |
 | `/prison create <name>` | Admin | Create a prison facility |
 | `/prison addcell <id> <pos1> <pos2> <level>` | Admin | Add a cell to a prison |
+| `/prison removecell <id>` | Admin | Remove a prison cell |
+| `/prison list` | Admin | List all prisons |
+| `/prison cells <prison>` | Admin | List cells in a prison |
+| `/prison inmates` | Admin | List all imprisoned players |
+| `/prison release <player>` | Admin | Release a player from prison |
+| `/prison status` | Admin | View prison system status |
 | `/bail` | Player | Pay bail to leave prison early |
 | `/jailtime` | Player | Check remaining jail time |
-| `/bounty place <player> <amount>` | Player | Place a bounty on a player |
 | `/bounty list` | Player | View all active bounties |
-| `/bounty claim <player>` | Player | Claim a bounty reward |
-| `/crimestats` | Player | View your crime statistics |
-| `/crimestats <player>` | Admin | View another player's crime statistics |
+| `/bounty place <player> <amount>` | Player | Place a bounty on a player |
+| `/bounty info <player>` | Player | View bounty details |
+| `/bounty history` | Player | View bounty history |
 
-### Production Commands
-
-| Command | Permission | Description |
-|---|---|---|
-| `/tobacco info` | Player | View tobacco production information |
-| `/tobacco give <item>` | Admin | Give a tobacco item (for testing) |
-| `/production info` | Player | View general production system info |
-| `/production quality` | Player | Check item quality levels |
-| `/production config <chain> <key> <value>` | Admin | Configure production chain settings |
-
-### Vehicle Commands
-
-| Command | Permission | Description |
-|---|---|---|
-| `/vehicle spawn <type>` | Admin | Spawn a vehicle of specified type |
-| `/vehicle remove` | Admin | Remove the nearest vehicle |
-| `/vehicle fuel` | Player | Check current fuel level |
-| `/vehicle plate <text>` | Player | Set custom license plate text |
-| `/vehicle garage` | Player | Open your garage inventory |
-| `/vehicle repair` | Player | Repair your current vehicle |
-| `/vehicle list` | Admin | List all spawned vehicles |
-
-### Gang Commands
+### Gang Commands (`GangCommand.java`)
 
 | Command | Permission | Description |
 |---|---|---|
 | `/gang create <name>` | Player | Create a new gang |
-| `/gang disband` | Leader | Disband the gang permanently |
 | `/gang invite <player>` | Leader/Officer | Invite a player to your gang |
-| `/gang kick <player>` | Leader | Kick a member from the gang |
+| `/gang accept` | Player | Accept a gang invitation |
 | `/gang leave` | Member | Leave your current gang |
-| `/gang info [gang]` | Player | View gang information |
-| `/gang list` | Player | List all gangs on the server |
+| `/gang kick <player>` | Leader | Kick a member from the gang |
 | `/gang promote <player>` | Leader | Promote a gang member |
-| `/gang demote <player>` | Leader | Demote a gang member |
-| `/gang mission` | Member | View available gang missions |
-| `/gang mission accept <id>` | Member | Accept a gang mission |
+| `/gang info` | Player | View gang information |
+| `/gang list` | Player | List all gangs on the server |
+| `/gang disband` | Leader | Disband the gang permanently |
+| `/gang perk <perk>` | Leader | Activate a gang perk |
+| `/gang admin setlevel <gang> <level>` | Admin | Set a gang's level |
+| `/gang admin addxp <gang> <amount>` | Admin | Add XP to a gang |
+| `/gang admin info <gang>` | Admin | View admin gang details |
+| `/gang task editor` | Admin | Open the scenario/task editor |
 
-### Lock Commands
+### Lock Commands (`LockCommand.java`)
 
 | Command | Permission | Description |
 |---|---|---|
-| `/lock <type>` | Player | Apply a lock (simple/security/high_security/combination/dual) |
-| `/lock remove` | Owner | Remove a lock from a door or container |
+| `/lock code <code>` | Player | Enter a lock combination code |
+| `/lock setcode <code>` | Owner | Set combination code for a lock |
+| `/lock authorize <player>` | Owner | Authorize a player to use a lock |
 | `/lock info` | Player | View lock information on the targeted block |
-| `/lock setcode <code>` | Owner | Set combination code (for Combination and Dual locks) |
-| `/lock givekey <player>` | Owner | Give a key copy to another player |
+| `/lock remove` | Owner | Remove a lock from a door or container |
+| `/lock list` | Player | List your locks |
+| `/lock admin remove` | Admin | Force-remove any lock |
 
-### Warehouse Commands
+### Warehouse Commands (`WarehouseCommand.java`)
 
 | Command | Permission | Description |
 |---|---|---|
-| `/warehouse` | Player | View your warehouse inventory |
+| `/warehouse info` | Admin | View warehouse statistics |
 | `/warehouse add <item> <amount>` | Admin | Add items to a warehouse |
 | `/warehouse remove <item> <amount>` | Admin | Remove items from a warehouse |
+| `/warehouse clear` | Admin | Clear all warehouse inventory |
 | `/warehouse setshop <shopId>` | Admin | Link warehouse to a shop plot |
 | `/warehouse deliver` | Admin | Trigger an immediate warehouse delivery |
-| `/warehouse info` | Admin | View warehouse statistics |
-| `/warehouse list` | Admin | List all warehouses |
+| `/warehouse reset` | Admin | Reset warehouse state |
 
-### Utility Commands
+### Market Commands (`MarketCommand.java`)
+
+| Command | Permission | Description |
+|---|---|---|
+| `/market prices` | Player | View current dynamic market prices |
+| `/market trends` | Player | View market price trends |
+| `/market stats` | Player | View market statistics |
+| `/market top` | Player | View top traded items |
+
+### Utility Commands (`UtilityCommand.java`)
 
 | Command | Permission | Description |
 |---|---|---|
 | `/utility` | Player | View utility consumption for your plot |
-| `/utility info` | Player | View detailed utility breakdown |
-| `/utility toggle <type>` | Owner | Toggle a utility service on/off |
+| `/utility top` | Player | View top utility consumers |
+| `/utility scan` | Admin | Scan for utility consumers in area |
+| `/utility stats` | Player | View detailed utility statistics |
+| `/utility breakdown` | Player | View utility cost breakdown |
 | `/strom` | Player | View electricity consumption and costs |
 | `/wasser` | Player | View water consumption and costs |
 
-### Admin Commands
+### Map and Territory Commands (`MapCommand.java`)
 
 | Command | Permission | Description |
 |---|---|---|
-| `/schedulemc health` | Admin | Run comprehensive system health check |
-| `/schedulemc reload` | Admin | Reload all configuration files |
-| `/schedulemc debug <system>` | Admin | Toggle debug mode for a subsystem |
-| `/schedulemc save` | Admin | Force-save all mod data immediately |
-| `/schedulemc status` | Admin | View status of all subsystems and API modules |
-| `/health` | Admin | Quick system health overview |
-| `/territory claim` | Gang Leader | Claim territory for your gang |
-| `/territory info` | Player | View territory information |
-| `/map` | Player | Open the territory and city map |
+| `/map edit` | Admin | Open the territory map editor |
+| `/map info` | Player | View territory information |
 
-### General Commands
+### Admin and Health Commands (`HealthCommand.java`, `AdminCommand.java`)
 
 | Command | Permission | Description |
 |---|---|---|
-| `/level` | Player | View your producer level and XP |
-| `/achievements` | Player | View your achievement progress |
-| `/market prices` | Player | View current dynamic market prices |
-| `/market history` | Player | View market price history and trends |
-| `/tutorial start` | Player | Start or restart the tutorial |
-| `/tutorial skip` | Player | Skip the current tutorial step |
-| `/tow request` | Player | Request a tow truck for your vehicle |
+| `/health` | Admin | Run system health check overview |
+| `/health economy` | Admin | Check economy subsystem health |
+| `/health plot` | Admin | Check plot subsystem health |
+| `/health backups` | Admin | Check backup system status |
+| `/health log` | Admin | View recent health log entries |
+| `/admin setlevel <player> <level>` | Admin | Set a player's producer level |
+| `/admin addxp <player> <amount>` | Admin | Add XP to a player |
+| `/admin getlevel <player>` | Admin | Check a player's producer level |
 
 ---
 
@@ -1497,7 +1439,7 @@ IMarketAPI market = ScheduleMCAPI.getInstance().getMarketAPI();
 
 // Get the current market price for an item
 // Price includes supply/demand multiplier (0.5x to 2.0x base)
-double price = market.getCurrentPrice(itemStack);
+double price = market.getCurrentPrice(item);
 ```
 
 **Smartphone API -- Registering a Custom App:**
@@ -1910,7 +1852,7 @@ ScheduleMC maintains a comprehensive test suite to ensure reliability across all
 
 **Built-In Health Check System:**
 
-The mod includes a runtime health monitoring system (`HealthCheckManager`) accessible via the `/schedulemc health` and `/health` commands. The health check verifies:
+The mod includes a runtime health monitoring system (`HealthCheckManager`) accessible via the `/health` command. The health check verifies:
 
 - All manager classes are properly initialized
 - API subsystems are responding to requests
@@ -1940,13 +1882,13 @@ The mod includes a runtime health monitoring system (`HealthCheckManager`) acces
 A: CoreLib is a required dependency. Download [CoreLib 1.20.1-1.1.1](https://maven.maxhenkel.de/repository/public/de/maxhenkel/corelib/) and place the JAR file in your `mods/` folder alongside the ScheduleMC JAR. CoreLib provides essential functionality for OBJ model rendering, GUI systems, and networking.
 
 **Q: Players cannot interact with blocks on their own plot.**
-A: Verify the plot is correctly defined and the player is listed as the owner or member. Use `/plot info` while standing on the plot to check ownership and boundaries. If the issue persists, check the server logs for `PlotProtectionHandler` messages. You can also run `/schedulemc health` to verify the plot subsystem is healthy.
+A: Verify the plot is correctly defined and the player is listed as the owner or member. Use `/plot debug` while standing on the plot to check ownership and boundaries. If the issue persists, check the server logs for `PlotProtectionHandler` messages. You can also run `/health plot` to verify the plot subsystem is healthy.
 
 **Q: NPCs are standing still and not following their schedules.**
 A: NPC schedules use HHMM format (e.g., `0800` for 8:00 AM, `1430` for 2:30 PM). Verify that schedule entries are set correctly with `/npc <name> info`. Additionally, ensure NPCs have valid home, work, and leisure locations set, and that pathfinding routes between those locations are not blocked by obstacles.
 
 **Q: The economy system shows incorrect or inconsistent balances.**
-A: Run `/schedulemc health` to verify the economy subsystem is healthy. Check server logs for `AntiExploitManager` messages that might indicate blocked transactions. If a player's balance appears corrupted, admins can reset it with `/money set <player> <amount>`. The `TransactionHistory` can be reviewed to trace discrepancies.
+A: Run `/health economy` to verify the economy subsystem is healthy. Check server logs for `AntiExploitManager` messages that might indicate blocked transactions. If a player's balance appears corrupted, admins can reset it with `/money set <player> <amount>`. The `TransactionHistory` can be reviewed to trace discrepancies.
 
 **Q: A meth production block exploded and destroyed my base.**
 A: This is intended behavior. The Reduction Vessel (Reduktionskessel) has a configurable chance of explosion during the reduction step. The explosion destroys the block and damages surrounding blocks in a radius. Always build meth labs in isolated locations away from valuable structures. The explosion risk is part of the risk/reward balance for methamphetamine production.

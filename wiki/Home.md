@@ -32,7 +32,7 @@
 | **Total Files** | 1,407 |
 | **Registered Items** | 354 |
 | **Registered Blocks** | 152 |
-| **Available Commands** | 161+ |
+| **Available Commands** | 139 |
 | **Production Chains** | 14 (8 illegal + 6 legal) |
 | **API Modules** | 12 |
 | **Unit Tests** | 292 |
@@ -51,7 +51,7 @@
 | Page | Description |
 |---|---|
 | [Getting Started](Getting-Started.md) | Installation guide, prerequisites, first-time setup, and first steps for both players and server administrators |
-| [Commands](Commands.md) | Complete reference for all 161+ commands organized by category with syntax, permissions, and examples |
+| [Commands](Commands.md) | Complete reference for all 139 commands organized by category with syntax, permissions, and examples |
 | [Items](Items.md) | Full catalog of all 354 registered items with descriptions, categories, and usage information |
 | [Blocks](Blocks.md) | Complete listing of all 152 registered blocks including multi-block structures and special behaviors |
 | [Production Systems](Production-Systems.md) | Overview of all 14 production chains (8 illegal + 6 legal) with flowcharts, item lists, and quality mechanics |
@@ -160,32 +160,29 @@ When you join a ScheduleMC server for the first time, the following happens auto
 
 - A bank account is created with a starting balance of 1,000 EUR
 - A welcome message is displayed
-- The tutorial system is available if the server has it enabled
-
 ### Essential Player Commands
 
 ```
-/daily              Claim your daily reward (50 EUR base + streak bonus)
-/daily streak       View your current login streak
-/money              Check your bank balance
-/pay <player> <amt> Send money to another player
-/loan info          View available loan tiers
-/loan apply <tier>  Apply for a loan (SMALL, MEDIUM, LARGE)
-/savings create     Open a savings account (5% weekly interest)
-/plot wand          Get the plot selection tool
-/plot create <type> <name> <price>   Create a new plot
-/plot info          View information about the plot you are standing in
+/state balance              Check your bank balance
+/state deposit <amount>     Deposit money into state treasury
+/state withdraw <amount>    Withdraw from state treasury
+/bail                       Pay bail to leave prison
+/jailtime                   Check remaining prison sentence
+/gang create <name>         Create a new gang
+/gang info                  View your gang info
+/bounty list                View active bounties
+/market prices              View current market prices
+/lock code                  Lock a block with a code
 ```
 
 ### Getting Started Workflow
 
-1. Claim your daily reward with `/daily`
-2. Explore the server and find available plots
-3. Use `/plot wand` and right-click two corners to select an area
-4. Create your first plot with `/plot create residential "My Home" 50000`
-5. Check available production systems and start crafting
-6. Trade with NPC merchants or other players
-7. Use the smartphone (press P) to access the map, banking, and messaging apps
+1. Explore the server and find available plots
+2. Use `/plot apartment list` to find available apartments
+3. Rent an apartment with `/plot apartment rent <id>`
+4. Check production systems and start crafting
+5. Trade with NPC merchants or other players
+6. Use the smartphone (press P) to access the map, banking, and messaging apps
 
 ---
 
@@ -196,7 +193,7 @@ When you join a ScheduleMC server for the first time, the following happens auto
 ```
 /plot create public "Spawn"                    Create a public spawn area
 /plot create government "Town Hall"            Create a government building
-/npc spawn merchant <name>                     Spawn a merchant NPC
+/npc <name> info                               View NPC details
 /npc <name> schedule workstart 0700            Set NPC work schedule
 /npc <name> schedule workend 1800              Set NPC end-of-day
 /npc <name> setshop <shopId>                   Link NPC to a shop
@@ -257,7 +254,7 @@ These mods are not required but provide enhanced functionality when installed:
 | Observer | Forge event bus integration |
 | Factory | Entity and item creation |
 | Registry | Deferred Register for items and blocks |
-| Command | Command pattern for all 161+ commands |
+| Command | Command pattern for all 139 commands |
 | Facade | Simplified public API interfaces |
 
 ---
@@ -268,7 +265,7 @@ These mods are not required but provide enhanced functionality when installed:
 |---|---|---|
 | **3.6.0-beta** | **Current** | Towing system, gang and territory systems, additional crafting (beer, wine, coffee, chocolate, cheese, honey), map view, lock system, level system, continued API expansion |
 | 3.4.0-beta | -- | Vehicle system enhancements, API v3 stabilization, expanded unit test coverage |
-| 2.7.0-beta | -- | Tutorial system, market system, smartphone apps, documentation overhaul |
+| 2.7.0-beta | -- | Market system, smartphone apps, documentation overhaul |
 | 2.6.0 | -- | Prison system, utility system (power and water tracking) |
 | 2.5.0 | -- | Vehicle system introduction with CoreLib integration |
 | 2.0.0 | -- | NPC system, all 8 production chains, police and crime system |
@@ -347,7 +344,7 @@ ScheduleMC/
 |   |-- ScheduleMC.java            Main mod entry point
 |   |-- ModCreativeTabs.java        Creative mode tab registration
 |   |-- api/                        Public API (12 modules)
-|   |-- commands/                   Command implementations (161+)
+|   |-- commands/                   Command implementations (139)
 |   |-- economy/                    Economy system (11 manager classes)
 |   |-- region/                     Plot management and spatial indexing
 |   |-- npc/                        NPC AI, schedules, and behaviors

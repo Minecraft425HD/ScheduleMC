@@ -391,7 +391,7 @@ Wanted level cleared.
 
 If you cannot afford bail:
 
-1. **Ask a friend for money** - They use `/pay YourName <amount>`
+1. **Ask a friend for money** - They can transfer funds via the Smartphone Bank App
 2. **Serve the full sentence** - Free release at end of sentence
 3. **Admin release** - `/prison release <player>` (emergency/bugs only)
 
@@ -434,10 +434,10 @@ The bounty system allows players to place monetary bounties on other players, ma
 ### Bounty Commands
 
 ```bash
-/bounty set <player> <amount>    # Place a bounty
-/bounty check <player>           # Check bounty on a player
 /bounty list                     # List all active bounties
-/bounty remove <player>          # Remove your bounty (admin)
+/bounty place <player> <amount>  # Place a bounty on a player
+/bounty info <player>            # Check bounty on a player
+/bounty history                  # View bounty history
 ```
 
 ---
@@ -472,10 +472,10 @@ The Police & Crime System provides **10 commands** across four command groups:
 ### Bounty Commands
 
 ```bash
-/bounty set <player> <amount>    # Place bounty
-/bounty check <player>           # Check bounty
 /bounty list                     # List active bounties
-/bounty remove <player>          # Remove bounty (admin)
+/bounty place <player> <amount>  # Place bounty
+/bounty info <player>            # Check bounty
+/bounty history                  # View bounty history
 ```
 
 ---
@@ -656,9 +656,9 @@ Set patrols in:
 
 **Solutions:**
 ```bash
-/npc list                        # Verify police exist
-/npc spawn polizei Officer_1     # Spawn more police
+/npc Officer_1 info              # Check police NPC details
 /npc Officer_1 movement true     # Enable movement
+# Place additional police NPCs via spawn eggs or creative menu
 ```
 
 ### Cannot Pay Bail
@@ -670,8 +670,8 @@ Set patrols in:
 
 **Solutions:**
 ```
-1. Check balance: /money
-2. Get money from friend: Have them /pay you
+1. Check balance via Smartphone Bank App
+2. Get money from friend: They can transfer via the Smartphone
 3. Serve time instead (wait for release)
 4. Contact admin if bugged
 ```

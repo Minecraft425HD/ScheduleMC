@@ -287,12 +287,12 @@ Before creation, the system validates:
 
 ## Plot Ownership
 
+> **Note:** As of ScheduleMC 3.0, plot buying, selling, renting, listing, and info features have been moved from chat commands to the **Plot Info Block** GUI (Settings App UI). The descriptions below show the functionality available through the UI. There are no `/plot buy`, `/plot sell`, `/plot list`, `/plot info`, or `/plot rent` chat commands.
+
 ### Buying Plots
 
-#### Method 1: Buy While Standing On Plot
-```
-/plot buy
-```
+#### Method: Plot Info Block UI
+Interact with the Plot Info Block placed on a plot to access the Buy button.
 
 **Requirements:**
 - Plot must be for sale
@@ -985,58 +985,30 @@ Map<PlotType, Integer> stats = plotAPI.getPlotCountByType();
 
 ### Player Commands (32)
 
-| Command | Description |
-|---------|-------------|
-| `/plot wand` | Get the Plot Selection Tool (Golden Axe) |
-| `/plot create <type> <name> [price]` | Create a new plot |
-| `/plot buy [plotId]` | Buy a plot (standing on it or by ID) |
-| `/plot sell <price>` | List your plot for sale |
-| `/plot unsell` | Remove plot from sale |
-| `/plot transfer <player>` | Transfer ownership to another player |
-| `/plot abandon` | Abandon plot (50% refund) |
-| `/plot info` | View info for current plot |
-| `/plot list` | List all available/for-sale plots |
-| `/plot name <displayName>` | Change plot display name |
-| `/plot description <text>` | Set plot description |
-| `/plot trust <player>` | Trust a player on current plot |
-| `/plot untrust <player>` | Remove trust from a player |
-| `/plot trustlist` | View trusted players |
-| `/plot rate <1-5>` | Rate the current plot |
-| `/plot topplots` | View top-rated plots leaderboard |
-| `/plot rent <pricePerDay>` | Offer plot for rent |
-| `/plot rentplot <days> [plotId]` | Rent a plot |
-| `/plot rentextend <days>` | Extend current rental |
-| `/plot apartment wand` | Get apartment selection tool |
-| `/plot apartment create <name> <rent>` | Create an apartment |
-| `/plot apartment list` | List all apartments in plot |
-| `/plot apartment rent <id> [days]` | Rent an apartment |
-| `/plot apartment leave` | Leave current apartment |
-| `/plot apartment setrent <id> <rent>` | Change apartment rent |
-| `/plot apartment evict <id>` | Evict tenant from apartment |
-| `/plot apartment delete <id>` | Delete an apartment |
-| `/plot apartment info <id>` | View apartment details |
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/plot create <type> <name>` | Create a new plot (residential/commercial/shop/public/government/prison/towing_yard) | Admin |
+| `/plot setowner <plotId> <player>` | Change plot owner | Admin |
+| `/plot remove <plotId>` | Remove a plot | Admin |
+| `/plot reindex` | Rebuild spatial index | Admin |
+| `/plot debug` | Show debug/performance info for current position | Admin |
+| `/plot settype <plotId> <type>` | Change plot type | Admin |
+| `/plot apartment wand` | Get apartment selection tool | Admin |
+| `/plot apartment create <name> <rent>` | Create an apartment | Admin |
+| `/plot apartment delete <id>` | Delete an apartment | Admin |
+| `/plot apartment list` | List all apartments in plot | Default |
+| `/plot apartment info <id>` | View apartment details | Default |
+| `/plot apartment rent <id> [days]` | Rent an apartment | Default |
+| `/plot apartment leave` | Leave current apartment | Default |
+| `/plot apartment setrent <id> <rent>` | Change apartment rent | Admin |
+| `/plot apartment evict <id>` | Evict tenant from apartment | Admin |
+| `/plot warehouse set` | Set warehouse location | Admin |
+| `/plot warehouse clear` | Clear warehouse location | Admin |
+| `/plot warehouse info` | View warehouse info | Default |
 
-### Admin Commands (15)
+> **Note:** Plot buying, selling, renting, listing, info, trust management, ratings, and name/description are handled through the **Plot Info Block** GUI (Settings App UI), not chat commands. See [Plot Features via Settings App UI](../Commands.md#2-plot-features-via-settings-app-ui) for details.
 
-| Command | Description |
-|---------|-------------|
-| `/plot create public <name>` | Create public plot |
-| `/plot create government <name>` | Create government plot |
-| `/plot create shop <name>` | Create shop plot |
-| `/plot delete <plotId>` | Force-delete any plot |
-| `/plot setowner <plotId> <player>` | Change plot owner |
-| `/plot settype <plotId> <type>` | Change plot type |
-| `/plot setprice <plotId> <price>` | Change plot price |
-| `/plot forcetrust <plotId> <player>` | Force-trust a player |
-| `/plot forceuntrust <plotId> <player>` | Force-untrust a player |
-| `/plot reindex` | Rebuild spatial index |
-| `/plot debug` | Show debug/performance info |
-| `/plot teleport <plotId>` | Teleport to a plot |
-| `/plot listall` | List all plots (admin view) |
-| `/plot stats` | Plot system statistics |
-| `/plot backup` | Force save/backup |
-
-**Total: 47 subcommands**
+**Total: 18 chat subcommands + GUI features**
 
 ---
 
@@ -1113,8 +1085,8 @@ Good descriptions help attract buyers and renters.
 
 **Solutions:**
 ```
-/plot info               -- Check who owns the plot
--- Ask owner for: /plot trust YourName
+/plot debug              -- Check plot details at current position
+-- Ask owner to trust you via Plot Info Block UI
 -- Check if rental has expired
 -- Verify you are in the correct plot
 ```
@@ -1125,8 +1097,8 @@ Good descriptions help attract buyers and renters.
 
 **Solution:**
 ```
-/plot list               -- Check existing plots
-/plot wand               -- Get wand and select a different area
+/plot debug              -- Check plots at current position
+-- Use plot selection tool to select a different area
 -- Adjust selection to avoid overlap
 ```
 
@@ -1160,7 +1132,7 @@ Good descriptions help attract buyers and renters.
 **Symptoms:**
 - Slow plot lookups
 - Lag when entering plots
-- `/plot info` takes more than 1 second
+- `/plot debug` takes more than 1 second
 
 **Solutions:**
 ```

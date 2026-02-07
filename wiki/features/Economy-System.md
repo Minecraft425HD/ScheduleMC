@@ -246,7 +246,7 @@ ScheduleMC uses two types of currency storage that work together.
 | Manager | EconomyManager |
 | Storage | `config/plotmod_economy.json` |
 | Starting Balance | 1,000 EUR |
-| Used For | Commands (/pay, /plot buy, etc.) |
+| Used For | Smartphone Bank App, NPC transactions, admin commands |
 | Can Go Negative | Yes (overdraft up to -5,000 EUR) |
 | Thread Safety | ConcurrentHashMap |
 
@@ -299,6 +299,8 @@ State gets:         5 EUR (ATM fee)
 ---
 
 ## Loan System
+
+> **Note:** Loan, savings, daily reward, recurring payment, and shop investment features are managed internally by their respective manager classes (`LoanManager`, `SavingsAccountManager`, `DailyRewardManager`, etc.) and accessed through the **Smartphone Bank App** and **NPC banker interactions**. The command syntax shown below describes the intended user-facing operations available through the UI, not chat commands.
 
 ### Loan Tiers
 
@@ -1094,50 +1096,35 @@ economy.batchTransfer(bossUUID, recipients, "Weekly salaries");
 
 ## Commands Reference
 
-### Player Commands (18)
+### Chat Commands (7)
 
-| Command | Description | Permission |
-|---------|-------------|------------|
-| `/money` | Check your balance | Default |
-| `/money history [limit]` | View transaction history | Default |
-| `/pay <player> <amount>` | Transfer money to another player | Default |
-| `/loan apply <tier>` | Apply for a loan (SMALL/MEDIUM/LARGE) | Default |
-| `/loan info` | View loan information | Default |
-| `/loan repay` | Repay loan early | Default |
-| `/savings create <amount>` | Create a savings account | Default |
-| `/savings list` | List all savings accounts | Default |
-| `/savings deposit <id> <amount>` | Deposit into savings | Default |
-| `/savings withdraw <id> <amount>` | Withdraw from unlocked account | Default |
-| `/savings forcewithdraw <id> <amount>` | Withdraw from locked account (10% penalty) | Default |
-| `/savings close <id>` | Close a savings account | Default |
-| `/autopay add <player> <amount> <days> <desc>` | Create recurring payment | Default |
-| `/autopay list` | List recurring payments | Default |
-| `/autopay pause <id>` | Pause a payment | Default |
-| `/autopay resume <id>` | Resume a payment | Default |
-| `/autopay delete <id>` | Delete a payment | Default |
-| `/daily` | Claim daily reward | Default |
-
-### Investment Commands (3)
-
-| Command | Description | Permission |
-|---------|-------------|------------|
-| `/shopinvest buy <shop> <shares>` | Buy shop shares | Default |
-| `/shopinvest sell <shop> <shares>` | Sell shop shares | Default |
-| `/shopinvest info <shop>` | View investment info | Default |
-
-### Admin Commands (7)
+> **Note:** Most player-facing economy features (balance checking, payments, loans, savings, daily rewards, recurring payments, shop investments) are accessed through the **Smartphone Bank App** and **NPC banker interactions**, not through chat commands. Only the following chat commands exist:
 
 | Command | Description | Permission |
 |---------|-------------|------------|
 | `/money set <player> <amount>` | Set player balance | Admin |
 | `/money give <player> <amount>` | Add money to player | Admin |
 | `/money take <player> <amount>` | Remove money from player | Admin |
-| `/state balance` | View State Treasury balance | Admin |
-| `/state deposit <amount>` | Deposit into State Treasury | Admin |
-| `/state withdraw <amount>` | Withdraw from State Treasury | Admin |
-| `/daily streak` | View streak statistics | Default |
+| `/money history <player>` | View transaction history | Admin |
+| `/state balance` | View State Treasury balance | Default |
+| `/state deposit <amount>` | Deposit into State Treasury | Default |
+| `/state withdraw <amount>` | Withdraw from State Treasury | Default |
 
-**Total: 28 commands**
+### UI-Based Features (via Smartphone Bank App)
+
+The following features are managed by internal manager classes and accessed via the Smartphone Bank App or NPC interactions:
+
+| Feature | Manager Class | Access Method |
+|---------|--------------|---------------|
+| Balance Check | `EconomyManager` | Smartphone Bank App |
+| Money Transfer | `EconomyManager` | Smartphone Bank App |
+| Loan Application | `LoanManager` / `CreditLoanManager` | Smartphone Bank App / NPC |
+| Loan Repayment | `LoanManager` | Smartphone Bank App |
+| Savings Accounts | `SavingsAccountManager` | Smartphone Bank App / NPC (`SavingsDepositPacket`, `SavingsWithdrawPacket`) |
+| Daily Rewards | `DailyRewardManager` | Automatic on login |
+| Credit Score | `CreditScoreManager` | Internal tracking |
+
+**Total: 7 chat commands + Smartphone/NPC UI features**
 
 ---
 

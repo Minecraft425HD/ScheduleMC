@@ -88,7 +88,7 @@ The NPC System is the largest subsystem in ScheduleMC, spanning **173 source fil
 
 **Example Setup:**
 ```bash
-/npc spawn bewohner Hans_Mueller
+# Place NPC entity in-world, then configure:
 /npc Hans_Mueller schedule home 2300  # Sleep at 11 PM
 /npc Hans_Mueller leisure add         # Add leisure spots (up to 10)
 /npc Hans_Mueller wallet set 5000     # Give starting money
@@ -121,7 +121,7 @@ The NPC System is the largest subsystem in ScheduleMC, spanning **173 source fil
 
 **Example Setup:**
 ```bash
-/npc spawn verkaeufer Shop_Owner_Klaus
+# Place merchant NPC entity in-world, then configure:
 /npc Shop_Owner_Klaus schedule workstart 0700
 /npc Shop_Owner_Klaus schedule workend 1800
 /npc Shop_Owner_Klaus schedule home 2300
@@ -149,9 +149,10 @@ The NPC System is the largest subsystem in ScheduleMC, spanning **173 source fil
 
 **Example Setup:**
 ```bash
-/npc spawn polizei Officer_Mueller
+# Place police NPC entity in-world
 # Police automatically patrol and respond to crime
-# Configure patrol points at police station
+/npc Officer_Mueller info        # Check configuration
+/npc Officer_Mueller movement true  # Ensure movement is enabled
 ```
 
 ---
@@ -672,13 +673,9 @@ Sets patrol points for police NPCs. Supports up to 16 patrol points per officer.
 
 The `/npc` command provides **23 subcommands** for full NPC management:
 
-### Spawning and Removal
+### Placement
 
-```bash
-/npc spawn <type> <name>          # Spawn a new NPC (bewohner/verkaeufer/polizei)
-/npc remove <name>                # Remove an NPC from the world
-/npc list                         # List all NPCs
-```
+NPCs are placed as entities in-world via spawn eggs or the creative menu. There is no `/npc spawn` command. NPCs are removed by killing the entity or using standard Minecraft entity removal.
 
 ### Information
 
