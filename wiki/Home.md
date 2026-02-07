@@ -31,9 +31,9 @@
 | **Lines of Code** | 93,349 |
 | **Total Files** | 1,407 |
 | **Registered Items** | 141 |
-| **Registered Blocks** | 77+ |
+| **Registered Blocks** | 210+ |
 | **Available Commands** | 161+ |
-| **Production Chains** | 8 |
+| **Production Chains** | 14 (8 illegal + 6 legal) |
 | **API Modules** | 12 |
 | **Unit Tests** | 200+ |
 | **GUI Screens** | 32 |
@@ -53,8 +53,8 @@
 | [Getting Started](Getting-Started.md) | Installation guide, prerequisites, first-time setup, and first steps for both players and server administrators |
 | [Commands](Commands.md) | Complete reference for all 161+ commands organized by category with syntax, permissions, and examples |
 | [Items](Items.md) | Full catalog of all 141 registered items with descriptions, categories, and usage information |
-| [Blocks](Blocks.md) | Complete listing of all 77+ registered blocks including multi-block structures and special behaviors |
-| [Production Systems](Production-Systems.md) | Overview of all 8 production chains with flowcharts, item lists, and quality mechanics |
+| [Blocks](Blocks.md) | Complete listing of all 210+ registered blocks including multi-block structures and special behaviors |
+| [Production Systems](Production-Systems.md) | Overview of all 14 production chains (8 illegal + 6 legal) with flowcharts, item lists, and quality mechanics |
 | [FAQ](FAQ.md) | Frequently asked questions, common issues, and troubleshooting guide |
 
 ---
@@ -74,6 +74,14 @@ Detailed documentation for each major game system.
 | [Warehouse System](features/Warehouse-System.md) | Mass Storage | 32 inventory slots each holding 1,024 items (32,768 total capacity), automatic deliveries every 3 days, shop plot linking, NPC merchant integration, state-funded delivery costs, and revenue tracking |
 | [Tutorial System](features/Tutorial-System.md) | Player Onboarding | 7-step interactive tutorial covering welcome, economy basics, plot system, NPCs, production, trading, and completion rewards with progress tracking and skip options |
 | [Market System](features/Market-System.md) | Dynamic Pricing | Supply and demand-based economy with dynamic prices, trading volume effects, price history tracking, trend analysis, and time-based decay |
+| [Gang System](features/Gang-System.md) | Criminal Organizations | Hierarchical gangs with ranks (Boss, Underboss, Member, Recruit), XP/level progression (1-30), 20 perks across 4 branches, automated missions, weekly fees, and reputation tiers |
+| [Territory System](features/Territory-System.md) | Gang Territories | Chunk-based territory control with 10 color-coded zone types, map editor, economic and crime bonuses, and real-time synchronization |
+| [Lock System](features/Lock-System.md) | Door Security | 5 lock types (Simple, Security, High-Security, Combination, Dual), key management with 3 origins, lockpicking, hacking tools, and combination code entry |
+| [Towing System](features/Towing-System.md) | Vehicle Towing | Membership-based towing service (Bronze/Silver/Gold tiers), invoice payment via NPC, distance-based pricing, revenue tracking, and smartphone integration |
+| [Achievement System](features/Achievement-System.md) | Player Achievements | 24 achievements across 5 categories with 5 difficulty tiers (Bronze to Platinum), automatic tracking, monetary rewards up to 50,000 EUR |
+| [Level System](features/Level-System.md) | Producer Progression | Level 0-30 progression with 53 unlockable features, XP from production and sales, unlock system for strains, machines, vehicles, and economy features |
+| [MapView System](features/MapView-System.md) | In-Game Map | Advanced map renderer with minimap, world map, A* road navigation, NPC display, territory overlay, and configurable display settings |
+| [Messaging System](features/Messaging-System.md) | Communication | Player-to-player and player-to-NPC messaging with persistent history, reputation-based NPC responses, real-time notifications, and smartphone integration |
 
 ---
 
@@ -91,6 +99,17 @@ Each production chain has its own dedicated documentation page with step-by-step
 | [LSD System](production/LSD-System.md) | LSD Blotter | -- | 6 | Scientific laboratory process: fermentation, distillation (glowing apparatus), chemical synthesis, micro-dosing with GUI, perforation press |
 | [MDMA System](production/MDMA-System.md) | Ecstasy Pills | -- | 4 | Arcade-style production with a timing minigame at the pill press stage. Glowing reaction vessel, heated drying oven |
 | [Mushroom System](production/Mushroom-System.md) | Psilocybin Mushrooms | Cubensis, Azurescens, Mexicana | 4 | Spore syringes, mist bags (3 sizes), climate lamps (3 tiers), water tank environment requirement |
+
+#### Legal Production Chains
+
+| Page | Product | Varieties | Steps | Key Mechanic |
+|---|---|---|---|---|
+| [Coffee System](production/Coffee-System.md) | Coffee | Arabica, Robusta, Liberica, Excelsa | 5 | Altitude-based quality bonus, wet/dry processing methods, 4 roast levels, 4 grind sizes, 3 packaging sizes |
+| [Wine System](production/Wine-System.md) | Wine | Riesling, Chardonnay, Spaetburgunder, Merlot | 6 | Temperature-based quality, 4 sweetness levels, 3 aging stages, auto-aging in barrels |
+| [Beer System](production/Beer-System.md) | Beer | Pilsner, Weizen, Ale, Stout | 5 | Complete brewing process with malting, mashing, fermenting, conditioning, and bottling. Temperature-sensitive |
+| [Cheese System](production/Cheese-System.md) | Cheese | Gouda, Emmentaler, Camembert, Parmesan | 5 | Pasteurization, curdling with rennet, pressing, cave aging (4 stages), 3 processing methods |
+| [Honey System](production/Honey-System.md) | Honey | Acacia, Wildflower, Forest, Manuka | 5 | Beekeeping with 3 hive tiers, extraction, filtering, creaming, 4 aging stages (up to Vintage) |
+| [Chocolate System](production/Chocolate-System.md) | Chocolate | Milk, White, Dark, Ruby | 10 | Most complex legal chain: roasting, winnowing, grinding, conching, tempering, molding, cooling, enrobing, wrapping |
 
 ---
 

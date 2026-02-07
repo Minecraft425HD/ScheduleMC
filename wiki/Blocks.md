@@ -1,8 +1,10 @@
 # Complete Blocks Reference - ScheduleMC
 
-**Total Blocks:** 77+ blocks across 12 categories
+**Total Blocks:** 210+ blocks across 18 categories
 
 Quick Navigation:
+
+**Illegal Production:**
 - [Tobacco Blocks](#tobacco-blocks) (23)
 - [Cannabis Blocks](#cannabis-blocks) (9)
 - [Coca Blocks](#coca-blocks) (9)
@@ -11,6 +13,16 @@ Quick Navigation:
 - [LSD Blocks](#lsd-blocks) (4)
 - [MDMA Blocks](#mdma-blocks) (3)
 - [Mushroom Blocks](#mushroom-blocks) (4)
+
+**Legal Production:**
+- [Coffee Blocks](#coffee-blocks) (12)
+- [Wine Blocks](#wine-blocks) (13)
+- [Beer Blocks](#beer-blocks) (10)
+- [Cheese Blocks](#cheese-blocks) (10)
+- [Honey Blocks](#honey-blocks) (12)
+- [Chocolate Blocks](#chocolate-blocks) (13)
+
+**Infrastructure:**
 - [Economy Blocks](#economy-blocks) (2)
 - [Plot Blocks](#plot-blocks) (1)
 - [Warehouse Blocks](#warehouse-blocks) (1)
@@ -485,6 +497,318 @@ Quick Navigation:
 
 ---
 
+## Coffee Blocks
+
+### Coffee Pots (4 Variants)
+
+| Block ID | Pot Type | Growth Bonus |
+|----------|----------|-------------|
+| `coffee_terracotta_pot` | Terracotta | Standard |
+| `coffee_ceramic_pot` | Ceramic | +10% |
+| `coffee_iron_pot` | Iron | +25% |
+| `coffee_golden_pot` | Golden | +50% + Quality |
+
+### Coffee Plants (4 Types) - NO BLOCK ITEMS
+
+| Block ID | Variety | Growth Ticks | Yield |
+|----------|---------|-------------|-------|
+| `arabica_plant` | Arabica | 140 | 8 cherries |
+| `robusta_plant` | Robusta | 120 | 10 cherries |
+| `liberica_plant` | Liberica | 160 | 6 cherries |
+| `excelsa_plant` | Excelsa | 180 | 7 cherries |
+
+### Processing Blocks
+
+#### Wet Processing Station
+- **ID:** `wet_processing_station`
+- **Function:** Multi-stage wet processing (Pulping, Fermentation, Washing)
+- **Capacity:** 32 cherries
+- **Total Time:** 1,800 ticks (90 seconds)
+- **Output:** Green coffee beans (2 per cherry)
+
+#### Coffee Drying Trays (3 Sizes)
+
+| Block ID | Capacity | Ticks/Cherry |
+|----------|----------|-------------|
+| `small_coffee_drying_tray` | 15 | 300 |
+| `medium_coffee_drying_tray` | 22 | 250 |
+| `large_coffee_drying_tray` | 30 | 400 |
+
+#### Coffee Roasters (3 Sizes)
+
+| Block ID | Capacity | Ticks/Bean |
+|----------|----------|-----------|
+| `small_coffee_roaster` | 16 | 300 |
+| `medium_coffee_roaster` | 24 | 250 |
+| `large_coffee_roaster` | 32 | 200 |
+
+**Selectable Roast Levels:** Light (200C), Medium (220C), Dark (240C), Espresso (260C)
+
+#### Coffee Grinder
+- **ID:** `coffee_grinder`
+- **Capacity:** 64 roasted beans
+- **Time:** 100 ticks (5 seconds)
+- **Selectable Grind Sizes:** Coarse, Medium, Fine, Extra Fine
+
+#### Coffee Packaging Table
+- **ID:** `coffee_packaging_table`
+- **Function:** Package ground coffee into bags
+- **Time:** 200 ticks (10 seconds)
+- **Package Sizes:** 250g, 500g, 1kg
+
+---
+
+## Wine Blocks
+
+### Grapevine Pots (4 Varieties)
+
+| Block ID | Variety |
+|----------|---------|
+| `riesling_grapevine_pot` | Riesling (White) |
+| `spaetburgunder_grapevine_pot` | Spaetburgunder (Red) |
+| `chardonnay_grapevine_pot` | Chardonnay (White) |
+| `merlot_grapevine_pot` | Merlot (Red) |
+
+### Processing Blocks
+
+#### Crushing Station
+- **ID:** `crushing_station`
+- **Function:** Crush grapes into mash
+- **Quality:** Determined at crushing
+
+#### Wine Presses (3 Sizes)
+
+| Block ID | Capacity | Ticks/Mash |
+|----------|----------|-----------|
+| `small_wine_press` | 16 | 200 |
+| `medium_wine_press` | 24 | 150 |
+| `large_wine_press` | 32 | 100 |
+
+#### Fermentation Tanks (3 Sizes)
+
+| Block ID | Capacity | Ticks/Juice |
+|----------|----------|------------|
+| `small_fermentation_tank` | 16 | 2,400 |
+| `medium_fermentation_tank` | 24 | 1,800 |
+| `large_fermentation_tank` | 32 | 1,200 |
+
+#### Aging Barrels (3 Sizes)
+
+| Block ID | Capacity | Feature |
+|----------|----------|---------|
+| `small_aging_barrel` | 16 | Auto-aging, quality upgrade every 2,400 ticks |
+| `medium_aging_barrel` | 24 | Auto-aging, quality upgrade every 2,400 ticks |
+| `large_aging_barrel` | 32 | Auto-aging, quality upgrade every 2,400 ticks |
+
+#### Wine Bottling Station
+- **ID:** `wine_bottling_station`
+- **Function:** Seal wine in bottles (stops aging)
+
+---
+
+## Beer Blocks
+
+### Processing Blocks
+
+#### Malting Station
+- **ID:** `malting_station`
+- **Function:** Malt grain into wort
+
+#### Mash Tun
+- **ID:** `mash_tun`
+- **Function:** Mash grain with water
+
+#### Brew Kettles (3 Sizes)
+
+| Block ID | Speed | Ticks |
+|----------|-------|-------|
+| `small_brew_kettle` | 1.0x | 1,200 |
+| `medium_brew_kettle` | 1.5x | 800 |
+| `large_brew_kettle` | 2.0x | 600 |
+
+#### Beer Fermentation Tanks (3 Sizes)
+
+| Block ID | Speed | Ticks |
+|----------|-------|-------|
+| `small_beer_fermentation_tank` | 1.0x | 2,400 |
+| `medium_beer_fermentation_tank` | 1.5x | 1,600 |
+| `large_beer_fermentation_tank` | 2.0x | 1,200 |
+
+#### Conditioning Tanks (3 Sizes)
+
+| Block ID | Speed | Duration |
+|----------|-------|---------|
+| `small_conditioning_tank` | 1.0x | 30-50 days (by type) |
+| `medium_conditioning_tank` | 1.5x | 30-50 days (by type) |
+| `large_conditioning_tank` | 2.0x | 30-50 days (by type) |
+
+#### Beer Bottling Station
+- **ID:** `beer_bottling_station`
+- **Time:** 200 ticks per bottle
+
+---
+
+## Cheese Blocks
+
+### Processing Blocks
+
+#### Pasteurization Station
+- **ID:** `pasteurization_station`
+- **Function:** Pasteurize raw milk (65C)
+- **Time:** 400 ticks (20 seconds)
+
+#### Curdling Vat
+- **ID:** `curdling_vat`
+- **Capacity:** 16 milk buckets
+- **Time:** 600 ticks (30 seconds)
+- **Output:** 4 curds per milk bucket
+- **Requires:** 1 rennet per batch
+
+#### Cheese Presses (3 Sizes)
+
+| Block ID | Capacity | Ticks/Curd |
+|----------|----------|-----------|
+| `small_cheese_press` | 16 | 400 |
+| `medium_cheese_press` | 22 | 300 |
+| `large_cheese_press` | 28 | 200 |
+
+#### Aging Caves (3 Sizes)
+
+| Block ID | Capacity | Feature |
+|----------|----------|---------|
+| `small_aging_cave` | 16 | Temperature-controlled aging |
+| `medium_aging_cave` | 22 | Temperature-controlled aging |
+| `large_aging_cave` | 28 | Temperature-controlled aging |
+
+#### Packaging Station
+- **ID:** `packaging_station`
+- **Function:** Package aged cheese into portions
+
+---
+
+## Honey Blocks
+
+### Beekeeping Blocks
+
+| Block ID | Type | Yield/Cycle |
+|----------|------|-------------|
+| `beehive` | Basic | 1-2 honeycombs |
+| `advanced_beehive` | Advanced | 2-3 honeycombs |
+| `apiary` | Professional | 3-4 honeycombs |
+
+### Processing Blocks
+
+#### Honey Extractor
+- **ID:** `honey_extractor`
+- **Capacity:** 64 honeycombs
+- **Time:** 400 ticks (20 seconds)
+- **Conversion:** 4 honeycombs = 1 honey bucket + 2 beeswax
+
+#### Centrifugal Extractor
+- **ID:** `centrifugal_extractor`
+- **Capacity:** 64 honeycombs
+- **Time:** 200 ticks (10 seconds) - 2x faster
+- **Conversion:** 4 honeycombs = 1 honey bucket + 2 beeswax
+
+#### Filtering Station
+- **ID:** `filtering_station`
+- **Function:** Remove impurities, improve clarity
+
+#### Processing Station
+- **ID:** `processing_station`
+- **Function:** Apply processing method (Liquid, Creamed, Chunk)
+
+#### Creaming Station
+- **ID:** `creaming_station`
+- **Function:** Controlled crystallization for creamed honey
+
+#### Aging Chambers (3 Sizes)
+
+| Block ID | Capacity |
+|----------|----------|
+| `small_aging_chamber` | 12 |
+| `medium_aging_chamber` | 18 |
+| `large_aging_chamber` | 24 |
+
+#### Bottling Station
+- **ID:** `bottling_station`
+- **Function:** Seal honey in jars
+
+### Storage
+
+| Block ID | Function |
+|----------|---------|
+| `honey_storage_barrel` | Bulk honey storage |
+| `honey_display_case` | Display honey products |
+
+---
+
+## Chocolate Blocks
+
+### Processing Blocks (10-Step Chain)
+
+#### Roasting Station
+- **ID:** `roasting_station`
+- **Capacity:** 64 raw cocoa beans
+- **Time:** 400 ticks (20 seconds)
+
+#### Winnowing Machine
+- **ID:** `winnowing_machine`
+- **Function:** Remove cocoa shells, produce nibs
+- **Quality:** +1 tier upgrade
+
+#### Grinding Mill
+- **ID:** `grinding_mill`
+- **Capacity:** 64 nibs
+- **Time:** 600 ticks (30 seconds)
+- **Quality:** +1 tier upgrade (max GOOD)
+
+#### Pressing Station
+- **ID:** `pressing_station`
+- **Function:** Extract cocoa butter from mass
+
+#### Conching Machines (3 Sizes)
+
+| Block ID | Capacity | Speed |
+|----------|----------|-------|
+| `small_conching_machine` | 16 | 1.0x |
+| `medium_conching_machine` | 24 | 1.5x |
+| `large_conching_machine` | 32 | 2.0x |
+
+#### Tempering Station
+- **ID:** `tempering_station`
+- **Time:** 800 ticks (40 seconds)
+- **Function:** Create crystalline structure for snap
+
+#### Molding Stations (3 Sizes)
+
+| Block ID | Capacity | Ticks/Mold |
+|----------|----------|-----------|
+| `small_molding_station` | 16 | 200 |
+| `medium_molding_station` | 24 | 150 |
+| `large_molding_station` | 32 | 100 |
+
+#### Cooling Tunnel
+- **ID:** `cooling_tunnel`
+- **Time:** 400 ticks (20 seconds)
+- **Function:** Prevent fat bloom
+
+#### Enrobing Machine
+- **ID:** `enrobing_machine`
+- **Function:** Coat/fill chocolate pieces
+
+#### Wrapping Station
+- **ID:** `wrapping_station`
+- **Function:** Final packaging
+
+### Storage
+
+| Block ID | Function |
+|----------|---------|
+| `chocolate_storage_cabinet` | Chocolate storage |
+
+---
+
 ## Economy Blocks
 
 ### ATM (Geldautomat)
@@ -578,6 +902,8 @@ Quick Navigation:
 
 ## Block Categories Summary
 
+### Illegal Production Blocks
+
 | Category | Block Count | Key Features |
 |----------|-------------|--------------|
 | **Tobacco** | 23 | Pots, plants, drying, fermentation, packaging, lights |
@@ -588,12 +914,28 @@ Quick Navigation:
 | **LSD** | 4 | Precision lab equipment, GUI dosing |
 | **MDMA** | 3 | Chemical synthesis, timing minigame |
 | **Mushroom** | 4 | Climate control, water system |
+
+### Legal Production Blocks
+
+| Category | Block Count | Key Features |
+|----------|-------------|--------------|
+| **Coffee** | 12 | 4 pots, 4 plants, wet processing, roasters, grinder, packaging |
+| **Wine** | 13 | 4 grapevine pots, crushing, pressing, fermentation, aging, bottling |
+| **Beer** | 10 | Malting, mashing, brewing, fermentation, conditioning, bottling |
+| **Cheese** | 10 | Pasteurization, curdling, pressing, aging caves, packaging |
+| **Honey** | 12 | 3 hive types, 2 extractors, filtering, creaming, aging, bottling |
+| **Chocolate** | 13 | Roasting, winnowing, grinding, conching, tempering, molding, cooling, enrobing, wrapping |
+
+### Infrastructure Blocks
+
+| Category | Block Count | Key Features |
+|----------|-------------|--------------|
 | **Economy** | 2 | Banking, decorative storage |
 | **Plot** | 1 | Information display |
 | **Warehouse** | 1 | Mass storage, auto-delivery |
 | **Vehicle** | 4 | Fuel station, garage, diesel fluid |
 
-**Total: 77+ Blocks** (13 plant blocks have no items)
+**Total: 210+ Blocks** (plant blocks have no items)
 
 ---
 
