@@ -76,7 +76,12 @@ public enum BehaviorState {
     /**
      * NPC interagiert mit einem anderen NPC
      */
-    SOCIALIZING("Soziale Interaktion", false, true);
+    SOCIALIZING("Soziale Interaktion", false, true),
+
+    /**
+     * NPC fährt Auto (nicht unterbrechbar)
+     */
+    DRIVING("Fährt Auto", false, false);
 
     private final String displayName;
     private final boolean isEmergency;

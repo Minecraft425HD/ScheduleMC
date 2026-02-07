@@ -34,6 +34,7 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
 
     public CustomNPCRenderer(EntityRendererProvider.Context context) {
         super(context, new CustomNPCModel(context.bakeLayer(CustomNPCModel.LAYER_LOCATION)), 0.5F);
+        this.addLayer(new NPCVehicleLayer(this));
     }
 
     @Override

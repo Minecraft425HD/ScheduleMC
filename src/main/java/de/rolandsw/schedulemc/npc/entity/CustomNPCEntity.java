@@ -83,6 +83,14 @@ public class CustomNPCEntity extends PathfinderMob {
     private static final EntityDataAccessor<Float> EMOTION_INTENSITY =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.FLOAT);
 
+    // NPC Driving System - Synced Data für Client-Rendering
+    private static final EntityDataAccessor<Boolean> IS_DRIVING =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> VEHICLE_YAW =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> VEHICLE_COLOR =
+        SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
+
     // NPC Daten (Server-Side)
     private NPCData npcData;
 
@@ -122,6 +130,10 @@ public class CustomNPCEntity extends PathfinderMob {
         // NPC Life System - Emotion syncing für Client-Rendering
         this.entityData.define(EMOTION_STATE, 0); // EmotionState.NEUTRAL.ordinal()
         this.entityData.define(EMOTION_INTENSITY, 0.0f);
+        // NPC Driving System
+        this.entityData.define(IS_DRIVING, false);
+        this.entityData.define(VEHICLE_YAW, 0.0f);
+        this.entityData.define(VEHICLE_COLOR, 0);
     }
 
     @Override
@@ -732,6 +744,53 @@ public class CustomNPCEntity extends PathfinderMob {
         }
 
         return Math.max(0.5f, Math.min(1.5f, modifier));
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // NPC DRIVING SYSTEM
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Prüft ob der NPC gerade Auto fährt (Client-safe via synced data)
+     */
+    public boolean isDriving() {
+        return this.entityData.get(IS_DRIVING);
+    }
+
+    /**
+     * Setzt den Fahrmodus (Server-Side)
+     */
+    public void setDriving(boolean driving) {
+        this.entityData.set(IS_DRIVING, driving);
+    }
+
+    /**
+     * Gibt den Fahrzeug-Yaw zurück (Client-safe via synced data)
+     */
+    public float getVehicleYaw() {
+        return this.entityData.get(VEHICLE_YAW);
+    }
+
+    /**
+     * Setzt den Fahrzeug-Yaw (Server-Side)
+     */
+    public void setVehicleYaw(float yaw) {
+        this.entityData.set(VEHICLE_YAW, yaw);
+    }
+
+    /**
+     * Gibt die Fahrzeugfarbe zurück (Client-safe via synced data)
+     * 0=weiss, 1=schwarz, 2=rot, 3=blau, 4=gelb
+     */
+    public int getVehicleColor() {
+        return this.entityData.get(VEHICLE_COLOR);
+    }
+
+    /**
+     * Setzt die Fahrzeugfarbe (Server-Side)
+     */
+    public void setVehicleColor(int color) {
+        this.entityData.set(VEHICLE_COLOR, color);
     }
 
     // Verhindern von Despawning

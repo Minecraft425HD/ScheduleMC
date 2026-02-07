@@ -103,17 +103,27 @@ public class CustomNPCModel extends HierarchicalModel<CustomNPCEntity> {
         this.head.yRot = netHeadYaw * ((float) Math.PI / 180F);
         this.head.xRot = headPitch * ((float) Math.PI / 180F);
 
-        // Leg animation (walking)
-        this.rightLeg.xRot = Mth.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
-        this.leftLeg.xRot = Mth.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
+        if (entity.isDriving()) {
+            // Sitzpose: Beine 90° angewinkelt, Arme nach vorne (Lenkrad)
+            this.rightLeg.xRot = -1.5F;
+            this.leftLeg.xRot = -1.5F;
+            this.rightArm.xRot = -0.5F;
+            this.leftArm.xRot = -0.5F;
+            this.rightArm.zRot = 0.0F;
+            this.leftArm.zRot = 0.0F;
+        } else {
+            // Leg animation (walking)
+            this.rightLeg.xRot = Mth.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
+            this.leftLeg.xRot = Mth.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
 
-        // Arm animation (walking)
-        this.rightArm.xRot = Mth.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
-        this.leftArm.xRot = Mth.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
+            // Arm animation (walking)
+            this.rightArm.xRot = Mth.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
+            this.leftArm.xRot = Mth.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
 
-        // Idle arm swing
-        this.rightArm.zRot = 0.0F;
-        this.leftArm.zRot = 0.0F;
+            // Idle arm swing
+            this.rightArm.zRot = 0.0F;
+            this.leftArm.zRot = 0.0F;
+        }
     }
 
     @Override

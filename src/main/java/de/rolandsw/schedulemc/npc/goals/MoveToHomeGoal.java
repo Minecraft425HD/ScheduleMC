@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.goals;
 
+import de.rolandsw.schedulemc.npc.driving.NPCDrivingScheduler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -66,6 +67,15 @@ public class MoveToHomeGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
+        // Wenn NPC fährt, Goal weiterlaufen lassen bis Fahrt beendet
+        if (npc.isDriving()) {
+            Level level = npc.level();
+            long dayTime = level.getDayTime() % 24000;
+            long homeTime = npc.getNpcData().getHomeTime();
+            long workStart = npc.getNpcData().getWorkStartTime();
+            return isTimeBetween(dayTime, homeTime, workStart);
+        }
+
         // Weitermachen solange es Heimzeit ist und NPC nicht angekommen
         if (homePos == null) {
             return false;
@@ -95,6 +105,11 @@ public class MoveToHomeGoal extends Goal {
             return;
         }
 
+        // Wenn NPC fährt, Scheduler kümmert sich um die Bewegung
+        if (npc.isDriving()) {
+            return;
+        }
+
         tickCounter++;
 
         // Alle 5 Sekunden Pfad neu berechnen
@@ -112,6 +127,11 @@ public class MoveToHomeGoal extends Goal {
     @Override
     public void start() {
         if (homePos != null) {
+            // Versuche Auto zu fahren wenn Ziel weit genug entfernt
+            if (NPCDrivingScheduler.canDrive(npc, homePos)) {
+                NPCDrivingScheduler.startDriving(npc, homePos);
+                return;
+            }
             npc.getNavigation().moveTo(
                 homePos.getX() + 0.5,
                 homePos.getY(),
@@ -123,6 +143,10 @@ public class MoveToHomeGoal extends Goal {
 
     @Override
     public void stop() {
+        // Stoppe Fahrt falls aktiv
+        if (npc.isDriving()) {
+            NPCDrivingScheduler.stopDriving(npc);
+        }
         npc.getNavigation().stop();
         tickCounter = 0;
     }
