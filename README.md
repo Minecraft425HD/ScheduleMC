@@ -4579,7 +4579,8 @@ ScheduleMC/
 ├── gradlew
 ├── gradlew.bat
 ├── settings.gradle
-└── update.json```
+└── update.json
+```
 
 </details>
 
