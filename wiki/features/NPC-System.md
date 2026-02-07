@@ -41,12 +41,12 @@
 
 ## Overview
 
-The NPC System is the largest subsystem in ScheduleMC, spanning **173 source files** with **139 behavior goals** driving intelligent, schedule-driven NPCs. NPCs have personalities, form relationships, run shops, patrol streets, and create a living, breathing economy on your server.
+The NPC System is the largest subsystem in ScheduleMC, spanning **173 source files** with **9 AI behavior goals**, **5 behavior actions**, and **14 behavior states** driving intelligent, schedule-driven NPCs. NPCs have personalities, form relationships, run shops, patrol streets, and create a living, breathing economy on your server.
 
 ### Key Features
 
 - **3 NPC Types** - Resident, Merchant, Police
-- **139 Behavior Goals** - Complex AI decision-making
+- **9 AI Goals + 5 Behavior Actions** - Complex AI decision-making via NPCBehaviorEngine
 - **4 Personality Types** - Friendly, Neutral, Hostile, Professional
 - **Schedule System** - HHMM format time-based routines
 - **Custom Player Skins** - NPCs use real Minecraft player skins
@@ -158,7 +158,7 @@ The NPC System is the largest subsystem in ScheduleMC, spanning **173 source fil
 
 ## Behavior Goals
 
-The NPC system contains **139 behavior goals** that drive all NPC decision-making. These goals are prioritized and selected by the behavior engine based on NPC type, schedule, personality, and current context.
+The NPC system contains **9 AI behavior goals** and **5 behavior actions** that drive all NPC decision-making. These goals are prioritized and selected by the behavior engine based on NPC type, schedule, personality, and current context.
 
 ### Goal Categories
 

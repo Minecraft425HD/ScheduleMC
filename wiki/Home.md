@@ -29,13 +29,13 @@
 | **Forge** | 47.4.0 |
 | **Java** | 17 |
 | **Lines of Code** | 93,349 |
-| **Total Files** | 1,426 |
+| **Total Files** | 1,407 |
 | **Registered Items** | 354 |
 | **Registered Blocks** | 152 |
 | **Available Commands** | 161+ |
 | **Production Chains** | 14 (8 illegal + 6 legal) |
 | **API Modules** | 12 |
-| **Unit Tests** | 200+ |
+| **Unit Tests** | 292 |
 | **GUI Screens** | 126 |
 | **Manager Classes** | 55 |
 | **BlockEntity Types** | 131 |
@@ -69,7 +69,7 @@ Detailed documentation for each major game system.
 | [Plot System](features/Plot-System.md) | Land Management | 5 plot types (Residential, Commercial, Shop, Public, Government), spatial indexing for O(log n) lookups, apartment sub-leasing, 5-star rating system, trusted player permissions, block and inventory protection, daily rent with auto-eviction, and 50% refund on abandonment |
 | [NPC System](features/NPC-System.md) | AI Characters | Schedule-driven NPCs with 4 personality types, 3 NPC roles (Resident, Merchant, Police), custom player skins, shop and warehouse integration, relationship system, wallet and salary mechanics, pathfinding AI, and interactive dialogue |
 | [Police and Crime System](features/Police-Crime-System.md) | Law Enforcement | GTA-inspired 5-star wanted level system with auto-decay, police AI with chase and arrest mechanics, backup calling, prison system with cells and bail, raid penalties, door blocking during pursuits, and PvP crime detection |
-| [Vehicle System](features/Vehicle-System.md) | Drivable Vehicles | 5 vehicle types (Limousine, Van, Truck, SUV, Sports Car), modular parts system (engines, tires, chassis, fenders, fuel tanks), fuel stations, garage blocks, license plates, vehicle damage, OBJ model support via CoreLib, and 139 dedicated Java files |
+| [Vehicle System](features/Vehicle-System.md) | Drivable Vehicles | 5 vehicle types (Limousine, Van, Truck, SUV, Sports Car), modular parts system (engines, tires, chassis, fenders, fuel tanks), fuel stations, garage blocks, license plates, vehicle damage, OBJ model support via CoreLib, and 137 dedicated Java files |
 | [Smartphone System](features/Smartphone-System.md) | In-Game Phone | 11 functional apps (Map, Dealer, Products, Order, Contacts, Messages, Plot, Settings, Bank, Crime Stats, Chat), PvP immunity while using, configurable keybind (default: P), and extensible app framework |
 | [Warehouse System](features/Warehouse-System.md) | Mass Storage | 32 inventory slots each holding 1,024 items (32,768 total capacity), automatic deliveries every 3 days, shop plot linking, NPC merchant integration, state-funded delivery costs, and revenue tracking |
 | [Tutorial System](features/Tutorial-System.md) | Player Onboarding | 7-step interactive tutorial covering welcome, economy basics, plot system, NPCs, production, trading, and completion rewards with progress tracking and skip options |
@@ -360,7 +360,7 @@ ScheduleMC/
 |   |-- mdma/                       MDMA/ecstasy production chain
 |   |-- mushroom/                   Psilocybin mushroom production chain
 |   |-- production/                 Generic production framework
-|   |-- vehicle/                    Vehicle system (139 files)
+|   |-- vehicle/                    Vehicle system (137 files)
 |   |-- warehouse/                  Warehouse and auto-delivery
 |   |-- messaging/                  Messaging and contacts
 |   |-- market/                     Dynamic market pricing

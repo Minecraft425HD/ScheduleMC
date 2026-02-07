@@ -95,16 +95,16 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 
 ### Key Highlights
 
-- **93,349 lines of Java code** across **1,426 source files**
+- **93,349 lines of Java code** across **1,407 source files**
 - **1,206 resource files** (textures, models, sounds, configurations)
 - **354 items**, **152 blocks**, **161+ commands**
 - **12 API modules** with full external integration support
-- **200+ unit tests** across **19 test files**
+- **292 unit tests** across **19 test files**
 - **55 manager classes**, **126 GUI screens**, **131 block entity types**, **100 network packets**
 - **17 major interconnected systems** with dozens of supporting subsystems
 - **14 production chains** (8 illegal, 6 legal) each with multi-step crafting processes
 - **137 vehicle system files** with 5 chassis types, 3 engines, 6 tire types
-- **139 NPC behavior goals** driving realistic daily life simulation
+- **NPC behavior engine** with 9 AI goals, 5 behavior actions, and 14 behavior states driving realistic daily life simulation
 
 ---
 
@@ -113,13 +113,13 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 | Metric | Count |
 |---|---|
 | Lines of Java Code | 93,349 |
-| Source Files | 1,426 |
+| Source Files | 1,407 |
 | Resource Files | 1,206 |
 | Items | 354 |
 | Blocks | 152 |
 | Commands | 161+ |
 | API Modules | 12 |
-| Unit Tests | 200+ |
+| Unit Tests | 292 |
 | Test Files | 19 |
 | Manager Classes | 55 |
 | GUI Screens | 126 |
@@ -127,7 +127,7 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 | Network Packets | 100 |
 | Event Handlers | 53 files (116 @SubscribeEvent) |
 | Config Options | 228 |
-| NPC Behavior Goals | 139 |
+| NPC AI Goals | 9 goals + 5 behavior actions |
 | Vehicle Files | 137 |
 | MapView Files | 122 |
 | Production Chains | 14 (8 illegal + 6 legal) |
@@ -320,7 +320,7 @@ A deep and realistic economy simulation with 11 manager classes covering banking
 
 ### 3. NPC System
 
-A sophisticated NPC system with three distinct types, 139 behavior goals, personality simulation, daily schedules, dialogue trees, quest distribution, relationships, and a witness mechanic that integrates with the police system.
+A sophisticated NPC system with three distinct types, a behavior engine with 9 AI goals and 14 behavior states, personality simulation, daily schedules, dialogue trees, quest distribution, relationships, and a witness mechanic that integrates with the police system.
 
 **NPC Types:**
 
@@ -330,18 +330,32 @@ A sophisticated NPC system with three distinct types, 139 behavior goals, person
 | Merchant | Shop operators | Run shops, buy/sell goods, manage inventory from linked warehouses, set prices |
 | Police | Law enforcement | Patrol routes, detect crimes, pursue wanted players, make arrests, call for backup |
 
-**Behavior System (139 Goals):**
+**Behavior System (9 AI Goals + 5 Behavior Actions):**
 
 The NPC AI is driven by interchangeable behavior goals that determine NPC actions throughout the day:
 
 | Goal | Description |
 |---|---|
+| `FloatGoal` | Swimming ability for NPCs |
+| `OpenDoorGoal` | NPCs can open and close doors |
 | `MoveToHomeGoal` | Navigate to home location at end of day |
 | `MoveToWorkGoal` | Navigate to workplace during work hours |
 | `MoveToLeisureGoal` | Navigate to leisure locations during breaks (up to 10 configured) |
 | `PolicePatrolGoal` | Follow configured patrol routes |
 | `PoliceStationGoal` | Return to police station when off duty |
-| ...and 134 more | Covering combat, interaction, observation, commerce, and social behaviors |
+| `LookAtPlayerGoal` | NPCs face nearby players when idle |
+| `RandomLookAroundGoal` | Idle looking behavior for realism |
+| `CompanionFollowGoal` | Companion NPCs follow assigned players |
+
+**Behavior Actions (via NPCBehaviorEngine):**
+
+| Action | Description |
+|---|---|
+| `FleeAction` | Flee from threats and danger |
+| `AlertPoliceAction` | Call police when witnessing crimes |
+| `InvestigateAction` | Investigate suspicious activity nearby |
+| `HideAction` | Hide from danger in safe locations |
+| `IdleAction` | Default idle behavior when no other action applies |
 
 **Schedule System:**
 
@@ -1636,7 +1650,7 @@ ScheduleMC/
 |   |   |   |
 |   |   |   |-- npc/                         # === NPC SYSTEM ===
 |   |   |   |   |-- entity/                  #   CustomNPCEntity, NPCEntities
-|   |   |   |   |-- goals/                   #   139 behavior goals
+|   |   |   |   |-- goals/                   #   6 custom behavior goals
 |   |   |   |   |-- personality/             #   Personality traits
 |   |   |   |   |-- crime/                   #   Crime detection, bounty, prison
 |   |   |   |   |-- life/                    #   Daily life simulation
@@ -1776,7 +1790,7 @@ ScheduleMC/
 |   |           |-- tags/                    #   Item and block tags
 |   |
 |   |-- test/
-|   |   |-- java/de/rolandsw/schedulemc/    # === 19 TEST FILES, 200+ UNIT TESTS ===
+|   |   |-- java/de/rolandsw/schedulemc/    # === 19 TEST FILES, 292 UNIT TESTS ===
 |   |       |-- commands/                    #   Command tests
 |   |       |-- economy/                     #   Economy manager tests
 |   |       |-- production/                  #   Production chain tests
@@ -1814,7 +1828,7 @@ The codebase employs the following design patterns consistently across all syste
 |---|---|---|
 | **Singleton** | Thread-safe single instances for central managers | `ScheduleMCAPI` (double-checked locking), `EconomyManager`, `PlotManager`, `CrimeManager` |
 | **Observer / Event Bus** | Decoupled cross-system communication via Forge events | `PlayerJoinHandler`, `BlockProtectionHandler`, `UtilityEventHandler`, `RespawnHandler`, `NPCStealingHandler`, `BusinessMetricsUpdateHandler` |
-| **Strategy** | Interchangeable algorithms for NPC behavior and economy | 139 NPC goal strategies (`MoveToHomeGoal`, `PolicePatrolGoal`, etc.), `EconomyCyclePhase` strategies |
+| **Strategy** | Interchangeable algorithms for NPC behavior and economy | 9 NPC AI goal strategies (`MoveToHomeGoal`, `PolicePatrolGoal`, etc.) + 5 behavior actions, `EconomyCyclePhase` strategies |
 | **Factory** | Object creation for entities, items, and vehicles | NPC entity creation, vehicle component assembly, lock creation by type |
 | **Manager / Service Layer** | Encapsulated business logic in 55 dedicated managers | `EconomyManager`, `PlotManager`, `CrimeManager`, `BountyManager`, `LoanManager`, `GangManager`, `TerritoryManager`, `TowingYardManager`, etc. |
 | **Repository** | Data persistence abstraction | Plot data storage, NPC data, economy records, crime records |
@@ -1846,7 +1860,7 @@ ScheduleMC maintains a comprehensive test suite to ensure reliability across all
 | Assertions | AssertJ 3.24.2 (fluent assertion chains) |
 | Coverage | JaCoCo 0.8.11 (HTML + XML reports) |
 | Test Files | 19 |
-| Total Tests | 200+ |
+| Total Tests | 292 |
 | Test Memory | 2 GB max heap (`maxHeapSize = '2G'`) |
 | Test Logging | Passed, skipped, and failed events with full exception format |
 
