@@ -6,8 +6,16 @@ import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.PlotType;
 import net.minecraft.core.BlockPos;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,6 +29,8 @@ import java.util.stream.Collectors;
  * @since 3.0.0
  */
 public class PlotAPIImpl implements IPlotAPI {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final PlotManager plotManager;
 
@@ -125,5 +135,174 @@ public class PlotAPIImpl implements IPlotAPI {
     @Override
     public int getPlotCount() {
         return plotManager.getPlotCount();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<PlotRegion> getPlotsByType(PlotType type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type cannot be null");
+        }
+        return plotManager.getPlots().stream()
+            .filter(plot -> plot.getType() == type)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean setPlotOwner(String plotId, @Nullable UUID ownerUUID) {
+        if (plotId == null) {
+            throw new IllegalArgumentException("plotId cannot be null");
+        }
+        PlotRegion plot = plotManager.getPlot(plotId);
+        if (plot == null) {
+            return false;
+        }
+        plot.setOwner(ownerUUID);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean setPlotPrice(String plotId, double price) {
+        if (plotId == null) {
+            throw new IllegalArgumentException("plotId cannot be null");
+        }
+        if (price < 0) {
+            throw new IllegalArgumentException("price must be non-negative, got: " + price);
+        }
+        PlotRegion plot = plotManager.getPlot(plotId);
+        if (plot == null) {
+            return false;
+        }
+        plot.setPrice(price);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean addTrustedPlayer(String plotId, UUID playerUUID) {
+        if (plotId == null || playerUUID == null) {
+            throw new IllegalArgumentException("plotId and playerUUID cannot be null");
+        }
+        PlotRegion plot = plotManager.getPlot(plotId);
+        if (plot == null) {
+            return false;
+        }
+        plot.addTrustedPlayer(playerUUID);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean removeTrustedPlayer(String plotId, UUID playerUUID) {
+        if (plotId == null || playerUUID == null) {
+            throw new IllegalArgumentException("plotId and playerUUID cannot be null");
+        }
+        PlotRegion plot = plotManager.getPlot(plotId);
+        if (plot == null) {
+            return false;
+        }
+        plot.removeTrustedPlayer(playerUUID);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<UUID> getTrustedPlayers(String plotId) {
+        if (plotId == null) {
+            throw new IllegalArgumentException("plotId cannot be null");
+        }
+        PlotRegion plot = plotManager.getPlot(plotId);
+        if (plot == null) {
+            return Collections.emptySet();
+        }
+        return Collections.unmodifiableSet(plot.getTrustedPlayers());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean setPlotForSale(String plotId, boolean forSale) {
+        if (plotId == null) {
+            throw new IllegalArgumentException("plotId cannot be null");
+        }
+        PlotRegion plot = plotManager.getPlot(plotId);
+        if (plot == null) {
+            return false;
+        }
+        plot.setForSale(forSale);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean setPlotType(String plotId, PlotType newType) {
+        if (plotId == null || newType == null) {
+            throw new IllegalArgumentException("plotId and newType cannot be null");
+        }
+        PlotRegion plot = plotManager.getPlot(plotId);
+        if (plot == null) {
+            return false;
+        }
+        plot.setType(newType);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<PlotRegion> getPlotsInRadius(BlockPos center, double radius) {
+        if (center == null) {
+            throw new IllegalArgumentException("center cannot be null");
+        }
+        if (radius < 0) {
+            throw new IllegalArgumentException("radius must be non-negative, got: " + radius);
+        }
+        double radiusSquared = radius * radius;
+        return plotManager.getPlots().stream()
+            .filter(plot -> {
+                BlockPos plotCenter = plot.getCenter();
+                double dx = plotCenter.getX() - center.getX();
+                double dy = plotCenter.getY() - center.getY();
+                double dz = plotCenter.getZ() - center.getZ();
+                return (dx * dx + dy * dy + dz * dz) <= radiusSquared;
+            })
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<PlotType, Integer> getPlotCountByType() {
+        Map<PlotType, Integer> countMap = new HashMap<>();
+        for (PlotType type : PlotType.values()) {
+            countMap.put(type, 0);
+        }
+        for (PlotRegion plot : plotManager.getPlots()) {
+            countMap.merge(plot.getType(), 1, Integer::sum);
+        }
+        return Collections.unmodifiableMap(countMap);
     }
 }

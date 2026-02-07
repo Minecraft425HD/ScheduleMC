@@ -7,10 +7,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.MinecraftServer;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +29,8 @@ import java.util.stream.Collectors;
  * @since 3.0.0
  */
 public class ProductionAPIImpl implements IProductionAPI {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final ProductionRegistry productionRegistry;
 
@@ -141,5 +149,66 @@ public class ProductionAPIImpl implements IProductionAPI {
         // Note: Actual implementation would require access to Level and BlockEntity
         // This is a placeholder that would need to be implemented with proper BlockEntity access
         return -1.0;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<String> getAllProductionIds() {
+        return getAllProductions().stream()
+            .map(ProductionConfig::getId)
+            .collect(Collectors.toUnmodifiableSet());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ProductionConfig.ProductionCategory[] getCategories() {
+        return ProductionConfig.ProductionCategory.values();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean setProductionBasePrice(String productionId, double newBasePrice) {
+        if (productionId == null) {
+            throw new IllegalArgumentException("productionId cannot be null");
+        }
+        if (newBasePrice < 0) {
+            throw new IllegalArgumentException("newBasePrice must be non-negative, got: " + newBasePrice);
+        }
+        ProductionConfig config = productionRegistry.get(productionId);
+        if (config == null) {
+            return false;
+        }
+        config.setBasePrice(newBasePrice);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProductionStatistics() {
+        Collection<ProductionConfig> allProductions = getAllProductions();
+        int totalCount = allProductions.size();
+
+        Map<ProductionConfig.ProductionCategory, Long> countByCategory = allProductions.stream()
+            .collect(Collectors.groupingBy(ProductionConfig::getCategory, Collectors.counting()));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("Production Statistics: %d total productions\n", totalCount));
+        for (ProductionConfig.ProductionCategory category : ProductionConfig.ProductionCategory.values()) {
+            long count = countByCategory.getOrDefault(category, 0L);
+            sb.append(String.format("  %s: %d\n", category.name(), count));
+        }
+        return sb.toString().trim();
     }
 }

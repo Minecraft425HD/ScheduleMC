@@ -1,368 +1,235 @@
 # LSD Production System
 
-<div align="center">
+The most scientific production system in ScheduleMC. A 6-step precision lab process featuring ergot fermentation, glowing distillation, a GUI-based micro-dosing system, and perforated blotter sheets.
 
-**4-Stage Chemical Synthesis - Bicycle Day Quality**
-
-Ergot fermentation with precision micro-dosing
-
-[🏠 Back to Wiki Home](../Home.md) • [🌿 All Production Systems](../Production-Systems.md)
-
-</div>
-
----
-
-## 📋 Quick Reference
+**Stats at a Glance:**
 
 | Attribute | Value |
 |-----------|-------|
-| **Complexity** | ⭐⭐⭐ (3/5 - Moderate) |
-| **Steps** | 4 (Ferment → Distill → Dose → Press) |
-| **Precursor** | Mutterkorn (Ergot) |
-| **Duration** | ~115 seconds (full cycle) |
-| **Profitability** | ⭐⭐⭐⭐ (4/5 - Very High) |
-| **Dosage Levels** | Schwach (50μg), Standard (100μg), Stark (200μg), Bicycle Day (300μg) |
-| **Designs** | 8 blotter designs |
-| **Final Product** | LSD Blotter tabs (9 per sheet) |
+| Strains | N/A (chemical synthesis from Mutterkorn) |
+| Production Steps | 6 |
+| Total Items | 6 |
+| Total Blocks | 4 |
+| Dosage Levels | Schwach (50ug), Standard (100ug), Stark (200ug), Bicycle Day (300ug) |
 
 ---
 
 ## Overview
 
-LSD production is a precision chemical synthesis system featuring ergot fermentation, lysergic acid distillation, and a customizable micro-dosing mechanism that allows players to create tabs ranging from 50μg to 300μg dosage.
-
-### Production Flow
-
-```
-1. FERMENT → Mutterkorn → Ergot-Kultur (60s)
-2. DISTILL → Ergot-Kultur → Lysergsäure (40s, 2:1 yield)
-3. DOSE → Lysergsäure → LSD-Lösung (10s, slider-controlled)
-4. PRESS → LSD-Lösung + Blotter Paper → LSD Tabs (5s, 9 per sheet)
-```
+LSD production is a precision chemistry pipeline. It begins with fermenting Mutterkorn (ergot) into ergot culture, distilling it into Lysergsaeure (lysergic acid), synthesizing LSD Loesung (solution), applying it to blotter paper via a GUI-controlled Mikro Dosierer, and perforating the sheets into individual tabs. The system rewards careful dosage selection -- higher doses mean fewer tabs per batch but dramatically higher per-tab value.
 
 ---
 
-## Dosage System
+## Production Chain
 
-### 4 Dosage Levels
-
-**Schwach (Light) - 50μg**
-- Price Multiplier: 1.0×
-- Base Price: 25€
-- Effects: Leichte Effekte (Light effects)
-- Charges per Lysergsäure: 9
-
-**Standard (Normal) - 100μg**
-- Price Multiplier: 2.0×
-- Base Price: 50€
-- Effects: Normale Dosis (Normal dose)
-- Charges per Lysergsäure: 8
-
-**Stark (Strong) - 200μg**
-- Price Multiplier: 3.5×
-- Base Price: 87.5€
-- Effects: Intensive Erfahrung (Intense experience)
-- Charges per Lysergsäure: 6
-
-**Bicycle Day - 300μg** 🚲
-- Price Multiplier: 6.0×
-- Base Price: 150€
-- Effects: Hofmann-Dosis (Albert Hofmann's famous dose)
-- Charges per Lysergsäure: 4
-- Special: April 19, 1943 reference
-
----
-
-## 8 Blotter Designs
-
-| Design | Symbol | Color | Theme |
-|--------|--------|-------|-------|
-| TOTENKOPF | ☠ | Dark Gray | Skull |
-| SONNE | ☀ | Yellow | Sun |
-| AUGE | ◉ | Purple | Eye |
-| PILZ | 🍄 | Red | Mushroom |
-| FAHRRAD | ⚙ | Aqua | Bicycle |
-| MANDALA | ✿ | Pink | Mandala |
-| BLITZ | ⚡ | Gold | Lightning |
-| STERN | ★ | White | Star |
-
----
-
-## Equipment & Processing
-
-**Stage 1: Fermentations-Tank**
-- Capacity: 8 Mutterkorn
-- Time: 1,200 ticks (60 seconds)
-- Output: 8 Ergot-Kultur (1:1)
-
-**Stage 2: Destillations-Apparat**
-- Capacity: 4 Ergot-Kultur
-- Time: 800 ticks (40 seconds)
-- Output: 8 Lysergsäure (2:1 yield!)
-- Light Level: 6 (glowing)
-
-**Stage 3: Mikro-Dosierer (GUI)**
-- Capacity: 16 Lysergsäure
-- Time: 200 ticks (10 seconds)
-- Dosage Slider: 0-100 → 50-300μg
-- Output: 1 LSD-Lösung bottle (with charges)
-
-**Stage 4: Perforations-Presse**
-- Input: LSD-Lösung + Blotter Paper
-- Time: 100 ticks (5 seconds)
-- Output: 9 LSD tabs per paper sheet
-- Design selection: Shift+click to cycle
-
----
-
-## Profitability
-
-**Maximum Yield Example:**
 ```
-Input: 8 Mutterkorn
-→ 8 Ergot-Kultur (60s)
-→ 16 Lysergsäure (80s, 2 batches)
-→ 1 LSD-Lösung with 144 charges (10s, 50μg dosage)
-→ 144 LSD tabs (16 papers, 80s total)
-
-Total Time: ~230 seconds
-Total Tabs: 144 tabs
-Cost: ~500€ (mutterkorn + papers)
-Revenue (50μg): 144 × 25€ = 3,600€
-Profit: 3,100€
-Hourly Rate: 48,522€/hour
-```
-
-**Bicycle Day Premium:**
-```
-Same 16 Lysergsäure → 64 charges at 300μg
-64 tabs × 150€ = 9,600€
-Profit: 9,100€
-Hourly Rate: 142,435€/hour
+  [1. FERMENTATION]         Fermentations Tank
+   Mutterkorn culture  -->  8 capacity
+   Time: 60 sec             1:1 output
+       |
+       v
+   Ergot-Kultur
+       |
+       v
+  [2. DISTILLATION]         Destillations Apparat
+   GLOWING BLOCK!      -->  4 capacity
+   Time: 40 sec             2:1 yield (double!)
+       |
+       v
+   Lysergsaeure
+       |
+       v
+  [3. CHEMISTRY]            Synthesis step
+   LSD synthesis       -->  Lysergsaeure to
+                             LSD Loesung
+       |
+       v
+   LSD Loesung (Solution)
+       |
+       v
+  [4. MICRO-DOSING]         Mikro Dosierer
+   HAS GUI!            -->  Slider: 0-100
+   Time: 10 sec             Maps to 50-300ug
+   Select dosage             Charges per bottle vary
+       |
+       v
+   Dosed LSD Loesung
+       |
+       v
+  [5. PERFORATION]          Perforations Presse
+   LSD Loesung         -->  9 tabs per sheet
+   + Blotter Paper           Time: 5 sec
+       |
+       v
+   LSD Blotter Tabs
+       |
+       v
+  [6. FINAL PRODUCT]        LSD Blotter Sheets
+   Ready for sale            Dosage + design marked
 ```
 
 ---
 
-[🏠 Back to Wiki Home](../Home.md) • [🌿 All Production](../Production-Systems.md)
+## Step 1: Fermentation (Fermentations Tank)
 
-EOFLSD
-cat > /home/user/ScheduleMC/wiki/production/MDMA-System.md << 'EOFMDMA'
-# MDMA/Ecstasy Production System
+Culture Mutterkorn (ergot) into usable ergot culture.
 
-<div align="center">
-
-**3-Stage Synthesis with Timing Minigame**
-
-Pill pressing with 64 customization combinations
-
-[🏠 Back to Wiki Home](../Home.md) • [🌿 All Production Systems](../Production-Systems.md)
-
-</div>
+| Property | Value |
+|----------|-------|
+| Input | Mutterkorn |
+| Capacity | 8 units |
+| Processing Time | 1,200 ticks (60 seconds) |
+| Output | 8 Ergot-Kultur (1:1 ratio) |
 
 ---
 
-## 📋 Quick Reference
+## Step 2: Distillation (Destillations Apparat)
 
-| Attribute | Value |
-|-----------|-------|
-| **Complexity** | ⭐⭐⭐ (3/5 - Moderate) |
-| **Steps** | 3 (Synthesize → Dry → Press) |
-| **Precursor** | Safrol |
-| **Duration** | ~83 seconds (full cycle) |
-| **Profitability** | ⭐⭐⭐⭐ (4/5 - Very High) |
-| **Quality Tiers** | Schlecht, Standard, Gut, Premium |
-| **Unique Mechanic** | Timing minigame for pill quality |
-| **Customization** | 8 colors × 8 designs = 64 combinations |
+Distill ergot culture into lysergic acid. The distillation apparatus **glows** during operation (light level 6).
+
+| Property | Value |
+|----------|-------|
+| Input | Ergot-Kultur |
+| Capacity | 4 units |
+| Processing Time | 800 ticks (40 seconds) |
+| Output | 8 Lysergsaeure (**2:1 yield -- double output!**) |
+| Light Level | 6 (glowing block) |
+
+The 2:1 yield is a key efficiency point. Every 4 ergot cultures produce 8 lysergic acid units.
 
 ---
 
-## Overview
+## Step 3: Chemistry (LSD Synthesis)
 
-MDMA production features a 3-stage chemical synthesis with an interactive timing-based pill pressing minigame. Players can customize pills with 8 colors and 8 iconic designs (Tesla, Superman, etc.) while quality is determined by pressing skill.
+Synthesize lysergic acid into LSD solution.
 
-### Production Flow
+| Property | Value |
+|----------|-------|
+| Input | Lysergsaeure |
+| Output | LSD Loesung (solution) |
+| Process | Chemical synthesis |
+
+---
+
+## Step 4: Micro-Dosing (Mikro Dosierer)
+
+Apply LSD solution to blotter paper using a GUI-based dosing system. The Mikro Dosierer has an interactive slider interface.
+
+| Property | Value |
+|----------|-------|
+| Input | Lysergsaeure (up to 16) |
+| Processing Time | 200 ticks (10 seconds) |
+| GUI | Slider control (0-100) maps to 50-300ug dosage |
+| Output | 1 LSD Loesung bottle with variable charges |
+
+### Dosage Levels
+
+The slider position determines dosage, which affects both the number of charges per bottle and the price per tab.
+
+| Dosage | Micrograms | Price Multiplier | Base Price | Charges per Lysergsaeure |
+|--------|-----------|-----------------|------------|-------------------------|
+| **Schwach** (Light) | 50ug | 1.0x | 25 | 9 charges |
+| **Standard** (Normal) | 100ug | 2.0x | 50 | 8 charges |
+| **Stark** (Strong) | 200ug | 3.5x | 87.50 | 6 charges |
+| **Bicycle Day** | 300ug | **6.0x** | **150** | 4 charges |
+
+**Bicycle Day** refers to April 19, 1943 -- Albert Hofmann's famous first intentional LSD experience. It is the highest dosage tier and commands the greatest per-tab price, but produces the fewest tabs per batch.
+
+### Trade-off: Volume vs Value
 
 ```
-1. SYNTHESIZE → Safrol → MDMA-Base (50s)
-2. DRY → MDMA-Base → MDMA-Kristalle (30s)
-3. PRESS → Kristalle + Bindemittel → Ecstasy Pills (3s minigame)
+16 Lysergsaeure at Schwach (50ug):   144 charges  -->  144 tabs at 25 each  = 3,600
+16 Lysergsaeure at Bicycle Day:       64 charges  -->   64 tabs at 150 each = 9,600
+
+Bicycle Day produces 56% fewer tabs but 167% more revenue.
 ```
 
 ---
 
-## Quality System
+## Step 5: Perforation (Perforations Presse)
 
-### 4 Quality Tiers
+Cut dosed blotter paper into individual tabs.
 
-**Schlecht (Poor)**
-- Price Multiplier: 0.5×
-- Timing Score: < 0.5
-- Description: "Verunreinigt" (Contaminated)
+| Property | Value |
+|----------|-------|
+| Input | LSD Loesung + Blotter Paper |
+| Processing Time | 100 ticks (5 seconds) |
+| Output | 9 LSD tabs per paper sheet |
+| Design Selection | Shift+click to cycle through designs |
 
-**Standard (Normal)**
-- Price Multiplier: 1.0×
-- Timing Score: 0.5-0.79
-- Description: "Normale Qualität"
-
-**Gut (Good)**
-- Price Multiplier: 2.0×
-- Timing Score: 0.8-0.94
-- Description: "Hohe Reinheit" (High purity)
-
-**Premium (Laboratory)**
-- Price Multiplier: 4.0×
-- Timing Score: ≥ 0.95
-- Description: "Laborqualität"
-
----
-
-## Timing Minigame
-
-### Press Mechanics
-
-**Cycle:** 60 ticks (3 seconds)
-
-**Timing Zones:**
-```
-PERFECT (Ticks 25-35): Score 0.9-1.0 → PREMIUM
-GOOD (Ticks 20-40): Score 0.6-0.9 → GUT
-EARLY (Ticks 0-20): Score 0.2-0.5 → STANDARD/SCHLECHT
-LATE (Ticks 40-60): Score 0.1-0.5 → SCHLECHT
-```
-
-**How to Play:**
-1. Watch moving indicator across timing bar
-2. Press button (or spacebar) in GREEN zone
-3. Perfect center (tick 30) = highest score
-4. Extract quality feedback
-5. Collect pills
-
-**Visual Feedback:**
-- Red zones: Early/Late (bad)
-- Yellow zones: Good (acceptable)
-- Green zone: Perfect (premium quality)
-
----
-
-## Customization
-
-### 8 Pill Colors
-
-| Color | Code | Hex |
-|-------|------|-----|
-| Pink | §d | 0xFFAACC |
-| Blue | §9 | 0x5555FF |
-| Green | §a | 0x55FF55 |
-| Orange | §6 | 0xFFAA00 |
-| Yellow | §e | 0xFFFF55 |
-| White | §f | 0xFFFFFF |
-| Red | §c | 0xFF5555 |
-| Purple | §5 | 0xAA55AA |
-
-### 8 Pill Designs
+### Blotter Designs (8 Designs)
 
 | Design | Symbol | Theme |
 |--------|--------|-------|
-| TESLA | T | Tesla logo |
-| SUPERMAN | S | Superhero |
-| TOTENKOPF | ☠ | Skull |
-| HERZ | ♥ | Heart |
-| SCHMETTERLING | 🦋 | Butterfly |
-| STERN | ★ | Star |
-| PEACE | ☮ | Peace symbol |
-| DIAMANT | ◆ | Diamond |
-
-**Total Combinations:** 8 × 8 = 64 unique pills!
+| Totenkopf | Skull | Dark gray skull |
+| Sonne | Sun | Yellow sun |
+| Auge | Eye | Purple eye |
+| Pilz | Mushroom | Red mushroom |
+| Fahrrad | Bicycle | Aqua bicycle |
+| Mandala | Flower | Pink mandala |
+| Blitz | Lightning | Gold lightning bolt |
+| Stern | Star | White star |
 
 ---
 
-## Equipment
+## Step 6: Final Product (LSD Blotter Sheets)
 
-**Reaktions-Kessel (Synthesis)**
-- Capacity: 8 Safrol
-- Time: 1,000 ticks (50 seconds)
-- Output: 8 MDMA-Base
-- Quality Chance: 40% GUT if 6+ Safrol
-
-**Trocknungs-Ofen (Drying)**
-- Capacity: 8 MDMA-Base
-- Time: 600 ticks (30 seconds)
-- Output: 8 MDMA-Kristalle
-- Temperature: 120°C
-
-**Pillen-Presse (Press + GUI)**
-- Capacity: 16 Kristall + 16 Bindemittel
-- Minigame: Timing-based (60 ticks)
-- Customization: Color + Design selection
-- Output: Quality based on timing skill
+The finished LSD Blotter tabs are ready for sale. Each tab carries its dosage level and blotter design.
 
 ---
 
-## Profitability
+## Items Table (6 Items)
 
-**Standard Production (8 Pills):**
-```
-Input:
-- 8 Safrol: 400€
-- 8 Bindemittel: 80€
-Time: 83 seconds
-
-Output (GUT Quality, good timing):
-8 pills × 60€ = 480€
-Profit: 0€ (break-even with standard)
-
-Output (PREMIUM Quality, perfect timing):
-8 pills × 120€ = 960€
-Profit: 480€
-Hourly Rate: 20,819€/hour
-```
-
-**Skilled Production (Perfect Timing):**
-```
-Consistent PREMIUM quality:
-960€ per 83-second cycle
-Hourly Rate: 41,639€/hour
-
-With quality input (GUT Kristall):
-Input already GUT → Press for PREMIUM
-Higher consistency, better profit
-```
+| Item | Description | How Obtained |
+|------|-------------|-------------|
+| Mutterkorn | Ergot fungus starting material | Purchase / loot |
+| Ergot-Kultur | Fermented ergot culture | Fermentations Tank |
+| Lysergsaeure | Lysergic acid (distilled) | Destillations Apparat (2:1 yield) |
+| LSD Loesung | LSD solution with charges | Mikro Dosierer (GUI dosing) |
+| Blotter Paper | Blank paper for tab production | Purchase / crafting |
+| LSD Blotter Tabs | Final product (9 per sheet) | Perforations Presse |
 
 ---
 
-## Best Practices
+## Blocks Table (4 Blocks)
 
-### Timing Mastery
-
-**Beginner (0-20 attempts):**
-- Aim for GOOD zone (ticks 20-40)
-- Accept GUT quality (2.0× multiplier)
-- 50-70% success rate
-
-**Intermediate (20-50 attempts):**
-- Target PERFECT zone (ticks 25-35)
-- Achieve PREMIUM 60-80% of time
-- Learn rhythm and visual cues
-
-**Expert (50+ attempts):**
-- Consistent tick 28-32 presses
-- 90%+ PREMIUM quality rate
-- Muscle memory established
-
-### Production Strategy
-
-**Quality Input:**
-- Use 6+ Safrol per batch (40% GUT base)
-- GUT Kristall + perfect timing = guaranteed PREMIUM
-- Better input = consistent output
-
-**Customization:**
-- Popular designs: Tesla, Superman command premium
-- Color choices: Match market demand
-- Limited editions: Rare combinations = higher value
+| Block | Description | Function |
+|-------|-------------|----------|
+| Fermentations Tank | Ergot fermentation vessel | Converts 8 Mutterkorn to 8 Ergot-Kultur (60 sec) |
+| Destillations Apparat | Distillation apparatus (**glowing**, light level 6) | Converts 4 Ergot-Kultur to 8 Lysergsaeure (40 sec, 2:1 yield) |
+| Mikro Dosierer | Micro-dosing station (**has GUI with slider**) | Applies dosage to LSD solution (10 sec); slider selects 50-300ug |
+| Perforations Presse | Perforation press | Cuts blotter sheets into 9 tabs each (5 sec) |
 
 ---
 
-[🏠 Back to Wiki Home](../Home.md) • [🌿 All Production](../Production-Systems.md)
+## Quality Modifiers
 
-EOFMDMA
+LSD quality is primarily determined by dosage level rather than a traditional quality tier system.
+
+| Modifier | Stage | Effect |
+|----------|-------|--------|
+| Dosage Selection | Micro-Dosing | Higher dose = higher price per tab but fewer tabs |
+| 2:1 Distillation Yield | Distillation | Doubles lysergic acid output for efficiency |
+| Blotter Design | Perforation | Cosmetic choice; does not affect price |
+| Batch Size | All Stages | Larger batches improve throughput efficiency |
+
+The key optimization decision is dosage: Schwach maximizes tab count, Bicycle Day maximizes revenue per batch.
+
+---
+
+## Tips & Tricks
+
+1. **Bicycle Day is the most profitable dosage** on a per-batch basis. If you can sell all 64 tabs, it generates 167% more revenue than Schwach dosage from the same input.
+2. **The distillation apparatus glows.** At light level 6, it can serve as ambient lighting for your lab, but it also makes your operation visible. Build underground if secrecy matters.
+3. **The 2:1 distillation yield is the system's biggest efficiency lever.** 4 ergot cultures become 8 lysergic acid units. Plan your pipeline around this doubling.
+4. **The Mikro Dosierer GUI lets you fine-tune dosage.** The slider maps 0-100 to 50-300ug. Experiment with the slider to find the exact dosage level you want.
+5. **Blotter design is purely cosmetic** but can influence player preference in a market context. Fahrrad (Bicycle) is thematic for Bicycle Day tabs.
+6. **Start with Schwach dosage** to maximize tab output while learning the pipeline. Switch to higher dosages once you have reliable demand.
+7. **Perforating is fast (5 seconds per sheet).** The bottleneck is fermentation (60 seconds). Run multiple fermentation tanks to keep the pipeline flowing.
+8. **Stock Blotter Paper in advance.** Running out during a production run wastes your dosed solution's shelf time.
+9. **The full pipeline from 8 Mutterkorn to finished tabs takes roughly 115 seconds.** This is one of the faster production systems once equipment is set up.
+10. **Combine Bicycle Day dosage with the Fahrrad blotter design** for the most thematically authentic product in the game.
+
+---
+
+*See also: [MDMA System](MDMA-System.md) | [Mushroom System](Mushroom-System.md) | [Production Systems Overview](../Production-Systems.md)*

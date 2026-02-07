@@ -4,8 +4,16 @@ import de.rolandsw.schedulemc.api.market.IMarketAPI;
 import de.rolandsw.schedulemc.market.DynamicMarketManager;
 import net.minecraft.world.item.Item;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of IMarketAPI
@@ -17,6 +25,8 @@ import java.util.Map;
  * @since 3.0.0
  */
 public class MarketAPIImpl implements IMarketAPI {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final DynamicMarketManager marketManager;
 
@@ -155,5 +165,63 @@ public class MarketAPIImpl implements IMarketAPI {
             // Stub: Per-item reset not available in DynamicMarketManager
             // Only full reset is supported via reset()
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Map.Entry<Item, Double>> getTopPricedItems(int limit) {
+        if (limit < 1) {
+            throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
+        }
+        return getAllPrices().entrySet().stream()
+            .sorted(Map.Entry.<Item, Double>comparingByValue().reversed())
+            .limit(limit)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Map.Entry<Item, Integer>> getTopDemandItems(int limit) {
+        if (limit < 1) {
+            throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
+        }
+        LOGGER.debug("Stub: getTopDemandItems not fully implemented - demand tracking not directly accessible");
+        return Collections.emptyList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasMarketData(Item item) {
+        if (item == null) {
+            throw new IllegalArgumentException("item cannot be null");
+        }
+        double price = marketManager.getCurrentPrice(item);
+        return price > 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getTrackedItemCount() {
+        return getAllPrices().size();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void resetAllMarketData() {
+        resetMarketData(null);
     }
 }

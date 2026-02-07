@@ -2,66 +2,133 @@
 
 <div align="center">
 
-**Complete Banking, Loans, Savings & Payment System**
+**Complete Banking, Loans, Savings, Taxes & Investment System**
 
-Thread-safe transaction processing with automatic backup
+Thread-safe transaction processing with 11 manager classes and automatic backup
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 Commands Reference](../Commands.md)
+[Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Overview](#overview)
-2. [Money Management](#money-management)
-3. [Banking System](#banking-system)
-4. [Loan System](#loan-system)
-5. [Savings Accounts](#savings-accounts)
-6. [Daily Rewards](#daily-rewards)
-7. [Recurring Payments](#recurring-payments)
-8. [State Treasury](#state-treasury)
-9. [Transaction System](#transaction-system)
-10. [Overdraft System](#overdraft-system-dispo)
-11. [Best Practices](#best-practices)
-12. [Troubleshooting](#troubleshooting)
+2. [Architecture](#architecture)
+3. [Money Management](#money-management)
+4. [Banking System](#banking-system)
+5. [ATM System](#atm-system)
+6. [Loan System](#loan-system)
+7. [Credit Score System](#credit-score-system)
+8. [Savings Accounts](#savings-accounts)
+9. [Daily Rewards](#daily-rewards)
+10. [Recurring Payments](#recurring-payments)
+11. [Tax System](#tax-system)
+12. [Shop Investments](#shop-investments)
+13. [State Treasury](#state-treasury)
+14. [Overdraft System](#overdraft-system-dispo)
+15. [Transaction System](#transaction-system)
+16. [Anti-Exploit Mechanisms](#anti-exploit-mechanisms)
+17. [Developer API](#developer-api)
+18. [Commands Reference](#commands-reference)
+19. [Best Practices](#best-practices)
+20. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Overview
 
-The Economy System is the financial backbone of ScheduleMC, providing a complete banking infrastructure with loans, savings, and automated payment processing.
+The Economy System is the financial backbone of ScheduleMC, providing a complete banking infrastructure with loans, savings, taxes, credit scoring, investments, and automated payment processing. It is built with 11 dedicated manager classes coordinating through thread-safe operations.
 
 ### Key Features
 
-✅ **Persistent Balances** - Thread-safe with ConcurrentHashMap
-✅ **3-Tier Loan System** - SMALL (5K), MEDIUM (25K), LARGE (100K)
-✅ **Savings Accounts** - 5% weekly interest, 4-week lock
-✅ **Daily Rewards** - Up to 340€/day with streak bonuses
-✅ **Recurring Payments** - Automated standing orders
-✅ **Transaction History** - Full audit trail (1000 transactions/player)
-✅ **Overdraft Protection** - Up to -5,000€ credit line
-✅ **State Treasury** - Centralized government fund
+- **Persistent Balances** -- Thread-safe with ConcurrentHashMap
+- **Dual Currency** -- Virtual bank accounts and physical wallet cash
+- **3-Tier Loan System** -- SMALL (5K), MEDIUM (25K), LARGE (100K)
+- **Savings Accounts** -- 5% weekly compound interest, 4-week lock
+- **Credit Scoring** -- Dynamic credit ratings affecting loan eligibility
+- **Tax System** -- Progressive income tax, property tax, sales tax
+- **Daily Rewards** -- Up to 340 EUR/day with streak bonuses (max 30 days)
+- **Recurring Payments** -- Up to 10 automated standing orders per player
+- **Shop Investments** -- 1,000 EUR/share in NPC shops
+- **State Treasury** -- Centralized government fund with income tracking
+- **Overdraft Protection** -- Up to -5,000 EUR credit line at 25% weekly interest
+- **Anti-Exploit** -- Rate limiting, mass-sell detection, daily volume caps
+- **Transaction History** -- Full audit trail (1,000 transactions per player)
 
-### Architecture
+---
+
+## Architecture
+
+The Economy System is composed of 11 manager classes, each responsible for a distinct financial subsystem.
+
+### Manager Classes
+
+| # | Class | Responsibility |
+|---|-------|---------------|
+| 1 | **EconomyManager** | Core balance registry, deposits, withdrawals, transfers |
+| 2 | **WalletManager** | Physical cash items in player inventory |
+| 3 | **TransactionHistory** | Per-player audit trail (1,000 entries max) |
+| 4 | **InterestManager** | Savings and overdraft interest calculations |
+| 5 | **LoanManager** | 3-tier loan system with daily repayment |
+| 6 | **CreditScoreManager** | Player credit ratings and eligibility |
+| 7 | **TaxManager** | Income, property, and sales tax processing |
+| 8 | **SavingsAccountManager** | Savings accounts with compound interest |
+| 9 | **OverdraftManager** | Negative balance limits, seizure (Pfandung) |
+| 10 | **RecurringPaymentManager** | Automated standing orders (autopay) |
+| 11 | **ShopAccountManager** | NPC shop financial accounts and profit tracking |
+
+### System Diagram
 
 ```
 EconomyManager (Singleton)
-├── Balance Registry (ConcurrentHashMap<UUID, Double>)
-├── Transaction History (1000 per player)
-├── LoanManager (3 loan tiers)
-├── SavingsAccountManager (5% weekly interest)
-├── RecurringPaymentManager (Autopay system)
-├── DailyRewardManager (Streak bonuses)
-└── StateAccount (Government treasury)
+|-- Balance Registry (ConcurrentHashMap<UUID, Double>)
+|-- WalletManager (Physical cash items)
+|-- TransactionHistory (1,000 per player)
+|-- LoanManager (3 loan tiers)
+|-- CreditScoreManager (Dynamic credit ratings)
+|-- SavingsAccountManager (5% weekly interest)
+|-- RecurringPaymentManager (Autopay system, max 10)
+|-- TaxManager (Income + Property + Sales)
+|-- OverdraftManager (Up to -5,000 EUR)
+|-- ShopAccountManager (NPC shop accounts)
+|-- StateAccount (Government treasury)
+|-- AntiExploitManager (Rate limiting + mass-sell detection)
++-- RateLimiter (10 transactions/minute cap)
 ```
 
-**Performance:**
-- Transaction processing: **< 1ms**
-- Auto-save interval: **5 minutes**
-- Backup system: **Automatic with recovery**
-- Starting balance: **1,000€**
+### Supporting Classes
+
+| Class | Purpose |
+|-------|---------|
+| **AntiExploitManager** | Prevents mass-selling exploits and tracks daily sell volume |
+| **RateLimiter** | Caps transactions at 10 per minute per player |
+| **BatchTransactionManager** | Processes multi-recipient transfers atomically |
+| **FeeManager** | Calculates transfer, ATM, and service fees |
+| **StateAccount** | Government treasury singleton |
+| **GlobalEconomyTracker** | Aggregate economy statistics |
+
+### Performance
+
+| Metric | Value |
+|--------|-------|
+| Transaction processing | < 1ms |
+| Auto-save interval | 5 minutes |
+| Backup system | Automatic with recovery |
+| Starting balance | 1,000 EUR |
+| Thread safety | ConcurrentHashMap throughout |
+
+### Persistence Files
+
+```
+config/plotmod_economy.json       -- Player balances
+config/plotmod_transactions.json  -- Transaction history
+config/plotmod_loans.json         -- Active loans
+config/plotmod_savings.json       -- Savings accounts
+config/plotmod_taxes.json         -- Tax records and debts
+config/state_account.json         -- Government treasury
+```
 
 ---
 
@@ -69,136 +136,100 @@ EconomyManager (Singleton)
 
 ### Checking Your Balance
 
-```bash
+```
 /money
 ```
 
 **Output:**
 ```
-💰 Balance: 12,450€
+Balance: 12,450 EUR
 ```
-
----
 
 ### Transferring Money
 
-```bash
+```
 /pay <player> <amount>
 ```
 
 **Example:**
-```bash
+```
 /pay Alex 1000
 ```
 
 **Fee Structure:**
-- **Transfer Fee:** 1% of amount (minimum 10€)
-- **Recipient receives:** Full amount
-- **Sender pays:** Amount + fee
+- Transfer Fee: 1% of amount (minimum 10 EUR)
+- Recipient receives full amount
+- Sender pays amount + fee
+- Fee goes to State Treasury
 
 **Calculation:**
 ```
-Transfer Amount: 1,000€
-Fee: max(1,000 × 0.01, 10) = max(10, 10) = 10€
-Total Deducted: 1,010€
-Alex Receives: 1,000€
-State Gets: 10€ (fee)
+Transfer Amount:  1,000 EUR
+Fee:              max(1,000 x 0.01, 10) = max(10, 10) = 10 EUR
+Total Deducted:   1,010 EUR
+Alex Receives:    1,000 EUR
+State Gets:       10 EUR (fee)
 ```
 
-**More Examples:**
+**Fee Examples:**
 
 | Transfer | Fee Calculation | Total Cost |
 |----------|----------------|------------|
-| 500€ | max(500×0.01, 10) = 10€ | 510€ |
-| 5,000€ | max(5,000×0.01, 10) = 50€ | 5,050€ |
-| 50,000€ | max(50,000×0.01, 10) = 500€ | 50,500€ |
-
----
+| 500 EUR | max(500 x 0.01, 10) = 10 EUR | 510 EUR |
+| 5,000 EUR | max(5,000 x 0.01, 10) = 50 EUR | 5,050 EUR |
+| 50,000 EUR | max(50,000 x 0.01, 10) = 500 EUR | 50,500 EUR |
 
 ### Transaction History
 
-```bash
+```
 /money history [limit]
 ```
 
-**Example:**
-```bash
-# Last 10 transactions (default)
-/money history
-
-# Last 20 transactions
-/money history 20
+**Examples:**
+```
+/money history       -- Last 10 transactions (default)
+/money history 20    -- Last 20 transactions
 ```
 
 **Output:**
 ```
 Transaction History (Last 10):
 
-1. +50€ - Daily Reward - 2024-01-15 10:30
-   Balance after: 12,450€
+1. +50 EUR - Daily Reward - 2024-01-15 10:30
+   Balance after: 12,450 EUR
 
-2. -5,000€ - Plot Purchase (Downtown_House_1) - 2024-01-15 11:00
-   Balance after: 7,450€
+2. -5,000 EUR - Plot Purchase (Downtown_House_1) - 2024-01-15 11:00
+   Balance after: 7,450 EUR
 
-3. +990€ - Payment from Alex - 2024-01-15 12:15
-   Balance after: 8,440€
+3. +990 EUR - Payment from Alex - 2024-01-15 12:15
+   Balance after: 8,440 EUR
 
-4. -10€ - Transfer Fee - 2024-01-15 12:15
-   Balance after: 8,430€
+4. -10 EUR - Transfer Fee - 2024-01-15 12:15
+   Balance after: 8,430 EUR
 ```
-
----
 
 ### Admin Commands
 
 #### Set Balance
-```bash
+```
 /money set <player> <amount>
 ```
 
-**Example:**
-```bash
-/money set Steve 100000
-```
-
-**Use Cases:**
-- Fix economy bugs
-- Reset player balance
-- Testing features
-
----
+Sets a player's balance to an exact amount. Logged in transaction history.
 
 #### Give Money
-```bash
+```
 /money give <player> <amount>
 ```
 
-**Example:**
-```bash
-/money give Alex 5000
-```
-
-**Notes:**
-- Adds to current balance
-- No transaction fee
-- Logged in history
-
----
+Adds to the player's current balance. No transaction fee applied. Logged in history.
 
 #### Take Money
-```bash
+```
 /money take <player> <amount>
 ```
 
-**Example:**
-```bash
-/money take Steve 1000
-```
-
-**Warning:**
-- Can result in negative balance
-- Use carefully
-- Consider overdraft limits
+Removes from the player's balance. Can result in negative balance (respect overdraft limits).
 
 ---
 
@@ -206,44 +237,63 @@ Transaction History (Last 10):
 
 ### Dual Money System
 
-ScheduleMC uses two types of currency storage:
+ScheduleMC uses two types of currency storage that work together.
 
 #### 1. Bank Account (Virtual)
-- **Manager:** EconomyManager
-- **Storage:** `config/plotmod_economy.json`
-- **Features:**
-  - Virtual balance
-  - Used for commands (/pay, /plot buy, etc.)
-  - Can go negative (overdraft)
-  - Thread-safe operations
 
-#### 2. Wallet/Cash (Physical)
-- **Manager:** WalletManager
-- **Storage:** Player inventory
-- **Features:**
-  - Physical cash items
-  - Used for NPC/shop purchases
-  - Cannot go negative
-  - Dropped on death (configurable)
+| Property | Value |
+|----------|-------|
+| Manager | EconomyManager |
+| Storage | `config/plotmod_economy.json` |
+| Starting Balance | 1,000 EUR |
+| Used For | Commands (/pay, /plot buy, etc.) |
+| Can Go Negative | Yes (overdraft up to -5,000 EUR) |
+| Thread Safety | ConcurrentHashMap |
+
+#### 2. Wallet / Cash (Physical)
+
+| Property | Value |
+|----------|-------|
+| Manager | WalletManager |
+| Storage | Player inventory (physical items) |
+| Starting Balance | 0 EUR |
+| Used For | NPC/shop purchases, face-to-face trading |
+| Can Go Negative | No |
+| Dropped on Death | Configurable |
+
+Players convert between the two systems using ATM blocks.
 
 ---
 
-### ATM System
+## ATM System
 
-**ATM Blocks** allow conversion between bank and wallet.
+ATM Blocks allow conversion between bank accounts and physical wallet cash.
 
-**Operations:**
-- **Deposit:** Cash → Bank account
-- **Withdraw:** Bank account → Cash
-- **Fee:** 5€ per transaction
+### Operations
 
-**Example:**
+| Operation | Description | Fee |
+|-----------|-------------|-----|
+| **Deposit** | Cash items from wallet into bank account | 5 EUR |
+| **Withdraw** | Bank balance into physical cash items | 5 EUR |
+
+### Withdrawal Example
+
 ```
-Action: Withdraw 1,000€ from bank
-Fee: 5€
-Deducted from bank: 1,005€
-Cash received: 1,000€ (physical items)
-State gets: 5€
+Action:             Withdraw 1,000 EUR from bank
+Fee:                5 EUR
+Deducted from bank: 1,005 EUR
+Cash received:      1,000 EUR (physical items in inventory)
+State gets:         5 EUR (ATM fee)
+```
+
+### Deposit Example
+
+```
+Action:             Deposit 2,000 EUR cash into bank
+Fee:                5 EUR
+Cash removed:       2,000 EUR (from inventory)
+Added to bank:      1,995 EUR
+State gets:         5 EUR (ATM fee)
 ```
 
 ---
@@ -256,166 +306,126 @@ ScheduleMC offers three loan tiers with varying amounts, interest rates, and dur
 
 | Tier | Amount | Interest | Duration | Daily Payment | Total Repayment |
 |------|--------|----------|----------|---------------|-----------------|
-| **SMALL** | 5,000€ | 10% | 14 days | ~392.86€ | 5,500€ |
-| **MEDIUM** | 25,000€ | 15% | 28 days | ~1,035.71€ | 28,750€ |
-| **LARGE** | 100,000€ | 20% | 56 days | ~2,142.86€ | 120,000€ |
-
----
+| **SMALL** | 5,000 EUR | 10% | 14 days | ~392.86 EUR | 5,500 EUR |
+| **MEDIUM** | 25,000 EUR | 15% | 28 days | ~1,035.71 EUR | 28,750 EUR |
+| **LARGE** | 100,000 EUR | 20% | 56 days | ~2,142.86 EUR | 120,000 EUR |
 
 ### Loan Calculation
 
-**Formula:**
 ```
-Total with Interest = Principal × (1 + Interest Rate)
-Daily Payment = Total with Interest ÷ Duration Days
+Total with Interest = Principal x (1 + Interest Rate)
+Daily Payment       = Total with Interest / Duration Days
 
 Examples:
-SMALL:  5,000 × 1.10 = 5,500€  → 5,500 ÷ 14 = 392.86€/day
-MEDIUM: 25,000 × 1.15 = 28,750€ → 28,750 ÷ 28 = 1,035.71€/day
-LARGE:  100,000 × 1.20 = 120,000€ → 120,000 ÷ 56 = 2,142.86€/day
+SMALL:   5,000 x 1.10  =   5,500 EUR -->   5,500 / 14 =   392.86 EUR/day
+MEDIUM: 25,000 x 1.15  =  28,750 EUR -->  28,750 / 28 = 1,035.71 EUR/day
+LARGE: 100,000 x 1.20  = 120,000 EUR --> 120,000 / 56 = 2,142.86 EUR/day
 ```
-
----
 
 ### Applying for a Loan
 
-```bash
+```
 /loan apply <SMALL|MEDIUM|LARGE>
 ```
 
 **Requirements:**
-- **Minimum Balance:** 1,000€
-- **No Active Loan:** Cannot have existing loan
-- **No Minimum Playtime** (previously 7 days, removed)
+- Minimum Balance: 1,000 EUR
+- No Active Loan: Cannot have an existing loan
+- Credit score may affect eligibility (see Credit Score section)
 
 **Example:**
-```bash
+```
 /loan apply MEDIUM
 ```
 
 **Result:**
 ```
-✓ Loan Approved!
+Loan Approved!
 
-Type: MEDIUM
-Amount Received: 25,000€
-Interest Rate: 15%
-Total to Repay: 28,750€
-Duration: 28 days
-Daily Payment: 1,035.71€
+Type:            MEDIUM
+Amount Received: 25,000 EUR
+Interest Rate:   15%
+Total to Repay:  28,750 EUR
+Duration:        28 days
+Daily Payment:   1,035.71 EUR
 
-Your new balance: 26,000€
+Your new balance: 26,000 EUR
 ```
-
----
 
 ### Loan Repayment
 
 #### Automatic Daily Payments
 
-**System:**
-- Every in-game day (24,000 ticks)
-- Daily payment auto-deducted
-- Tracks progress automatically
+The system auto-deducts daily payments every in-game day (24,000 ticks).
 
 **Timeline Example (SMALL Loan):**
 ```
-Day 0:  Receive 5,000€ (Balance: 6,000€)
-Day 1:  -392.86€ payment (Balance: 5,607.14€)
-Day 2:  -392.86€ payment (Balance: 5,214.28€)
+Day 0:   Receive 5,000 EUR (Balance: 6,000 EUR)
+Day 1:   -392.86 EUR payment (Balance: 5,607.14 EUR)
+Day 2:   -392.86 EUR payment (Balance: 5,214.28 EUR)
 ...
-Day 14: -392.86€ payment (Balance: 4,857.14€) → LOAN PAID OFF
+Day 14:  -392.86 EUR final payment --> LOAN PAID OFF
 ```
-
----
 
 #### Early Repayment
 
-```bash
+```
 /loan repay
 ```
 
 **Benefits:**
 - No early repayment penalty
 - Can take new loan immediately
-- Saves remaining interest accrual
-
-**Example:**
-```
-Active Loan: MEDIUM
-Days Elapsed: 14/28
-Remaining: 14,375€ (50% of total)
-
-Early Repayment Cost: 14,375€
-Immediate payoff
-New loan available now
-```
-
----
+- Saves remaining time on the loan
 
 #### Payment Failures
 
-**Insufficient Funds:**
-1. **1st Failure:** Warning message sent
-2. **2nd Failure:** Another warning
-3. **3rd+ Failure:** Continued warnings
+When daily payment fails due to insufficient funds:
 
-**No Penalties:**
-- No additional fees
-- Interest continues as normal
-- Just warnings to player
+| Failure | Action |
+|---------|--------|
+| 1st failure | Warning message sent to player |
+| 2nd failure | Another warning |
+| 3rd+ failure | Continued warnings, interest accrues |
 
----
+No additional penalties are charged for missed payments beyond the normal interest.
 
 ### Loan Information
 
-```bash
+```
 /loan info
 ```
 
-**With Active Loan:**
-```
-Active Loan:
-Type: MEDIUM
-Amount Borrowed: 25,000€
-Interest Rate: 15% (3,750€)
-Total Due: 28,750€
-Daily Payment: 1,035.71€
+Displays active loan details or available loan tiers if no loan is active.
 
-Progress:
-Days Elapsed: 14/28 (50%)
-Amount Paid: 14,500€
-Remaining: 14,250€
+---
 
-Due Date: 2024-02-12
-Days Remaining: 14
-```
+## Credit Score System
 
-**Without Active Loan:**
-```
-Available Loans:
+The CreditScoreManager tracks player financial behavior and assigns a credit rating that can influence loan eligibility.
 
-SMALL Loan
-Amount: 5,000€
-Interest: 10% (500€)
-Total Repayment: 5,500€
-Duration: 14 days
-Daily Payment: 392.86€
+### How Credit Score Works
 
-MEDIUM Loan
-Amount: 25,000€
-Interest: 15% (3,750€)
-Total Repayment: 28,750€
-Duration: 28 days
-Daily Payment: 1,035.71€
+| Factor | Effect |
+|--------|--------|
+| On-time loan payments | Increases score |
+| Missed loan payments | Decreases score |
+| Account age | Gradual increase over time |
+| Transaction volume | Positive indicator |
+| Overdraft usage | Negative indicator |
+| Tax debt | Negative indicator |
 
-LARGE Loan
-Amount: 100,000€
-Interest: 20% (20,000€)
-Total Repayment: 120,000€
-Duration: 56 days
-Daily Payment: 2,142.86€
-```
+### Score Ranges
+
+| Range | Rating | Loan Impact |
+|-------|--------|-------------|
+| 800-1000 | Excellent | All tiers available |
+| 600-799 | Good | All tiers available |
+| 400-599 | Fair | SMALL and MEDIUM only |
+| 200-399 | Poor | SMALL only |
+| 0-199 | Very Poor | No loans available |
+
+Players build credit through responsible financial behavior -- paying loans on time, avoiding overdrafts, and maintaining a positive balance.
 
 ---
 
@@ -423,509 +433,387 @@ Daily Payment: 2,142.86€
 
 ### Savings Configuration
 
-**Interest System:**
-- **Interest Rate:** 5% per week
-- **Lock Period:** 4 weeks (28 days)
-- **Compound Interest:** Yes
-- **Multiple Accounts:** Allowed (up to 50,000€ total)
-
-**Limits:**
-- **Min Deposit:** 1,000€ per account
-- **Max Total:** 50,000€ across all accounts
-- **Unlimited Accounts:** Until total limit reached
-
----
+| Parameter | Value |
+|-----------|-------|
+| Interest Rate | 5% per week (compound) |
+| Lock Period | 4 weeks (28 days) |
+| Min Deposit | 1,000 EUR per account |
+| Max Total | 50,000 EUR across all accounts |
+| Multiple Accounts | Allowed (until total limit) |
 
 ### Interest Calculation
 
 **Weekly Compound Interest:**
 ```
-After Week N: Balance × (1.05)^N
+After Week N: Balance x (1.05)^N
 
-Example: 10,000€ initial deposit
-Week 1: 10,000 × 1.05 = 10,500€ (+500€)
-Week 2: 10,500 × 1.05 = 11,025€ (+525€)
-Week 3: 11,025 × 1.05 = 11,576.25€ (+551.25€)
-Week 4: 11,576.25 × 1.05 = 12,155.06€ (+578.81€)
+Example: 10,000 EUR initial deposit
+Week 1: 10,000.00 x 1.05 = 10,500.00 EUR (+500.00 EUR)
+Week 2: 10,500.00 x 1.05 = 11,025.00 EUR (+525.00 EUR)
+Week 3: 11,025.00 x 1.05 = 11,576.25 EUR (+551.25 EUR)
+Week 4: 11,576.25 x 1.05 = 12,155.06 EUR (+578.81 EUR)
 
-Total Profit after 4 weeks: 2,155.06€ (21.55% return)
+Total Profit after 4 weeks: 2,155.06 EUR (21.55% return)
 ```
 
-**Long-Term Growth:**
+**Long-Term Growth Table:**
 
 | Weeks | Balance | Total Interest |
 |-------|---------|----------------|
-| 1 | 10,500€ | 500€ |
-| 4 | 12,155€ | 2,155€ |
-| 8 | 14,775€ | 4,775€|
-| 12 | 17,959€ | 7,959€|
-| 26 | 34,813€ | 24,813€ |
-| 52 | 121,242€ | 111,242€ |
-
----
+| 1 | 10,500 EUR | 500 EUR |
+| 4 | 12,155 EUR | 2,155 EUR |
+| 8 | 14,775 EUR | 4,775 EUR |
+| 12 | 17,959 EUR | 7,959 EUR |
+| 26 | 34,813 EUR | 24,813 EUR |
+| 52 | 121,242 EUR | 111,242 EUR |
 
 ### Creating Savings Accounts
 
-```bash
+```
 /savings create <amount>
 ```
 
 **Example:**
-```bash
+```
 /savings create 10000
 ```
 
 **Requirements:**
-- Minimum 1,000€
+- Minimum 1,000 EUR
 - Must have balance available
-- Total across accounts ≤ 50,000€
+- Total across all accounts must not exceed 50,000 EUR
 
 **Result:**
 ```
-✓ Savings Account Created!
+Savings Account Created!
 
-Account ID: a3b4c5d6
-Initial Deposit: 10,000€
-Interest Rate: 5% per week
-Lock Period: 4 weeks (28 days)
+Account ID:      a3b4c5d6
+Initial Deposit: 10,000 EUR
+Interest Rate:   5% per week
+Lock Period:     4 weeks (28 days)
 
-Status: 🔒 Locked until 2024-02-12
+Status: Locked until 2024-02-12
 
-Expected Balance (4 weeks): 12,155.06€
-Expected Profit: 2,155.06€
+Expected Balance (4 weeks): 12,155.06 EUR
+Expected Profit:            2,155.06 EUR
 ```
-
----
 
 ### Managing Savings
 
 #### List Accounts
-```bash
+```
 /savings list
 ```
 
-**Output:**
-```
-━━━━━━━━━ SAVINGS ACCOUNTS ━━━━━━━━━
-
-ID: a3b4c5d6
-Balance: 12,155.06€
-Status: 🔓 Unlocked
-Created: 2024-01-15 (28 days ago)
-Total Interest Earned: 2,155.06€
-
-ID: e7f8g9h0
-Balance: 5,250.00€
-Status: 🔒 Locked (15 days remaining)
-Created: 2024-01-30 (13 days ago)
-Total Interest Earned: 250.00€
-
-━━━━━━━━━ TOTAL ━━━━━━━━━
-Total Savings: 17,405.06€
-Total Interest: 2,405.06€
-Interest Rate: 5.0% per week
-```
-
----
-
 #### Deposit to Account
-```bash
+```
 /savings deposit <accountId> <amount>
 ```
 
-**Example:**
-```bash
-/savings deposit a3b4c5d6 5000
+**Important:** Depositing resets the lock period to 4 weeks from the deposit date.
+
+#### Withdraw from Account (Unlocked)
 ```
-
-**Important:**
-- **Resets lock period** to 4 weeks from deposit
-- No deposit limit
-- Immediate deposit
-
-**Result:**
-```
-✓ Deposit Successful!
-
-Account: a3b4c5d6
-Deposited: 5,000€
-New Balance: 17,155.06€
-
-⚠️ Lock period reset!
-New unlock date: 2024-02-20 (28 days from now)
-```
-
----
-
-#### Withdraw from Account
-
-##### Normal Withdrawal (Unlocked)
-```bash
 /savings withdraw <accountId> <amount>
 ```
 
-**Requirements:**
-- Account must be unlocked (28+ days old)
-- Sufficient balance
+Account must be unlocked (28+ days old). No penalty.
 
-**Example:**
-```bash
-/savings withdraw a3b4c5d6 2000
+#### Force Withdrawal (Locked)
 ```
-
-**Result:**
-```
-✓ Withdrawal Successful!
-
-Account: a3b4c5d6
-Withdrawn: 2,000€
-New Balance: 15,155.06€
-Remaining: 15,155.06€
-
-No penalty (account unlocked)
-```
-
----
-
-##### Force Withdrawal (Locked)
-```bash
 /savings forcewithdraw <accountId> <amount>
 ```
 
-**Penalty:** 10% of withdrawal amount
-
-**Example:**
-```bash
-/savings forcewithdraw e7f8g9h0 5000
-```
+**Penalty:** 10% of withdrawal amount goes to State Treasury.
 
 **Calculation:**
 ```
-Requested: 5,000€
-Penalty (10%): 500€
-You Receive: 4,500€
-State Gets: 500€
-
-Account remaining: 250€
-Lock status: Still locked
+Requested:         5,000 EUR
+Penalty (10%):       500 EUR
+You Receive:       4,500 EUR
+State Gets:          500 EUR
 ```
-
-**Result:**
-```
-⚠️ Early Withdrawal Penalty Applied!
-
-Account: e7f8g9h0
-Withdrawal Amount: 5,000€
-Penalty (10%): -500€
-You Receive: 4,500€
-
-New Balance: 250€
-Status: Still locked (15 days remaining)
-```
-
----
 
 #### Close Account
-```bash
+```
 /savings close <accountId>
 ```
 
-**Rules:**
-- Same lock period applies
-- 10% penalty if still locked
-- Entire balance withdrawn
-
-**Example (Unlocked):**
-```
-Account: a3b4c5d6
-Balance: 15,155.06€
-
-✓ Account Closed!
-Full Balance Returned: 15,155.06€
-No Penalty
-```
-
-**Example (Locked):**
-```
-Account: e7f8g9h0
-Balance: 5,250€
-
-⚠️ Account is locked (15 days remaining)
-Penalty (10%): 525€
-You Receive: 4,725€
-State Gets: 525€
-
-Account Closed
-```
+Withdraws entire balance. 10% penalty if still locked.
 
 ---
 
 ## Daily Rewards
 
-### Reward System
+### Reward Configuration
 
-**Base Reward:** 50€
-**Streak Bonus:** 10€ per day of streak
-**Max Streak:** 30 days (340€/day maximum)
-
----
+| Parameter | Value |
+|-----------|-------|
+| Base Reward | 50 EUR |
+| Streak Bonus | 10 EUR per day of streak |
+| Max Streak | 30 days |
+| Max Daily Reward | 340 EUR |
+| Cooldown | 24 hours |
+| Grace Period | 48 hours to maintain streak |
 
 ### Claiming Rewards
 
-```bash
+```
 /daily
 ```
 
-**Cooldown:** 24 hours
-**Grace Period:** 48 hours to maintain streak
-
 **Result:**
 ```
-✓ Daily Reward Claimed!
+Daily Reward Claimed!
 
-Base Reward: 50€
-Streak Bonus: 150€ (15-day streak)
-Total Reward: 200€
+Base Reward:   50 EUR
+Streak Bonus: 150 EUR (15-day streak)
+Total Reward: 200 EUR
 
-New Balance: 12,650€
+New Balance: 12,650 EUR
 
-Current Streak: 15 🔥
+Current Streak: 15
 Next Claim: In 24 hours
 ```
 
----
+### Streak Progression Table
 
-### Streak Mechanics
-
-**Progression Table:**
-
-| Day | Bonus | Total Reward | Cumulative (30 days) |
-|-----|-------|--------------|----------------------|
-| 1 | 0€ | 50€ | 50€ |
-| 2 | 10€ | 60€ | 110€ |
-| 3 | 20€ | 70€ | 180€ |
-| 5 | 40€ | 90€ | 400€ |
-| 10 | 90€ | 140€ | 1,220€ |
-| 15 | 140€ | 190€ | 2,470€ |
-| 20 | 190€ | 240€ | 4,020€ |
-| 25 | 240€ | 290€ | 5,870€ |
-| 30 | 290€ | 340€ | 5,850€ (complete) |
-| 30+ | 290€ | 340€ (capped) | - |
+| Day | Bonus | Total Reward | Cumulative |
+|-----|-------|--------------|------------|
+| 1 | 0 EUR | 50 EUR | 50 EUR |
+| 2 | 10 EUR | 60 EUR | 110 EUR |
+| 3 | 20 EUR | 70 EUR | 180 EUR |
+| 5 | 40 EUR | 90 EUR | 400 EUR |
+| 10 | 90 EUR | 140 EUR | 1,220 EUR |
+| 15 | 140 EUR | 190 EUR | 2,470 EUR |
+| 20 | 190 EUR | 240 EUR | 4,020 EUR |
+| 25 | 240 EUR | 290 EUR | 5,870 EUR |
+| 30 | 290 EUR | 340 EUR | 8,820 EUR |
+| 30+ | 290 EUR | 340 EUR (capped) | -- |
 
 **Formula:**
 ```
-Streak Bonus = min(10 × (streak - 1), 290)
+Streak Bonus = min(10 x (streak - 1), 290)
 Total Reward = 50 + Streak Bonus
 
 Examples:
-Day 1:  50 + (10 × 0) = 50€
-Day 15: 50 + (10 × 14) = 190€
-Day 30: 50 + (10 × 29) = 340€
-Day 31: 50 + 290 = 340€ (capped at 30)
+Day 1:  50 + (10 x 0)  = 50 EUR
+Day 15: 50 + (10 x 14) = 190 EUR
+Day 30: 50 + (10 x 29) = 340 EUR
+Day 31: 50 + 290        = 340 EUR (capped at 30)
 ```
-
----
 
 ### Streak Rules
 
-**Maintaining Streak:**
-- ✅ Claim within 48 hours of last claim
-- ✅ Grace period allows one missed day
-- ❌ > 48 hours = streak resets to 1
-
-**Example Timeline:**
-```
-Monday 10:00:    Claim (Streak 14, 190€)
-Tuesday 10:00:   Can claim (Streak 15, 200€)
-Wednesday 09:00: Still valid (within 48h, Streak 16, 210€)
-Wednesday 11:00: ⚠️ Warning - Grace period ends in 23h
-Thursday 09:30:  ✗ Streak reset (Streak 1, 50€)
-```
-
----
+- Claim within 48 hours of last claim to maintain streak
+- Grace period allows one missed day
+- More than 48 hours gap resets streak to 1
 
 ### Streak Statistics
 
-```bash
+```
 /daily streak
 ```
 
-**Output:**
-```
-═══ Daily Reward Statistics ═══
-
-Current Streak: 15 🔥
-Longest Streak: 28
-Total Claims: 156
-
-Next Reward:
-- Base: 50€
-- Bonus: 150€ (15-day streak)
-- Total: 200€
-
-Next Claim Available: 05:32:18
-```
+Displays current streak, longest streak, total claims, and time until next claim.
 
 ---
 
 ## Recurring Payments
 
-### Autopay System
+### Autopay Configuration
 
-**Configuration:**
-- **Max per Player:** 10 recurring payments
-- **Min Interval:** 1 day
-- **Auto-disable:** After 3 failed payments
+| Parameter | Value |
+|-----------|-------|
+| Max per Player | 10 recurring payments |
+| Min Interval | 1 day |
+| Auto-disable | After 3 failed payments |
+
+### Creating Autopay
+
+```
+/autopay add <player> <amount> <intervalDays> <description>
+```
+
+**Example:**
+```
+/autopay add Alex 500 7 "Weekly rent"
+```
 
 **Use Cases:**
 - Rent payments to landlords
 - Salary payments to employees
 - Subscription fees
-- Regular transfers
-
----
-
-### Creating Autopay
-
-```bash
-/autopay add <player> <amount> <intervalDays> <description>
-```
-
-**Example:**
-```bash
-/autopay add Alex 500 7 "Weekly rent"
-```
-
-**Result:**
-```
-✓ Recurring Payment Created!
-
-Payment ID: a1b2c3d4
-Recipient: Alex
-Amount: 500€
-Interval: Every 7 days
-Description: Weekly rent
-
-First Payment: In 7 days (2024-01-22)
-```
-
----
+- Regular transfers to business partners
 
 ### Managing Autopay
 
 #### List Payments
-```bash
+```
 /autopay list
 ```
 
-**Output:**
-```
-━━━━ RECURRING PAYMENTS ━━━━
-
-ID: a1b2c3d4
-To: Alex
-Amount: -500€
-Interval: 7 days
-Description: Weekly rent
-Status: Active
-Next Payment: In 3 days
-
-ID: e5f6g7h8
-To: Bob
-Amount: -100€
-Interval: 1 day
-Description: Daily fee
-Status: Paused
-Next Payment: -
-
-Total Active: 1
-Total Paused: 1
-```
-
----
+Displays all recurring payments with status, next payment date, and amount.
 
 #### Pause Payment
-```bash
+```
 /autopay pause <paymentId>
 ```
 
-**Example:**
-```bash
-/autopay pause a1b2c3d4
-```
-
-**Effect:**
-- Stops future payments
-- Can resume anytime
-- No cancellation fee
-
----
+Stops future payments. Can be resumed anytime with no fee.
 
 #### Resume Payment
-```bash
+```
 /autopay resume <paymentId>
 ```
 
-**Example:**
-```bash
-/autopay resume a1b2c3d4
-```
-
-**Effect:**
-- Reactivates payment
-- Next payment scheduled based on interval
-
----
+Reactivates a paused payment. Next payment scheduled based on interval.
 
 #### Delete Payment
-```bash
+```
 /autopay delete <paymentId>
 ```
 
-**Example:**
-```bash
-/autopay delete a1b2c3d4
-```
-
-**Warning:**
-- Permanent deletion
-- Cannot be undone
-- Create new autopay if needed later
-
----
+Permanently removes the recurring payment. Cannot be undone.
 
 ### Failure Handling
 
-**Automatic Retry System:**
 ```
-Payment Due: 500€ to Alex
-Balance: 300€ (insufficient)
+Payment Due: 500 EUR to Alex
+Balance: 300 EUR (insufficient)
 
-1st Failure:
-- Warning sent to player
-- Retry in 1 day
-- Failure count: 1
-
-2nd Failure (next day):
-- Another warning
-- Retry in 1 day
-- Failure count: 2
-
-3rd Failure (next day):
-- Critical warning
-- Payment AUTO-DISABLED
-- Failure count: 3
+1st Failure: Warning sent, retry in 1 day
+2nd Failure: Another warning, retry in 1 day
+3rd Failure: Critical warning, payment AUTO-DISABLED
 ```
 
-**Notification:**
-```
-§c§l[AUTOPAY] DISABLED!
-§7Reason: 3 failed payment attempts
-§7To: Alex
-§7Amount: 500€
+Player receives a notification and must re-enable with `/autopay resume <id>` after adding funds.
 
-§cPlease add funds and re-enable:
-§e/autopay resume a1b2c3d4
+---
+
+## Tax System
+
+The TaxManager processes three types of taxes, collected every 7 in-game days (1 MC week).
+
+### Tax Types
+
+#### 1. Income Tax (Progressive)
+
+| Balance Bracket | Tax Rate |
+|----------------|----------|
+| 0 -- 10,000 EUR | 0% (tax-free allowance) |
+| 10,001 -- 50,000 EUR | 10% |
+| 50,001 -- 100,000 EUR | 15% |
+| 100,001+ EUR | 20% |
+
+**Example Calculation:**
+```
+Player Balance: 75,000 EUR
+
+Bracket 1: 10,000 EUR at  0% =        0 EUR
+Bracket 2: 40,000 EUR at 10% =    4,000 EUR  (10,001 to 50,000)
+Bracket 3: 25,000 EUR at 15% =    3,750 EUR  (50,001 to 75,000)
+                                  ---------
+Total Income Tax:                  7,750 EUR
+```
+
+#### 2. Property Tax
+
+| Parameter | Value |
+|-----------|-------|
+| Rate | Configurable per chunk (default: 100 EUR/chunk/period) |
+| Calculation | Plot area / 256 blocks (16x16 chunk), rounded up |
+| Period | Every 7 MC days |
+
+**Example:**
+```
+Plot size: 48 x 32 blocks = 1,536 block area
+Chunks: ceil(1,536 / 256) = 6 chunks
+Tax: 6 x 100 EUR = 600 EUR per period
+```
+
+#### 3. Sales Tax (MwSt)
+
+| Parameter | Value |
+|-----------|-------|
+| Rate | 19% |
+| Applied To | NPC shop purchases |
+| Recipient | State Treasury |
+
+**Example:**
+```
+Item price: 100 EUR
+Sales tax:   19 EUR
+Player pays: 119 EUR
+Shop gets:   100 EUR
+State gets:   19 EUR
+```
+
+### Tax Debt
+
+If a player cannot afford their taxes, debt accumulates.
+
+```
+/money taxdebt     -- View outstanding tax debt
+```
+
+Tax debt must be paid before certain financial operations (e.g., taking new loans).
+
+---
+
+## Shop Investments
+
+### Investment System
+
+Players can invest in NPC shops through share purchases, receiving a portion of shop profits.
+
+| Parameter | Value |
+|-----------|-------|
+| Share Price | 1,000 EUR per share |
+| Profit Distribution | Based on share ownership percentage |
+| Tracking Period | 7-day revenue cycle |
+| Manager | ShopAccountManager |
+
+### Investing
+
+```
+/shopinvest buy <shopId> <shares>
+```
+
+**Example:**
+```
+/shopinvest buy Electronics_Store 5
+```
+
+**Cost:** 5 x 1,000 EUR = 5,000 EUR
+
+### Checking Investments
+
+```
+/shopinvest info <shopId>
+```
+
+Displays share count, revenue data, and projected dividends.
+
+### Selling Shares
+
+```
+/shopinvest sell <shopId> <shares>
+```
+
+Returns 1,000 EUR per share (base price).
+
+### How Profits Work
+
+The ShopAccountManager tracks all revenue flowing through each NPC shop. At the end of each 7-day cycle, profits are distributed to shareholders proportionally.
+
+```
+Shop Revenue (7 days):  50,000 EUR
+Operating Costs:        10,000 EUR
+Net Profit:             40,000 EUR
+
+Your Shares: 5 of 20 total (25%)
+Your Dividend: 40,000 x 0.25 = 10,000 EUR
 ```
 
 ---
@@ -934,105 +822,115 @@ Balance: 300€ (insufficient)
 
 ### State Account
 
-**Purpose:** Central government fund for public expenses
+The State Account is the centralized government fund that collects fees, taxes, and other revenue. It is managed as a singleton (`StateAccount`).
 
-**Starting Balance:** 100,000€
-
----
+| Parameter | Value |
+|-----------|-------|
+| Starting Balance | 100,000 EUR |
+| Manager | StateAccount (singleton) |
+| Storage | `config/state_account.json` |
 
 ### Income Sources
 
 | Source | Amount | Frequency |
 |--------|--------|-----------|
-| **ATM Fees** | 5€ | Per transaction |
-| **Transfer Fees** | 1% (min 10€) | Per transfer |
-| **Sales Tax (MwSt)** | 19% | Per shop sale |
-| **Savings Penalties** | 10% | Early withdrawals |
-| **Admin Deposits** | Variable | Manual |
+| ATM Fees | 5 EUR | Per transaction |
+| Transfer Fees | 1% (min 10 EUR) | Per transfer |
+| Sales Tax (MwSt) | 19% | Per shop sale |
+| Income Tax | Progressive (0-20%) | Every 7 MC days |
+| Property Tax | Per chunk | Every 7 MC days |
+| Savings Penalties | 10% | Early withdrawals |
+| Overdraft Interest | 25% weekly | Per overdraft account |
+| Admin Deposits | Variable | Manual |
 
-**Example Daily Income:**
+**Example Daily Income (Active Server):**
 ```
-100 ATM transactions:     100 × 5€ = 500€
-50 transfers (avg 2,000€): 50 × 20€ = 1,000€
-Shop sales (100,000€):    100,000 × 0.19 = 19,000€
-Savings penalties:        2,000€
-
-Total Daily Income: ~22,500€
+100 ATM transactions:       100 x 5 EUR          =     500 EUR
+50 transfers (avg 2,000):   50 x 20 EUR          =   1,000 EUR
+Shop sales (100,000):       100,000 x 0.19       =  19,000 EUR
+Savings penalties:                                =   2,000 EUR
+                                                    ---------
+Total Daily Income:                               ~ 22,500 EUR
 ```
-
----
-
-### Expenditure Uses
-
-| Use | Purpose | Frequency |
-|-----|---------|-----------|
-| **Warehouse Deliveries** | NPC shop restocking | Every 3 days |
-| **NPC Salaries** | (Future feature) | Weekly |
-| **Public Infrastructure** | (Future feature) | Variable |
-| **Admin Withdrawals** | Manual expenses | As needed |
-
----
 
 ### State Commands
 
 #### View Balance
-```bash
+```
 /state balance
 ```
 
-**Output:**
+#### Deposit (Admin)
 ```
-═══ STATE TREASURY ═══
-
-Current Balance: 245,600€
-
-Last 24h Activity:
-Income: +32,400€
-Expenses: -15,000€
-Net: +17,400€
-```
-
----
-
-#### Deposit
-```bash
 /state deposit <amount>
 ```
 
-**Example:**
-```bash
-/state deposit 50000
+#### Withdraw (Admin)
 ```
-
-**Result:**
-```
-✓ State Deposit Successful!
-
-Amount: +50,000€
-New Balance: 295,600€
-Reason: Admin funding
+/state withdraw <amount>
 ```
 
 ---
 
-#### Withdraw
-```bash
-/state withdraw <amount>
+## Overdraft System (Dispo)
+
+### Configuration
+
+| Parameter | Value |
+|-----------|-------|
+| Max Limit | -5,000 EUR |
+| Warning Threshold | -2,500 EUR |
+| Interest Rate | 25% per week on negative balance |
+| Seizure | Triggered at limit |
+
+### Overdraft Mechanics
+
+```
+Current Balance:  500 EUR
+Purchase:       3,000 EUR
+New Balance:   -2,500 EUR   (Allowed, within -5,000 EUR limit)
+
+Current Balance: -4,000 EUR
+Purchase:        2,000 EUR
+New Balance:    -6,000 EUR   (DECLINED, exceeds -5,000 EUR limit)
 ```
 
-**Example:**
-```bash
-/state withdraw 20000
+### Weekly Interest on Negative Balance
+
+```
+Formula: |Negative Balance| x 0.25
+
+Example:
+Current Balance:  -3,000 EUR
+Weekly Interest:   3,000 x 0.25 = 750 EUR
+New Balance:      -3,750 EUR
+
+Next Week:
+Interest:          3,750 x 0.25 = 937.50 EUR
+New Balance:      -4,687.50 EUR
 ```
 
-**Result:**
-```
-✓ State Withdrawal Successful!
+### Warning System
 
-Amount: -20,000€
-New Balance: 275,600€
-Remaining: 275,600€
+**At -2,500 EUR (threshold):**
 ```
+OVERDRAFT WARNING
+
+Your account is at -2,500 EUR
+Interest Rate: 25% per week
+Max Limit: -5,000 EUR
+
+Please deposit funds to avoid penalties!
+```
+
+### Seizure (Pfandung)
+
+**Triggered at -5,000 EUR:**
+
+1. All physical cash removed from wallet
+2. Account balance remains at -5,000 EUR
+3. Confiscated cash sent to State Treasury
+4. Critical warning notification sent to player
 
 ---
 
@@ -1040,38 +938,37 @@ Remaining: 275,600€
 
 ### Transaction Types
 
-**Transaction Types Tracked:**
+All financial activity is categorized and tracked.
 
 | Category | Types |
 |----------|-------|
-| **Transfers** | TRANSFER, TRANSFER_FEE |
-| **ATM** | ATM_DEPOSIT, ATM_WITHDRAW, ATM_FEE |
-| **Purchases** | NPC_PURCHASE, VEHICLE_PURCHASE |
-| **Admin** | ADMIN_SET, ADMIN_GIVE, ADMIN_TAKE |
-| **Taxes** | TAX_INCOME, TAX_SALES, TAX_PROPERTY |
-| **Interest** | INTEREST, INTEREST_SAVINGS |
-| **Loans** | LOAN_DISBURSEMENT, LOAN_REPAYMENT, LOAN_INTEREST |
-| **Overdraft** | OVERDRAFT_FEE |
-| **Bonds** | BOND_PURCHASE, BOND_MATURITY |
-| **Insurance** | INSURANCE_PAYMENT, INSURANCE_PAYOUT |
-| **State** | STATE_SUBSIDY, STATE_SPENDING |
-| **Savings** | SAVINGS_DEPOSIT, SAVINGS_WITHDRAW |
-| **Rewards** | DAILY_REWARD |
-| **Fees** | DEATH_FEE, GARAGE_FEE |
-| **Other** | OTHER |
-
----
+| Transfers | TRANSFER, TRANSFER_FEE |
+| ATM | ATM_DEPOSIT, ATM_WITHDRAW, ATM_FEE |
+| Purchases | NPC_PURCHASE, VEHICLE_PURCHASE |
+| Admin | ADMIN_SET, ADMIN_GIVE, ADMIN_TAKE |
+| Taxes | TAX_INCOME, TAX_SALES, TAX_PROPERTY |
+| Interest | INTEREST, INTEREST_SAVINGS |
+| Loans | LOAN_DISBURSEMENT, LOAN_REPAYMENT, LOAN_INTEREST |
+| Overdraft | OVERDRAFT_FEE |
+| Bonds | BOND_PURCHASE, BOND_MATURITY |
+| Insurance | INSURANCE_PAYMENT, INSURANCE_PAYOUT |
+| State | STATE_SUBSIDY, STATE_SPENDING |
+| Savings | SAVINGS_DEPOSIT, SAVINGS_WITHDRAW |
+| Rewards | DAILY_REWARD |
+| Fees | DEATH_FEE, GARAGE_FEE |
+| Other | OTHER |
 
 ### Transaction Storage
 
-**Limits:**
-- **Max per Player:** 1,000 transactions
-- **Auto-pruning:** Oldest deleted when limit reached
-- **Persistence:** `config/plotmod_transactions.json`
-- **Thread-safe:** ConcurrentHashMap
+| Parameter | Value |
+|-----------|-------|
+| Max per Player | 1,000 transactions |
+| Auto-pruning | Oldest deleted when limit reached |
+| Persistence | `config/plotmod_transactions.json` |
+| Thread Safety | ConcurrentHashMap |
 
-**Transaction Data:**
-```java
+**Transaction Data Structure:**
+```json
 {
   "transactionId": "550e8400-e29b-41d4-a716-446655440000",
   "timestamp": 1705320600000,
@@ -1086,98 +983,161 @@ Remaining: 275,600€
 
 ---
 
-## Overdraft System (Dispo)
+## Anti-Exploit Mechanisms
 
-### Configuration
+ScheduleMC includes two anti-exploit systems to prevent economic abuse.
 
-**Overdraft Limits:**
-- **Max Limit:** -5,000€
-- **Warning Threshold:** -2,500€
-- **Interest Rate:** 25% per week
-- **Seizure at Limit:** Account reset + warning
+### Rate Limiter
+
+The `RateLimiter` class prevents command spam.
+
+| Parameter | Value |
+|-----------|-------|
+| Max Transactions | 10 per minute |
+| Window | 60 seconds (sliding) |
+| Scope | Per player |
+| Tracking | ArrayDeque of timestamps |
+
+When the limit is reached, the player receives an error message with the number of seconds until the next allowed transaction.
+
+### Anti-Exploit Manager
+
+The `AntiExploitManager` class detects and penalizes suspicious selling behavior.
+
+| Mechanism | Description |
+|-----------|-------------|
+| **Daily Sell Volume** | Tracks total EUR sold per player per day |
+| **Daily Limit** | Configurable maximum daily sell volume |
+| **Mass-Sell Detection** | Detects rapid bulk selling within cooldown window |
+| **Progressive Penalties** | Price multiplier decreases the more a player exceeds limits |
+| **Warning Levels** | 0-3 levels; at level 3, a 50% penalty applies on top |
+
+**How Penalties Work:**
+```
+Normal sale:          1.0x price (full value)
+Approaching limit:    0.7x - 1.0x price (progressive reduction)
+Mass-sell detected:   Additional penalty multiplier applied
+Warning level 3+:    Additional 0.5x multiplier (stacks)
+```
+
+Daily counters reset at the start of each new in-game day. Warning levels persist and can only be reset by admins.
 
 ---
 
-### Overdraft Mechanics
+## Developer API
 
-**Allowed Negative Balance:**
+### IEconomyAPI Interface
+
+External mods can access the economy system through `IEconomyAPI`. All methods are thread-safe.
+
+**Obtaining the API:**
+```java
+IEconomyAPI economy = ScheduleMCAPI.getEconomyAPI();
 ```
-Current Balance: 500€
-Purchase: 3,000€
-New Balance: -2,500€ ✓ Allowed (within -5,000€ limit)
 
-Current Balance: -4,000€
-Purchase: 2,000€
-New Balance: -6,000€ ✗ DECLINED (exceeds -5,000€ limit)
+### Core Methods (v3.0.0+)
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `getBalance(UUID)` | `double` | Get player balance (0.0 if no account) |
+| `hasAccount(UUID)` | `boolean` | Check if account exists |
+| `createAccount(UUID)` | `void` | Create new account with start balance |
+| `deposit(UUID, double)` | `void` | Deposit funds |
+| `deposit(UUID, double, String)` | `void` | Deposit with description |
+| `withdraw(UUID, double)` | `boolean` | Withdraw funds (false if insufficient) |
+| `withdraw(UUID, double, String)` | `boolean` | Withdraw with description |
+| `transfer(UUID, UUID, double)` | `boolean` | Transfer between players |
+| `transfer(UUID, UUID, double, String)` | `boolean` | Transfer with description |
+| `setBalance(UUID, double)` | `void` | Admin: set exact balance |
+| `deleteAccount(UUID)` | `void` | Admin: delete account permanently |
+| `getStartBalance()` | `double` | Get configured start balance |
+
+### Extended Methods (v3.2.0+)
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `getAllBalances()` | `Map<UUID, Double>` | Unmodifiable map of all balances |
+| `getTotalMoneyInCirculation()` | `double` | Total EUR across all accounts |
+| `getAccountCount()` | `int` | Number of registered accounts |
+| `getTopBalances(int)` | `List<Entry<UUID, Double>>` | Top N richest players |
+| `canAfford(UUID, double)` | `boolean` | Check if player can afford amount |
+| `batchTransfer(UUID, Map, String)` | `boolean` | Batch transfer to multiple recipients |
+| `getTransactionHistory(UUID, int)` | `List<String>` | Recent transactions as strings |
+
+### Usage Example
+
+```java
+IEconomyAPI economy = ScheduleMCAPI.getEconomyAPI();
+
+// Check balance
+double balance = economy.getBalance(playerUUID);
+
+// Deposit funds
+economy.deposit(playerUUID, 100.0, "Quest reward");
+
+// Transfer between players
+boolean success = economy.transfer(fromUUID, toUUID, 50.0, "Item purchase");
+
+// Check affordability
+if (economy.canAfford(playerUUID, 5000.0)) {
+    economy.withdraw(playerUUID, 5000.0, "Vehicle purchase");
+}
+
+// Batch transfer (e.g., salary payment)
+Map<UUID, Double> recipients = new HashMap<>();
+recipients.put(employee1, 1000.0);
+recipients.put(employee2, 1500.0);
+economy.batchTransfer(bossUUID, recipients, "Weekly salaries");
 ```
 
 ---
 
-### Weekly Interest
+## Commands Reference
 
-**Calculation:**
-```
-Formula: |Negative Balance| × 0.25
+### Player Commands (18)
 
-Example:
-Current Balance: -3,000€
-Weekly Interest: 3,000 × 0.25 = 750€
-New Balance: -3,750€
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/money` | Check your balance | Default |
+| `/money history [limit]` | View transaction history | Default |
+| `/pay <player> <amount>` | Transfer money to another player | Default |
+| `/loan apply <tier>` | Apply for a loan (SMALL/MEDIUM/LARGE) | Default |
+| `/loan info` | View loan information | Default |
+| `/loan repay` | Repay loan early | Default |
+| `/savings create <amount>` | Create a savings account | Default |
+| `/savings list` | List all savings accounts | Default |
+| `/savings deposit <id> <amount>` | Deposit into savings | Default |
+| `/savings withdraw <id> <amount>` | Withdraw from unlocked account | Default |
+| `/savings forcewithdraw <id> <amount>` | Withdraw from locked account (10% penalty) | Default |
+| `/savings close <id>` | Close a savings account | Default |
+| `/autopay add <player> <amount> <days> <desc>` | Create recurring payment | Default |
+| `/autopay list` | List recurring payments | Default |
+| `/autopay pause <id>` | Pause a payment | Default |
+| `/autopay resume <id>` | Resume a payment | Default |
+| `/autopay delete <id>` | Delete a payment | Default |
+| `/daily` | Claim daily reward | Default |
 
-Next Week:
-Interest: 3,750 × 0.25 = 937.50€
-New Balance: -4,687.50€
-```
+### Investment Commands (3)
 
----
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/shopinvest buy <shop> <shares>` | Buy shop shares | Default |
+| `/shopinvest sell <shop> <shares>` | Sell shop shares | Default |
+| `/shopinvest info <shop>` | View investment info | Default |
 
-### Warning System
+### Admin Commands (7)
 
-**Threshold Warning (-2,500€):**
-```
-⚠️ OVERDRAFT WARNING
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/money set <player> <amount>` | Set player balance | Admin |
+| `/money give <player> <amount>` | Add money to player | Admin |
+| `/money take <player> <amount>` | Remove money from player | Admin |
+| `/state balance` | View State Treasury balance | Admin |
+| `/state deposit <amount>` | Deposit into State Treasury | Admin |
+| `/state withdraw <amount>` | Withdraw from State Treasury | Admin |
+| `/daily streak` | View streak statistics | Default |
 
-Your account is at -2,500€
-Interest Rate: 25% per week
-Max Limit: -5,000€
-
-Please deposit funds to avoid penalties!
-```
-
-**Limit Reached (-5,000€):**
-```
-🚨 OVERDRAFT LIMIT REACHED
-
-Your account has been seized!
-- Wallet emptied
-- Account reset to -5,000€
-- All cash confiscated
-
-Deposit funds immediately to restore account!
-```
-
----
-
-### Seizure (Pfändung)
-
-**Triggered at -5,000€:**
-1. **Empty Wallet:** All physical cash removed
-2. **Reset Balance:** Set to -5,000€
-3. **Critical Warning:** Notification sent
-4. **Cash to State:** Confiscated cash → State Treasury
-
-**Example:**
-```
-Balance: -5,000€ (limit reached)
-Wallet Cash: 2,000€
-
-Seizure Process:
-1. Wallet cash removed: -2,000€ → State
-2. Balance reset: -5,000€ (no change)
-3. Warning sent to player
-
-Player must deposit to restore positive balance
-```
+**Total: 28 commands**
 
 ---
 
@@ -1185,75 +1145,78 @@ Player must deposit to restore positive balance
 
 ### For Players
 
-#### 1. Build Emergency Fund
+#### 1. Build an Emergency Fund
 ```
-Recommended: 10,000€ in savings
-Reason: Cover unexpected expenses
-Strategy: Save 20% of income
+Recommended:  10,000 EUR in savings
+Reason:       Cover unexpected expenses (taxes, overdraft)
+Strategy:     Save 20% of all income
 ```
 
 #### 2. Use Loans Wisely
-```
-✓ Good Uses:
-- Plot purchases (asset)
-- Business investment
+
+**Good uses:**
+- Plot purchases (appreciating asset)
+- Business investment (shop shares)
 - Production equipment
 
-✗ Bad Uses:
-- Consumption
+**Bad uses:**
+- Consumption spending
 - Gambling
-- Impulse buys
-```
+- Impulse purchases
 
 #### 3. Maximize Daily Rewards
 ```
-Set Reminder: Claim /daily every 24h
-Maintain Streak: 30-day streak = 340€/day
-Annual Value: 124,100€ (if daily for year)
+Claim /daily every 24 hours
+30-day streak = 340 EUR/day
+Annual value: ~124,100 EUR (if claimed every day)
 ```
 
 #### 4. Diversify Income
 ```
 Income Strategy Example:
 - Savings accounts (safe, 5% weekly)
-- Production & selling products
-- Plot rentals & apartments
+- Production and selling products
+- Plot rentals and apartments
+- Shop investments (dividends)
 - Keep liquid funds for emergencies
 ```
 
----
+#### 5. Manage Tax Liability
+```
+Stay below 10,000 EUR balance on tax day for 0% income tax.
+Use savings accounts to shelter funds (not counted as balance).
+Own only plots you actively use to minimize property tax.
+```
 
 ### For Admins
 
 #### 1. Monitor State Treasury
-```bash
-# Daily health check
-/state balance
-
-# Weekly review
-/health economy
+```
+/state balance          -- Check treasury health
+/health economy         -- Full economy diagnostics
 ```
 
-#### 2. Manage Economy
-```bash
-# Inflation control
-/money take @a 100  # Tax collection
-
-# Stimulus
-/money give @a 500  # Economic boost
-```
-
-#### 3. Backup Economy Data
+#### 2. Backup Economy Data
 ```
 Files to Backup:
 - config/plotmod_economy.json
 - config/plotmod_transactions.json
 - config/plotmod_loans.json
 - config/plotmod_savings.json
+- config/plotmod_taxes.json
 - config/state_account.json
 
 Frequency: Daily
-Retention: 7 days
+Retention: 7 days minimum
+```
+
+#### 3. Watch for Inflation
+```
+Monitor total money in circulation.
+If prices are rising across all NPC shops, consider:
+- Increasing tax rates
+- Reducing daily reward amounts
+- Adding money sinks (fees, costs)
 ```
 
 ---
@@ -1262,119 +1225,82 @@ Retention: 7 days
 
 ### "Insufficient Funds"
 
-**Cause:** Balance too low for transaction
+**Cause:** Balance too low for transaction.
 
 **Solutions:**
-```bash
-# Check balance
-/money
-
-# Get daily reward
-/daily
-
-# Apply for loan
-/loan apply SMALL
-
-# Sell items to NPCs
 ```
-
----
+1. /money             -- Check current balance
+2. /daily             -- Claim daily reward
+3. /loan apply SMALL  -- Get a 5,000 EUR loan
+4. Sell items to NPCs
+5. Check overdraft limit (/money)
+```
 
 ### "Transaction Failed"
 
 **Possible Causes:**
 1. Insufficient funds
-2. Recipient doesn't exist
-3. Amount too low (< 1€)
-4. Rate limit hit
+2. Recipient does not exist
+3. Amount too low (< 1 EUR)
+4. Rate limit hit (10 transactions/minute)
 
 **Solutions:**
-- Verify balance
+- Verify balance with /money
 - Check player name spelling
-- Wait 5 seconds between transfers
-- Check /money history for errors
+- Wait for rate limit cooldown
+- Check /money history for recent errors
 
----
+### "Rate Limited"
+
+**Cause:** More than 10 transactions in the last 60 seconds.
+
+**Solution:** Wait for the displayed cooldown timer. The RateLimiter uses a sliding window, so the oldest transaction will expire first.
 
 ### Loan Repayment Issues
 
-**Problem:** Can't afford daily payment
+**Problem:** Cannot afford daily payment.
 
 **Solutions:**
-1. **Early Repayment:**
-   ```bash
-   /loan repay
-   ```
-   Pay off remaining balance
-
-2. **Increase Income:**
-   - Sell products
-   - Get daily reward
-   - Work for other players
-
-3. **Emergency Measures:**
-   - Withdraw savings (with penalty)
-   - Abandon unused plots
-
----
+1. Early Repayment: `/loan repay` to pay remaining balance
+2. Increase income: sell products, claim daily, work for players
+3. Emergency: force-withdraw savings (10% penalty)
+4. Last resort: abandon unused plots (50% refund)
 
 ### Savings Account Locked
 
-**Problem:** Can't withdraw before 28 days
+**Problem:** Cannot withdraw before 28 days.
 
 **Options:**
-
-1. **Wait:** Most economical
-   ```
-   Days Remaining: 15
-   Recommended: Wait for unlock
-   ```
-
-2. **Force Withdrawal:** 10% penalty
-   ```bash
-   /savings forcewithdraw <accountId> <amount>
-   Penalty: 10% of withdrawal
-   ```
-
-3. **Close Account:** 10% penalty on entire balance
-   ```bash
-   /savings close <accountId>
-   ```
-
----
+1. Wait (most economical, no penalty)
+2. Force withdraw: `/savings forcewithdraw <id> <amount>` (10% penalty)
+3. Close account: `/savings close <id>` (10% penalty on full balance)
 
 ### Overdraft Warnings
 
-**Problem:** Account at -2,500€
+**Problem:** Account approaching -5,000 EUR limit.
 
-**Actions:**
-```bash
-# Priority 1: Deposit funds
-/daily           # Claim reward
-/loan apply SMALL # Get 5,000€ loan
-
-# Priority 2: Increase income
-Sell items
-Work for money
-Rent out plots
-
-# Priority 3: Reduce expenses
-Cancel autopay
-Stop unnecessary spending
+**Priority Actions:**
+```
+1. /daily                     -- Claim daily reward
+2. /loan apply SMALL          -- Get 5,000 EUR loan
+3. Sell items to NPC shops
+4. /autopay list              -- Pause unnecessary autopays
+5. /savings forcewithdraw     -- Emergency savings withdrawal
 ```
 
 ---
 
 <div align="center">
 
-**Economy System - Complete Guide**
+**Economy System -- Complete Guide**
 
 For related systems:
-- [🏘️ Plot System](Plot-System.md)
-- [🤖 NPC System](NPC-System.md)
-- [🏪 Warehouse System](Warehouse-System.md)
+- [Plot System](Plot-System.md)
+- [NPC System](NPC-System.md)
+- [Market System](Market-System.md)
+- [Warehouse System](Warehouse-System.md)
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 All Commands](../Commands.md)
+[Back to Wiki Home](../Home.md) | [All Commands](../Commands.md)
 
 **Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
 

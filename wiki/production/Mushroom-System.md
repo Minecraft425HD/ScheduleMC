@@ -1,834 +1,311 @@
 # Mushroom Production System
 
-<div align="center">
+A beginner-friendly 4-step cultivation system featuring 3 psilocybin strains, multi-flush harvesting, tiered climate lamps, and automated water tanks.
 
-**Multi-Flush Cultivation - 3 Psilocybe Strains**
-
-Unique flush harvesting with automated climate control
-
-[🏠 Back to Wiki Home](../Home.md) • [🌿 All Production Systems](../Production-Systems.md)
-
-</div>
-
----
-
-## 📋 Quick Reference
+**Stats at a Glance:**
 
 | Attribute | Value |
 |-----------|-------|
-| **Complexity** | ⭐⭐ (2/5 - Beginner Friendly) |
-| **Steps** | 4 (Substrate → Inoculate → Incubate → Fruit) |
-| **Strains** | 3 (Cubensis, Azurescens, Mexicana) |
-| **Duration** | 3-9 seconds (growth cycle) |
-| **Profitability** | ⭐⭐⭐ (3/5 - Good) |
-| **Quality Tiers** | Poor, Good, Very Good, Legendary |
-| **Unique Mechanic** | Multi-flush harvesting (2-5 harvests per substrate) |
-| **Equipment** | Mist bags, climate lamps, water tank, drying racks |
-
----
-
-## 📋 Table of Contents
-
-1. [Overview](#overview)
-2. [Strains & Spores](#strains--spores)
-3. [Substrate Preparation](#substrate-preparation)
-4. [Growing Process](#growing-process)
-5. [Multi-Flush Harvesting](#multi-flush-harvesting)
-6. [Drying Process](#drying-process)
-7. [Climate Control](#climate-control)
-8. [Quality System](#quality-system)
-9. [Equipment Guide](#equipment-guide)
-10. [Profitability Analysis](#profitability-analysis)
-11. [Best Practices](#best-practices)
+| Strains | 3 (Cubensis, Azurescens, Mexicana) |
+| Production Steps | 4 |
+| Total Items | 15 |
+| Total Blocks | 4 |
+| Quality Tiers | Poor, Good, Very Good, Legendary |
+| Unique Feature | Multi-flush harvesting (2-5 harvests per substrate) |
 
 ---
 
 ## Overview
 
-Mushroom production is the most beginner-friendly system in ScheduleMC, featuring fast growth cycles, automated climate control, and a unique multi-flush harvesting system that allows 2-5 harvests from a single substrate.
+Mushroom production is the most beginner-friendly system in ScheduleMC. It features the fastest growth cycles of any plant-based system, a unique multi-flush mechanic that allows multiple harvests from one substrate, and automated climate control via tiered lamps and water tanks. The system requires darkness for incubation and controlled light for fruiting, making build design an important part of the strategy.
 
-### Production Flow
+---
+
+## Strains
+
+| Strain | Type | Potency | Growth Time | Water Use | Max Flushes | Temperature | Difficulty |
+|--------|------|---------|-------------|-----------|-------------|-------------|------------|
+| **Cubensis** | Balanced | 100% | 5 sec (100 ticks) | 1.0x | 4 | Neutral | Medium |
+| **Azurescens** | Premium | **200%** | 9 sec (180 ticks) | 1.5x | 3 | Cold | Hard |
+| **Mexicana** | Fast | 60% | **3 sec** (60 ticks) | 0.7x | **5** | Warm | Easy |
+
+### Strain Details
+
+**Cubensis** -- The all-rounder. Standard potency, reasonable growth time, neutral temperature (no climate lamp needed). Good for learning the system.
+
+**Azurescens** -- The premium strain. Highest potency at 200%, but slowest growth, highest water demand, fewest flushes, and requires cold temperature. Produces the most valuable mushrooms in the game.
+
+**Mexicana** -- The speed strain. Fastest growth at only 3 seconds per cycle, lowest water use, and the most flushes at 5. Lowest potency but highest volume output.
+
+---
+
+## Production Chain
 
 ```
-1. SUBSTRATE → Add mist bag to pot
-2. INOCULATE → Add spore syringe
-3. INCUBATE → Darkness, stages 0-3
-4. FRUIT → Low light + water, stages 4-7
-5. HARVEST → Fresh mushrooms (repeat 2-5 times!)
-6. DRY → Drying rack for storage
+  [1. INOCULATION]         Spore Syringe
+   Spore Syringe    -->    + Mist Bag (in pot)
+   + Mist Bag               Mycelium established
+   (3 sizes: S/M/L)
+       |
+       v
+  [2. GROWING]             Growth Stages 0-7
+   DARKNESS required  -->  Incubation: stages 0-3
+   for incubation           (dark, no water)
+   LOW LIGHT for      -->  Fruiting: stages 4-7
+   fruiting                 (low light + water)
+   Climate Lamps            Climate Lamps (3 tiers)
+   (3 tiers)                + Water Tank
+       |
+       v
+  [3. HARVESTING]          Multi-Flush System
+   Shift + Right-click -->  Receive fresh mushrooms
+   Stage 7 (mature)         Culture resets to stage 3
+   Repeat 2-5 times!        Yield decreases per flush
+       |
+       v
+   Fresh Mushrooms
+       |
+       v
+  [4. DRYING]              Drying Rack
+   Time-based         -->  Shared with other systems
+   Quality preserved        3 sizes available
+       |
+       v
+   Dried Mushrooms
+   (Final Product)
 ```
 
-### Why Choose Mushrooms?
-
-**Advantages:**
-✅ Fastest growth (3-9 seconds)
-✅ Multi-flush harvesting (2-5 harvests)
-✅ Beginner-friendly
-✅ Automated climate control
-✅ Requires darkness (easy to manage)
-
-**Challenges:**
-💡 Darkness required
-💧 Water automation recommended
-🌡️ Temperature control for optimal yield
-📦 Drying required for storage
-
 ---
 
-## Strains & Spores
+## Step 1: Inoculation
 
-### 1. Psilocybe Cubensis (Balanced) ⚖️
+Prepare the substrate and introduce spores.
 
-**Characteristics:**
-- **Color:** Gold (§6)
-- **Type:** Balanced, beginner-friendly
-- **Potency:** 100% (standard)
-- **Best For:** General production
+### Process
 
-**Seeds:** `spore_syringe_cubensis`
-- **Price:** 30€ per syringe
-- **Growth Time:** 100 ticks (5 seconds)
-- **Water Use:** 1.0× (standard)
-- **Max Flushes:** 4 harvests
-- **Temperature:** Neutral (no special requirements)
-
-**Light Requirements:**
-- Incubation: < 4 light level
-- Fruiting: < 7 light level
-
----
-
-### 2. Psilocybe Azurescens (Premium) 💎
-
-**Characteristics:**
-- **Color:** Blue (§9)
-- **Type:** Strongest, most difficult
-- **Potency:** 200% (HIGHEST!)
-- **Best For:** Maximum profit
-
-**Seeds:** `spore_syringe_azurescens`
-- **Price:** 60€ per syringe
-- **Growth Time:** 180 ticks (9 seconds)
-- **Water Use:** 1.5× (high)
-- **Max Flushes:** 3 harvests
-- **Temperature:** Requires COLD (Klimalampe)
-
-**Light Requirements:**
-- Incubation: < 3 light level (strictest!)
-- Fruiting: < 5 light level
-
----
-
-### 3. Psilocybe Mexicana (Fast) ⚡
-
-**Characteristics:**
-- **Color:** Yellow (§e)
-- **Type:** Fastest, most tolerant
-- **Potency:** 60% (lowest)
-- **Best For:** High-volume production
-
-**Seeds:** `spore_syringe_mexicana`
-- **Price:** 20€ per syringe
-- **Growth Time:** 60 ticks (3 seconds - FASTEST!)
-- **Water Use:** 0.7× (low)
-- **Max Flushes:** 5 harvests (MOST!)
-- **Temperature:** Requires WARM (Klimalampe)
-
-**Light Requirements:**
-- Incubation: < 5 light level (most tolerant)
-- Fruiting: < 8 light level
-
----
-
-### Strain Comparison
-
-| Feature | Mexicana | Cubensis | Azurescens |
-|---------|----------|----------|------------|
-| **Spore Price** | 20€ | 30€ | 60€ |
-| **Growth Time** | 3 sec | 5 sec | 9 sec |
-| **Potency** | 60% | 100% | 200% |
-| **Max Flushes** | 5 | 4 | 3 |
-| **Water Use** | 0.7× | 1.0× | 1.5× |
-| **Temperature** | Warm | Neutral | Cold |
-| **Difficulty** | Easy | Medium | Hard |
-
----
-
-## Substrate Preparation
+1. Place a Plant Pot
+2. Right-click the pot with a Mist Bag to add substrate
+3. Right-click the prepared pot with a Spore Syringe to inoculate
 
 ### Mist Bags (3 Sizes)
 
-**Small Mist Bag**
-- **Price:** 15€
-- **Capacity:** 1 culture
-- **Best For:** Single-pot setup
+| Size | Price | Capacity | Best For |
+|------|-------|----------|----------|
+| **Small Mist Bag** | 15 | 1 culture | Single pot |
+| **Medium Mist Bag** | 35 | 2 cultures | Small operation |
+| **Large Mist Bag** | 60 | 3 cultures | Large operation |
 
-**Medium Mist Bag**
-- **Price:** 35€
-- **Capacity:** 2 cultures
-- **Best For:** Small-scale production
+### Spore Syringes (1 per Strain)
 
-**Large Mist Bag**
-- **Price:** 60€
-- **Capacity:** 3 cultures
-- **Best For:** Large-scale operation
-
----
-
-### Adding Substrate
-
-**Process:**
-1. Place Plant Pot
-2. Right-click pot with Mist Bag
-3. Substrate added (1 unit)
-4. Ready for inoculation
-
-**Substrate Consumption:**
-- Total: 15 units consumed during full growth
-- Per stage: ~2.14 units (15/7 stages)
-- Must replenish after all flushes exhausted
+| Syringe | Price | Strain |
+|---------|-------|--------|
+| Cubensis Spore Syringe | 30 | Cubensis |
+| Azurescens Spore Syringe | 60 | Azurescens |
+| Mexicana Spore Syringe | 20 | Mexicana |
 
 ---
 
-## Growing Process
+## Step 2: Growing
 
-### Phase 1: Inoculation
+Growth occurs in two phases: incubation (stages 0-3) and fruiting (stages 4-7).
 
-**Requirements:**
-- Pot with substrate (mist bag added)
-- Spore Syringe (strain-specific)
+### Phase A: Incubation (Stages 0-3)
 
-**Process:**
-1. Right-click prepared pot with Spore Syringe
-2. Mycelium culture established
-3. Growth begins automatically
+Mycelium colonizes the substrate. Requires **darkness** -- the pot must be below the strain's light threshold.
 
-**Initial State:**
-```
-Growth Stage: 0/7 (Incubation)
-Strain: [Cubensis/Azurescens/Mexicana]
-Quality: GUT (default)
-Flush Count: 0
-```
+| Strain | Max Light Level |
+|--------|----------------|
+| Mexicana | < 5 (most tolerant) |
+| Cubensis | < 4 |
+| Azurescens | < 3 (strictest) |
 
----
+No water is needed during incubation. Build in a dark, enclosed room.
 
-### Phase 2: Incubation (Stages 0-3)
+### Phase B: Fruiting (Stages 4-7)
 
-**Purpose:** Mycelium colonization
+Mushrooms form and grow. Requires low-to-moderate light and **water** (from Wassertank or manual watering).
 
-**Requirements:**
-- **DARKNESS** (low light levels)
-- Substrate only (no water yet)
-- Temperature control (if using premium strains)
+| Strain | Max Light Level | Water Multiplier |
+|--------|----------------|-----------------|
+| Mexicana | < 8 (most tolerant) | 0.7x (low) |
+| Cubensis | < 7 | 1.0x (standard) |
+| Azurescens | < 5 (strictest) | 1.5x (high) |
 
-**Light Requirements:**
-```
-Mexicana: < 5 light level (most tolerant)
-Cubensis: < 4 light level
-Azurescens: < 3 light level (strictest)
-```
+### Climate Lamps (3 Tiers)
 
-**Duration:**
-```
-Mexicana: 60 ticks / 8 stages = 7.5 ticks/stage × 4 = 30 ticks (~1.5 sec)
-Cubensis: 100 / 8 × 4 = 50 ticks (~2.5 sec)
-Azurescens: 180 / 8 × 4 = 90 ticks (~4.5 sec)
-```
+Climate lamps provide temperature control for strains that require it. Place adjacent to pots.
 
-**Visual:** Small mycelium growth in substrate
+| Tier | Name | Auto Mode | Growth Bonus | Quality Bonus | Price |
+|------|------|-----------|-------------|--------------|-------|
+| **Tier 1** | Klimalampe Small | No (manual toggle: OFF/COLD/WARM) | None | None | ~200 |
+| **Tier 2** | Auto-Klimalampe Medium | Yes (auto-detects strain) | +10% | None | ~500 |
+| **Tier 3** | Premium-Klimalampe Large | Yes (auto-detects strain) | **+25%** | **+10%** | ~1,200 |
 
----
+Temperature modes:
+- **OFF** -- Neutral (for Cubensis)
+- **COLD** -- Cold environment (for Azurescens)
+- **WARM** -- Warm environment (for Mexicana)
 
-### Phase 3: Fruiting (Stages 4-7)
+Tier 2 and Tier 3 lamps auto-detect the strain of adjacent mushroom pots and switch modes automatically.
 
-**Purpose:** Mushroom formation
+### Water Tank (Wassertank)
 
-**Requirements:**
-- **Low to moderate light** (strain-specific)
-- **WATER** (strain-specific consumption)
-- Substrate (continued)
-- Temperature control
+| Property | Value |
+|----------|-------|
+| Capacity | 10,000 units (10 water buckets) |
+| Rate | 1 unit per 10 ticks to adjacent pots |
+| Range | Horizontally adjacent blocks only |
+| Refill | Right-click with water bucket (+1,000 units) |
 
-**Light Requirements:**
-```
-Mexicana: < 8 light level (most tolerant)
-Cubensis: < 7 light level
-Azurescens: < 5 light level (strictest)
-```
-
-**Water Consumption:**
-```java
-waterPerStage = baseWater × strainWaterMultiplier
-
-Mexicana: baseWater × 0.7 (drought tolerant)
-Cubensis: baseWater × 1.0 (standard)
-Azurescens: baseWater × 1.5 (water hungry)
-```
-
-**Duration:** Same as incubation (4 stages)
-
-**Visual:** Mushrooms forming and growing
+Place water tanks next to your pots for automated watering during the fruiting phase.
 
 ---
 
-### Stage 7: Fully Grown
+## Step 3: Harvesting (Multi-Flush System)
 
-**Indicators:**
-- Growth stage: 7/7
-- Visual: Full-sized mushrooms
-- Tooltip: "Ready to harvest"
+The mushroom system's signature mechanic: harvest multiple times from the same substrate.
 
-**Ready to harvest!**
+### How to Harvest
 
----
+1. Wait until growth reaches stage 7 (fully mature)
+2. Shift + Right-click with an empty hand
+3. Receive Fresh Mushrooms
+4. Culture resets to **stage 3** (skips incubation)
+5. Regrowth begins immediately (fruiting phase only)
+6. Repeat until max flushes reached
 
-## Multi-Flush Harvesting
+### Flush Yield
 
-### Unique Feature: Multiple Harvests
+Each successive flush produces less:
 
-**Most Unique Mechanic in ScheduleMC:**
-- Harvest mushrooms WITHOUT destroying culture
-- Substrate remains viable
-- Regrows for additional harvests
-- Each flush yields progressively less
+| Flush | Yield Multiplier |
+|-------|-----------------|
+| 1st | 100% |
+| 2nd | 85% |
+| 3rd | 70% |
+| 4th | 55% |
+| 5th | 40% |
 
----
+### Total Yield Example (Cubensis, Good quality, base 6g)
 
-### Harvesting
-
-**How to Harvest:**
-1. Shift + Right-click fully grown mushrooms with empty hand
-2. Receive Fresh Mushrooms
-3. Culture automatically resets to stage 3
-4. Regrowth begins immediately
-5. Repeat until max flushes reached
-
-**Why Stage 3?**
-- Mycelium already established
-- Skips incubation phase (stages 0-3)
-- Faster subsequent harvests
-- Only needs fruiting phase (stages 4-7)
-
----
-
-### Flush System
-
-**Flush Count:**
 ```
-Mexicana: Up to 5 flushes
-Cubensis: Up to 4 flushes
-Azurescens: Up to 3 flushes
+Flush 1: 6g x 1.00 = 6.0g
+Flush 2: 6g x 0.85 = 5.1g
+Flush 3: 6g x 0.70 = 4.2g
+Flush 4: 6g x 0.55 = 3.3g
+--------------------------
+Total:              18.6g from one substrate
 ```
-
-**Yield Reduction per Flush:**
-```java
-flushPenalty = 1.0 - (currentFlush × 0.15)
-
-Flush 1: 100% yield
-Flush 2: 85% yield (-15%)
-Flush 3: 70% yield (-30%)
-Flush 4: 55% yield (-45%)
-Flush 5: 40% yield (-60%)
-```
-
-**Example (Cubensis, 6g base yield):**
-```
-Flush 1: 6g × 1.00 = 6.0g
-Flush 2: 6g × 0.85 = 5.1g
-Flush 3: 6g × 0.70 = 4.2g
-Flush 4: 6g × 0.55 = 3.3g
-────────────────────────
-Total: 18.6g from one substrate!
-```
-
----
 
 ### Substrate Exhaustion
 
-**After Max Flushes:**
-```
-Mexicana: After 5th flush
-Cubensis: After 4th flush
-Azurescens: After 3rd flush
-```
-
-**What Happens:**
-- Plant becomes "exhausted"
-- No further regrowth
-- Must add new mist bag to continue
-
-**Fresh Start:**
-1. Remove exhausted culture
-2. Add new mist bag
-3. Inoculate with spore syringe
-4. Begin new multi-flush cycle
+After reaching the maximum flush count (3/4/5 depending on strain), the culture is exhausted. Remove it, add a new mist bag, and re-inoculate to start fresh.
 
 ---
 
-## Drying Process
+## Step 4: Drying
 
-### Why Dry?
-
-**Fresh Mushrooms:**
-- Perishable (spoil over time)
-- Cannot be stored long-term
-- Must be dried for stability
-
-**Dried Mushrooms:**
-- Stable (no spoilage)
-- Can be stored indefinitely
-- Ready for sale or packaging
-
----
+Dry fresh mushrooms for stable storage and sale. Uses the shared drying rack system.
 
 ### Drying Racks
 
-**Using Tobacco Drying Racks:**
+| Size | Capacity | Time per Batch |
+|------|----------|---------------|
+| **Small Drying Rack** | 3 slots | 60 seconds |
+| **Medium Drying Rack** | 6 slots | 60 seconds |
+| **Big Drying Rack** | 9 slots | 60 seconds |
 
-**Small Drying Rack**
-- Capacity: 3 slots
-- Time: 1,200 ticks (60 seconds) per batch
-- Cost: ~300€
-
-**Medium Drying Rack**
-- Capacity: 6 slots
-- Time: 1,200 ticks per batch
-- Cost: ~600€
-
-**Big Drying Rack**
-- Capacity: 9 slots
-- Time: 1,200 ticks per batch
-- Cost: ~900€
+Quality is fully preserved through drying. Legendary fresh mushrooms become Legendary dried mushrooms.
 
 ---
 
-### Drying Process
-
-**Steps:**
-1. Place Drying Rack
-2. Right-click with Fresh Mushrooms
-3. Wait 60 seconds
-4. Shift+right-click to extract Dried Mushrooms
-
-**Quality:** Preserved (LEGENDAER → LEGENDAER)
-
-**Example:**
-```
-Input: 6g Fresh Cubensis (SEHR_GUT quality)
-Time: 1,200 ticks (60 seconds)
-Output: 6g Dried Cubensis (SEHR_GUT quality)
-```
-
----
-
-## Climate Control
-
-### Klimalampe (Climate Lamp)
-
-**3 Tiers:**
-
-#### 1. Klimalampe Small (Manual)
-- **Price:** ~200€
-- **Color:** Gray (§7)
-- **Automatic:** No
-- **Growth Bonus:** 0%
-- **Quality Bonus:** 0%
-
-**Manual Control:**
-- Modes: OFF → COLD → WARM → OFF
-- Light Emission: Cold=4, Warm=8, Off=0
-- Must manually match strain needs
-
----
-
-#### 2. Auto-Klimalampe Medium
-- **Price:** ~500€
-- **Color:** Yellow (§e)
-- **Automatic:** Yes
-- **Growth Bonus:** +10%
-- **Quality Bonus:** 0%
-
-**Auto Features:**
-- Detects neighboring mushroom strains
-- Auto-adjusts temperature mode:
-  - Azurescens → COLD
-  - Mexicana → WARM
-  - Cubensis → OFF
-
----
-
-#### 3. Premium-Klimalampe Large
-- **Price:** ~1,200€
-- **Color:** Gold (§6)
-- **Automatic:** Yes
-- **Growth Bonus:** +25%
-- **Quality Bonus:** +10%
-
-**Premium Features:**
-- All auto features
-- Highest growth speed boost
-- Quality improvement chance
-- Best for professional operations
-
----
-
-### Temperature Modes
-
-**OFF (⚫)**
-- Neutral temperature
-- For Cubensis strain
-- Light level: 0
-
-**COLD (§b❄)**
-- Cold temperature
-- For Azurescens strain
-- Light level: 4
-
-**WARM (§c🔥)**
-- Warm temperature
-- For Mexicana strain
-- Light level: 8
-
----
-
-### Wassertank (Water Tank)
-
-**Automated Watering:**
-- **Capacity:** 10,000 units (10 buckets)
-- **Watering Rate:** 1 unit per 10 ticks to adjacent pots
-- **Range:** Horizontally adjacent blocks only
-
-**Usage:**
-1. Place Water Tank next to pots
-2. Fill with water bucket (adds 1,000 units)
-3. Automatically waters adjacent pots during fruiting
-4. Refill as needed
-
-**Benefits:**
-- No manual watering
-- Consistent water supply
-- Supports multiple pots
-- Essential for large operations
-
----
-
-## Quality System
-
-### Quality Tiers
-
-**4 Levels:**
+## Quality Tiers
 
 | Quality | Price Multiplier | Yield Multiplier |
-|---------|------------------|------------------|
-| **SCHLECHT** (Poor) | 1.0× | 1.0× |
-| **GUT** (Good) | 1.5× | 1.5× |
-| **SEHR_GUT** (Very Good) | 2.5× | 2.5× |
-| **LEGENDAER** (Legendary) | 5.0× | 5.0× |
+|---------|-----------------|-----------------|
+| **Poor (Schlecht)** | 1.0x | 1.0x |
+| **Good (Gut)** | 1.5x | 1.5x |
+| **Very Good (Sehr Gut)** | 2.5x | 2.5x |
+| **Legendary (Legendaer)** | **5.0x** | **5.0x** |
 
-**Default:** GUT (Good) quality
-
----
-
-### Quality Improvement
-
-**Quality Booster:**
-- 15% chance per growth stage to upgrade
-- Apply to pot before growth
-- Cumulative chance across 8 stages
-- Can reach LEGENDAER with luck
-
-**Expected Outcomes:**
-```
-No Booster: 100% GUT quality
-With Booster: ~50% SEHR_GUT, ~20% LEGENDAER
-```
-
----
+Default starting quality is Good. Quality Boosters give a 15% chance per growth stage to upgrade.
 
 ### Yield Formula
 
-```java
+```
+finalYield = min(10, baseYield * qualityMultiplier * fertilizerBonus * flushPenalty * randomVariation)
+
 baseYield = 6 (all strains)
-qualityMultiplier = quality.yieldMultiplier (1.0-5.0)
 fertilizerBonus = 1.67 (if applied)
-flushPenalty = 1.0 - (currentFlush × 0.15)
-randomVariation = ±20%
-
-finalYield = min(10, baseYield × qualityMultiplier
-             × fertilizerBonus × flushPenalty
-             × randomVariation)
-```
-
-**Example (LEGENDAER, Fertilizer, 1st Flush):**
-```
-6 × 5.0 × 1.67 × 1.0 = 50.1 → Capped at 10g
+randomVariation = +/- 20%
+Cap = 10g maximum per harvest
 ```
 
 ---
 
-## Equipment Guide
+## Items Table (15 Items)
 
-### Essential (Minimum)
-
-**Starting Setup:**
-1. ✅ 1× Plant Pot
-2. ✅ 1× Small Mist Bag
-3. ✅ 1× Spore Syringe
-4. ✅ 1× Drying Rack (Small)
-5. ✅ Darkness (low light area)
-
-**Cost:** ~550€
-**Capacity:** 1 pot, 4 flushes
-**Production:** Slow but functional
-
----
-
-### Intermediate
-
-**Recommended:**
-1. ✅ 4× Plant Pots
-2. ✅ 2× Medium Mist Bags
-3. ✅ 1× Auto-Klimalampe Medium
-4. ✅ 1× Wassertank
-5. ✅ 1× Medium Drying Rack
-
-**Cost:** ~2,500€
-**Capacity:** 4 pots, automated
-**Production:** Moderate, 10% faster
+| Item | Description | How Obtained |
+|------|-------------|-------------|
+| Cubensis Spore Syringe | Balanced strain spores | Purchase (30) |
+| Azurescens Spore Syringe | Premium strain spores | Purchase (60) |
+| Mexicana Spore Syringe | Fast strain spores | Purchase (20) |
+| Small Mist Bag | Substrate for 1 culture | Purchase (15) |
+| Medium Mist Bag | Substrate for 2 cultures | Purchase (35) |
+| Large Mist Bag | Substrate for 3 cultures | Purchase (60) |
+| Fresh Cubensis Mushrooms | Freshly harvested (perishable) | Harvesting mature Cubensis |
+| Fresh Azurescens Mushrooms | Freshly harvested (perishable) | Harvesting mature Azurescens |
+| Fresh Mexicana Mushrooms | Freshly harvested (perishable) | Harvesting mature Mexicana |
+| Dried Cubensis Mushrooms | Shelf-stable final product | Drying Rack |
+| Dried Azurescens Mushrooms | Shelf-stable final product | Drying Rack |
+| Dried Mexicana Mushrooms | Shelf-stable final product | Drying Rack |
+| Fertilizer | Increases yield (+67%) | Crafting / purchase |
+| Quality Booster | 15% quality upgrade per stage | Crafting / purchase |
+| Water Bucket | Fills Wassertank (+1,000 units) | Crafting / water source |
 
 ---
 
-### Advanced (Professional)
+## Blocks Table (4 Blocks)
 
-**Professional:**
-1. ✅ 8× Plant Pots
-2. ✅ 3× Large Mist Bags
-3. ✅ 2× Premium-Klimalampe Large
-4. ✅ 2× Wassertank (for full coverage)
-5. ✅ 1× Big Drying Rack
-6. ✅ Quality Booster supply
-
-**Cost:** ~6,000€
-**Capacity:** 8 pots, full automation
-**Production:** Professional, 25% faster + quality
+| Block | Description | Function |
+|-------|-------------|----------|
+| Klimalampe Small | Manual climate lamp (Tier 1) | Manual toggle OFF/COLD/WARM; no growth bonus |
+| Auto-Klimalampe Medium | Automatic climate lamp (Tier 2) | Auto-detects strain; +10% growth speed |
+| Premium-Klimalampe Large | Premium climate lamp (Tier 3) | Auto-detects strain; +25% growth speed, +10% quality |
+| Wassertank (Water Tank) | Automated watering system | 10,000 unit capacity; waters adjacent pots automatically |
 
 ---
 
-## Profitability Analysis
+## Quality Modifiers
 
-### Mexicana (Volume Strategy)
+| Modifier | Stage | Effect |
+|----------|-------|--------|
+| Quality Booster | Growing | 15% chance per stage to upgrade quality tier |
+| Premium-Klimalampe | Growing | +10% quality chance |
+| Fertilizer | Growing | +67% yield but does NOT affect quality |
+| Strain Potency | Pricing | Azurescens = 2.0x, Cubensis = 1.0x, Mexicana = 0.6x price modifier |
+| Flush Number | Harvesting | Each successive flush yields 15% less |
+| Quality Tier | Harvesting | Legendary = 5.0x yield and price multiplier |
 
-**Input Costs:**
-```
-Spore Syringe: 20€
-Mist Bag (Small): 15€
-Time: 3 seconds × 5 flushes = 15 seconds total
+### Reaching Legendary
 
-Total: 35€
-```
-
-**Output (5 Flushes, GUT Quality):**
-```
-Flush 1: 6g × 1.00 = 6.0g
-Flush 2: 6g × 0.85 = 5.1g
-Flush 3: 6g × 0.70 = 4.2g
-Flush 4: 6g × 0.55 = 3.3g
-Flush 5: 6g × 0.40 = 2.4g
-Total: 21.0g
-
-Price: 20 × 2.5 × 0.6 × 1.5 = 45€/g
-Revenue: 21.0g × 45€ = 945€
-Profit: 910€
-Hourly Rate: 218,400€/hour
-```
+Use Quality Boosters on every culture. With a 15% chance per growth stage across 8 stages, roughly 20% of cultures will reach Legendary. Combine with the Premium-Klimalampe's +10% quality bonus for better odds.
 
 ---
 
-### Cubensis (Balanced Strategy)
+## Tips & Tricks
 
-**Input Costs:**
-```
-Spore Syringe: 30€
-Mist Bag (Medium): 35€
-Premium Klimalampe: 1,200€ (reusable)
-Quality Booster: 50€
-Time: 5 seconds × 4 flushes = 20 seconds
-
-Variable Cost: 115€
-```
-
-**Output (4 Flushes, SEHR_GUT Quality):**
-```
-Flush 1: 6g × 1.00 × 2.5 = 15.0g → 10g (capped)
-Flush 2: 6g × 0.85 × 2.5 = 12.8g → 10g (capped)
-Flush 3: 6g × 0.70 × 2.5 = 10.5g → 10g (capped)
-Flush 4: 6g × 0.55 × 2.5 = 8.3g
-Total: 38.3g
-
-Price: 30 × 2.5 × 1.0 × 2.5 = 187.5€/g
-Revenue: 38.3g × 187.5€ = 7,181€
-Profit: 7,066€
-Hourly Rate: 1,271,880€/hour
-```
+1. **Start with Mexicana.** It is the easiest strain: fastest growth (3 seconds), lowest water use, most flushes (5), and most tolerant light requirements.
+2. **Build a dedicated dark room.** Fully enclosed, no windows, no torches inside. Verify light levels are below your strain's threshold before planting.
+3. **Set up separate climate zones.** If growing multiple strains, create separate rooms: Cold room for Azurescens, Warm room for Mexicana, Neutral room for Cubensis.
+4. **Invest in the Premium-Klimalampe early.** The +25% growth speed and +10% quality bonus pay for themselves quickly. It is the single best equipment investment.
+5. **Place Wassertanks adjacent to every pot.** One tank can water multiple adjacent pots. Fill before starting a batch and monitor levels.
+6. **Harvest ALL flushes before replacing substrate.** Even the 5th flush at 40% yield is essentially free product from substrate you already paid for.
+7. **Azurescens is the end-game money maker.** At 200% potency, Legendary Azurescens mushrooms are worth 10x what Legendary Mexicana produce per gram.
+8. **Dry immediately after harvest.** Fresh mushrooms are perishable. A Big Drying Rack (9 slots) prevents spoilage in large operations.
+9. **Use Fertilizer for quantity, Quality Boosters for quality.** They serve different purposes. On Mexicana volume runs, use fertilizer. On Azurescens premium runs, use quality boosters.
+10. **Multi-flush is your compounding advantage.** A single Cubensis inoculation yields ~18.6g total across 4 flushes. That is 3x more efficient than any single-harvest crop.
 
 ---
 
-### Azurescens (Premium Strategy)
-
-**Input Costs:**
-```
-Spore Syringe: 60€
-Mist Bag (Large): 60€
-Premium Klimalampe: 1,200€ (reusable)
-Quality Booster: 50€
-Fertilizer: 20€
-Time: 9 seconds × 3 flushes = 27 seconds
-
-Variable Cost: 190€
-```
-
-**Output (3 Flushes, LEGENDAER Quality with Potency):**
-```
-Flush 1: 6g × 1.00 × 5.0 = 30g → 10g (capped)
-Flush 2: 6g × 0.85 × 5.0 = 25.5g → 10g (capped)
-Flush 3: 6g × 0.70 × 5.0 = 21g → 10g (capped)
-Total: 30g (max from caps)
-
-Price: 60 × 2.5 × 2.0 × 5.0 = 1,500€/g
-Revenue: 30g × 1,500€ = 45,000€
-Profit: 44,810€
-Hourly Rate: 5,975,111€/hour
-```
-
-**Analysis:** Azurescens = HIGHEST profit in the game with flushes!
-
----
-
-## Best Practices
-
-### For Beginners
-
-**Start Simple:**
-1. Choose **Mexicana** (easiest, most flushes)
-2. Use **Small Mist Bags**
-3. Build in **dark room** (no lamps needed)
-4. **Manual watering** initially
-5. Target **GUT quality**
-6. Get all 5 flushes
-
-**First Goal:**
-- Complete 5 flushes successfully
-- Achieve 900€+ profit
-- Learn flush mechanics
-
----
-
-### For Intermediate
-
-**Optimize:**
-1. Switch to **Cubensis** (better profit/time)
-2. Invest in **Auto-Klimalampe**
-3. Add **Wassertank** (automation)
-4. Use **Quality Booster**
-5. Run **4-6 pots** simultaneously
-6. Target **SEHR_GUT** quality
-
-**Target:**
-- Consistent SEHR_GUT quality
-- 25,000€+/hour profit
-- Automated watering
-
----
-
-### For Advanced
-
-**Maximum Profit:**
-1. **Azurescens only** (2.0× potency)
-2. **8× pots** with Premium Klimalampe
-3. **Quality Booster** on every culture
-4. **Fertilizer** for max yield caps
-5. **Full automation** (water, climate)
-6. Target **LEGENDAER + Fertilizer**
-
-**Target:**
-- 100% LEGENDAER quality
-- 5,000,000€+/hour profit
-- Industrial-scale operation
-
----
-
-### Multi-Flush Optimization
-
-**Maximize Total Yield:**
-
-**Mexicana (5 flushes):**
-```
-21g total over 15 seconds
-Best for: Speed farming
-Strategy: Get all 5 flushes, replace immediately
-```
-
-**Cubensis (4 flushes):**
-```
-38.3g total (with SEHR_GUT) over 20 seconds
-Best for: Balance
-Strategy: Quality boosters, get all 4 flushes
-```
-
-**Azurescens (3 flushes):**
-```
-30g total (capped, LEGENDAER) over 27 seconds
-Best for: Maximum profit
-Strategy: Legendary + Fertilizer + 3 flushes = $45,000
-```
-
----
-
-### Resource Management
-
-**Dark Room Design:**
-```
-Build Requirements:
-- Fully enclosed room
-- NO windows
-- NO torches inside
-- Door for access
-- Outside lighting only
-
-Verify: Place mushroom pot, check light level
-Must be < 3-8 depending on strain
-```
-
-**Water Automation:**
-```
-1. Place Wassertank adjacent to each pot
-2. Fill tanks before starting batch
-3. Monitor water levels
-4. Refill every ~5-10 flushes
-```
-
-**Climate Zones:**
-```
-Separate rooms for each strain:
-- Cold Room: Azurescens (COLD lamps)
-- Warm Room: Mexicana (WARM lamps)
-- Neutral Room: Cubensis (OFF or no lamp)
-```
-
----
-
-<div align="center">
-
-**Mushroom Production System - Master Guide**
-
-For related systems:
-- [🌿 Cannabis System](Cannabis-System.md)
-- [🚬 Tobacco System](Tobacco-System.md)
-- [💰 Economy & Sales](../features/Economy-System.md)
-
-[🏠 Back to Wiki Home](../Home.md) • [🌿 All Production](../Production-Systems.md)
-
-**Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
-
-</div>
+*See also: [Cannabis System](Cannabis-System.md) | [Tobacco System](Tobacco-System.md) | [Production Systems Overview](../Production-Systems.md)*

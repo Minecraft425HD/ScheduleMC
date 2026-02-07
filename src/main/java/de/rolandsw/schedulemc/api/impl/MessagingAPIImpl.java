@@ -4,6 +4,9 @@ import de.rolandsw.schedulemc.api.messaging.IMessagingAPI;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.messaging.Message;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +22,9 @@ import java.util.stream.Collectors;
  * @since 3.0.0
  */
 public class MessagingAPIImpl implements IMessagingAPI {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final UUID SYSTEM_UUID = new UUID(0L, 0L);
 
     /**
      * {@inheritDoc}
@@ -120,5 +126,87 @@ public class MessagingAPIImpl implements IMessagingAPI {
         return convs.stream()
             .mapToInt(c -> c.getMessages().size())
             .sum();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int broadcastMessage(UUID fromUUID, String message) {
+        if (fromUUID == null) {
+            throw new IllegalArgumentException("fromUUID cannot be null");
+        }
+        if (message == null || message.trim().isEmpty()) {
+            throw new IllegalArgumentException("message cannot be null or empty");
+        }
+        LOGGER.debug("Stub: broadcastMessage not fully implemented - broadcast system not directly accessible");
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean sendSystemMessage(UUID toUUID, String message) {
+        if (toUUID == null) {
+            throw new IllegalArgumentException("toUUID cannot be null");
+        }
+        if (message == null || message.trim().isEmpty()) {
+            throw new IllegalArgumentException("message cannot be null or empty");
+        }
+        return sendMessage(SYSTEM_UUID, toUUID, message);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> getConversation(UUID playerA, UUID playerB, int limit) {
+        if (playerA == null || playerB == null) {
+            throw new IllegalArgumentException("playerA and playerB cannot be null");
+        }
+        if (limit < 1) {
+            throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
+        }
+        LOGGER.debug("Stub: getConversation not fully implemented - direct conversation retrieval not accessible");
+        return Collections.emptyList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isBlocked(UUID playerUUID, UUID blockedUUID) {
+        if (playerUUID == null || blockedUUID == null) {
+            throw new IllegalArgumentException("playerUUID and blockedUUID cannot be null");
+        }
+        LOGGER.debug("Stub: isBlocked not fully implemented - block system not directly accessible");
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void blockPlayer(UUID playerUUID, UUID blockedUUID) {
+        if (playerUUID == null || blockedUUID == null) {
+            throw new IllegalArgumentException("playerUUID and blockedUUID cannot be null");
+        }
+        LOGGER.debug("Stub: blockPlayer not fully implemented - block system not directly accessible");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void unblockPlayer(UUID playerUUID, UUID blockedUUID) {
+        if (playerUUID == null || blockedUUID == null) {
+            throw new IllegalArgumentException("playerUUID and blockedUUID cannot be null");
+        }
+        LOGGER.debug("Stub: unblockPlayer not fully implemented - block system not directly accessible");
     }
 }

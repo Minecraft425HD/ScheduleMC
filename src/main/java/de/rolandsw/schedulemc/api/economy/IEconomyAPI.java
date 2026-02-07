@@ -156,4 +156,77 @@ public interface IEconomyAPI {
      * @return Das Startguthaben für neue Konten in Euro
      */
     double getStartBalance();
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Returns a map of all player UUIDs to their balances.
+     * Useful for leaderboards and statistics.
+     *
+     * @return Unmodifiable map of UUID to balance
+     * @since 3.2.0
+     */
+    java.util.Map<UUID, Double> getAllBalances();
+
+    /**
+     * Returns the total money in circulation across all accounts.
+     *
+     * @return Total money in Euro
+     * @since 3.2.0
+     */
+    double getTotalMoneyInCirculation();
+
+    /**
+     * Returns the number of registered accounts.
+     *
+     * @return Account count
+     * @since 3.2.0
+     */
+    int getAccountCount();
+
+    /**
+     * Returns the top N richest players.
+     *
+     * @param limit Maximum number of entries
+     * @return Sorted list of UUID-balance pairs (richest first)
+     * @throws IllegalArgumentException if limit < 1
+     * @since 3.2.0
+     */
+    java.util.List<java.util.Map.Entry<UUID, Double>> getTopBalances(int limit);
+
+    /**
+     * Checks if a player can afford a specific amount.
+     *
+     * @param playerUUID The player's UUID
+     * @param amount The amount to check
+     * @return true if balance >= amount
+     * @throws IllegalArgumentException if playerUUID is null or amount negative
+     * @since 3.2.0
+     */
+    boolean canAfford(UUID playerUUID, double amount);
+
+    /**
+     * Performs a batch transfer to multiple recipients.
+     *
+     * @param fromUUID Sender UUID
+     * @param recipients Map of recipient UUID to amount
+     * @param description Optional transaction description
+     * @return true if all transfers succeeded, false if insufficient balance
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    boolean batchTransfer(UUID fromUUID, java.util.Map<UUID, Double> recipients, @Nullable String description);
+
+    /**
+     * Returns the transaction history for a player.
+     *
+     * @param playerUUID The player's UUID
+     * @param limit Maximum number of entries
+     * @return List of transaction descriptions (newest first)
+     * @throws IllegalArgumentException if playerUUID is null or limit < 1
+     * @since 3.2.0
+     */
+    java.util.List<String> getTransactionHistory(UUID playerUUID, int limit);
 }

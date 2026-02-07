@@ -2,63 +2,91 @@
 
 <div align="center">
 
-**Complete Land Ownership, Apartments & Property Management**
+**Complete Land Ownership, Apartments, Ratings & Property Management**
 
-Advanced spatial indexing with O(log n) lookup performance
+Advanced spatial indexing with O(log n) lookup and LRU cache O(1) performance
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 Commands Reference](../Commands.md)
+[Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Overview](#overview)
-2. [Plot Types](#plot-types)
-3. [Creating Plots](#creating-plots)
-4. [Plot Ownership](#plot-ownership)
-5. [Trust System](#trust-system)
-6. [Apartment System](#apartment-system)
-7. [Rental System](#rental-system)
-8. [Plot Rating System](#plot-rating-system)
-9. [Protection & Permissions](#protection--permissions)
-10. [Spatial Indexing](#spatial-indexing-technical)
-11. [Best Practices](#best-practices)
-12. [Troubleshooting](#troubleshooting)
+2. [Architecture](#architecture)
+3. [Plot Types](#plot-types)
+4. [Creating Plots](#creating-plots)
+5. [Plot Ownership](#plot-ownership)
+6. [Trust System](#trust-system)
+7. [Apartment System](#apartment-system)
+8. [Rental System](#rental-system)
+9. [Plot Rating System](#plot-rating-system)
+10. [Plot Info Block](#plot-info-block)
+11. [Protection and Permissions](#protection-and-permissions)
+12. [Spatial Indexing](#spatial-indexing-technical)
+13. [Developer API](#developer-api)
+14. [Commands Reference](#commands-reference)
+15. [Best Practices](#best-practices)
+16. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Overview
 
-The Plot Management System is the foundation of ScheduleMC's property and land ownership mechanics. It provides a comprehensive framework for creating, managing, and trading virtual real estate.
+The Plot Management System is the foundation of ScheduleMC's property and land ownership mechanics. It provides a comprehensive framework for creating, managing, trading, and rating virtual real estate with apartment sub-leasing and integrated economy transactions.
 
 ### Key Features
 
-✅ **5 Plot Types** - Residential, Commercial, Shop, Public, Government
-✅ **Apartment System** - Multi-tenant rental units within plots
-✅ **Trust Management** - Granular permission control
-✅ **Rating System** - Community-driven plot quality assessment
-✅ **Rental Mechanics** - Daily rental with security deposits
-✅ **Spatial Indexing** - O(log n) performance for 10,000+ plots
-✅ **Multi-block Protection** - Comprehensive block & entity protection
-✅ **Transaction System** - Integrated with economy for sales/rentals
+- **5 Plot Types** -- Residential, Commercial, Shop, Public, Government
+- **Visual Selection Tool** -- Plot Wand (Golden Axe) for intuitive boundary selection
+- **Apartment System** -- Multi-tenant rental units with deposits and rent
+- **Trust Management** -- Granular permission control for block and inventory access
+- **Rating System** -- Community-driven 5-star quality assessment with leaderboards
+- **Rental Mechanics** -- Daily rental with security deposits and grace periods
+- **50% Refund** -- On plot abandonment (based on creation cost)
+- **Plot Info Block** -- Physical block that displays plot information
+- **Spatial Indexing** -- QuadTree with LRU cache for O(1)/O(log n) performance
+- **Multi-block Protection** -- Comprehensive block, container, entity, and interaction protection
+- **Economy Integration** -- Integrated with economy system for purchases, sales, and rentals
 
-### Architecture
+---
+
+## Architecture
+
+### System Diagram
 
 ```
 PlotManager (Singleton)
-├── PlotRegistry (ConcurrentHashMap)
-├── SpatialIndex (QuadTree for fast lookup)
-├── ApartmentManager (Nested apartment system)
-└── PlotPersistence (JSON with backup system)
+|-- PlotRegistry (ConcurrentHashMap<String, PlotRegion>)
+|-- SpatialIndex (QuadTree for fast lookup)
+|   |-- O(log n) for spatial queries
+|   +-- LRU Cache layer for O(1) repeated lookups
+|-- ApartmentManager (Nested apartment system)
+|-- PlotPersistence (JSON with automatic backup)
++-- PlotRatingManager (5-star rating and leaderboards)
 ```
 
-**Performance Specs:**
-- Plot lookup: **0.3ms average** (O(log n))
-- Max plots tested: **10,000+**
-- Protection check: **< 1ms**
-- Persistence: **Auto-save every 5 minutes**
+### Performance Specifications
+
+| Operation | Time Complexity | Average Time |
+|-----------|----------------|--------------|
+| Plot Lookup (cached) | O(1) | < 0.1ms |
+| Plot Lookup (cache miss) | O(log n) | 0.3ms |
+| Add Plot | O(log n) | 0.5ms |
+| Remove Plot | O(log n) | 0.4ms |
+| Overlap Check | O(log n) | 0.6ms |
+| Protection Check | O(1) | < 1ms |
+| Auto-save | -- | Every 5 minutes |
+
+### Stress Test Results
+
+| Plot Count | Average Lookup Time |
+|------------|-------------------|
+| 10,000 | 0.3ms |
+| 50,000 | 0.8ms |
+| 100,000 | 1.2ms |
 
 ---
 
@@ -66,12 +94,19 @@ PlotManager (Singleton)
 
 ScheduleMC supports 5 distinct plot types, each with specific purposes and permissions.
 
-### 1. Residential Plots 🏠
+### Comparison Table
+
+| Type | Color | Ownership | Tradeable | Apartments | Protection |
+|------|-------|-----------|-----------|------------|------------|
+| **RESIDENTIAL** | Green | Player | Yes | Yes | Full |
+| **COMMERCIAL** | Blue | Player | Yes | Yes | Full |
+| **SHOP** | Yellow | Admin/Player | Yes | No | Full |
+| **PUBLIC** | Gray | Server | No | No | None (open) |
+| **GOVERNMENT** | Red | Server | No | No | Admin-only |
+
+### 1. Residential Plots
 
 **Purpose:** Homes, private properties, housing
-**Color Code:** Green (on map)
-**Ownership:** Player-owned
-**Tradeable:** Yes
 
 **Features:**
 - Apartment creation allowed
@@ -80,130 +115,90 @@ ScheduleMC supports 5 distinct plot types, each with specific purposes and permi
 - Default type for player housing
 
 **Use Cases:**
-```
-- Personal homes
-- Private mansions
+- Personal homes and mansions
 - Apartment buildings
 - Rental properties
-```
 
 **Creation:**
-```bash
+```
 /plot create residential "My_Home" 50000
 ```
 
----
-
-### 2. Commercial Plots 🏢
+### 2. Commercial Plots
 
 **Purpose:** Businesses, offices, workplaces
-**Color Code:** Blue (on map)
-**Ownership:** Player-owned
-**Tradeable:** Yes
 
 **Features:**
 - Higher utility costs (if configured)
 - Can be rented
-- Suitable for businesses
+- Suitable for business operations
 - Office space apartments
 
 **Use Cases:**
-```
-- Office buildings
-- Corporate headquarters
+- Office buildings and corporate headquarters
 - Business centers
-- Professional spaces
-```
+- Professional workspaces
 
 **Creation:**
-```bash
+```
 /plot create commercial "Office_Tower" 100000
 ```
 
----
-
-### 3. Shop Plots 🛒
+### 3. Shop Plots
 
 **Purpose:** NPC merchant shops with inventory systems
-**Color Code:** Yellow (on map)
-**Ownership:** Admin-created, can be transferred
-**Tradeable:** Yes
 
 **Features:**
 - Warehouse linkage support
 - NPC merchant assignment
-
-**Special Properties:**
-- No creation price (admin-only)
+- No creation price (admin-only creation)
 - Can link to warehouse blocks
-- NPCs sell from shop inventory
 
 **Use Cases:**
-```
-- NPC shops
-- Market stalls
-- Trading posts
-- Item vendors
-```
+- NPC shops and market stalls
+- Trading posts and item vendors
 
 **Creation:**
-```bash
+```
 /plot create shop "Main_Street_Market"
 ```
 
----
-
-### 4. Public Plots 🌳
+### 4. Public Plots
 
 **Purpose:** Public spaces, parks, roads, spawn areas
-**Color Code:** Gray (on map)
-**Ownership:** Server (admin-managed)
-**Tradeable:** No
 
 **Features:**
 - No protection (all players can access)
-- Cannot be bought/sold
+- Cannot be bought or sold
 - No apartments
 - Free to use
 
 **Use Cases:**
-```
-- Spawn areas
-- Public parks
+- Spawn areas, public parks
 - Roads and paths
 - Community centers
-```
 
 **Creation:**
-```bash
+```
 /plot create public "Central_Park"
 ```
 
----
-
-### 5. Government Plots 🏛️
+### 5. Government Plots
 
 **Purpose:** Prisons, town halls, government buildings
-**Color Code:** Red (on map)
-**Ownership:** Server (admin-managed)
-**Tradeable:** No
 
 **Features:**
 - Prison system integration
-- Cannot be bought/sold
+- Cannot be bought or sold
 - Admin-only access
 - Special mechanics (prison cells)
 
 **Use Cases:**
-```
-- Prison buildings
-- Town halls
-- Police stations
-- Government offices
-```
+- Prison buildings and police stations
+- Town halls and government offices
 
 **Creation:**
-```bash
+```
 /plot create government "City_Prison"
 ```
 
@@ -213,84 +208,79 @@ ScheduleMC supports 5 distinct plot types, each with specific purposes and permi
 
 ### Selection Process
 
-Plots are created using a **two-point selection system** similar to WorldEdit.
+Plots are created using a **two-point visual selection system** with the Plot Wand.
 
-#### Step 1: Get the Selection Tool
-```bash
+#### Step 1: Get the Plot Wand
+```
 /plot wand
 ```
 
 **Received:** Golden Axe (Plot Selection Tool)
 
+The Plot Wand provides visual feedback as you select corners, highlighting the selection area.
+
 #### Step 2: Select First Corner
-**Action:** Left-click a block
+
+**Action:** Left-click a block with the Plot Wand
 
 **Feedback:**
 ```
-✓ First position set: (100, 64, 200)
+First position set: (100, 64, 200)
 ```
 
 #### Step 3: Select Second Corner
-**Action:** Right-click a block
+
+**Action:** Right-click a block with the Plot Wand
 
 **Feedback:**
 ```
-✓ Second position set: (150, 80, 250)
-Volume: 63,750 blocks (50×16×50)
+Second position set: (150, 80, 250)
+Volume: 63,750 blocks (50 x 16 x 50)
 ```
 
 #### Step 4: Create the Plot
-```bash
+```
 /plot create <type> <name> [price]
 ```
 
 **Examples:**
-```bash
-# Residential with 50,000€ price
-/plot create residential "Downtown_House_1" 50000
-
-# Commercial with 100,000€ price
-/plot create commercial "Office_Building_A" 100000
-
-# Shop (no price)
-/plot create shop "Market_Stall_3"
-
-# Public (no price)
-/plot create public "Town_Square"
 ```
-
----
+/plot create residential "Downtown_House_1" 50000
+/plot create commercial "Office_Building_A" 100000
+/plot create shop "Market_Stall_3"
+/plot create public "Town_Square"
+/plot create government "City_Hall"
+```
 
 ### Plot Naming Rules
 
 | Rule | Valid | Invalid |
 |------|-------|---------|
-| **No Spaces** | ✓ My_Home | ✗ My Home |
-| **Alphanumeric + Underscore** | ✓ House_2A | ✗ House-2A |
-| **Length** | ✓ 3-32 chars | ✗ AB (too short) |
-| **Uniqueness** | ✓ Unique ID | ✗ Duplicate name |
+| No Spaces | My_Home | My Home |
+| Alphanumeric + Underscore | House_2A | House-2A |
+| Length 3-32 chars | Downtown_1 | AB (too short) |
+| Unique ID | Unique name | Duplicate name |
 
-**Display Name:**
-- The ID is permanent (e.g., `Downtown_House_1`)
-- Display name can be changed: `/plot name Steve's Amazing Mansion`
-
----
+**Display Name:** The ID is permanent (e.g., `Downtown_House_1`), but the display name can be changed:
+```
+/plot name Steve's Amazing Mansion
+```
 
 ### Plot Validation
 
 Before creation, the system validates:
 
-1. **No Overlap** - Plot cannot overlap existing plots
-2. **Minimum Size** - At least 3×3×3 blocks (27 blocks)
-3. **Maximum Size** - Configurable (default: 100×100×100)
-4. **Selection Valid** - Both corners set in same world
-5. **Owner Limit** - Player doesn't exceed max plots (configurable)
+1. **No Overlap** -- Plot cannot overlap existing plots
+2. **Minimum Size** -- At least 3 x 3 x 3 blocks (27 blocks)
+3. **Maximum Size** -- Configurable (default: 100 x 100 x 100)
+4. **Selection Valid** -- Both corners set in the same world
+5. **Owner Limit** -- Player does not exceed max plots (configurable)
 
 **Error Examples:**
 ```
-✗ "Plot overlaps with existing plot: Downtown_House_2"
-✗ "Plot too small (minimum 27 blocks)"
-✗ "You already own the maximum number of plots (5)"
+"Plot overlaps with existing plot: Downtown_House_2"
+"Plot too small (minimum 27 blocks)"
+"You already own the maximum number of plots (5)"
 ```
 
 ---
@@ -300,7 +290,7 @@ Before creation, the system validates:
 ### Buying Plots
 
 #### Method 1: Buy While Standing On Plot
-```bash
+```
 /plot buy
 ```
 
@@ -311,36 +301,32 @@ Before creation, the system validates:
 
 **Transaction:**
 ```
-Plot: Downtown_House_1
-Price: 50,000€
+Plot:   Downtown_House_1
+Price:  50,000 EUR
 Seller: Alex
 
-✓ Transaction complete!
-- You paid: 50,000€
-- Alex received: 50,000€
+Transaction complete!
+- You paid: 50,000 EUR
+- Alex received: 50,000 EUR
 - You are now the owner
 ```
 
 #### Method 2: Buy Specific Plot by ID
-```bash
+```
 /plot buy Downtown_House_1
 ```
 
-**Use Case:**
-- Buy from remote location
-- Browse /plot list first
-
----
+Allows purchasing from a remote location. Browse `/plot list` first.
 
 ### Selling Plots
 
 #### Put Plot Up For Sale
-```bash
+```
 /plot sell <price>
 ```
 
 **Example:**
-```bash
+```
 /plot sell 75000
 ```
 
@@ -351,39 +337,29 @@ Seller: Alex
 - Price can be changed anytime
 
 #### Cancel Sale
-```bash
+```
 /plot unsell
 ```
 
----
-
 ### Transferring Plots
 
-#### Free Transfer
-```bash
+```
 /plot transfer <player>
 ```
 
 **Example:**
-```bash
+```
 /plot transfer Alex
 ```
 
-**Use Cases:**
-- Gift to friend
-- Partnership transfer
-- Clan/guild management
-
 **Important:**
-- ⚠️ Immediate and irreversible
+- Immediate and irreversible
 - No money exchanged
 - All apartments transfer with plot
 
----
-
 ### Abandoning Plots
 
-```bash
+```
 /plot abandon
 ```
 
@@ -391,12 +367,12 @@ Seller: Alex
 
 **Example:**
 ```
-Plot created for: 50,000€
-Refund amount: 25,000€
+Plot created for:  50,000 EUR
+Refund amount:     25,000 EUR
 
-⚠️ This will:
+Warning! This will:
 - Delete the plot
-- Evict all apartment tenants (no refund)
+- Evict all apartment tenants (no deposit refund to them)
 - Remove all protections
 - This cannot be undone!
 
@@ -411,48 +387,35 @@ The trust system allows plot owners to grant build permissions to other players 
 
 ### Trusting Players
 
-```bash
+```
 /plot trust <player>
 ```
 
-**Example:**
-```bash
-/plot trust Alex
-```
-
 **Permissions Granted:**
-✅ Place blocks
-✅ Break blocks
-✅ Open containers (chests, furnaces, etc.)
-✅ Use doors, buttons, levers
-✅ Interact with blocks
-✅ Kill entities (animals, NPCs)
+- Place and break blocks
+- Open containers (chests, furnaces, etc.)
+- Use doors, buttons, levers
+- Interact with blocks
+- Kill entities (animals, NPCs)
 
 **Permissions NOT Granted:**
-❌ Transfer ownership
-❌ Trust other players
-❌ Sell the plot
-❌ Create apartments
-❌ Delete the plot
-
----
+- Transfer ownership
+- Trust other players
+- Sell the plot
+- Create apartments
+- Delete the plot
 
 ### Untrusting Players
 
-```bash
+```
 /plot untrust <player>
 ```
 
-**Effect:**
-- Immediately revokes all permissions
-- Player can no longer build
-- No refund or compensation
-
----
+Immediately revokes all permissions.
 
 ### Trust List
 
-```bash
+```
 /plot trustlist
 ```
 
@@ -466,169 +429,136 @@ Trusted Players on Downtown_House_1:
 Total: 3 trusted players
 ```
 
----
+### Trust Inheritance Rules
 
-### Trust Inheritance
-
-**Apartments:**
-- Apartment tenants do NOT inherit plot trust
-- Tenants only have access to their apartment area
-- Plot owner must explicitly trust for full access
-
-**Rentals:**
-- Plot renters get full plot access during rental period
-- Trust is automatic for rental duration
-- Revoked automatically when rental expires
+| Context | Inherits Plot Trust? |
+|---------|---------------------|
+| Apartment tenants | No -- only have access to their apartment area |
+| Plot renters | Yes -- automatic full access during rental period |
+| Plot transfer | Trust list cleared on transfer |
 
 ---
 
 ## Apartment System
 
-Apartments allow plot owners to subdivide their plots into rentable units with individual protections.
+Apartments allow plot owners to subdivide their plots into individually protected, rentable units with security deposits.
 
 ### Apartment Architecture
 
 ```
 Plot: Downtown_House_1 (Owner: Steve)
-├── Apartment: Apt_1A (Tenant: Alex)
-│   ├── Protected area: 100,50,200 → 110,55,210
-│   ├── Monthly rent: 2,000€
-│   └── Lease until: 2024-02-15
-├── Apartment: Apt_1B (Tenant: Bob)
-│   ├── Protected area: 110,50,200 → 120,55,210
-│   ├── Monthly rent: 1,500€
-│   └── Lease until: 2024-02-20
-└── Apartment: Apt_2A (Vacant)
-    ├── Protected area: 100,56,200 → 110,60,210
-    ├── Monthly rent: 2,500€
-    └── Status: Available
+|-- Apartment: Apt_1A (Tenant: Alex)
+|   |-- Protected area: 100,50,200 -> 110,55,210
+|   |-- Monthly rent: 2,000 EUR
+|   +-- Lease until: 2024-02-15
+|-- Apartment: Apt_1B (Tenant: Bob)
+|   |-- Protected area: 110,50,200 -> 120,55,210
+|   |-- Monthly rent: 1,500 EUR
+|   +-- Lease until: 2024-02-20
++-- Apartment: Apt_2A (Vacant)
+    |-- Protected area: 100,56,200 -> 110,60,210
+    |-- Monthly rent: 2,500 EUR
+    +-- Status: Available
 ```
-
----
 
 ### Creating Apartments
 
 #### Step 1: Get Apartment Wand
-```bash
+```
 /plot apartment wand
 ```
 
 **Requirements:**
-- Must be owner of current plot
-- Must be inside your plot
+- Must be the owner of the current plot
+- Must be standing inside your plot
 
 #### Step 2: Select Apartment Area
-**Actions:**
+
 - Left-click first corner
 - Right-click second corner
-
-**Validation:**
 - Selection must be inside plot boundaries
 - Cannot overlap other apartments
 
 #### Step 3: Create Apartment
-```bash
+```
 /plot apartment create <name> <monthlyRent>
 ```
 
 **Example:**
-```bash
+```
 /plot apartment create Penthouse_A 2500
 ```
 
 **Result:**
 ```
-✓ Apartment created!
-ID: apt_12345
-Name: Penthouse_A
-Monthly Rent: 2,500€
-Security Deposit: 2,500€ (1 month)
-Size: 10×5×10 (500 blocks)
-Status: Available for rent
+Apartment created!
+ID:               apt_12345
+Name:             Penthouse_A
+Monthly Rent:     2,500 EUR
+Security Deposit: 2,500 EUR (1 month)
+Size:             10 x 5 x 10 (500 blocks)
+Status:           Available for rent
 ```
 
----
+### Renting an Apartment (Tenant)
 
-### Apartment Rental (Tenant)
-
-#### Rent an Apartment
-```bash
+```
 /plot apartment rent <apartmentId> [days]
 ```
 
 **Example:**
-```bash
+```
 /plot apartment rent apt_12345 60
 ```
 
 **Payment Calculation:**
 ```
-Monthly Rent: 2,500€
-Rental Period: 60 days = 2 months
+Monthly Rent:      2,500 EUR
+Rental Period:     60 days = 2 months
 
-Rent Cost: 2,500€ × 2 = 5,000€
-Security Deposit: 2,500€ (1 month)
-Total Charged: 7,500€
+Rent Cost:         2,500 x 2 = 5,000 EUR
+Security Deposit:  2,500 EUR (1 month)
+Total Charged:     7,500 EUR
 
-Lease Period: 60 days
-Auto-renewal: Optional (configurable)
+Lease Period:      60 days
+Auto-renewal:      Optional (configurable)
 ```
 
 **Effects:**
 - Money deducted immediately
 - Full access to apartment area
-- Protected from other players
+- Protected from other players (including plot owner for that area)
 - Monthly auto-charge begins
-
----
 
 ### Monthly Auto-Charge
 
-**System:**
-- Every 30 in-game days, rent is auto-charged
-- If balance insufficient, **eviction warning**
-- After 3 days grace period, **automatic eviction**
+Every 30 in-game days, rent is auto-charged from the tenant's balance.
 
-**Example Timeline:**
 ```
-Day 1:   Rent apartment (7,500€ charged)
-Day 30:  Auto-charge 2,500€ (rent)
-Day 60:  Auto-charge 2,500€ (rent) → Lease expires
+Day 1:   Rent apartment (7,500 EUR charged)
+Day 30:  Auto-charge 2,500 EUR (rent)
+Day 60:  Auto-charge 2,500 EUR (rent) --> Lease expires
 
 Option 1: Extend lease with /plot apartment rent
 Option 2: Leave apartment with /plot apartment leave
 ```
 
----
+If balance is insufficient: eviction warning, then 3-day grace period, then automatic eviction.
 
 ### Leaving Apartments
 
-```bash
+```
 /plot apartment leave
 ```
 
 **Refund:**
-✅ Security deposit returned in full
-❌ No refund on unused rental days
-
-**Example:**
-```
-Rental Period: 60 days
-Days Used: 45 days
-Days Remaining: 15 days
-
-Security Deposit Refund: 2,500€
-Unused Rent: 0€ (no refund)
-
-Total Refund: 2,500€
-```
-
----
+- Security deposit returned in full
+- No refund on unused rental days
 
 ### Managing Apartments (Owner)
 
 #### List Apartments
-```bash
+```
 /plot apartment list
 ```
 
@@ -638,397 +568,475 @@ Apartments in Downtown_House_1:
 
 1. Apt_1A (apt_12345)
    Tenant: Alex
-   Monthly Rent: 2,500€
+   Monthly Rent: 2,500 EUR
    Lease Expires: 2024-02-15 (22 days)
    Status: Occupied
 
 2. Apt_1B (apt_67890)
    Tenant: None
-   Monthly Rent: 1,500€
+   Monthly Rent: 1,500 EUR
    Status: Available
 
 3. Apt_2A (apt_11111)
    Tenant: Bob
-   Monthly Rent: 2,000€
+   Monthly Rent: 2,000 EUR
    Lease Expires: 2024-02-20 (27 days)
    Status: Occupied
 
 Total: 3 apartments (2 occupied, 1 vacant)
-Monthly Revenue: 4,500€
+Monthly Revenue: 4,500 EUR
 ```
 
----
-
 #### Change Rent
-```bash
+```
 /plot apartment setrent <apartmentId> <newRent>
 ```
 
-**Example:**
-```bash
-/plot apartment setrent apt_12345 3000
-```
-
-**Important:**
-- Only affects NEW tenants
-- Existing tenants keep old rate until lease renewal
-- No retroactive changes
-
----
+Only affects new tenants. Existing tenants keep their rate until lease renewal.
 
 #### Evict Tenant
-```bash
+```
 /plot apartment evict <apartmentId>
 ```
 
-**Warning:**
-⚠️ **Eviction Policy**
-- Tenant loses security deposit
-- Immediate removal
-- Use only for violations
+**Warning:** Tenant loses security deposit. Use only for violations.
 
-**Example:**
-```
-Evict tenant from Apt_1A?
-Tenant: Alex
-Security Deposit Forfeited: 2,500€
-
-Type /plot apartment evict apt_12345 confirm
-```
-
----
+Requires confirmation: `/plot apartment evict <id> confirm`
 
 #### Delete Apartment
-```bash
+```
 /plot apartment delete <apartmentId>
 ```
 
-**Effects:**
-- Evicts current tenant (if any)
-- Removes apartment permanently
-- Cannot be undone
+Evicts current tenant (if any) and removes the apartment permanently.
 
 ---
 
 ## Rental System
 
-Whole-plot rental is different from apartments - the entire plot is rented to one player.
+Whole-plot rental is different from apartments -- the entire plot is rented to one player.
 
 ### Offering Plot for Rent
 
-```bash
+```
 /plot rent <pricePerDay>
 ```
 
 **Example:**
-```bash
+```
 /plot rent 500
 ```
 
-**Rental Terms:**
-- Price is per in-game day (20 minutes real-time)
-- Security deposit = 2× daily rent
+**Terms:**
+- Price is per in-game day (20 minutes real time)
+- Security deposit = 2x daily rent
 - Tenant gets full plot access
 - Cannot be evicted during rental period
 
----
-
 ### Renting a Plot
 
-```bash
+```
 /plot rentplot <days> [plotId]
 ```
 
 **Example:**
-```bash
+```
 /plot rentplot 7 Downtown_House_1
 ```
 
 **Payment:**
 ```
-Daily Rent: 500€
-Rental Days: 7
-Security Deposit: 1,000€ (2× daily)
+Daily Rent:        500 EUR
+Rental Days:       7
+Security Deposit:  1,000 EUR (2x daily)
 
 Total Cost:
-- Rent: 500€ × 7 = 3,500€
-- Deposit: 1,000€
-- Total: 4,500€
+- Rent:    500 x 7 = 3,500 EUR
+- Deposit:          1,000 EUR
+- Total:            4,500 EUR
 
 Lease Expires: 2024-01-22 (7 days)
 ```
 
----
-
 ### Extending Rentals
 
-```bash
+```
 /plot rentextend <days>
 ```
 
-**Example:**
-```bash
-/plot rentextend 7
-```
-
-**Payment:**
-- Only pays daily rent × additional days
-- No new security deposit
-
-**Example:**
-```
-Current Lease: Expires in 2 days
-Extension: 7 days
-New Expiry: 9 days from now
-
-Cost: 500€ × 7 = 3,500€
-```
-
----
+Only pays daily rent times additional days. No new security deposit required.
 
 ### Rental Expiration
 
-**Auto-Expiry:**
 1. Lease expires after rental period
 2. Security deposit auto-refunded
 3. Plot access revoked
 4. Tenant notified
-
-**Grace Period:**
-- 24-hour grace period before eviction
-- Can extend during grace period
-- After grace period, automatic removal
+5. 24-hour grace period before full removal (can extend during grace)
 
 ---
 
 ## Plot Rating System
 
-Community-driven quality assessment for plots.
+Community-driven quality assessment for plots, with a 5-star scale and leaderboard support.
 
 ### Rating a Plot
 
-```bash
+```
 /plot rate <rating>
 ```
 
-**Example:**
-```bash
-/plot rate 5
-```
-
 **Rating Scale:**
-- ⭐ 1 Star - Poor quality
-- ⭐⭐ 2 Stars - Below average
-- ⭐⭐⭐ 3 Stars - Average
-- ⭐⭐⭐⭐ 4 Stars - Good quality
-- ⭐⭐⭐⭐⭐ 5 Stars - Excellent
 
----
+| Stars | Description |
+|-------|-------------|
+| 1 | Poor quality |
+| 2 | Below average |
+| 3 | Average |
+| 4 | Good quality |
+| 5 | Excellent |
 
 ### Rating Rules
 
-✅ **Can rate:**
-- Plots you don't own
+**Can rate:**
+- Plots you do not own
 - Any plot type
-- Change your rating anytime
+- Change your rating anytime (overwrites previous)
 
-❌ **Cannot rate:**
+**Cannot rate:**
 - Your own plots
-- Same plot multiple times (overwrites previous rating)
-
----
+- Same plot with multiple ratings (one per player)
 
 ### Rating Calculation
 
-**Average Rating:**
 ```
 Total Ratings: 15
 5 stars: 8 players
 4 stars: 5 players
 3 stars: 2 players
 
-Average: (8×5 + 5×4 + 2×3) ÷ 15 = 4.4 stars
-Display: ⭐⭐⭐⭐ (4.4/5.0)
+Average: (8 x 5 + 5 x 4 + 2 x 3) / 15 = 4.4 stars
+Display: 4.4/5.0
 ```
 
----
+### Leaderboard
 
-### Top Rated Plots
-
-```bash
+```
 /plot topplots
 ```
 
 **Output:**
 ```
-🏆 Top Rated Plots:
+Top Rated Plots:
 
-1. ⭐⭐⭐⭐⭐ Steve's Mansion (5.0/5.0)
-   Owner: Steve
-   Ratings: 23
-   Type: Residential
+1. Steve's Mansion (5.0/5.0)
+   Owner: Steve | Ratings: 23 | Type: Residential
 
-2. ⭐⭐⭐⭐⭐ Downtown Tower (4.9/5.0)
-   Owner: Alex
-   Ratings: 18
-   Type: Commercial
+2. Downtown Tower (4.9/5.0)
+   Owner: Alex | Ratings: 18 | Type: Commercial
 
-3. ⭐⭐⭐⭐ Central Park (4.7/5.0)
-   Owner: Server
-   Ratings: 45
-   Type: Public
+3. Central Park (4.7/5.0)
+   Owner: Server | Ratings: 45 | Type: Public
+
+4. Market Plaza (4.2/5.0)
+   Owner: Bob | Ratings: 12 | Type: Shop
 
 ...
 
-10. ⭐⭐⭐⭐ Market Plaza (4.2/5.0)
-    Owner: Bob
-    Ratings: 12
-    Type: Shop
+10. Riverside Cottage (3.8/5.0)
+    Owner: Charlie | Ratings: 8 | Type: Residential
 ```
+
+The leaderboard ranks plots by average rating, with ties broken by number of ratings.
 
 ---
 
-## Protection & Permissions
+## Plot Info Block
+
+### Description
+
+The Plot Info Block is a physical block that can be placed inside a plot to display its information to any player who interacts with it.
+
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| Display | Shows plot name, owner, type, price, and rating |
+| Placement | Must be placed inside a plot boundary |
+| Interaction | Right-click to view plot details |
+| Updates | Information updates dynamically |
+
+### Usage
+
+1. Obtain a Plot Info Block (crafting or admin give)
+2. Place it inside any plot you own
+3. Players right-click the block to see:
+   - Plot name and ID
+   - Owner name
+   - Plot type
+   - Sale price (if for sale)
+   - Average rating and number of ratings
+   - Apartment availability (if any)
+
+This is especially useful for plots listed for sale or apartment buildings advertising vacancies.
+
+---
+
+## Protection and Permissions
 
 ### Block Protection
 
-**Protected Actions:**
-- ✗ Place blocks
-- ✗ Break blocks
-- ✗ Use buckets (lava/water)
-- ✗ Ignite fire/TNT
-- ✗ Trample farmland
+**Protected Actions (non-trusted players cannot):**
+- Place blocks
+- Break blocks
+- Use buckets (lava/water)
+- Ignite fire or TNT
+- Trample farmland
 
 **Exceptions:**
-- ✓ Plot owner
-- ✓ Trusted players
-- ✓ Apartment tenants (within apartment)
-
----
+- Plot owner has full access
+- Trusted players have full access
+- Apartment tenants have access within their apartment area only
 
 ### Container Protection
 
 **Protected Containers:**
-- Chests
-- Barrels
-- Furnaces
-- Hoppers
-- Dispensers
-- Droppers
-- Shulker boxes
 
-**Access Control:**
-- Only owner, trusted, or apartment tenant can open
+| Container | Protected |
+|-----------|-----------|
+| Chests | Yes |
+| Barrels | Yes |
+| Furnaces | Yes |
+| Hoppers | Yes |
+| Dispensers | Yes |
+| Droppers | Yes |
+| Shulker boxes | Yes |
 
----
+Only owner, trusted players, or apartment tenants (within their area) can open.
 
 ### Entity Protection
 
 **Protected Entities:**
 - Animals (cows, pigs, sheep)
-- Villagers
-- NPCs
-- Item frames
-- Armor stands
+- Villagers and NPCs
+- Item frames and armor stands
 - Vehicles
 
 **Protected Actions:**
-- ✗ Attack entities
-- ✗ Leash animals
-- ✗ Shear sheep
-- ✗ Breed animals
-- ✗ Remove items from item frames
-
----
+- Attack entities
+- Leash animals
+- Shear sheep
+- Breed animals
+- Remove items from item frames
 
 ### Interaction Protection
 
-**Protected Interactions:**
-- Doors
-- Trapdoors
-- Fence gates
-- Buttons
-- Levers
-- Pressure plates
-
-**Access:**
-- Doors: Owner + trusted only
-- Buttons/Levers: Owner + trusted only
-- Pressure plates: Anyone (for pathways)
+| Block | Access |
+|-------|--------|
+| Doors | Owner + trusted only |
+| Trapdoors | Owner + trusted only |
+| Fence gates | Owner + trusted only |
+| Buttons | Owner + trusted only |
+| Levers | Owner + trusted only |
+| Pressure plates | Anyone (for pathways) |
 
 ---
 
 ## Spatial Indexing (Technical)
 
-ScheduleMC uses a **QuadTree spatial index** for high-performance plot lookups.
+ScheduleMC uses a **QuadTree spatial index** combined with an **LRU cache** for high-performance plot lookups.
 
 ### Architecture
 
 ```java
 public class SpatialIndex {
     private QuadTree<Plot> root;
+    private LRUCache<BlockPos, Plot> cache;
 
-    // O(log n) lookup
+    // O(1) with cache hit, O(log n) with cache miss
     public Plot getPlotAt(BlockPos pos) {
-        return root.query(pos.getX(), pos.getZ());
+        Plot cached = cache.get(pos);
+        if (cached != null) return cached;
+
+        Plot found = root.query(pos.getX(), pos.getZ());
+        if (found != null) cache.put(pos, found);
+        return found;
     }
 }
 ```
 
-### Performance Benchmarks
+### Performance Characteristics
 
-| Operation | Time Complexity | Average Time |
-|-----------|----------------|--------------|
-| **Plot Lookup** | O(log n) | 0.3ms |
-| **Add Plot** | O(log n) | 0.5ms |
-| **Remove Plot** | O(log n) | 0.4ms |
-| **Overlap Check** | O(log n) | 0.6ms |
-
-**Stress Test Results:**
-- 10,000 plots: 0.3ms average lookup
-- 50,000 plots: 0.8ms average lookup
-- 100,000 plots: 1.2ms average lookup
-
----
+| Operation | Cache Hit | Cache Miss |
+|-----------|-----------|------------|
+| Plot Lookup | O(1) | O(log n) |
+| Typical latency | < 0.1ms | 0.3ms |
+| Cache hit rate | 85-95% (typical) | -- |
 
 ### QuadTree Structure
 
 ```
 Root Node (World bounds)
-├── NW Quadrant
-│   ├── Plot A (100,200 → 150,250)
-│   └── Plot B (160,200 → 200,240)
-├── NE Quadrant
-│   └── Plot C (300,100 → 350,150)
-├── SW Quadrant
-│   ├── Plot D (50,400 → 100,450)
-│   └── Plot E (120,420 → 170,480)
-└── SE Quadrant
-    └── Plot F (400,500 → 450,550)
+|-- NW Quadrant
+|   |-- Plot A (100,200 -> 150,250)
+|   +-- Plot B (160,200 -> 200,240)
+|-- NE Quadrant
+|   +-- Plot C (300,100 -> 350,150)
+|-- SW Quadrant
+|   |-- Plot D (50,400 -> 100,450)
+|   +-- Plot E (120,420 -> 170,480)
++-- SE Quadrant
+    +-- Plot F (400,500 -> 450,550)
 ```
 
-**Depth:** Auto-balancing, typically 4-6 levels for 10,000 plots
-
----
+**Depth:** Auto-balancing, typically 4-6 levels for 10,000 plots.
 
 ### Index Rebuilding
 
-```bash
+```
 /plot reindex
 ```
 
 **When to use:**
 - After large-scale plot changes
-- Performance degradation
+- Performance degradation detected
 - Corrupt index data
 
 **Process:**
-1. Clears existing index
+1. Clears existing index and cache
 2. Iterates all plots
 3. Rebuilds QuadTree
 4. Validates structure
 
-**Time:** ~50ms per 1,000 plots
+**Time:** Approximately 50ms per 1,000 plots.
+
+---
+
+## Developer API
+
+### IPlotAPI Interface
+
+External mods can access the plot system through `IPlotAPI`. All methods are thread-safe (ConcurrentHashMap-backed).
+
+**Obtaining the API:**
+```java
+IPlotAPI plotAPI = ScheduleMCAPI.getPlotAPI();
+```
+
+### Core Methods (v3.0.0+)
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `getPlotAt(BlockPos)` | `PlotRegion` | Get plot at position (O(1) cached, O(log n) uncached) |
+| `getPlot(String)` | `PlotRegion` | Get plot by ID |
+| `hasPlot(String)` | `boolean` | Check if plot exists |
+| `getPlotsByOwner(UUID)` | `List<PlotRegion>` | Get all plots owned by player |
+| `getAvailablePlots()` | `List<PlotRegion>` | Get all purchasable plots |
+| `getPlotsForSale()` | `List<PlotRegion>` | Get all plots listed for sale |
+| `createPlot(BlockPos, BlockPos, String, PlotType, double)` | `PlotRegion` | Create a new plot |
+| `removePlot(String)` | `boolean` | Remove a plot by ID |
+| `getPlotCount()` | `int` | Get total number of plots |
+
+### Extended Methods (v3.2.0+)
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `getPlotsByType(PlotType)` | `List<PlotRegion>` | All plots of a specific type |
+| `setPlotOwner(String, UUID)` | `boolean` | Change plot owner (null to remove) |
+| `setPlotPrice(String, double)` | `boolean` | Set plot price |
+| `addTrustedPlayer(String, UUID)` | `boolean` | Add a trusted player |
+| `removeTrustedPlayer(String, UUID)` | `boolean` | Remove a trusted player |
+| `getTrustedPlayers(String)` | `Set<UUID>` | Get all trusted players |
+| `setPlotForSale(String, boolean)` | `boolean` | List or delist plot for sale |
+| `setPlotType(String, PlotType)` | `boolean` | Change plot type |
+| `getPlotsInRadius(BlockPos, double)` | `List<PlotRegion>` | Find plots within radius |
+| `getPlotCountByType()` | `Map<PlotType, Integer>` | Count of plots per type |
+
+### Usage Example
+
+```java
+IPlotAPI plotAPI = ScheduleMCAPI.getPlotAPI();
+
+// Find plot at a position
+PlotRegion plot = plotAPI.getPlotAt(new BlockPos(100, 64, 200));
+
+// Get all plots owned by a player
+List<PlotRegion> myPlots = plotAPI.getPlotsByOwner(playerUUID);
+
+// Create a new plot
+PlotRegion newPlot = plotAPI.createPlot(
+    pos1, pos2, "MyPlot", PlotType.RESIDENTIAL, 50000.0
+);
+
+// Trust management
+plotAPI.addTrustedPlayer("MyPlot", friendUUID);
+Set<UUID> trusted = plotAPI.getTrustedPlayers("MyPlot");
+
+// Find nearby plots
+List<PlotRegion> nearby = plotAPI.getPlotsInRadius(playerPos, 100.0);
+
+// Statistics
+Map<PlotType, Integer> stats = plotAPI.getPlotCountByType();
+```
+
+---
+
+## Commands Reference
+
+### Player Commands (32)
+
+| Command | Description |
+|---------|-------------|
+| `/plot wand` | Get the Plot Selection Tool (Golden Axe) |
+| `/plot create <type> <name> [price]` | Create a new plot |
+| `/plot buy [plotId]` | Buy a plot (standing on it or by ID) |
+| `/plot sell <price>` | List your plot for sale |
+| `/plot unsell` | Remove plot from sale |
+| `/plot transfer <player>` | Transfer ownership to another player |
+| `/plot abandon` | Abandon plot (50% refund) |
+| `/plot info` | View info for current plot |
+| `/plot list` | List all available/for-sale plots |
+| `/plot name <displayName>` | Change plot display name |
+| `/plot description <text>` | Set plot description |
+| `/plot trust <player>` | Trust a player on current plot |
+| `/plot untrust <player>` | Remove trust from a player |
+| `/plot trustlist` | View trusted players |
+| `/plot rate <1-5>` | Rate the current plot |
+| `/plot topplots` | View top-rated plots leaderboard |
+| `/plot rent <pricePerDay>` | Offer plot for rent |
+| `/plot rentplot <days> [plotId]` | Rent a plot |
+| `/plot rentextend <days>` | Extend current rental |
+| `/plot apartment wand` | Get apartment selection tool |
+| `/plot apartment create <name> <rent>` | Create an apartment |
+| `/plot apartment list` | List all apartments in plot |
+| `/plot apartment rent <id> [days]` | Rent an apartment |
+| `/plot apartment leave` | Leave current apartment |
+| `/plot apartment setrent <id> <rent>` | Change apartment rent |
+| `/plot apartment evict <id>` | Evict tenant from apartment |
+| `/plot apartment delete <id>` | Delete an apartment |
+| `/plot apartment info <id>` | View apartment details |
+
+### Admin Commands (15)
+
+| Command | Description |
+|---------|-------------|
+| `/plot create public <name>` | Create public plot |
+| `/plot create government <name>` | Create government plot |
+| `/plot create shop <name>` | Create shop plot |
+| `/plot delete <plotId>` | Force-delete any plot |
+| `/plot setowner <plotId> <player>` | Change plot owner |
+| `/plot settype <plotId> <type>` | Change plot type |
+| `/plot setprice <plotId> <price>` | Change plot price |
+| `/plot forcetrust <plotId> <player>` | Force-trust a player |
+| `/plot forceuntrust <plotId> <player>` | Force-untrust a player |
+| `/plot reindex` | Rebuild spatial index |
+| `/plot debug` | Show debug/performance info |
+| `/plot teleport <plotId>` | Teleport to a plot |
+| `/plot listall` | List all plots (admin view) |
+| `/plot stats` | Plot system statistics |
+| `/plot backup` | Force save/backup |
+
+**Total: 47 subcommands**
 
 ---
 
@@ -1036,78 +1044,61 @@ Root Node (World bounds)
 
 ### For Plot Owners
 
-1. **Set Clear Descriptions**
-   ```bash
-   /plot name Steve's Downtown Mansion
-   /plot description Beautiful 3-story home with ocean view
-   ```
+#### 1. Set Clear Information
+```
+/plot name Steve's Downtown Mansion
+/plot description Beautiful 3-story home with ocean view
+```
 
-2. **Trust Carefully**
-   - Only trust players you know
-   - Review trust list regularly
-   - Untrust inactive players
+Good descriptions help attract buyers and renters.
 
-3. **Apartment Management**
-   - Set fair rent prices
-   - Respond to tenant issues
-   - Keep apartments maintained
+#### 2. Trust Carefully
+- Only trust players you know
+- Review trust list regularly with `/plot trustlist`
+- Untrust inactive players
 
-4. **Security**
-   - Don't share plot ownership
-   - Use apartments for guests
-   - Monitor trusted player activity
+#### 3. Apartment Management
+- Set fair rent prices based on apartment size
+- Respond to tenant issues promptly
+- Keep apartments maintained and attractive
+- Place a Plot Info Block near the entrance
 
----
+#### 4. Security
+- Do not share plot ownership (use trust instead)
+- Use apartments for temporary guests
+- Monitor trusted player activity
 
 ### For Admins
 
-1. **Initial Setup**
-   ```bash
-   # Create spawn area
-   /plot create public Spawn
+#### 1. Initial Server Setup
+```
+/plot create public Spawn
+/plot create government Prison
+/plot create shop Main_Market
+```
 
-   # Create prison
-   /plot create government Prison
+#### 2. Maintenance
+```
+/health plot              -- Monthly health check
+/plot reindex             -- Rebuild index if lookups are slow
+/plot topplots            -- Monitor community engagement
+/plot stats               -- Review total plot counts
+```
 
-   # Create marketplace
-   /plot create shop Main_Market
-   ```
-
-2. **Maintenance**
-   ```bash
-   # Monthly health check
-   /health plot
-
-   # Reindex if needed
-   /plot reindex
-
-   # Check top plots
-   /plot topplots
-   ```
-
-3. **Performance Monitoring**
-   - Monitor `/health plot` for index performance
-   - Reindex if lookup time > 2ms
-   - Check for plot overlap issues
-
----
+#### 3. Performance Monitoring
+- Monitor `/health plot` for index performance
+- Reindex if lookup time exceeds 2ms
+- Check for plot overlap issues with `/plot debug`
 
 ### For Server Performance
 
-1. **Plot Limits**
-   - Recommended: 5 plots per player
-   - Max tested: 10,000 total plots
-   - Balance quality over quantity
-
-2. **Size Limits**
-   - Recommended max: 100×100×100
-   - Prevents mega-plots
-   - Better for index performance
-
-3. **Persistence**
-   - Auto-save: Every 5 minutes
-   - Backups: Hourly
-   - Test restore procedure
+| Recommendation | Value |
+|----------------|-------|
+| Max plots per player | 5 (recommended) |
+| Max total plots tested | 10,000+ |
+| Recommended max plot size | 100 x 100 x 100 |
+| Auto-save interval | 5 minutes |
+| Backup frequency | Hourly |
 
 ---
 
@@ -1121,34 +1112,23 @@ Root Node (World bounds)
 3. Public/Government plot (admin only)
 
 **Solutions:**
-```bash
-# Check plot info
-/plot info
-
-# If you should have access:
-- Ask owner for /plot trust YourName
-- Check if rental expired
-- Verify you're in correct plot
 ```
-
----
+/plot info               -- Check who owns the plot
+-- Ask owner for: /plot trust YourName
+-- Check if rental has expired
+-- Verify you are in the correct plot
+```
 
 ### "Plot overlaps existing plot"
 
-**Cause:**
-- New plot boundaries overlap another plot
+**Cause:** New plot boundaries overlap another plot.
 
 **Solution:**
-```bash
-# Check existing plots
-/plot list
-
-# Adjust selection to avoid overlap
-/plot wand
-# Select smaller or different area
 ```
-
----
+/plot list               -- Check existing plots
+/plot wand               -- Get wand and select a different area
+-- Adjust selection to avoid overlap
+```
 
 ### Plot Not Saving
 
@@ -1158,62 +1138,49 @@ Root Node (World bounds)
 3. Corrupted data
 
 **Solutions:**
-```bash
-# Check system health
-/health plot
-
-# Check backups
-/health backups
-
-# Manual save (admin)
-# Triggered automatically every 5 minutes
 ```
-
----
+/health plot             -- Check system health
+/health backups          -- Check backup integrity
+-- Auto-save triggers every 5 minutes
+-- Check server logs for write errors
+```
 
 ### Apartment Access Issues
 
-**Problem:** Tenant can't access apartment
+**Problem:** Tenant cannot access apartment.
 
 **Solutions:**
 1. Check lease expiry: `/plot apartment info <id>`
-2. Verify tenant is correct player
-3. Check apartment boundaries (might be outside)
+2. Verify the correct player is the tenant
+3. Check apartment boundaries (tenant may be outside)
 4. Relog to refresh permissions
-
----
 
 ### Performance Degradation
 
 **Symptoms:**
 - Slow plot lookups
 - Lag when entering plots
-- `/plot info` takes > 1 second
+- `/plot info` takes more than 1 second
 
 **Solutions:**
-```bash
-# Rebuild spatial index
-/plot reindex
-
-# Check index health
-/plot debug
-
-# Review total plot count
-/health plot
+```
+/plot reindex             -- Rebuild spatial index
+/plot debug               -- Check index health metrics
+/health plot              -- Review total plot count
 ```
 
 ---
 
 <div align="center">
 
-**Plot Management System - Complete Guide**
+**Plot Management System -- Complete Guide**
 
 For related systems:
-- [💰 Economy System](Economy-System.md)
-- [🤖 NPC System](NPC-System.md)
-- [🏪 Warehouse System](Warehouse-System.md)
+- [Economy System](Economy-System.md)
+- [NPC System](NPC-System.md)
+- [Warehouse System](Warehouse-System.md)
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 All Commands](../Commands.md)
+[Back to Wiki Home](../Home.md) | [All Commands](../Commands.md)
 
 **Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
 

@@ -115,4 +115,59 @@ public interface ISmartphoneAPI {
      * @return Anzahl der Spieler
      */
     int getOpenSmartphoneCount();
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Registers a custom app for the smartphone.
+     *
+     * @param appId Unique app identifier
+     * @param appName Display name
+     * @param iconColor Color code (e.g. "§aGreen")
+     * @return true if registered successfully
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    boolean registerApp(String appId, String appName, String iconColor);
+
+    /**
+     * Unregisters a custom app.
+     *
+     * @param appId The app identifier
+     * @return true if unregistered successfully
+     * @throws IllegalArgumentException if appId is null
+     * @since 3.2.0
+     */
+    boolean unregisterApp(String appId);
+
+    /**
+     * Returns all registered app IDs.
+     *
+     * @return Set of app identifiers
+     * @since 3.2.0
+     */
+    java.util.Set<String> getRegisteredApps();
+
+    /**
+     * Sends a notification to a player's smartphone.
+     *
+     * @param playerUUID The player's UUID
+     * @param appId The app sending the notification
+     * @param message Notification message
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    void sendNotification(UUID playerUUID, String appId, String message);
+
+    /**
+     * Checks if a player has the smartphone item.
+     *
+     * @param playerUUID The player's UUID
+     * @return true if player has smartphone
+     * @throws IllegalArgumentException if playerUUID is null
+     * @since 3.2.0
+     */
+    boolean hasSmartphone(UUID playerUUID);
 }

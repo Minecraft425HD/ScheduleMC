@@ -4,47 +4,60 @@
 
 **Advanced AI with Schedules, Personalities & Relationships**
 
-Intelligent NPCs that bring your server to life
+173 files powering intelligent NPCs that bring your server to life
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 Commands Reference](../Commands.md)
+[Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Overview](#overview)
 2. [NPC Types](#npc-types)
-3. [AI & Pathfinding](#ai--pathfinding)
-4. [Schedule System](#schedule-system)
-5. [Inventory & Wallet](#inventory--wallet)
-6. [Shop System](#shop-system)
-7. [Personality System](#personality-system)
+3. [Behavior Goals](#behavior-goals)
+4. [Personality System](#personality-system)
+5. [Schedule System](#schedule-system)
+6. [Custom Player Skins](#custom-player-skins)
+7. [Shop & Warehouse Integration](#shop--warehouse-integration)
 8. [Relationship System](#relationship-system)
-9. [Movement Behaviors](#movement-behaviors)
-10. [NPC Management](#npc-management)
-11. [Best Practices](#best-practices)
-12. [Troubleshooting](#troubleshooting)
+9. [Wallet System](#wallet-system)
+10. [Dialogue System](#dialogue-system)
+11. [Quest System](#quest-system)
+12. [Social Relationships](#social-relationships)
+13. [Witness System](#witness-system)
+14. [Companion System](#companion-system)
+15. [AI & Pathfinding](#ai--pathfinding)
+16. [NPC Tools](#npc-tools)
+17. [Commands](#commands)
+18. [Developer API](#developer-api)
+19. [Best Practices](#best-practices)
+20. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Overview
 
-The NPC System provides intelligent, schedule-driven NPCs with personalities, relationships, and dynamic behavior that creates a living, breathing economy.
+The NPC System is the largest subsystem in ScheduleMC, spanning **173 source files** with **139 behavior goals** driving intelligent, schedule-driven NPCs. NPCs have personalities, form relationships, run shops, patrol streets, and create a living, breathing economy on your server.
 
 ### Key Features
 
-✅ **3 NPC Types** - Resident, Merchant, Police
-✅ **AI Pathfinding** - Smart navigation with door opening
-✅ **Dynamic Schedules** - Work, home, leisure times
-✅ **Personality Traits** - 5 traits affecting prices/behavior
-✅ **Relationship System** - -100 to +100 levels with price modifiers
-✅ **Shop Integration** - Buy/sell with warehouse support
-✅ **9-Slot Inventory** - Item management
-✅ **Wallet System** - Cash transactions
-✅ **Leisure Activities** - Up to 10 locations per NPC
-✅ **Police Patrols** - Up to 16 patrol points
+- **3 NPC Types** - Resident, Merchant, Police
+- **139 Behavior Goals** - Complex AI decision-making
+- **4 Personality Types** - Friendly, Neutral, Hostile, Professional
+- **Schedule System** - HHMM format time-based routines
+- **Custom Player Skins** - NPCs use real Minecraft player skins
+- **Shop + Warehouse Integration** - Unlimited stock from warehouse inventory
+- **Relationship System** - Affects prices and NPC interactions (-100 to +100)
+- **Wallet System** - NPCs carry and spend money
+- **Dialogue System** - Branching conversations with NPCs
+- **Quest System** - NPCs assign and track player quests
+- **Social Relationships** - NPCs form bonds with each other
+- **Witness System** - NPCs observe and report crimes
+- **Companion System** - NPCs follow and assist players
+- **Pathfinding AI** - Obstacle avoidance, door opening, stair navigation
+- **23 Commands** - Full admin control via `/npc`
 
 ---
 
@@ -55,13 +68,12 @@ The NPC System provides intelligent, schedule-driven NPCs with personalities, re
 **Purpose:** Roleplay NPCs that populate the city
 
 **Features:**
-- ✅ 9-slot inventory system
-- ✅ Personal wallet for cash
-- ❌ No work schedule (they don't work!)
-- ✅ Only leisure and sleep times
-- ✅ Can buy/sell at shops
-- ✅ Daily income system
-- ✅ Personality-based buying
+- 9-slot inventory system
+- Personal wallet for cash
+- No work schedule (leisure and sleep only)
+- Can buy/sell at shops
+- Daily income system
+- Personality-based buying behavior
 
 **Use Cases:**
 ```
@@ -87,14 +99,14 @@ The NPC System provides intelligent, schedule-driven NPCs with personalities, re
 **Purpose:** Shop owners and vendors
 
 **Features:**
-- ✅ 9-slot inventory system
-- ✅ Personal wallet
-- ✅ Full work schedule (start, end, home)
-- ✅ Shop inventory (buy/sell)
-- ✅ 7 merchant categories
-- ✅ Warehouse integration
-- ✅ Personality price modifiers
-- ✅ Relationship system
+- 9-slot inventory system
+- Personal wallet
+- Full work schedule (start, end, home)
+- Shop inventory (buy/sell)
+- 7 merchant categories
+- Warehouse integration for unlimited stock
+- Personality price modifiers
+- Relationship-based discounts and markups
 
 **Merchant Categories:**
 1. **BAUMARKT** (Hardware Store) - Building materials
@@ -124,14 +136,14 @@ The NPC System provides intelligent, schedule-driven NPCs with personalities, re
 **Purpose:** Law enforcement NPCs
 
 **Features:**
-- ❌ No inventory or wallet
-- ✅ Patrol system (up to 16 points)
-- ✅ Police station location
-- ✅ Wait times at patrol points (default: 3 min)
-- ✅ Wander radius (default: 3 blocks)
-- ✅ Crime detection
-- ✅ Backup system
-- ✅ Door-breaking abilities
+- No inventory or wallet
+- Patrol system (up to 16 points)
+- Police station location
+- Wait times at patrol points (default: 3 min)
+- Wander radius (default: 3 blocks)
+- Crime detection and response
+- Backup calling system
+- Door-blocking abilities during pursuit
 
 **Example Setup:**
 ```bash
@@ -142,60 +154,106 @@ The NPC System provides intelligent, schedule-driven NPCs with personalities, re
 
 ---
 
-## AI & Pathfinding
+## Behavior Goals
 
-### Navigation System
+The NPC system contains **139 behavior goals** that drive all NPC decision-making. These goals are prioritized and selected by the behavior engine based on NPC type, schedule, personality, and current context.
 
-**Custom Pathfinding:**
-- ✅ Opens and closes doors automatically
-- ✅ Navigates stairs and slopes
-- ✅ Configurable walkable blocks
-- ✅ Water navigation support
-- ✅ Max step height: 1.5 blocks
+### Goal Categories
 
-**Supported Blocks:**
+**Movement Goals:**
+- `MoveToHomeGoal` - Navigate to home during sleep time
+- `MoveToWorkGoal` - Navigate to workplace during work hours
+- `MoveToLeisureGoal` - Visit leisure locations during free time
+- `PolicePatrolGoal` - Follow patrol routes (police only)
+- `PoliceStationGoal` - Return to police station
+
+**Social Goals:**
+- Dialogue initiation and response
+- Relationship building with players
+- Companion following and assistance
+- Witness observation and crime reporting
+
+**Economy Goals:**
+- Shop management and item selling
+- Purchase decision-making (based on buying personality)
+- Warehouse restocking
+
+**Combat/Police Goals:**
+- Criminal pursuit and arrest
+- Backup calling to nearby officers
+- Door blocking during chases
+- Search behavior after losing line of sight
+
+### Behavior Engine
+
+The `NPCBehaviorEngine` evaluates all registered goals each tick and selects the highest-priority applicable goal:
+
 ```
-Walkable:
-- All stairs (automatically detected)
-- Doors (opens/closes automatically)
-- Trapdoors
-- Fences/Gates (can navigate over)
-- Custom blocks (configurable)
-```
-
-**Navigation Attributes:**
-```
-Max Health: 20.0 HP
-Movement Speed: 0.3 (default, 0.1-1.0 configurable)
-Follow Range: 32.0 blocks
-Step Height: 1.5 blocks
+Priority System:
+1. Emergency (combat, arrest, flee)
+2. Schedule (work, home, sleep)
+3. Social (dialogue, companion)
+4. Economy (shopping, selling)
+5. Idle (wander, leisure)
 ```
 
 ---
 
-### Movement Speed
+## Personality System
 
-**Configuration:**
-```bash
-/npc <name> speed <0.1-1.0>
+### Personality Types
+
+NPCs are assigned one of **4 personality types** that affect their behavior, pricing, and interactions:
+
+| Personality | Price Modifier | Behavior | Police Call Chance |
+|-------------|---------------|----------|-------------------|
+| **Friendly** | 0.80x (20% discount) | Welcoming, generous | 30% |
+| **Neutral** | 1.00x (standard) | Standard behavior | 70% |
+| **Hostile** | 1.30x (30% markup) | Aggressive, uncooperative | 95% |
+| **Professional** | 1.10x (10% markup) | Business-focused, efficient | 80% |
+
+### Personality Effects
+
+#### 1. Price Modifiers
+
+```
+Item: Diamond (Base Price: 100)
+
+Friendly NPC:      100 x 0.80 = 80     (20% discount)
+Neutral NPC:       100 x 1.00 = 100    (standard)
+Professional NPC:  100 x 1.10 = 110    (10% markup)
+Hostile NPC:       100 x 1.30 = 130    (30% markup)
 ```
 
-**Speed Guide:**
+#### 2. Free Item Chance
 
-| Speed | Description | Use Case |
-|-------|-------------|----------|
-| 0.1-0.2 | Very slow | Stationary shop owners |
-| 0.3 | Default walk | Normal citizens |
-| 0.4-0.5 | Brisk walk | Busy merchants |
-| 0.6-0.7 | Jogging | Police on patrol |
-| 0.8-1.0 | Running | Police chasing criminals |
-
-**Examples:**
-```bash
-/npc Shop_Owner speed 0.2    # Mostly stationary
-/npc Town_Citizen speed 0.3  # Normal walking
-/npc Officer_1 speed 0.7     # Patrol speed
 ```
+Friendly:      5% chance to give item for free
+Neutral:       2% chance
+Professional:  0% (never gives free items)
+Hostile:       0% (never gives free items)
+```
+
+#### 3. Police Reporting
+
+When a player commits a crime near an NPC, the NPC's personality determines how likely they are to call the police:
+
+```
+Hostile:       95% chance to call police
+Professional:  80% chance
+Neutral:       70% chance
+Friendly:      30% chance
+```
+
+### Buying Personality (Residents)
+
+Resident NPCs also have a buying personality that controls their purchasing behavior:
+
+| Type | Mood Weight | Demand Weight | Max Budget | Purchase Threshold |
+|------|-------------|---------------|------------|-------------------|
+| **SPARSAM** (Cautious) | 40% | 20% | 30% of wallet | 50+ score |
+| **AUSGEWOGEN** (Balanced) | 30% | 30% | 50% of wallet | 40+ score |
+| **IMPULSIV** (Impulsive) | 20% | 40% | 70% of wallet | 30+ score |
 
 ---
 
@@ -203,180 +261,210 @@ Step Height: 1.5 blocks
 
 ### Time Format
 
-**Format:** HHMM (24-hour, 4 digits)
+All schedule times use **HHMM format** (24-hour, 4 digits):
 
-**Examples:**
-- `0600` = 6:00 AM
-- `0730` = 7:30 AM
-- `1200` = 12:00 PM (noon)
-- `1830` = 6:30 PM
-- `2300` = 11:00 PM
+| Time | HHMM | Description |
+|------|------|-------------|
+| 6:00 AM | `0600` | Default wake time |
+| 7:00 AM | `0700` | Typical work start |
+| 12:00 PM | `1200` | Lunch time |
+| 6:00 PM | `1800` | Typical work end / home |
+| 11:00 PM | `2300` | Typical sleep time |
 
 **Minecraft Time Conversion:**
 ```
-Real World → Minecraft Ticks
-6:00 AM = 0 ticks
-12:00 PM = 6000 ticks
-6:00 PM = 12000 ticks
-12:00 AM = 18000 ticks
-6:00 AM = 24000 ticks (next day)
+Real World    -> Minecraft Ticks
+6:00 AM       = 0 ticks
+12:00 PM      = 6000 ticks
+6:00 PM       = 12000 ticks
+12:00 AM      = 18000 ticks
+6:00 AM       = 24000 ticks (next day)
 
-Formula:
-ticks = (totalMinutes - 360) × (1000 / 60)
+Formula: ticks = (totalMinutes - 360) x (1000 / 60)
 ```
 
----
+### Schedule by NPC Type
 
-### Schedule Configuration
+#### Residents (BEWOHNER)
 
-#### For BEWOHNER (Residents)
+Residents have only 2 schedule phases: **leisure** and **home/sleep**.
 
-**Has Only 2 Times:**
-- ❌ No work time (they don't work!)
-- ✅ Home time (sleep)
-- ✅ Leisure time (all other time)
-
-**Setup:**
 ```bash
 /npc Hans schedule home 2300  # Sleep at 11 PM to 6 AM
-# Leisure: 6 AM to 11 PM (all other time)
+# Leisure: 6 AM to 11 PM (all remaining time)
 ```
 
 **Behavior:**
 ```
-6:00 AM - 11:00 PM: Leisure time
-  → Wanders between leisure locations
-  → Visits shops
-  → Socializes
+6:00 AM  - 11:00 PM: Leisure time
+  -> Wanders between leisure locations (max 10)
+  -> Visits shops, socializes
 
 11:00 PM - 6:00 AM: Home time
-  → Goes to home location
-  → Stays there (sleeping)
+  -> Goes to home location
+  -> Stays there (sleeping)
 ```
 
----
+#### Merchants (VERKAEUFER)
 
-#### For VERKAEUFER (Merchants)
+Merchants have 3 schedule phases: **work**, **leisure**, and **home/sleep**.
 
-**Has 3 Times:**
-- ✅ Work start
-- ✅ Work end
-- ✅ Home time (sleep)
-
-**Setup:**
 ```bash
-/npc Shop_Owner schedule workstart 0700  # 7 AM
-/npc Shop_Owner schedule workend 1800    # 6 PM
-/npc Shop_Owner schedule home 2300       # 11 PM
+/npc Shop_Owner schedule workstart 0700  # Work at 7 AM
+/npc Shop_Owner schedule workend 1800    # Leave work at 6 PM
+/npc Shop_Owner schedule home 2300       # Sleep at 11 PM
 ```
 
 **Behavior:**
 ```
-7:00 AM - 6:00 PM: Work time
-  → Goes to work location (shop)
-  → Stays at shop
-  → Sells/buys from players
+7:00 AM  - 6:00 PM: Work time
+  -> Goes to work location (shop)
+  -> Sells/buys from players
 
-6:00 PM - 11:00 PM: Leisure time
-  → Leaves shop
-  → Goes to leisure locations
-  → Wanders around
+6:00 PM  - 11:00 PM: Leisure time
+  -> Leaves shop, visits leisure locations
 
 11:00 PM - 7:00 AM: Home time
-  → Goes home
-  → Stays home (sleeping)
+  -> Goes home, stays there (sleeping)
+```
+
+#### Police (POLIZEI)
+
+Police NPCs use a **patrol system** instead of a schedule. They are always active and never sleep.
+
+### Default Times (If Not Configured)
+
+```
+Work Start: 6:00 AM  (0600)
+Work End:   7:00 PM  (1900)
+Home Time:  5:00 AM  (0500)
 ```
 
 ---
 
-#### For POLIZEI (Police)
+## Custom Player Skins
 
-**No Schedule:**
-- Uses patrol system instead
-- Always active (no sleep)
-- Patrols designated routes
+NPCs in ScheduleMC use **real Minecraft player skins**. The `CustomSkinManager` fetches and caches player skin textures so that each NPC can appear as a unique character.
 
----
+**How it works:**
+1. Admin assigns a Minecraft player name to the NPC
+2. The system fetches that player's skin from Mojang servers
+3. The skin is cached locally for performance
+4. The NPC renders with the player model and skin in-game
 
-### Default Times
-
-**If Not Configured:**
-```
-Work Start: 6:00 AM (0600)
-Work End: 7:00 PM (1900)
-Home Time: 5:00 AM (0500)
-```
+This allows server admins to create visually distinct NPCs by referencing any valid Minecraft account skin.
 
 ---
 
-## Inventory & Wallet
+## Shop & Warehouse Integration
 
-### Inventory System
+### Shop System
 
-**Structure:**
-- **Slots:** 9 (indexed 0-8, like player hotbar)
-- **Available For:** BEWOHNER, VERKAEUFER only
-- **Not For:** POLIZEI (no inventory)
+Merchant NPCs can be assigned to shops with two separate inventories:
 
-**Slot Layout:**
+1. **Buy Shop** - Items the NPC sells to players
+2. **Sell Shop** - Items the NPC buys from players
+
+**Configuration:** SHIFT + Left-click on the NPC (admin only) to open the shop editor GUI.
+
 ```
-[0] [1] [2] [3] [4] [5] [6] [7] [8]
+Buy Shop (NPC sells to players):
+- Diamond x 64 @ 100 each (unlimited)
+- Gold Ingot x 128 @ 80 each (limited)
+
+Sell Shop (NPC buys from players):
+- Virginia Cigar @ 45 each (unlimited)
+- Cannabis Bud @ 150 each (unlimited)
 ```
 
-**Stacking:** Follows Minecraft rules (max 64 for most items)
+### Warehouse Integration
 
----
-
-### Inventory Commands
+NPCs can sell items directly from a linked warehouse, providing effectively unlimited stock:
 
 ```bash
-# View inventory
-/npc <name> inventory
+# 1. Link NPC to warehouse (look at warehouse block)
+/npc Shop_Owner warehouse set
 
-# Give item to slot
-/npc <name> inventory give <0-8> <item>
+# 2. Check linkage
+/npc Shop_Owner warehouse info
 
-# Clear all slots
-/npc <name> inventory clear
-
-# Clear specific slot
-/npc <name> inventory clear <0-8>
+# 3. Clear linkage if needed
+/npc Shop_Owner warehouse clear
 ```
 
-**Examples:**
-```bash
-# Give diamonds to slot 0
-/npc Shop_Owner inventory give 0 minecraft:diamond
-
-# Give cigars to slot 1
-/npc Merchant inventory give 1 schedulemc:virginia_cigar
-
-# Clear slot 2
-/npc Shop_Owner inventory clear 2
-
-# Clear all inventory
-/npc Shop_Owner inventory clear
+**How it works:**
+```
+Player buys Diamond from NPC:
+1. Check NPC inventory first (9 slots)
+2. If not enough, check linked warehouse
+3. If warehouse has stock, sell from warehouse
+4. Revenue goes to shop account
+5. Stock is unlimited as long as warehouse has items
 ```
 
 ---
 
-### Wallet System
+## Relationship System
+
+### Relationship Levels
+
+**Range:** -100 to +100
+
+| Level | Tier | Price Modifier | Color |
+|-------|------|----------------|-------|
+| -100 to -50 | **HOSTILE** | +50% markup | Red |
+| -49 to -10 | **UNFRIENDLY** | +25% markup | Orange |
+| -9 to +9 | **NEUTRAL** | Normal price | Gray |
+| +10 to +49 | **FRIENDLY** | -10% discount | Green |
+| +50 to +100 | **VERY FRIENDLY** | -20% discount | Dark Green |
+
+### Gaining Relationship
+
+| Action | Points | Notes |
+|--------|--------|-------|
+| Purchase (any) | +2 | Base gain |
+| Purchase >= 1,000 | +4 | Large purchase |
+| Purchase >= 5,000 | +7 | Very large purchase |
+| Sell (any) | +1 | Base gain |
+| Sell >= 1,000 | +2 | Large sale |
+| Help NPC | +10 | Quest/assistance |
+
+### Losing Relationship
+
+| Action | Points | Notes |
+|--------|--------|-------|
+| Theft attempt | -20 | Serious |
+| Caught stealing | -30 | Very serious |
+| Attack NPC | -50 | Extremely serious |
+
+### Combined Price Calculation
+
+```
+Final Price = Base Price x Personality Modifier x Relationship Modifier
+
+Best Case (Friendly NPC, +100 relationship):
+  100 x 0.80 x 0.80 = 64   (36% total discount)
+
+Worst Case (Hostile NPC, -100 relationship):
+  100 x 1.30 x 1.50 = 195  (95% total markup)
+
+Standard (Neutral NPC, 0 relationship):
+  100 x 1.00 x 1.00 = 100  (no change)
+```
+
+---
+
+## Wallet System
+
+NPCs carry their own money, used for transactions and daily expenses.
 
 **Currency:** Cash (Bargeld)
 **Type:** Integer (0 to 2,147,483,647)
-**Purpose:** NPC money for transactions
-
-**Daily Income:**
-- NPCs receive automatic daily income
-- Tracked per NPC
-- Configurable amount
-
----
 
 ### Wallet Commands
 
 ```bash
-# View wallet
+# View wallet balance
 /npc <name> wallet
 
 # Set exact amount
@@ -389,379 +477,175 @@ Home Time: 5:00 AM (0500)
 /npc <name> wallet remove <amount>
 ```
 
-**Examples:**
+**Daily Income:** NPCs receive automatic daily income, tracked per NPC. This ensures they always have funds to participate in the economy.
+
+---
+
+## Dialogue System
+
+The dialogue system provides **branching conversations** between players and NPCs, managed by `DialogueManager` and a tree of `DialogueNode` objects.
+
+### Components
+
+| Class | Purpose |
+|-------|---------|
+| `DialogueTree` | Root structure holding all conversation branches |
+| `DialogueNode` | A single dialogue step with text and options |
+| `DialogueOption` | A player choice that leads to another node |
+| `DialogueCondition` | Conditions that must be met (relationship, quest state, etc.) |
+| `DialogueAction` | Side effects triggered by dialogue (give item, start quest, etc.) |
+| `DialogueContext` | Current state of the conversation |
+| `DialogueManager` | Manages active conversations across all players |
+| `NPCDialogueProvider` | Generates dialogue trees based on NPC type/personality |
+
+### How It Works
+
+```
+Player right-clicks NPC:
+1. DialogueManager creates a DialogueContext
+2. NPCDialogueProvider selects a DialogueTree based on NPC data
+3. Player sees DialogueNode text with DialogueOption choices
+4. DialogueConditions filter which options are available
+5. Player selects an option
+6. DialogueActions execute (give item, change relationship, etc.)
+7. Conversation advances to the next DialogueNode
+```
+
+---
+
+## Quest System
+
+NPCs can assign quests to players through the dialogue system. Quests have objectives, rewards, and state tracking managed by the NPC life system.
+
+**Quest Flow:**
+```
+1. Player talks to NPC
+2. NPC offers quest through dialogue
+3. Player accepts
+4. Objectives tracked (deliver items, visit locations, etc.)
+5. Player returns to NPC
+6. Rewards given (money, items, relationship points)
+```
+
+---
+
+## Social Relationships
+
+NPCs form relationships with **each other**, not just with players. The social relationship system tracks bonds between NPCs and influences their behavior:
+
+- NPCs visit friends during leisure time
+- NPCs share information about crimes they witnessed
+- Social bonds affect mood and emotional state
+- NPCs remember positive and negative interactions via `NPCMemory`
+
+---
+
+## Witness System
+
+NPCs observe their surroundings and can **witness crimes** committed by players. When an NPC witnesses a crime:
+
+1. The `IllegalActivityScanner` detects the crime
+2. Nearby NPCs are checked for line of sight
+3. Based on personality, the NPC may call the police
+4. The crime is recorded in the NPC's memory
+5. Relationship with the criminal decreases
+
+The witness system connects directly to the Police & Crime System through the `PoliceAIHandler` and `PoliceBackupSystem`.
+
+---
+
+## Companion System
+
+Players can recruit NPCs as **companions** who follow and assist them.
+
+### Components
+
+| Class | Purpose |
+|-------|---------|
+| `CompanionManager` | Manages all active companion relationships |
+| `CompanionData` | Stores companion state and preferences |
+| `CompanionBehavior` | AI behavior goal for following the player |
+| `CompanionType` | Enum of companion roles |
+| `CompanionEventHandler` | Handles companion-related events |
+
+### Companion Behavior
+
+```
+Companion follows player:
+1. Pathfinds to player position
+2. Maintains comfortable following distance
+3. Assists in combat or tasks based on CompanionType
+4. Returns to home location when dismissed
+```
+
+---
+
+## AI & Pathfinding
+
+### Navigation System
+
+The NPC pathfinding system provides intelligent navigation with obstacle avoidance:
+
+- Opens and closes doors automatically
+- Navigates stairs and slopes
+- Configurable walkable blocks
+- Water navigation support
+- Max step height: 1.5 blocks
+
+**Navigation Attributes:**
+```
+Max Health:     20.0 HP
+Movement Speed: 0.3 (default, 0.1-1.0 configurable)
+Follow Range:   32.0 blocks
+Step Height:    1.5 blocks
+```
+
+### Movement Speed
+
 ```bash
-# Check wallet
-/npc Shop_Owner wallet
-→ "Shop_Owner has 25,450€"
-
-# Set wallet to 50,000€
-/npc Shop_Owner wallet set 50000
-
-# Add 10,000€
-/npc Shop_Owner wallet add 10000
-→ "Added 10,000€. New balance: 60,000€"
-
-# Remove 5,000€
-/npc Shop_Owner wallet remove 5000
-→ "Removed 5,000€. New balance: 55,000€"
+/npc <name> speed <0.1-1.0>
 ```
 
----
-
-## Shop System
-
-### Shop Inventory
-
-**Two Separate Inventories:**
-
-1. **Buy Shop** - Items NPC sells to players
-2. **Sell Shop** - Items NPC buys from players
-
-**Shop Entry Structure:**
-```
-Item: Diamond
-Price: 100€
-Stock: 64 (or UNLIMITED)
-```
-
----
-
-### Shop Configuration
-
-**Method:** SHIFT + Left-click NPC (admin only)
-
-**Opens GUI with:**
-- Items to sell list
-- Items to buy list
-- Price per item
-- Stock limits
-- Unlimited toggle
-
-**Example Configuration:**
-```
-Buy Shop (NPC sells):
-- Diamond × 64 @ 100€ each (unlimited)
-- Gold Ingot × 128 @ 80€ each (limited)
-- Emerald × 32 @ 120€ each (unlimited)
-
-Sell Shop (NPC buys):
-- Virginia Cigar @ 45€ each (unlimited)
-- Cannabis Bud @ 150€ each (unlimited)
-```
-
----
-
-### Warehouse Integration
-
-**NEW FEATURE:** NPCs can sell from warehouses for unlimited stock.
-
-**Setup:**
-```bash
-# 1. Link NPC to warehouse (look at warehouse block)
-/npc Shop_Owner warehouse set
-
-# 2. Check linkage
-/npc Shop_Owner warehouse info
-
-# 3. Clear if needed
-/npc Shop_Owner warehouse clear
-```
-
-**How It Works:**
-```
-Player buys Diamond from NPC:
-1. Check NPC inventory first (9 slots)
-2. If not enough, check warehouse
-3. If warehouse has stock, sell from warehouse
-4. Revenue goes to shop account
-5. Unlimited stock as long as warehouse has items
-```
-
-**Example:**
-```
-NPC Inventory: Diamond × 16
-Warehouse: Diamond × 544
-
-Player buys 32 diamonds:
-→ NPC sells 16 from inventory
-→ NPC auto-restocks from warehouse (+16)
-→ NPC sells 16 more
-→ Warehouse: 528 remaining
-→ NPC inventory: 16 (restocked)
-
-Result: Unlimited stock from warehouse!
-```
-
----
-
-## Personality System
-
-### Personality Traits
-
-**5 Traits for Merchant Behavior:**
-
-| Trait | Price | Free Item | Police Call | Distribution |
-|-------|-------|-----------|-------------|--------------|
-| **FRIENDLY** | 0.80× (20% off) | 5% chance | 30% chance | 20% |
-| **NEUTRAL** | 1.00× (normal) | 2% chance | 70% chance | 40% |
-| **GENEROUS** | 0.90× (10% off) | 15% chance | 50% chance | 15% |
-| **GREEDY** | 1.30× (30% markup) | 0% | 90% chance | 15% |
-| **SUSPICIOUS** | 1.10× (10% markup) | 0% | 95% chance | 10% |
-
----
-
-### Personality Effects
-
-#### 1. Price Modifiers
-
-**Base Price Calculation:**
-```
-Item: Diamond
-Base Price: 100€
-
-FRIENDLY NPC: 100 × 0.80 = 80€ (20% discount)
-NEUTRAL NPC: 100 × 1.00 = 100€ (normal)
-GENEROUS NPC: 100 × 0.90 = 90€ (10% discount)
-GREEDY NPC: 100 × 1.30 = 130€ (30% markup)
-SUSPICIOUS NPC: 100 × 1.10 = 110€ (10% markup)
-```
-
----
-
-#### 2. Free Item Chance
-
-**Random Gift System:**
-```
-GENEROUS NPC: 15% chance
-  → "Shop_Owner: Here, take this as a gift!"
-  → Player receives item for free
-
-FRIENDLY NPC: 5% chance
-  → Occasionally gives bonus items
-
-NEUTRAL NPC: 2% chance
-  → Rare gifts
-
-GREEDY/SUSPICIOUS: 0%
-  → Never gives anything free
-```
-
----
-
-#### 3. Police Calling
-
-**When Player Steals/Causes Trouble:**
-```
-SUSPICIOUS NPC: 95% chance to call police
-  → Very quick to report
-
-GREEDY NPC: 90% chance
-  → Protects merchandise
-
-NEUTRAL NPC: 70% chance
-  → Standard response
-
-GENEROUS NPC: 50% chance
-  → More forgiving
-
-FRIENDLY NPC: 30% chance
-  → Rarely calls police
-```
-
----
-
-### Buying Personality
-
-**3 Buying Behaviors (for BEWOHNER NPCs):**
-
-| Type | Mood Weight | Demand Weight | Max Budget | Threshold |
-|------|-------------|---------------|------------|-----------|
-| **SPARSAM** (Cautious) | 40% | 20% | 30% of wallet | 50+ score |
-| **AUSGEWOGEN** (Balanced) | 30% | 30% | 50% of wallet | 40+ score |
-| **IMPULSIV** (Impulsive) | 20% | 40% | 70% of wallet | 30+ score |
-
-**Purpose:** Controls how NPCs buy items in dynamic economy
-
----
-
-## Relationship System
-
-### Relationship Levels
-
-**Range:** -100 to +100
-
-**Tiers:**
-
-| Level | Tier | Price Modifier | Color |
-|-------|------|----------------|-------|
-| -100 to -50 | **HOSTILE** | +50% markup | Red |
-| -49 to -10 | **UNFRIENDLY** | +25% markup | Orange |
-| -9 to +9 | **NEUTRAL** | Normal | Gray |
-| +10 to +49 | **FRIENDLY** | -10% discount | Green |
-| +50 to +100 | **VERY FRIENDLY** | -20% discount | Dark Green |
-
----
-
-### Gaining Relationship
-
-**Actions that Improve:**
-
-| Action | Points | Bonus |
-|--------|--------|-------|
-| Purchase (any) | +2 | Base |
-| Purchase ≥1,000€ | +4 | Large |
-| Purchase ≥5,000€ | +7 | Very large |
-| Sell (any) | +1 | Base |
-| Sell ≥1,000€ | +2 | Large |
-| Help NPC | +10 | Assistance |
-
-**Example:**
-```
-Start: 0 (Neutral)
-
-Buy 10 diamonds (1,000€): +4
-→ Level: 4 (Neutral)
-
-Buy 50 diamonds (5,000€): +7
-→ Level: 11 (Friendly, -10% prices)
-
-Buy 100 diamonds (10,000€): +7
-→ Level: 18 (Friendly)
-
-...continue trading...
-
-→ Level: 50+ (Very Friendly, -20% prices)
-```
-
----
-
-### Losing Relationship
-
-**Actions that Decrease:**
-
-| Action | Points | Severity |
-|--------|--------|----------|
-| Theft attempt | -20 | Serious |
-| Caught stealing | -30 | Very serious |
-| Attack NPC | -50 | Extremely serious |
-
-**Example:**
-```
-Current: 50 (Very Friendly, -20% prices)
-
-Attack NPC: -50
-→ Level: 0 (Neutral, normal prices)
-
-Attack again: -50
-→ Level: -50 (Hostile, +50% prices!)
-```
-
----
-
-### Price Calculation
-
-**Combined Formula:**
-```
-Final Price = Base Price × Personality × Relationship
-
-Example 1 (Best Case):
-Item: Diamond (100€ base)
-NPC: FRIENDLY (0.80×)
-Relationship: +100 (Very Friendly, 0.80×)
-Price: 100 × 0.80 × 0.80 = 64€ (36% total discount!)
-
-Example 2 (Worst Case):
-Item: Diamond (100€ base)
-NPC: GREEDY (1.30×)
-Relationship: -100 (Hostile, 1.50×)
-Price: 100 × 1.30 × 1.50 = 195€ (95% markup!)
-
-Example 3 (Neutral):
-Item: Diamond (100€ base)
-NPC: NEUTRAL (1.00×)
-Relationship: 0 (Neutral, 1.00×)
-Price: 100 × 1.00 × 1.00 = 100€ (normal)
-```
-
----
-
-## Movement Behaviors
-
-### Home Movement
-
-**Goal:** MoveToHomeGoal
-**Active:** During home/sleep time
-**NPCs:** BEWOHNER, VERKAEUFER
-
-**Behavior:**
-```
-11:00 PM (home time reached):
-→ NPC pathfinds to home location
-→ Arrives within 2 blocks
-→ Stays at home until work/leisure time
-→ No wandering while at home
-```
-
-**Configuration:**
-```bash
-/npc <name> schedule home 2300
-# NPC will go home at 11 PM
-```
-
----
-
-### Work Movement
-
-**Goal:** MoveToWorkGoal
-**Active:** During work hours
-**NPCs:** VERKAEUFER only (not BEWOHNER!)
-
-**Behavior:**
-```
-7:00 AM (work start time):
-→ NPC pathfinds to work location (shop)
-→ Arrives within 2 blocks
-→ Stays at work until work end time
-→ Sells/buys from players
-
-6:00 PM (work end time):
-→ Leaves work
-→ Goes to leisure or home
-```
-
-**Configuration:**
-```bash
-/npc Shop_Owner schedule workstart 0700
-/npc Shop_Owner schedule workend 1800
-```
-
----
+| Speed | Description | Use Case |
+|-------|-------------|----------|
+| 0.1-0.2 | Very slow | Stationary shop owners |
+| 0.3 | Default walk | Normal citizens |
+| 0.4-0.5 | Brisk walk | Busy merchants |
+| 0.6-0.7 | Jogging | Police on patrol |
+| 0.8-1.0 | Running | Police chasing criminals |
 
 ### Leisure Movement
 
-**Goal:** MoveToLeisureGoal
-**Active:** During leisure time (not work, not home)
-**NPCs:** BEWOHNER, VERKAEUFER
-
-**Features:**
 - **Max Locations:** 10 per NPC
 - **Wander Radius:** 15 blocks from location
 - **Location Change:** Every 5 minutes
 - **Wander Interval:** Every 10 seconds
 
-**Behavior:**
-```
-Leisure Time Active:
-1. Pick random leisure location from list (1-10)
-2. Navigate to location
-3. Upon arrival, wander within 15-block radius
-4. Every 10 seconds, pick new point in radius
-5. After 5 minutes, switch to different location
-6. Repeat
-```
+### Police Patrol
 
-**Commands:**
+- **Max Points:** 16 patrol points
+- **Wait Time:** 3 minutes per point (configurable)
+- **Wander Radius:** 3 blocks (configurable)
+- **Loop:** Continuous patrol from point 0 to last, then repeat
+
+---
+
+## NPC Tools
+
+ScheduleMC provides **4 specialized items** for NPC management:
+
+### 1. NPC Spawner Tool (`NPCSpawnerTool`)
+
+Opens the NPC Spawner GUI screen (`NPCSpawnerScreen`) to create new NPCs with type, name, and initial configuration.
+
+### 2. NPC Location Tool (`NPCLocationTool`)
+
+Sets home and work locations for NPCs by right-clicking on blocks in the world.
+
+### 3. NPC Leisure Tool (`NPCLeisureTool`)
+
+Adds leisure locations to an NPC's schedule. Each NPC supports **up to 10** leisure locations.
+
 ```bash
 # Add current position as leisure spot
 /npc <name> leisure add
@@ -776,164 +660,150 @@ Leisure Time Active:
 /npc <name> leisure clear
 ```
 
-**Example Setup:**
+### 4. NPC Patrol Tool (`NPCPatrolTool`)
+
+Sets patrol points for police NPCs. Supports up to 16 patrol points per officer.
+
+---
+
+## Commands
+
+The `/npc` command provides **23 subcommands** for full NPC management:
+
+### Spawning and Removal
+
 ```bash
-# Add park
-/npc Hans leisure add
+/npc spawn <type> <name>          # Spawn a new NPC (bewohner/verkaeufer/polizei)
+/npc remove <name>                # Remove an NPC from the world
+/npc list                         # List all NPCs
+```
 
-# Add bar
-/npc Hans leisure add
+### Information
 
-# Add coffee shop
-/npc Hans leisure add
+```bash
+/npc <name> info                  # View NPC details (type, schedule, wallet, etc.)
+```
 
-# List locations
-/npc Hans leisure list
-→ 0: Park (120, 64, 180)
-→ 1: Bar (105, 65, 195)
-→ 2: Coffee (115, 64, 200)
+### Schedule
+
+```bash
+/npc <name> schedule workstart <HHMM>   # Set work start time
+/npc <name> schedule workend <HHMM>     # Set work end time
+/npc <name> schedule home <HHMM>        # Set home/sleep time
+```
+
+### Movement
+
+```bash
+/npc <name> movement <true/false>       # Enable/disable movement
+/npc <name> speed <0.1-1.0>            # Set movement speed
+```
+
+### Wallet
+
+```bash
+/npc <name> wallet                      # Check balance
+/npc <name> wallet set <amount>         # Set balance
+/npc <name> wallet add <amount>         # Add money
+/npc <name> wallet remove <amount>      # Remove money
+```
+
+### Inventory
+
+```bash
+/npc <name> inventory                   # View inventory
+/npc <name> inventory give <0-8> <item> # Give item to slot
+/npc <name> inventory clear             # Clear all slots
+/npc <name> inventory clear <0-8>       # Clear specific slot
+```
+
+### Leisure
+
+```bash
+/npc <name> leisure add                 # Add leisure location
+/npc <name> leisure remove <index>      # Remove leisure location
+/npc <name> leisure list                # List leisure locations
+/npc <name> leisure clear               # Clear all leisure locations
+```
+
+### Shop and Warehouse
+
+```bash
+/npc <name> setshop <shopId>            # Assign NPC to shop
+/npc <name> warehouse set               # Link NPC to warehouse (look at block)
+/npc <name> warehouse info              # Check warehouse link
+/npc <name> warehouse clear             # Unlink NPC from warehouse
 ```
 
 ---
 
-### Police Patrol
+## Developer API
 
-**Goal:** PolicePatrolGoal
-**Active:** Always (for POLIZEI NPCs)
-**NPCs:** POLIZEI only
+### INPCAPI Interface
 
-**Features:**
-- **Max Points:** 16 patrol points
-- **Wait Time:** 3 minutes per point (configurable)
-- **Wander Radius:** 3 blocks (configurable)
-- **Loop:** Continuous patrol from point 0 to last, repeat
+External mods can access the NPC system through the `INPCAPI` interface.
 
-**Behavior:**
-```
-Patrol Cycle:
-1. Navigate to patrol point 0
-2. Arrive within 2 blocks
-3. Wander within 3-block radius
-4. Wait for 3 minutes
-5. Move to patrol point 1
-6. Repeat steps 2-4
-...
-16. After last point, return to point 0
-17. Continuous loop
+**Access:**
+```java
+INPCAPI npcAPI = ScheduleMCAPI.getNPCAPI();
 ```
 
-**Configuration:**
-- Patrol points set at police station
-- Wait time: Config setting
-- Wander radius: Config setting
+### Core Methods (v3.0.0+)
 
----
+| Method | Description |
+|--------|-------------|
+| `getNPCByUUID(UUID, ServerLevel)` | Find NPC by UUID in a specific level (O(1) lookup) |
+| `getNPCByUUID(UUID)` | Find NPC by UUID across all loaded worlds |
+| `getAllNPCs(ServerLevel)` | Get all NPCs in a level |
+| `getAllNPCs()` | Get all NPCs across all worlds |
+| `getNPCCount(ServerLevel)` | Count NPCs in a level |
+| `getTotalNPCCount()` | Count all NPCs globally |
+| `getNPCData(CustomNPCEntity)` | Get NPCData object with all configuration |
+| `setNPCHome(CustomNPCEntity, BlockPos)` | Set home position |
+| `setNPCWork(CustomNPCEntity, BlockPos)` | Set work position |
+| `setNPCType(CustomNPCEntity, NPCType)` | Change NPC type |
 
-## NPC Management
+### Extended Methods (v3.2.0+)
 
-### Creating NPCs
+| Method | Description |
+|--------|-------------|
+| `getNPCsByType(NPCType)` | Get all NPCs of a specific type |
+| `getNPCsInRadius(ServerLevel, BlockPos, double)` | Get NPCs within radius |
+| `setNPCName(CustomNPCEntity, String)` | Set display name |
+| `addNPCLeisureLocation(CustomNPCEntity, BlockPos)` | Add leisure location |
+| `removeNPC(CustomNPCEntity)` | Remove NPC from world |
+| `setNPCSchedule(CustomNPCEntity, String, int)` | Set schedule (activity + HHMM time) |
+| `getNPCBalance(CustomNPCEntity)` | Get wallet balance |
+| `setNPCBalance(CustomNPCEntity, double)` | Set wallet balance |
 
-**Spawn Command:**
-```bash
-/npc spawn <type> <name>
+### Example Usage
+
+```java
+INPCAPI npcAPI = ScheduleMCAPI.getNPCAPI();
+
+// Find an NPC
+CustomNPCEntity npc = npcAPI.getNPCByUUID(uuid, level);
+
+// Get all merchants
+Collection<CustomNPCEntity> merchants = npcAPI.getNPCsByType(NPCType.VERKAEUFER);
+
+// Find NPCs near a position
+Collection<CustomNPCEntity> nearby = npcAPI.getNPCsInRadius(level, pos, 50.0);
+
+// Configure an NPC
+npcAPI.setNPCName(npc, "Klaus_The_Merchant");
+npcAPI.setNPCSchedule(npc, "workstart", 700);
+npcAPI.setNPCSchedule(npc, "workend", 1800);
+npcAPI.setNPCSchedule(npc, "sleep", 2300);
+npcAPI.setNPCBalance(npc, 50000.0);
+
+// Add leisure locations
+npcAPI.addNPCLeisureLocation(npc, new BlockPos(100, 64, 200));
+npcAPI.addNPCLeisureLocation(npc, new BlockPos(120, 64, 180));
 ```
 
-**Types:**
-- `bewohner` - Resident
-- `verkaeufer` - Merchant
-- `polizei` - Police
-
-**Examples:**
-```bash
-/npc spawn bewohner Hans_Mueller
-/npc spawn verkaeufer Shop_Owner_Klaus
-/npc spawn polizei Officer_Schmidt
-```
-
----
-
-### Complete Setup Example
-
-**Full Merchant Setup:**
-```bash
-# 1. Spawn merchant
-/npc spawn verkaeufer Electronics_Owner
-
-# 2. Set schedule
-/npc Electronics_Owner schedule workstart 0800
-/npc Electronics_Owner schedule workend 1900
-/npc Electronics_Owner schedule home 2300
-
-# 3. Give money
-/npc Electronics_Owner wallet set 100000
-
-# 4. Set movement
-/npc Electronics_Owner movement true
-/npc Electronics_Owner speed 0.3
-
-# 5. Add leisure spots
-# (Stand at bar)
-/npc Electronics_Owner leisure add
-# (Stand at park)
-/npc Electronics_Owner leisure add
-# (Stand at restaurant)
-/npc Electronics_Owner leisure add
-
-# 6. Assign to shop
-/npc Electronics_Owner setshop Electronics_Store
-
-# 7. Link warehouse (look at warehouse block)
-/npc Electronics_Owner warehouse set
-
-# 8. Configure shop (SHIFT + Left-click NPC)
-# Add items to buy/sell in GUI
-
-# Done! NPC is fully functional
-```
-
----
-
-### NPC Information
-
-```bash
-/npc <name> info
-```
-
-**Output:**
-```
-═══ NPC INFO: Shop_Owner ═══
-
-Type: VERKAEUFER (Merchant)
-Status: Working
-Position: 100, 64, 200 (world)
-Shop: Electronics_Store
-
-Schedule:
-- Work Start: 08:00
-- Work End: 19:00
-- Home Time: 23:00
-
-Wallet: 85,450€
-
-Inventory (5/9 slots):
-- Slot 0: Diamond × 16
-- Slot 1: Gold Ingot × 32
-- Slot 2: Emerald × 8
-- Slot 3: Virginia Cigar × 24
-- Slot 4: Cannabis Bud × 12
-
-Warehouse: Linked (warehouse_electronics)
-Movement: Enabled
-Speed: 0.3
-
-Personality: FRIENDLY (20% discount)
-Merchant Category: BAUMARKT
-
-Leisure Locations: 3
-- 0: Park (150, 64, 210)
-- 1: Bar (140, 65, 195)
-- 2: Restaurant (160, 64, 180)
-```
+**Thread Safety:** All methods are thread-safe through ConcurrentHashMap-based registry.
+**Performance:** NPC lookups use O(1) UUID indexing for fast search.
 
 ---
 
@@ -943,7 +813,6 @@ Leisure Locations: 3
 
 #### 1. Balanced NPC Distribution
 
-**Recommended Ratio (per 100 blocks):**
 ```
 Small Town:
 - 5-10 BEWOHNER (residents)
@@ -956,207 +825,94 @@ Large City:
 - 3-5 POLIZEI
 ```
 
----
+#### 2. Realistic Schedules
 
-#### 2. Shop Placement
-
-**Strategic Locations:**
 ```
-✓ Central locations (spawn, town square)
-✓ Near roads/paths
-✓ Visible from distance
-✓ Multiple shops clustered
-✓ Near player plots
-
-✗ Hidden areas
-✗ Far from spawn
-✗ Underground
-✗ Isolated locations
+Coffee Shop:  workstart 0600, workend 1200 (early morning)
+Restaurant:   workstart 1100, workend 2200 (lunch and dinner)
+Bar:          workstart 1800, workend 0200 (evening/night)
+Hardware:     workstart 0800, workend 1800 (standard hours)
 ```
 
----
+#### 3. Wallet Funding
 
-#### 3. Realistic Schedules
-
-**Example Schedules:**
 ```
-Coffee Shop:
-- Work: 0600-1200 (6 AM - noon)
-- Early morning business
-
-Restaurant:
-- Work: 1100-2200 (11 AM - 10 PM)
-- Lunch and dinner hours
-
-Bar:
-- Work: 1800-0200 (6 PM - 2 AM)
-- Evening/night business
-
-Hardware Store:
-- Work: 0800-1800 (8 AM - 6 PM)
-- Standard business hours
-
-24/7 Store:
-- No schedule, always open
-- Or rotate multiple NPCs
+Small Shop:     10,000 - 25,000
+Medium Shop:    25,000 - 75,000
+Large Shop:     75,000 - 200,000
+Warehouse Shop: 200,000+
 ```
-
----
-
-#### 4. Wallet Funding
-
-**Initial Funding Guidelines:**
-```
-Small Shop: 10,000-25,000€
-Medium Shop: 25,000-75,000€
-Large Shop: 75,000-200,000€
-Warehouse Shop: 200,000+€
-
-Monitor daily:
-- Check wallet levels
-- Refund if running low
-- Adjust prices if needed
-```
-
----
 
 ### For Players
 
 #### 1. Build Relationships
 
-**Strategy:**
 ```
-1. Find shops with FRIENDLY personality
+1. Find shops with Friendly personality
 2. Make small purchases regularly (+2 per purchase)
 3. Build to +50 for -20% discount
-4. Save thousands of € long-term
+4. Save thousands long-term
 ```
-
----
 
 #### 2. Shop Around
 
-**Price Comparison:**
 ```
-Diamond prices:
-Shop A (GREEDY, -50 relationship): 195€
-Shop B (NEUTRAL, 0 relationship): 100€
-Shop C (FRIENDLY, +50 relationship): 64€
+Diamond prices comparison:
+  Shop A (Hostile, -50 relationship):   195
+  Shop B (Neutral, 0 relationship):     100
+  Shop C (Friendly, +50 relationship):   64
 
-Savings per diamond: 131€
-Savings on 100 diamonds: 13,100€!
-```
-
----
-
-#### 3. Avoid Negative Actions
-
-**Consequences:**
-```
-Steal from shop: -30 relationship
-→ Prices increase 15-25%
-→ Hard to recover
-
-Attack NPC: -50 relationship
-→ Prices increase 25-50%
-→ Very hard to recover
-→ Police called
-
-Better: Just buy items legitimately!
+Savings per diamond: 131
+Savings on 100 diamonds: 13,100
 ```
 
 ---
 
 ## Troubleshooting
 
-### "NPC Not Moving"
+### NPC Not Moving
 
 **Causes:**
 1. Movement disabled
 2. No schedule set
 3. No home/work/leisure locations
-4. NPC sleeping (home time)
+4. NPC is in sleep time
 
 **Solutions:**
 ```bash
-# Enable movement
 /npc <name> movement true
-
-# Set schedule
 /npc <name> schedule workstart 0700
 /npc <name> schedule workend 1800
 /npc <name> schedule home 2300
-
-# Add leisure spots
 /npc <name> leisure add
-
-# Check current time
-# If NPC home time, they stay home (expected)
 ```
 
----
-
-### "NPC Won't Sell Items"
+### NPC Will Not Sell Items
 
 **Causes:**
 1. Shop not configured
 2. Item not in shop inventory
-3. NPC not at work (not work hours)
-4. Warehouse not linked (if using warehouse)
+3. NPC not at work (outside work hours)
+4. Warehouse not linked
 
 **Solutions:**
 ```bash
-# Check shop assignment
-/npc <name> info
-
-# Configure shop (SHIFT + Left-click)
-# Add items to "Buy Shop"
-
-# Check time - must be work hours
-# Merchants only sell during work time
-
-# Link warehouse if needed
-/npc <name> warehouse set
+/npc <name> info                 # Check shop assignment
+/npc <name> warehouse set        # Link warehouse if needed
+# SHIFT + Left-click NPC to configure shop inventory
 ```
 
----
-
-### "NPC Can't Buy From Players"
+### Prices Too High/Low
 
 **Causes:**
-1. No wallet money
-2. Sell shop not configured
-3. Not work hours
-4. Price too high
-
-**Solutions:**
-```bash
-# Check wallet
-/npc <name> wallet
-→ If low, add money:
-/npc <name> wallet add 50000
-
-# Configure sell shop (SHIFT + Left-click)
-# Add items NPC buys in "Sell Shop"
-
-# Check work hours
-/npc <name> info
-```
-
----
-
-### "Prices Too High/Low"
-
-**Causes:**
-1. Personality trait (GREEDY = +30%)
+1. Personality trait (Hostile = +30%)
 2. Bad relationship (-50 = +25%)
 3. Combined effects
 
 **Solutions:**
 ```
 For admins:
-- NPC personality is set on spawn (random)
-- Cannot change personality after creation
+- Personality is set on spawn (random)
 - Delete and respawn NPC for different personality
 
 For players:
@@ -1172,11 +928,12 @@ For players:
 **NPC System - Complete Guide**
 
 For related systems:
-- [🏘️ Plot System](Plot-System.md)
-- [💰 Economy System](Economy-System.md)
-- [🏪 Warehouse System](Warehouse-System.md)
+- [Plot System](Plot-System.md)
+- [Economy System](Economy-System.md)
+- [Warehouse System](Warehouse-System.md)
+- [Police & Crime System](Police-Crime-System.md)
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 All Commands](../Commands.md)
+[Back to Wiki Home](../Home.md) | [All Commands](../Commands.md)
 
 **Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
 

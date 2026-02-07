@@ -1,2946 +1,2286 @@
-# Command Reference - Complete Guide
+# Commands Reference
 
 <div align="center">
 
-**All 161+ Commands in ScheduleMC**
+**Complete Command Reference for ScheduleMC v3.6.0-beta**
 
-Comprehensive reference for players and administrators
+All registered commands organized by system, with syntax, permissions, and examples.
 
-[🏠 Back to Wiki Home](Home.md)
+[Back to Wiki Home](Home.md)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-1. [Quick Reference](#quick-reference)
-2. [Command Syntax](#command-syntax)
-3. [Plot & Property Management](#1-plot--property-management) (47 commands)
-4. [Economy & Banking](#2-economy--banking) (28 commands)
-5. [NPC & Population](#3-npc--population) (23 commands)
-6. [Crime & Justice](#4-crime--justice) (8 commands)
-7. [Medical & Respawn](#5-medical--respawn) (3 commands)
-8. [Utilities & Resources](#6-utilities--resources) (15 commands)
-9. [Agriculture & Production](#7-agriculture--production) (3 commands)
-10. [Market & Economy](#8-market--economy) (4 commands)
-11. [Player Progress & Tutorial](#9-player-progress--tutorial) (7 commands)
-12. [System Administration](#10-system-administration) (5 commands)
-13. [Permission Levels](#permission-levels)
-14. [Common Use Cases](#common-use-cases)
-
----
-
-## 🚀 Quick Reference
-
-### Most Used Player Commands
-```bash
-/daily                  # Daily reward (50€ + streak bonus)
-/money                  # Check balance
-/pay <player> <amount>  # Send money
-/plot wand              # Get plot selection tool
-/plot buy               # Buy plot you're standing on
-/tutorial               # Tutorial system
-/market prices          # Check market prices
-```
-
-### Most Used Admin Commands
-```bash
-/npc spawn merchant <name>        # Spawn merchant NPC
-/plot create residential <name> <price>  # Create residential plot
-/money give <player> <amount>     # Give money to player
-/warehouse add <item> <amount>    # Add warehouse inventory
-/health                           # System diagnostics
-```
+1. [Command Syntax Legend](#command-syntax-legend)
+2. [Plot and Property Commands](#1-plot-and-property-commands) (24 commands)
+3. [Plot Features via Settings App UI](#2-plot-features-via-settings-app-ui) (17 former commands)
+4. [Economy and Money Commands](#3-economy-and-money-commands) (4 commands)
+5. [NPC Commands](#4-npc-commands) (28 commands)
+6. [Warehouse Commands](#5-warehouse-commands) (7 commands)
+7. [Prison and Crime Commands](#6-prison-and-crime-commands) (10 commands)
+8. [Bounty Commands](#7-bounty-commands) (4 commands)
+9. [Hospital Commands](#8-hospital-commands) (3 commands)
+10. [State Treasury Commands](#9-state-treasury-commands) (3 commands)
+11. [Utility Commands](#10-utility-commands) (8 commands)
+12. [Market Commands](#11-market-commands) (4 commands)
+13. [Gang Commands](#12-gang-commands) (14 commands)
+14. [Lock Commands](#13-lock-commands) (8 commands)
+15. [Territory and Map Commands](#14-territory-and-map-commands) (2 commands)
+16. [Health and Diagnostics Commands](#15-health-and-diagnostics-commands) (5 commands)
+17. [Admin Commands](#16-admin-commands) (5 commands)
+18. [Permission Level Reference](#permission-level-reference)
+19. [Common Workflows](#common-workflows)
 
 ---
 
-## 📖 Command Syntax
+## Command Syntax Legend
 
-### Argument Types
-
-| Syntax | Meaning | Example |
-|--------|---------|---------|
-| `<required>` | Must be provided | `/plot create <name>` |
-| `[optional]` | Can be omitted | `/money history [limit]` |
-| `<type1|type2>` | Choose one option | `/npc movement <true|false>` |
-| `...` | Multiple values allowed | - |
+| Notation | Meaning | Example |
+|----------|---------|---------|
+| `<required>` | Parameter must be provided | `/money set <player> <amount>` |
+| `[optional]` | Parameter can be omitted | `/plot apartment rent <id> [days]` |
+| `<a\|b>` | Choose one of the listed options | `/npc <name> movement <true\|false>` |
+| `HHMM` | 24-hour time format, four digits | `0800` for 8:00 AM, `1700` for 5:00 PM |
 
 ### Permission Indicators
 
-| Icon | Permission Level |
-|------|------------------|
-| 👤 | **Player** - Available to all players |
-| 🔧 | **Admin Level 2** - Requires admin privileges |
-| ⚡ | **Mixed** - Some subcommands require admin |
+| Label | Meaning |
+|-------|---------|
+| **Player** | Available to all players, no special permission required |
+| **Owner** | Requires plot or apartment ownership |
+| **Tenant** | Requires active rental on the relevant apartment or plot |
+| **Admin (OP 2)** | Requires operator level 2 or higher |
 
 ---
 
-# 1. Plot & Property Management
+# 1. Plot and Property Commands
 
-👤⚡ **Base Command:** `/plot`
-**Permission:** Mixed (Player & Admin Level 2)
-**Description:** Complete land and property management system
+**Base command:** `/plot`
+**Description:** Land management, plot creation, apartment system, and warehouse linking.
 
-## Plot Creation & Selection
-
-### `/plot wand`
-👤 **Player Command**
-**Description:** Get the plot selection tool (golden axe)
-
-**Usage:**
-```bash
-/plot wand
-# Left-click first corner, right-click second corner
-```
-
-**Tips:**
-- Selection must be cuboid (rectangular box)
-- Positions are saved until you create the plot
-- Use F3+G to see chunk borders
+> **Note:** As of ScheduleMC 3.0, many former player-facing plot commands (buy, sell, trust, info, etc.) have been moved to the in-game **Settings App UI** (accessed via the Plot Info Block). These are listed separately in [Section 2](#2-plot-features-via-settings-app-ui). The commands below are the ones currently registered in the command dispatcher.
 
 ---
 
-### `/plot create <type> <name> [price]`
-🔧 **Admin Command (Level 2)**
-**Description:** Create a new plot from your current selection
-
-**Types:**
-- `residential` - Homes, apartments (requires price)
-- `commercial` - Businesses, offices (requires price)
-- `shop` - NPC shops with inventory system (no price)
-- `public` - Parks, roads, spawn (no price)
-- `government` - Town halls, prisons (no price)
-
-**Usage:**
-```bash
-# Residential plot
-/plot create residential Downtown_House_1 50000
-
-# Commercial plot
-/plot create commercial Office_Building_A 100000
-
-# Shop plot (no price needed)
-/plot create shop Main_Street_Shop
-
-# Public area
-/plot create public Central_Park
-
-# Government building
-/plot create government City_Hall
-```
-
-**Important:**
-- Name cannot contain spaces (use underscores)
-- Price is in € (euros)
-- Selection must not overlap existing plots
-- Shop/public/government plots are not for sale
-
----
-
-## Plot Ownership
-
-### `/plot buy [plotId]`
-👤 **Player Command**
-**Description:** Purchase a plot
-
-**Usage:**
-```bash
-# Buy plot you're standing on
-/plot buy
-
-# Buy specific plot by ID
-/plot buy Downtown_House_1
-```
-
-**Requirements:**
-- Plot must be for sale
-- You must have enough money
-- You cannot own multiple plots (unless configured)
-
-**Returns:**
-- Money is transferred to previous owner
-- You become the new owner
-- Plot is removed from sale listings
-
----
-
-### `/plot abandon`
-👤 **Player Command**
-**Description:** Abandon your plot and get 50% refund
-
-**Usage:**
-```bash
-/plot abandon
-```
-
-**Warning:**
-- ⚠️ You lose 50% of the plot creation cost
-- All apartments in the plot are deleted
-- All tenants are evicted
-- Cannot be undone!
-
----
-
-### `/plot setowner <player>`
-🔧 **Admin Command (Level 2)**
-**Description:** Manually transfer plot ownership
-
-**Usage:**
-```bash
-/plot setowner Steve
-```
-
-**Use Cases:**
-- Fix ownership issues
-- Transfer plots without payment
-- Reset abandoned plots
-
----
-
-## Plot Information
-
-### `/plot list`
-👤 **Player Command**
-**Description:** List all plots on the server
-
-**Usage:**
-```bash
-/plot list
-```
-
-**Shows:**
-- Plot ID
-- Plot name
-- Plot type
-- Owner
-- Sale status
-- Price (if for sale)
-
----
-
-### `/plot info`
-👤 **Player Command**
-**Description:** Show detailed info about the plot you're standing on
-
-**Usage:**
-```bash
-/plot info
-```
-
-**Information Displayed:**
-```
-Plot: Downtown_House_1
-Type: RESIDENTIAL
-Owner: Steve
-Size: 20x15x10 (3,000 blocks)
-Created: 2024-01-15
-Rating: ⭐⭐⭐⭐ (4.2/5.0)
-For Sale: Yes (75,000€)
-Rent: Available (500€/day)
-Apartments: 2 units
-```
-
----
-
-### `/plot topplots`
-👤 **Player Command**
-**Description:** Show top-rated plots
-
-**Usage:**
-```bash
-/plot topplots
-```
-
-**Shows:**
-- Top 10 plots by rating
-- Plot name, owner, rating
-
----
-
-## Plot Customization
-
-### `/plot name <name>`
-👤 **Player Command (Owner only)**
-**Description:** Set display name for your plot
-
-**Usage:**
-```bash
-/plot name Steve's Mansion
-```
-
-**Notes:**
-- Display name CAN contain spaces
-- Does not change plot ID
-- Used in /plot list
-
----
-
-### `/plot description <text>`
-👤 **Player Command (Owner only)**
-**Description:** Set plot description
-
-**Usage:**
-```bash
-/plot description Beautiful downtown property with ocean view
-```
-
-**Limits:**
-- Max 200 characters
-- Shown in /plot info
-
----
-
-## Plot Trust System
-
-### `/plot trust <player>`
-👤 **Player Command (Owner only)**
-**Description:** Give a player build permissions on your plot
-
-**Usage:**
-```bash
-/plot trust Alex
-```
-
-**Permissions Granted:**
-- Place blocks
-- Break blocks
-- Open containers (chests, furnaces)
-- Interact with blocks
-- Use doors and buttons
-
-**Does NOT grant:**
-- Ownership transfer
-- Ability to trust others
-- Ability to sell plot
-
----
-
-### `/plot untrust <player>`
-👤 **Player Command (Owner only)**
-**Description:** Remove build permissions
-
-**Usage:**
-```bash
-/plot untrust Alex
-```
-
----
-
-### `/plot trustlist`
-👤 **Player Command (Owner only)**
-**Description:** List all trusted players
-
-**Usage:**
-```bash
-/plot trustlist
-```
-
----
-
-## Plot Sales & Rental
-
-### `/plot sell <price>`
-👤 **Player Command (Owner only)**
-**Description:** Put your plot up for sale
-
-**Usage:**
-```bash
-/plot sell 75000
-```
-
-**Notes:**
-- Price is in € (euros)
-- You can still use the plot while it's for sale
-- Buyer pays the full price, you receive 100%
-
----
-
-### `/plot unsell`
-👤 **Player Command (Owner only)**
-**Description:** Cancel sale listing
-
-**Usage:**
-```bash
-/plot unsell
-```
-
----
-
-### `/plot transfer <player>`
-👤 **Player Command (Owner only)**
-**Description:** Transfer plot to another player for free
-
-**Usage:**
-```bash
-/plot transfer Alex
-```
-
-**Important:**
-- No money is exchanged
-- Immediate transfer
-- Cannot be undone
-- Useful for gifts or partnerships
-
----
-
-### `/plot rent <pricePerDay>`
-👤 **Player Command (Owner only)**
-**Description:** Offer your plot for rent
-
-**Usage:**
-```bash
-/plot rent 500
-```
-
-**Rent System:**
-- Price is per day (in-game day = 20 minutes)
-- Security deposit = 2x daily rent
-- Tenant can extend anytime
-- Owner cannot evict during rental period
-
----
-
-### `/plot rentcancel`
-👤 **Player Command (Owner only)**
-**Description:** Cancel rent offer (only if not currently rented)
-
-**Usage:**
-```bash
-/plot rentcancel
-```
-
----
-
-### `/plot rentplot <days> [plotId]`
-👤 **Player Command**
-**Description:** Rent a plot
-
-**Usage:**
-```bash
-# Rent plot you're standing on for 7 days
-/plot rentplot 7
-
-# Rent specific plot for 30 days
-/plot rentplot 30 Downtown_House_1
-```
-
-**Payment:**
-- Daily rent × days
-- Security deposit (2× daily rent)
-- Total charged upfront
+## Plot Creation
+
+### `/plot create residential <name> <price>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Create a new residential plot from the current selection. Residential plots can be purchased and rented by players. |
+| **Arguments** | `<name>` -- Plot name (no spaces, use underscores). `<price>` -- Purchase price in euros (minimum 0.01). |
+| **Prerequisites** | Use the Plot Selection Tool (left-click first corner, right-click second corner) before running this command. |
+| **Related System** | Plot System |
 
 **Example:**
 ```
-Daily rent: 500€
-Days: 7
-Rent cost: 3,500€
-Security deposit: 1,000€
-Total charged: 4,500€
+/plot create residential Downtown_House_1 50000
 ```
 
 ---
 
-### `/plot rentextend <days>`
-👤 **Player Command (Tenant only)**
-**Description:** Extend your current rental
+### `/plot create commercial <name> <price>`
 
-**Usage:**
-```bash
-/plot rentextend 7
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Create a new commercial plot. Commercial plots are purchasable and rentable, intended for businesses and offices. |
+| **Arguments** | `<name>` -- Plot name. `<price>` -- Purchase price in euros. |
+| **Related System** | Plot System |
+
+**Example:**
 ```
-
-**Notes:**
-- No new security deposit needed
-- Only pays daily rent × additional days
-
----
-
-## Plot Rating
-
-### `/plot rate <rating>`
-👤 **Player Command**
-**Description:** Rate a plot from 1-5 stars
-
-**Usage:**
-```bash
-/plot rate 5
-```
-
-**Rules:**
-- Can only rate plots you don't own
-- Rating: 1-5 (integers only)
-- Can change your rating anytime
-- Average rating shown in /plot info
-
----
-
-## Apartment System
-
-### `/plot apartment wand`
-👤 **Player Command (Plot Owner only)**
-**Description:** Get apartment selection tool
-
-**Usage:**
-```bash
-/plot apartment wand
-# Must be inside your plot
-# Select apartment area with left/right clicks
+/plot create commercial Office_Tower_A 120000
 ```
 
 ---
 
-### `/plot apartment create <name> <monthlyRent>`
-👤 **Player Command (Plot Owner only)**
-**Description:** Create an apartment unit in your plot
+### `/plot create shop <name>`
 
-**Usage:**
-```bash
-/plot apartment create Penthouse_A 2000
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Create a shop plot. Shop plots are state-owned and cannot be purchased by players. They are used for NPC merchant shops with inventory systems. |
+| **Arguments** | `<name>` -- Plot name. |
+| **Notes** | No price argument is required. Shop plots belong to the state treasury. |
+| **Related System** | Plot System, NPC System, Warehouse System |
+
+**Example:**
 ```
-
-**Requirements:**
-- Must own the plot
-- Must have selection with apartment wand
-- Selection must be inside your plot
-- Name cannot contain spaces
-
-**Apartment Features:**
-- Protected from other tenants
-- Monthly rent auto-charged
-- Security deposit system
-- Owner can evict tenants
-
----
-
-### `/plot apartment delete <apartmentId>`
-👤 **Player Command (Plot Owner only)**
-**Description:** Delete an apartment
-
-**Usage:**
-```bash
-/plot apartment delete apt_1
-```
-
-**Warning:**
-- Evicts current tenant (no deposit refund)
-- Cannot be undone
-
----
-
-### `/plot apartment list`
-👤 **Player Command**
-**Description:** List all apartments in current plot
-
-**Usage:**
-```bash
-/plot apartment list
-```
-
-**Shows:**
-```
-Apartment: Penthouse_A (apt_1)
-Monthly Rent: 2,000€
-Status: Rented to Alex
-Lease Ends: 2024-02-15
+/plot create shop Main_Street_Bakery
 ```
 
 ---
 
-### `/plot apartment info <apartmentId>`
-👤 **Player Command**
-**Description:** Show detailed apartment info
+### `/plot create public <name>`
 
-**Usage:**
-```bash
-/plot apartment info apt_1
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Create a public plot. Public plots are not purchasable. Use for parks, roads, spawn areas, and other shared spaces. |
+| **Arguments** | `<name>` -- Plot name. |
+| **Related System** | Plot System |
+
+**Example:**
+```
+/plot create public Central_Park
 ```
 
 ---
 
-### `/plot apartment rent <apartmentId> [days]`
-👤 **Player Command**
-**Description:** Rent an apartment (default 30 days)
+### `/plot create government <name>`
 
-**Usage:**
-```bash
-# Rent for 30 days (default)
-/plot apartment rent apt_1
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Create a government plot. Government plots are not purchasable. Use for town halls, police stations, hospitals, and other civic buildings. |
+| **Arguments** | `<name>` -- Plot name. |
+| **Related System** | Plot System |
 
-# Rent for 60 days
-/plot apartment rent apt_1 60
+**Example:**
 ```
-
-**Payment:**
-- Monthly rent × (days/30)
-- Security deposit = 1 month rent
-- Auto-charged monthly
+/plot create government City_Hall
+```
 
 ---
 
-### `/plot apartment leave`
-👤 **Player Command (Tenant only)**
-**Description:** Leave your current apartment
+### `/plot create prison <name>`
 
-**Usage:**
-```bash
-/plot apartment leave
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Create a prison plot. Prison plots are not purchasable. After creation, use `/prison create` to register it as an active prison and `/prison addcell` to define cells within it. |
+| **Arguments** | `<name>` -- Plot name. |
+| **Related System** | Plot System, Prison System |
+
+**Example:**
 ```
-
-**Refund:**
-- Security deposit returned
-- No refund on remaining rental days
+/plot create prison State_Penitentiary
+```
 
 ---
 
-### `/plot apartment setrent <apartmentId> <monthlyRent>`
-👤 **Player Command (Plot Owner only)**
-**Description:** Change apartment rent
+### `/plot create towing_yard <name> <price>`
 
-**Usage:**
-```bash
-/plot apartment setrent apt_1 2500
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Create a towing yard plot. Towing yard plots can be purchased and rented. They are used for vehicle impound and towing operations. |
+| **Arguments** | `<name>` -- Plot name. `<price>` -- Purchase price in euros. |
+| **Related System** | Plot System, Towing System |
+
+**Example:**
 ```
-
-**Notes:**
-- Only affects new tenants
-- Existing tenants keep old rate until renewal
+/plot create towing_yard West_Side_Impound 75000
+```
 
 ---
 
-### `/plot apartment evict <apartmentId>`
-👤 **Player Command (Plot Owner only)**
-**Description:** Evict tenant immediately
+## Plot Administration
 
-**Usage:**
-```bash
-/plot apartment evict apt_1
+### `/plot setowner <player>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set the owner of the plot you are currently standing in. Overwrites any existing ownership without payment. |
+| **Arguments** | `<player>` -- Target player (must be online). |
+| **Notes** | Stand inside the target plot before running this command. |
+| **Related System** | Plot System |
+
+**Example:**
+```
+/plot setowner Steve
 ```
 
-**Warning:**
-- Tenant loses security deposit
-- Use only for violations
-
 ---
-
-## Plot Admin Commands
 
 ### `/plot remove`
-🔧 **Admin Command (Level 2)**
-**Description:** Delete plot at your current position
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Permanently delete the plot at your current position. All apartments, tenants, and ownership data are removed. This action cannot be undone. |
+| **Rate Limit** | Maximum 3 deletions per second per player (DoS protection). |
+| **Related System** | Plot System |
+
+**Example:**
+```
 /plot remove
 ```
-
-**Warning:**
-- Deletes plot permanently
-- Evicts all tenants
-- No refunds issued
-
----
-
-### `/plot reindex`
-🔧 **Admin Command (Level 2)**
-**Description:** Rebuild spatial index for plot lookups
-
-**Usage:**
-```bash
-/plot reindex
-```
-
-**Use Cases:**
-- Fix plot detection issues
-- After large-scale plot changes
-- Performance optimization
-
----
-
-### `/plot debug`
-🔧 **Admin Command (Level 2)**
-**Description:** Show debug information
-
-**Usage:**
-```bash
-/plot debug
-```
-
-**Shows:**
-- Total plots
-- Spatial index stats
-- Performance metrics
 
 ---
 
 ### `/plot settype <type>`
-🔧 **Admin Command (Level 2)**
-**Description:** Change plot type
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Change the type of the plot at your current position. |
+| **Arguments** | `<type>` -- One of: `RESIDENTIAL`, `COMMERCIAL`, `SHOP`, `PUBLIC`, `GOVERNMENT`, `PRISON`, `TOWING_YARD` (case-insensitive). |
+| **Related System** | Plot System |
+
+**Example:**
+```
 /plot settype COMMERCIAL
 ```
 
-**Types:**
-- RESIDENTIAL
-- COMMERCIAL
-- SHOP
-- PUBLIC
-- GOVERNMENT
+---
+
+### `/plot reindex`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Rebuild the spatial index used for plot lookups. Use this after large-scale plot changes or if plot detection is not working correctly. |
+| **Related System** | Plot System |
+
+**Example:**
+```
+/plot reindex
+```
 
 ---
 
-## Warehouse Integration (Plot)
+### `/plot debug`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display debug information about the plot at your current position, including your coordinates, the plot ID and name (if any), and the total number of plots on the server. |
+| **Related System** | Plot System |
+
+**Example:**
+```
+/plot debug
+```
+
+---
+
+## Plot Warehouse Linking
 
 ### `/plot warehouse set`
-🔧 **Admin Command (Level 2)**
-**Description:** Link current plot to warehouse block you're looking at
 
-**Usage:**
-```bash
-# Look at warehouse block, then:
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Link the plot at the current position to the warehouse block you are looking at (5-block range). The warehouse block must be within a plot boundary. |
+| **Notes** | Look directly at a placed Warehouse Block before running this command. If no block is in your line of sight, the command checks the block below and at your feet as a fallback. |
+| **Related System** | Plot System, Warehouse System |
+
+**Example:**
+```
 /plot warehouse set
 ```
 
 ---
 
 ### `/plot warehouse clear`
-🔧 **Admin Command (Level 2)**
-**Description:** Unlink warehouse from current plot
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Remove the warehouse link from the plot at your current position. |
+| **Related System** | Plot System, Warehouse System |
+
+**Example:**
+```
 /plot warehouse clear
 ```
 
 ---
 
 ### `/plot warehouse info`
-🔧 **Admin Command (Level 2)**
-**Description:** Show warehouse info for current plot
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display the warehouse linkage status and position for the plot at your current position. |
+| **Related System** | Plot System, Warehouse System |
+
+**Example:**
+```
 /plot warehouse info
 ```
 
 ---
 
-# 2. Economy & Banking
+## Apartment System
 
-## Money Management
+### `/plot apartment wand`
 
-### `/money`
-👤 **Player Command**
-**Description:** Show your current balance
+| | |
+|---|---|
+| **Permission** | Player (Plot Owner) |
+| **Description** | Receive the Plot Selection Tool for defining apartment boundaries within your plot. Use left-click for the first corner and right-click for the second corner. |
+| **Related System** | Plot System, Apartment System |
 
-**Usage:**
-```bash
-/money
+**Example:**
 ```
-
-**Output:**
-```
-💰 Balance: 12,450€
+/plot apartment wand
 ```
 
 ---
 
-### `/pay <player> <amount>`
-👤 **Player Command**
-**Description:** Send money to another player
+### `/plot apartment create <name> <monthlyRent>`
 
-**Usage:**
-```bash
-/pay Alex 1000
+| | |
+|---|---|
+| **Permission** | Player (Plot Owner) |
+| **Description** | Create a new apartment unit within the plot you are standing in. The selection (from the apartment wand) must be entirely inside the plot and must not overlap existing apartments. |
+| **Arguments** | `<name>` -- Apartment name (no spaces). `<monthlyRent>` -- Monthly rent in euros (minimum 0). |
+| **Prerequisites** | Must own the plot. Must have an active selection from the apartment wand. |
+| **Related System** | Apartment System |
+
+**Example:**
+```
+/plot apartment create Penthouse_A 2000
 ```
 
-**Transaction Fee:**
-- 1% fee applied
-- Example: /pay Alex 1000 → Alex receives 990€, you pay 1,000€
+---
 
-**Notes:**
-- Player must be online
-- Cannot pay yourself
-- Minimum 1€
+### `/plot apartment delete <apartmentId>`
+
+| | |
+|---|---|
+| **Permission** | Player (Plot Owner) |
+| **Description** | Delete an apartment unit. The apartment must not currently be rented. You can search by apartment ID (e.g., `apt_1`) or by name. |
+| **Arguments** | `<apartmentId>` -- Apartment ID or name. |
+| **Related System** | Apartment System |
+
+**Example:**
+```
+/plot apartment delete apt_1
+```
+
+---
+
+### `/plot apartment list`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | List all apartments in the plot you are currently standing in, including name, ID, rent amount, rental status, and size. |
+| **Related System** | Apartment System |
+
+**Example:**
+```
+/plot apartment list
+```
+
+---
+
+### `/plot apartment info <apartmentId>`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Show detailed information about a specific apartment, including rent, size, rental status, and remaining lease time. |
+| **Arguments** | `<apartmentId>` -- Apartment ID or name. |
+| **Related System** | Apartment System |
+
+**Example:**
+```
+/plot apartment info apt_1
+```
+
+---
+
+### `/plot apartment rent <apartmentId> [days]`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Rent an apartment. Default lease duration is 30 days. Payment includes the prorated rent plus a security deposit equal to 3 months' rent. The rent payment goes to the plot owner; the deposit is held and returned when the tenant leaves. |
+| **Arguments** | `<apartmentId>` -- Apartment ID or name. `[days]` -- Lease duration in days (default: 30, minimum: 1). |
+| **Restrictions** | Plot owners cannot rent their own apartments. The apartment must be available and not already rented. |
+| **Related System** | Apartment System, Economy System |
+
+**Example:**
+```
+/plot apartment rent apt_1
+/plot apartment rent apt_1 60
+```
+
+---
+
+### `/plot apartment leave`
+
+| | |
+|---|---|
+| **Permission** | Tenant |
+| **Description** | Terminate your current apartment lease. Your security deposit (3x monthly rent) is refunded. No refund is given for remaining rental days. You must be standing inside the plot containing your apartment. |
+| **Related System** | Apartment System, Economy System |
+
+**Example:**
+```
+/plot apartment leave
+```
+
+---
+
+### `/plot apartment setrent <apartmentId> <monthlyRent>`
+
+| | |
+|---|---|
+| **Permission** | Player (Plot Owner) |
+| **Description** | Change the monthly rent for an apartment. Only affects future tenants; existing leases retain their original rate. |
+| **Arguments** | `<apartmentId>` -- Apartment ID or name. `<monthlyRent>` -- New monthly rent in euros. |
+| **Related System** | Apartment System |
+
+**Example:**
+```
+/plot apartment setrent apt_1 2500
+```
+
+---
+
+### `/plot apartment evict <apartmentId>`
+
+| | |
+|---|---|
+| **Permission** | Player (Plot Owner) |
+| **Description** | Immediately evict the tenant from an apartment. The tenant does NOT receive their security deposit back. Use only for serious violations. |
+| **Arguments** | `<apartmentId>` -- Apartment ID or name. |
+| **Related System** | Apartment System |
+
+**Example:**
+```
+/plot apartment evict apt_1
+```
+
+---
+
+# 2. Plot Features via Settings App UI
+
+As of ScheduleMC 3.0, the following plot management features have been moved from chat commands to the **Settings App UI**, accessed by interacting with the Plot Info Block placed on your plot. These features are fully functional through the graphical interface.
+
+| Former Command | Function | UI Location |
+|----------------|----------|-------------|
+| `/plot wand` | Get plot selection tool | Replaced by apartment wand for sub-areas |
+| `/plot buy` | Purchase a plot | Plot Info Screen -- Buy button |
+| `/plot list` | List all plots | Plot Info Screen -- Browse |
+| `/plot info` | View plot details | Plot Info Screen -- Info panel |
+| `/plot name <name>` | Set plot display name | Plot Info Screen -- Settings |
+| `/plot description <text>` | Set plot description | Plot Info Screen -- Settings |
+| `/plot trust <player>` | Grant build permissions | Plot Info Screen -- Trust management |
+| `/plot untrust <player>` | Revoke build permissions | Plot Info Screen -- Trust management |
+| `/plot trustlist` | List trusted players | Plot Info Screen -- Trust management |
+| `/plot sell <price>` | List plot for sale | Plot Info Screen -- Sale settings |
+| `/plot unsell` | Cancel sale listing | Plot Info Screen -- Sale settings |
+| `/plot transfer <player>` | Transfer ownership | Plot Info Screen -- Settings |
+| `/plot abandon` | Abandon plot (50% refund) | Plot Info Screen -- Settings |
+| `/plot rent <pricePerDay>` | Offer plot for rent | Plot Info Screen -- Rental settings |
+| `/plot rentcancel` | Cancel rent offer | Plot Info Screen -- Rental settings |
+| `/plot rentplot <days>` | Rent a plot | Plot Info Screen -- Rent button |
+| `/plot rentextend <days>` | Extend rental period | Plot Info Screen -- Rental settings |
+| `/plot rate <1-5>` | Rate a plot | Plot Info Screen -- Rating buttons |
+| `/plot topplots` | View top-rated plots | Plot Info Screen -- Rating display |
+
+---
+
+# 3. Economy and Money Commands
+
+**Base command:** `/money`
+**Description:** Administrative commands for managing player balances and viewing transaction history.
+
+> **Note:** Player-facing economy features (checking balance, making payments, daily rewards, loans, savings, recurring payments) are accessed through the Smartphone Bank App and in-game ATM blocks. The commands below are admin-only operations.
 
 ---
 
 ### `/money set <player> <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Set a player's balance to exact amount
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set a player's balance to an exact amount. The target player is notified of the change. Logged as `ADMIN_SET` in transaction history. |
+| **Arguments** | `<player>` -- Target player (must be online). `<amount>` -- New balance in euros (minimum 0, maximum 10,000,000). |
+| **Related System** | Economy System |
+
+**Example:**
+```
 /money set Steve 100000
 ```
-
-**Use Cases:**
-- Fix economy bugs
-- Reset player balance
-- Testing
 
 ---
 
 ### `/money give <player> <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Add money to a player
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Add money to a player's current balance. No transaction fee is applied. The target player is notified. Logged as `ADMIN_GIVE` in transaction history. |
+| **Arguments** | `<player>` -- Target player (must be online). `<amount>` -- Amount to add in euros (minimum 0.01). |
+| **Related System** | Economy System |
+
+**Example:**
+```
 /money give Alex 5000
 ```
-
-**Notes:**
-- Adds to current balance
-- No transaction fee
-- Logged in transaction history
 
 ---
 
 ### `/money take <player> <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Remove money from a player
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Remove money from a player's balance. Fails if the player does not have sufficient funds. The target player is notified. Logged as `ADMIN_TAKE` in transaction history. |
+| **Arguments** | `<player>` -- Target player (must be online). `<amount>` -- Amount to remove in euros (minimum 0.01). |
+| **Related System** | Economy System |
+
+**Example:**
+```
 /money take Steve 1000
-```
-
-**Notes:**
-- Removes from current balance
-- Can result in negative balance (use carefully)
-
----
-
-### `/money history [limit]`
-👤 **Player Command**
-**Description:** Show your transaction history
-
-**Usage:**
-```bash
-# Show last 10 transactions (default)
-/money history
-
-# Show last 20 transactions
-/money history 20
-```
-
-**Output:**
-```
-Transaction History (Last 10):
-1. +50€ - Daily Reward - 2024-01-15 10:30
-2. -5,000€ - Plot Purchase (Downtown_House_1) - 2024-01-15 11:00
-3. +200€ - Payment from Alex - 2024-01-15 12:15
 ```
 
 ---
 
 ### `/money history <player> [limit]`
-🔧 **Admin Command (Level 2)**
-**Description:** Show another player's transaction history
 
-**Usage:**
-```bash
-/money history Steve 10
-```
-
----
-
-## Loan System
-
-### `/loan apply <type>`
-👤 **Player Command**
-**Description:** Apply for a loan
-
-**Loan Types:**
-
-| Type | Amount | Interest | Duration | Total Repayment |
-|------|--------|----------|----------|-----------------|
-| SMALL | 5,000€ | 10% | 14 days | 5,500€ |
-| MEDIUM | 25,000€ | 15% | 28 days | 28,750€ |
-| LARGE | 100,000€ | 20% | 56 days | 120,000€ |
-
-**Usage:**
-```bash
-/loan apply SMALL
-/loan apply MEDIUM
-/loan apply LARGE
-```
-
-**Requirements:**
-- Cannot have active loan
-- Auto-payment on due date
-- Interest calculated upfront
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | View the transaction history for a specific player. Shows recent transactions with details, plus summary statistics (total income, total expenses, transaction count). |
+| **Arguments** | `<player>` -- Target player (must be online). `[limit]` -- Number of transactions to show (1-100, default: 10). |
+| **Related System** | Economy System |
 
 **Example:**
-```bash
-/loan apply MEDIUM
-# Receive: 25,000€ immediately
-# Owe: 28,750€ in 28 days
-# Daily cost: ~1,027€
+```
+/money history Steve
+/money history Steve 25
 ```
 
 ---
 
-### `/loan info`
-👤 **Player Command**
-**Description:** Show active loan info or available loans
+# 4. NPC Commands
 
-**Usage:**
-```bash
-/loan info
-```
+**Base command:** `/npc`
+**Description:** Complete NPC lifecycle management including behavior, schedules, inventory, wallet, and warehouse integration. All NPC commands are admin-only.
 
-**With Active Loan:**
-```
-Active Loan:
-Type: MEDIUM
-Amount: 25,000€
-Interest: 15% (3,750€)
-Total Due: 28,750€
-Due Date: 2024-02-12
-Days Remaining: 14
-```
-
-**Without Active Loan:**
-```
-Available Loans:
-SMALL: 5,000€ @ 10% (14 days)
-MEDIUM: 25,000€ @ 15% (28 days)
-LARGE: 100,000€ @ 20% (56 days)
-```
+> **Note:** All `/npc` commands require the NPC name as the first argument. Tab-completion is available and suggests registered NPC names from the NPCNameRegistry. NPC types include: `BEWOHNER` (Resident), `VERKAEUFER` (Merchant), `POLIZEI` (Police), `BANK` (Banker), `ABSCHLEPPER` (Tow Truck), and English aliases `CITIZEN`, `MERCHANT`, `POLICE`, `BANKER`, `DRUG_DEALER`.
 
 ---
 
-### `/loan repay`
-👤 **Player Command**
-**Description:** Fully repay your loan early
-
-**Usage:**
-```bash
-/loan repay
-```
-
-**Benefits:**
-- No early repayment penalty
-- Can take new loan immediately
-- Saves interest if repaid early (no partial interest refund, but stops accrual)
-
-**Requirements:**
-- Must have full repayment amount
-- Cannot partially repay
-
----
-
-## Savings System
-
-### `/savings create <amount>`
-👤 **Player Command**
-**Description:** Create a savings account
-
-**Usage:**
-```bash
-/savings create 10000
-```
-
-**Features:**
-- 5% interest per week
-- Minimum deposit: 1,000€
-- 4-week withdrawal lock
-- Multiple accounts allowed
-
-**Interest Calculation:**
-```
-Week 1: 10,000€ → 10,500€ (+500€)
-Week 2: 10,500€ → 11,025€ (+525€)
-Week 3: 11,025€ → 11,576€ (+551€)
-Week 4: 11,576€ → 12,155€ (+579€)
-```
-
----
-
-### `/savings list`
-👤 **Player Command**
-**Description:** List all your savings accounts
-
-**Usage:**
-```bash
-/savings list
-```
-
-**Output:**
-```
-Your Savings Accounts:
-1. Account abc123
-   Balance: 12,155€
-   Created: 2024-01-15
-   Locked Until: 2024-02-12
-
-2. Account def456
-   Balance: 5,200€
-   Created: 2024-01-20
-   Locked Until: 2024-02-17
-```
-
----
-
-### `/savings deposit <accountId> <amount>`
-👤 **Player Command**
-**Description:** Add money to savings account
-
-**Usage:**
-```bash
-/savings deposit abc123 5000
-```
-
-**Notes:**
-- No deposit limit
-- Resets 4-week lock period
-- Immediate deposit
-
----
-
-### `/savings withdraw <accountId> <amount>`
-👤 **Player Command**
-**Description:** Withdraw money (after 4-week lock)
-
-**Usage:**
-```bash
-/savings withdraw abc123 2000
-```
-
-**Requirements:**
-- Account must be unlocked (4+ weeks old)
-- Cannot withdraw more than balance
-
----
-
-### `/savings forcewithdraw <accountId> <amount>`
-👤 **Player Command**
-**Description:** Emergency withdrawal with 10% penalty
-
-**Usage:**
-```bash
-/savings forcewithdraw abc123 2000
-```
-
-**Penalty:**
-- 10% fee on withdrawal amount
-- Example: Withdraw 2,000€ → Receive 1,800€
-
-**Use Cases:**
-- Emergency cash needed
-- Better than loan interest
-
----
-
-### `/savings close <accountId>`
-👤 **Player Command**
-**Description:** Close savings account and withdraw all
-
-**Usage:**
-```bash
-/savings close abc123
-```
-
-**Notes:**
-- Same 4-week lock rules apply
-- 10% penalty if closed early
-
----
-
-## Recurring Payments
-
-### `/autopay add <player> <amount> <intervalDays> <description>`
-👤 **Player Command**
-**Description:** Create recurring payment (standing order)
-
-**Usage:**
-```bash
-/autopay add Alex 500 7 "Weekly rent"
-```
-
-**Parameters:**
-- `<player>` - Recipient
-- `<amount>` - Payment amount (€)
-- `<intervalDays>` - How often (real days)
-- `<description>` - What it's for
-
-**Examples:**
-```bash
-# Weekly rent to landlord
-/autopay add Steve 2000 7 "Apartment rent"
-
-# Monthly subscription
-/autopay add Alex 1000 30 "Monthly subscription"
-
-# Daily payment
-/autopay add Bob 100 1 "Daily fee"
-```
-
----
-
-### `/autopay list`
-👤 **Player Command**
-**Description:** List all your recurring payments
-
-**Usage:**
-```bash
-/autopay list
-```
-
-**Output:**
-```
-Your Recurring Payments:
-1. Payment abc123
-   To: Alex
-   Amount: 500€
-   Interval: 7 days
-   Description: Weekly rent
-   Next Payment: 2024-01-22
-   Status: Active
-
-2. Payment def456
-   To: Steve
-   Amount: 1,000€
-   Interval: 30 days
-   Description: Monthly fee
-   Next Payment: 2024-02-15
-   Status: Paused
-```
-
----
-
-### `/autopay pause <paymentId>`
-👤 **Player Command**
-**Description:** Pause a recurring payment
-
-**Usage:**
-```bash
-/autopay pause abc123
-```
-
-**Notes:**
-- Stops future payments
-- Can resume anytime
-- No cancellation fee
-
----
-
-### `/autopay resume <paymentId>`
-👤 **Player Command**
-**Description:** Resume a paused payment
-
-**Usage:**
-```bash
-/autopay resume abc123
-```
-
-**Notes:**
-- Next payment scheduled based on interval
-- No catch-up payments
-
----
-
-### `/autopay delete <paymentId>`
-👤 **Player Command**
-**Description:** Delete recurring payment permanently
-
-**Usage:**
-```bash
-/autopay delete abc123
-```
-
-**Warning:**
-- Cannot be undone
-- Create new autopay if needed later
-
----
-
-## Daily Rewards
-
-### `/daily`
-👤 **Player Command**
-**Description:** Claim daily reward
-
-**Usage:**
-```bash
-/daily
-```
-
-**Reward Structure:**
-- Base reward: 50€
-- Streak bonus: +50€ per day (max 30 days)
-- Max daily reward: 300€ (day 30+)
-
-**Streak Calculation:**
-```
-Day 1:  50€ + 0€ = 50€
-Day 2:  50€ + 50€ = 100€
-Day 3:  50€ + 100€ = 150€
-...
-Day 30: 50€ + 250€ = 300€
-Day 31: 50€ + 250€ = 300€ (capped)
-```
-
-**Rules:**
-- Must claim daily (resets after 48 hours)
-- Missing a day resets streak to 0
-- Time-based (real-world days, not in-game)
-
----
-
-### `/daily streak`
-👤 **Player Command**
-**Description:** Show your streak statistics
-
-**Usage:**
-```bash
-/daily streak
-```
-
-**Output:**
-```
-Daily Reward Streak:
-Current Streak: 15 days
-Longest Streak: 22 days
-Total Claims: 87
-Next Reward: 200€ (50€ base + 150€ bonus)
-Claim Available: Yes
-```
-
----
-
-## State Treasury
-
-### `/state balance`
-🔧 **Admin Command (Level 2)**
-**Description:** Show state account balance
-
-**Usage:**
-```bash
-/state balance
-```
-
-**State Account Uses:**
-- Warehouse delivery payments
-- NPC salaries (if configured)
-- Hospital fees
-- Government services
-
----
-
-### `/state deposit <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Deposit money into state account
-
-**Usage:**
-```bash
-/state deposit 10000
-```
-
-**Use Cases:**
-- Fund government services
-- Prepare for NPC salaries
-- Economic stimulus
-
----
-
-### `/state withdraw <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Withdraw from state account
-
-**Usage:**
-```bash
-/state withdraw 5000
-```
-
-**Notes:**
-- Can result in negative balance
-- Monitor with /state balance
-
----
-
-# 3. NPC & Population
+## NPC Information
 
 ### `/npc <name> info`
-🔧 **Admin Command (Level 2)**
-**Description:** Show comprehensive NPC information
 
-**Usage:**
-```bash
-/npc Steve info
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display comprehensive information about an NPC, including type, movement status, speed, home location, work location, schedule times, leisure locations, inventory summary, and wallet balance. Output varies depending on NPC type (Merchant shows work location; Resident shows sleep time and leisure count; Police shows full schedule). |
+| **Arguments** | `<name>` -- NPC name (tab-completable). |
+| **Related System** | NPC System |
+
+**Example:**
 ```
-
-**Output:**
-```
-NPC: Steve
-Type: MERCHANT
-Status: Working
-Position: 100, 64, 200 (downtown_shop)
-Wallet: 5,450€
-
-Schedule:
-Work Start: 08:00
-Work End: 17:00
-Home Time: 22:00
-
-Inventory:
-Slot 0: Diamond (x16)
-Slot 1: Gold Ingot (x32)
-
-Warehouse: Linked (warehouse_1)
-Shop: downtown_shop
-Movement: Enabled
-Speed: 0.3
+/npc Hans info
 ```
 
 ---
 
-## NPC Movement & Behavior
+## NPC Movement
 
 ### `/npc <name> movement <true|false>`
-🔧 **Admin Command (Level 2)**
-**Description:** Enable or disable NPC movement
 
-**Usage:**
-```bash
-# Enable movement
-/npc Steve movement true
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Enable or disable NPC pathfinding and movement. When disabled, the NPC stays at its current position. |
+| **Arguments** | `<name>` -- NPC name. `<true\|false>` -- Enable or disable movement. |
+| **Related System** | NPC System |
 
-# Disable movement (NPC stays in place)
-/npc Steve movement false
+**Example:**
 ```
-
-**Use Cases:**
-- Disable for stationary shopkeepers
-- Enable for roaming merchants
-- Troubleshooting pathfinding issues
+/npc Hans movement true
+/npc Hans movement false
+```
 
 ---
 
 ### `/npc <name> speed <value>`
-🔧 **Admin Command (Level 2)**
-**Description:** Set NPC movement speed
 
-**Usage:**
-```bash
-/npc Steve speed 0.5
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set the NPC's movement speed. |
+| **Arguments** | `<name>` -- NPC name. `<value>` -- Speed value from 0.1 (very slow) to 1.0 (very fast). Default is approximately 0.3 (walking pace). |
+| **Related System** | NPC System |
+
+**Example:**
 ```
-
-**Range:**
-- Min: 0.1 (very slow)
-- Max: 1.0 (very fast)
-- Default: 0.3 (walking pace)
-
-**Tips:**
-- 0.3 = Realistic walking
-- 0.5 = Brisk walk
-- 0.8+ = Running
+/npc Hans speed 0.5
+```
 
 ---
 
-## NPC Schedule Management
+## NPC Schedule
 
 ### `/npc <name> schedule workstart <time>`
-🔧 **Admin Command (Level 2)**
-**Description:** Set when NPC starts work
 
-**Usage:**
-```bash
-/npc Steve schedule workstart 0800
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set when the NPC begins work. The NPC travels to its assigned work location at this time. For Residents (BEWOHNER), this is the wake-up time. Time is converted to Minecraft ticks internally (0 ticks = 6:00 AM). |
+| **Arguments** | `<name>` -- NPC name. `<time>` -- Time in HHMM format (e.g., `0800` for 8:00 AM). |
+| **Related System** | NPC System |
+
+**Example:**
 ```
-
-**Time Format:**
-- HHMM (24-hour)
-- Examples: 0800 (8 AM), 1400 (2 PM), 2300 (11 PM)
-
-**Behavior:**
-- NPC travels to work location at this time
-- Must have work location set
+/npc Hans schedule workstart 0700
+```
 
 ---
 
 ### `/npc <name> schedule workend <time>`
-🔧 **Admin Command (Level 2)**
-**Description:** Set when NPC finishes work
 
-**Usage:**
-```bash
-/npc Steve schedule workend 1700
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set when the NPC finishes work. The NPC leaves its work location and transitions to leisure or home behavior. For Merchants, the associated shop closes at this time. |
+| **Arguments** | `<name>` -- NPC name. `<time>` -- Time in HHMM format. |
+| **Related System** | NPC System |
+
+**Example:**
 ```
-
-**Behavior:**
-- NPC leaves work and goes to leisure/home
-- Shop closes if NPC is merchant
+/npc Hans schedule workend 1800
+```
 
 ---
 
 ### `/npc <name> schedule home <time>`
-🔧 **Admin Command (Level 2)**
-**Description:** Set when NPC goes home to sleep
 
-**Usage:**
-```bash
-/npc Steve schedule home 2200
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set when the NPC goes home to sleep. The NPC travels to its home location and remains stationary until the next work start time. For Residents, this defines the start of the sleep period. |
+| **Arguments** | `<name>` -- NPC name. `<time>` -- Time in HHMM format. |
+| **Related System** | NPC System |
+
+**Example:**
 ```
-
-**Behavior:**
-- NPC travels home
-- NPC sleeps (no movement) from this time until 07:00
+/npc Hans schedule home 2200
+```
 
 ---
 
 ## NPC Leisure Locations
 
 ### `/npc <name> leisure add`
-🔧 **Admin Command (Level 2)**
-**Description:** Add current position as leisure location
 
-**Usage:**
-```bash
-# Stand where you want leisure spot, then:
-/npc Steve leisure add
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Add your current position as a leisure location for the NPC. During free time (after work, before home time), the NPC randomly visits its assigned leisure locations. Maximum 10 locations per NPC. |
+| **Arguments** | `<name>` -- NPC name. |
+| **Notes** | Stand at the desired location before running this command. |
+| **Related System** | NPC System |
+
+**Example:**
 ```
-
-**Leisure Behavior:**
-- After work ends, before home time
-- NPC randomly visits leisure locations
-- Examples: park, bar, restaurant
-
-**Limits:**
-- Max 10 leisure locations per NPC
+/npc Hans leisure add
+```
 
 ---
 
 ### `/npc <name> leisure remove <index>`
-🔧 **Admin Command (Level 2)**
-**Description:** Remove a leisure location
 
-**Usage:**
-```bash
-/npc Steve leisure remove 0
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Remove a leisure location by its index. Use `/npc <name> leisure list` to see indices. |
+| **Arguments** | `<name>` -- NPC name. `<index>` -- Location index (0-9, 0-based). |
+| **Related System** | NPC System |
+
+**Example:**
 ```
-
-**Index:**
-- Use /npc Steve leisure list to see indices
-- 0-based (0 = first location)
+/npc Hans leisure remove 0
+```
 
 ---
 
 ### `/npc <name> leisure list`
-🔧 **Admin Command (Level 2)**
-**Description:** List all leisure locations
 
-**Usage:**
-```bash
-/npc Steve leisure list
-```
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | List all leisure locations assigned to the NPC, with index numbers and coordinates. |
+| **Arguments** | `<name>` -- NPC name. |
+| **Related System** | NPC System |
 
-**Output:**
+**Example:**
 ```
-Steve's Leisure Locations:
-0: Central Park (120, 64, 180)
-1: Downtown Bar (105, 65, 195)
-2: Coffee Shop (115, 64, 200)
+/npc Hans leisure list
 ```
 
 ---
 
 ### `/npc <name> leisure clear`
-🔧 **Admin Command (Level 2)**
-**Description:** Remove all leisure locations
 
-**Usage:**
-```bash
-/npc Steve leisure clear
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Remove all leisure locations from the NPC. |
+| **Arguments** | `<name>` -- NPC name. |
+| **Related System** | NPC System |
+
+**Example:**
+```
+/npc Hans leisure clear
 ```
 
 ---
 
-## NPC Inventory Management
+## NPC Inventory
 
 ### `/npc <name> inventory`
-🔧 **Admin Command (Level 2)**
-**Description:** Show NPC inventory
 
-**Usage:**
-```bash
-/npc Steve inventory
-```
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display the NPC's inventory contents. Shows all 9 slots with item names, quantities, and empty slots. Only available for NPC types that have inventory (Residents and Merchants). |
+| **Arguments** | `<name>` -- NPC name. |
+| **Related System** | NPC System |
 
-**Output:**
+**Example:**
 ```
-Steve's Inventory:
-Slot 0: Diamond (x16)
-Slot 1: Gold Ingot (x32)
-Slot 2: Empty
-...
-Slot 8: Empty
+/npc Hans inventory
 ```
 
 ---
 
 ### `/npc <name> inventory give <slot> <item>`
-🔧 **Admin Command (Level 2)**
-**Description:** Give an item to NPC
 
-**Usage:**
-```bash
-/npc Steve inventory give 0 minecraft:diamond
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Place an item in a specific inventory slot. Merchant NPCs sell items from their inventory when interacted with by players. |
+| **Arguments** | `<name>` -- NPC name. `<slot>` -- Inventory slot (0-8). `<item>` -- Minecraft item ID (e.g., `minecraft:diamond`). |
+| **Related System** | NPC System |
+
+**Example:**
 ```
-
-**Parameters:**
-- `<slot>` - Inventory slot (0-8)
-- `<item>` - Item ID (e.g., minecraft:diamond)
-
-**Notes:**
-- Merchant NPCs sell from inventory
-- Stack size = 64 (default)
-
----
-
-### `/npc <name> inventory clear [slot]`
-🔧 **Admin Command (Level 2)**
-**Description:** Clear inventory
-
-**Usage:**
-```bash
-# Clear entire inventory
-/npc Steve inventory clear
-
-# Clear specific slot
-/npc Steve inventory clear 0
+/npc Hans inventory give 0 minecraft:diamond
+/npc Hans inventory give 1 minecraft:gold_ingot
 ```
 
 ---
 
-## NPC Wallet Management
+### `/npc <name> inventory clear`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Clear all items from the NPC's inventory. |
+| **Arguments** | `<name>` -- NPC name. |
+| **Related System** | NPC System |
+
+**Example:**
+```
+/npc Hans inventory clear
+```
+
+---
+
+### `/npc <name> inventory clear <slot>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Clear a specific inventory slot. |
+| **Arguments** | `<name>` -- NPC name. `<slot>` -- Inventory slot to clear (0-8). |
+| **Related System** | NPC System |
+
+**Example:**
+```
+/npc Hans inventory clear 0
+```
+
+---
+
+## NPC Wallet
 
 ### `/npc <name> wallet`
-🔧 **Admin Command (Level 2)**
-**Description:** Show NPC cash balance
 
-**Usage:**
-```bash
-/npc Steve wallet
-```
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display the NPC's current cash balance. Only available for NPC types that have a wallet (Residents and Merchants). |
+| **Arguments** | `<name>` -- NPC name. |
+| **Related System** | NPC System, Economy System |
 
-**Output:**
+**Example:**
 ```
-Steve's Wallet: 5,450€
+/npc Hans wallet
 ```
 
 ---
 
 ### `/npc <name> wallet set <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Set NPC wallet to exact amount
 
-**Usage:**
-```bash
-/npc Steve wallet set 10000
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set the NPC's wallet to an exact amount. Syncs the new value to connected clients. |
+| **Arguments** | `<name>` -- NPC name. `<amount>` -- Amount in whole euros (minimum 0). |
+| **Related System** | NPC System, Economy System |
+
+**Example:**
 ```
-
-**Use Cases:**
-- Fund merchant NPC
-- Reset NPC economy
-- Testing
+/npc Hans wallet set 10000
+```
 
 ---
 
 ### `/npc <name> wallet add <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Add money to NPC
 
-**Usage:**
-```bash
-/npc Steve wallet add 5000
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Add money to the NPC's wallet. Useful for funding merchant NPCs so they can buy items from players. |
+| **Arguments** | `<name>` -- NPC name. `<amount>` -- Amount to add (minimum 1). |
+| **Related System** | NPC System, Economy System |
+
+**Example:**
 ```
-
-**Notes:**
-- Adds to current balance
-- NPCs use this to buy from players
+/npc Hans wallet add 5000
+```
 
 ---
 
 ### `/npc <name> wallet remove <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Remove money from NPC
 
-**Usage:**
-```bash
-/npc Steve wallet remove 2000
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Remove money from the NPC's wallet. Fails if the NPC does not have sufficient funds. |
+| **Arguments** | `<name>` -- NPC name. `<amount>` -- Amount to remove (minimum 1). |
+| **Related System** | NPC System, Economy System |
+
+**Example:**
 ```
-
-**Notes:**
-- Can result in negative balance
-- Monitor with /npc <name> wallet
+/npc Hans wallet remove 2000
+```
 
 ---
 
 ## NPC Warehouse Integration
 
 ### `/npc <name> warehouse set`
-🔧 **Admin Command (Level 2)**
-**Description:** Link NPC to warehouse
 
-**Usage:**
-```bash
-# Look at warehouse block, then:
-/npc Steve warehouse set
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Link an NPC to the warehouse block you are looking at (5-block range). The NPC will sell items from the linked warehouse inventory, providing effectively unlimited stock as long as the warehouse is supplied. |
+| **Arguments** | `<name>` -- NPC name. |
+| **Notes** | Look directly at a placed Warehouse Block before running this command. |
+| **Related System** | NPC System, Warehouse System |
+
+**Example:**
 ```
-
-**Behavior:**
-- NPC sells from warehouse inventory
-- Unlimited stock if warehouse has items
-- Warehouse must be in same plot as NPC's shop
+/npc Hans warehouse set
+```
 
 ---
 
 ### `/npc <name> warehouse clear`
-🔧 **Admin Command (Level 2)**
-**Description:** Unlink warehouse from NPC
 
-**Usage:**
-```bash
-/npc Steve warehouse clear
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Remove the warehouse link from the NPC. The NPC will revert to selling from its personal inventory only. |
+| **Arguments** | `<name>` -- NPC name. |
+| **Related System** | NPC System, Warehouse System |
+
+**Example:**
+```
+/npc Hans warehouse clear
 ```
 
 ---
 
 ### `/npc <name> warehouse info`
-🔧 **Admin Command (Level 2)**
-**Description:** Show warehouse linkage info
 
-**Usage:**
-```bash
-/npc Steve warehouse info
-```
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display the warehouse linkage status for the NPC, including warehouse position, slot usage, and total item count. |
+| **Arguments** | `<name>` -- NPC name. |
+| **Related System** | NPC System, Warehouse System |
 
-**Output:**
+**Example:**
 ```
-Steve's Warehouse:
-Linked: Yes
-Warehouse ID: warehouse_1
-Location: 100, 64, 200
-Items Available: 12 types
+/npc Hans warehouse info
 ```
 
 ---
 
-# 4. Crime & Justice
+# 5. Warehouse Commands
 
-## Prison System
+**Base command:** `/warehouse`
+**Description:** Direct warehouse block management for adding, removing, and inspecting inventory. All commands operate on the warehouse block the player is looking at or standing on.
 
-### `/prison create <plotId>`
-🔧 **Admin Command (Level 2)**
-**Description:** Convert a plot into a prison
+---
 
-**Usage:**
-```bash
-/prison create prison_main
+### `/warehouse info`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display detailed warehouse information including position, slot usage, total items, linked shop ID, linked seller count, delivery schedule, and next delivery estimate. |
+| **Related System** | Warehouse System |
+
+**Example:**
+```
+/warehouse info
 ```
 
-**Requirements:**
-- Plot must be GOVERNMENT type
-- Plot must exist
-- One prison per plot
+---
+
+### `/warehouse add <item> <amount>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Add items to the warehouse. If the warehouse does not have enough space for the full amount, as many items as possible are added and a notification is shown. |
+| **Arguments** | `<item>` -- Minecraft item ID (e.g., `minecraft:diamond`). `<amount>` -- Number of items (1-10,000). |
+| **Related System** | Warehouse System |
+
+**Example:**
+```
+/warehouse add minecraft:diamond 64
+/warehouse add minecraft:emerald 512
+```
+
+---
+
+### `/warehouse remove <item> <amount>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Remove items from the warehouse. Items are deleted, not given to the player. Fails if the item is not present in the warehouse. |
+| **Arguments** | `<item>` -- Minecraft item ID. `<amount>` -- Number of items to remove (1-10,000). |
+| **Related System** | Warehouse System |
+
+**Example:**
+```
+/warehouse remove minecraft:diamond 32
+```
+
+---
+
+### `/warehouse clear`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Remove all items from the warehouse. This action cannot be undone. |
+| **Related System** | Warehouse System |
+
+**Example:**
+```
+/warehouse clear
+```
+
+---
+
+### `/warehouse setshop <shopId>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Link the warehouse to a shop plot by its ID. NPC merchants in the linked shop will sell items from this warehouse. |
+| **Arguments** | `<shopId>` -- The plot ID of the target shop. |
+| **Related System** | Warehouse System, Plot System, NPC System |
+
+**Example:**
+```
+/warehouse setshop Main_Street_Bakery
+```
+
+---
+
+### `/warehouse deliver`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Manually trigger a delivery cycle for the warehouse. Shows current day, last delivery day, and days since last delivery before executing. Delivery costs are paid from the state account. |
+| **Related System** | Warehouse System, Economy System |
+
+**Example:**
+```
+/warehouse deliver
+```
+
+---
+
+### `/warehouse reset`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Reset the delivery timer to the current day. The next automatic delivery will occur after the configured interval (default: 3 days) from now. |
+| **Related System** | Warehouse System |
+
+**Example:**
+```
+/warehouse reset
+```
+
+---
+
+# 6. Prison and Crime Commands
+
+**Base command:** `/prison` (Admin), `/bail` and `/jailtime` (Player)
+**Description:** Prison administration including cell management, inmate tracking, and player-facing bail and sentence queries.
+
+---
+
+## Prison Administration
+
+### `/prison create <plotId>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Register an existing plot as a prison. The plot type is automatically set to `PRISON`. Cells must be added separately with `/prison addcell`. |
+| **Arguments** | `<plotId>` -- ID of the plot to convert into a prison. |
+| **Related System** | Prison System, Plot System |
+
+**Example:**
+```
+/prison create State_Penitentiary
+```
 
 ---
 
 ### `/prison addcell <cellNumber> <min> <max> [securityLevel]`
-🔧 **Admin Command (Level 2)**
-**Description:** Add a prison cell
 
-**Usage:**
-```bash
-/prison addcell 1 100 50 10 110 55 15 3
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Add a prison cell to the default prison. Define the cell boundaries using block coordinates. |
+| **Arguments** | `<cellNumber>` -- Cell ID number (starting from 1). `<min>` -- First corner coordinates (x y z). `<max>` -- Second corner coordinates (x y z). `[securityLevel]` -- Security level 1-5 (default: 1). |
+| **Security Levels** | 1 = Minimum, 2 = Low, 3 = Medium, 4 = High, 5 = Maximum (solitary). |
+| **Related System** | Prison System |
+
+**Example:**
 ```
-
-**Parameters:**
-- `<cellNumber>` - Cell ID (1-99)
-- `<min>` - First corner (x y z)
-- `<max>` - Second corner (x y z)
-- `[securityLevel]` - 1-5 (optional, default 1)
-
-**Security Levels:**
-- 1: Minimum security (comfortable)
-- 2: Low security
-- 3: Medium security
-- 4: High security
-- 5: Maximum security (solitary)
-
-**Example Setup:**
-```bash
-# Stand at first corner, note coordinates: 100 50 10
-# Stand at second corner, note coordinates: 110 55 15
-/prison addcell 1 100 50 10 110 55 15 3
+/prison addcell 1 100 50 10 110 55 15
+/prison addcell 2 112 50 10 122 55 15 3
 ```
 
 ---
 
 ### `/prison removecell <cellNumber>`
-🔧 **Admin Command (Level 2)**
-**Description:** Remove a prison cell
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Remove a prison cell. If a prisoner is currently in the cell, they are released. |
+| **Arguments** | `<cellNumber>` -- Cell number to remove. |
+| **Related System** | Prison System |
+
+**Example:**
+```
 /prison removecell 1
 ```
-
-**Warning:**
-- Releases any prisoner in that cell
 
 ---
 
 ### `/prison list`
-🔧 **Admin Command (Level 2)**
-**Description:** List all prisons on server
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | List all prison plots on the server, showing plot ID and cell count. |
+| **Related System** | Prison System |
+
+**Example:**
+```
 /prison list
-```
-
-**Output:**
-```
-Prisons:
-1. Prison: prison_main
-   Plot: Government_Prison
-   Cells: 5
-   Inmates: 2
 ```
 
 ---
 
 ### `/prison cells`
-🔧 **Admin Command (Level 2)**
-**Description:** List all cells in default prison
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | List all cells in the default prison, showing cell number, security level, and occupancy status. |
+| **Related System** | Prison System |
+
+**Example:**
+```
 /prison cells
-```
-
-**Output:**
-```
-Prison Cells:
-Cell 1: Security Level 3, Occupied (Steve)
-Cell 2: Security Level 1, Empty
-Cell 3: Security Level 5, Occupied (Alex)
-Cell 4: Security Level 2, Empty
-Cell 5: Security Level 4, Empty
 ```
 
 ---
 
 ### `/prison inmates`
-🔧 **Admin Command (Level 2)**
-**Description:** List all current prisoners
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | List all current prisoners with their names, cell numbers, and remaining sentence time in seconds. |
+| **Related System** | Prison System |
+
+**Example:**
+```
 /prison inmates
-```
-
-**Output:**
-```
-Current Inmates:
-Steve - Cell 1 - 3 days remaining
-Alex - Cell 3 - 7 days remaining
 ```
 
 ---
 
 ### `/prison status <player>`
-🔧 **Admin Command (Level 2)**
-**Description:** Show detailed prisoner status
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show detailed status for a specific prisoner, including cell number, remaining time (minutes and seconds), bail amount, and original wanted level. |
+| **Arguments** | `<player>` -- Target player (must be online). |
+| **Related System** | Prison System |
+
+**Example:**
+```
 /prison status Steve
-```
-
-**Output:**
-```
-Prisoner: Steve
-Cell: 1 (Security Level 3)
-Sentence: 7 days
-Time Served: 4 days
-Remaining: 3 days
-Bail: 5,000€
-Reason: Assault (⭐⭐⭐)
 ```
 
 ---
 
 ### `/prison release <player>`
-🔧 **Admin Command (Level 2)**
-**Description:** Release a prisoner early
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Immediately release a prisoner. The player is freed and the release is logged as `ADMIN_RELEASE`. |
+| **Arguments** | `<player>` -- Target player (must be online and currently imprisoned). |
+| **Related System** | Prison System |
+
+**Example:**
+```
 /prison release Steve
 ```
-
-**Effect:**
-- Immediate release
-- Teleported to hospital spawn
-- Wanted level cleared
 
 ---
 
 ## Player Prison Commands
 
 ### `/bail`
-👤 **Player Command**
-**Description:** Pay bail to get out of prison
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Pay bail to be released from prison early. The bail amount depends on your wanted level at the time of arrest. Requires sufficient funds. |
+| **Related System** | Prison System, Economy System |
+
+**Example:**
+```
 /bail
 ```
-
-**Bail Calculation:**
-- Based on wanted level
-- ⭐ 1 star = 1,000€
-- ⭐⭐ 2 stars = 2,500€
-- ⭐⭐⭐ 3 stars = 5,000€
-- ⭐⭐⭐⭐ 4 stars = 10,000€
-- ⭐⭐⭐⭐⭐ 5 stars = 20,000€
-
-**Requirements:**
-- Must be in prison
-- Must have enough money
 
 ---
 
 ### `/jailtime`
-👤 **Player Command**
-**Description:** Check remaining jail time
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Check your remaining jail time (minutes and seconds) and current bail amount. Shows a message if you are not currently imprisoned. |
+| **Related System** | Prison System |
+
+**Example:**
+```
 /jailtime
-```
-
-**Output:**
-```
-Jail Time Remaining: 3 days, 4 hours
-Bail Amount: 5,000€
-Security Level: 3
 ```
 
 ---
 
-# 5. Medical & Respawn
+# 7. Bounty Commands
 
-### `/hospital setspawn`
-🔧 **Admin Command (Level 2)**
-**Description:** Set hospital respawn point
+**Base command:** `/bounty`
+**Description:** Player-driven bounty system for placing and tracking bounties on other players.
 
-**Usage:**
-```bash
-# Stand where players should respawn, then:
-/hospital setspawn
+---
+
+### `/bounty list`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Display the top 10 active bounties on the server, including target name, amount, and reason. |
+| **Related System** | Bounty System, Crime System |
+
+**Example:**
+```
+/bounty list
 ```
 
-**Behavior:**
-- Players respawn here on death
-- Police bring arrested players here
+---
+
+### `/bounty place <player> <amount> <reason>`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Place a bounty on another player. The amount is withdrawn from your balance. Both the amount and reason are validated for safety. |
+| **Arguments** | `<player>` -- Target player (must be online). `<amount>` -- Bounty amount in euros (minimum 100). `<reason>` -- Reason for the bounty (free text). |
+| **Related System** | Bounty System, Economy System |
+
+**Example:**
+```
+/bounty place Steve 5000 Robbed my shop
+```
+
+---
+
+### `/bounty info [player]`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | View bounty information. Without arguments, shows any active bounty on yourself. With a player argument, shows the bounty on the specified player. |
+| **Arguments** | `[player]` -- Target player (optional, must be online). |
+| **Related System** | Bounty System |
+
+**Example:**
+```
+/bounty info
+/bounty info Steve
+```
+
+---
+
+### `/bounty history`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | View your bounty history (last 5 entries), including date, amount, reason, and whether each bounty was claimed or expired. |
+| **Related System** | Bounty System |
+
+**Example:**
+```
+/bounty history
+```
+
+---
+
+# 8. Hospital Commands
+
+**Base command:** `/hospital`
+**Description:** Configure the hospital respawn system. All hospital commands are admin-only.
+
+---
+
+### `/hospital setspawn`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set the hospital respawn point to your current position. Players will respawn at this location on death and be charged the configured hospital fee. |
+| **Related System** | Hospital System |
+
+**Example:**
+```
+/hospital setspawn
+```
 
 ---
 
 ### `/hospital setfee <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Set death/respawn fee
 
-**Usage:**
-```bash
-/hospital setfee 500
-```
-
-**Fee:**
-- Charged on death
-- Paid from player wallet
-- Goes to state account
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set the fee charged to players when they die and respawn at the hospital. The fee is deducted from the player's balance and deposited into the state account. |
+| **Arguments** | `<amount>` -- Fee in euros (minimum 0 for free respawns). |
+| **Related System** | Hospital System, Economy System |
 
 **Example:**
 ```
-Player dies
-→ Respawn at hospital
-→ 500€ fee charged
-→ "You paid 500€ hospital fee"
+/hospital setfee 500
 ```
 
 ---
 
 ### `/hospital info`
-🔧 **Admin Command (Level 2)**
-**Description:** Show hospital configuration
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display the current hospital configuration, including spawn point coordinates and the death fee amount. |
+| **Related System** | Hospital System |
+
+**Example:**
+```
 /hospital info
-```
-
-**Output:**
-```
-Hospital Configuration:
-Spawn Point: 100, 64, 200 (world)
-Death Fee: 500€
-Total Deaths: 47
-Total Fees Collected: 23,500€
 ```
 
 ---
 
-# 6. Utilities & Resources
+# 9. State Treasury Commands
 
-## Utility System
+**Base command:** `/state`
+**Description:** Manage the government treasury account. The state account funds warehouse deliveries, NPC salaries, and collects taxes and hospital fees.
+
+---
+
+### `/state balance`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display the current state account balance. |
+| **Related System** | Economy System, State Treasury |
+
+**Example:**
+```
+/state balance
+```
+
+---
+
+### `/state deposit <amount>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Deposit money into the state account. Logged as "Admin-Einzahlung" (Admin deposit). |
+| **Arguments** | `<amount>` -- Amount to deposit in whole euros (minimum 1). |
+| **Related System** | Economy System, State Treasury |
+
+**Example:**
+```
+/state deposit 100000
+```
+
+---
+
+### `/state withdraw <amount>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Withdraw money from the state account. Fails if the state account has insufficient funds. Logged as "Admin-Abhebung" (Admin withdrawal). |
+| **Arguments** | `<amount>` -- Amount to withdraw in whole euros (minimum 1). |
+| **Related System** | Economy System, State Treasury |
+
+**Example:**
+```
+/state withdraw 5000
+```
+
+---
+
+# 10. Utility Commands
+
+**Base command:** `/utility`
+**Aliases:** `/strom`, `/wasser`
+**Description:** Track electricity (Strom) and water (Wasser) consumption for plots. Includes per-plot breakdowns, server-wide statistics, and top consumer rankings.
+
+---
 
 ### `/utility`
-👤⚡ **Mixed Command**
-**Description:** Show electricity and water consumption
-**Aliases:** `/strom`, `/wasser`
 
-**Usage:**
-```bash
-# Show utility for plot you're standing on
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Show electricity and water consumption for the plot you are currently standing on. Displays current usage, 7-day averages, and consumer block count. |
+| **Aliases** | `/strom`, `/wasser` (identical behavior). |
+| **Related System** | Utility System, Plot System |
+
+**Example:**
+```
 /utility
-
-# Show utility for specific plot
-/utility downtown_shop
+/strom
+/wasser
 ```
 
-**Output:**
+---
+
+### `/utility <plotId>`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Show electricity and water consumption for a specific plot by ID. |
+| **Arguments** | `<plotId>` -- Plot ID to query. |
+| **Related System** | Utility System, Plot System |
+
+**Example:**
 ```
-Plot: downtown_shop
-Electricity Usage: 450 kW/h
-Water Usage: 120 L/h
-
-Breakdown:
-- Grow Lights: 300 kW/h
-- Machines: 100 kW/h
-- Fuel Station: 50 kW/h
-
-Monthly Cost: 2,250€ (estimated)
+/utility Downtown_Shop
 ```
 
 ---
 
 ### `/utility top`
-👤 **Player Command**
-**Description:** Show top 10 utility consumers
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Show the top 10 plots by utility consumption, displaying 7-day average electricity and water usage for each. |
+| **Related System** | Utility System |
+
+**Example:**
+```
 /utility top
 ```
-
-**Output:**
-```
-Top 10 Utility Consumers:
-1. industrial_complex: 1,200 kW/h
-2. downtown_shop: 450 kW/h
-3. main_market: 380 kW/h
-...
-```
-
----
-
-### `/utility scan`
-🔧 **Admin Command (Level 2)**
-**Description:** Scan plot for utility consumers
-
-**Usage:**
-```bash
-/utility scan
-```
-
-**Behavior:**
-- Scans all blocks in current plot
-- Identifies grow lights, machines, etc.
-- Updates utility consumption database
-
-**Use Cases:**
-- Fix incorrect utility readings
-- After adding new machines
 
 ---
 
 ### `/utility stats`
-👤 **Player Command**
-**Description:** Show server-wide utility statistics
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Show server-wide utility statistics summary. |
+| **Related System** | Utility System |
+
+**Example:**
+```
 /utility stats
-```
-
-**Output:**
-```
-Server Utility Statistics:
-Total Electricity: 5,400 kW/h
-Total Water: 1,200 L/h
-Active Plots: 47
-Average per Plot: 114.9 kW/h
 ```
 
 ---
 
 ### `/utility breakdown <plotId>`
-👤 **Player Command**
-**Description:** Show detailed consumption breakdown
 
-**Usage:**
-```bash
-/utility breakdown downtown_shop
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Show a detailed category-by-category breakdown of electricity and water consumption for a specific plot (e.g., grow lights, machines, irrigation). |
+| **Arguments** | `<plotId>` -- Plot ID to query. |
+| **Related System** | Utility System |
+
+**Example:**
 ```
-
-**Output:**
-```
-Utility Breakdown: downtown_shop
-
-Electricity:
-- Grow Lights (Premium): 300 kW/h (66.7%)
-- Processing Machines: 100 kW/h (22.2%)
-- Fuel Station: 50 kW/h (11.1%)
-
-Water:
-- Irrigation: 80 L/h (66.7%)
-- Processing: 40 L/h (33.3%)
-
-Total: 450 kW/h, 120 L/h
+/utility breakdown Downtown_Shop
 ```
 
 ---
 
-## Warehouse System
+### `/utility scan`
 
-### `/warehouse info`
-🔧 **Admin Command (Level 2)**
-**Description:** Show warehouse information
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Scan the plot at your current position for utility-consuming blocks (grow lights, machines, etc.) and update the consumption database. Use after adding or removing utility-consuming blocks. |
+| **Related System** | Utility System, Plot System |
 
-**Usage:**
-```bash
-# Look at warehouse block, then:
-/warehouse info
+**Example:**
 ```
-
-**Output:**
-```
-Warehouse Information:
-ID: warehouse_1
-Location: 100, 64, 200
-Plot: downtown_shop
-
-Linked Shop: downtown_shop
-Linked NPCs: Steve, Alex
-
-Inventory: 12/32 slots used
-Items:
-- Diamond: 512
-- Gold Ingot: 1024
-- Emerald: 256
-...
-
-Last Delivery: 2024-01-15
-Next Delivery: 2024-01-18 (3 days)
+/utility scan
 ```
 
 ---
 
-### `/warehouse add <item> <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Add items to warehouse
+# 11. Market Commands
 
-**Usage:**
-```bash
-/warehouse add minecraft:diamond 64
-```
-
-**Notes:**
-- Max 32 different item types
-- Max 1,024 per item type
-- Exceeding limits shows error
+**Base command:** `/market`
+**Description:** Dynamic market system with supply-and-demand-based pricing, trends, and statistics.
 
 ---
-
-### `/warehouse remove <item> <amount>`
-🔧 **Admin Command (Level 2)**
-**Description:** Remove items from warehouse
-
-**Usage:**
-```bash
-/warehouse remove minecraft:diamond 32
-```
-
-**Notes:**
-- Cannot remove more than available
-- Items are deleted (not given to player)
-
----
-
-### `/warehouse clear`
-🔧 **Admin Command (Level 2)**
-**Description:** Clear all items from warehouse
-
-**Usage:**
-```bash
-/warehouse clear
-```
-
-**Warning:**
-- Deletes ALL items
-- Cannot be undone
-- Confirm prompt shown
-
----
-
-### `/warehouse setshop <shopId>`
-🔧 **Admin Command (Level 2)**
-**Description:** Link warehouse to shop plot
-
-**Usage:**
-```bash
-/warehouse setshop downtown_shop
-```
-
-**Behavior:**
-- NPCs in shop sell from warehouse
-- Unlimited stock if warehouse has items
-
----
-
-### `/warehouse deliver`
-🔧 **Admin Command (Level 2)**
-**Description:** Manually trigger delivery
-
-**Usage:**
-```bash
-/warehouse deliver
-```
-
-**Delivery System:**
-- Auto-delivery every 3 days
-- Restocks warehouse to configured levels
-- Costs paid from state account
-
----
-
-### `/warehouse reset`
-🔧 **Admin Command (Level 2)**
-**Description:** Reset delivery timer
-
-**Usage:**
-```bash
-/warehouse reset
-```
-
-**Use Cases:**
-- Force immediate delivery
-- Fix delivery schedule
-
----
-
-# 7. Agriculture & Production
-
-### `/tobacco info`
-👤 **Player Command**
-**Description:** Show info about tobacco pot
-
-**Usage:**
-```bash
-# Look at tobacco pot, then:
-/tobacco info
-```
-
-**Output:**
-```
-Tobacco Pot Information:
-Pot Type: GOLDEN (+50% growth, +1 quality)
-Strain: Virginia
-Growth Stage: Flowering (Stage 3/4)
-Growth Progress: 75%
-Quality: Very Good
-
-Modifiers:
-- Watered: Yes (+25% growth)
-- Fertilized: Yes (+15% growth)
-- Growth Booster: Active (+30% growth)
-- Quality Booster: Active
-- Light Level: 15 (optimal)
-
-Estimated Harvest: 5 minutes
-Expected Yield: 3-4 leaves (Very Good quality)
-```
-
----
-
-### `/tobacco give <item>`
-🔧 **Admin Command (Level 2)**
-**Description:** Give tobacco-related items
-
-**Usage:**
-```bash
-/tobacco give virginia_seeds
-```
-
-**Available Items:**
-- Seeds: `virginia_seeds`, `burley_seeds`, `oriental_seeds`, `havana_seeds`
-- Tools: `fertilizer`, `growth_booster`, `quality_booster`, `watering_can`
-
-**Examples:**
-```bash
-/tobacco give virginia_seeds
-/tobacco give fertilizer
-/tobacco give quality_booster
-```
-
----
-
-### `/tobacco stats`
-👤 **Player Command**
-**Description:** Show your tobacco farming statistics
-
-**Usage:**
-```bash
-/tobacco stats
-```
-
-**Output:**
-```
-Tobacco Farming Statistics:
-Total Harvests: 47
-Total Leaves: 235
-
-By Strain:
-- Virginia: 120 leaves (51%)
-- Burley: 80 leaves (34%)
-- Oriental: 25 leaves (11%)
-- Havana: 10 leaves (4%)
-
-By Quality:
-- Legendary: 12 (5%)
-- Very Good: 94 (40%)
-- Good: 118 (50%)
-- Poor: 11 (5%)
-
-Best Quality Streak: 7 consecutive Very Good
-```
-
----
-
-# 8. Market & Economy
 
 ### `/market prices`
-👤 **Player Command**
-**Description:** Show all current market prices
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Display current market prices for all tracked items, including item name, current price, price trend indicator (rising/falling/stable), and base price. |
+| **Related System** | Market System |
+
+**Example:**
+```
 /market prices
-```
-
-**Output:**
-```
-Market Prices:
-
-Tobacco Products:
-- Virginia Cigar: 45€ (↑ +5€ from yesterday)
-- Burley Cigar: 40€ (→ stable)
-- Premium Cigarettes: 25€ (↓ -2€)
-
-Cannabis Products:
-- Indica Cured Bud: 150€ (↑ +10€)
-- Sativa Hash: 200€ (↑ +15€)
-
-Hard Drugs:
-- Cocaine: 300€ (↓ -20€)
-- Heroin: 800€ (↑ +50€)
-- LSD Sheet: 1,500€ (→ stable)
-- Meth Crystal: 650€ (↑ +30€)
-
-(Showing 15/50 items - use /market prices <category> for more)
 ```
 
 ---
 
 ### `/market trends`
-👤 **Player Command**
-**Description:** Show top 5 rising and falling items
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Show the top 5 items with rising prices and the top 5 items with falling prices, including percentage change and current price. |
+| **Related System** | Market System |
+
+**Example:**
+```
 /market trends
-```
-
-**Output:**
-```
-Market Trends (Last 24 Hours):
-
-🔥 Rising:
-1. Heroin: 800€ (+50€, +6.7%)
-2. Meth Crystal: 650€ (+30€, +4.8%)
-3. LSD Sheet: 1,500€ (+40€, +2.7%)
-4. Indica Bud: 150€ (+10€, +7.1%)
-5. MDMA Pills: 120€ (+8€, +7.1%)
-
-📉 Falling:
-1. Cocaine: 300€ (-20€, -6.3%)
-2. Crack: 180€ (-12€, -6.3%)
-3. Morphine: 400€ (-15€, -3.6%)
-4. Cannabis Oil: 180€ (-8€, -4.3%)
-5. Premium Cigarettes: 25€ (-2€, -7.4%)
 ```
 
 ---
 
 ### `/market stats`
-👤 **Player Command**
-**Description:** Show market statistics
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Display market statistics including total registered items, counts of rising/falling/stable prices, average price, average price multiplier, and total price updates. |
+| **Related System** | Market System |
+
+**Example:**
+```
 /market stats
-```
-
-**Output:**
-```
-Market Statistics:
-
-Total Items Tracked: 50
-Average Price: 285€
-Market Volatility: Medium
-
-24-Hour Trading Volume: 4,500 items
-Total Value Traded: 1,282,500€
-
-Most Traded:
-1. Virginia Cigar: 450 units
-2. Indica Bud: 380 units
-3. Cocaine: 250 units
-
-Supply & Demand:
-- High Demand: Heroin, Meth, LSD
-- Low Demand: Cigarettes, Crack
-- Oversupply: Cocaine, Cannabis Oil
 ```
 
 ---
 
 ### `/market top`
-👤 **Player Command**
-**Description:** Show top 10 most expensive items
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Show the top 10 most expensive items on the market, with rank, item name, current price, and price multiplier. |
+| **Related System** | Market System |
+
+**Example:**
+```
 /market top
 ```
 
-**Output:**
-```
-Top 10 Most Expensive Items:
+---
 
-1. LSD Sheet: 1,500€
-2. Heroin (Legendary): 1,200€
-3. Meth Crystal (Legendary): 900€
-4. Heroin (Very Good): 800€
-5. Meth Crystal (Very Good): 650€
-6. MDMA Pills (Legendary): 500€
-7. Cocaine (Legendary): 450€
-8. Opium (Legendary): 400€
-9. Morphine: 400€
-10. Cocaine (Very Good): 300€
+# 12. Gang Commands
+
+**Base command:** `/gang`
+**Description:** Player faction system with creation, membership management, leveling, perks, and admin tools.
+
+---
+
+## Gang Management
+
+### `/gang create <name> <tag> [color]`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Create a new gang. You become the Boss. The tag is a short identifier displayed in chat. Color is optional and defaults to WHITE. |
+| **Arguments** | `<name>` -- Gang name (unique, quoted if containing spaces). `<tag>` -- Short tag (unique, e.g., `[MSK]`). `[color]` -- Chat formatting color name (e.g., `RED`, `GOLD`, `AQUA`). |
+| **Restrictions** | You cannot create a gang if you are already in one. Name and tag must be unique. |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang create "Street Kings" SKG GOLD
 ```
 
 ---
 
-# 9. Player Progress & Tutorial
+### `/gang invite <player>`
 
-### `/tutorial`
-👤 **Player Command**
-**Description:** Show current tutorial step
+| | |
+|---|---|
+| **Permission** | Player (Gang member with invite permission) |
+| **Description** | Invite a player to your gang. The invitation expires after 5 minutes. The target player must use `/gang accept` to join. |
+| **Arguments** | `<player>` -- Target player (must be online). |
+| **Related System** | Gang System |
 
-**Usage:**
-```bash
-/tutorial
+**Example:**
 ```
-
-**Output:**
-```
-Tutorial Progress: Step 3/7
-
-Current Step: Create Your First Plot
-Objective: Use /plot wand and create a plot
-
-Instructions:
-1. Use /plot wand to get selection tool
-2. Left-click first corner
-3. Right-click second corner
-4. Use /plot create residential "My_Home" 50000
-
-Reward: 1,000€ upon completion
-
-Progress: 2/7 steps completed (28.6%)
+/gang invite Alex
 ```
 
 ---
 
-### `/tutorial start`
-👤 **Player Command**
-**Description:** Start tutorial from beginning
+### `/gang accept`
 
-**Usage:**
-```bash
-/tutorial start
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Accept a pending gang invitation. You must have received an invitation within the last 5 minutes. |
+| **Related System** | Gang System |
+
+**Example:**
 ```
-
-**7-Step Tutorial:**
-1. Welcome & Economy Basics
-2. Claim Daily Reward
-3. Create Your First Plot
-4. Set Up Production
-5. Interact with NPCs
-6. Understanding Crime System
-7. Advanced Features
-
-**Total Rewards:**
-- 5,000€ bonus for completing all 7 steps
-- Unlocks achievement
-
----
-
-### `/tutorial next`
-👤 **Player Command**
-**Description:** Complete current step and move to next
-
-**Usage:**
-```bash
-/tutorial next
-```
-
-**Notes:**
-- Auto-advances if objective met
-- Can manually advance if stuck
-- Rewards given immediately
-
----
-
-### `/tutorial skip`
-👤 **Player Command**
-**Description:** Skip current step (no reward)
-
-**Usage:**
-```bash
-/tutorial skip
-```
-
-**Warning:**
-- Skipped steps give no rewards
-- Progress still counted
-
----
-
-### `/tutorial quit`
-👤 **Player Command**
-**Description:** Exit tutorial completely
-
-**Usage:**
-```bash
-/tutorial quit
-```
-
-**Effect:**
-- Can restart anytime
-- Progress saved
-
----
-
-### `/tutorial reset`
-👤 **Player Command**
-**Description:** Reset all tutorial progress
-
-**Usage:**
-```bash
-/tutorial reset
-```
-
-**Warning:**
-- Resets to step 1
-- Previous rewards NOT refunded
-- Cannot reclaim rewards
-
----
-
-### `/tutorial status`
-👤 **Player Command**
-**Description:** Show detailed tutorial progress
-
-**Usage:**
-```bash
-/tutorial status
-```
-
-**Output:**
-```
-Tutorial Status:
-
-Progress: 5/7 steps (71.4%)
-Rewards Earned: 3,500€
-Time Spent: 45 minutes
-
-Completed Steps:
-✓ Step 1: Welcome & Economy
-✓ Step 2: Daily Rewards
-✓ Step 3: Plot Creation
-✓ Step 4: Production Setup
-✓ Step 5: NPC Interaction
-✗ Step 6: Crime System (current)
-✗ Step 7: Advanced Features
-
-Estimated Time to Complete: 15 minutes
+/gang accept
 ```
 
 ---
 
-# 10. System Administration
+### `/gang leave`
+
+| | |
+|---|---|
+| **Permission** | Player (Gang member) |
+| **Description** | Leave your current gang. The Boss cannot leave -- they must either transfer leadership via `/gang promote` or disband with `/gang disband`. |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang leave
+```
+
+---
+
+### `/gang kick <player>`
+
+| | |
+|---|---|
+| **Permission** | Player (Gang member with kick permission) |
+| **Description** | Remove a player from your gang. The kicked player is notified. |
+| **Arguments** | `<player>` -- Target player (must be online). |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang kick Alex
+```
+
+---
+
+### `/gang promote <player> <rank>`
+
+| | |
+|---|---|
+| **Permission** | Player (Gang Boss or Underboss) |
+| **Description** | Change a member's rank. Valid ranks: `RECRUIT`, `MEMBER`, `UNDERBOSS`, `BOSS`. Promoting someone to Boss transfers leadership. |
+| **Arguments** | `<player>` -- Target player (must be online). `<rank>` -- New rank name (case-insensitive). |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang promote Alex UNDERBOSS
+```
+
+---
+
+### `/gang info`
+
+| | |
+|---|---|
+| **Permission** | Player (Gang member) |
+| **Description** | Display detailed information about your gang, including name, level, XP, member count, territory count, perk usage, reputation, and a full member roster with ranks and XP contributions. |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang info
+```
+
+---
+
+### `/gang list`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | List all gangs on the server with their tags, names, levels, and member counts. |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang list
+```
+
+---
+
+### `/gang disband`
+
+| | |
+|---|---|
+| **Permission** | Player (Gang Boss only) |
+| **Description** | Permanently dissolve your gang. All members are removed and all gang data is deleted. This action cannot be undone. |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang disband
+```
+
+---
+
+### `/gang perk <perkname>`
+
+| | |
+|---|---|
+| **Permission** | Player (Gang Boss only) |
+| **Description** | Unlock a gang perk using available perk points. Perk points are earned through gang leveling. |
+| **Arguments** | `<perkname>` -- Perk name (case-insensitive). |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang perk EXTRA_TERRITORY
+```
+
+---
+
+## Gang Admin Commands
+
+### `/gang admin setlevel <gangname> <level>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set a gang's level directly. |
+| **Arguments** | `<gangname>` -- Gang name (case-insensitive match). `<level>` -- New level (1-30). |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang admin setlevel "Street Kings" 10
+```
+
+---
+
+### `/gang admin addxp <gangname> <xp>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Add XP to a gang. May trigger level-ups. |
+| **Arguments** | `<gangname>` -- Gang name (case-insensitive match). `<xp>` -- XP to add (1-100,000). |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang admin addxp "Street Kings" 5000
+```
+
+---
+
+### `/gang admin info <gangname>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show detailed admin view of a gang, including internal ID, max level, XP totals, balance, weekly fee, perk points, and reputation. |
+| **Arguments** | `<gangname>` -- Gang name (case-insensitive match). |
+| **Related System** | Gang System |
+
+**Example:**
+```
+/gang admin info "Street Kings"
+```
+
+---
+
+### `/gang task editor`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Open the Gang Scenario Editor GUI. Sends scenario data, NPC names, plot information, and lock data to the client for editing gang scenarios. |
+| **Related System** | Gang System, Scenario System |
+
+**Example:**
+```
+/gang task editor
+```
+
+---
+
+# 13. Lock Commands
+
+**Base command:** `/lock`
+**Description:** Door and container locking system with combination locks, authorized player management, and lock removal.
+
+---
+
+### `/lock code <lockId> <code>`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Enter a 4-digit code to unlock a combination lock. If the code is correct, the door is opened. Only works on lock types that support codes. |
+| **Arguments** | `<lockId>` -- Lock ID. `<code>` -- 4-digit code. |
+| **Related System** | Lock System |
+
+**Example:**
+```
+/lock code abc123 1234
+```
+
+---
+
+### `/lock setcode <lockId> <code>`
+
+| | |
+|---|---|
+| **Permission** | Player (Lock Owner only) |
+| **Description** | Set or change the code on a combination lock. Only the lock owner can change the code. |
+| **Arguments** | `<lockId>` -- Lock ID. `<code>` -- New 4-digit numeric code. |
+| **Related System** | Lock System |
+
+**Example:**
+```
+/lock setcode abc123 5678
+```
+
+---
+
+### `/lock authorize <lockId> <player>`
+
+| | |
+|---|---|
+| **Permission** | Player (Lock Owner only) |
+| **Description** | Authorize another player to create keys for the lock. Only the lock owner can authorize players. |
+| **Arguments** | `<lockId>` -- Lock ID. `<player>` -- Player name (must be online). |
+| **Related System** | Lock System |
+
+**Example:**
+```
+/lock authorize abc123 Alex
+```
+
+---
+
+### `/lock info <lockId>`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Display information about a lock, including type, owner, position, code (visible only to the owner), and number of authorized players. |
+| **Arguments** | `<lockId>` -- Lock ID. |
+| **Related System** | Lock System |
+
+**Example:**
+```
+/lock info abc123
+```
+
+---
+
+### `/lock remove <lockId>`
+
+| | |
+|---|---|
+| **Permission** | Player (Lock Owner only) |
+| **Description** | Remove a lock. Only the lock owner can remove it. Use `/lock admin remove` for admin override. |
+| **Arguments** | `<lockId>` -- Lock ID. |
+| **Related System** | Lock System |
+
+**Example:**
+```
+/lock remove abc123
+```
+
+---
+
+### `/lock list`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | List all locks you own, showing lock ID, type, and position for each. |
+| **Related System** | Lock System |
+
+**Example:**
+```
+/lock list
+```
+
+---
+
+### `/lock admin remove <lockId>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Force-remove any lock regardless of ownership. Use for maintenance and dispute resolution. |
+| **Arguments** | `<lockId>` -- Lock ID. |
+| **Related System** | Lock System |
+
+**Example:**
+```
+/lock admin remove abc123
+```
+
+---
+
+# 14. Territory and Map Commands
+
+**Base command:** `/map`
+**Description:** Territory visualization and management through the map editor.
+
+---
+
+### `/map edit`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Open the Territory Map Editor GUI. Synchronizes all territory data to the client before opening the editor screen. Used for defining and managing gang territory boundaries on the server map. |
+| **Related System** | Territory System, Gang System |
+
+**Example:**
+```
+/map edit
+```
+
+---
+
+### `/map info`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Display territory statistics from the Territory Manager, including territory counts and ownership summaries. |
+| **Related System** | Territory System |
+
+**Example:**
+```
+/map info
+```
+
+---
+
+# 15. Health and Diagnostics Commands
+
+**Base command:** `/health`
+**Description:** System health monitoring and diagnostics for server administrators.
+
+---
 
 ### `/health`
-🔧 **Admin Command (Level 2)**
-**Description:** Show overall system health
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display the overall health report for all ScheduleMC subsystems. Shows status of economy, plots, NPCs, persistence, and performance metrics. |
+| **Related System** | Health Check System |
+
+**Example:**
+```
 /health
-```
-
-**Output:**
-```
-ScheduleMC System Health Check:
-
-Economy System: ✓ HEALTHY
-- Total Money in Circulation: 4,250,000€
-- Active Accounts: 47
-- Transactions (24h): 1,247
-
-Plot System: ✓ HEALTHY
-- Total Plots: 152
-- Spatial Index: Optimized
-- Rental Active: 23 plots
-
-NPC System: ✓ HEALTHY
-- Active NPCs: 45
-- Merchants: 12
-- Police: 5
-- Residents: 28
-
-Persistence: ✓ HEALTHY
-- Last Save: 2 minutes ago
-- Last Backup: 1 hour ago
-- Backup Count: 5
-
-Performance:
-- TPS: 20.0 (optimal)
-- Memory: 4.2 GB / 8.0 GB (53%)
-- CPU: 35%
-
-Overall Status: ✓ ALL SYSTEMS OPERATIONAL
 ```
 
 ---
 
 ### `/health economy`
-🔧 **Admin Command (Level 2)**
-**Description:** Detailed economy system diagnostics
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show detailed economy system diagnostics, including health status, error information (if unhealthy), and backup availability with age and filename of the latest backup. |
+| **Related System** | Health Check System, Economy System |
+
+**Example:**
+```
 /health economy
-```
-
-**Output:**
-```
-Economy System Diagnostics:
-
-Money Supply:
-- Player Wallets: 2,150,000€
-- Savings Accounts: 1,500,000€
-- NPC Wallets: 250,000€
-- State Account: 350,000€
-- Total: 4,250,000€
-
-Transactions (Last 24 Hours):
-- Payments: 450
-- Plot Sales: 12
-- Loans Issued: 8
-- Shop Purchases: 777
-
-Loans:
-- Active Loans: 15
-- Total Outstanding: 425,000€
-- Average Interest: 16.3%
-
-Savings:
-- Active Accounts: 23
-- Total Deposits: 1,500,000€
-- Weekly Interest Payout: 75,000€
-
-Economic Health: ✓ STABLE
-- Inflation Rate: 2.1% (healthy)
-- Velocity of Money: 0.29 (normal)
 ```
 
 ---
 
 ### `/health plot`
-🔧 **Admin Command (Level 2)**
-**Description:** Detailed plot system diagnostics
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show detailed plot system diagnostics, including health status, cache statistics, error information (if unhealthy), and backup availability. |
+| **Related System** | Health Check System, Plot System |
+
+**Example:**
+```
 /health plot
-```
-
-**Output:**
-```
-Plot System Diagnostics:
-
-Plots:
-- Total: 152
-- Residential: 89
-- Commercial: 35
-- Shop: 18
-- Public: 7
-- Government: 3
-
-Ownership:
-- Owned: 124 (81.6%)
-- For Sale: 18 (11.8%)
-- Public: 10 (6.6%)
-
-Rentals:
-- Active Rentals: 23
-- Monthly Revenue: 115,000€
-- Average Rent: 5,000€
-
-Apartments:
-- Total Units: 67
-- Occupied: 45 (67.2%)
-- Vacant: 22 (32.8%)
-
-Spatial Index:
-- Lookup Performance: 0.3ms avg
-- Index Size: 152 nodes
-- Depth: 4 levels
-
-Performance: ✓ OPTIMAL
-- Average Lookup: O(log n)
-- No Overlaps: ✓
-- All Regions Valid: ✓
 ```
 
 ---
 
 ### `/health backups`
-🔧 **Admin Command (Level 2)**
-**Description:** Show backup system status
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Show a comprehensive backup overview for all data files (economy and plots). Lists the 3 most recent backups for each file with age and size, plus total backup counts and auto-backup configuration. |
+| **Related System** | Health Check System, Backup System |
+
+**Example:**
+```
 /health backups
-```
-
-**Output:**
-```
-Backup System Status:
-
-Last Backup: 1 hour ago (2024-01-15 14:00)
-Next Backup: In 2 hours (2024-01-15 16:00)
-
-Available Backups: 5
-1. economy_2024-01-15_14-00.json (2.3 MB)
-2. economy_2024-01-15_13-00.json (2.3 MB)
-3. economy_2024-01-15_12-00.json (2.2 MB)
-4. economy_2024-01-15_11-00.json (2.2 MB)
-5. economy_2024-01-15_10-00.json (2.1 MB)
-
-Backup Health: ✓ HEALTHY
-- Backup Frequency: Hourly
-- Retention: 5 backups
-- Total Backup Size: 11.1 MB
-- Disk Space Available: 45.2 GB
 ```
 
 ---
 
 ### `/health log`
-🔧 **Admin Command (Level 2)**
-**Description:** Log health check to console
 
-**Usage:**
-```bash
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Write a full health check report to the server console log and display a quick status summary in chat. Useful for automated monitoring and post-incident analysis. |
+| **Related System** | Health Check System |
+
+**Example:**
+```
 /health log
 ```
 
-**Effect:**
-- Writes full health report to server console
-- Includes timestamp
-- Useful for monitoring/debugging
+---
 
-**Console Output:**
+# 16. Admin Commands
+
+**Base command:** `/admin`, `/admintools`
+**Description:** Player level management and special admin tools.
+
+---
+
+## Player Level Commands
+
+### `/admin setlevel <player> <level>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set a player's Producer Level directly. The player is notified of the change. |
+| **Arguments** | `<player>` -- Target player (must be online). `<level>` -- New level (0-30). |
+| **Related System** | Level System |
+
+**Example:**
 ```
-[14:30:45] [Server thread/INFO] [ScheduleMC]: === SYSTEM HEALTH LOG ===
-[14:30:45] [Server thread/INFO] [ScheduleMC]: Timestamp: 2024-01-15 14:30:45
-[14:30:45] [Server thread/INFO] [ScheduleMC]: Economy: HEALTHY (4,250,000€ circulation)
-[14:30:45] [Server thread/INFO] [ScheduleMC]: Plots: HEALTHY (152 plots, 0.3ms avg lookup)
-[14:30:45] [Server thread/INFO] [ScheduleMC]: NPCs: HEALTHY (45 active)
-[14:30:45] [Server thread/INFO] [ScheduleMC]: Persistence: HEALTHY (last save 2m ago)
-[14:30:45] [Server thread/INFO] [ScheduleMC]: Overall: ALL SYSTEMS OPERATIONAL
+/admin setlevel Steve 15
 ```
 
 ---
 
-# Permission Levels
+### `/admin addxp <player> <xp>`
 
-## Permission Level Reference
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Award XP to a player's Producer Level. May trigger level-ups. XP source is logged as `ADMIN_GRANT`. |
+| **Arguments** | `<player>` -- Target player (must be online). `<xp>` -- XP amount to award (1-100,000). |
+| **Related System** | Level System |
 
-### Level 0 (Player)
-All players have access to these commands without any special permissions.
-
-**Total: 13 Base Commands**
-
-| Command | Purpose |
-|---------|---------|
-| `/money`, `/pay` | Economy management |
-| `/loan`, `/savings`, `/autopay` | Banking |
-| `/daily` | Daily rewards |
-| `/plot` | Most plot commands |
-| `/bail`, `/jailtime` | Prison interaction |
-| `/utility` | Utility info |
-| `/tobacco` | Farming info |
-| `/market` | Market prices |
-| `/tutorial` | Tutorial system |
-
-### Level 2 (Admin/Operator)
-Requires operator status or admin permissions.
-
-**Total: 8 Base Commands + Admin Subcommands**
-
-| Command | Purpose |
-|---------|---------|
-| `/npc` | NPC management |
-| `/prison` | Prison administration |
-| `/hospital` | Medical system config |
-| `/state` | State treasury |
-| `/warehouse` | Warehouse management |
-| `/health` | System diagnostics |
-| `/money set/give/take` | Economy admin |
-| `/plot create/remove/reindex` | Plot admin |
-
-### Mixed Permission Commands
-
-Some commands have both player and admin subcommands:
-
-| Command | Player Access | Admin Access |
-|---------|--------------|--------------|
-| `/plot` | Buy, sell, trust, apartments | Create, remove, setowner, reindex |
-| `/utility` | View consumption | Scan, admin stats |
-| `/tobacco` | Info, stats | Give items |
-| `/money` | Check, pay, history | Set, give, take |
-
----
-
-# Common Use Cases
-
-## For New Players
-
-### Day 1: Getting Started
-```bash
-# Claim daily reward
-/daily
-
-# Check balance
-/money
-
-# Start tutorial
-/tutorial start
-
-# Check market prices
-/market prices
-
-# Find a plot to buy
-/plot list
+**Example:**
 ```
-
-### Day 2: First Plot
-```bash
-# Daily reward again
-/daily
-
-# Get plot tool
-/plot wand
-
-# Select area (left-click, right-click)
-# Create plot (if admin, or buy existing)
-/plot buy
-
-# Set up your plot
-/plot name My Cool House
-/plot description A beautiful home
-```
-
-### Week 1: Production & Economy
-```bash
-# Start tobacco farming
-/tobacco give virginia_seeds
-
-# Check utility costs
-/utility
-
-# Save money
-/savings create 10000
+/admin addxp Steve 5000
 ```
 
 ---
 
-## For Admins
+### `/admin getlevel <player>`
 
-### Server Setup (30 minutes)
-```bash
-# 1. Create spawn area
-/plot wand
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display a player's current Producer Level, total XP, and XP required for the next level. |
+| **Arguments** | `<player>` -- Target player (must be online). |
+| **Related System** | Level System |
+
+**Example:**
+```
+/admin getlevel Steve
+```
+
+---
+
+## Admin Tools
+
+### `/admintools remover`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Receive the Entity Remover tool. This special item allows admins to remove entities (NPCs, vehicles, etc.) by right-clicking on them. If inventory is full, the item is dropped at your feet. |
+| **Related System** | Admin Tools |
+
+**Example:**
+```
+/admintools remover
+```
+
+---
+
+### `/admintools help`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display help information for all available admin tools. |
+| **Related System** | Admin Tools |
+
+**Example:**
+```
+/admintools help
+```
+
+---
+
+# Permission Level Reference
+
+## Player Commands (No special permission required)
+
+| Category | Commands |
+|----------|----------|
+| Plot Apartments | `/plot apartment wand`, `create`, `delete`, `list`, `info`, `rent`, `leave`, `setrent`, `evict` |
+| Bounty | `/bounty list`, `place`, `info`, `history` |
+| Prison (Player) | `/bail`, `/jailtime` |
+| Utility | `/utility`, `/strom`, `/wasser`, `/utility top`, `stats`, `breakdown`, `<plotId>` |
+| Market | `/market prices`, `trends`, `stats`, `top` |
+| Gang | `/gang create`, `invite`, `accept`, `leave`, `kick`, `promote`, `info`, `list`, `disband`, `perk` |
+| Lock | `/lock code`, `setcode`, `authorize`, `info`, `remove`, `list` |
+| Territory | `/map info` |
+
+## Admin Commands (OP Level 2 required)
+
+| Category | Commands |
+|----------|----------|
+| Plot Admin | `/plot create`, `setowner`, `remove`, `settype`, `reindex`, `debug`, `warehouse set/clear/info` |
+| Economy Admin | `/money set`, `give`, `take`, `history` |
+| NPC (all) | `/npc <name> info`, `movement`, `speed`, `schedule`, `leisure`, `inventory`, `wallet`, `warehouse` |
+| Warehouse (all) | `/warehouse info`, `add`, `remove`, `clear`, `setshop`, `deliver`, `reset` |
+| Prison Admin | `/prison create`, `addcell`, `removecell`, `list`, `cells`, `inmates`, `status`, `release` |
+| Hospital (all) | `/hospital setspawn`, `setfee`, `info` |
+| State (all) | `/state balance`, `deposit`, `withdraw` |
+| Utility Admin | `/utility scan` |
+| Gang Admin | `/gang admin setlevel`, `addxp`, `info`, `/gang task editor` |
+| Lock Admin | `/lock admin remove` |
+| Territory Admin | `/map edit` |
+| Health (all) | `/health`, `economy`, `plot`, `backups`, `log` |
+| Player Levels | `/admin setlevel`, `addxp`, `getlevel` |
+| Admin Tools | `/admintools remover`, `help` |
+
+---
+
+# Common Workflows
+
+## Server Setup (Admin)
+
+```
+# 1. Create the spawn area
 /plot create public Spawn
 
-# 2. Set hospital
+# 2. Configure the hospital
 /hospital setspawn
 /hospital setfee 500
 
-# 3. Create prison
-/plot create government Prison
-/prison create Prison
-/prison addcell 1 100 50 10 110 55 15 3
-
-# 4. Fund state account
+# 3. Fund the state treasury
 /state deposit 1000000
 
-# 5. Spawn merchant NPCs
-/npc spawn merchant Shop_Owner_Hans
+# 4. Create a prison
+/plot create prison State_Prison
+/prison create State_Prison
+/prison addcell 1 100 50 10 110 55 15 3
+/prison addcell 2 112 50 10 122 55 15 1
+
+# 5. Create shop plots and set up merchants
+/plot create shop Downtown_Bakery
 /npc Hans schedule workstart 0700
 /npc Hans schedule workend 1800
+/npc Hans schedule home 2200
 /npc Hans wallet set 10000
+/npc Hans inventory give 0 minecraft:bread
+/npc Hans warehouse set
 
-# 6. Create warehouse
-/warehouse setshop downtown_shop
-/warehouse add minecraft:diamond 64
+# 6. Stock the warehouse
+/warehouse add minecraft:bread 1000
+/warehouse setshop Downtown_Bakery
 ```
 
-### Daily Maintenance
-```bash
+## Setting Up an NPC Merchant (Admin)
+
+```
+# 1. Configure the schedule
+/npc Hans schedule workstart 0800
+/npc Hans schedule workend 1700
+/npc Hans schedule home 2200
+
+# 2. Add leisure locations (stand at each spot)
+/npc Hans leisure add
+/npc Hans leisure add
+
+# 3. Set movement and speed
+/npc Hans movement true
+/npc Hans speed 0.3
+
+# 4. Fund the wallet and add inventory
+/npc Hans wallet set 10000
+/npc Hans inventory give 0 minecraft:diamond
+/npc Hans inventory give 1 minecraft:emerald
+
+# 5. Link to warehouse for unlimited stock
+/npc Hans warehouse set
+
+# 6. Verify configuration
+/npc Hans info
+```
+
+## Creating an Apartment Building (Plot Owner)
+
+```
+# 1. Get the apartment selection tool
+/plot apartment wand
+
+# 2. Select each apartment area and create
+# (Left-click corner 1, right-click corner 2, then:)
+/plot apartment create Unit_1A 1500
+/plot apartment create Unit_1B 1500
+/plot apartment create Penthouse 3000
+
+# 3. Verify
+/plot apartment list
+/plot apartment info Unit_1A
+```
+
+## Daily Maintenance (Admin)
+
+```
 # Check system health
 /health
 
-# Check economy
+# Review economy status
 /health economy
 
-# Monitor top consumers
-/utility top
+# Check plot system
+/health plot
+
+# Review backups
+/health backups
 
 # Check prison inmates
 /prison inmates
 
 # Review market trends
 /market trends
-```
 
-### Troubleshooting
-```bash
-# Fix plot issues
-/plot reindex
-/plot debug
+# Check top utility consumers
+/utility top
 
-# Check NPC issues
-/npc Steve info
-/npc Steve movement true
-
-# Economy fixes
-/money history Steve 20
-/state balance
-
-# System diagnostics
+# Log health report to console
 /health log
-/health backups
+```
+
+## Managing a Gang (Player)
+
+```
+# Create a gang
+/gang create "The Enforcers" ENF RED
+
+# Invite members
+/gang invite Alex
+/gang invite Bob
+
+# Promote a trusted member
+/gang promote Alex UNDERBOSS
+
+# Unlock perks as you level up
+/gang perk EXTRA_TERRITORY
+
+# Check gang status
+/gang info
+
+# View all gangs on server
+/gang list
 ```
 
 ---
-
-## For Property Owners
-
-### Managing Your Plot
-```bash
-# Trust players
-/plot trust Alex
-
-# Set up for sale
-/plot sell 75000
-
-# Set up for rent
-/plot rent 500
-
-# Create apartments
-/plot apartment wand
-/plot apartment create Apt_1A 2000
-```
-
-### Managing Apartments
-```bash
-# List apartments
-/plot apartment list
-
-# Check apartment info
-/plot apartment info apt_1
-
-# Change rent
-/plot apartment setrent apt_1 2500
-
-# Evict tenant
-/plot apartment evict apt_1
-```
-
----
-
-## For Merchants
-
-### Setting Up Shop
-```bash
-# (Admin creates shop plot first)
-/npc Hans setshop downtown_shop
-
-# Give inventory
-/npc Hans inventory give 0 minecraft:diamond
-/npc Hans inventory give 1 minecraft:gold_ingot
-
-# Set wallet
-/npc Hans wallet set 10000
-
-# Link warehouse (unlimited stock)
-/npc Hans warehouse set
-```
 
 <div align="center">
 
-**That's all 161+ commands in ScheduleMC!**
+**ScheduleMC v3.6.0-beta** -- Minecraft 1.20.1 -- Forge 47.4.0
 
-For more information:
-- [🏠 Back to Wiki Home](Home.md)
-- [📚 Getting Started Guide](Getting-Started.md)
-- [❓ FAQ](FAQ.md)
-- [🔧 Admin Guide](Admin-Guide.md)
-
-**Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
+[Back to Wiki Home](Home.md) -- [Getting Started](Getting-Started.md) -- [Items](Items.md) -- [Blocks](Blocks.md) -- [FAQ](FAQ.md)
 
 </div>

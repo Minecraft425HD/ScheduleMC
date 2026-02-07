@@ -121,4 +121,68 @@ public interface IVehicleAPI {
      * @throws IllegalArgumentException wenn vehicle null ist
      */
     void removeVehicle(EntityGenericVehicle vehicle);
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Returns all vehicles in a level.
+     *
+     * @param level The ServerLevel
+     * @return List of all vehicles
+     * @throws IllegalArgumentException if level is null
+     * @since 3.2.0
+     */
+    List<EntityGenericVehicle> getAllVehicles(ServerLevel level);
+
+    /**
+     * Returns the total vehicle count in a level.
+     *
+     * @param level The ServerLevel
+     * @return Vehicle count
+     * @throws IllegalArgumentException if level is null
+     * @since 3.2.0
+     */
+    int getVehicleCount(ServerLevel level);
+
+    /**
+     * Checks if a player owns a specific vehicle.
+     *
+     * @param vehicle The vehicle
+     * @param playerUUID The player UUID
+     * @return true if player owns this vehicle
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    boolean isVehicleOwner(EntityGenericVehicle vehicle, java.util.UUID playerUUID);
+
+    /**
+     * Repairs a vehicle to full durability.
+     *
+     * @param vehicle The vehicle
+     * @throws IllegalArgumentException if vehicle is null
+     * @since 3.2.0
+     */
+    void repairVehicle(EntityGenericVehicle vehicle);
+
+    /**
+     * Returns the vehicle's current speed.
+     *
+     * @param vehicle The vehicle
+     * @return Speed in blocks per tick
+     * @throws IllegalArgumentException if vehicle is null
+     * @since 3.2.0
+     */
+    double getVehicleSpeed(EntityGenericVehicle vehicle);
+
+    /**
+     * Sets the vehicle's license plate text.
+     *
+     * @param vehicle The vehicle
+     * @param plate License plate string
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    void setLicensePlate(EntityGenericVehicle vehicle, String plate);
 }

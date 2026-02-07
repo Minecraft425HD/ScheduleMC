@@ -163,4 +163,74 @@ public interface IPoliceAPI {
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
     boolean checkEscapeSuccess(UUID playerUUID);
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Returns all players with a wanted level > 0.
+     *
+     * @return Map of player UUID to wanted level
+     * @since 3.2.0
+     */
+    java.util.Map<UUID, Integer> getAllWantedPlayers();
+
+    /**
+     * Returns all players with a specific wanted level.
+     *
+     * @param level The wanted level (0-5)
+     * @return Set of player UUIDs at that level
+     * @throws IllegalArgumentException if level out of range
+     * @since 3.2.0
+     */
+    java.util.Set<UUID> getPlayersAtWantedLevel(int level);
+
+    /**
+     * Returns the total number of wanted players.
+     *
+     * @return Count of players with wanted level > 0
+     * @since 3.2.0
+     */
+    int getWantedPlayerCount();
+
+    /**
+     * Checks if a player is currently imprisoned.
+     *
+     * @param playerUUID The player's UUID
+     * @return true if imprisoned
+     * @throws IllegalArgumentException if playerUUID is null
+     * @since 3.2.0
+     */
+    boolean isImprisoned(UUID playerUUID);
+
+    /**
+     * Gets the remaining jail time for a player.
+     *
+     * @param playerUUID The player's UUID
+     * @return Remaining jail time in seconds, 0 if not imprisoned
+     * @throws IllegalArgumentException if playerUUID is null
+     * @since 3.2.0
+     */
+    long getRemainingJailTime(UUID playerUUID);
+
+    /**
+     * Releases a player from prison.
+     *
+     * @param playerUUID The player's UUID
+     * @return true if released, false if not imprisoned
+     * @throws IllegalArgumentException if playerUUID is null
+     * @since 3.2.0
+     */
+    boolean releaseFromPrison(UUID playerUUID);
+
+    /**
+     * Gets the bail amount for a player based on wanted level.
+     *
+     * @param playerUUID The player's UUID
+     * @return Bail amount in Euro, 0 if not wanted
+     * @throws IllegalArgumentException if playerUUID is null
+     * @since 3.2.0
+     */
+    double getBailAmount(UUID playerUUID);
 }
