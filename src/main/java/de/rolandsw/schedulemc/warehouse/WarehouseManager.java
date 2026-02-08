@@ -128,16 +128,12 @@ public class WarehouseManager {
             return;
         }
 
-        // Delivery möglicherweise nötig - jetzt Block-Entity laden
-        ChunkPos chunkPos = new ChunkPos(pos);
-        boolean wasLoaded = level.isLoaded(pos);
+        // Delivery möglicherweise nötig - jetzt Block-Entity laden (nur wenn Chunk geladen)
+        if (!level.isLoaded(pos)) {
+            return; // Chunk nicht geladen - Delivery beim naechsten Mal wenn Chunk geladen ist
+        }
 
         try {
-            // Force-load chunk temporär
-            if (!wasLoaded) {
-                level.getChunk(chunkPos.x, chunkPos.z);
-            }
-
             BlockEntity be = level.getBlockEntity(pos);
             if (!(be instanceof WarehouseBlockEntity warehouse)) {
                 // Warehouse existiert nicht mehr - deregistrieren und aus Cache entfernen
