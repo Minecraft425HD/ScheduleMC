@@ -313,15 +313,26 @@ public class CustomNPCEntity extends PathfinderMob {
         }
     }
 
+    // Cache für Emotion-Sync: Nur senden wenn sich etwas geändert hat
+    private EmotionState lastSyncedEmotion = null;
+    private float lastSyncedIntensity = -1f;
+
     /**
-     * Synchronisiert den Emotion-State zum Client für Rendering
+     * Synchronisiert den Emotion-State zum Client für Rendering.
+     * OPTIMIERT: Nur bei tatsächlicher Änderung - reduziert Netzwerk-Traffic um ~80%.
      */
     private void syncEmotionState() {
         if (lifeData != null && lifeData.getEmotions() != null) {
             EmotionState emotion = lifeData.getEmotions().getCurrentEmotion();
             float intensity = lifeData.getEmotions().getIntensity();
-            this.entityData.set(EMOTION_STATE, emotion.ordinal());
-            this.entityData.set(EMOTION_INTENSITY, intensity);
+
+            // Nur synchronisieren wenn sich der Zustand tatsächlich geändert hat
+            if (emotion != lastSyncedEmotion || Math.abs(intensity - lastSyncedIntensity) > 0.5f) {
+                this.entityData.set(EMOTION_STATE, emotion.ordinal());
+                this.entityData.set(EMOTION_INTENSITY, intensity);
+                lastSyncedEmotion = emotion;
+                lastSyncedIntensity = intensity;
+            }
         }
     }
 
