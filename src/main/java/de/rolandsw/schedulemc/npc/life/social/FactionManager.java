@@ -161,17 +161,17 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
 
             int baseRelation = faction.getBaseRelationWith(other);
             if (baseRelation > 50) {
-                // Verbündete: Halbe positive Auswirkung
+                // Verbündete: Halbe positive Auswirkung (Math.max(1,...) verhindert Precision-Loss)
                 if (amount > 0) {
-                    getRelation(playerUUID, other).modifyReputation(amount / 2);
+                    getRelation(playerUUID, other).modifyReputation(Math.max(1, amount / 2));
                 }
             } else if (baseRelation < -50) {
                 // Feinde: Negative Auswirkung bei positiven Aktionen
                 if (amount > 0) {
-                    getRelation(playerUUID, other).modifyReputation(-amount / 3);
+                    getRelation(playerUUID, other).modifyReputation(-Math.max(1, amount / 3));
                 } else {
                     // Bei negativen Aktionen gegen Feinde: Positiv
-                    getRelation(playerUUID, other).modifyReputation(-amount / 4);
+                    getRelation(playerUUID, other).modifyReputation(Math.max(1, -amount / 4));
                 }
             }
         }
@@ -206,7 +206,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
         if (beneficiary != Faction.UNTERGRUND) {
             for (Faction faction : Faction.values()) {
                 if (faction != beneficiary && faction != Faction.UNTERGRUND) {
-                    modifyReputation(playerUUID, faction, amount / 4);
+                    modifyReputation(playerUUID, faction, Math.max(1, amount / 4));
                 }
             }
         }
