@@ -381,8 +381,9 @@ public class NPCLifeSystemIntegration {
         NPCLifeData lifeData = witness.getLifeData();
         if (lifeData != null) {
             if (accepted) {
-                // Bestechung angenommen: Zeuge schweigt, aber negative Reputation
-                factionManager.modifyReputation(playerUUID, Faction.ORDNUNG, -2);
+                // Bestechung angenommen: Zeuge schweigt, aber Spieler wird korrupt
+                factionManager.modifyReputation(playerUUID, Faction.ORDNUNG, -5);
+                factionManager.modifyReputation(playerUUID, Faction.BUERGER, -3);
 
                 // Zeuge erinnert sich an die Bestechung
                 lifeData.getMemory().addMemory(
@@ -392,22 +393,25 @@ public class NPCLifeSystemIntegration {
                     8
                 );
                 lifeData.getMemory().addPlayerTag(playerUUID, "Bestechlich");
+
+                // Im Untergrund wird das respektiert
+                factionManager.modifyReputation(playerUUID, Faction.UNTERGRUND, 2);
             } else {
-                // Bestechung abgelehnt: Gerüchte verbreiten
+                // Bestechung abgelehnt: Gerüchte verbreiten, aber mildere Strafe
                 Rumor rumor = Rumor.createPlayer(
                     playerUUID,
                     "hat versucht Zeugen zu bestechen",
-                    5,
-                    7
+                    4,
+                    5
                 );
                 rumorNetwork.spreadRumor(rumor, witness.blockPosition());
 
-                // Schwere Reputation-Strafe
-                factionManager.modifyReputation(playerUUID, Faction.ORDNUNG, -10);
-                factionManager.modifyReputation(playerUUID, Faction.BUERGER, -5);
+                // Mildere Strafe: Der Versuch allein ist nicht so schlimm
+                factionManager.modifyReputation(playerUUID, Faction.ORDNUNG, -3);
+                factionManager.modifyReputation(playerUUID, Faction.BUERGER, -1);
 
-                // Zeuge ist empört
-                lifeData.getEmotions().trigger(EmotionState.ANGRY, 40.0f, 1200);
+                // Zeuge ist verärgert
+                lifeData.getEmotions().trigger(EmotionState.ANGRY, 25.0f, 600);
             }
         }
     }
