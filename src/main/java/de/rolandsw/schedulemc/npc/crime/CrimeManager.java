@@ -34,9 +34,25 @@ public class CrimeManager {
     private static final File CRIME_FILE = new File("config/plotmod_crimes.json");
     private static final int MAX_WANTED_LEVEL = 5;
 
-    // Escape Timer: 30 Sekunden verstecken = Polizei gibt auf
-    public static final long ESCAPE_DURATION = 30 * 20; // 30 Sekunden in Ticks
+    // Escape Timer: Skaliert nach Wanted-Level (nicht mehr pauschal 30 Sek)
+    public static final long BASE_ESCAPE_DURATION = 20 * 20; // 20 Sekunden in Ticks (Level 1)
     public static final double ESCAPE_DISTANCE = 40.0; // Mindestabstand zur Polizei
+
+    /**
+     * Berechnet Fluchtdauer basierend auf Wanted-Level:
+     * Level 1: 20 Sek, Level 2: 40 Sek, Level 3: 60 Sek,
+     * Level 4: 90 Sek, Level 5: 120 Sek
+     */
+    public static long getEscapeDuration(int wantedLevel) {
+        return switch (wantedLevel) {
+            case 1 -> 20 * 20;   // 20 Sekunden
+            case 2 -> 40 * 20;   // 40 Sekunden
+            case 3 -> 60 * 20;   // 60 Sekunden
+            case 4 -> 90 * 20;   // 90 Sekunden
+            case 5 -> 120 * 20;  // 120 Sekunden
+            default -> BASE_ESCAPE_DURATION;
+        };
+    }
 
     // SICHERHEIT: ConcurrentHashMap fuer Thread-Sicherheit
     private static final Map<UUID, Integer> wantedLevels = new ConcurrentHashMap<>();
@@ -184,13 +200,18 @@ public class CrimeManager {
         }
     }
 
+    /**
+     * Beschleunigter Wanted-Decay: 1 Level pro halben Tag (12h Spielzeit).
+     * Vorher: 1 Level pro Tag. Jetzt: daysPassed * 2 als Decay-Rate.
+     */
     public static void decayWantedLevel(UUID playerUUID, long currentDay) {
         Long lastCrime = lastCrimeDay.get(playerUUID);
         if (lastCrime == null) return;
 
         long daysPassed = currentDay - lastCrime;
         if (daysPassed > 0) {
-            final int decay = (int) daysPassed;
+            // Beschleunigt: 2x Decay (effektiv 1 Level pro 12h statt 24h)
+            final int decay = (int) Math.min(MAX_WANTED_LEVEL, daysPassed * 2);
 
             wantedLevels.compute(playerUUID, (key, current) -> {
                 if (current == null) return null;
@@ -230,8 +251,10 @@ public class CrimeManager {
         if (startTick == null) {
             return 0;
         }
+        int level = getWantedLevel(playerUUID);
+        long duration = getEscapeDuration(level);
         long elapsed = currentTick - startTick;
-        long remaining = ESCAPE_DURATION - elapsed;
+        long remaining = duration - elapsed;
         return Math.max(0, remaining);
     }
 
