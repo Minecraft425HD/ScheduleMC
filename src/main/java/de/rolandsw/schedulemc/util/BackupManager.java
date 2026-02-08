@@ -5,8 +5,12 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -33,6 +37,9 @@ public class BackupManager {
      * @param sourceFile Die zu sichernde Datei
      * @return true wenn erfolgreich
      */
+    /**
+     * Erstellt ein GZIP-komprimiertes Backup (~70-80% kleiner).
+     */
     public static boolean createBackup(File sourceFile) {
         if (!sourceFile.exists()) {
             LOGGER.warn("Backup skipped - file does not exist: {}", sourceFile.getAbsolutePath());
@@ -41,15 +48,21 @@ public class BackupManager {
 
         try {
             String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMAT);
-            String backupName = sourceFile.getName() + ".backup_" + timestamp;
+            String backupName = sourceFile.getName() + ".backup_" + timestamp + ".gz";
             File backupFile = new File(sourceFile.getParent(), backupName);
 
-            Files.copy(sourceFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            LOGGER.info("Backup erstellt: {}", backupFile.getName());
+            // GZIP-komprimiertes Backup erstellen
+            try (InputStream in = Files.newInputStream(sourceFile.toPath());
+                 OutputStream out = new GZIPOutputStream(Files.newOutputStream(backupFile.toPath()))) {
+                in.transferTo(out);
+            }
 
-            // Cleanup alter Backups
+            long originalSize = sourceFile.length();
+            long compressedSize = backupFile.length();
+            int ratio = originalSize > 0 ? (int) (100 - (compressedSize * 100 / originalSize)) : 0;
+            LOGGER.info("Backup erstellt: {} ({}% komprimiert)", backupFile.getName(), ratio);
+
             cleanupOldBackups(sourceFile);
-
             return true;
         } catch (IOException e) {
             LOGGER.error("Error creating backup for {}", sourceFile.getName(), e);
@@ -63,6 +76,9 @@ public class BackupManager {
      * @param targetFile Die wiederherzustellende Datei
      * @return true wenn erfolgreich
      */
+    /**
+     * Stellt ein Backup wieder her. Unterstützt sowohl .gz als auch unkomprimierte Backups.
+     */
     public static boolean restoreFromBackup(File targetFile) {
         File latestBackup = getLatestBackup(targetFile);
 
@@ -72,7 +88,16 @@ public class BackupManager {
         }
 
         try {
-            Files.copy(latestBackup.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            if (latestBackup.getName().endsWith(".gz")) {
+                // GZIP-dekomprimieren
+                try (InputStream in = new GZIPInputStream(Files.newInputStream(latestBackup.toPath()));
+                     OutputStream out = Files.newOutputStream(targetFile.toPath())) {
+                    in.transferTo(out);
+                }
+            } else {
+                // Unkomprimiertes Backup (Abwärtskompatibilität)
+                Files.copy(latestBackup.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
             LOGGER.info("Backup wiederhergestellt von: {} nach {}", latestBackup.getName(), targetFile.getName());
             return true;
         } catch (IOException e) {
