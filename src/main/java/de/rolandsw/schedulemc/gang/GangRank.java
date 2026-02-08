@@ -64,18 +64,18 @@ public enum GangRank {
     }
 
     /**
-     * Mitgliederbeitrag-Multiplikator (Vorschlag 2: Stufenrabatt).
-     * BOSS: 0% (zahlt nichts)
-     * UNDERBOSS: 10%
+     * Mitgliederbeitrag-Multiplikator (invertiert: höherer Rang = mehr Verantwortung).
+     * BOSS: 100% (trägt die Hauptlast)
+     * UNDERBOSS: 75%
      * MEMBER: 50%
-     * RECRUIT: 100% (voller Beitrag)
+     * RECRUIT: 25% (Einsteigerfreundlich)
      */
     public double getFeeMultiplier() {
         return switch (this) {
-            case BOSS -> 0.0;
-            case UNDERBOSS -> 0.10;
+            case BOSS -> 1.0;
+            case UNDERBOSS -> 0.75;
             case MEMBER -> 0.50;
-            case RECRUIT -> 1.0;
+            case RECRUIT -> 0.25;
         };
     }
 
