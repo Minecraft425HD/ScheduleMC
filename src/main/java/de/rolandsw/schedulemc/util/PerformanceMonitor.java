@@ -156,13 +156,13 @@ public class PerformanceMonitor {
                 String name = entry.getKey();
                 OperationStats stat = entry.getValue();
 
-                LOGGER.info("║ {:27} │ {:6} │ {:5.2f}ms │ {:5.2f}ms │ {:5.2f}ms ║",
+                LOGGER.info(String.format("║ %-27s │ %6d │ %5.2fms │ %5.2fms │ %5.2fms ║",
                     truncate(name, 27),
                     stat.count.get(),
                     stat.getAverageMs(),
                     stat.getMinMs(),
                     stat.getMaxMs()
-                );
+                ));
             });
 
         LOGGER.info("╚═══════════════════════════════════════════════════════════════════╝");
