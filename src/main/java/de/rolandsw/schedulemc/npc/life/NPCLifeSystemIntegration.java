@@ -135,8 +135,9 @@ public class NPCLifeSystemIntegration {
             worldEventManager.tick(level);
         }
 
-        // Counter zurücksetzen
+        // Alle 24000 Ticks (1 MC-Tag): Reputations-Decay anwenden
         if (tickCounter >= 24000) {
+            factionManager.applyDailyReputationDecay();
             tickCounter = 0;
         }
     }

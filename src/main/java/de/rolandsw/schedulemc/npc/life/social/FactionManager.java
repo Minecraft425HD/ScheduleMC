@@ -116,9 +116,42 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
     }
 
     /**
-     * Ändert die Reputation eines Spielers bei einer Fraktion
+     * Täglicher Reputations-Decay: Negative Reputation verblasst mit -10%/Tag,
+     * positive mit -5%/Tag. Wird aus NPCLifeSystemIntegration.tick() aufgerufen.
+     */
+    public void applyDailyReputationDecay() {
+        for (Map.Entry<UUID, Map<Faction, FactionRelation>> entry : playerFactions.entrySet()) {
+            for (FactionRelation relation : entry.getValue().values()) {
+                int rep = relation.getReputation();
+                if (rep < 0) {
+                    // Negative Reputation verblasst schneller (-10% pro Tag, min +1)
+                    int recovery = Math.max(1, (int) Math.ceil(Math.abs(rep) * 0.10));
+                    relation.modifyReputation(recovery);
+                } else if (rep > 0) {
+                    // Positive Reputation verblasst langsamer (-5% pro Tag, min +1)
+                    int decay = Math.max(1, (int) Math.ceil(rep * 0.05));
+                    relation.modifyReputation(-decay);
+                }
+            }
+        }
+        markDirty();
+    }
+
+    /**
+     * Ändert die Reputation eines Spielers bei einer Fraktion.
+     * Wendet Diminishing Returns an: Wiederholte Strafen werden abgeschwächt.
      */
     public void modifyReputation(UUID playerUUID, Faction faction, int amount) {
+        // Diminishing Returns bei Strafen: Je negativer die Reputation bereits ist,
+        // desto weniger wirken weitere Strafen
+        if (amount < 0) {
+            int currentRep = getReputation(playerUUID, faction);
+            if (currentRep < -50) {
+                amount = (int) Math.ceil(amount * 0.5); // 50% Wirkung unter -50
+            } else if (currentRep < -20) {
+                amount = (int) Math.ceil(amount * 0.75); // 75% Wirkung unter -20
+            }
+        }
         getRelation(playerUUID, faction).modifyReputation(amount);
         markDirty();
 
