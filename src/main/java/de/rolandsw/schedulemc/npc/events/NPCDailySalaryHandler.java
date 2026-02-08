@@ -31,7 +31,7 @@ import java.util.List;
 public class NPCDailySalaryHandler {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static long lastSalaryDay = -1;
+    private static volatile long lastSalaryDay = -1;
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {

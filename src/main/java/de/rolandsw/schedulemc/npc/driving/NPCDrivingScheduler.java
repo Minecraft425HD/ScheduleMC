@@ -44,8 +44,8 @@ public class NPCDrivingScheduler {
 
     private static final Deque<NPCDrivingTask> activeTasks = new ConcurrentLinkedDeque<>();
     private static final Map<UUID, NPCDrivingTask> tasksByNpc = new ConcurrentHashMap<>();
-    private static int tickCounter = 0;
-    private static int assignmentCheckCounter = 0;
+    private static volatile int tickCounter = 0;
+    private static volatile int assignmentCheckCounter = 0;
 
     /**
      * Startet eine NPC-Fahrt entlang des RoadGraph-Pfads.

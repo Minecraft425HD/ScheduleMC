@@ -28,7 +28,7 @@ public class PlayerSettingsManager {
 
     // SICHERHEIT: ConcurrentHashMap für Thread-safe Zugriff
     private static Map<String, PlayerSettings> settingsMap = new ConcurrentHashMap<>();
-    private static boolean needsSave = false;
+    private static volatile boolean needsSave = false;
 
     /**
      * Lädt alle Einstellungen aus der Datei

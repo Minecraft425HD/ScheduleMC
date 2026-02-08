@@ -21,10 +21,10 @@ public class VersionChecker {
     private static final String GITHUB_API_URL = "https://api.github.com/repos/Minecraft425HD/ScheduleMC/releases/latest";
     private static String CURRENT_VERSION = null;
 
-    private static String latestVersion = null;
-    private static String downloadUrl = null;
-    private static boolean updateAvailable = false;
-    private static boolean checkInProgress = false;
+    private static volatile String latestVersion = null;
+    private static volatile String downloadUrl = null;
+    private static volatile boolean updateAvailable = false;
+    private static volatile boolean checkInProgress = false;
 
     /**
      * Prüft asynchron auf Updates (using ThreadPoolManager.getIOPool())
