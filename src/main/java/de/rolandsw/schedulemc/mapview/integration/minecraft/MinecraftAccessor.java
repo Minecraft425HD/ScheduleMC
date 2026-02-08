@@ -4,26 +4,35 @@ import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+
+import javax.annotation.Nullable;
 
 public class MinecraftAccessor {
+    @Nullable
     public static ClientLevel getWorld() {
         return Minecraft.getInstance().level;
     }
 
     public static int xCoord() {
-        return Mth.floor(Minecraft.getInstance().player.getX());
+        Player player = Minecraft.getInstance().player;
+        return player != null ? Mth.floor(player.getX()) : 0;
     }
 
     public static int zCoord() {
-        return Mth.floor(Minecraft.getInstance().player.getZ());
+        Player player = Minecraft.getInstance().player;
+        return player != null ? Mth.floor(player.getZ()) : 0;
     }
 
     public static int yCoord() {
-        return Mth.floor(Minecraft.getInstance().player.getY());
+        Player player = Minecraft.getInstance().player;
+        return player != null ? Mth.floor(player.getY()) : 0;
     }
 
     public static double xCoordDouble() {
         var player = Minecraft.getInstance().player;
+        if (player == null) return 0;
         return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen()
             ? player.getX()
             : player.xo + (player.getX() - player.xo) * MapViewConstants.getMinecraft().getFrameTime();
@@ -31,6 +40,7 @@ public class MinecraftAccessor {
 
     public static double zCoordDouble() {
         var player = Minecraft.getInstance().player;
+        if (player == null) return 0;
         return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen()
             ? player.getZ()
             : player.zo + (player.getZ() - player.zo) * MapViewConstants.getMinecraft().getFrameTime();
@@ -38,12 +48,15 @@ public class MinecraftAccessor {
 
     public static double yCoordDouble() {
         var player = Minecraft.getInstance().player;
+        if (player == null) return 0;
         return MapViewConstants.getMinecraft().screen != null && MapViewConstants.getMinecraft().screen.isPauseScreen()
             ? player.getY()
             : player.yo + (player.getY() - player.yo) * MapViewConstants.getMinecraft().getFrameTime();
     }
 
     public static float rotationYaw() {
-        return MapViewConstants.getMinecraft().getCameraEntity().yRotO + (MapViewConstants.getMinecraft().getCameraEntity().getYRot() - MapViewConstants.getMinecraft().getCameraEntity().yRotO) * MapViewConstants.getMinecraft().getFrameTime();
+        Entity camera = MapViewConstants.getMinecraft().getCameraEntity();
+        if (camera == null) return 0;
+        return camera.yRotO + (camera.getYRot() - camera.yRotO) * MapViewConstants.getMinecraft().getFrameTime();
     }
 }

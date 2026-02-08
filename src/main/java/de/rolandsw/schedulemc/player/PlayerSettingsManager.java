@@ -36,7 +36,7 @@ public class PlayerSettingsManager {
     public static void load() {
         if (!SETTINGS_FILE.exists()) {
             LOGGER.info("Player settings file doesn't exist yet, creating new one");
-            settingsMap = new HashMap<>();
+            settingsMap = new ConcurrentHashMap<>();
             save();
             return;
         }
