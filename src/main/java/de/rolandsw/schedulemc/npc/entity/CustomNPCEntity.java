@@ -6,6 +6,11 @@ import de.rolandsw.schedulemc.mapview.npc.NPCActivityStatus;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.NPCPersonality;
 import de.rolandsw.schedulemc.npc.data.NPCType;
+import de.rolandsw.schedulemc.npc.entity.component.NPCComponent;
+import de.rolandsw.schedulemc.npc.entity.component.NPCComponentHolder;
+import de.rolandsw.schedulemc.npc.entity.component.ActivityTrackingComponent;
+import de.rolandsw.schedulemc.npc.entity.component.DrivingComponent;
+import de.rolandsw.schedulemc.npc.entity.component.TradingComponent;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.core.NPCNeeds;
 import de.rolandsw.schedulemc.npc.life.core.NPCEmotions;
@@ -103,6 +108,9 @@ public class CustomNPCEntity extends PathfinderMob {
     private NPCBehaviorEngine behaviorEngine;
     private boolean lifeSystemEnabled = true;
 
+    // Component System - Modulare NPC-Logik
+    private final NPCComponentHolder components = new NPCComponentHolder();
+
     // Performance-Optimierung: Player-Lookup Throttling
     private int playerLookupCounter = 0;
     private static final int PLAYER_LOOKUP_INTERVAL = 20; // Alle 20 Ticks (1 Sekunde)
@@ -118,6 +126,18 @@ public class CustomNPCEntity extends PathfinderMob {
         this.behaviorEngine = new NPCBehaviorEngine(this);
         StandardActions.registerAllStandardActions(this.behaviorEngine);
         this.setMaxUpStep(1.5F); // Ermöglicht das Steigen auf Blöcke und Treppen (erhöht für bessere Navigation)
+        // Component System initialisieren
+        initializeComponents();
+    }
+
+    /**
+     * Initialisiert die Standard-Komponenten des NPCs.
+     * Neue Komponenten koennen hier oder dynamisch via getComponents().addComponent() hinzugefuegt werden.
+     */
+    private void initializeComponents() {
+        components.addComponent(new DrivingComponent(), this);
+        components.addComponent(new ActivityTrackingComponent(), this);
+        components.addComponent(new TradingComponent(), this);
     }
 
     @Override
@@ -304,6 +324,9 @@ public class CustomNPCEntity extends PathfinderMob {
 
             // Tägliches Einkommen wird jetzt global durch NPCDailySalaryHandler verwaltet
 
+            // Component System Update (individuelles Throttling pro Komponente)
+            components.tickAll(this);
+
             // Activity Status Update (throttled für Performance)
             activityStatusUpdateCounter++;
             if (activityStatusUpdateCounter >= ACTIVITY_STATUS_UPDATE_INTERVAL) {
@@ -436,6 +459,11 @@ public class CustomNPCEntity extends PathfinderMob {
             tag.put("LifeData", lifeData.save());
         }
         tag.putBoolean("LifeSystemEnabled", lifeSystemEnabled);
+        // Component System speichern
+        CompoundTag componentTag = components.saveAll();
+        if (!componentTag.isEmpty()) {
+            tag.put("Components", componentTag);
+        }
     }
 
     @Override
@@ -456,6 +484,10 @@ public class CustomNPCEntity extends PathfinderMob {
         }
         if (tag.contains("LifeSystemEnabled")) {
             lifeSystemEnabled = tag.getBoolean("LifeSystemEnabled");
+        }
+        // Component System laden
+        if (tag.contains("Components")) {
+            components.loadAll(tag.getCompound("Components"));
         }
     }
 
@@ -615,6 +647,25 @@ public class CustomNPCEntity extends PathfinderMob {
             return values[ordinal];
         }
         return NPCActivityStatus.ROAMING;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // COMPONENT SYSTEM
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Gibt den Component-Holder zurueck fuer Zugriff auf modulare Komponenten.
+     * Beispiel: entity.getComponents().getComponent(DrivingComponent.class)
+     */
+    public NPCComponentHolder getComponents() {
+        return components;
+    }
+
+    /**
+     * Shortcut: Holt eine bestimmte Komponente nach Typ.
+     */
+    public <T extends NPCComponent> T getComponent(Class<T> type) {
+        return components.getComponent(type);
     }
 
     // ═══════════════════════════════════════════════════════════
