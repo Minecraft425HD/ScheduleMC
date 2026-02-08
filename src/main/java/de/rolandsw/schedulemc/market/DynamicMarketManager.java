@@ -45,11 +45,11 @@ public class DynamicMarketManager {
      * Config
      */
     private boolean enabled = false;
-    private double supplyDemandFactor = 0.3;   // Wie stark S&D Preise beeinflusst
+    private double supplyDemandFactor = 0.6;   // Stärkerer S&D-Einfluss (vorher 0.3)
     private double minPriceMultiplier = 0.5;   // Min 50% des Base Price
     private double maxPriceMultiplier = 3.0;   // Max 300% des Base Price
-    private double supplyDecayRate = 0.1;      // 10% Decay pro Update
-    private double demandDecayRate = 0.1;      // 10% Decay pro Update
+    private double supplyDecayRate = 0.03;     // 3% Decay pro Update (vorher 10% - viel zu aggressiv)
+    private double demandDecayRate = 0.03;     // 3% Decay pro Update
     private int updateInterval = 6000;         // Ticks (5 Minuten)
 
     private static final File MARKET_FILE = new File("config/plotmod_market.json");
@@ -330,6 +330,68 @@ public class DynamicMarketManager {
             totalUpdates,
             lastUpdateTime
         );
+    }
+
+    /**
+     * Erstellt einen spieler-sichtbaren Marktbericht als Chat-Nachricht.
+     * Zeigt Top 5 steigende und fallende Items mit Prozentänderung.
+     */
+    public String getPlayerMarketReport() {
+        if (marketData.isEmpty()) {
+            return "\u00A77Keine Marktdaten verfügbar.";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("\u00A76\u00A7l=== Marktübersicht ===\u00A7r\n");
+
+        // Steigende Preise
+        List<MarketData> rising = getTrendingUpItems(5);
+        if (!rising.isEmpty()) {
+            sb.append("\n\u00A7a\u2191 Steigende Preise:\n");
+            for (MarketData data : rising) {
+                sb.append(String.format("  \u00A7f%s: \u00A7a+%.1f%% \u00A77(%.2f\u20AC)\n",
+                    getItemDisplayName(data.getItem()),
+                    data.getPriceChangePercent(),
+                    data.getCurrentPrice()));
+            }
+        }
+
+        // Fallende Preise
+        List<MarketData> falling = getTrendingDownItems(5);
+        if (!falling.isEmpty()) {
+            sb.append("\n\u00A7c\u2193 Fallende Preise:\n");
+            for (MarketData data : falling) {
+                sb.append(String.format("  \u00A7f%s: \u00A7c%.1f%% \u00A77(%.2f\u20AC)\n",
+                    getItemDisplayName(data.getItem()),
+                    data.getPriceChangePercent(),
+                    data.getCurrentPrice()));
+            }
+        }
+
+        // Zusammenfassung
+        MarketStatistics stats = getStatistics();
+        sb.append(String.format("\n\u00A77Items: %d | \u00A7a\u2191%d \u00A7c\u2193%d \u00A7e\u2194%d",
+            stats.totalItems(), stats.risingCount(), stats.fallingCount(), stats.stableCount()));
+
+        return sb.toString();
+    }
+
+    private String getItemDisplayName(Item item) {
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+        if (id != null) {
+            String path = id.getPath();
+            // Convert snake_case to readable: "diamond_sword" -> "Diamond Sword"
+            String[] parts = path.split("_");
+            StringBuilder name = new StringBuilder();
+            for (String part : parts) {
+                if (!part.isEmpty()) {
+                    if (name.length() > 0) name.append(" ");
+                    name.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+                }
+            }
+            return name.toString();
+        }
+        return item.toString();
     }
 
     /**
