@@ -68,13 +68,15 @@ public class RateLimiter {
             k -> new OperationWindow(now)
         );
 
-        // Prüfe ob Fenster abgelaufen ist
-        if (now - window.windowStart >= windowSizeMs) {
-            // Neues Fenster starten
-            window.reset(now);
+        // Synchronized: Fenster-Reset und Count-Increment müssen atomar sein
+        // um Race Conditions beim Window-Wechsel zu vermeiden
+        int currentCount;
+        synchronized (window) {
+            if (now - window.windowStart >= windowSizeMs) {
+                window.reset(now);
+            }
+            currentCount = window.count.incrementAndGet();
         }
-
-        int currentCount = window.count.incrementAndGet();
 
         if (currentCount > maxOperationsPerWindow) {
             // Rate Limit erreicht
@@ -87,6 +89,17 @@ public class RateLimiter {
         }
 
         return true;
+    }
+
+    /**
+     * Startet automatischen periodischen Cleanup alter Einträge.
+     * Entfernt Spieler-Einträge die älter als 5 Minuten sind, alle 5 Minuten.
+     */
+    public void startAutoCleanup() {
+        ThreadPoolManager.getScheduledPool().scheduleAtFixedRate(
+            () -> cleanupOldEntries(300_000L), // Einträge älter als 5 Minuten
+            300, 300, java.util.concurrent.TimeUnit.SECONDS
+        );
     }
 
     /**
