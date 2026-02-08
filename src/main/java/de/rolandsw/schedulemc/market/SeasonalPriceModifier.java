@@ -163,8 +163,8 @@ public class SeasonalPriceModifier {
      * Berechnet die Saison fuer einen bestimmten Spieltag.
      */
     public static Season getSeasonForDay(long day) {
-        int dayInYear = (int) (day % DAYS_PER_YEAR);
-        int seasonIndex = dayInYear / DAYS_PER_SEASON;
+        int dayInYear = (int) (Math.abs(day) % DAYS_PER_YEAR);
+        int seasonIndex = Math.min(dayInYear / DAYS_PER_SEASON, Season.values().length - 1);
         return Season.values()[seasonIndex];
     }
 

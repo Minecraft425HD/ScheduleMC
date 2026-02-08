@@ -70,14 +70,16 @@ public class DynamicMarketManager {
     }
 
     public static DynamicMarketManager getInstance() {
-        if (instance == null) {
+        DynamicMarketManager localRef = instance;
+        if (localRef == null) {
             synchronized (DynamicMarketManager.class) {
-                if (instance == null) {
-                    instance = new DynamicMarketManager();
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new DynamicMarketManager();
                 }
             }
         }
-        return instance;
+        return localRef;
     }
 
     // ═══════════════════════════════════════════════════════════

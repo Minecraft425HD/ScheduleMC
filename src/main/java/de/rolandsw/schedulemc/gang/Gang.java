@@ -4,6 +4,8 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -137,6 +139,7 @@ public class Gang {
         return true;
     }
 
+    @Nullable
     public UUID getBoss() {
         for (Map.Entry<UUID, GangMemberData> entry : members.entrySet()) {
             if (entry.getValue().getRank() == GangRank.BOSS) {
