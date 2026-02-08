@@ -225,7 +225,7 @@ public class ThreadPoolManager {
      * @return Future für Ergebnis
      */
     public static Future<?> submitIO(Runnable task) {
-        return IO_POOL.submit(task);
+        return getIOPool().submit(task);
     }
 
     /**
@@ -235,7 +235,7 @@ public class ThreadPoolManager {
      * @return Future für Ergebnis
      */
     public static Future<?> submitRender(Runnable task) {
-        return RENDER_POOL.submit(task);
+        return getRenderPool().submit(task);
     }
 
     /**
@@ -245,7 +245,7 @@ public class ThreadPoolManager {
      * @return Future für Ergebnis
      */
     public static Future<?> submitComputation(Runnable task) {
-        return COMPUTATION_POOL.submit(task);
+        return getComputationPool().submit(task);
     }
 
     /**
@@ -255,7 +255,7 @@ public class ThreadPoolManager {
      * @return Future für Ergebnis
      */
     public static Future<?> submitAsync(Runnable task) {
-        return ASYNC_POOL.submit(task);
+        return getAsyncPool().submit(task);
     }
 
     /**
@@ -267,7 +267,7 @@ public class ThreadPoolManager {
      * @return ScheduledFuture
      */
     public static ScheduledFuture<?> schedule(Runnable task, long delay, TimeUnit unit) {
-        return SCHEDULED_POOL.schedule(task, delay, unit);
+        return getScheduledPool().schedule(task, delay, unit);
     }
 
     /**
@@ -284,7 +284,7 @@ public class ThreadPoolManager {
             long initialDelay,
             long period,
             TimeUnit unit) {
-        return SCHEDULED_POOL.scheduleAtFixedRate(task, initialDelay, period, unit);
+        return getScheduledPool().scheduleAtFixedRate(task, initialDelay, period, unit);
     }
 
     // ═══════════════════════════════════════════════════════════
