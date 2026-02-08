@@ -107,12 +107,15 @@ public class CrimeManager {
     }
 
     /**
-     * Fuegt Wanted-Level hinzu UND erstellt CrimeRecord
-     * FIX 8: Crime-Record Historie
+     * Fuegt Wanted-Level hinzu UND erstellt CrimeRecord.
+     * Nutzt die wantedStars des CrimeType fuer severity-basierte Eskalation.
+     * Der amount-Parameter wird ignoriert zugunsten von crimeType.getWantedStars().
      */
     public static void addWantedLevel(UUID playerUUID, int amount, long currentDay,
                                        CrimeType crimeType, @Nullable BlockPos location) {
-        addWantedLevel(playerUUID, amount, currentDay);
+        // Severity-basiert: nutze die Wanted-Stars des CrimeType statt dem rohen amount
+        int severityBasedAmount = crimeType.getWantedStars();
+        addWantedLevel(playerUUID, severityBasedAmount, currentDay);
         addCrimeRecord(playerUUID, crimeType, location);
     }
 

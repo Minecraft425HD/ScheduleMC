@@ -331,8 +331,11 @@ public class NPCLifeSystemIntegration {
     public void onCrimeWitnessed(ServerPlayer criminal, CrimeType crimeType, CustomNPCEntity witness) {
         UUID criminalUUID = criminal.getUUID();
 
-        // Reputation bei relevanten Fraktionen verringern
-        int reputationPenalty = crimeType.getSeverity() * 3;
+        // Severity-skalierte Reputations-Strafen basierend auf Wanted-Stars
+        // Petty Theft (1 Star): -2 ORDNUNG, -1 BUERGER
+        // Murder (3 Stars): -6 ORDNUNG, -3 BUERGER
+        // Terrorism (5 Stars): -10 ORDNUNG, -5 BUERGER
+        int reputationPenalty = crimeType.getWantedStars() * 2;
         factionManager.modifyReputation(criminalUUID, Faction.ORDNUNG, -reputationPenalty);
         factionManager.modifyReputation(criminalUUID, Faction.BUERGER, -reputationPenalty / 2);
 
