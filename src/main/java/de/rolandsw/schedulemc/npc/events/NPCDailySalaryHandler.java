@@ -32,6 +32,7 @@ public class NPCDailySalaryHandler {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static volatile long lastSalaryDay = -1;
+    private static final Object SALARY_LOCK = new Object();
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -44,11 +45,14 @@ public class NPCDailySalaryHandler {
             ServerLevel level = server.overworld();
             long currentDay = level.getDayTime() / 24000L;
 
-            // Prüfe ob ein neuer Tag begonnen hat
-            // Dies funktioniert auch wenn Zeit übersprungen wird (z.B. durch Schlafen)
+            // Prüfe ob ein neuer Tag begonnen hat (synchronized gegen doppelte Gehaltszahlung)
             if (currentDay > lastSalaryDay) {
-                lastSalaryDay = currentDay;
-                payAllNPCSalaries(level, currentDay);
+                synchronized (SALARY_LOCK) {
+                    if (currentDay > lastSalaryDay) {
+                        lastSalaryDay = currentDay;
+                        payAllNPCSalaries(level, currentDay);
+                    }
+                }
             }
         });
     }

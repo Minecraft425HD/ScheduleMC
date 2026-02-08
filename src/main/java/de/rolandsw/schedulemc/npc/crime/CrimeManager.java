@@ -140,13 +140,15 @@ public class CrimeManager {
      */
     public static void addCrimeRecord(UUID playerUUID, CrimeType crimeType, @Nullable BlockPos location) {
         CrimeRecord record = new CrimeRecord(playerUUID, crimeType, location);
-        List<CrimeRecord> records = crimeHistory.computeIfAbsent(playerUUID, k -> new ArrayList<>());
+        List<CrimeRecord> records = crimeHistory.computeIfAbsent(playerUUID, k -> Collections.synchronizedList(new ArrayList<>()));
 
-        // Limit einhalten
-        while (records.size() >= MAX_RECORDS_PER_PLAYER) {
-            records.remove(0);
+        // Limit einhalten (synchronized um ConcurrentModificationException zu vermeiden)
+        synchronized (records) {
+            while (records.size() >= MAX_RECORDS_PER_PLAYER) {
+                records.remove(0);
+            }
+            records.add(record);
         }
-        records.add(record);
         markDirty();
         LOGGER.debug("CrimeRecord added for {}: {}", playerUUID, crimeType.name());
     }
