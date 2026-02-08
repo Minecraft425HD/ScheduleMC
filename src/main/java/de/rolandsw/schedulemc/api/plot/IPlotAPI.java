@@ -129,4 +129,113 @@ public interface IPlotAPI {
      * @return Anzahl der Plots
      */
     int getPlotCount();
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Returns all plots of a specific type.
+     *
+     * @param type The plot type
+     * @return List of plots matching the type
+     * @throws IllegalArgumentException if type is null
+     * @since 3.2.0
+     */
+    List<PlotRegion> getPlotsByType(PlotType type);
+
+    /**
+     * Sets the owner of a plot.
+     *
+     * @param plotId The plot ID
+     * @param ownerUUID The new owner's UUID (null to remove owner)
+     * @return true if successful
+     * @throws IllegalArgumentException if plotId is null
+     * @since 3.2.0
+     */
+    boolean setPlotOwner(String plotId, @Nullable UUID ownerUUID);
+
+    /**
+     * Sets the price of a plot.
+     *
+     * @param plotId The plot ID
+     * @param price New price in Euro
+     * @return true if successful
+     * @throws IllegalArgumentException if plotId is null or price negative
+     * @since 3.2.0
+     */
+    boolean setPlotPrice(String plotId, double price);
+
+    /**
+     * Adds a trusted player to a plot.
+     *
+     * @param plotId The plot ID
+     * @param playerUUID The player to trust
+     * @return true if successful
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    boolean addTrustedPlayer(String plotId, UUID playerUUID);
+
+    /**
+     * Removes a trusted player from a plot.
+     *
+     * @param plotId The plot ID
+     * @param playerUUID The player to untrust
+     * @return true if successful
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    boolean removeTrustedPlayer(String plotId, UUID playerUUID);
+
+    /**
+     * Returns all trusted players of a plot.
+     *
+     * @param plotId The plot ID
+     * @return Set of trusted player UUIDs
+     * @throws IllegalArgumentException if plotId is null
+     * @since 3.2.0
+     */
+    java.util.Set<UUID> getTrustedPlayers(String plotId);
+
+    /**
+     * Sets a plot for sale or removes it from sale.
+     *
+     * @param plotId The plot ID
+     * @param forSale true to list for sale, false to delist
+     * @return true if successful
+     * @throws IllegalArgumentException if plotId is null
+     * @since 3.2.0
+     */
+    boolean setPlotForSale(String plotId, boolean forSale);
+
+    /**
+     * Changes the type of an existing plot.
+     *
+     * @param plotId The plot ID
+     * @param newType The new plot type
+     * @return true if successful
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    boolean setPlotType(String plotId, PlotType newType);
+
+    /**
+     * Returns all plots within a radius of a position.
+     *
+     * @param center Center position
+     * @param radius Search radius in blocks
+     * @return List of plots within range
+     * @throws IllegalArgumentException if center is null or radius negative
+     * @since 3.2.0
+     */
+    List<PlotRegion> getPlotsInRadius(net.minecraft.core.BlockPos center, double radius);
+
+    /**
+     * Returns the total number of plots per type.
+     *
+     * @return Map of PlotType to count
+     * @since 3.2.0
+     */
+    java.util.Map<PlotType, Integer> getPlotCountByType();
 }

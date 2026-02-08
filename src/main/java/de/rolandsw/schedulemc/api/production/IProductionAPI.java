@@ -152,4 +152,43 @@ public interface IProductionAPI {
      * @throws IllegalArgumentException wenn position null ist
      */
     double getProductionProgress(BlockPos position);
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Returns all production IDs.
+     *
+     * @return Set of all registered production IDs
+     * @since 3.2.0
+     */
+    java.util.Set<String> getAllProductionIds();
+
+    /**
+     * Returns the production categories.
+     *
+     * @return Array of all available categories
+     * @since 3.2.0
+     */
+    ProductionConfig.ProductionCategory[] getCategories();
+
+    /**
+     * Modifies the base price of a production.
+     *
+     * @param productionId The production ID
+     * @param newBasePrice The new base price
+     * @return true if successful
+     * @throws IllegalArgumentException if productionId is null or price negative
+     * @since 3.2.0
+     */
+    boolean setProductionBasePrice(String productionId, double newBasePrice);
+
+    /**
+     * Returns production statistics summary.
+     *
+     * @return Formatted statistics string
+     * @since 3.2.0
+     */
+    String getProductionStatistics();
 }

@@ -131,4 +131,77 @@ public interface IWarehouseAPI {
      * @throws IllegalArgumentException wenn Parameter null sind
      */
     boolean isSeller(BlockPos position, UUID sellerUUID);
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Returns all warehouse positions.
+     *
+     * @return Set of BlockPos for all warehouses
+     * @since 3.2.0
+     */
+    java.util.Set<BlockPos> getAllWarehousePositions();
+
+    /**
+     * Returns the total item count in a warehouse.
+     *
+     * @param position The warehouse position
+     * @return Total items stored
+     * @throws IllegalArgumentException if position is null
+     * @since 3.2.0
+     */
+    int getTotalItemCount(BlockPos position);
+
+    /**
+     * Returns the percentage of capacity used.
+     *
+     * @param position The warehouse position
+     * @return Usage percentage 0.0 - 100.0
+     * @throws IllegalArgumentException if position is null
+     * @since 3.2.0
+     */
+    double getUsagePercentage(BlockPos position);
+
+    /**
+     * Returns all sellers for a warehouse.
+     *
+     * @param position The warehouse position
+     * @return Set of seller UUIDs
+     * @throws IllegalArgumentException if position is null
+     * @since 3.2.0
+     */
+    java.util.Set<UUID> getAllSellers(BlockPos position);
+
+    /**
+     * Links a warehouse to a shop plot.
+     *
+     * @param position The warehouse position
+     * @param shopPlotId The shop plot ID
+     * @return true if linked successfully
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    boolean linkToShop(BlockPos position, String shopPlotId);
+
+    /**
+     * Triggers an immediate delivery to a warehouse.
+     *
+     * @param position The warehouse position
+     * @return true if delivery triggered
+     * @throws IllegalArgumentException if position is null
+     * @since 3.2.0
+     */
+    boolean triggerDelivery(BlockPos position);
+
+    /**
+     * Clears all items from a warehouse.
+     *
+     * @param position The warehouse position
+     * @return true if cleared
+     * @throws IllegalArgumentException if position is null
+     * @since 3.2.0
+     */
+    boolean clearWarehouse(BlockPos position);
 }

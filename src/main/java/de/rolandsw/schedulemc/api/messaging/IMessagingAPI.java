@@ -104,4 +104,73 @@ public interface IMessagingAPI {
      * @throws IllegalArgumentException wenn playerUUID null ist
      */
     int getTotalMessageCount(UUID playerUUID);
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Sends a broadcast message to all online players.
+     *
+     * @param fromUUID Sender UUID
+     * @param message The message text
+     * @return Number of players who received the message
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    int broadcastMessage(UUID fromUUID, String message);
+
+    /**
+     * Sends a system notification to a player (no sender).
+     *
+     * @param toUUID Recipient UUID
+     * @param message The notification text
+     * @return true if sent successfully
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    boolean sendSystemMessage(UUID toUUID, String message);
+
+    /**
+     * Returns conversation history between two players.
+     *
+     * @param playerA First player UUID
+     * @param playerB Second player UUID
+     * @param limit Maximum messages
+     * @return List of messages between the two players
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    java.util.List<String> getConversation(UUID playerA, UUID playerB, int limit);
+
+    /**
+     * Checks if a player has blocked another player.
+     *
+     * @param playerUUID The blocking player
+     * @param blockedUUID The blocked player
+     * @return true if blocked
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    boolean isBlocked(UUID playerUUID, UUID blockedUUID);
+
+    /**
+     * Blocks a player from sending messages.
+     *
+     * @param playerUUID The blocking player
+     * @param blockedUUID The player to block
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    void blockPlayer(UUID playerUUID, UUID blockedUUID);
+
+    /**
+     * Unblocks a player.
+     *
+     * @param playerUUID The unblocking player
+     * @param blockedUUID The player to unblock
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    void unblockPlayer(UUID playerUUID, UUID blockedUUID);
 }

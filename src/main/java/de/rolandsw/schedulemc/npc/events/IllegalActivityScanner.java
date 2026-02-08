@@ -38,6 +38,8 @@ public class IllegalActivityScanner {
         public double totalCashFound = 0.0;
         public int illegalItemCount = 0;
         public int illegalBlockCount = 0;
+        public int weaponCount = 0;        // Feature 6: Waffen
+        public int containerItemCount = 0;  // Feature 7: Items in Containern
         public List<String> foundIllegalItems = new ArrayList<>();
 
         public int calculateSeverity() {
@@ -71,7 +73,8 @@ public class IllegalActivityScanner {
 
         public boolean hasIllegalActivity() {
             return illegalPlantCount > 0 || totalCashFound > 10000.0 ||
-                   illegalItemCount > 0 || illegalBlockCount > 0;
+                   illegalItemCount > 0 || illegalBlockCount > 0 ||
+                   weaponCount > 0 || containerItemCount > 0;
         }
     }
 
@@ -209,6 +212,17 @@ public class IllegalActivityScanner {
             ItemStack stack = player.getInventory().getItem(i);
             if (!stack.isEmpty()) {
                 scanItemStack(stack, result);
+
+                // Feature 6: Waffen-Scanning (Tag-basiert)
+                if (stack.is(net.minecraft.tags.ItemTags.create(
+                        net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("schedulemc", "illegal_weapons")))) {
+                    result.weaponCount += stack.getCount();
+                    result.foundIllegalItems.add("[WAFFE] " + stack.getCount() + "x " +
+                        BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+                }
+
+                // Feature 7: Container-Scanning (Shulker-Boxen)
+                scanContainerItem(stack, result, 0);
             }
         }
 
@@ -219,6 +233,51 @@ public class IllegalActivityScanner {
             if (cashAmount > ModConfigHandler.COMMON.POLICE_ILLEGAL_CASH_THRESHOLD.get()) {
                 result.totalCashFound += cashAmount;
                 result.foundIllegalItems.add(Component.translatable("police.scan.cash_found", String.valueOf(cashAmount)).getString());
+            }
+        }
+    }
+
+    /**
+     * Feature 7: Scannt einen Container-Item (Shulker-Box) rekursiv
+     *
+     * @param stack Der ItemStack (moeglicherweise Container)
+     * @param result ScanResult zum Befuellen
+     * @param depth Aktuelle Rekursionstiefe
+     */
+    private static void scanContainerItem(ItemStack stack, ScanResult result, int depth) {
+        // Maximale Tiefe: 2 (Shulker in Shulker)
+        if (depth >= 2) return;
+
+        // Pruefe ob es ein Shulker-Box Item ist
+        if (stack.getItem() instanceof net.minecraft.world.item.BlockItem blockItem
+                && blockItem.getBlock() instanceof net.minecraft.world.level.block.ShulkerBoxBlock) {
+
+            // Lese Items aus NBT
+            net.minecraft.nbt.CompoundTag tag = stack.getTag();
+            if (tag != null && tag.contains("BlockEntityTag")) {
+                net.minecraft.nbt.CompoundTag bet = tag.getCompound("BlockEntityTag");
+                if (bet.contains("Items")) {
+                    net.minecraft.nbt.ListTag items = bet.getList("Items", 10);
+                    for (int i = 0; i < items.size(); i++) {
+                        net.minecraft.nbt.CompoundTag itemTag = items.getCompound(i);
+                        ItemStack containedStack = ItemStack.of(itemTag);
+                        if (!containedStack.isEmpty()) {
+                            scanItemStack(containedStack, result);
+                            result.containerItemCount++;
+
+                            // Waffen auch in Containern pruefen
+                            if (containedStack.is(net.minecraft.tags.ItemTags.create(
+                                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("schedulemc", "illegal_weapons")))) {
+                                result.weaponCount += containedStack.getCount();
+                                result.foundIllegalItems.add("[CONTAINER-WAFFE] " + containedStack.getCount() + "x " +
+                                    BuiltInRegistries.ITEM.getKey(containedStack.getItem()).toString());
+                            }
+
+                            // Rekursiv in verschachtelte Container
+                            scanContainerItem(containedStack, result, depth + 1);
+                        }
+                    }
+                }
             }
         }
     }
@@ -242,9 +301,7 @@ public class IllegalActivityScanner {
             }
         }
 
-        // TODO: Waffen scannen (später wenn Mod hinzugefügt)
-        // List<String> illegalWeapons = ModConfigHandler.COMMON.POLICE_ILLEGAL_WEAPONS.get();
-        // if (illegalWeapons.contains(itemName)) { ... }
+        // Feature 6: Waffen werden jetzt per Tag-System in scanPlayerInventory gescannt
     }
 
     /**

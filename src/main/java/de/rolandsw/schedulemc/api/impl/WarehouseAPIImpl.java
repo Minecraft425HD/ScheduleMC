@@ -6,8 +6,12 @@ import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Item;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -20,6 +24,8 @@ import java.util.UUID;
  * @since 3.0.0
  */
 public class WarehouseAPIImpl implements IWarehouseAPI {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * {@inheritDoc}
@@ -139,6 +145,91 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
         }
         // Stub: WarehouseManager uses plot IDs, not BlockPos
         // Would need plot system integration to implement this
+        return false;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<BlockPos> getAllWarehousePositions() {
+        LOGGER.debug("Stub: getAllWarehousePositions not fully implemented - WarehouseManager uses plot IDs, not BlockPos");
+        return Collections.emptySet();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getTotalItemCount(BlockPos position) {
+        if (position == null) {
+            throw new IllegalArgumentException("position cannot be null");
+        }
+        LOGGER.debug("Stub: getTotalItemCount not fully implemented - WarehouseManager uses plot IDs, not BlockPos");
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getUsagePercentage(BlockPos position) {
+        if (position == null) {
+            throw new IllegalArgumentException("position cannot be null");
+        }
+        LOGGER.debug("Stub: getUsagePercentage not fully implemented - WarehouseManager uses plot IDs, not BlockPos");
+        return 0.0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<UUID> getAllSellers(BlockPos position) {
+        if (position == null) {
+            throw new IllegalArgumentException("position cannot be null");
+        }
+        LOGGER.debug("Stub: getAllSellers not fully implemented - WarehouseManager uses plot IDs, not BlockPos");
+        return Collections.emptySet();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean linkToShop(BlockPos position, String shopPlotId) {
+        if (position == null || shopPlotId == null) {
+            throw new IllegalArgumentException("position and shopPlotId cannot be null");
+        }
+        LOGGER.debug("Stub: linkToShop not fully implemented - WarehouseManager uses plot IDs, not BlockPos");
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean triggerDelivery(BlockPos position) {
+        if (position == null) {
+            throw new IllegalArgumentException("position cannot be null");
+        }
+        LOGGER.debug("Stub: triggerDelivery not fully implemented - WarehouseManager uses plot IDs, not BlockPos");
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean clearWarehouse(BlockPos position) {
+        if (position == null) {
+            throw new IllegalArgumentException("position cannot be null");
+        }
+        LOGGER.debug("Stub: clearWarehouse not fully implemented - WarehouseManager uses plot IDs, not BlockPos");
         return false;
     }
 }

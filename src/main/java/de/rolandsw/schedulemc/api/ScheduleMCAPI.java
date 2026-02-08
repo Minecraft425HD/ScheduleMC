@@ -36,13 +36,13 @@ import org.slf4j.Logger;
  * production.registerCustomPlant(...);
  * ```
  *
- * @version 3.0.0
+ * @version 3.2.0
  * @since 2025-12-20
  */
 public class ScheduleMCAPI {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final String VERSION = "3.0.0";
+    private static final String VERSION = "3.2.0";
 
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
     private static volatile ScheduleMCAPI instance;
@@ -225,7 +225,7 @@ public class ScheduleMCAPI {
         this.achievementAPI = achievementAPI;
         this.marketAPI = marketAPI;
 
-        LOGGER.info("ScheduleMC API v{} fully initialized with {} subsystems", VERSION, 11);
+        LOGGER.info("ScheduleMC API v{} fully initialized with {} subsystems (extended API)", VERSION, 11);
     }
 
     // ═══════════════════════════════════════════════════════════

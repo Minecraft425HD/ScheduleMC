@@ -1,12 +1,14 @@
 # Tutorial System
 
+> **STATUS: NOT IMPLEMENTED** - The Tutorial System described on this page was planned but has not been implemented in the current codebase. No tutorial-related code, commands, or manager classes exist in ScheduleMC v3.6.0-beta. This page is retained for reference as a design document for potential future implementation.
+
 <div align="center">
 
-**7-Step Interactive Onboarding for New Players**
+**7-Step Interactive Onboarding for New Players (PLANNED - NOT IMPLEMENTED)**
 
 Complete guide from basics to advanced features
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 Commands Reference](../Commands.md)
+[Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md)
 
 </div>
 

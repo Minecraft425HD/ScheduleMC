@@ -6,9 +6,15 @@ import de.rolandsw.schedulemc.achievement.AchievementCategory;
 import de.rolandsw.schedulemc.achievement.AchievementManager;
 import de.rolandsw.schedulemc.achievement.PlayerAchievements;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
 import javax.annotation.Nullable;
+import java.util.AbstractMap;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -22,6 +28,8 @@ import java.util.stream.Collectors;
  * @since 3.0.0
  */
 public class AchievementAPIImpl implements IAchievementAPI {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final AchievementManager achievementManager;
 
@@ -168,5 +176,74 @@ public class AchievementAPIImpl implements IAchievementAPI {
             throw new IllegalArgumentException("playerUUID and achievementId cannot be null");
         }
         return getPlayerAchievements(playerUUID).isUnlocked(achievementId);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getCompletionPercentage(UUID playerUUID) {
+        if (playerUUID == null) {
+            throw new IllegalArgumentException("playerUUID cannot be null");
+        }
+        int total = getTotalAchievementCount();
+        if (total == 0) {
+            return 0.0;
+        }
+        int unlocked = getUnlockedCount(playerUUID);
+        return (unlocked * 100.0) / total;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getTotalRewardsEarned(UUID playerUUID) {
+        if (playerUUID == null) {
+            throw new IllegalArgumentException("playerUUID cannot be null");
+        }
+        LOGGER.debug("Stub: getTotalRewardsEarned not fully implemented - reward tracking not directly accessible");
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Achievement> getUnlockedAchievements(UUID playerUUID) {
+        if (playerUUID == null) {
+            throw new IllegalArgumentException("playerUUID cannot be null");
+        }
+        PlayerAchievements playerAch = getPlayerAchievements(playerUUID);
+        return getAllAchievements().stream()
+            .filter(achievement -> playerAch.isUnlocked(achievement.getId()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void resetPlayerAchievements(UUID playerUUID) {
+        if (playerUUID == null) {
+            throw new IllegalArgumentException("playerUUID cannot be null");
+        }
+        LOGGER.debug("Stub: resetPlayerAchievements not fully implemented - reset not directly accessible via AchievementManager");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Map.Entry<UUID, Integer>> getTopAchievers(int limit) {
+        if (limit < 1) {
+            throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
+        }
+        LOGGER.debug("Stub: getTopAchievers not fully implemented - player achievement enumeration not directly accessible");
+        return Collections.emptyList();
     }
 }

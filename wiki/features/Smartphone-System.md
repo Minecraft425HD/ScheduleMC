@@ -6,38 +6,39 @@
 
 Your pocket-sized ScheduleMC companion
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 Commands Reference](../Commands.md)
+[Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Overview](#overview)
 2. [Opening the Smartphone](#opening-the-smartphone)
 3. [Available Apps](#available-apps)
 4. [PvP Protection](#pvp-protection)
-5. [App Details](#app-details)
-6. [Best Practices](#best-practices)
-7. [Troubleshooting](#troubleshooting)
+5. [Network Sync](#network-sync)
+6. [Extensible App Framework](#extensible-app-framework)
+7. [Developer API](#developer-api)
+8. [Best Practices](#best-practices)
+9. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Overview
 
-The Smartphone System provides a convenient in-game interface for accessing various ScheduleMC features, with complete PvP protection while in use.
+The Smartphone System provides a professional in-game GUI interface for accessing ScheduleMC features. It includes 11 built-in apps, full PvP protection while in use, network synchronization, and an extensible app framework for custom additions.
 
 ### Key Features
 
-✅ **11 Functional Apps** - Complete feature access
-✅ **PvP Protection** - Immune to damage while using
-✅ **Attacker Penalty** - Attackers get +1 wanted star
-✅ **Hotkey Access** - Press P (configurable)
-✅ **No Cooldown** - Use anytime, anywhere
-✅ **Persistent State** - Remembers last app
-✅ **Mobile Banking** - Access economy features
-✅ **Real-time Updates** - Live data sync
+- **11 Built-in Apps** - MAP, DEALER, PRODUCTS, ORDER, CONTACTS, MESSAGES, PLOT, SETTINGS, BANK, CRIME STATS, CHAT
+- **Default Keybind: P** - Configurable through Minecraft controls
+- **PvP Protection** - Damage immunity while smartphone is open
+- **Attacker Penalty** - Anyone who attacks a smartphone user gets +1 wanted star
+- **Professional GUI** - Clean, intuitive interface design
+- **Network Sync** - Real-time data synchronization between client and server
+- **Extensible Framework** - Register custom apps via the API
 
 ---
 
@@ -50,515 +51,229 @@ The Smartphone System provides a convenient in-game interface for accessing vari
 **Action:**
 1. Press `P` anywhere in-game
 2. Smartphone GUI opens immediately
-3. Home screen with 11 apps displayed
+3. Home screen displays all 11 apps
 
 **Configuring Keybind:**
 ```
-Options → Controls → Key Binds → ScheduleMC
-→ Open Smartphone: [P]
-→ Change to preferred key
-→ Done
+Options -> Controls -> Key Binds -> ScheduleMC
+  -> Open Smartphone: [P]
+  -> Change to preferred key
+  -> Done
 ```
 
----
-
-### Smartphone GUI
+### Smartphone Home Screen
 
 ```
-╔═══════════════════════════════════╗
-║         📱 SMARTPHONE             ║
-╠═══════════════════════════════════╣
-║                                   ║
-║  🗺️ MAP        📦 DEALER          ║
-║  🛍️ PRODUCTS   📋 ORDER           ║
-║  👥 CONTACTS   ✉️ MESSAGES        ║
-║  🏠 PLOT       ⚙️ SETTINGS        ║
-║  🏦 BANK       🚔 CRIME STATS     ║
-║  💬 CHAT                          ║
-║                                   ║
-║  Protected: ✓ PvP Immune         ║
-╚═══════════════════════════════════╝
++-----------------------------------+
+|         SMARTPHONE                |
++-----------------------------------+
+|                                   |
+|  MAP          DEALER              |
+|  PRODUCTS     ORDER               |
+|  CONTACTS     MESSAGES            |
+|  PLOT         SETTINGS            |
+|  BANK         CRIME STATS         |
+|  CHAT                             |
+|                                   |
+|  Protected: PvP Immune            |
++-----------------------------------+
 ```
 
 ---
 
 ## Available Apps
 
-### 1. 🗺️ MAP
+### 1. MAP
 
 **Purpose:** View all plot locations on server
 
 **Features:**
-- Shows all plots on map
-- Color-coded by type:
-  - 🟢 Green: Residential
-  - 🔵 Blue: Commercial
-  - 🟡 Yellow: Shop
-  - ⚪ Gray: Public
-  - 🔴 Red: Government
-- Clickable plot markers
-- Your location indicator
-- Distance calculator
-
-**Usage:**
-```
-1. Open smartphone (P)
-2. Click MAP app
-3. Browse map with mouse
-4. Click plot for details
-5. Teleport option (if enabled)
-```
-
-**Example Display:**
-```
-╔═══ MAP ═══╗
-║           ║
-║  🟢 [📍]  ║  ← Your location
-║           ║
-║  🔵 Shop  ║  ← Click for info
-║           ║
-║  🟡 Store ║
-║           ║
-╚═══════════╝
-
-Click plot: "Electronics Store"
-→ Type: SHOP
-→ Owner: Server
-→ Distance: 250m
-→ [Visit] [Close]
-```
+- Shows all plots on a navigable map
+- Color-coded by type (Residential, Commercial, Shop, Public, Government)
+- Clickable plot markers for details
+- Your current location indicator
+- Distance calculator to selected plots
 
 ---
 
-### 2. 📦 DEALER
+### 2. DEALER
 
 **Purpose:** Find tobacco dealers
 
 **Features:**
-- List of all tobacco dealers
-- Dealer locations
-- Available strains
-- Prices
+- List of all tobacco dealers with locations
+- Available strains and prices
 - Stock levels
-- Distance from you
-
-**Usage:**
-```
-1. Open DEALER app
-2. Browse dealer list
-3. Select dealer
-4. View available tobacco
-5. Navigate to dealer
-```
-
-**Example:**
-```
-═══ TOBACCO DEALERS ═══
-
-Dealer: Hans_Tobacco
-Location: 150, 64, 200 (Downtown)
-Distance: 120m
-Status: 🟢 Open (08:00-18:00)
-
-Available Strains:
-- Virginia: 12 in stock (35€)
-- Burley: 8 in stock (30€)
-- Oriental: 5 in stock (45€)
-- Havana: 2 in stock (50€)
-
-[Navigate] [Buy] [Close]
-```
+- Distance from your current position
+- Dealer open/closed status based on schedule
 
 ---
 
-### 3. 🛍️ PRODUCTS
+### 3. PRODUCTS
 
 **Purpose:** Browse shop catalogs
 
 **Features:**
-- All shop inventories
-- Product categories
-- Prices
-- Quality tiers
+- All shop inventories across the server
+- Product categories and search function
+- Prices and quality tiers
 - Stock availability
-- Search function
-
-**Usage:**
-```
-1. Open PRODUCTS app
-2. Select shop
-3. Browse catalog
-4. View item details
-5. Add to cart / Navigate to shop
-```
-
-**Example:**
-```
-═══ SHOP CATALOG: Electronics ═══
-
-Category: Resources
-- Diamond: 100€ (32 in stock) ★★★★
-- Gold Ingot: 80€ (64 in stock) ★★★★
-- Emerald: 120€ (16 in stock) ★★★★★
-
-Category: Production
-- Virginia Cigar: 45€ (50 in stock) ★★★★
-- Cannabis Bud: 150€ (20 in stock) ★★★★★
-
-[Search] [Filter by Quality] [Cart]
-```
+- Navigate to shop or add to cart
 
 ---
 
-### 4. 📋 ORDER
+### 4. ORDER
 
 **Purpose:** Order management system
 
 **Features:**
-- View active orders
+- View active orders and delivery status
 - Order history
-- Track deliveries
+- Track deliveries in real time
 - Cancel orders
-- Reorder previous
-
-**Usage:**
-```
-1. Open ORDER app
-2. View active orders
-3. Track status
-4. Manage orders
-```
-
-**Example:**
-```
-═══ ACTIVE ORDERS ═══
-
-Order #12345
-Shop: Electronics
-Items: Diamond ×10, Gold ×20
-Total: 2,600€
-Status: 🚚 In Transit
-Delivery: 15 minutes
-
-Order #12344
-Shop: Tobacco Dealer
-Items: Virginia Cigar ×50
-Total: 2,250€
-Status: ✓ Delivered
-
-[Cancel] [Track] [History]
-```
+- Reorder from previous purchases
 
 ---
 
-### 5. 👥 CONTACTS
+### 5. CONTACTS
 
 **Purpose:** Player and NPC contact list
 
 **Features:**
 - Save player contacts
-- NPC directory
-- Quick messaging
-- Call/message shortcuts
+- NPC directory with locations
+- Quick messaging shortcuts
+- Online/offline status indicators
 - Favorites list
-
-**Usage:**
-```
-1. Open CONTACTS app
-2. Browse/search contacts
-3. Select contact
-4. Message or call
-```
-
-**Example:**
-```
-═══ CONTACTS ═══
-
-★ Favorites:
-- Alex (Player) - 🟢 Online
-- Bob (Player) - 🔴 Offline
-- Shop_Owner (NPC) - 🟢 At work
-
-All Contacts:
-- Charlie (Player)
-- Dave (Player)
-- Hans_Tobacco (NPC)
-- Police_Officer_1 (NPC)
-
-[Add Contact] [Search] [Message]
-```
 
 ---
 
-### 6. ✉️ MESSAGES
+### 6. MESSAGES
 
 **Purpose:** Inbox and messaging system
 
 **Features:**
-- Receive messages
-- Send messages
+- Receive and send private messages
 - Conversation threads
 - Read receipts
 - Message history
-
-**Usage:**
-```
-1. Open MESSAGES app
-2. View inbox
-3. Read messages
-4. Reply or compose new
-```
-
-**Example:**
-```
-═══ INBOX ═══
-
-🔔 Alex (2 new)
-"Hey, wanna buy some diamonds?"
-"I have 50 in stock"
-2 hours ago
-
-Bob (read)
-"Thanks for the cigars!"
-Yesterday
-
-Shop_Owner (read)
-"New stock available!"
-3 days ago
-
-[Compose] [Archive] [Delete]
-```
+- Compose new messages
 
 ---
 
-### 7. 🏠 PLOT
+### 7. PLOT
 
 **Purpose:** Plot management interface
 
 **Features:**
-- View your plots
-- Plot details
-- Trust management
-- Apartment management
-- Rent/sell options
-
-**Usage:**
-```
-1. Open PLOT app
-2. Select plot
-3. Manage settings
-4. View statistics
-```
-
-**Example:**
-```
-═══ MY PLOTS ═══
-
-Downtown_House_1
-Type: Residential
-Size: 25×25×15
-Status: Owned
-Rating: ⭐⭐⭐⭐ (4.2/5.0)
-
-[Trust] [Apartments] [Sell] [Info]
-
-Apartments (2):
-- Apt_1A: Rented to Alex (2,000€/mo)
-- Apt_1B: Vacant (1,500€/mo)
-
-Monthly Income: 2,000€
-```
+- View your owned plots
+- Plot details (type, size, rating)
+- Trust management (add/remove players)
+- Apartment management (rent, tenants)
+- Sell and transfer options
 
 ---
 
-### 8. ⚙️ SETTINGS
+### 8. SETTINGS
 
 **Purpose:** Smartphone configuration
 
 **Features:**
-- App permissions
-- Notification settings
-- Display preferences
+- Notification preferences (messages, orders, plots, economy)
+- Display settings (theme, font size, language)
+- Privacy controls (location sharing, online status)
 - Sound settings
-- Privacy controls
-
-**Usage:**
-```
-1. Open SETTINGS app
-2. Configure preferences
-3. Save changes
-```
-
-**Example:**
-```
-═══ SETTINGS ═══
-
-Notifications:
-□ Messages: ✓ On
-□ Orders: ✓ On
-□ Plot Alerts: ✓ On
-□ Economy: ✓ On
-
-Display:
-- Theme: Dark
-- Font Size: Medium
-- Language: English
-
-Privacy:
-- Share Location: ✓ Friends Only
-- Online Status: ✓ Visible
-
-[Save] [Reset] [Cancel]
-```
 
 ---
 
-### 9. 🏦 BANK
+### 9. BANK
 
 **Purpose:** Mobile banking interface
 
 **Features:**
-- Check balance
+- Check balance (checking and savings accounts)
 - Transaction history
-- Transfer money
-- View loans
-- Manage savings
+- Transfer money to other players
+- View and manage loans
+- Manage savings accounts with interest
 
-**Usage:**
+**Banking Operations:**
 ```
-1. Open BANK app
-2. Select banking function
-3. Perform transaction
-```
+Balance Check:
+  Current Balance: 12,450
+  Available: 12,450
+  Pending: 0
 
-**Example:**
-```
-═══ BANKING ═══
+Transfer Money:
+  To: [Player name]
+  Amount: [Amount]
+  Fee: 1% (minimum 10)
 
-💰 Balance: 12,450€
-
-Quick Actions:
-[Transfer] [History] [ATM]
-
-Accounts:
-- Checking: 12,450€
-- Savings: 10,500€ (🔒 Locked)
-- Loan: -14,375€ remaining
-
-Recent Transactions:
-+50€ - Daily Reward
--5,000€ - Plot Purchase
-+990€ - Payment from Alex
-
-[View All] [Statements]
+Loan Status:
+  Active Loan: MEDIUM
+  Remaining: 14,375
+  Daily Payment: 1,035.71
+  Days Left: 14
 ```
 
 ---
 
-### 10. 🚔 CRIME STATS
+### 10. CRIME STATS
 
 **Purpose:** View wanted level and criminal record
 
 **Features:**
-- Current wanted level
-- Wanted history
-- Bail amount
-- Active warrants
-- Police proximity
-- Crime log
+- Current wanted level (0-5 stars)
+- Active charges and crime history
+- Bail amount and payment option
+- Police proximity warning
+- Total arrests, bail paid, days imprisoned
 
-**Usage:**
+**Clean Record Example:**
 ```
-1. Open CRIME STATS app
-2. View wanted status
-3. Check bail options
-4. View history
-```
+CRIME STATISTICS
 
-**Example - Clean Record:**
-```
-═══ CRIME STATISTICS ═══
-
-Wanted Level: None ✓
+Wanted Level: None
 Status: Clean Record
-
-Police Status: 🟢 Safe
+Police Status: Safe
 Nearest Police: 250m
 
 Criminal History:
-- Total Arrests: 0
-- Bail Paid: 0€
-- Days in Prison: 0
-
-Keep up the good behavior!
+  Total Arrests: 0
+  Bail Paid: 0
+  Days in Prison: 0
 ```
 
-**Example - Wanted:**
+**Wanted Example:**
 ```
-═══ CRIME STATISTICS ═══
+CRIME STATISTICS
 
-Wanted Level: ⭐⭐⭐ (3 stars)
-Status: 🚨 WANTED
+Wanted Level: 3 stars
+Status: WANTED
 
 Crimes:
-- Assault on NPC
-- Trespassing (Government)
+  Assault on NPC
+  Trespassing (Government)
 
-Bail Amount: 5,000€
+Bail Amount: 5,000
 Options: [Pay Bail] [Surrender]
 
-Police Status: 🔴 CHASE ACTIVE
-Nearest Police: 50m - APPROACHING!
-
-⚠️ Find cover or pay bail!
+Police Status: CHASE ACTIVE
+Nearest Police: 50m - APPROACHING
 ```
 
 ---
 
-### 11. 💬 CHAT
+### 11. CHAT
 
-**Purpose:** Direct messaging and chat
+**Purpose:** Direct messaging and group chat
 
 **Features:**
-- Private messages
+- Private messages between players
 - Group chats
-- Emoji support
-- File sharing (items)
+- Share items and coordinates
 - Chat history
 - Block users
-
-**Usage:**
-```
-1. Open CHAT app
-2. Select conversation
-3. Send messages
-4. Share items/coordinates
-```
-
-**Example:**
-```
-═══ CHAT ═══
-
-Conversations:
-🟢 Alex (online)
-   "Meet at spawn?"
-   5 min ago
-
-🔴 Bob (offline)
-   "Thanks for the trade!"
-   2 hours ago
-
-Group: Downtown Crew (5)
-   Charlie: "Anyone selling diamonds?"
-   30 min ago
-
-[New Chat] [Groups] [Blocked]
-
-────────────────
-To: Alex
-[Type message...]
-[Send Item] [Send Location] [Send]
-```
 
 ---
 
@@ -566,154 +281,176 @@ To: Alex
 
 ### Protection Mechanics
 
-**While Smartphone is Open:**
-- ✅ **You are immune to all damage**
-- ✅ **Cannot be killed**
-- ✅ **Cannot be attacked**
-- ❌ **You cannot attack others**
+While the smartphone GUI is open, the player receives **complete damage immunity**:
 
-**Protection Sources:**
-- Players
-- NPCs
-- Mobs
+**Protected from:**
+- Player attacks
+- NPC attacks
+- Mob attacks
 - Environmental damage
 - Fall damage
-- Fire/lava
+- Fire and lava
 
----
+**Restrictions while protected:**
+- You cannot attack other players or entities
+- You cannot deal any damage
 
 ### Attacker Penalty
 
-**If someone attacks you while using smartphone:**
-```
-Attacker: Hits you
-System: Attack blocked (smartphone protection)
-Attacker: +1 wanted star ⭐
-Message: "Attacking smartphone users is illegal!"
+If another player attacks someone who has their smartphone open:
 
-Result:
-- You: No damage taken
-- Attacker: Wanted level increased
-- Police: Now chasing attacker
+```
+Attacker hits smartphone user:
+  -> Attack is blocked (no damage dealt)
+  -> Attacker receives +1 wanted star
+  -> Message: "Attacking smartphone users is illegal!"
+  -> Police are now alerted to the attacker
 ```
 
----
+This creates a strong deterrent against griefing players who are using the interface.
 
 ### Fair Play Enforcement
 
-**Purpose:** Prevents smartphone abuse
+The system prevents abuse of smartphone protection:
 
-**Rules:**
-1. **Cannot attack while smartphone open**
-   - Attack buttons disabled
-   - Weapons don't work
-   - Prevents cheese tactics
+1. **Cannot attack while open** - Weapons and attack actions are disabled
+2. **3-second cooldown after closing** - Prevents rapid open/close combat exploits
+3. **Movement allowed** - Players can still walk and run while using the smartphone
 
-2. **Cannot quickly switch**
-   - 3-second cooldown after closing
-   - Prevents combat logging
-   - Fair PvP engagement
-
-3. **Movement allowed**
-   - Can walk/run while using
-   - Escape dangerous situations
-   - Navigate to safety
-
-**Example Fair Use:**
+**Legitimate Uses:**
 ```
-✓ Good Use:
-- Checking bank while traveling
-- Reading messages in combat
-- Emergency bail payment
-- Safe area planning
+- Checking bank balance while traveling
+- Reading messages during downtime
+- Emergency bail payment during a chase
+- Planning routes to safety
+```
 
-✗ Abuse Attempts (Prevented):
-- Opening during PvP to escape damage
-- Closing to attack, reopening for immunity
-- Baiting attacks for wanted stars
+**Prevented Abuse:**
+```
+- Opening during active PvP to become invincible
+- Rapidly toggling for hit-and-run attacks
+- Baiting attacks to give opponents wanted stars
 ```
 
 ---
 
-## App Details
+## Network Sync
 
-### Banking Integration
+The smartphone system uses **real-time network synchronization** between client and server to ensure all displayed data is current.
 
-**Available in BANK App:**
+**Synchronized data includes:**
+- Bank balances and transaction status
+- Wanted level and police proximity
+- Plot ownership and trust lists
+- Message inbox updates
+- Order delivery tracking
+- Market prices and trends
 
-**Balance Check:**
+All data displayed in smartphone apps reflects the current server state, not cached or outdated information.
+
+---
+
+## Extensible App Framework
+
+The smartphone system supports **custom app registration** through the API, allowing other mods or plugins to add their own apps to the smartphone interface.
+
+### How It Works
+
 ```
-Current Balance: 12,450€
-Available: 12,450€
-Pending: 0€
-```
-
-**Transfer Money:**
-```
-To: [Enter player name]
-Amount: [Enter amount]
-Memo: [Optional]
-Fee: 1% (min 10€)
-
-[Send] [Cancel]
-```
-
-**View Loans:**
-```
-Active Loan: MEDIUM
-Amount: 25,000€
-Remaining: 14,375€
-Daily Payment: 1,035.71€
-Days Left: 14
-
-[Repay Early] [Details]
+1. External mod registers app via ISmartphoneAPI.registerApp()
+2. App appears on smartphone home screen
+3. App can send notifications to players
+4. App can be unregistered when no longer needed
 ```
 
-**Manage Savings:**
-```
-Account: a3b4c5d6
-Balance: 10,500€
-Status: 🔒 Locked (14 days)
-Interest: 5% weekly
+### Custom App Registration
 
-[Deposit] [Withdraw] [Close]
+```java
+ISmartphoneAPI api = ScheduleMCAPI.getSmartphoneAPI();
+
+// Register a custom app
+boolean success = api.registerApp("my_custom_app", "My App", "a"); // green color
+
+// Send notifications through the app
+api.sendNotification(playerUUID, "my_custom_app", "Something happened!");
+
+// List all registered apps
+Set<String> apps = api.getRegisteredApps();
+
+// Unregister when done
+api.unregisterApp("my_custom_app");
 ```
 
 ---
 
-### Plot Management
+## Developer API
 
-**Available in PLOT App:**
+### ISmartphoneAPI Interface
 
-**Trust Players:**
-```
-Plot: Downtown_House_1
-Trusted Players (3):
-- Alex
-- Bob
-- Charlie
+External mods can access the smartphone system through the `ISmartphoneAPI` interface.
 
-[Add] [Remove] [View Permissions]
+**Access:**
+```java
+ISmartphoneAPI smartphoneAPI = ScheduleMCAPI.getSmartphoneAPI();
 ```
 
-**Manage Apartments:**
-```
-Apartment: Apt_1A
-Tenant: Alex
-Rent: 2,000€/month
-Lease: 22 days remaining
+### Core Methods (v3.0.0+)
 
-[Change Rent] [Evict] [Details]
+| Method | Description |
+|--------|-------------|
+| `setSmartphoneOpen(UUID, boolean)` | Set whether a player has the smartphone open (activates/deactivates protection) |
+| `hasSmartphoneOpen(UUID)` | Check if a player's smartphone is currently open |
+| `removePlayer(UUID)` | Remove player from tracking (call on disconnect) |
+| `getPlayersWithSmartphoneOpen()` | Get set of all UUIDs with smartphone open |
+| `clearAllTracking()` | Clear all tracking data (server shutdown/tests only) |
+| `getOpenSmartphoneCount()` | Count of players with smartphone currently open |
+
+### Extended Methods (v3.2.0+)
+
+| Method | Description |
+|--------|-------------|
+| `registerApp(String, String, String)` | Register a custom app (id, name, color) |
+| `unregisterApp(String)` | Unregister a custom app by ID |
+| `getRegisteredApps()` | Get set of all registered app IDs |
+| `sendNotification(UUID, String, String)` | Send notification to player (playerUUID, appId, message) |
+| `hasSmartphone(UUID)` | Check if player has the smartphone item |
+
+### Example Usage
+
+```java
+ISmartphoneAPI smartphoneAPI = ScheduleMCAPI.getSmartphoneAPI();
+
+// Open smartphone and activate protection
+smartphoneAPI.setSmartphoneOpen(playerUUID, true);
+
+// Check if smartphone is open (protection active)
+if (smartphoneAPI.hasSmartphoneOpen(playerUUID)) {
+    // Player is protected - do not deal damage
+}
+
+// Close smartphone and deactivate protection
+smartphoneAPI.setSmartphoneOpen(playerUUID, false);
+
+// Get all players currently using smartphones
+Set<UUID> users = smartphoneAPI.getPlayersWithSmartphoneOpen();
+int count = smartphoneAPI.getOpenSmartphoneCount();
+
+// Register a custom app
+smartphoneAPI.registerApp("auction_house", "Auction House", "6"); // gold color
+
+// Send notification
+smartphoneAPI.sendNotification(playerUUID, "auction_house", "Your item sold for 5,000!");
+
+// Check if player has smartphone item
+if (smartphoneAPI.hasSmartphone(playerUUID)) {
+    // Player can use smartphone features
+}
+
+// Clean up on disconnect
+smartphoneAPI.removePlayer(playerUUID);
 ```
 
-**Sell/Rent Plot:**
-```
-Plot: Downtown_House_1
-Current Status: Owned
-
-Options:
-[Sell for €] [Rent Daily] [Transfer]
-```
+**Thread Safety:** All methods are thread-safe through ConcurrentHashMap.newKeySet()-based tracking.
 
 ---
 
@@ -722,73 +459,71 @@ Options:
 ### For Players
 
 #### 1. Use for Safety
+
 ```
 Dangerous Situation:
 1. Press P to open smartphone
 2. Become immune to damage
-3. Navigate to safety
-4. Close smartphone when safe
+3. Check CRIME STATS for wanted level
+4. Use BANK to pay bail if needed
+5. Use MAP to navigate to safety
+6. Close smartphone when safe
 ```
-
----
 
 #### 2. Mobile Banking
+
 ```
-Benefits:
-- Check balance anywhere
+Benefits of BANK app:
+- Check balance anywhere without visiting ATM
 - Transfer money on-the-go
-- Pay bail during chase
+- Pay bail during police chase
 - Emergency transactions
-
-Example:
-Being chased by police → Open BANK → Pay bail
+- Monitor loan payments
 ```
-
----
 
 #### 3. Quick Communication
+
 ```
-Use CHAT/MESSAGES:
-- Coordinate with friends
-- Trade negotiations
-- Emergency contact
+Use CHAT and MESSAGES apps:
+- Coordinate with friends for trades
+- Negotiate prices before traveling to shops
+- Emergency contact during pursuits
 - Social interaction
 ```
 
----
-
 #### 4. Market Research
-```
-Use PRODUCTS app:
-- Compare shop prices
-- Check stock before traveling
-- Find best deals
-- Plan purchases
-```
 
----
+```
+Use PRODUCTS app before buying:
+- Compare shop prices across the server
+- Check stock before traveling
+- Find best deals without walking around
+- Plan purchases efficiently
+```
 
 ### Security Tips
 
-#### 1. Don't Abuse Protection
-```
-✗ Don't: Open smartphone to escape PvP
-✗ Don't: Use to grief other players
-✗ Don't: Bait attacks for wanted stars
+#### 1. Do Not Abuse Protection
 
-✓ Do: Use legitimately for features
-✓ Do: Close during PvP fights
-✓ Do: Report abuse to admins
 ```
+Avoid:
+- Opening smartphone to escape active PvP
+- Using protection to grief other players
+- Baiting attacks for wanted stars on attackers
 
----
+Do:
+- Use legitimately for features
+- Close during fair PvP fights
+- Report abuse to admins
+```
 
 #### 2. Privacy Settings
+
 ```
-Configure in SETTINGS:
-- Limit location sharing
-- Control online status
-- Manage contact visibility
+Configure in SETTINGS app:
+- Limit location sharing (Friends Only / Everyone / Nobody)
+- Control online status visibility
+- Manage contact permissions
 - Block unwanted users
 ```
 
@@ -796,74 +531,68 @@ Configure in SETTINGS:
 
 ## Troubleshooting
 
-### "Smartphone Won't Open"
+### Smartphone Will Not Open
 
 **Causes:**
-1. Keybind conflict
+1. Keybind conflict with another mod or control
 2. GUI scale issue
-3. Mod conflict
+3. Mod compatibility conflict
 
 **Solutions:**
 ```
-1. Check keybind: Options → Controls
-2. Adjust GUI scale: Options → Video Settings
+1. Check keybind: Options -> Controls -> ScheduleMC
+2. Adjust GUI scale: Options -> Video Settings
 3. Remove conflicting mods
-4. Restart game
+4. Restart the game client
 ```
 
----
-
-### "Apps Not Loading"
+### Apps Not Loading
 
 **Causes:**
-1. Server lag
-2. Data sync issue
+1. Server lag or connectivity issues
+2. Data synchronization delay
 3. Permission error
 
 **Solutions:**
 ```
 1. Close and reopen smartphone
-2. Relog to server
+2. Relog to the server
 3. Contact admin if persistent
 ```
 
----
-
-### "Can't Send Messages"
+### Cannot Send Messages
 
 **Causes:**
-1. Recipient offline
+1. Recipient is offline
 2. Blocked by recipient
-3. Chat disabled
+3. Chat disabled in settings
 
 **Solutions:**
 ```
-1. Check recipient online status
-2. Verify not blocked
-3. Enable chat in settings
-4. Check server chat settings
+1. Check recipient online status in CONTACTS
+2. Verify you are not blocked
+3. Enable chat in SETTINGS app
+4. Check server chat configuration
 ```
 
----
+### PvP Protection Not Working
 
-### "PvP Protection Not Working"
-
-**Possible Issues:**
-1. Smartphone not fully open
-2. Cooldown active
-3. Server configuration
+**Causes:**
+1. Smartphone GUI not fully loaded
+2. Cooldown period active (3 seconds after last close)
+3. Protection disabled by server admin
 
 **Verification:**
 ```
-Protection Active When:
-- Smartphone GUI visible
-- Apps screen showing
-- No cooldown message
+Protection is active when:
+- Smartphone GUI is fully visible
+- Apps screen is showing
+- No cooldown message displayed
 
-Not Protected:
-- GUI closing
-- 3-second cooldown after close
-- Protection disabled by admin
+Protection is NOT active:
+- During GUI closing animation
+- During 3-second cooldown after close
+- If admin has disabled protection in config
 ```
 
 ---
@@ -873,11 +602,12 @@ Not Protected:
 **Smartphone System - Complete Guide**
 
 For related systems:
-- [💰 Economy System](Economy-System.md)
-- [🏘️ Plot System](Plot-System.md)
-- [💬 Chat & Social](../Getting-Started.md)
+- [Economy System](Economy-System.md)
+- [Plot System](Plot-System.md)
+- [Police & Crime System](Police-Crime-System.md)
+- [Market System](Market-System.md)
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 All Commands](../Commands.md)
+[Back to Wiki Home](../Home.md) | [All Commands](../Commands.md)
 
 **Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
 

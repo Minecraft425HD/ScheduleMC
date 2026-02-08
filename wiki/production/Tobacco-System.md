@@ -1,869 +1,318 @@
 # Tobacco Production System
 
-<div align="center">
+The most complex production system in ScheduleMC, featuring 4 strains, a full 6-step production chain, and deep quality mechanics. Tobacco rewards patient, methodical players who invest in every stage of the pipeline.
 
-**Most Complex Production Chain - 6 Steps, 4 Strains**
-
-Premium cigars and cigarettes manufacturing
-
-[🏠 Back to Wiki Home](../Home.md) • [🌿 All Production Systems](../Production-Systems.md)
-
-</div>
-
----
-
-## 📋 Quick Reference
+**Stats at a Glance:**
 
 | Attribute | Value |
 |-----------|-------|
-| **Complexity** | ⭐⭐⭐⭐⭐ (5/5 - Most Complex) |
-| **Steps** | 6 (Plant → Harvest → Dry → Ferment → Age → Package) |
-| **Strains** | 4 (Virginia, Burley, Oriental, Havana) |
-| **Duration** | 45-60 minutes (full cycle) |
-| **Profitability** | ⭐⭐⭐ (3/5 - Moderate) |
-| **Quality Tiers** | Poor, Good, Very Good, Legendary |
-| **Final Products** | Cigars, Cigarettes |
-
----
-
-## 📋 Table of Contents
-
-1. [Overview](#overview)
-2. [Strains & Seeds](#strains--seeds)
-3. [Growing Process](#growing-process)
-4. [Drying Process](#drying-process)
-5. [Fermentation](#fermentation)
-6. [Aging](#aging)
-7. [Packaging](#packaging)
-8. [Quality System](#quality-system)
-9. [Equipment Guide](#equipment-guide)
-10. [Profitability Analysis](#profitability-analysis)
-11. [Best Practices](#best-practices)
-12. [Troubleshooting](#troubleshooting)
+| Strains | 4 (Virginia, Burley, Oriental, Havana) |
+| Production Steps | 6 |
+| Total Items | 32 |
+| Total Blocks | 23 |
+| Quality Tiers | Poor, Good, Very Good, Legendary |
 
 ---
 
 ## Overview
 
-Tobacco production is the most complex production chain in ScheduleMC, featuring 6 distinct steps and a sophisticated quality system that rewards patient, skilled producers.
+Tobacco production spans six distinct stages: planting, growing, drying, fermentation, packaging, and selling. Each step affects the final product's quality and market value. The system features four unique strains, tiered equipment at every stage, and a dynamic NPC selling system driven by negotiation, quality, and market supply/demand.
 
-### Production Flow
+---
+
+## Strains
+
+| Strain | Profile | Growth Speed | Base Value | Best For |
+|--------|---------|-------------|------------|----------|
+| **Virginia** | Balanced, mild | Medium | Medium | Beginners -- forgiving at all stages |
+| **Burley** | Strong, full-bodied | Slow | High | Extended fermentation for depth |
+| **Oriental** | Aromatic, spicy | Fast | Medium-High | Quality booster synergy |
+| **Havana** | Premium, smooth | Very Slow | Very High | Highest profit ceiling; hardest to master |
+
+---
+
+## Production Chain
 
 ```
-1. PLANT → Tobacco seeds in pot
-2. HARVEST → Fresh tobacco leaves
-3. DRY → Dried tobacco leaves
-4. FERMENT → Fermented tobacco
-5. AGE → Aged tobacco (optional, improves quality)
-6. PACKAGE → Cigars or Cigarettes
-```
-
-### Why Choose Tobacco?
-
-**Advantages:**
-✅ Legal production
-✅ Consistent demand
-✅ Quality-based pricing
-✅ Multiple end products
-✅ Scalable operation
-
-**Challenges:**
-⏰ Long production time (45-60 min)
-📚 Complex multi-step process
-🎯 Quality management required
-💰 Moderate profit margins
-
----
-
-## Strains & Seeds
-
-### 4 Tobacco Strains
-
-#### 1. Virginia (Bright Leaf)
-
-**Characteristics:**
-- **Flavor:** Mild, slightly sweet
-- **Color:** Golden yellow
-- **Use:** Premium cigarettes
-- **Market:** High demand
-
-**Seeds:** `virginia_seeds`
-**Growth Time:** 20-25 minutes
-**Yield:** 3-5 leaves per plant
-
-**Best For:**
-- Beginners (forgiving)
-- Cigarette production
-- Consistent quality
-
----
-
-#### 2. Burley
-
-**Characteristics:**
-- **Flavor:** Rich, nutty
-- **Color:** Light brown
-- **Use:** Cigars, blends
-- **Market:** Stable demand
-
-**Seeds:** `burley_seeds`
-**Growth Time:** 22-27 minutes
-**Yield:** 3-5 leaves
-
-**Best For:**
-- Cigar production
-- Flavor blending
-- Mid-tier products
-
----
-
-#### 3. Oriental (Turkish)
-
-**Characteristics:**
-- **Flavor:** Aromatic, spicy
-- **Color:** Medium brown
-- **Use:** Premium blends
-- **Market:** Niche, high-value
-
-**Seeds:** `oriental_seeds`
-**Growth Time:** 25-30 minutes
-**Yield:** 2-4 leaves (lower yield)
-
-**Best For:**
-- Premium products
-- Experienced producers
-- Specialty market
-
----
-
-#### 4. Havana
-
-**Characteristics:**
-- **Flavor:** Bold, complex
-- **Color:** Dark brown
-- **Use:** Premium cigars
-- **Market:** Luxury segment
-
-**Seeds:** `havana_seeds`
-**Growth Time:** 28-35 minutes
-**Yield:** 2-4 leaves
-
-**Best For:**
-- Luxury cigars
-- Expert producers
-- Maximum profit (if quality is high)
-
----
-
-## Growing Process
-
-### Step 1: Planting
-
-**Requirements:**
-- Tobacco seeds (any strain)
-- Pot (Terracotta, Ceramic, Iron, or Golden)
-- Light source (optional but recommended)
-
-**Process:**
-1. Place pot in desired location
-2. Right-click pot with seeds
-3. Seed planted, growth begins
-
-**Initial State:**
-```
-Growth Stage: 1/4 (Seedling)
-Progress: 0%
-Quality: Pending
+  [1. PLANTING]       [2. GROWING]        [3. DRYING]
+   Seeds + Pot    -->   Fertilizer    -->   Drying Rack
+   + Soil Bag          + Boosters          (Time-based)
+   + Watering Can      + Grow Lights
+       |                    |                   |
+       v                    v                   v
+  Planted Pot  -->    Mature Plant   -->   Dried Tobacco
+                                               |
+                                               v
+  [6. SELLING]       [5. PACKAGING]      [4. FERMENTATION]
+   NPC Dealer   <--   Packaging     <--   Barrel
+   Negotiation        Table (2x2)         (Time-based)
+   Dynamic Price      + Materials         Enhances Flavor
+       ^                   ^                   |
+       |                   |                   v
+  Final Sale  <--  Packaged Product  <--  Fermented Tobacco
 ```
 
 ---
+
+## Step 1: Planting
+
+Planting establishes the foundation. Pot type, soil quality, and watering all influence starting growth conditions.
+
+### Pot Types
+
+| Pot | Durability | Growth Bonus | Notes |
+|-----|-----------|-------------|-------|
+| **Terracotta Pot** | Low | None | Cheapest option |
+| **Ceramic Pot** | Medium | +5% growth speed | Solid mid-tier |
+| **Iron Pot** | High | +10% growth speed | Best cost-to-benefit ratio |
+| **Golden Pot** | Very High | +20% growth speed, +5% quality | Premium investment |
+
+### Soil Bags
+
+| Size | Capacity | Nutrient Duration |
+|------|----------|-------------------|
+| **Small (S)** | 1 pot fill | Short |
+| **Medium (M)** | 3 pot fills | Medium |
+| **Large (L)** | 6 pot fills | Long |
+
+### Watering
+
+Use the **Watering Can** on a planted pot to hydrate the soil. Plants require regular watering throughout the growing phase. Neglecting water causes growth to stall and quality to degrade over time.
+
+---
+
+## Step 2: Growing
+
+Plants advance through 8 distinct growth stages. Environmental factors and applied items determine how fast and how well a plant matures.
 
 ### Growth Stages
 
-**4 Growth Stages:**
-
-| Stage | Name | Duration | Visual |
-|-------|------|----------|--------|
-| 1 | Seedling | 25% of total | Small sprout |
-| 2 | Vegetative | 25% of total | Growing plant |
-| 3 | Flowering | 25% of total | Flowers appear |
-| 4 | Mature | Final 25% | Ready to harvest |
-
-**Total Growth Time:**
-- Virginia: 20-25 minutes
-- Burley: 22-27 minutes
-- Oriental: 25-30 minutes
-- Havana: 28-35 minutes
-
----
+| Stage | Name | Description |
+|-------|------|-------------|
+| 1 | Sprout | Seed has germinated |
+| 2 | Seedling | First leaves appear |
+| 3 | Young Plant | Stem strengthening |
+| 4 | Vegetative | Rapid leaf growth |
+| 5 | Pre-Mature | Leaves filling out |
+| 6 | Maturing | Leaves reaching full size |
+| 7 | Near Harvest | Leaves beginning to yellow |
+| 8 | Harvest Ready | Full maturity -- ready to pick |
 
 ### Growth Modifiers
 
-#### Pot Types
+| Item | Effect | Usage |
+|------|--------|-------|
+| **Fertilizer** | Increases growth speed | Apply to pot during stages 1-5 |
+| **Growth Booster** | Significantly accelerates current stage | Single-use consumable |
+| **Quality Booster** | Increases final quality tier chance | Apply during stages 4-7 for best effect |
 
-| Pot | Growth Speed | Quality Bonus |
-|-----|--------------|---------------|
-| **Terracotta** | +0% | +0 |
-| **Ceramic** | +10% | +0 |
-| **Iron** | +25% | +0 |
-| **Golden** | +50% | +1 tier |
+### Grow Lights (3 Tiers)
 
-**Golden Pot is BEST:**
-- 50% faster growth
-- Automatic +1 quality tier
-- Worth the investment!
-
----
-
-#### Water
-
-**Effect:** +25% growth speed
-
-**How to Water:**
-1. Craft watering can
-2. Fill with water
-3. Right-click pot
-4. Plant watered (lasts ~5 minutes)
-
-**Tip:** Re-water every 5 minutes for optimal growth
+| Grow Light | Range | Growth Bonus | Notes |
+|-----------|-------|-------------|-------|
+| **Tier 1** | 1 block | +10% speed | Entry-level |
+| **Tier 2** | 2 blocks | +25% speed | Covers small setups |
+| **Tier 3** | 3 blocks | +40% speed, +5% quality | Best for premium production |
 
 ---
 
-#### Fertilizer
+## Step 3: Drying
 
-**Effect:** +15% growth speed
-
-**How to Fertilize:**
-1. Craft fertilizer bottle
-2. Right-click pot
-3. Plant fertilized (lasts ~10 minutes)
-
-**Tip:** Combine with water for +40% total boost
-
----
-
-#### Growth Booster
-
-**Effect:** +30% growth speed
-
-**Rare Item:** More expensive but powerful
-
-**Usage:**
-1. Craft/obtain growth booster bottle
-2. Right-click pot
-3. Massive speed boost
-
-**Combined Bonuses:**
-```
-Golden Pot: +50%
-Water: +25%
-Fertilizer: +15%
-Growth Booster: +30%
-
-Total: +120% growth speed!
-Result: 20-minute growth → 9 minutes!
-```
-
----
-
-#### Light
-
-**Effect:** Required for growth (unless natural light)
-
-**Light Sources:**
-- Torch: Basic light (works)
-- Glowstone: Better light (works)
-- **Grow Light (Standard):** +20% growth
-- **Grow Light (Premium):** +50% growth
-
-**Best Setup:**
-```
-Premium Grow Light above pot
-+ Golden Pot
-+ Water
-+ Fertilizer
-+ Growth Booster
-
-= Maximum growth speed!
-```
-
----
-
-### Step 2: Harvesting
-
-**When:** Growth Stage 4/4 (100% progress)
-
-**Visual Indicator:**
-- Plant fully grown
-- Mature appearance
-- Tooltip shows "Ready to harvest"
-
-**How to Harvest:**
-1. Right-click mature plant
-2. Receive 3-5 fresh tobacco leaves
-3. Pot becomes empty (replant)
-
-**Yield Factors:**
-- Strain (Havana/Oriental = lower yield)
-- Quality (higher quality = higher yield)
-- Pot type (Golden = better yield)
-- Random variation (3-5 leaves)
-
----
-
-## Drying Process
-
-### Step 3: Drying Tobacco
-
-**Purpose:** Remove moisture from fresh leaves
-
-**Input:** Fresh Tobacco Leaves
-**Output:** Dried Tobacco Leaves
-**Duration:** 3-5 minutes per batch
-
----
+Harvested tobacco leaves must be dried before further processing. Place leaves on a drying rack and wait.
 
 ### Drying Racks
 
-**Three Sizes:**
+| Rack Size | Capacity | Drying Speed |
+|-----------|----------|-------------|
+| **Small Drying Rack** | 4 leaves | Normal |
+| **Medium Drying Rack** | 8 leaves | +15% faster |
+| **Big Drying Rack** | 16 leaves | +30% faster |
 
-| Rack Size | Slots | Time per Leaf | Total Capacity |
-|-----------|-------|---------------|----------------|
-| **Small** | 3 | 5 min | 3 leaves |
-| **Medium** | 6 | 4 min | 6 leaves |
-| **Big** | 9 | 3 min | 9 leaves |
-
-**Recommendation:** Big Drying Rack
-- Fastest processing (3 min/leaf)
-- Most capacity (9 leaves)
-- Best for scale
+Drying is entirely time-based. No items accelerate this step. Build multiple racks to avoid bottlenecks.
 
 ---
 
-### Drying Process
+## Step 4: Fermentation
 
-**Steps:**
-1. Place drying rack
-2. Right-click with fresh leaves
-3. Leaves placed in slots
-4. Wait for timer
-5. Collect dried leaves
+Fermentation develops flavor complexity. Place dried tobacco into a barrel and allow it to ferment. Duration directly affects quality, but each strain has a different sweet spot. Over-fermentation yields diminishing returns.
 
-**Example (Big Rack):**
-```
-Input: 9 Fresh Virginia Leaves
-Time: 3 minutes per leaf
-Total: 27 minutes for full batch
-Output: 9 Dried Virginia Leaves
-```
+### Barrels
 
----
+| Barrel Size | Capacity | Bonus |
+|-------------|----------|-------|
+| **Small Barrel** | 8 units | None |
+| **Medium Barrel** | 16 units | +10% flavor |
+| **Large Barrel** | 32 units | +20% flavor, more consistent quality |
 
-## Fermentation
+### Fermentation Duration
 
-### Step 4: Fermenting Tobacco
-
-**Purpose:** Develop flavors and reduce harshness
-
-**Input:** Dried Tobacco Leaves
-**Output:** Fermented Tobacco
-**Duration:** 10-15 minutes
+| Duration | Effect |
+|----------|--------|
+| Under-fermented | Harsh taste, lower quality |
+| Optimal | Full flavor, quality boost |
+| Over-fermented | Diminishing returns, slight quality loss |
 
 ---
 
-### Fermentation Barrel
+## Step 5: Packaging
 
-**Block:** Fermentation Barrel
-**Capacity:** Variable (check in-game)
-**Process:** Anaerobic fermentation
-
-**Steps:**
-1. Place fermentation barrel
-2. Right-click with dried leaves
-3. Close barrel (auto-starts)
-4. Wait 10-15 minutes
-5. Open and collect fermented tobacco
-
-**Quality Improvement:**
-- Longer fermentation = better quality
-- Minimum: 10 minutes
-- Optimal: 15 minutes
-- Max benefit: 20 minutes
-
-**Formula:**
-```
-Quality Improvement = (Time - 10) / 10 × QualityBoost
-
-10 min: +0% quality
-15 min: +50% quality chance
-20 min: +100% quality chance (max)
-```
-
----
-
-## Aging
-
-### Step 5: Aging Tobacco (Optional)
-
-**Purpose:** Further improve quality and smoothness
-
-**Input:** Fermented Tobacco
-**Output:** Aged Tobacco
-**Duration:** 15-30 minutes
-
-**Is it Worth It?**
-- ✅ **YES** if producing premium products
-- ✅ **YES** if targeting Legendary quality
-- ❌ **NO** if speed > quality
-- ❌ **NO** if producing budget products
-
----
-
-### Aging Barrel
-
-**Block:** Aging Barrel
-**Capacity:** Similar to fermentation
-**Process:** Long-term aging
-
-**Steps:**
-1. Place aging barrel
-2. Add fermented tobacco
-3. Wait 15-30 minutes
-4. Collect aged tobacco
-
-**Quality Tiers:**
-```
-No Aging: Good quality
-15 min aging: Very Good quality
-30 min aging: Legendary quality (chance)
-```
-
-**Profit Analysis:**
-```
-Fermented Tobacco → Cigar: 35€
-Aged (15 min) → Cigar: 45€ (+10€)
-Aged (30 min) → Cigar: 60€ (Legendary, +25€)
-
-Worth it? If time is available, YES
-```
-
----
-
-## Packaging
-
-### Step 6: Creating Final Products
-
-**Two Product Types:**
-
-#### 1. Cigars
-
-**Input:** Aged/Fermented Tobacco
-**Output:** Cigars (strain-specific)
-**Equipment:** Packaging Table
-
-**Variants:**
-- Virginia Cigar
-- Burley Cigar
-- Oriental Cigar
-- Havana Cigar
-
-**Packaging Process:**
-1. Place Packaging Table
-2. Insert aged/fermented tobacco
-3. Select "Cigar" option
-4. Craft cigars (1:1 ratio)
-5. Collect product
-
-**Market:**
-- Virginia Cigar: 40-50€
-- Burley Cigar: 35-45€
-- Oriental Cigar: 45-55€
-- Havana Cigar: 50-65€
-
----
-
-#### 2. Cigarettes
-
-**Input:** Fermented Tobacco (any strain)
-**Output:** Cigarette Pack (20 cigarettes)
-**Equipment:** Packaging Table
-
-**Types:**
-- Premium Cigarettes (Virginia)
-- Regular Cigarettes (Burley)
-- Specialty Cigarettes (Oriental/Havana)
-
-**Packaging Process:**
-1. Place Packaging Table
-2. Insert fermented tobacco
-3. Add cigarette paper
-4. Add filter
-5. Craft cigarette pack
-6. Collect product
-
-**Market:**
-- Premium Cigarettes: 25-30€/pack
-- Regular Cigarettes: 20-25€/pack
-- Specialty Cigarettes: 30-40€/pack
-
----
+Packaging requires a **Packaging Table**, a multi-block structure that occupies a 2x2 area. Place all four table blocks in a square to form the workstation.
 
 ### Packaging Tables
 
-**Three Sizes (Multi-block Structures):**
+| Table Size | Speed | Slots |
+|------------|-------|-------|
+| **Small Packaging Table** | Normal | 2 input, 1 output |
+| **Medium Packaging Table** | +20% faster | 4 input, 2 output |
+| **Big Packaging Table** | +40% faster | 6 input, 3 output |
 
-| Size | Blocks | Slots | Speed |
-|------|--------|-------|-------|
-| **Small** | 2×2 | 4 | Slow |
-| **Medium** | 3×3 | 9 | Medium |
-| **Large** | 4×4 | 16 | Fast |
+### Package Sizes
 
-**Recommendation:** Large Table
-- Process multiple products simultaneously
-- Faster packaging
-- Scale production
+| Package | Tobacco Required | Materials Needed | Value Multiplier |
+|---------|-----------------|-----------------|-----------------|
+| **Small (S)** | 4 units | 1 Packaging Material | 1.0x |
+| **Medium (M)** | 8 units | 2 Packaging Material | 1.1x |
+| **Large (L)** | 16 units | 3 Packaging Material | 1.25x |
+| **Extra Large (XL)** | 32 units | 5 Packaging Material | 1.5x |
 
----
-
-## Quality System
-
-### Quality Tiers
-
-**4 Quality Levels:**
-
-| Quality | Price Multiplier | Characteristics |
-|---------|------------------|-----------------|
-| **Poor** | 0.5× (50%) | Low demand |
-| **Good** | 0.8× (80%) | Standard |
-| **Very Good** | 1.0× (100%) | Target quality |
-| **Legendary** | 1.5× (150%) | Premium |
+**Packaging Materials** are a required consumable. Stock up before starting a packaging session.
 
 ---
 
-### Quality Factors
+## Step 6: Selling
 
-**What Affects Quality:**
+Sell packaged tobacco to NPC dealers through a negotiation interface with dynamic pricing.
 
-1. **Pot Type** (+1 tier for Golden)
-2. **Growth Conditions** (water, fertilizer, light)
-3. **Fermentation Time** (10-20 minutes)
-4. **Aging Time** (0-30 minutes)
-5. **Quality Boosters** (special items)
-6. **Random Variation** (±1 tier)
+### NPC Negotiation
 
----
+When interacting with a buyer NPC, a negotiation window opens. You can:
+- **Accept** the offered price
+- **Counter-offer** a higher price (risk of rejection)
+- **Walk away** and try another dealer
 
-### Achieving Legendary
+### Dynamic Pricing Factors
 
-**Path to Legendary Quality:**
-```
-1. Golden Pot (+1 tier)
-2. Perfect Growth Conditions (all boosters)
-3. Full Fermentation (20 min)
-4. Full Aging (30 min)
-5. Quality Booster Item
-6. Luck (random chance)
-
-Result: ~70% chance Legendary
-```
+| Factor | Effect |
+|--------|--------|
+| **Quality** | Higher quality raises the base price |
+| **Market Supply** | Flooded market lowers prices |
+| **Market Demand** | Scarcity drives prices up |
+| **Reputation** | Successful deals improve future offers |
 
 ---
 
-### Quality Booster
+## Quality Tiers
 
-**Item:** Quality Booster Bottle
-**Effect:** +1 quality tier guaranteed
-**Usage:** Apply to pot before harvest
+Quality accumulates across all production steps.
 
-**Worth It?**
-```
-Cost: ~500€
-Benefit: +50% price (Good → Legendary)
-
-Havana Cigar:
-Good: 50€
-Legendary: 75€
-Profit: +25€ per cigar
-
-Break-even: 20 cigars
-Recommended: YES for premium strains
-```
+| Quality | Color | Value Multiplier | How to Achieve |
+|---------|-------|-----------------|----------------|
+| **Poor** | Gray | 0.5x | Rushed or neglected production |
+| **Good** | Green | 1.0x | Standard care at each step |
+| **Very Good** | Blue | 1.75x | Quality boosters + optimal fermentation |
+| **Legendary** | Gold | 3.0x | Perfect conditions at every step: Golden Pot, Tier 3 lights, optimal fermentation, Large Barrel |
 
 ---
 
-## Equipment Guide
+## Items Table (32 Items)
 
-### Essential Equipment
-
-**Minimum Setup:**
-1. ✅ 1× Terracotta Pot (per plant)
-2. ✅ 1× Small Drying Rack
-3. ✅ 1× Fermentation Barrel
-4. ✅ 1× Small Packaging Table
-
-**Cost:** ~2,000€
-**Capacity:** 1 plant at a time
-
----
-
-### Intermediate Setup
-
-**Recommended:**
-1. ✅ 4× Iron Pots
-2. ✅ 1× Medium Drying Rack
-3. ✅ 1× Fermentation Barrel
-4. ✅ 1× Aging Barrel (optional)
-5. ✅ 1× Medium Packaging Table
-6. ✅ Premium Grow Lights
-
-**Cost:** ~8,000€
-**Capacity:** 4 plants simultaneously
-
----
-
-### Advanced Setup
-
-**Professional:**
-1. ✅ 9× Golden Pots
-2. ✅ 1× Big Drying Rack
-3. ✅ 2× Fermentation Barrels
-4. ✅ 1× Aging Barrel
-5. ✅ 1× Large Packaging Table
-6. ✅ Premium Grow Lights (all pots)
-7. ✅ Automated water/fertilizer system
-
-**Cost:** ~25,000€
-**Capacity:** 9 plants, professional operation
-**ROI:** 15-20 production cycles
+| Item | Description | How Obtained |
+|------|-------------|-------------|
+| Virginia Seeds | Balanced strain seeds | Purchase / loot |
+| Burley Seeds | Strong strain seeds | Purchase / loot |
+| Oriental Seeds | Aromatic strain seeds | Purchase / loot |
+| Havana Seeds | Premium strain seeds | Rare NPC stock / loot |
+| Small Soil Bag (S) | Fills 1 pot | Crafting / purchase |
+| Medium Soil Bag (M) | Fills 3 pots | Crafting / purchase |
+| Large Soil Bag (L) | Fills 6 pots | Crafting / purchase |
+| Watering Can | Waters planted pots | Crafting |
+| Fertilizer | Speeds up growth | Crafting / purchase |
+| Growth Booster | Instant stage advancement | Crafting (rare ingredients) |
+| Quality Booster | Increases quality tier probability | Crafting (rare ingredients) |
+| Raw Virginia Leaves | Fresh harvested Virginia | Harvest mature Virginia plant |
+| Raw Burley Leaves | Fresh harvested Burley | Harvest mature Burley plant |
+| Raw Oriental Leaves | Fresh harvested Oriental | Harvest mature Oriental plant |
+| Raw Havana Leaves | Fresh harvested Havana | Harvest mature Havana plant |
+| Dried Virginia Tobacco | Virginia after drying | Drying Rack |
+| Dried Burley Tobacco | Burley after drying | Drying Rack |
+| Dried Oriental Tobacco | Oriental after drying | Drying Rack |
+| Dried Havana Tobacco | Havana after drying | Drying Rack |
+| Fermented Virginia Tobacco | Virginia after fermentation | Barrel |
+| Fermented Burley Tobacco | Burley after fermentation | Barrel |
+| Fermented Oriental Tobacco | Oriental after fermentation | Barrel |
+| Fermented Havana Tobacco | Havana after fermentation | Barrel |
+| Packaging Material | Required for packaging step | Crafting / purchase |
+| Small Package (S) | 4-unit tobacco package | Packaging Table |
+| Medium Package (M) | 8-unit tobacco package | Packaging Table |
+| Large Package (L) | 16-unit tobacco package | Packaging Table |
+| Extra Large Package (XL) | 32-unit tobacco package | Packaging Table |
+| Virginia Tobacco Product | Finished Virginia product | Packaging Table |
+| Burley Tobacco Product | Finished Burley product | Packaging Table |
+| Oriental Tobacco Product | Finished Oriental product | Packaging Table |
+| Havana Tobacco Product | Finished Havana product | Packaging Table |
 
 ---
 
-## Profitability Analysis
+## Blocks Table (23 Blocks)
 
-### Virginia Cigar Production
-
-**Input Costs:**
-```
-Seeds: 10€
-Pot: 50€ (reusable)
-Water: 5€
-Fertilizer: 10€
-Energy (lights): 20€
-Time: 60 minutes
-
-Total Variable Cost: 45€/cycle
-```
-
-**Output:**
-```
-Yield: 4 leaves average
-Product: 4 Virginia Cigars
-Quality: Good (average)
-Price: 45€ each
-
-Revenue: 180€
-Profit: 135€
-Hourly Rate: 135€/hour
-```
-
----
-
-### Havana Cigar (Premium)
-
-**Input Costs:**
-```
-Havana Seeds: 20€
-Golden Pot: 200€ (reusable)
-Growth Boosters: 50€
-Quality Booster: 30€
-Aging: 30 min extra
-
-Total Variable: 100€
-Time: 90 minutes
-```
-
-**Output:**
-```
-Yield: 3 leaves (lower)
-Product: 3 Havana Cigars
-Quality: Legendary (with boosters)
-Price: 75€ each
-
-Revenue: 225€
-Profit: 125€
-Hourly Rate: 83€/hour
-```
-
-**Analysis:** Lower hourly rate but higher prestige
+| Block | Description | Function |
+|-------|-------------|----------|
+| Terracotta Pot | Basic planting pot | Holds soil and seeds; no bonus |
+| Ceramic Pot | Improved planting pot | +5% growth speed |
+| Iron Pot | Industrial planting pot | +10% growth speed |
+| Golden Pot | Premium planting pot | +20% growth speed, +5% quality |
+| Tier 1 Grow Light | Basic grow lamp | +10% growth speed, 1-block range |
+| Tier 2 Grow Light | Advanced grow lamp | +25% growth speed, 2-block range |
+| Tier 3 Grow Light | Elite grow lamp | +40% growth speed, +5% quality, 3-block range |
+| Small Drying Rack | Compact drying station | Dries 4 leaves at normal speed |
+| Medium Drying Rack | Standard drying station | Dries 8 leaves at +15% speed |
+| Big Drying Rack | Large drying station | Dries 16 leaves at +30% speed |
+| Small Barrel | Compact fermentation barrel | Ferments 8 units |
+| Medium Barrel | Standard fermentation barrel | Ferments 16 units, +10% flavor |
+| Large Barrel | Industrial fermentation barrel | Ferments 32 units, +20% flavor |
+| Small Packaging Table (TL) | Top-left section | Part of 2x2 Small Packaging Table |
+| Small Packaging Table (TR) | Top-right section | Part of 2x2 Small Packaging Table |
+| Small Packaging Table (BL) | Bottom-left section | Part of 2x2 Small Packaging Table |
+| Small Packaging Table (BR) | Bottom-right section | Part of 2x2 Small Packaging Table |
+| Medium Packaging Table (TL) | Top-left section | Part of 2x2 Medium Packaging Table |
+| Medium Packaging Table (TR) | Top-right section | Part of 2x2 Medium Packaging Table |
+| Medium Packaging Table (BL) | Bottom-left section | Part of 2x2 Medium Packaging Table |
+| Medium Packaging Table (BR) | Bottom-right section | Part of 2x2 Medium Packaging Table |
+| Big Packaging Table | Large 2x2 multi-block table | Fastest packaging speed |
+| NPC Dealer Stand | Tobacco buyer NPC location | Sell packaged tobacco products |
 
 ---
 
-### Scale Production (9 Plants)
+## Quality Modifiers
 
-**Setup:** Advanced (9 Golden Pots)
+Quality is influenced at every stage. The following modifiers stack:
 
-**Per Cycle:**
-```
-Seeds: 90€ (9 plants)
-Boosters: 180€
-Energy: 100€
-Time: 60 minutes
+| Modifier | Stage | Effect |
+|----------|-------|--------|
+| Golden Pot | Planting | +5% quality baseline |
+| Tier 3 Grow Light | Growing | +5% quality |
+| Quality Booster | Growing (stages 4-7) | Significant quality tier increase |
+| Optimal Fermentation | Fermentation | Full flavor development |
+| Large Barrel | Fermentation | +20% flavor consistency |
+| XL Package | Packaging | 1.5x value multiplier |
 
-Cost: 370€
-Output: 36 cigars (average)
-Revenue: 1,620€ (45€ each)
-Profit: 1,250€
-
-Hourly Rate: 1,250€/hour
-Daily (8 hours): 10,000€
-Monthly: 300,000€
-```
-
-**ROI:** 25,000€ setup → Break-even in 3 days
+To reach **Legendary** quality reliably, combine: Golden Pot + Tier 3 Grow Light + Quality Booster (stages 4-7) + optimal fermentation in a Large Barrel.
 
 ---
 
-## Best Practices
+## Tips & Tricks
 
-### For Beginners
-
-**Start Simple:**
-1. Choose **Virginia** strain (forgiving)
-2. Use **Iron Pots** (good value)
-3. Grow **2-3 plants** initially
-4. Focus on **consistency** over quality
-5. Skip aging (save time)
-6. Produce **cigarettes** (easier)
-
-**First Cycle Goal:**
-- Understand full process
-- Achieve Good quality
-- 50€+ profit
+1. **Start with Virginia.** It is the most forgiving strain and teaches the full pipeline without punishing mistakes.
+2. **Build multiple drying racks early.** Drying is the biggest bottleneck since nothing speeds it up. Run several racks in parallel.
+3. **Match barrel size to batch size.** A half-empty Large Barrel does not ferment better than a full Small Barrel. Fill your barrels completely.
+4. **Watch fermentation timers.** Each strain has a different sweet spot. Over-fermentation wastes product.
+5. **Golden Pot + Tier 3 Light** is the only reliable path to Legendary quality. Do not expect Legendary results from lesser equipment.
+6. **Package in bulk.** XL packages give a 1.5x value multiplier. Save up for large batches whenever possible.
+7. **Diversify strains for market advantage.** Supply/demand is tracked per strain. If everyone sells Virginia, its price drops. Havana stays expensive because fewer players produce it.
+8. **Negotiate wisely.** Counter-offers that are too aggressive will be rejected. Start modest to build reputation, then push harder once your standing improves.
+9. **Upgrade pots gradually.** Iron Pots offer the best cost-to-benefit ratio for mid-game. Save Golden Pots for Havana.
+10. **Quality Boosters are most effective during stages 4-7.** Using them earlier wastes the effect.
 
 ---
 
-### For Intermediate
-
-**Optimize:**
-1. Upgrade to **Golden Pots**
-2. Use **growth boosters**
-3. Run **4-6 plants** simultaneously
-4. Target **Very Good** quality
-5. Add **aging step** for premium
-6. Produce **cigars** (higher value)
-
-**Target:**
-- Consistent Very Good quality
-- 500€/hour profit
-- Efficient workflow
-
----
-
-### For Advanced
-
-**Scale & Specialize:**
-1. **9-plant operation**
-2. **Legendary quality** focus
-3. **Havana/Oriental** specialty strains
-4. **Full automation** (if available)
-5. **Wholesale** to shops
-6. **Investment** in efficiency
-
-**Target:**
-- 80%+ Legendary quality
-- 1,000€+/hour profit
-- Reliable supply
-
----
-
-### Time Management
-
-**Optimal Workflow:**
-```
-Minute 0: Plant 9 seeds
-Minute 5: Water all plants
-Minute 10: Check growth, fertilize
-Minute 20-25: Harvest all (staggered)
-Minute 25: Load drying rack (9 leaves)
-Minute 28: Start fermentation
-Minute 43: Start aging (optional)
-Minute 58: Package products
-Minute 60: Sell, replant, repeat
-
-Continuous operation = Maximum profit
-```
-
----
-
-## Troubleshooting
-
-### "Plants Not Growing"
-
-**Causes:**
-1. No light source
-2. Not watered
-3. Wrong growth stage
-4. Server lag
-
-**Solutions:**
-```
-✓ Add grow lights
-✓ Water plants regularly
-✓ Wait full growth time
-✓ Check /health server
-```
-
----
-
-### "Low Quality Products"
-
-**Causes:**
-1. Basic pots (Terracotta)
-2. No growth boosters
-3. Short fermentation
-4. No aging
-5. Random bad luck
-
-**Solutions:**
-```
-✓ Upgrade to Golden Pots
-✓ Use quality boosters
-✓ Ferment for 15-20 min
-✓ Age for 30 min
-✓ Run more batches (averages out)
-```
-
----
-
-### "Slow Production"
-
-**Causes:**
-1. Basic equipment
-2. No boosters
-3. Poor workflow
-4. Small scale
-
-**Solutions:**
-```
-✓ Upgrade to Big Drying Rack
-✓ Use growth boosters
-✓ Optimize timing
-✓ Scale to 6-9 plants
-```
-
----
-
-<div align="center">
-
-**Tobacco Production System - Master Guide**
-
-For related systems:
-- [🌿 Cannabis System](Cannabis-System.md)
-- [💰 Economy & Sales](../features/Economy-System.md)
-- [🏪 NPC Shops](../features/NPC-System.md)
-
-[🏠 Back to Wiki Home](../Home.md) • [🌿 All Production](../Production-Systems.md)
-
-**Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
-
-</div>
+*See also: [Cannabis System](Cannabis-System.md) | [Coca System](Coca-System.md) | [Production Systems Overview](../Production-Systems.md)*

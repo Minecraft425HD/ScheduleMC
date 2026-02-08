@@ -134,4 +134,53 @@ public interface IMarketAPI {
      * @param item Das Item (null für alle Items)
      */
     void resetMarketData(@Nullable Item item);
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Returns items sorted by price (highest first).
+     *
+     * @param limit Maximum number of entries
+     * @return Sorted list of Item-Price pairs
+     * @throws IllegalArgumentException if limit < 1
+     * @since 3.2.0
+     */
+    java.util.List<java.util.Map.Entry<Item, Double>> getTopPricedItems(int limit);
+
+    /**
+     * Returns items sorted by demand (highest first).
+     *
+     * @param limit Maximum number of entries
+     * @return Sorted list of Item-Demand pairs
+     * @throws IllegalArgumentException if limit < 1
+     * @since 3.2.0
+     */
+    java.util.List<java.util.Map.Entry<Item, Integer>> getTopDemandItems(int limit);
+
+    /**
+     * Checks if an item has market data.
+     *
+     * @param item The item
+     * @return true if market data exists
+     * @throws IllegalArgumentException if item is null
+     * @since 3.2.0
+     */
+    boolean hasMarketData(Item item);
+
+    /**
+     * Returns the number of tracked items in the market.
+     *
+     * @return Count of items with market data
+     * @since 3.2.0
+     */
+    int getTrackedItemCount();
+
+    /**
+     * Resets all market data for all items.
+     *
+     * @since 3.2.0
+     */
+    void resetAllMarketData();
 }

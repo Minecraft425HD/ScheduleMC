@@ -396,8 +396,25 @@ public class PoliceAIHandler {
                         targetCriminal.sendSystemMessage(Component.translatable("event.police.escaped"));
                     }
 
-                    // Verfolge direkt
-                    npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
+                    // Feature 8: Verwarnungssystem bei Wanted 1-2
+                    if (PoliceWarningSystem.shouldWarnInsteadOfPursue(highestWantedLevel)
+                            && !PoliceWarningSystem.isWarned(targetCriminal.getUUID())) {
+                        PoliceWarningSystem.issueWarning(npc, targetCriminal, currentTick);
+                    } else if (PoliceWarningSystem.isWarned(targetCriminal.getUUID())) {
+                        PoliceWarningSystem.WarningStatus status =
+                            PoliceWarningSystem.checkWarningStatus(targetCriminal, currentTick);
+                        if (status == PoliceWarningSystem.WarningStatus.COMPLIED) {
+                            return;
+                        }
+                    }
+
+                    // Feature 1: Fahrzeugverfolgung wenn Spieler in Fahrzeug
+                    if (PoliceVehiclePursuit.isPlayerInVehicle(targetCriminal)
+                            && PoliceVehiclePursuit.canStartVehiclePursuit(npc, targetCriminal)) {
+                        PoliceVehiclePursuit.startVehiclePursuit(npc, targetCriminal);
+                    } else if (!npc.isDriving()) {
+                        npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
+                    }
 
                     // Warnung alle 5 Sekunden
                     if (npc.tickCount % 100 == 0) {
@@ -454,6 +471,37 @@ public class PoliceAIHandler {
         // Verhindere mehrfache Festnahmen
         if (player.getPersistentData().getLong("JailReleaseTime") > 0) {
             return; // Schon im Gefängnis
+        }
+
+        // Feature 1: Stoppe Fahrzeugverfolgung falls aktiv
+        if (PoliceVehiclePursuit.isInVehiclePursuit(police.getUUID())) {
+            PoliceVehiclePursuit.stopVehiclePursuit(police);
+        }
+        // Feature 8: Verwarnung aufloesen
+        PoliceWarningSystem.clearWarning(player.getUUID());
+
+        // Feature 10: Beweis "Auf frischer Tat ertappt" erstellen
+        if (player.level() instanceof ServerLevel sl) {
+            de.rolandsw.schedulemc.npc.crime.evidence.EvidenceManager evidenceMgr =
+                de.rolandsw.schedulemc.npc.crime.evidence.EvidenceManager.getInstance(sl.getServer());
+            evidenceMgr.addCaughtInAct(player.getUUID(), player.blockPosition(),
+                "Festnahme durch " + police.getNpcName() + " - Wanted Level " + wantedLevel);
+        }
+
+        // Feature 2: FIX BountyManager claim bei Festnahme
+        try {
+            de.rolandsw.schedulemc.npc.crime.BountyManager bountyManager =
+                de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance();
+            if (bountyManager != null) {
+                bountyManager.claimBounty(player.getUUID());
+            }
+        } catch (Exception e) {
+            LOGGER.debug("BountyManager claim failed: {}", e.getMessage());
+        }
+
+        // Feature 3: Strassensperren fuer diesen Spieler entfernen
+        if (player.level() instanceof ServerLevel sLevel) {
+            PoliceRoadblock.removeAllForPlayer(sLevel, player.getUUID());
         }
 
         // ═══════════════════════════════════════════════════════════

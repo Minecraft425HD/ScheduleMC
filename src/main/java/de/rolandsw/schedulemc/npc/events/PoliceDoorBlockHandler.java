@@ -12,6 +12,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,13 +54,10 @@ public class PoliceDoorBlockHandler {
                 return; // Spieler versteckt sich → Türen erlaubt
             }
 
-            // Prüfe ob Polizei in der Nähe ist
+            // FIX 6: Nutze PoliceAIHandler-Cache statt unkached getEntitiesOfClass
             int detectionRadius = ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS.get();
-            List<CustomNPCEntity> nearbyPolice = serverPlayer.level().getEntitiesOfClass(
-                CustomNPCEntity.class,
-                AABB.ofSize(serverPlayer.position(), detectionRadius, detectionRadius, detectionRadius),
-                npc -> npc.getNpcType() == NPCType.POLIZEI && !npc.getPersistentData().getBoolean("IsKnockedOut")
-            );
+            List<CustomNPCEntity> nearbyPolice = new ArrayList<>();
+            PoliceAIHandler.getPoliceInRadius(serverPlayer.position(), detectionRadius, nearbyPolice);
 
             if (!nearbyPolice.isEmpty()) {
                 // Polizei ist in der Nähe → Tür blockiert!

@@ -6,41 +6,47 @@
 
 Dynamic law enforcement with NPC police officers
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 Commands Reference](../Commands.md)
+[Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Overview](#overview)
 2. [Wanted Level System](#wanted-level-system)
-3. [Criminal Activities](#criminal-activities)
-4. [Police NPCs](#police-npcs)
-5. [Prison System](#prison-system)
-6. [Bail System](#bail-system)
-7. [Penalties & Consequences](#penalties--consequences)
-8. [Avoiding Arrest](#avoiding-arrest)
-9. [Best Practices](#best-practices)
-10. [Troubleshooting](#troubleshooting)
+3. [Crime Levels](#crime-levels)
+4. [Auto-Decay](#auto-decay)
+5. [Escape Mechanic](#escape-mechanic)
+6. [Police AI](#police-ai)
+7. [Prison System](#prison-system)
+8. [Bail System](#bail-system)
+9. [Raid Penalties](#raid-penalties)
+10. [Bounty System](#bounty-system)
+11. [Commands](#commands)
+12. [Developer API](#developer-api)
+13. [Best Practices](#best-practices)
+14. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Overview
 
-The Police & Crime System brings GTA-style law enforcement to ScheduleMC with a 5-star wanted level system, NPC police officers, and a functional prison system.
+The Police & Crime System brings **GTA-style law enforcement** to ScheduleMC with a 5-star wanted level system, intelligent NPC police officers, a functional prison system, and a player bounty system.
 
 ### Key Features
 
-✅ **5-Star Wanted System** - ⭐ to ⭐⭐⭐⭐⭐
-✅ **Police NPCs** - Chase and arrest criminals
-✅ **Prison System** - Cells with security levels 1-5
-✅ **Bail Payments** - Pay to get out early
-✅ **Auto-Decay** - -1 star per day
-✅ **Smartphone Integration** - Check wanted level
-✅ **Penalties** - Cash confiscation, time served
-✅ **Hiding Mechanics** - Evade police in buildings
+- **5-Star Wanted System** - Progressive law enforcement response
+- **Auto-Decay** - Wanted level decreases by 1 star per Minecraft day
+- **Escape Mechanic** - Hide for 30 seconds, 40+ blocks from police
+- **5 Crime Levels** - Clean through Maximum severity
+- **Prison System** - Cells with security levels 1-5
+- **Bail System** - Pay at hospital to clear charges
+- **Police AI** - Chase, arrest, backup calling, door blocking
+- **Raid Penalties** - Lose illegal cash on arrest
+- **Bounty System** - Place bounties on other players
+- **10 Commands** - Full crime and prison management
 
 ---
 
@@ -50,13 +56,11 @@ The Police & Crime System brings GTA-style law enforcement to ScheduleMC with a 
 
 | Stars | Severity | Police Response | Bail Cost | Description |
 |-------|----------|-----------------|-----------|-------------|
-| ⭐ | Minor | 1 officer, walking | 1,000€ | First offense |
-| ⭐⭐ | Moderate | 1-2 officers, jogging | 2,500€ | Repeat offender |
-| ⭐⭐⭐ | Serious | 2-3 officers, running | 5,000€ | Dangerous criminal |
-| ⭐⭐⭐⭐ | Major | 3-4 officers, aggressive | 10,000€ | High threat |
-| ⭐⭐⭐⭐⭐ | Extreme | All police, relentless | 20,000€ | Most wanted |
-
----
+| 1 | Minor | 1 officer, walking | 1,000 | First offense |
+| 2 | Moderate | 1-2 officers, jogging | 2,500 | Repeat offender |
+| 3 | Serious | 2-3 officers, running | 5,000 | Dangerous criminal |
+| 4 | Major | 3-4 officers, aggressive | 10,000 | High threat |
+| 5 | Extreme | All police, relentless | 20,000 | Most wanted |
 
 ### Checking Wanted Level
 
@@ -67,95 +71,49 @@ The Police & Crime System brings GTA-style law enforcement to ScheduleMC with a 
 3. View current wanted level
 ```
 
-**Method 2: Notification**
+**Method 2: Chat Notification**
 ```
-On gaining wanted star:
-🚨 WANTED LEVEL: ⭐⭐⭐
-Reason: Assault on NPC
-Police alerted!
+On gaining a wanted star:
+  WANTED LEVEL: 3 Stars
+  Reason: Assault on NPC
+  Police alerted!
 ```
-
-**Method 3: Direct Check**
-```
-Look in chat for wanted level updates
-Check HUD (if configured)
-```
-
----
 
 ### Gaining Wanted Stars
 
-**Automatic System:**
-- System detects illegal actions
-- Instantly adds appropriate stars
-- Notifies player
-- Alerts nearby police NPCs
+The system automatically detects illegal actions, instantly adds the appropriate number of stars, notifies the player, and alerts nearby police NPCs.
 
-**Examples:**
 ```
-Action: Punch NPC
-Result: +1 star ⭐
-Message: "Assault on NPC detected!"
-
-Action: Trespass government plot
-Result: +2 stars ⭐⭐
-Message: "Trespassing on government property!"
-
-Action: Kill NPC
-Result: +3 stars ⭐⭐⭐
-Message: "Murder! Police notified!"
-
-Action: Attack police officer
-Result: +4 stars ⭐⭐⭐⭐
-Message: "Assaulting an officer!"
-
-Action: Multiple crimes
-Result: +5 stars ⭐⭐⭐⭐⭐ (cap)
-Message: "You are now extremely wanted!"
+Action: Punch NPC            -> +1 star
+Action: Trespass gov. plot   -> +2 stars
+Action: Kill NPC             -> +3 stars
+Action: Attack police        -> +4 stars
+Action: Kill police          -> +5 stars (cap)
 ```
-
----
 
 ### Losing Wanted Stars
 
-**Method 1: Auto-Decay**
-```
-System: -1 star per real-world day
-No player action required
+There are four ways to reduce your wanted level:
 
-Example:
-Day 1: ⭐⭐⭐⭐⭐ (5 stars)
-Day 2: ⭐⭐⭐⭐ (4 stars)
-Day 3: ⭐⭐⭐ (3 stars)
-...
-Day 6: Clear
-```
-
-**Method 2: Pay Bail**
-```bash
-/bail
-# Instantly clears all wanted stars
-# Costs based on wanted level
-```
-
-**Method 3: Serve Time**
-```
-Get arrested → Sent to prison
-Serve full sentence → Released with no stars
-```
-
-**Method 4: Hide Successfully**
-```
-Stay in buildings/plots
-Police give up after time
-Wanted level may reduce by 1-2 stars
-```
+1. **Auto-Decay** - -1 star per Minecraft day (no action required)
+2. **Pay Bail** - `/bail` instantly clears all stars
+3. **Serve Time** - Complete prison sentence, released with clean record
+4. **Hide Successfully** - Escape mechanic reduces by 1 star
 
 ---
 
-## Criminal Activities
+## Crime Levels
 
-### Tier 1 Offenses (+1 Star ⭐)
+The wanted system defines **5 crime levels** based on star count:
+
+| Stars | Level | Classification | Examples |
+|-------|-------|----------------|----------|
+| 0 | **Clean** | No criminal record | Law-abiding citizen |
+| 1-2 | **Misdemeanor** | Minor offenses | Assault, petty theft, trespassing |
+| 3-4 | **Felony** | Serious offenses | Murder, armed robbery, drug production |
+| 5 | **Maximum** | Highest severity | Killing police, terrorism, mass crime |
+
+### Tier 1 Offenses (+1 Star)
 
 **Minor Crimes:**
 - Attacking NPCs (non-lethal)
@@ -164,18 +122,7 @@ Wanted level may reduce by 1-2 stars
 - Disturbing peace
 - Attacking smartphone users
 
-**Example:**
-```
-You punch Shop_Owner NPC
-→ +1 star ⭐
-→ 1 police officer dispatched
-→ Walking speed chase
-→ Bail: 1,000€
-```
-
----
-
-### Tier 2 Offenses (+2 Stars ⭐⭐)
+### Tier 2 Offenses (+2 Stars)
 
 **Moderate Crimes:**
 - Government plot trespassing
@@ -183,18 +130,7 @@ You punch Shop_Owner NPC
 - Significant theft
 - Property damage
 
-**Example:**
-```
-You enter prison plot without permission
-→ +2 stars ⭐⭐
-→ 1-2 police officers dispatched
-→ Jogging speed chase
-→ Bail: 2,500€
-```
-
----
-
-### Tier 3 Offenses (+3 Stars ⭐⭐⭐)
+### Tier 3 Offenses (+3 Stars)
 
 **Serious Crimes:**
 - Killing NPCs
@@ -202,18 +138,7 @@ You enter prison plot without permission
 - Vandalism
 - Drug production (if caught)
 
-**Example:**
-```
-You kill merchant NPC
-→ +3 stars ⭐⭐⭐
-→ 2-3 police officers dispatched
-→ Running speed chase
-→ Bail: 5,000€
-```
-
----
-
-### Tier 4 Offenses (+4 Stars ⭐⭐⭐⭐)
+### Tier 4 Offenses (+4 Stars)
 
 **Major Crimes:**
 - Attacking police officers
@@ -221,18 +146,7 @@ You kill merchant NPC
 - Organized crime
 - Multiple murders
 
-**Example:**
-```
-You attack police officer chasing you
-→ +4 stars ⭐⭐⭐⭐
-→ 3-4 police officers dispatched
-→ Aggressive chase
-→ Bail: 10,000€
-```
-
----
-
-### Tier 5 (Maximum ⭐⭐⭐⭐⭐)
+### Tier 5 / Maximum (+5 Stars)
 
 **Extreme Crimes:**
 - Killing police officers
@@ -240,100 +154,132 @@ You attack police officer chasing you
 - Multiple serious crimes
 - Resisting arrest violently
 
-**Example:**
+---
+
+## Auto-Decay
+
+Wanted levels automatically decrease over time without any player action required.
+
+**Rate:** -1 star per Minecraft day
+
 ```
-You kill police officer
-→ +5 stars ⭐⭐⭐⭐⭐ (maximum)
-→ ALL police officers dispatched
-→ Relentless chase
-→ Bail: 20,000€
+Day 1: 5 stars (Maximum)
+Day 2: 4 stars (Major)
+Day 3: 3 stars (Serious)
+Day 4: 2 stars (Moderate)
+Day 5: 1 star  (Minor)
+Day 6: 0 stars (Clean)
+```
+
+The decay only applies when no new crimes are committed. Committing a new crime resets the decay timer and adds stars.
+
+---
+
+## Escape Mechanic
+
+Players can reduce their wanted level by successfully hiding from police.
+
+### Requirements
+
+- **Duration:** Stay hidden for **30 seconds** continuously
+- **Distance:** Maintain **40+ blocks** distance from all police NPCs
+- **Result:** Wanted level reduced by 1 star on success
+
+### How It Works
+
+```
+1. Player breaks line of sight with police
+2. Escape timer starts (30 seconds)
+3. Player must stay 40+ blocks from all police
+4. If police re-detect player, timer resets
+5. After 30 seconds: -1 star, police give up chase
+
+Example:
+  Wanted: 3 stars
+  Run into building, close doors
+  Time: 10s -> Police searching area
+  Time: 20s -> Police confused
+  Time: 30s -> Escape successful!
+  Result: 3 stars -> 2 stars
+```
+
+### Best Hiding Spots
+
+```
+- Your own plot (with walls and doors)
+- Friend's plot (trusted access)
+- Complex multi-story buildings
+- Underground areas
+- Locations far from police patrol routes
 ```
 
 ---
 
-## Police NPCs
+## Police AI
 
-### Police Behavior
+### Patrol Mode (No Wanted Players)
 
-**Patrol Mode (No Wanted Players):**
-- Walk around designated areas
-- Follow patrol routes
-- Stand at stations
-- Normal NPC behavior
+When no wanted players are nearby, police NPCs follow standard patrol behavior:
+- Walk between designated patrol points (up to 16)
+- Wait at each point (default: 3 minutes)
+- Wander within radius (default: 3 blocks)
+- Continuous loop through all points
 
-**Chase Mode (Wanted Player Detected):**
+### Chase Mode (Wanted Player Detected)
+
+When a wanted player is detected, police behavior changes dramatically:
+
+**Detection Range (scales with wanted level):**
+
+| Stars | Detection Range |
+|-------|----------------|
+| 1 | 20 blocks |
+| 2 | 35 blocks |
+| 3 | 50 blocks |
+| 4 | 75 blocks |
+| 5 | 100 blocks |
+
+**Chase Behavior:**
 ```
-1. Detection:
-   - Police scan for wanted players within range
-   - Range increases with wanted level
-   - ⭐: 20 blocks
-   - ⭐⭐⭐⭐⭐: 100 blocks
-
-2. Pursuit:
-   - Run toward criminal
-   - Speed scales with wanted level
-   - Pathfinding around obstacles
-   - Never give up (until hidden or arrested)
-
-3. Arrest:
-   - Get within 2 blocks
-   - Automatic arrest trigger
-   - Teleport to prison
-```
-
----
-
-### Police Stats
-
-**Configuration:**
-- **Speed:** 0.3-0.8 (scales with wanted level)
-- **Detection Range:** 20-100 blocks
-- **Persistence:** High (don't give up easily)
-- **Pathfinding:** Smart (navigate buildings)
-
-**Example Chase:**
-```
-Wanted Level: ⭐⭐⭐ (3 stars)
-Police Assigned: 2 officers
-Police Speed: 0.5 (running)
-Detection Range: 50 blocks
-
-Officer_1: 45 blocks away → CHASING
-Officer_2: 30 blocks away → CHASING
-
-*You run into building*
-
-Officer_1: Path blocked, finding route
-Officer_2: Entering building
-
-*You hide in corner*
-
-Time hidden: 30 seconds
-Officers: Searching...
-Time hidden: 60 seconds
-Officers: Giving up...
-Wanted reduced: ⭐⭐⭐ → ⭐⭐
+1. Detection: Police scans for wanted players within range
+2. Pursuit: Run toward criminal (speed scales with wanted level)
+3. Pathfinding: Navigate around obstacles, open doors
+4. Arrest: Get within 2 blocks -> automatic arrest trigger
+5. Teleport: Player sent to prison
 ```
 
----
+### Backup Calling
 
-### Police Commands (Admin)
+The `PoliceBackupSystem` allows police NPCs to call for reinforcements:
 
-**Spawn Police:**
-```bash
-/npc spawn police Officer_Smith
+```
+Officer detects 3-star criminal:
+  -> Calls backup via PoliceBackupSystem
+  -> Nearby officers switch to chase mode
+  -> Multiple officers converge on criminal
+  -> Higher wanted level = more officers respond
 ```
 
-**Set Patrol Route:**
-```bash
-/npc Officer_Smith leisure add
-# At multiple locations for patrol
+### Door Blocking
+
+The `PoliceDoorBlockHandler` enables police to block exit routes:
+
+```
+Criminal runs into building:
+  -> Police officer blocks doorway
+  -> Other officers search interior
+  -> Prevents easy escape through doors
 ```
 
-**Configure Behavior:**
-```bash
-/npc Officer_Smith movement true
-/npc Officer_Smith speed 0.5
+### Arrest Process
+
+```
+1. Police officer reaches criminal (within 2 blocks)
+2. Arrest trigger activates
+3. Player teleported to prison
+4. Assigned to cell based on wanted level (security 1-5)
+5. Sentence calculated based on crime severity
+6. Options: Serve time or Pay bail
 ```
 
 ---
@@ -343,114 +289,53 @@ Wanted reduced: ⭐⭐⭐ → ⭐⭐
 ### Prison Structure
 
 **Components:**
-1. **Prison Plot** (Government type)
-2. **Prison Cells** (1-99 cells)
-3. **Security Levels** (1-5)
-4. **Bail Office** (optional)
-
----
+1. **Prison Plot** - Government type plot
+2. **Prison Cells** - Up to 99 cells
+3. **Security Levels** - 1 through 5
+4. **Bail Office** - Located at hospital
 
 ### Security Levels
 
-| Level | Name | Conditions | For |
-|-------|------|------------|-----|
-| 1 | Minimum | Comfortable, windows | ⭐ |
-| 2 | Low | Basic, small window | ⭐⭐ |
-| 3 | Medium | Cramped, no window | ⭐⭐⭐ |
-| 4 | High | Very small, isolated | ⭐⭐⭐⭐ |
-| 5 | Maximum | Solitary, minimal space | ⭐⭐⭐⭐⭐ |
+| Level | Name | Conditions | Assigned For |
+|-------|------|------------|-------------|
+| 1 | Minimum | Comfortable, windows | 1 star |
+| 2 | Low | Basic, small window | 2 stars |
+| 3 | Medium | Cramped, no window | 3 stars |
+| 4 | High | Very small, isolated | 4 stars |
+| 5 | Maximum | Solitary, minimal space | 5 stars |
 
-**Cell Assignment:**
-```
-Arrested with ⭐⭐⭐ → Assigned to Level 3 cell
-Cell conditions match crime severity
-Higher security = smaller, worse conditions
-```
+Cell assignment matches crime severity: a player arrested at 3 stars is placed in a Security Level 3 cell.
 
----
+### Creating a Prison (Admin)
 
-### Creating Prison (Admin)
-
-**Step 1: Create Prison Plot**
 ```bash
+# Step 1: Create prison plot
 /plot create government "City_Prison"
 /prison create City_Prison
-```
 
-**Step 2: Add Cells**
-```bash
-# Syntax: /prison addcell <number> <x1> <y1> <z1> <x2> <y2> <z2> [security]
+# Step 2: Add cells with coordinates and security level
+/prison addcell 1 100 50 10 105 55 15 1    # Cell 1, Security 1
+/prison addcell 2 110 50 10 113 53 13 3    # Cell 2, Security 3
+/prison addcell 3 120 50 10 122 52 12 5    # Cell 3, Security 5
 
-# Cell 1 (Minimum Security)
-/prison addcell 1 100 50 10 105 55 15 1
-
-# Cell 2 (Medium Security)
-/prison addcell 2 110 50 10 113 53 13 3
-
-# Cell 3 (Maximum Security)
-/prison addcell 3 120 50 10 122 52 12 5
-```
-
-**Step 3: Verify**
-```bash
+# Step 3: Verify setup
 /prison cells
-# Lists all cells with security levels
 ```
-
----
-
-### Arrest Process
-
-**Automatic Arrest:**
-```
-1. Police officer reaches criminal (within 2 blocks)
-2. Arrest trigger activates
-3. Player teleported to prison
-4. Assigned to appropriate cell based on wanted level
-5. Sentence calculated
-6. Options presented: Serve time or Pay bail
-```
-
-**Arrest Message:**
-```
-🚨 YOU HAVE BEEN ARRESTED! 🚨
-
-Wanted Level: ⭐⭐⭐
-Charges: Assault on NPC, Trespassing
-
-Sentence: 3 days
-Security Level: 3 (Medium)
-Cell: #2
-
-Cash Confiscated: 1,250€ (raid penalty)
-
-Options:
-[Pay Bail: 5,000€] [Serve Time]
-```
-
----
 
 ### Serving Time
 
-**In Prison:**
 ```
-Sentence: 3 days (real-world time)
-Current Cell: #2 (Security Level 3)
+In Prison:
+  Sentence: Based on wanted level (real-world time)
+  Cell: Assigned by security level
 
-Time Remaining: 2 days, 14 hours
-Release Date: 2024-01-18 16:30
+  Options while imprisoned:
+    /bail      - Pay to leave immediately
+    /jailtime  - Check remaining sentence
 
-Options:
-/bail - Pay 5,000€ to leave now
-/jailtime - Check remaining time
-```
-
-**Auto-Release:**
-```
-Sentence expires:
-→ Teleported to hospital spawn
-→ Wanted level cleared
-→ Free to go
+  Auto-Release:
+    Sentence expires -> Teleported to hospital spawn
+    Wanted level cleared -> Free to go
 ```
 
 ---
@@ -459,28 +344,25 @@ Sentence expires:
 
 ### Bail Costs
 
-**By Wanted Level:**
+Bail is paid at the hospital to instantly clear all charges.
 
-| Wanted Level | Bail Cost | Quick Cash |
-|--------------|-----------|------------|
-| ⭐ | 1,000€ | Daily × 20 |
-| ⭐⭐ | 2,500€ | Daily × 50 |
-| ⭐⭐⭐ | 5,000€ | Daily × 100 |
-| ⭐⭐⭐⭐ | 10,000€ | Daily × 200 |
-| ⭐⭐⭐⭐⭐ | 20,000€ | Daily × 400 |
-
----
+| Wanted Level | Bail Cost |
+|-------------|-----------|
+| 1 star | 1,000 |
+| 2 stars | 2,500 |
+| 3 stars | 5,000 |
+| 4 stars | 10,000 |
+| 5 stars | 20,000 |
 
 ### Paying Bail
 
-**Command:**
 ```bash
 /bail
 ```
 
 **Process:**
 ```
-1. Check if in prison
+1. Check if player is in prison
 2. Calculate bail based on wanted level
 3. Check player balance
 4. Deduct bail amount
@@ -492,203 +374,189 @@ Sentence expires:
 **Example:**
 ```
 You are in prison.
-Wanted Level: ⭐⭐⭐
-Bail Amount: 5,000€
-Your Balance: 7,500€
+Wanted Level: 3 stars
+Bail Amount: 5,000
+Your Balance: 7,500
 
 /bail
 
-✓ Bail Paid: 5,000€
-New Balance: 2,500€
-
+Bail Paid: 5,000
+New Balance: 2,500
 You have been released!
 Teleporting to hospital...
 Wanted level cleared.
 ```
 
----
-
 ### Insufficient Funds
 
-**Problem:**
-```
-/bail
+If you cannot afford bail:
 
-✗ Insufficient Funds!
-Bail Required: 5,000€
-Your Balance: 2,300€
-Missing: 2,700€
-```
-
-**Solutions:**
-1. **Ask Friend for Money:**
-   ```
-   Friend uses: /pay YourName 3000
-   You use: /bail
-   ```
-
-2. **Serve Time:**
-   ```
-   Wait for sentence to expire
-   Free release at end
-   ```
-
-3. **Admin Release (if bug):**
-   ```bash
-   /prison release <player>
-   ```
+1. **Ask a friend for money** - They can transfer funds via the Smartphone Bank App
+2. **Serve the full sentence** - Free release at end of sentence
+3. **Admin release** - `/prison release <player>` (emergency/bugs only)
 
 ---
 
-## Penalties & Consequences
+## Raid Penalties
 
-### Cash Confiscation
+When a player is arrested, a **raid penalty** confiscates a portion of their illegal cash.
 
-**Raid Penalty:**
+**Formula:**
 ```
-Formula: Confiscated = Random(10-30%) of wallet
+Confiscated = Random(10-30%) of wallet at time of arrest
 
 Example:
-Wallet at arrest: 10,000€
-Raid penalty (25%): 2,500€
-Remaining: 7,500€
+  Wallet at arrest: 10,000
+  Raid penalty (25%): 2,500
+  Remaining: 7,500
 
-Cash goes to: State Treasury
+  Confiscated cash goes to: State Treasury
+```
+
+This creates a strong financial incentive to avoid arrest. Players should keep money in the bank rather than carrying large amounts of cash.
+
+---
+
+## Bounty System
+
+The bounty system allows players to place monetary bounties on other players, managed by the `BountyManager`.
+
+### How It Works
+
+```
+1. Player A places bounty on Player B
+2. Bounty amount deducted from Player A
+3. Bounty is publicly visible
+4. Any player who defeats Player B collects the bounty
+5. Bounties persist across sessions (BountyData saved to disk)
+```
+
+### Bounty Commands
+
+```bash
+/bounty list                     # List all active bounties
+/bounty place <player> <amount>  # Place a bounty on a player
+/bounty info <player>            # Check bounty on a player
+/bounty history                  # View bounty history
 ```
 
 ---
 
-### Death Fee
+## Commands
 
-**If you die while wanted:**
-```
-Normal death fee: 500€
-+Wanted penalty: +100€ per star
+The Police & Crime System provides **10 commands** across four command groups:
 
-Example (3 stars):
-Base death fee: 500€
-Wanted penalty: 300€ (3 × 100€)
-Total: 800€
-```
+### Prison Commands
 
----
-
-### Time Loss
-
-**Opportunity Cost:**
-```
-3-day sentence = 3 real days locked up
-Cannot:
-- Produce items
-- Trade with players
-- Manage plots
-- Earn money
-
-Lost Income Estimate:
-Daily rewards: 150€ × 3 = 450€
-Production: ~1,000€ × 3 = 3,000€
-Total: ~3,450€ lost opportunity
-
-Bail (5,000€) often cheaper than serving time!
+```bash
+/prison create <name>                                    # Create prison
+/prison addcell <num> <x1> <y1> <z1> <x2> <y2> <z2> [security]  # Add cell
+/prison cells                                            # List all cells
+/prison inmates                                          # List prisoners
+/prison release <player>                                 # Release player (admin)
+/prison list                                             # List all prisons
 ```
 
----
+### Bail Commands
 
-### Reputation Impact
-
-**Social Consequences:**
-- Appears in prison inmate list
-- Other players see your arrest
-- May affect trust for future dealings
-- Server reputation damaged
-
----
-
-## Avoiding Arrest
-
-### Strategy 1: Stay Legal
-
-**Best Approach:**
+```bash
+/bail                    # Pay bail to leave prison
 ```
-✓ Don't attack NPCs
-✓ Don't trespass
-✓ Produce legally on private plots
-✓ Avoid conflict
-✓ Pay bail immediately if stars gained
+
+### Jail Time Commands
+
+```bash
+/jailtime                # Check remaining sentence
+```
+
+### Bounty Commands
+
+```bash
+/bounty list                     # List active bounties
+/bounty place <player> <amount>  # Place bounty
+/bounty info <player>            # Check bounty
+/bounty history                  # View bounty history
 ```
 
 ---
 
-### Strategy 2: Hide in Buildings
+## Developer API
 
-**Mechanics:**
-```
-Enter building/plot:
-→ Police pathfinding slowed
-→ If hidden for 60 seconds:
-   → Police may give up
-   → Wanted level may reduce by 1-2 stars
+### IPoliceAPI Interface
 
-Best Hiding Spots:
-- Your own plot (with walls)
-- Friend's plot
-- Complex buildings
-- Underground areas
+External mods can access the police and crime system through the `IPoliceAPI` interface.
+
+**Access:**
+```java
+IPoliceAPI policeAPI = ScheduleMCAPI.getPoliceAPI();
 ```
 
-**Example:**
+### Core Methods (v3.0.0+)
+
+| Method | Description |
+|--------|-------------|
+| `getWantedLevel(UUID)` | Get current wanted level (0-5) |
+| `addWantedLevel(UUID, int)` | Add wanted stars (capped at 5) |
+| `setWantedLevel(UUID, int)` | Set wanted level directly |
+| `clearWantedLevel(UUID)` | Reset wanted level to 0 |
+| `decayWantedLevel(UUID)` | Reduce by 1 star (called per MC day) |
+| `startEscape(UUID)` | Start 30-second escape timer |
+| `stopEscape(UUID)` | Cancel escape timer (police re-detected player) |
+| `isHiding(UUID)` | Check if escape timer is active |
+| `getEscapeTimeRemaining(UUID)` | Remaining escape time in milliseconds |
+| `checkEscapeSuccess(UUID)` | Check if escape succeeded, reduce wanted level |
+
+### Extended Methods (v3.2.0+)
+
+| Method | Description |
+|--------|-------------|
+| `getAllWantedPlayers()` | Map of all wanted player UUIDs to their level |
+| `getPlayersAtWantedLevel(int)` | Set of player UUIDs at a specific level |
+| `getWantedPlayerCount()` | Total count of wanted players |
+| `isImprisoned(UUID)` | Check if a player is in prison |
+| `getRemainingJailTime(UUID)` | Remaining jail time in seconds |
+| `releaseFromPrison(UUID)` | Programmatically release a player |
+| `getBailAmount(UUID)` | Get bail cost based on wanted level |
+
+### Example Usage
+
+```java
+IPoliceAPI policeAPI = ScheduleMCAPI.getPoliceAPI();
+
+// Check a player's wanted level
+int wantedLevel = policeAPI.getWantedLevel(playerUUID);
+
+// Add wanted stars for a crime
+policeAPI.addWantedLevel(playerUUID, 2); // +2 stars
+
+// Clear wanted level after arrest/bail
+policeAPI.clearWantedLevel(playerUUID);
+
+// Start escape timer
+policeAPI.startEscape(playerUUID);
+
+// Check if player is hiding
+if (policeAPI.isHiding(playerUUID)) {
+    long remaining = policeAPI.getEscapeTimeRemaining(playerUUID);
+    // remaining is in milliseconds
+}
+
+// Check escape result
+if (policeAPI.checkEscapeSuccess(playerUUID)) {
+    // Wanted level was reduced by 1
+}
+
+// Prison integration
+if (policeAPI.isImprisoned(playerUUID)) {
+    long jailSeconds = policeAPI.getRemainingJailTime(playerUUID);
+    double bail = policeAPI.getBailAmount(playerUUID);
+}
+
+// Get all wanted players
+Map<UUID, Integer> wanted = policeAPI.getAllWantedPlayers();
 ```
-Wanted: ⭐⭐⭐
-Police: 20 blocks away
 
-*Run into your house*
-*Close doors*
-*Hide in corner*
-
-Time: 30 seconds → Police searching
-Time: 60 seconds → Police confused
-Time: 90 seconds → Police giving up
-
-Wanted reduced: ⭐⭐⭐ → ⭐⭐
-```
-
----
-
-### Strategy 3: Pay Bail Immediately
-
-**Quick Response:**
-```
-Gain wanted star:
-1. Open smartphone (P)
-2. BANK app
-3. Keep enough for bail
-4. Get arrested (or hide until safe)
-5. Pay bail immediately
-
-Cost: Bail amount
-Benefit: No time lost, clean record
-```
-
----
-
-### Strategy 4: Use Smartphone Protection
-
-**While using smartphone:**
-```
-You are immune to:
-- Police damage
-- Arrest (can't be caught)
-- All attacks
-
-Use to:
-- Check wanted level
-- Navigate to safety
-- Pay bail remotely
-- Call for help
-
-⚠️ Cannot move between locations easily
-⚠️ 3-second cooldown after closing
-```
+**Thread Safety:** All methods are thread-safe through ConcurrentHashMap and atomic operations.
 
 ---
 
@@ -697,166 +565,213 @@ Use to:
 ### For Players
 
 #### 1. Keep Bail Money Ready
+
 ```
 Recommended Balance Reserve:
-⭐ risk: 1,000€
-⭐⭐ risk: 2,500€
-⭐⭐⭐ risk: 5,000€
+  1-star risk: 1,000
+  2-star risk: 2,500
+  3-star risk: 5,000
 
-Keep in bank, not wallet (wallet can be raided)
+Keep money in bank, not wallet (wallet can be raided on arrest).
 ```
 
----
-
 #### 2. Know Your Escape Routes
+
 ```
 Plan ahead:
 - Locate nearest safe plot
-- Know complex buildings
-- Have friends' plots trusted
-- Multiple escape paths
+- Know complex buildings nearby
+- Have friends' plots trusted for access
+- Identify multiple escape paths
 ```
-
----
 
 #### 3. Avoid Escalation
-```
-Have 1 star? Don't:
-- Attack police (adds stars)
-- Resist arrest (adds time)
-- Cause more crimes
 
-Do:
+```
+Have 1 star? Do NOT:
+- Attack police (adds more stars)
+- Resist arrest (adds time)
+- Commit more crimes
+
+Instead:
 - Hide immediately
 - Pay bail
-- Wait for decay
+- Wait for auto-decay
 ```
 
----
+#### 4. Use Smartphone Protection
 
-#### 4. Produce Safely
 ```
-Legal Production:
-- Use private plots
-- Don't produce in public
-- Hide from view
-- Sell discreetly
+While smartphone is open:
+- You are immune to police damage
+- You cannot be arrested
+- Use to check wanted level, pay bail, navigate to safety
 ```
-
----
 
 ### For Admins
 
 #### 1. Build Proper Prisons
+
 ```
 Requirements:
-- Government plot
+- Government plot type
 - Multiple cells (5-10 minimum)
-- Varied security levels
-- Bail office area
-- Good spawn point
+- Varied security levels (1-5)
+- Bail office area at hospital
+- Good spawn point for released players
 ```
 
----
+#### 2. Configure Adequate Police
 
-#### 2. Configure Police
 ```
-Spawn enough police:
-- Small server: 2-3 police
-- Medium server: 5-8 police
-- Large server: 10+ police
+Small server:  2-3 police NPCs
+Medium server: 5-8 police NPCs
+Large server:  10+ police NPCs
 
-Set patrols:
+Set patrols in:
 - Downtown areas
 - Government buildings
 - High-traffic zones
 ```
 
----
+#### 3. Monitor the System
 
-#### 3. Monitor System
 ```bash
-# Check inmates
-/prison inmates
-
-# Release if needed
-/prison release <player>
-
-# Check prison health
-/prison list
-/prison cells
+/prison inmates          # Check current prisoners
+/prison release <player> # Release if needed (bugs)
+/prison cells            # Verify cell configuration
 ```
 
 ---
 
 ## Troubleshooting
 
-### "Police Not Chasing Me"
+### Police Not Chasing
 
 **Causes:**
 1. No police NPCs spawned
-2. Police too far away
+2. Police too far from wanted player
 3. Police movement disabled
-4. Wanted level too low
+4. Wanted level is 0
 
 **Solutions:**
 ```bash
-# Check police exist
-/npc list
-
-# Spawn more police (admin)
-/npc spawn police Officer_1
-
-# Enable movement (admin)
-/npc Officer_1 movement true
+/npc Officer_1 info              # Check police NPC details
+/npc Officer_1 movement true     # Enable movement
+# Place additional police NPCs via spawn eggs or creative menu
 ```
 
----
-
-### "Can't Pay Bail"
+### Cannot Pay Bail
 
 **Causes:**
 1. Insufficient funds
-2. Not in prison
-3. Command disabled
+2. Not currently in prison
+3. Command disabled by config
 
 **Solutions:**
 ```
-1. Check balance: /money
-2. Get money from friend: Have them /pay you
-3. Serve time instead
-4. Contact admin
+1. Check balance via Smartphone Bank App
+2. Get money from friend: They can transfer via the Smartphone
+3. Serve time instead (wait for release)
+4. Contact admin if bugged
 ```
 
----
+### Stuck in Prison
 
-### "Stuck in Prison"
-
-**Problem:** Sentence expired but not released
+**Problem:** Sentence expired but player not released
 
 **Solutions:**
 ```bash
-# Check time remaining
-/jailtime
+/jailtime                        # Check remaining time
+/prison release <player>         # Admin manual release
+```
 
-# If should be free, contact admin
-# Admin can manually release:
-/prison release <yourname>
+### Wanted Level Not Decreasing
+
+**Expected:** -1 star per Minecraft day
+
+**Checks:**
+```
+1. Wait a full Minecraft day cycle
+2. Check with smartphone CRIME STATS app
+3. Ensure no new crimes were committed (resets decay timer)
+4. May require server restart if bugged
 ```
 
 ---
 
-### "Wanted Level Not Decreasing"
+## Zeugen-System (WitnessManager)
 
-**Expected:** -1 star per day
+NPCs koennen Verbrechen beobachten und melden.
 
-**Check:**
+### Zeugen-Erkennung
+
+| Parameter | Wert |
+|-----------|------|
+| Zeugen-Reichweite | 20 Bloecke vom Tatort |
+| Voraussetzung | NPC muss wach sein (nicht schlafen) |
+| Glaubwuerdigkeit | 70% + (NPC-Ehrlichkeit x 0,3) |
+| Max. Meldungen pro Spieler | 50 aktive Meldungen |
+| Pruefintervall | Alle 10 Sekunden (200 Ticks) |
+
+### Verarbeitungskette
+
+1. NPC beobachtet Verbrechen innerhalb von 20 Bloecken
+2. Erkennungschance: 90% wenn Polizei in der Naehe, sonst 10%
+3. Meldung wird erstellt mit Glaubwuerdigkeit basierend auf NPC-Ehrlichkeit
+4. Bei Schweregrad >= 7: Spieler wird automatisch auf Fahndungsliste gesetzt
+5. Kopfgeld basiert auf dem Basis-Kopfgeld des Verbrechenstyps
+
+### NPC-Reaktionen auf Verbrechen
+
+- Fuegt "Kriminell" und "Gefaehrlich" Tags zum Spielerprofil hinzu
+- Reduziert das Sicherheitsbeduerfnis des NPC
+- Loest Angst- oder Verdacht-Emotionen aus
+- Informiert die Verhaltens-KI, den Kriminellen zu meiden oder zu melden
+
+---
+
+## Bestechungs-System (BriberySystem)
+
+Spieler koennen Zeugen bestechen, um Meldungen zu unterdruecken.
+
+### Bestechbarkeit
+
+| NPC-Eigenschaft | Bestechbar? |
+|-----------------|-------------|
+| Ehrlichkeit > 80 | Nicht bestechbar |
+| Polizei mit Ehrlichkeit > 30 | Nicht bestechbar |
+| Verbrechensschwere >= 8 | Nur bestechbar wenn Ehrlichkeit < 0 |
+| Sonstige NPCs | Bestechbar |
+
+### Mindestbestechung
+
 ```
-1. Wait full 24 hours
-2. Check with smartphone CRIME STATS
-3. May require server restart
-4. Contact admin if bugged
+Mindestbetrag = Kopfgeld x Gier-Faktor (1,0-1,5) x Ehrlichkeits-Faktor (0,7-3,0) x Schwere-Faktor x Polizei-Faktor (x3)
+Minimum: 50 EUR
 ```
+
+### Erfolgsberechnung
+
+Die Erfolgschance haengt vom Verhaeltnis angebotener Betrag zu Mindestbetrag ab:
+- Unter 1,0x: Stark bestraft (0,3x Ratio)
+- 1,0-2,0x: Linear (0,3 + (Ratio-1) x 0,4)
+- Ueber 2,0x: Abnehmender Ertrag (max 0,95)
+
+### Bestechungs-Ergebnisse
+
+| Ergebnis | Effekt |
+|----------|--------|
+| ANGENOMMEN | Zeuge bestochen, Meldung markiert, "Bestechend"-Tag |
+| WILL_MEHR | Betrag zu niedrig, NPC bietet neue Chance |
+| ABGELEHNT | Bestechung abgelehnt, NPC-Aerger +50 |
+| ABGELEHNT_UND_GEMELDET (Polizei) | Zusaetzliches Verbrechen fuer Bestechungsversuch |
+| UNBESTECHBAR | NPC-Prinzipien zu stark |
+
+### Emotionale NPC-Reaktion
+
+- Ehrliche NPCs (Ehrlichkeit > 0): Loesen TRAURIG-Emotion aus (Schuldgefuehle)
+- Unehrliche NPCs: Loesen GLUECKLICH-Emotion aus (Zufriedenheit)
 
 ---
 
@@ -865,12 +780,15 @@ Set patrols:
 **Police & Crime System - Complete Guide**
 
 For related systems:
-- [🏘️ Plot System](Plot-System.md)
-- [💰 Economy System](Economy-System.md)
-- [📱 Smartphone System](Smartphone-System.md)
+- [NPC System](NPC-System.md)
+- [Smartphone System](Smartphone-System.md)
+- [Economy System](Economy-System.md)
+- [Plot System](Plot-System.md)
+- [Gang System](Gang-System.md)
+- [Lock System](Lock-System.md)
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 All Commands](../Commands.md)
+[Back to Wiki Home](../Home.md) | [All Commands](../Commands.md)
 
-**Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
+**Last Updated:** 2026-02-07 | **ScheduleMC v3.6.0-beta**
 
 </div>

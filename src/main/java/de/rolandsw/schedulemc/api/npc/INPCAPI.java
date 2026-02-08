@@ -141,4 +141,90 @@ public interface INPCAPI {
      * @throws IllegalArgumentException wenn Parameter null sind
      */
     void setNPCType(CustomNPCEntity npc, NPCType type);
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Returns all NPCs of a specific type.
+     *
+     * @param type The NPC type to filter by
+     * @return Collection of NPCs matching the type
+     * @throws IllegalArgumentException if type is null
+     * @since 3.2.0
+     */
+    Collection<CustomNPCEntity> getNPCsByType(NPCType type);
+
+    /**
+     * Returns all NPCs within a radius of a position.
+     *
+     * @param level The ServerLevel
+     * @param center Center position
+     * @param radius Search radius in blocks
+     * @return Collection of NPCs within range
+     * @throws IllegalArgumentException if parameters are null or radius negative
+     * @since 3.2.0
+     */
+    Collection<CustomNPCEntity> getNPCsInRadius(ServerLevel level, BlockPos center, double radius);
+
+    /**
+     * Sets the NPC's display name.
+     *
+     * @param npc The NPC
+     * @param name The new name
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    void setNPCName(CustomNPCEntity npc, String name);
+
+    /**
+     * Sets a leisure location for an NPC.
+     *
+     * @param npc The NPC
+     * @param leisurePos The leisure location
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    void addNPCLeisureLocation(CustomNPCEntity npc, BlockPos leisurePos);
+
+    /**
+     * Removes an NPC from the world.
+     *
+     * @param npc The NPC to remove
+     * @throws IllegalArgumentException if npc is null
+     * @since 3.2.0
+     */
+    void removeNPC(CustomNPCEntity npc);
+
+    /**
+     * Sets the NPC's schedule for a specific activity.
+     *
+     * @param npc The NPC
+     * @param activity Activity name (e.g. "workstart", "workend", "sleep")
+     * @param time Time in HHMM format (e.g. 700 for 07:00)
+     * @throws IllegalArgumentException if parameters are null
+     * @since 3.2.0
+     */
+    void setNPCSchedule(CustomNPCEntity npc, String activity, int time);
+
+    /**
+     * Returns the NPC's current balance/wallet amount.
+     *
+     * @param npc The NPC
+     * @return Balance in Euro
+     * @throws IllegalArgumentException if npc is null
+     * @since 3.2.0
+     */
+    double getNPCBalance(CustomNPCEntity npc);
+
+    /**
+     * Sets the NPC's wallet balance.
+     *
+     * @param npc The NPC
+     * @param amount New balance
+     * @throws IllegalArgumentException if npc is null
+     * @since 3.2.0
+     */
+    void setNPCBalance(CustomNPCEntity npc, double amount);
 }

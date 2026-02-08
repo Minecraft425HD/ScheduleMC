@@ -202,10 +202,10 @@ Performance Motor:
 - Acceleration: 1.4× chassis accel
 - Fuel Efficiency: 0.8× chassis efficiency (uses more fuel)
 
-Industrial Motor:
-- Max Speed: 0.8× chassis speed
-- Acceleration: 0.7× chassis accel
-- Fuel Efficiency: 1.2× chassis efficiency (uses less fuel)
+Performance 2 Motor (Tier 2):
+- Max Speed: 1.5× chassis speed
+- Acceleration: 1.6× chassis accel
+- Fuel Efficiency: 0.7× chassis efficiency (highest performance, most fuel)
 ```
 
 ---
@@ -1074,17 +1074,87 @@ If in water:
 
 ---
 
+## Fahrzeug-HUD
+
+Wenn ein Spieler ein Fahrzeug faehrt, werden zusaetzliche HUD-Elemente angezeigt:
+
+### Treibstoffanzeige
+
+- **Position**: Unten links (neben der Erfahrungsleiste)
+- **Anzeige**: Treibstoff-Balken (0-100%)
+- **Fuellung**: Proportional zu aktuellem Treibstoff / maximaler Kapazitaet
+
+### Geschwindigkeitsanzeige
+
+- **Position**: Bildschirmmitte, ueber der Hotbar
+- **Anzeige**: Aktuelle Geschwindigkeit in km/h
+- **Performance**: Geschwindigkeitstext wird gecached und nur bei Aenderung neu berechnet
+- **Lesbarkeit**: Schriftumrandung fuer bessere Sichtbarkeit bei allen Lichtverhaeltnissen
+
+### Kamera-Zoom
+
+- **Steuerung**: Mausrad aendert Kamera-Entfernung (1-20 Bloecke)
+- Spieler-Skalierung wird beim Fahren angepasst
+
+---
+
+## Sound-System
+
+Das Fahrzeug-Sound-System bietet realistisches 3D-Spatial-Audio mit verschiedenen Motor-Varianten.
+
+### Motor-Sounds
+
+Jeder Motortyp hat eigene Sounds:
+
+| Sound-Event | Standard-Motor | Sport-Motor | LKW-Motor |
+|-------------|---------------|-------------|-----------|
+| Motor-Stop | ENGINE_STOP | SPORT_ENGINE_STOP | TRUCK_ENGINE_STOP |
+| Anlassen | ENGINE_STARTING | SPORT_ENGINE_STARTING | TRUCK_ENGINE_STARTING |
+| Start | ENGINE_START | SPORT_ENGINE_START | TRUCK_ENGINE_START |
+| Leerlauf | ENGINE_IDLE | SPORT_ENGINE_IDLE | TRUCK_ENGINE_IDLE |
+| Hohe Drehzahl | ENGINE_HIGH | SPORT_ENGINE_HIGH | TRUCK_ENGINE_HIGH |
+| Startversuch fehlgeschlagen | ENGINE_FAIL | SPORT_ENGINE_FAIL | TRUCK_ENGINE_FAIL |
+
+### Spezial-Sounds
+
+| Sound | Beschreibung |
+|-------|-------------|
+| VEHICLE_CRASH | Kollisions-Aufprall |
+| VEHICLE_HORN | Hupe/Warnung |
+| VEHICLE_LOCK / VEHICLE_UNLOCK | Schloss-Mechanismus |
+| FUEL_STATION | Tanksaeulen-Geraeusch |
+| FUEL_STATION_ATTENDANT | Tankwart-Dialog |
+| RATCHET | Werkzeug-Geraeusche |
+| GENERATOR | Stromerzeugung |
+
+### Sound-Loop-System
+
+| Sound-Loop | Ausloeser | Stoppt wenn |
+|-----------|-----------|------------|
+| SoundLoopIdle | Motor laeuft, Geschwindigkeit = 0 | Geschwindigkeit aendert sich ODER Motor stoppt |
+| SoundLoopStarting | Motor-Startsequenz | Startsequenz abgeschlossen |
+| SoundLoopHigh | Hohe Drehzahl/Beschleunigung | Motor kehrt zum Leerlauf zurueck |
+| SoundLoopTileentity | Block-basierte Schallquellen | Block zerstoert/ausgeschaltet |
+
+- **Lautstaerke**: Ueber Mod-Config steuerbar (vehicleVolume)
+- **Tonhoehe**: Passt sich dem Fahrzeugzustand an
+- **Abschwächung**: LINEAR (realistischer Entfernungsabfall)
+- **Positionierung**: Aktualisiert sich jeden Frame mit Fahrzeugposition (3D Spatial Audio)
+
+---
+
 <div align="center">
 
 **Vehicle System - Complete Guide**
 
 For related systems:
-- [⛽ Fuel & Resources](../Items.md)
-- [🏪 Shop System](NPC-System.md)
-- [💰 Economy](Economy-System.md)
+- [Fuel & Resources](../Items.md)
+- [Shop System](NPC-System.md)
+- [Economy](Economy-System.md)
+- [Towing System](Towing-System.md)
 
-[🏠 Back to Wiki Home](../Home.md) • [📋 All Commands](../Commands.md)
+[Back to Wiki Home](../Home.md) | [All Commands](../Commands.md)
 
-**Last Updated:** 2025-12-20 | **ScheduleMC v2.7.0-beta**
+**Last Updated:** 2026-02-07 | **ScheduleMC v3.6.0-beta**
 
 </div>

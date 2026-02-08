@@ -3,8 +3,10 @@ package de.rolandsw.schedulemc.npc.events;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -222,6 +224,88 @@ public class PoliceBackupSystem {
         if (activePolice.containsKey(playerUUID)) {
             isRaidPursuit.put(playerUUID, true);
             LOGGER.info("[BACKUP] Pursuit upgraded to raid - Max 4 police allowed");
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // Feature 4: Strategische Koordination (Flanking)
+    // ═══════════════════════════════════════════════════════════
+
+    /** Zugewiesene Flanking-Positionen: Polizei-UUID -> Zielposition */
+    private static final Map<UUID, Vec3> assignedFlankPositions = new ConcurrentHashMap<>();
+
+    /** Flanking-Abstand */
+    private static final double FLANK_DISTANCE = 15.0;
+
+    /**
+     * Berechnet und weist Flanking-Positionen zu
+     * Polizisten werden auf gegenueberliegende Seiten des Spielers verteilt.
+     *
+     * @param playerUUID UUID des verfolgten Spielers
+     * @param playerPos Aktuelle Spielerposition
+     * @param playerDir Bewegungsrichtung des Spielers
+     */
+    public static void assignFlankingPositions(UUID playerUUID, Vec3 playerPos, Vec3 playerDir) {
+        Set<UUID> police = activePolice.get(playerUUID);
+        if (police == null || police.size() < 2) return;
+
+        // Normalisiere Spielerrichtung
+        Vec3 dir = playerDir.normalize();
+        if (dir.lengthSqr() < 0.01) {
+            dir = new Vec3(1, 0, 0); // Fallback
+        }
+
+        // Berechne seitliche Richtungen
+        Vec3 right = new Vec3(-dir.z, 0, dir.x).normalize();
+        Vec3 left = right.scale(-1);
+        Vec3 behind = dir.scale(-1);
+
+        // Positionen: Links, Rechts, Hinten-Links, Hinten-Rechts
+        Vec3[] flankPositions = new Vec3[]{
+            playerPos.add(right.scale(FLANK_DISTANCE)),                                    // Rechts
+            playerPos.add(left.scale(FLANK_DISTANCE)),                                     // Links
+            playerPos.add(behind.scale(FLANK_DISTANCE)).add(right.scale(FLANK_DISTANCE * 0.5)), // Hinten-Rechts
+            playerPos.add(behind.scale(FLANK_DISTANCE)).add(left.scale(FLANK_DISTANCE * 0.5))   // Hinten-Links
+        };
+
+        int i = 0;
+        for (UUID policeUUID : police) {
+            if (i < flankPositions.length) {
+                assignedFlankPositions.put(policeUUID, flankPositions[i]);
+                i++;
+            }
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[FLANKING] Assigned {} flanking positions for player {}", i, playerUUID);
+        }
+    }
+
+    /**
+     * Gibt die Flanking-Position fuer einen Polizisten zurueck
+     *
+     * @return Flanking-Position oder null wenn keine zugewiesen
+     */
+    public static Vec3 getFlankPosition(UUID policeUUID) {
+        return assignedFlankPositions.get(policeUUID);
+    }
+
+    /**
+     * Prueft ob ein Polizist eine Flanking-Position hat
+     */
+    public static boolean hasFlankPosition(UUID policeUUID) {
+        return assignedFlankPositions.containsKey(policeUUID);
+    }
+
+    /**
+     * Entfernt Flanking-Positionen fuer einen Spieler
+     */
+    public static void clearFlankPositions(UUID playerUUID) {
+        Set<UUID> police = activePolice.get(playerUUID);
+        if (police != null) {
+            for (UUID policeUUID : police) {
+                assignedFlankPositions.remove(policeUUID);
+            }
         }
     }
 

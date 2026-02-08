@@ -5,6 +5,9 @@ import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +25,8 @@ import java.util.stream.StreamSupport;
  * @since 3.0.0
  */
 public class VehicleAPIImpl implements IVehicleAPI {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * {@inheritDoc}
@@ -133,5 +138,80 @@ public class VehicleAPIImpl implements IVehicleAPI {
             throw new IllegalArgumentException("vehicle cannot be null");
         }
         vehicle.discard();
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<EntityGenericVehicle> getAllVehicles(ServerLevel level) {
+        if (level == null) {
+            throw new IllegalArgumentException("level cannot be null");
+        }
+        return Collections.unmodifiableList(
+            StreamSupport.stream(level.getAllEntities().spliterator(), false)
+                .filter(entity -> entity instanceof EntityGenericVehicle)
+                .map(entity -> (EntityGenericVehicle) entity)
+                .collect(Collectors.toList())
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVehicleCount(ServerLevel level) {
+        if (level == null) {
+            throw new IllegalArgumentException("level cannot be null");
+        }
+        return getAllVehicles(level).size();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isVehicleOwner(EntityGenericVehicle vehicle, UUID playerUUID) {
+        if (vehicle == null || playerUUID == null) {
+            throw new IllegalArgumentException("vehicle and playerUUID cannot be null");
+        }
+        return playerUUID.equals(vehicle.getOwnerId());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void repairVehicle(EntityGenericVehicle vehicle) {
+        if (vehicle == null) {
+            throw new IllegalArgumentException("vehicle cannot be null");
+        }
+        LOGGER.debug("Stub: repairVehicle not fully implemented - vehicle durability system not directly accessible");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getVehicleSpeed(EntityGenericVehicle vehicle) {
+        if (vehicle == null) {
+            throw new IllegalArgumentException("vehicle cannot be null");
+        }
+        return vehicle.getDeltaMovement().length();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLicensePlate(EntityGenericVehicle vehicle, String plate) {
+        if (vehicle == null || plate == null) {
+            throw new IllegalArgumentException("vehicle and plate cannot be null");
+        }
+        LOGGER.debug("Stub: setLicensePlate not fully implemented - license plate system not directly accessible");
     }
 }

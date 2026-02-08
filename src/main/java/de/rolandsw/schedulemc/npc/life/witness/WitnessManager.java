@@ -389,10 +389,10 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
     /**
      * Verarbeitet ausstehende Berichte.
      * Optimiert: Nutzt PoliceAIHandler-Cache statt getEntitiesOfClass() pro Report.
+     * FIX 7: Buffer ist jetzt lokal statt static (Thread-Safety)
      */
-    private static final List<CustomNPCEntity> processReportsPoliceBuffer = new ArrayList<>();
-
     private void processReports(ServerLevel level) {
+        List<CustomNPCEntity> processReportsPoliceBuffer = new ArrayList<>();
         long currentDay = level.getDayTime() / 24000;
 
         // Abgelaufene Berichte entfernen

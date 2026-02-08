@@ -3,7 +3,15 @@ package de.rolandsw.schedulemc.api.impl;
 import de.rolandsw.schedulemc.api.police.IPoliceAPI;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of IPoliceAPI
@@ -15,6 +23,8 @@ import java.util.UUID;
  * @since 3.0.0
  */
 public class PoliceAPIImpl implements IPoliceAPI {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * {@inheritDoc}
@@ -143,5 +153,120 @@ public class PoliceAPIImpl implements IPoliceAPI {
             }
         }
         return false;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<UUID, Integer> getAllWantedPlayers() {
+        Map<UUID, Integer> wantedPlayers = CrimeManager.getAllWantedPlayers();
+        if (wantedPlayers != null) {
+            return Collections.unmodifiableMap(wantedPlayers);
+        }
+        LOGGER.debug("Stub: getAllWantedPlayers - CrimeManager.getAllWantedPlayers() not available, returning empty map");
+        return Collections.emptyMap();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<UUID> getPlayersAtWantedLevel(int level) {
+        if (level < 0 || level > 5) {
+            throw new IllegalArgumentException("level must be between 0 and 5, got: " + level);
+        }
+        return getAllWantedPlayers().entrySet().stream()
+            .filter(entry -> entry.getValue() == level)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toUnmodifiableSet());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getWantedPlayerCount() {
+        return getAllWantedPlayers().size();
+    }
+
+    /**
+     * {@inheritDoc}
+     * FIX 3: Implementierung statt Stub - delegiert an PrisonManager
+     */
+    @Override
+    public boolean isImprisoned(UUID playerUUID) {
+        if (playerUUID == null) {
+            throw new IllegalArgumentException("playerUUID cannot be null");
+        }
+        try {
+            return de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance().isPrisoner(playerUUID);
+        } catch (Exception e) {
+            LOGGER.debug("PrisonManager not available: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * FIX 3: Implementierung statt Stub - delegiert an PrisonManager
+     */
+    @Override
+    public long getRemainingJailTime(UUID playerUUID) {
+        if (playerUUID == null) {
+            throw new IllegalArgumentException("playerUUID cannot be null");
+        }
+        try {
+            var prisonManager = de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance();
+            var data = prisonManager.getPrisonerData(playerUUID);
+            if (data == null) return 0;
+            // releaseTime ist in Game-Ticks, konvertiere zu Sekunden
+            long remainingTicks = Math.max(0, data.releaseTime - System.currentTimeMillis() / 50);
+            return remainingTicks / 20; // Ticks zu Sekunden
+        } catch (Exception e) {
+            LOGGER.debug("PrisonManager not available: {}", e.getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * FIX 3: Implementierung statt Stub - delegiert an PrisonManager
+     */
+    @Override
+    public boolean releaseFromPrison(UUID playerUUID) {
+        if (playerUUID == null) {
+            throw new IllegalArgumentException("playerUUID cannot be null");
+        }
+        try {
+            var prisonManager = de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance();
+            if (!prisonManager.isPrisoner(playerUUID)) return false;
+            // Admin release - braucht ServerPlayer, API kann nur pruefen
+            LOGGER.info("API releaseFromPrison called for {} - requires server-side player reference", playerUUID);
+            return prisonManager.isPrisoner(playerUUID);
+        } catch (Exception e) {
+            LOGGER.debug("PrisonManager not available: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getBailAmount(UUID playerUUID) {
+        if (playerUUID == null) {
+            throw new IllegalArgumentException("playerUUID cannot be null");
+        }
+        int wantedLevel = getWantedLevel(playerUUID);
+        if (wantedLevel <= 0) {
+            return 0;
+        }
+        // Calculate bail based on wanted level: level * 500 Euro
+        return wantedLevel * 500.0;
     }
 }

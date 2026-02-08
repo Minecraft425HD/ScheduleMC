@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.goals;
 
+import de.rolandsw.schedulemc.npc.driving.NPCDrivingScheduler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -70,6 +71,11 @@ public class MoveToLeisureGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
+        // Wenn NPC fährt, Goal weiterlaufen lassen bis Fahrt beendet
+        if (npc.isDriving()) {
+            return isLeisureTime();
+        }
+
         // Weitermachen solange es Freizeit ist
         if (!isLeisureTime()) {
             return false;
@@ -82,6 +88,11 @@ public class MoveToLeisureGoal extends Goal {
     @Override
     public void tick() {
         if (targetLeisurePos == null) {
+            return;
+        }
+
+        // Wenn NPC fährt, Scheduler kümmert sich um die Bewegung
+        if (npc.isDriving()) {
             return;
         }
 
@@ -150,6 +161,11 @@ public class MoveToLeisureGoal extends Goal {
     @Override
     public void start() {
         if (targetLeisurePos != null) {
+            // Versuche Auto zu fahren wenn Ziel weit genug entfernt
+            if (NPCDrivingScheduler.canDrive(npc, targetLeisurePos)) {
+                NPCDrivingScheduler.startDriving(npc, targetLeisurePos);
+                return;
+            }
             npc.getNavigation().moveTo(
                 targetLeisurePos.getX() + 0.5,
                 targetLeisurePos.getY(),
@@ -161,6 +177,10 @@ public class MoveToLeisureGoal extends Goal {
 
     @Override
     public void stop() {
+        // Stoppe Fahrt falls aktiv
+        if (npc.isDriving()) {
+            NPCDrivingScheduler.stopDriving(npc);
+        }
         npc.getNavigation().stop();
         tickCounter = 0;
         wanderCounter = 0;

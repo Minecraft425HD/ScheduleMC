@@ -194,4 +194,57 @@ public interface IAchievementAPI {
      * @throws IllegalArgumentException wenn Parameter null sind
      */
     boolean isUnlocked(UUID playerUUID, String achievementId);
+
+    // ═══════════════════════════════════════════════════════════
+    // EXTENDED API v3.2.0 - Enhanced External Configurability
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Returns the completion percentage for a player.
+     *
+     * @param playerUUID The player's UUID
+     * @return Percentage 0.0 - 100.0
+     * @throws IllegalArgumentException if playerUUID is null
+     * @since 3.2.0
+     */
+    double getCompletionPercentage(UUID playerUUID);
+
+    /**
+     * Returns the total rewards earned by a player.
+     *
+     * @param playerUUID The player's UUID
+     * @return Total rewards in Euro
+     * @throws IllegalArgumentException if playerUUID is null
+     * @since 3.2.0
+     */
+    double getTotalRewardsEarned(UUID playerUUID);
+
+    /**
+     * Returns all unlocked achievements for a player.
+     *
+     * @param playerUUID The player's UUID
+     * @return List of unlocked Achievement objects
+     * @throws IllegalArgumentException if playerUUID is null
+     * @since 3.2.0
+     */
+    List<Achievement> getUnlockedAchievements(UUID playerUUID);
+
+    /**
+     * Resets all achievement progress for a player.
+     *
+     * @param playerUUID The player's UUID
+     * @throws IllegalArgumentException if playerUUID is null
+     * @since 3.2.0
+     */
+    void resetPlayerAchievements(UUID playerUUID);
+
+    /**
+     * Returns the top N players by achievement count.
+     *
+     * @param limit Maximum entries
+     * @return Sorted list of UUID-Count pairs
+     * @throws IllegalArgumentException if limit < 1
+     * @since 3.2.0
+     */
+    java.util.List<java.util.Map.Entry<UUID, Integer>> getTopAchievers(int limit);
 }

@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.goals;
 
+import de.rolandsw.schedulemc.npc.driving.NPCDrivingScheduler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -66,8 +67,63 @@ public class MoveToWorkGoal extends Goal {
     }
 
     @Override
+    public void tick() {
+        if (workPos == null) {
+            return;
+        }
+
+        // Wenn NPC fährt, Scheduler kümmert sich um die Bewegung
+        if (npc.isDriving()) {
+            return;
+        }
+
+        tickCounter++;
+
+        // Alle 5 Sekunden Pfad neu berechnen
+        if (tickCounter >= RECALCULATE_INTERVAL) {
+            tickCounter = 0;
+            npc.getNavigation().moveTo(
+                workPos.getX() + 0.5,
+                workPos.getY(),
+                workPos.getZ() + 0.5,
+                npc.getNpcData().getBehavior().getMovementSpeed()
+            );
+        }
+    }
+
+    @Override
+    public void start() {
+        if (workPos != null) {
+            // Versuche Auto zu fahren wenn Ziel weit genug entfernt
+            if (NPCDrivingScheduler.canDrive(npc, workPos)) {
+                NPCDrivingScheduler.startDriving(npc, workPos);
+                return;
+            }
+            npc.getNavigation().moveTo(
+                workPos.getX() + 0.5,
+                workPos.getY(),
+                workPos.getZ() + 0.5,
+                npc.getNpcData().getBehavior().getMovementSpeed()
+            );
+        }
+    }
+
+    @Override
     public boolean canContinueToUse() {
-        // Weitermachen solange es Arbeitszeit ist und NPC nicht angekommen
+        // Wenn NPC fährt, Goal weiterlaufen lassen bis Fahrt beendet
+        if (npc.isDriving()) {
+            // Prüfe ob noch Arbeitszeit ist
+            Level level = npc.level();
+            long dayTime = level.getDayTime() % 24000;
+            long workStart = npc.getNpcData().getWorkStartTime();
+            long workEnd = npc.getNpcData().getWorkEndTime();
+            return isTimeBetween(dayTime, workStart, workEnd);
+        }
+
+        return canContinueToUseWalking();
+    }
+
+    private boolean canContinueToUseWalking() {
         if (workPos == null) {
             return false;
         }
@@ -91,39 +147,11 @@ public class MoveToWorkGoal extends Goal {
     }
 
     @Override
-    public void tick() {
-        if (workPos == null) {
-            return;
-        }
-
-        tickCounter++;
-
-        // Alle 5 Sekunden Pfad neu berechnen
-        if (tickCounter >= RECALCULATE_INTERVAL) {
-            tickCounter = 0;
-            npc.getNavigation().moveTo(
-                workPos.getX() + 0.5,
-                workPos.getY(),
-                workPos.getZ() + 0.5,
-                npc.getNpcData().getBehavior().getMovementSpeed()
-            );
-        }
-    }
-
-    @Override
-    public void start() {
-        if (workPos != null) {
-            npc.getNavigation().moveTo(
-                workPos.getX() + 0.5,
-                workPos.getY(),
-                workPos.getZ() + 0.5,
-                npc.getNpcData().getBehavior().getMovementSpeed()
-            );
-        }
-    }
-
-    @Override
     public void stop() {
+        // Stoppe Fahrt falls aktiv
+        if (npc.isDriving()) {
+            NPCDrivingScheduler.stopDriving(npc);
+        }
         npc.getNavigation().stop();
         tickCounter = 0;
     }
