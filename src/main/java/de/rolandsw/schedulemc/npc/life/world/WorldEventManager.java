@@ -20,6 +20,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -84,8 +85,8 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
 
     private MinecraftServer server;
 
-    /** Aktive Events - synchronizedList fuer Thread-Sicherheit bei removeIf/Iteration */
-    private final List<WorldEvent> activeEvents = Collections.synchronizedList(new ArrayList<>());
+    /** Aktive Events - CopyOnWriteArrayList fuer Thread-sichere Iteration ohne externe Synchronisation */
+    private final List<WorldEvent> activeEvents = new CopyOnWriteArrayList<>();
 
     /** Event-History: Event Type -> letzter Tag */
     private final Map<WorldEventType, Long> eventHistory = new ConcurrentHashMap<>();

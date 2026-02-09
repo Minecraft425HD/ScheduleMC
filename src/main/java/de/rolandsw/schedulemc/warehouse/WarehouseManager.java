@@ -159,7 +159,7 @@ public class WarehouseManager {
             }
 
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Prüfen von Warehouse @ " + pos.toShortString(), e);
+            LOGGER.error("Fehler beim Prüfen von Warehouse @ {}", pos.toShortString(), e);
         }
     }
 
