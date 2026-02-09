@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -44,7 +46,7 @@ public final class BiomeColors {
                         try {
                             color = Integer.decode(curLine[1]);
                         } catch (NumberFormatException var10) {
-                            MapViewConstants.getLogger().warn("Error decoding integer string for biome colors; " + curLine[1]);
+                            MapViewConstants.getLogger().warn("Error decoding integer string for biome colors; {}", curLine[1]);
                         }
 
                         if (nameToColor.put(name, color) != null) {
@@ -53,7 +55,7 @@ public final class BiomeColors {
                     }
                 }
             } catch (IOException var12) {
-                MapViewConstants.getLogger().error("biome load error: " + var12.getLocalizedMessage(), var12);
+                MapViewConstants.getLogger().error("biome load error: {}", var12.getLocalizedMessage(), var12);
             }
         }
 
@@ -72,7 +74,7 @@ public final class BiomeColors {
                         try {
                             color = Integer.decode(curLine[1]);
                         } catch (NumberFormatException var9) {
-                            MapViewConstants.getLogger().warn("Error decoding integer string for biome colors; " + curLine[1]);
+                            MapViewConstants.getLogger().warn("Error decoding integer string for biome colors; {}", curLine[1]);
                             color = 0;
                         }
 
@@ -99,8 +101,9 @@ public final class BiomeColors {
             }
 
             File settingsFile = new File(saveDir, "biomecolors.txt");
+            File tempFile = new File(saveDir, "biomecolors.txt.tmp");
 
-            try (PrintWriter out = new PrintWriter(new FileWriter(settingsFile))) {
+            try (PrintWriter out = new PrintWriter(new FileWriter(tempFile))) {
                 for (Map.Entry<String, Integer> entry : nameToColor.entrySet()) {
                     String name = entry.getKey();
                     Integer color = entry.getValue();
@@ -113,8 +116,16 @@ public final class BiomeColors {
                     hexColor.insert(0, "0x");
                     out.println(name + "=" + hexColor);
                 }
+                out.flush();
             } catch (IOException var8) {
-                MapViewConstants.getLogger().error("biome save error: " + var8.getLocalizedMessage(), var8);
+                MapViewConstants.getLogger().error("biome save error: {}", var8.getLocalizedMessage(), var8);
+                return;
+            }
+            try {
+                Files.move(tempFile.toPath(), settingsFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (IOException e) {
+                MapViewConstants.getLogger().error("biome save atomic move error: {}", e.getLocalizedMessage(), e);
             }
         }
 
