@@ -171,9 +171,12 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * OPTIMIERT: Nutzt PersistenceHelper für reduzierte Code-Duplikation
      */
     public static void saveAccounts() {
-        // UUID -> String Transformation für JSON
-        Map<String, Double> saveMap = new HashMap<>();
-        balances.forEach((k, v) -> saveMap.put(k.toString(), v));
+        // OPTIMIERT: Direkte Serialisierung mit vorallokierter HashMap
+        // statt balances.forEach() mit Lambda-Overhead bei 1000+ Spielern
+        Map<String, Double> saveMap = new HashMap<>((int)(balances.size() / 0.75) + 1);
+        for (Map.Entry<UUID, Double> entry : balances.entrySet()) {
+            saveMap.put(entry.getKey().toString(), entry.getValue());
+        }
 
         PersistenceHelper.SaveResult result =
             PersistenceHelper.save(file, gson, saveMap, "EconomyManager");

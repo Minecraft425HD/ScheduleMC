@@ -175,8 +175,16 @@ public class NegotiationPacket {
                 TobaccoType tobaccoType = null;
                 TobaccoQuality tobaccoQuality = null;
                 if (drugType == DrugType.TOBACCO) {
-                    tobaccoType = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
-                    tobaccoQuality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
+                    try {
+                        tobaccoType = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
+                    } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
+                        tobaccoType = TobaccoType.VIRGINIA;
+                    }
+                    try {
+                        tobaccoQuality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
+                    } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
+                        tobaccoQuality = TobaccoQuality.GUT;
+                    }
                 }
 
                 // Erstelle verkauftes Item (komplettes Päckchen, da offeredGrams == availableGrams)

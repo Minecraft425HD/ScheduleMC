@@ -113,7 +113,7 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
      * Weist einem NPC einen Dialogbaum zu
      */
     public void assignTreeToNPC(UUID npcUUID, String treeId) {
-        npcTrees.computeIfAbsent(npcUUID, k -> new ArrayList<>()).add(treeId);
+        npcTrees.computeIfAbsent(npcUUID, k -> Collections.synchronizedList(new ArrayList<>())).add(treeId);
         markDirty();
     }
 
@@ -123,7 +123,9 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
     public void removeTreeFromNPC(UUID npcUUID, String treeId) {
         List<String> trees = npcTrees.get(npcUUID);
         if (trees != null) {
-            trees.remove(treeId);
+            synchronized (trees) {
+                trees.remove(treeId);
+            }
             markDirty();
         }
     }

@@ -144,7 +144,8 @@ public abstract class HackingToolItem extends Item {
                         null
                 );
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().debug("Hacking tool interaction failed: {}", e.getMessage());
         }
     }
 

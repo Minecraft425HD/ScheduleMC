@@ -345,10 +345,12 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
             refineryProgress[i] = tag.getInt("Progress" + i);
 
             if (tag.contains("Type" + i)) {
-                cocaTypes[i] = CocaType.valueOf(tag.getString("Type" + i));
+                try { cocaTypes[i] = CocaType.valueOf(tag.getString("Type" + i)); }
+                catch (IllegalArgumentException ignored) {}
             }
             if (tag.contains("Quality" + i)) {
-                qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i));
+                try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
+                catch (IllegalArgumentException ignored) {}
             }
         }
     }

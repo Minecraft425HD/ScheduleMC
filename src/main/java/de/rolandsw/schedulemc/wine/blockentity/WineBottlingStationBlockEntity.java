@@ -88,10 +88,18 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
             wineInput = handlerWineInput.copy();
             CompoundTag tag = handlerWineInput.getTag();
             if (tag != null) {
-                if (tag.contains("WineType")) wineType = WineType.valueOf(tag.getString("WineType"));
-                if (tag.contains("Quality")) quality = WineQuality.valueOf(tag.getString("Quality"));
-                if (tag.contains("AgeLevel")) ageLevel = WineAgeLevel.valueOf(tag.getString("AgeLevel"));
-                else ageLevel = WineAgeLevel.YOUNG;
+                if (tag.contains("WineType")) {
+                    try { wineType = WineType.valueOf(tag.getString("WineType")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("Quality")) {
+                    try { quality = WineQuality.valueOf(tag.getString("Quality")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("AgeLevel")) {
+                    try { ageLevel = WineAgeLevel.valueOf(tag.getString("AgeLevel")); }
+                    catch (IllegalArgumentException ignored) {}
+                } else ageLevel = WineAgeLevel.YOUNG;
             }
             bottlingProgress = 0;
         } else if (handlerWineInput.isEmpty()) {
@@ -239,11 +247,21 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
         bottleInput = tag.contains("BottleInput") ? ItemStack.of(tag.getCompound("BottleInput")) : ItemStack.EMPTY;
         output = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         bottlingProgress = tag.getInt("BottlingProgress");
-        if (tag.contains("WineType")) wineType = WineType.valueOf(tag.getString("WineType"));
-        if (tag.contains("Quality")) quality = WineQuality.valueOf(tag.getString("Quality"));
-        if (tag.contains("AgeLevel")) ageLevel = WineAgeLevel.valueOf(tag.getString("AgeLevel"));
+        if (tag.contains("WineType")) {
+            try { wineType = WineType.valueOf(tag.getString("WineType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = WineQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("AgeLevel")) {
+            try { ageLevel = WineAgeLevel.valueOf(tag.getString("AgeLevel")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         if (tag.contains("ProcessingMethod")) {
-            processingMethod = WineProcessingMethod.valueOf(tag.getString("ProcessingMethod"));
+            try { processingMethod = WineProcessingMethod.valueOf(tag.getString("ProcessingMethod")); }
+            catch (IllegalArgumentException ignored) {}
         } else {
             processingMethod = WineProcessingMethod.DRY;
         }

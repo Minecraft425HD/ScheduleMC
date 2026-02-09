@@ -177,7 +177,7 @@ public class PurchaseItemPacket {
 
         // Spezialbehandlung für Tankrechnungen (Tankstelle)
         if (merchant.getMerchantCategory() == MerchantCategory.TANKSTELLE &&
-            entry.getItem().hasTag()) {
+            entry.getItem().hasTag() && entry.getItem().getTag() != null) {
 
             String billType = entry.getItem().getTag().getString("BillType");
 
@@ -320,10 +320,15 @@ public class PurchaseItemPacket {
     private void processFuelBillPayment(ServerPlayer player, CustomNPCEntity merchant, NPCData.ShopEntry entry, int price) {
         ItemStack billItem = entry.getItem();
 
-        // Lese Daten aus dem Bill-Item
-        UUID fuelStationId = billItem.getTag().getUUID("FuelStationId");
-        int totalFueled = billItem.getTag().getInt("TotalFueled");
-        double totalCost = billItem.getTag().getDouble("TotalCost");
+        // Lese Daten aus dem Bill-Item (null-safe)
+        CompoundTag billTag = billItem.getTag();
+        if (billTag == null) {
+            player.sendSystemMessage(Component.translatable("message.purchase.payment_failed"));
+            return;
+        }
+        UUID fuelStationId = billTag.getUUID("FuelStationId");
+        int totalFueled = billTag.getInt("TotalFueled");
+        double totalCost = billTag.getDouble("TotalCost");
 
         // Prüfe ob Spieler genug Geld hat (bereits vorher geprüft, aber sicherheitshalber nochmal)
         if (!EconomyManager.withdraw(player.getUUID(), price)) {

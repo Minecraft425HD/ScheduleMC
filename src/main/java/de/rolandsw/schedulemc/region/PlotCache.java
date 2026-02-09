@@ -6,13 +6,14 @@ import net.minecraft.world.level.ChunkPos;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * LRU-Cache für Plot-Lookups
@@ -35,6 +36,9 @@ public class PlotCache {
 
     private final Map<BlockPos, CacheEntry> cache;
     private final int maxSize;
+
+    // ReadWriteLock: concurrent reads, exclusive writes (statt synchronized)
+    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
     // Sekundärer Chunk-Index für schnelle Region-Invalidierung O(chunks) statt O(n)
     private final Map<ChunkPos, Set<BlockPos>> chunkIndex = new ConcurrentHashMap<>();
@@ -73,13 +77,14 @@ public class PlotCache {
         this.maxSize = maxSize;
 
         // LinkedHashMap mit LRU-Eviction (access-order = true)
-        this.cache = Collections.synchronizedMap(new LinkedHashMap<BlockPos, CacheEntry>(
+        // Nicht mehr Collections.synchronizedMap - stattdessen ReadWriteLock
+        this.cache = new LinkedHashMap<BlockPos, CacheEntry>(
             maxSize, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<BlockPos, CacheEntry> eldest) {
                 return size() > PlotCache.this.maxSize;
             }
-        });
+        };
 
         LOGGER.debug("PlotCache initialisiert mit maxSize={}", maxSize);
     }
@@ -92,25 +97,29 @@ public class PlotCache {
      */
     @Nullable
     public PlotRegion get(BlockPos pos) {
-        CacheEntry entry = cache.get(pos);
+        // ReadWriteLock: get() nutzt writeLock weil LinkedHashMap(access-order=true)
+        // bei get() die interne Reihenfolge ändert (LRU-Reorder)
+        rwLock.writeLock().lock();
+        try {
+            CacheEntry entry = cache.get(pos);
 
-        if (entry != null) {
-            // Validierung: Prüfe ob Plot noch diese Position enthält
-            if (entry.plot.contains(pos)) {
-                hits.incrementAndGet();
-                return entry.plot;
-            } else {
-                // Plot hat sich geändert, Entry ist ungültig
-                cache.remove(pos);
-                // Auch aus Chunk-Index entfernen
-                removeFromChunkIndex(pos);
-                misses.incrementAndGet();
-                return null;
+            if (entry != null) {
+                if (entry.plot.contains(pos)) {
+                    hits.incrementAndGet();
+                    return entry.plot;
+                } else {
+                    cache.remove(pos);
+                    removeFromChunkIndex(pos);
+                    misses.incrementAndGet();
+                    return null;
+                }
             }
-        }
 
-        misses.incrementAndGet();
-        return null;
+            misses.incrementAndGet();
+            return null;
+        } finally {
+            rwLock.writeLock().unlock();
+        }
     }
 
     /**
@@ -135,8 +144,12 @@ public class PlotCache {
      */
     public void put(BlockPos pos, @Nullable PlotRegion plot) {
         if (plot != null) {
-            cache.put(pos, new CacheEntry(plot));
-            // Chunk-Index aktualisieren für schnelle Region-Invalidierung
+            rwLock.writeLock().lock();
+            try {
+                cache.put(pos, new CacheEntry(plot));
+            } finally {
+                rwLock.writeLock().unlock();
+            }
             ChunkPos chunkPos = new ChunkPos(pos);
             chunkIndex.computeIfAbsent(chunkPos, k -> ConcurrentHashMap.newKeySet()).add(pos);
         }
@@ -159,7 +172,8 @@ public class PlotCache {
     public void invalidatePlot(String plotId) {
         Set<BlockPos> toRemoveFromChunkIndex = new HashSet<>();
 
-        synchronized (cache) {
+        rwLock.writeLock().lock();
+        try {
             cache.entrySet().removeIf(entry -> {
                 PlotRegion plot = entry.getValue().plot;
                 boolean shouldRemove = plot != null && plot.getPlotId().equals(plotId);
@@ -168,6 +182,8 @@ public class PlotCache {
                 }
                 return shouldRemove;
             });
+        } finally {
+            rwLock.writeLock().unlock();
         }
 
         // Chunk-Index bereinigen
@@ -248,7 +264,12 @@ public class PlotCache {
      * Löscht den gesamten Cache
      */
     public void clear() {
-        cache.clear();
+        rwLock.writeLock().lock();
+        try {
+            cache.clear();
+        } finally {
+            rwLock.writeLock().unlock();
+        }
         chunkIndex.clear();
         LOGGER.debug("PlotCache geleert");
     }
@@ -257,7 +278,12 @@ public class PlotCache {
      * Gibt Cache-Größe zurück
      */
     public int size() {
-        return cache.size();
+        rwLock.readLock().lock();
+        try {
+            return cache.size();
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     /**

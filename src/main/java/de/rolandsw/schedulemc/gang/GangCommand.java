@@ -382,7 +382,9 @@ public class GangCommand {
         java.util.List<String> npcNames = new java.util.ArrayList<>();
         try {
             npcNames = de.rolandsw.schedulemc.managers.NPCNameRegistry.getAllNamesSorted();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn("Failed to load NPC names for scenario editor: {}", e.getMessage());
+        }
 
         // Grundstuecke vom Server sammeln
         java.util.List<de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket.PlotInfo> plots =
@@ -396,7 +398,9 @@ public class GangCommand {
                         plot.getPlotId(), plotName, plotType,
                         center.getX(), center.getY(), center.getZ()));
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn("Failed to load plots for scenario editor: {}", e.getMessage());
+        }
 
         // Schloesser vom Server sammeln
         java.util.List<de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket.LockInfo> locks =
@@ -415,7 +419,9 @@ public class GangCommand {
                             lock.getType().hasCode()));
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn("Failed to load locks for scenario editor: {}", e.getMessage());
+        }
 
         de.rolandsw.schedulemc.gang.network.GangNetworkHandler.sendToPlayer(
                 new de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket(

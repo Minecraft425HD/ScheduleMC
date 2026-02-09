@@ -33,7 +33,7 @@ public class SyncATMDataPacket {
         double balance = buf.readDouble();
         double walletBalance = buf.readDouble();
         boolean success = buf.readBoolean();
-        String message = buf.readUtf();
+        String message = buf.readUtf(512);
         return new SyncATMDataPacket(balance, walletBalance, success, message);
     }
 

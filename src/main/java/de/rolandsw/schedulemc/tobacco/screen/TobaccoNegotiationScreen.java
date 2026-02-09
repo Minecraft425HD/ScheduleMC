@@ -296,10 +296,22 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
         if (drugType == DrugType.TOBACCO) {
             // Tobacco-specific price calculation
             String variantStr = PackagedDrugItem.getVariant(stack);
-            TobaccoType type = variantStr != null ? TobaccoType.valueOf(variantStr.split("\\.")[1]) : TobaccoType.VIRGINIA;
+            TobaccoType type = TobaccoType.VIRGINIA;
+            if (variantStr != null) {
+                try {
+                    String[] vParts = variantStr.split("\\.");
+                    if (vParts.length >= 2) type = TobaccoType.valueOf(vParts[1]);
+                } catch (IllegalArgumentException ignored) {}
+            }
 
             String qualityStr = PackagedDrugItem.getQuality(stack);
-            TobaccoQuality quality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
+            TobaccoQuality quality = TobaccoQuality.GUT;
+            if (qualityStr != null) {
+                try {
+                    String[] qParts = qualityStr.split("\\.");
+                    if (qParts.length >= 2) quality = TobaccoQuality.valueOf(qParts[1]);
+                } catch (IllegalArgumentException ignored) {}
+            }
 
             fairPrice = PriceCalculator.calculateFairPrice(type, quality, weight, demand, reputation, satisfaction);
             npcTargetPrice = PriceCalculator.calculateIdealPrice(fairPrice);
@@ -480,9 +492,17 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             if (!stack.isEmpty() && stack.getItem() instanceof PackagedDrugItem) {
                 int weight = PackagedDrugItem.getWeight(stack);
                 String variantStr = PackagedDrugItem.getVariant(stack);
-                String typeDisplay = variantStr != null && variantStr.contains(".") ? variantStr.split("\\.")[1] : "Unknown";
+                String typeDisplay = "Unknown";
+                if (variantStr != null) {
+                    String[] vp = variantStr.split("\\.");
+                    if (vp.length >= 2) typeDisplay = vp[1];
+                }
                 String qualityStr = PackagedDrugItem.getQuality(stack);
-                String qualityDisplay = qualityStr != null && qualityStr.contains(".") ? qualityStr.split("\\.")[1] : "";
+                String qualityDisplay = "";
+                if (qualityStr != null) {
+                    String[] qp = qualityStr.split("\\.");
+                    if (qp.length >= 2) qualityDisplay = qp[1];
+                }
 
                 graphics.drawString(font, Component.translatable("gui.negotiation.selected_item",
                     weight, typeDisplay, qualityDisplay).getString(), x, y, COLOR_TEXT, false);

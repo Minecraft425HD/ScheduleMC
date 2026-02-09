@@ -156,7 +156,10 @@ public class CoffeeGrinderBlockEntity extends BlockEntity implements IUtilityCon
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         grindingProgress = tag.getInt("Progress");
-        selectedGrindSize = tag.contains("GrindSize") ? CoffeeGrindSize.valueOf(tag.getString("GrindSize")) : CoffeeGrindSize.MEDIUM;
+        if (tag.contains("GrindSize")) {
+            try { selectedGrindSize = CoffeeGrindSize.valueOf(tag.getString("GrindSize")); }
+            catch (IllegalArgumentException ignored) { selectedGrindSize = CoffeeGrindSize.MEDIUM; }
+        } else { selectedGrindSize = CoffeeGrindSize.MEDIUM; }
         syncToHandler();
     }
 

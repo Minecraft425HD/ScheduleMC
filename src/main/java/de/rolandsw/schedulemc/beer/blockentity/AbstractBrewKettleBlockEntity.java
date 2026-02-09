@@ -111,7 +111,8 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
             // Extract quality from NBT
             CompoundTag tag = handlerWort.getTag();
             if (tag != null && tag.contains("Quality")) {
-                quality = BeerQuality.valueOf(tag.getString("Quality"));
+                try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
+                catch (IllegalArgumentException ignored) {}
             } else {
                 quality = BeerQuality.BASIC;
             }
@@ -145,7 +146,9 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
     }
 
     public int getTotalBrewingTime() {
-        return (int) (1200 / getSpeedMultiplier()); // Base 60 seconds, adjusted by speed
+        double speed = getSpeedMultiplier();
+        if (speed <= 0) speed = 1.0;
+        return (int) (1200 / speed); // Base 60 seconds, adjusted by speed
     }
 
     public int getProgress() {
@@ -244,7 +247,10 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
         hopsStack = tag.contains("Hops") ? ItemStack.of(tag.getCompound("Hops")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         brewingProgress = tag.getInt("Progress");
-        if (tag.contains("Quality")) quality = BeerQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Quality")) {
+            try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

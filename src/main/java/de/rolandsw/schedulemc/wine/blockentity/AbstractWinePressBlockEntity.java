@@ -106,7 +106,8 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
             // Extract quality from NBT
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
-                quality = WineQuality.valueOf(tag.getString("Quality"));
+                try { quality = WineQuality.valueOf(tag.getString("Quality")); }
+                catch (IllegalArgumentException ignored) {}
             } else {
                 quality = WineQuality.LANDWEIN;
             }
@@ -223,8 +224,14 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         pressingProgress = tag.getInt("Progress");
-        if (tag.contains("WineType")) wineType = WineType.valueOf(tag.getString("WineType"));
-        if (tag.contains("Quality")) quality = WineQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("WineType")) {
+            try { wineType = WineType.valueOf(tag.getString("WineType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = WineQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

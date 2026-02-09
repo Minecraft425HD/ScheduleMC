@@ -44,8 +44,8 @@ public class SyncAchievementDataPacket {
     }
 
     public static SyncAchievementDataPacket decode(FriendlyByteBuf buf) {
-        int size = buf.readInt();
-        List<AchievementData> achievements = new ArrayList<>(size);
+        int size = Math.min(buf.readInt(), 1000);
+        List<AchievementData> achievements = new ArrayList<>(Math.min(size, 64));
         for (int i = 0; i < size; i++) {
             achievements.add(AchievementData.decode(buf));
         }

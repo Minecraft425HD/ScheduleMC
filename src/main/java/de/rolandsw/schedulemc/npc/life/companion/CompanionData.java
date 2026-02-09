@@ -430,7 +430,9 @@ public class CompanionData {
 
     public static CompanionData load(CompoundTag tag) {
         UUID companionUUID = tag.getUUID("companionUUID");
-        CompanionType type = CompanionType.valueOf(tag.getString("type"));
+        CompanionType type;
+        try { type = CompanionType.valueOf(tag.getString("type")); }
+        catch (IllegalArgumentException e) { type = CompanionType.values()[0]; }
         String name = tag.getString("name");
 
         CompanionData data = new CompanionData(companionUUID, type, name);
@@ -439,8 +441,10 @@ public class CompanionData {
             data.ownerUUID = tag.getUUID("ownerUUID");
         }
 
-        data.state = CompanionState.valueOf(tag.getString("state"));
-        data.currentCommand = CompanionCommand.valueOf(tag.getString("command"));
+        try { data.state = CompanionState.valueOf(tag.getString("state")); }
+        catch (IllegalArgumentException ignored) {}
+        try { data.currentCommand = CompanionCommand.valueOf(tag.getString("command")); }
+        catch (IllegalArgumentException ignored) {}
 
         if (tag.contains("waitX")) {
             data.waitPosition = new BlockPos(

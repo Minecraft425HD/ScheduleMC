@@ -8,6 +8,7 @@ import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -34,13 +35,13 @@ public class NPCMemory {
     // ═══════════════════════════════════════════════════════════
 
     /** Detail-Erinnerungen pro Spieler (kurzfristig) */
-    private final Map<UUID, List<MemoryEntry>> detailMemories = new HashMap<>();
+    private final Map<UUID, List<MemoryEntry>> detailMemories = new ConcurrentHashMap<>();
 
     /** Tages-Zusammenfassungen (mittelfristig) */
-    private final List<DailySummary> dailySummaries = new ArrayList<>();
+    private final List<DailySummary> dailySummaries = Collections.synchronizedList(new ArrayList<>());
 
     /** Spieler-Profile (permanent) */
-    private final Map<UUID, PlayerProfile> playerProfiles = new HashMap<>();
+    private final Map<UUID, PlayerProfile> playerProfiles = new ConcurrentHashMap<>();
 
     /** Letzter bekannter Tag (für Tagwechsel-Erkennung) */
     private long lastKnownDay = -1;

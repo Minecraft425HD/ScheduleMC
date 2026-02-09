@@ -158,7 +158,24 @@ public class UpdateNotificationHandler {
                 );
 
             player.sendSystemMessage(message);
-            ScheduleMC.LOGGER.info("Sent update notification to player: " + player.getName().getString());
+            ScheduleMC.LOGGER.info("Sent update notification to player: {}", player.getName().getString());
         }, "onPlayerLogin");
+    }
+
+    /**
+     * Cleanup: Entfernt einen Spieler aus der Benachrichtigungs-Liste.
+     * Verhindert Memory Leak bei Long-Running-Servern.
+     */
+    public static void cleanup(UUID playerUUID) {
+        notifiedPlayers.remove(playerUUID);
+    }
+
+    /**
+     * Reset: Entfernt alle Eintraege (z.B. bei Server-Stop).
+     */
+    public static void resetAll() {
+        notifiedPlayers.clear();
+        hasChecked = false;
+        tickCounter = 0;
     }
 }

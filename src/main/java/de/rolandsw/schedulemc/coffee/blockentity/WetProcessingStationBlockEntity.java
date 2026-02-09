@@ -187,9 +187,18 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         processingProgress = tag.getInt("Progress");
-        currentStage = tag.contains("Stage") ? ProcessingStage.valueOf(tag.getString("Stage")) : ProcessingStage.IDLE;
-        if (tag.contains("CoffeeType")) coffeeType = CoffeeType.valueOf(tag.getString("CoffeeType"));
-        if (tag.contains("Quality")) quality = CoffeeQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Stage")) {
+            try { currentStage = ProcessingStage.valueOf(tag.getString("Stage")); }
+            catch (IllegalArgumentException e) { currentStage = ProcessingStage.IDLE; }
+        } else { currentStage = ProcessingStage.IDLE; }
+        if (tag.contains("CoffeeType")) {
+            try { coffeeType = CoffeeType.valueOf(tag.getString("CoffeeType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = CoffeeQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

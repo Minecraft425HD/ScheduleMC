@@ -34,7 +34,12 @@ public class TobaccoPlantSerializer implements PlantSerializer {
         if (!tag.contains(getPlantTagName())) return;
 
         CompoundTag plantTag = tag.getCompound(getPlantTagName());
-        TobaccoType type = TobaccoType.valueOf(plantTag.getString("Type"));
+        TobaccoType type;
+        try {
+            type = TobaccoType.valueOf(plantTag.getString("Type"));
+        } catch (IllegalArgumentException e) {
+            return; // Ungueltige NBT-Daten - sicher ignorieren
+        }
 
         if (!potData.hasTobaccoPlant()) {
             potData.plantSeed(type);
@@ -42,7 +47,11 @@ public class TobaccoPlantSerializer implements PlantSerializer {
 
         TobaccoPlantData plant = potData.getPlant();
         if (plant != null) {
-            plant.setQuality(TobaccoQuality.valueOf(plantTag.getString("Quality")));
+            try {
+                plant.setQuality(TobaccoQuality.valueOf(plantTag.getString("Quality")));
+            } catch (IllegalArgumentException e) {
+                // Ungueltige Qualitaet - Standard beibehalten
+            }
             plant.setGrowthStage(plantTag.getInt("GrowthStage"));
 
             int ticksGrown = plantTag.getInt("TicksGrown");

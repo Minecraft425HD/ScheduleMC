@@ -26,9 +26,9 @@ public class OpenCodeEntryPacket {
     }
 
     public OpenCodeEntryPacket(FriendlyByteBuf buf) {
-        this.lockId = buf.readUtf();
+        this.lockId = buf.readUtf(256);
         this.doorPos = buf.readBlockPos();
-        this.dimension = buf.readUtf();
+        this.dimension = buf.readUtf(128);
     }
 
     public void encode(FriendlyByteBuf buf) {

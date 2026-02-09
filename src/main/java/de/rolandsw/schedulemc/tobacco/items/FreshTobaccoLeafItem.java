@@ -39,7 +39,9 @@ public class FreshTobaccoLeafItem extends Item {
     public static TobaccoType getType(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("TobaccoType")) {
-            return TobaccoType.valueOf(tag.getString("TobaccoType"));
+            try {
+                return TobaccoType.valueOf(tag.getString("TobaccoType"));
+            } catch (IllegalArgumentException ignored) {}
         }
         return TobaccoType.VIRGINIA; // Default
     }
@@ -50,7 +52,9 @@ public class FreshTobaccoLeafItem extends Item {
     public static TobaccoQuality getQuality(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("Quality")) {
-            return TobaccoQuality.valueOf(tag.getString("Quality"));
+            try {
+                return TobaccoQuality.valueOf(tag.getString("Quality"));
+            } catch (IllegalArgumentException ignored) {}
         }
         return TobaccoQuality.GUT; // Default
     }

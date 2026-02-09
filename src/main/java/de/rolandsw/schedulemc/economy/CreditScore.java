@@ -85,7 +85,7 @@ public class CreditScore {
         int totalPayments = onTimePayments + missedPayments;
         if (totalPayments > 0) {
             double onTimeRate = (double) onTimePayments / totalPayments;
-            int punctualityBonus = (int) (onTimeRate * 200);
+            int punctualityBonus = (int) Math.round(onTimeRate * 200);
             score += punctualityBonus;
         } else {
             // Keine Zahlungshistorie = neutraler Bonus

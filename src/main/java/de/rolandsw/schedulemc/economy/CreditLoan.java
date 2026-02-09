@@ -121,8 +121,9 @@ public class CreditLoan {
      */
     public int getProgressPercent() {
         double total = principal + totalInterest;
+        if (total <= 0) return 100;
         double paid = total - remaining;
-        return (int) ((paid / total) * 100);
+        return (int) Math.round((paid / total) * 100);
     }
 
     // ========== Getters ==========

@@ -95,7 +95,8 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
             // Extract quality from NBT
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
-                quality = ChocolateQuality.valueOf(tag.getString("Quality"));
+                try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
+                catch (IllegalArgumentException ignored) {}
             } else {
                 quality = ChocolateQuality.BASIC;
             }
@@ -209,7 +210,10 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
         butterOutput = tag.contains("ButterOutput") ? ItemStack.of(tag.getCompound("ButterOutput")) : ItemStack.EMPTY;
         powderOutput = tag.contains("PowderOutput") ? ItemStack.of(tag.getCompound("PowderOutput")) : ItemStack.EMPTY;
         pressingProgress = tag.getInt("Progress");
-        if (tag.contains("Quality")) quality = ChocolateQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Quality")) {
+            try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

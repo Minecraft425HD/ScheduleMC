@@ -40,10 +40,10 @@ public class RumorNetwork {
     // ═══════════════════════════════════════════════════════════
 
     /** Alle aktiven Gerüchte, nach Spieler-UUID gruppiert */
-    private final Map<UUID, List<Rumor>> rumorsByPlayer = new HashMap<>();
+    private final Map<UUID, List<Rumor>> rumorsByPlayer = new ConcurrentHashMap<>();
 
     /** Welche NPCs kennen welche Gerüchte */
-    private final Map<UUID, Set<String>> npcKnownRumors = new HashMap<>();
+    private final Map<UUID, Set<String>> npcKnownRumors = new ConcurrentHashMap<>();
 
     /** Letzter bekannter Tag für Tageswechsel-Logik */
     private long lastKnownDay = -1;
@@ -226,6 +226,27 @@ public class RumorNetwork {
 
         // Leere Listen entfernen
         rumorsByPlayer.entrySet().removeIf(e -> e.getValue().isEmpty());
+
+        // NPC-Known-Rumors aufräumen: Entferne NPCs die keine aktiven Gerüchte mehr referenzieren
+        if (npcKnownRumors.size() > MAX_TRACKED_NPCS) {
+            // Eviction: Entferne NPCs mit den wenigsten bekannten Gerüchten
+            npcKnownRumors.entrySet().stream()
+                .sorted(Comparator.comparingInt(e -> e.getValue().size()))
+                .limit(npcKnownRumors.size() - MAX_TRACKED_NPCS)
+                .map(Map.Entry::getKey)
+                .toList()
+                .forEach(npcKnownRumors::remove);
+        }
+
+        // Eviction fuer rumorsByPlayer wenn Limit ueberschritten
+        if (rumorsByPlayer.size() > MAX_TRACKED_PLAYERS) {
+            rumorsByPlayer.entrySet().stream()
+                .sorted(Comparator.comparingInt(e -> e.getValue().size()))
+                .limit(rumorsByPlayer.size() - MAX_TRACKED_PLAYERS)
+                .map(Map.Entry::getKey)
+                .toList()
+                .forEach(rumorsByPlayer::remove);
+        }
     }
 
     /**

@@ -218,7 +218,7 @@ public class WarehouseMarketBridge {
      */
     public int getSupplySignal(String itemKey) {
         double fillRate = itemFillRates.getOrDefault(itemKey, 0.5);
-        return (int) (fillRate * 200);
+        return (int) Math.round(fillRate * 200);
     }
 
     /**
@@ -231,7 +231,7 @@ public class WarehouseMarketBridge {
     public int getDemandSignal(String itemKey) {
         double fillRate = itemFillRates.getOrDefault(itemKey, 0.5);
         // Inverse: niedrige Füllrate = hohe Nachfrage
-        return (int) ((1.0 - fillRate) * 200);
+        return (int) Math.round((1.0 - fillRate) * 200);
     }
 
     // ═══════════════════════════════════════════════════════════

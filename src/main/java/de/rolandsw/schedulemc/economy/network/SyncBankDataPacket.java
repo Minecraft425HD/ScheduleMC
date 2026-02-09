@@ -70,16 +70,16 @@ public class SyncBankDataPacket {
 
     public static SyncBankDataPacket decode(FriendlyByteBuf buf) {
         double balance = buf.readDouble();
-        int size = buf.readInt();
+        int size = Math.min(buf.readInt(), 500);
         List<TransactionData> transactionDataList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            String transactionId = buf.readUtf();
+            String transactionId = buf.readUtf(256);
             TransactionType type = buf.readEnum(TransactionType.class);
             UUID fromPlayer = buf.readBoolean() ? buf.readUUID() : null;
             UUID toPlayer = buf.readBoolean() ? buf.readUUID() : null;
             double amount = buf.readDouble();
             long timestamp = buf.readLong();
-            String description = buf.readUtf();
+            String description = buf.readUtf(512);
             double balanceAfter = buf.readDouble();
             transactionDataList.add(new TransactionData(transactionId, type, fromPlayer, toPlayer, amount, timestamp, description, balanceAfter));
         }

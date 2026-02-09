@@ -71,7 +71,7 @@ public class PriceManager {
      */
     public static int getFinalPrice(int basePrice, Item item) {
         float multiplier = getPriceMultiplier(item);
-        return Math.max(1, (int)(basePrice * multiplier)); // Mindestens 1€
+        return Math.max(1, Math.round(basePrice * multiplier)); // Mindestens 1€
     }
 
     /**
@@ -80,7 +80,7 @@ public class PriceManager {
      */
     public static String getMultiplierAsPercentage(Item item) {
         float multiplier = getPriceMultiplier(item);
-        int percentage = (int)((multiplier - 1.0f) * 100);
+        int percentage = Math.round((multiplier - 1.0f) * 100);
         if (percentage > 0) {
             return "+" + percentage + "%";
         } else if (percentage < 0) {

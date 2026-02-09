@@ -408,7 +408,8 @@ public class NegotiationEngine {
             String variantStr = PackagedDrugItem.getVariant(drugItem);
             if (variantStr != null && variantStr.contains(".")) {
                 try {
-                    type = TobaccoType.valueOf(variantStr.split("\\.")[1]);
+                    String[] vParts = variantStr.split("\\.");
+                    if (vParts.length >= 2) type = TobaccoType.valueOf(vParts[1]);
                 } catch (IllegalArgumentException e) {
                     type = TobaccoType.VIRGINIA;
                 }
@@ -417,7 +418,8 @@ public class NegotiationEngine {
             String qualityStr = PackagedDrugItem.getQuality(drugItem);
             if (qualityStr != null && qualityStr.contains(".")) {
                 try {
-                    quality = TobaccoQuality.valueOf(qualityStr.split("\\.")[1]);
+                    String[] qParts = qualityStr.split("\\.");
+                    if (qParts.length >= 2) quality = TobaccoQuality.valueOf(qParts[1]);
                 } catch (IllegalArgumentException e) {
                     quality = TobaccoQuality.GUT;
                 }

@@ -39,8 +39,8 @@ public class PlotUtilityManager {
     // BlockPos -> Plot-ID (Cache für schnelle Lookups)
     private static final Map<BlockPos, String> positionCache = new ConcurrentHashMap<>();
 
-    private static boolean dirty = false;
-    private static long lastTickDay = -1;
+    private static volatile boolean dirty = false;
+    private static volatile long lastTickDay = -1;
 
     // ═══════════════════════════════════════════════════════════════════════════
     // INITIALISIERUNG

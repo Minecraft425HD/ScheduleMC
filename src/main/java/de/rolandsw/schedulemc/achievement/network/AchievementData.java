@@ -37,8 +37,16 @@ public class AchievementData {
         buf.writeUtf(name);
         buf.writeUtf(description);
         // Enum-Ordinal statt String: spart ~20 Bytes pro Achievement
-        buf.writeInt(AchievementCategory.valueOf(categoryName).ordinal());
-        buf.writeInt(AchievementTier.valueOf(tierName).ordinal());
+        try {
+            buf.writeInt(AchievementCategory.valueOf(categoryName).ordinal());
+        } catch (IllegalArgumentException e) {
+            buf.writeInt(0);
+        }
+        try {
+            buf.writeInt(AchievementTier.valueOf(tierName).ordinal());
+        } catch (IllegalArgumentException e) {
+            buf.writeInt(0);
+        }
         buf.writeDouble(requirement);
         buf.writeBoolean(hidden);
         buf.writeDouble(progress);
@@ -74,8 +82,14 @@ public class AchievementData {
     public String getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
-    public AchievementCategory getCategory() { return AchievementCategory.valueOf(categoryName); }
-    public AchievementTier getTier() { return AchievementTier.valueOf(tierName); }
+    public AchievementCategory getCategory() {
+        try { return AchievementCategory.valueOf(categoryName); }
+        catch (IllegalArgumentException e) { return CATEGORIES[0]; }
+    }
+    public AchievementTier getTier() {
+        try { return AchievementTier.valueOf(tierName); }
+        catch (IllegalArgumentException e) { return TIERS[0]; }
+    }
     public double getRequirement() { return requirement; }
     public boolean isHidden() { return hidden; }
     public double getProgress() { return progress; }

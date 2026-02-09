@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.items.PlotSelectionTool;
 import de.rolandsw.schedulemc.npc.events.PoliceAIHandler;
 import de.rolandsw.schedulemc.npc.events.PoliceBackupSystem;
+import de.rolandsw.schedulemc.npc.events.PoliceRoadblock;
 import de.rolandsw.schedulemc.npc.events.PoliceSearchBehavior;
 import de.rolandsw.schedulemc.npc.items.NPCLeisureTool;
 import de.rolandsw.schedulemc.npc.items.NPCLocationTool;
@@ -22,6 +23,7 @@ import java.util.UUID;
  * - PoliceAIHandler (4 Maps: playerCache, arrestTimers, lastSyncedWantedLevel, lastSyncedEscapeTime)
  * - PoliceSearchBehavior (5 Maps)
  * - PoliceBackupSystem (2 Maps)
+ * - PoliceRoadblock (1 Map)
  * - PlotSelectionTool (2 Maps)
  * - NPCLocationTool (1 Map)
  * - NPCLeisureTool (1 Map)
@@ -55,6 +57,9 @@ public class PlayerDisconnectHandler {
             PoliceAIHandler.cleanupPlayer(playerUUID);
             PoliceSearchBehavior.cleanup(playerUUID);
             PoliceBackupSystem.cleanup(playerUUID);
+            if (player.serverLevel() != null) {
+                PoliceRoadblock.removeAllForPlayer(player.serverLevel(), playerUUID);
+            }
 
             // Cleanup Plot Selection
             PlotSelectionTool.cleanup(playerUUID);

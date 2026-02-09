@@ -96,8 +96,14 @@ public class CentrifugalExtractorBlockEntity extends BlockEntity implements IUti
             inputStack = handlerInput.copy();
             CompoundTag tag = handlerInput.getTag();
             if (tag != null) {
-                if (tag.contains("HoneyType")) honeyType = HoneyType.valueOf(tag.getString("HoneyType"));
-                if (tag.contains("Quality")) quality = HoneyQuality.valueOf(tag.getString("Quality"));
+                if (tag.contains("HoneyType")) {
+                    try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("Quality")) {
+                    try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
             }
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -214,8 +220,14 @@ public class CentrifugalExtractorBlockEntity extends BlockEntity implements IUti
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         byproductStack = tag.contains("Byproduct") ? ItemStack.of(tag.getCompound("Byproduct")) : ItemStack.EMPTY;
         processingProgress = tag.getInt("Progress");
-        if (tag.contains("HoneyType")) honeyType = HoneyType.valueOf(tag.getString("HoneyType"));
-        if (tag.contains("Quality")) quality = HoneyQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("HoneyType")) {
+            try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

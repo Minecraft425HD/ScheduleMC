@@ -47,7 +47,7 @@ public class PoliceVehiclePursuit {
     private static final int PATH_UPDATE_INTERVAL = 60; // 3 Sekunden
 
     /** Tick-Counter fuer Pfad-Updates */
-    private static int tickCounter = 0;
+    private static volatile int tickCounter = 0;
 
     /**
      * Startet eine Fahrzeugverfolgung

@@ -140,7 +140,8 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
                         // Extract quality
                         BeerQuality quality = BeerQuality.BASIC;
                         if (tag.contains("Quality")) {
-                            quality = BeerQuality.valueOf(tag.getString("Quality"));
+                            try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
+                        catch (IllegalArgumentException ignored) {}
                         }
 
                         // Create conditioned beer

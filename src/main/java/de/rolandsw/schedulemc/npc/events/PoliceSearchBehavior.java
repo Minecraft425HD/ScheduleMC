@@ -423,6 +423,14 @@ public class PoliceSearchBehavior {
             if (dirStr != null) {
                 // Suche in Bewegungsrichtung des Spielers
                 String[] parts = dirStr.split(",");
+                if (parts.length < 3) {
+                    // Ungültiges Format - verwende zufällige Position statt Crash
+                    int randomX = lastPos.getX() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
+                    int randomZ = lastPos.getZ() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
+                    searchTarget = new BlockPos(randomX, lastPos.getY(), randomZ);
+                    police.getNavigation().moveTo(searchTarget.getX(), searchTarget.getY(), searchTarget.getZ(), 0.7);
+                    return;
+                }
                 double dirX = Double.parseDouble(parts[0]);
                 double dirZ = Double.parseDouble(parts[2]);
 
@@ -437,8 +445,9 @@ public class PoliceSearchBehavior {
                 double distance = searchRadius * (0.5 + police.getRandom().nextDouble() * 0.5); // 50-100% des Radius
                 double spread = searchRadius * 0.3; // 30% Streuung
 
-                int targetX = lastPos.getX() + (int)(dirX * distance) + (police.getRandom().nextInt((int)(spread * 2)) - (int)spread);
-                int targetZ = lastPos.getZ() + (int)(dirZ * distance) + (police.getRandom().nextInt((int)(spread * 2)) - (int)spread);
+                int spreadInt = Math.max(1, (int)(spread * 2));
+                int targetX = lastPos.getX() + (int)(dirX * distance) + (police.getRandom().nextInt(spreadInt) - spreadInt / 2);
+                int targetZ = lastPos.getZ() + (int)(dirZ * distance) + (police.getRandom().nextInt(spreadInt) - spreadInt / 2);
 
                 searchTarget = new BlockPos(targetX, lastPos.getY(), targetZ);
 

@@ -284,7 +284,9 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
         if (cachedStageConfig == null || slot < 0 || slot >= capacity) {
             return 0.0f;
         }
-        return (float) progress[slot] / cachedStageConfig.getProcessingTime();
+        int processingTime = cachedStageConfig.getProcessingTime();
+        if (processingTime <= 0) return 0.0f;
+        return (float) progress[slot] / processingTime;
     }
 
     public String getProductionId(int slot) {

@@ -203,27 +203,27 @@ public class SyncFullBankDataPacket {
         double maxTransferLimit = buf.readDouble();
 
         // Transactions
-        int txCount = buf.readInt();
+        int txCount = Math.min(buf.readInt(), 500);
         List<TransactionData> transactions = new ArrayList<>(txCount);
         for (int i = 0; i < txCount; i++) {
-            String transactionId = buf.readUtf();
+            String transactionId = buf.readUtf(256);
             TransactionType type = buf.readEnum(TransactionType.class);
             UUID fromPlayer = buf.readBoolean() ? buf.readUUID() : null;
             UUID toPlayer = buf.readBoolean() ? buf.readUUID() : null;
             double amount = buf.readDouble();
             long timestamp = buf.readLong();
-            String description = buf.readUtf();
+            String description = buf.readUtf(512);
             double balanceAfter = buf.readDouble();
             transactions.add(new TransactionData(transactionId, type, fromPlayer, toPlayer,
                 amount, timestamp, description, balanceAfter));
         }
 
         // Recurring Payments
-        int rpCount = buf.readInt();
+        int rpCount = Math.min(buf.readInt(), 100);
         List<RecurringPaymentData> recurringPayments = new ArrayList<>(rpCount);
         for (int i = 0; i < rpCount; i++) {
-            String paymentId = buf.readUtf();
-            String recipientName = buf.readUtf();
+            String paymentId = buf.readUtf(64);
+            String recipientName = buf.readUtf(16);
             double amount = buf.readDouble();
             int intervalDays = buf.readInt();
             boolean isActive = buf.readBoolean();
@@ -235,7 +235,7 @@ public class SyncFullBankDataPacket {
         // Active Loan (nullable)
         CreditLoanData activeLoan = null;
         if (buf.readBoolean()) {
-            String loanType = buf.readUtf();
+            String loanType = buf.readUtf(64);
             double totalAmount = buf.readDouble();
             double remainingAmount = buf.readDouble();
             double dailyPayment = buf.readDouble();

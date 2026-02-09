@@ -295,7 +295,9 @@ public class KeyItem extends Item {
                 origin.equals("COPY") ? ChatFormatting.YELLOW : ChatFormatting.GREEN;
         try {
             tips.add(Component.literal("Herkunft: " + LockType.KeyOrigin.valueOf(origin).getDisplayName()).withStyle(oc));
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            tips.add(Component.literal("Herkunft: Unbekannt").withStyle(ChatFormatting.GRAY));
+        }
 
         // Verbleibende Nutzungen
         if (tag.contains("uses_left")) {

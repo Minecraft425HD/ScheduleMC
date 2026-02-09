@@ -81,6 +81,7 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
                     // Wachstumsgeschwindigkeit basierend auf Licht
                     double lightSpeedMultiplier = getLightSpeedMultiplier();
+                    if (lightSpeedMultiplier <= 0) lightSpeedMultiplier = 0.1;
                     int ticksNeeded = (int) Math.max(1, 4 / lightSpeedMultiplier);
 
                     // Hole aktuelles Stadium
@@ -180,7 +181,9 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
         // NUR neues Objekt erstellen wenn PotType sich ändert oder noch nicht existiert
         if (tag.contains("PotType")) {
-            PotType type = PotType.valueOf(tag.getString("PotType"));
+            PotType type;
+            try { type = PotType.valueOf(tag.getString("PotType")); }
+            catch (IllegalArgumentException e) { type = PotType.values()[0]; }
             if (potData == null || potData.getPotType() != type) {
                 this.potData = new PlantPotData(type);
             }

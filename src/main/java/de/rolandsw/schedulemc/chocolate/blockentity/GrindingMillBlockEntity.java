@@ -93,7 +93,8 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
             // Extract quality from NBT
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
-                quality = ChocolateQuality.valueOf(tag.getString("Quality"));
+                try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
+                catch (IllegalArgumentException ignored) {}
             } else {
                 quality = ChocolateQuality.BASIC;
             }
@@ -204,7 +205,10 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         grindingProgress = tag.getInt("Progress");
-        if (tag.contains("Quality")) quality = ChocolateQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Quality")) {
+            try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

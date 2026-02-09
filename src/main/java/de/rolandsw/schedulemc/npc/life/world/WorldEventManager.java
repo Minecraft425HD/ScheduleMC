@@ -84,8 +84,8 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
 
     private MinecraftServer server;
 
-    /** Aktive Events */
-    private final List<WorldEvent> activeEvents = new ArrayList<>();
+    /** Aktive Events - synchronizedList fuer Thread-Sicherheit bei removeIf/Iteration */
+    private final List<WorldEvent> activeEvents = Collections.synchronizedList(new ArrayList<>());
 
     /** Event-History: Event Type -> letzter Tag */
     private final Map<WorldEventType, Long> eventHistory = new ConcurrentHashMap<>();

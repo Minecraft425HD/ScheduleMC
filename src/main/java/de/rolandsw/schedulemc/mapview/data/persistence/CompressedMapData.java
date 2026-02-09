@@ -481,7 +481,8 @@ public class CompressedMapData extends AbstractMapData {
                         byte[] decompressedData = CompressionUtils.decompress(this.data);
                         this.data = decompressedData;
                         this.isCompressed = false;
-                    } catch (DataFormatException ignored) {
+                    } catch (DataFormatException e) {
+                        // Korrupte komprimierte Daten - bleibt komprimiert
                     }
                 }
             }

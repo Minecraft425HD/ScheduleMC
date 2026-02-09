@@ -329,7 +329,9 @@ public class QuestObjective {
 
     public static QuestObjective load(CompoundTag tag) {
         String id = tag.getString("id");
-        ObjectiveType type = ObjectiveType.valueOf(tag.getString("type"));
+        ObjectiveType type;
+        try { type = ObjectiveType.valueOf(tag.getString("type")); }
+        catch (IllegalArgumentException e) { type = ObjectiveType.values()[0]; }
         String description = tag.getString("description");
         int requiredProgress = tag.getInt("requiredProgress");
 

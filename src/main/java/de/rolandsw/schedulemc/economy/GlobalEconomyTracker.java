@@ -276,7 +276,9 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
                 data.categorySales.forEach((k, v) -> {
                     try {
                         this.categorySalesVolume.put(ItemCategory.valueOf(k), v);
-                    } catch (IllegalArgumentException ignored) {}
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.warn("Unknown ItemCategory in categorySales: '{}'", k);
+                    }
                 });
             }
             if (data.categoryPurchases != null) {
@@ -284,7 +286,9 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
                 data.categoryPurchases.forEach((k, v) -> {
                     try {
                         this.categoryPurchaseVolume.put(ItemCategory.valueOf(k), v);
-                    } catch (IllegalArgumentException ignored) {}
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.warn("Unknown ItemCategory in categoryPurchases: '{}'", k);
+                    }
                 });
             }
             if (data.categoryRevenue != null) {
@@ -292,7 +296,9 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
                 data.categoryRevenue.forEach((k, v) -> {
                     try {
                         this.categoryRevenue.put(ItemCategory.valueOf(k), v);
-                    } catch (IllegalArgumentException ignored) {}
+                    } catch (IllegalArgumentException e) {
+                        LOGGER.warn("Unknown ItemCategory in categoryRevenue: '{}'", k);
+                    }
                 });
             }
 

@@ -62,8 +62,14 @@ public abstract class AbstractAgingBarrelBlockEntity extends BlockEntity impleme
             storedWine = handlerInput.copy();
             CompoundTag tag = handlerInput.getTag();
             if (tag != null) {
-                if (tag.contains("WineType")) wineType = WineType.valueOf(tag.getString("WineType"));
-                if (tag.contains("Quality")) quality = WineQuality.valueOf(tag.getString("Quality"));
+                if (tag.contains("WineType")) {
+                    try { wineType = WineType.valueOf(tag.getString("WineType")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("Quality")) {
+                    try { quality = WineQuality.valueOf(tag.getString("Quality")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
             }
             agingTicks = 0;
         } else if (handlerInput.isEmpty()) {
@@ -109,8 +115,14 @@ public abstract class AbstractAgingBarrelBlockEntity extends BlockEntity impleme
         if (itemHandler == null) createItemHandler();
         storedWine = tag.contains("StoredWine") ? ItemStack.of(tag.getCompound("StoredWine")) : ItemStack.EMPTY;
         agingTicks = tag.getInt("AgingTicks");
-        if (tag.contains("WineType")) wineType = WineType.valueOf(tag.getString("WineType"));
-        if (tag.contains("Quality")) quality = WineQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("WineType")) {
+            try { wineType = WineType.valueOf(tag.getString("WineType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = WineQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         if (!storedWine.isEmpty()) itemHandler.setStackInSlot(0, storedWine.copy());
     }
 

@@ -260,7 +260,12 @@ public class WorldEvent {
 
     public static WorldEvent load(CompoundTag tag) {
         UUID eventId = tag.getUUID("eventId");
-        WorldEventType type = WorldEventType.valueOf(tag.getString("type"));
+        WorldEventType type;
+        try {
+            type = WorldEventType.valueOf(tag.getString("type"));
+        } catch (IllegalArgumentException e) {
+            type = WorldEventType.values()[0];
+        }
         long startDay = tag.getLong("startDay");
         int durationDays = tag.getInt("durationDays");
 

@@ -36,7 +36,7 @@ public class PlotDescriptionPacket {
      */
     public static PlotDescriptionPacket decode(FriendlyByteBuf buffer) {
         String plotId = buffer.readUtf(256);
-        String description = buffer.readUtf(512);
+        String description = buffer.readUtf(16);
         return new PlotDescriptionPacket(plotId, description);
     }
 

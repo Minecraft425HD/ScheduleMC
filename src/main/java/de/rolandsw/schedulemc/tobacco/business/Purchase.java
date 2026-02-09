@@ -36,10 +36,16 @@ public class Purchase {
     }
 
     public static Purchase fromNBT(CompoundTag tag) {
+        TobaccoType type;
+        try { type = TobaccoType.valueOf(tag.getString("Type")); }
+        catch (IllegalArgumentException e) { type = TobaccoType.values()[0]; }
+        TobaccoQuality quality;
+        try { quality = TobaccoQuality.valueOf(tag.getString("Quality")); }
+        catch (IllegalArgumentException e) { quality = TobaccoQuality.values()[0]; }
         return new Purchase(
             tag.getString("PlayerUUID"),
-            TobaccoType.valueOf(tag.getString("Type")),
-            TobaccoQuality.valueOf(tag.getString("Quality")),
+            type,
+            quality,
             tag.getInt("Weight"),
             tag.getDouble("Price"),
             tag.getLong("Day")

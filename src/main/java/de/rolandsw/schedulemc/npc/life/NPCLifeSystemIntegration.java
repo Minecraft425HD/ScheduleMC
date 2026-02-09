@@ -135,8 +135,9 @@ public class NPCLifeSystemIntegration {
             worldEventManager.tick(level);
         }
 
-        // Counter zurücksetzen
+        // Alle 24000 Ticks (1 MC-Tag): Reputations-Decay anwenden
         if (tickCounter >= 24000) {
+            factionManager.applyDailyReputationDecay();
             tickCounter = 0;
         }
     }
@@ -330,8 +331,11 @@ public class NPCLifeSystemIntegration {
     public void onCrimeWitnessed(ServerPlayer criminal, CrimeType crimeType, CustomNPCEntity witness) {
         UUID criminalUUID = criminal.getUUID();
 
-        // Reputation bei relevanten Fraktionen verringern
-        int reputationPenalty = crimeType.getSeverity() * 3;
+        // Severity-skalierte Reputations-Strafen basierend auf Wanted-Stars
+        // Petty Theft (1 Star): -2 ORDNUNG, -1 BUERGER
+        // Murder (3 Stars): -6 ORDNUNG, -3 BUERGER
+        // Terrorism (5 Stars): -10 ORDNUNG, -5 BUERGER
+        int reputationPenalty = crimeType.getWantedStars() * 2;
         factionManager.modifyReputation(criminalUUID, Faction.ORDNUNG, -reputationPenalty);
         factionManager.modifyReputation(criminalUUID, Faction.BUERGER, -reputationPenalty / 2);
 
@@ -381,8 +385,9 @@ public class NPCLifeSystemIntegration {
         NPCLifeData lifeData = witness.getLifeData();
         if (lifeData != null) {
             if (accepted) {
-                // Bestechung angenommen: Zeuge schweigt, aber negative Reputation
-                factionManager.modifyReputation(playerUUID, Faction.ORDNUNG, -2);
+                // Bestechung angenommen: Zeuge schweigt, aber Spieler wird korrupt
+                factionManager.modifyReputation(playerUUID, Faction.ORDNUNG, -5);
+                factionManager.modifyReputation(playerUUID, Faction.BUERGER, -3);
 
                 // Zeuge erinnert sich an die Bestechung
                 lifeData.getMemory().addMemory(
@@ -392,22 +397,25 @@ public class NPCLifeSystemIntegration {
                     8
                 );
                 lifeData.getMemory().addPlayerTag(playerUUID, "Bestechlich");
+
+                // Im Untergrund wird das respektiert
+                factionManager.modifyReputation(playerUUID, Faction.UNTERGRUND, 2);
             } else {
-                // Bestechung abgelehnt: Gerüchte verbreiten
+                // Bestechung abgelehnt: Gerüchte verbreiten, aber mildere Strafe
                 Rumor rumor = Rumor.createPlayer(
                     playerUUID,
                     "hat versucht Zeugen zu bestechen",
-                    5,
-                    7
+                    4,
+                    5
                 );
                 rumorNetwork.spreadRumor(rumor, witness.blockPosition());
 
-                // Schwere Reputation-Strafe
-                factionManager.modifyReputation(playerUUID, Faction.ORDNUNG, -10);
-                factionManager.modifyReputation(playerUUID, Faction.BUERGER, -5);
+                // Mildere Strafe: Der Versuch allein ist nicht so schlimm
+                factionManager.modifyReputation(playerUUID, Faction.ORDNUNG, -3);
+                factionManager.modifyReputation(playerUUID, Faction.BUERGER, -1);
 
-                // Zeuge ist empört
-                lifeData.getEmotions().trigger(EmotionState.ANGRY, 40.0f, 1200);
+                // Zeuge ist verärgert
+                lifeData.getEmotions().trigger(EmotionState.ANGRY, 25.0f, 600);
             }
         }
     }

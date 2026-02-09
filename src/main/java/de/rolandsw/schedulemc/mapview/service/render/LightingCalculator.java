@@ -10,7 +10,11 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class LightingCalculator {
     private static final LightingCalculator INSTANCE = new LightingCalculator();
-    private static final Minecraft MINECRAFT = Minecraft.getInstance();
+
+    // Lazy-init um Crash auf Dedicated Server zu vermeiden
+    private static Minecraft getMinecraft() {
+        return Minecraft.getInstance();
+    }
 
     private float blockLightRedFlicker = 0.0f;
 
@@ -45,9 +49,9 @@ public class LightingCalculator {
     }
 
     public void setup() {
-        AmbientLightFactor = MINECRAFT.level.dimensionType().ambientLight();
+        AmbientLightFactor = getMinecraft().level.dimensionType().ambientLight();
 
-        float g = 1 - (MINECRAFT.level.getSkyDarken() / 15f);
+        float g = 1 - (getMinecraft().level.getSkyDarken() / 15f);
         float h = g * 0.95F + 0.05F;
 
         SkyFactor = h;
@@ -61,7 +65,7 @@ public class LightingCalculator {
         SkyLightColorG = g * 0.65f + 0.35f;
         SkyLightColorB = 1f;
 
-        float p = MINECRAFT.options.gamma().get().floatValue();
+        float p = getMinecraft().options.gamma().get().floatValue();
         BrightnessFactor = Math.max(0.0F, p);
 
         // Precompute brightness lookup tables (16 discrete light levels)

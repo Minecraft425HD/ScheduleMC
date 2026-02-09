@@ -318,10 +318,10 @@ public class NegotiationSystem {
         public int applyDiscount(float discount) {
             totalDiscount += discount;
             if (isBuying) {
-                currentPrice = (int) (originalPrice * (1.0f - totalDiscount));
+                currentPrice = Math.round(originalPrice * (1.0f - totalDiscount));
             } else {
                 // Beim Verkaufen: Spieler bekommt mehr
-                currentPrice = (int) (originalPrice * (1.0f + totalDiscount));
+                currentPrice = Math.round(originalPrice * (1.0f + totalDiscount));
             }
             return currentPrice;
         }

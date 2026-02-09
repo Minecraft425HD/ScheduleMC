@@ -90,8 +90,8 @@ public class IncrementalSaveManager {
     /**
      * Config
      */
-    private int saveIntervalTicks = 20;  // Alle 20 ticks (1 Sekunde)
-    private int batchSize = 5;            // Max 5 Saves pro Tick
+    private volatile int saveIntervalTicks = 20;  // Alle 20 ticks (1 Sekunde)
+    private volatile int batchSize = 5;            // Max 5 Saves pro Tick
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR

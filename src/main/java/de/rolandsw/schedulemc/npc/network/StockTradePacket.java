@@ -72,7 +72,7 @@ public class StockTradePacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
-            if (quantity <= 0) {
+            if (quantity <= 0 || quantity > 9999) {
                 player.sendSystemMessage(Component.translatable("message.common.quantity_positive")
                     .withStyle(ChatFormatting.RED));
                 return;

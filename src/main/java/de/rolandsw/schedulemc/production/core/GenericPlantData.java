@@ -80,7 +80,7 @@ public class GenericPlantData<T extends ProductionType, Q extends ProductionQual
 
         // Berechne aktuelle Stage basierend auf Ticks
         int requiredTicks = getGrowthSpeed();
-        int ticksPerStage = requiredTicks / 8;  // 8 Stages (0-7)
+        int ticksPerStage = Math.max(1, requiredTicks / 8);  // 8 Stages (0-7), min 1 tick
         int newStage = Math.min(MAX_GROWTH_STAGE, ticksGrown / ticksPerStage);
 
         setGrowthStage(newStage);

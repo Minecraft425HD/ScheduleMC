@@ -54,7 +54,7 @@ public class NegotiationResponsePacket {
         return new NegotiationResponsePacket(
             buf.readBoolean(),
             buf.readDouble(),
-            buf.readUtf(),
+            buf.readUtf(512),
             buf.readInt(),
             buf.readFloat(),
             buf.readInt(),

@@ -289,10 +289,12 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
             fermentationProgress[i] = tag.getInt("Progress" + i);
 
             if (tag.contains("Type" + i)) {
-                tobaccoTypes[i] = TobaccoType.valueOf(tag.getString("Type" + i));
+                try { tobaccoTypes[i] = TobaccoType.valueOf(tag.getString("Type" + i)); }
+                catch (IllegalArgumentException ignored) {}
             }
             if (tag.contains("Quality" + i)) {
-                qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i));
+                try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
+                catch (IllegalArgumentException ignored) {}
             }
         }
     }

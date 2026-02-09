@@ -9,6 +9,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
+import de.rolandsw.schedulemc.market.SeasonalPriceModifier;
+
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
@@ -140,6 +142,9 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
      * Wird bei Tageswechsel aufgerufen
      */
     private void onDayChange(long currentDay) {
+        // Saison aktualisieren
+        SeasonalPriceModifier.getInstance().updateSeason(currentDay);
+
         // Markt-Update durchführen
         updateMarketConditions();
 
@@ -283,6 +288,9 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         // Kategorie-Bedingung oder global
         MarketCondition condition = getCategoryCondition(category);
         modifier *= condition.getPriceMultiplier();
+
+        // Saisonaler Modifikator
+        modifier *= SeasonalPriceModifier.getInstance().getModifier(category);
 
         // Temporäre Modifikatoren
         modifier *= getCombinedTemporaryModifier();

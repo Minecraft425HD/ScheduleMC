@@ -177,6 +177,7 @@ public class PackagedDrugItem extends Item {
         }
 
         String[] parts = qualityStr.split("\\.");
+        if (parts.length < 2) return TobaccoQuality.GUT;
         String className = parts[0];
         String enumValue = parts[1];
 
@@ -204,6 +205,7 @@ public class PackagedDrugItem extends Item {
         }
 
         String[] parts = variantStr.split("\\.");
+        if (parts.length < 2) return null;
         String className = parts[0];
         String enumValue = parts[1];
 
