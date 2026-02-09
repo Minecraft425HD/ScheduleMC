@@ -226,6 +226,8 @@ public class LockCommand {
             if (state.getBlock() instanceof net.minecraft.world.level.block.DoorBlock door) {
                 door.setOpen(null, level, state, pos, !state.getValue(net.minecraft.world.level.block.DoorBlock.OPEN));
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            com.mojang.logging.LogUtils.getLogger().warn("Failed to toggle door for player {}: {}", player.getName().getString(), e.getMessage());
+        }
     }
 }

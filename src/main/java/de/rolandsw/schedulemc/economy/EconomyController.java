@@ -462,7 +462,9 @@ public class EconomyController {
                     return event.getMultiplier(item);
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            ScheduleMC.LOGGER.debug("Error calculating event multiplier: {}", e.getMessage());
+        }
 
         return 1.0f;
     }
