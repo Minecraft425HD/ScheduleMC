@@ -8,6 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 public record MapViewSettingsS2C(String settingsJson) {
+    private static final Gson GSON = new Gson();
     public static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("schedulemc", "lightmap_settings");
 
     public MapViewSettingsS2C(FriendlyByteBuf buf) {
@@ -30,7 +31,7 @@ public record MapViewSettingsS2C(String settingsJson) {
 
     public static void parsePacket(MapViewSettingsS2C packet) {
         @SuppressWarnings("unchecked")
-        Map<String, Object> settings = new Gson().fromJson(packet.settingsJson(), Map.class);
+        Map<String, Object> settings = GSON.fromJson(packet.settingsJson(), Map.class);
         for (Map.Entry<String, Object> entry : settings.entrySet()) {
             String setting = entry.getKey();
             Object value = entry.getValue();

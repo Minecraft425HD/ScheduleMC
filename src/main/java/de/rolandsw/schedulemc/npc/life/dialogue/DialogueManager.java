@@ -19,6 +19,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * DialogueManager - Verwaltet aktive Dialoge und Dialogbäume mit JSON-Persistenz
@@ -113,7 +114,7 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
      * Weist einem NPC einen Dialogbaum zu
      */
     public void assignTreeToNPC(UUID npcUUID, String treeId) {
-        npcTrees.computeIfAbsent(npcUUID, k -> Collections.synchronizedList(new ArrayList<>())).add(treeId);
+        npcTrees.computeIfAbsent(npcUUID, k -> new CopyOnWriteArrayList<>()).add(treeId);
         markDirty();
     }
 
@@ -123,9 +124,7 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
     public void removeTreeFromNPC(UUID npcUUID, String treeId) {
         List<String> trees = npcTrees.get(npcUUID);
         if (trees != null) {
-            synchronized (trees) {
-                trees.remove(treeId);
-            }
+            trees.remove(treeId);
             markDirty();
         }
     }

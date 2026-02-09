@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * GUI für Verkäufer Shop
@@ -32,6 +33,7 @@ import java.util.List;
 public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Pattern DIGITS_ONLY = Pattern.compile("\\d*");
 
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/merchant_shop.png");
@@ -128,7 +130,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
                     quantityInput.setMaxLength(1);
                     quantityInput.setFilter(s -> s.isEmpty() || s.equals("1")); // Nur 1 oder leer
                 } else {
-                    quantityInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
+                    quantityInput.setFilter(s -> DIGITS_ONLY.matcher(s).matches()); // Nur Zahlen
                 }
 
                 // Speichere Werte beim Tippen

@@ -71,9 +71,12 @@ public class PlayerTracker {
             }
         }
 
-        // Update last seen time
-        contact.setLastSeen(System.currentTimeMillis());
-        markDirty();
+        // Update last seen time (nur markDirty wenn >5min seit letztem Seen - reduziert Disk-IO)
+        long now = System.currentTimeMillis();
+        if (now - contact.getLastSeen() > 5 * 60 * 1000L) {
+            contact.setLastSeen(now);
+            markDirty();
+        }
     }
 
     /**

@@ -17,6 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Gang-App im GTA-Handy-Style.
@@ -28,6 +29,7 @@ import java.util.UUID;
  */
 @OnlyIn(Dist.CLIENT)
 public class GangAppScreen extends Screen {
+    private static final Pattern DIGITS_ONLY = Pattern.compile("\\d*");
 
     private final Screen parentScreen;
     private static final int WIDTH = 240;
@@ -242,7 +244,7 @@ public class GangAppScreen extends Screen {
         feeInput = new EditBox(this.font, leftPos + 63, footerY, 45, 18, Component.literal("Fee"));
         feeInput.setMaxLength(5);
         feeInput.setHint(Component.literal(String.valueOf(data.getWeeklyFee())));
-        feeInput.setFilter(s -> s.matches("\\d*"));
+        feeInput.setFilter(s -> DIGITS_ONLY.matcher(s).matches());
         addRenderableWidget(feeInput);
 
         addRenderableWidget(Button.builder(Component.literal("\u00A7a\u20AC"), b -> {

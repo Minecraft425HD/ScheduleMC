@@ -9,6 +9,7 @@ import net.minecraft.nbt.Tag;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +39,7 @@ public class NPCMemory {
     private final Map<UUID, List<MemoryEntry>> detailMemories = new ConcurrentHashMap<>();
 
     /** Tages-Zusammenfassungen (mittelfristig) */
-    private final List<DailySummary> dailySummaries = Collections.synchronizedList(new ArrayList<>());
+    private final List<DailySummary> dailySummaries = new CopyOnWriteArrayList<>();
 
     /** Spieler-Profile (permanent) */
     private final Map<UUID, PlayerProfile> playerProfiles = new ConcurrentHashMap<>();

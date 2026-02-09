@@ -7,6 +7,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.regex.Pattern;
+
 /**
  * /lock Befehl fuer Schloss-Verwaltung.
  *
@@ -19,6 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
  * /lock admin remove <pos>       - Admin: Schloss entfernen (OP 2)
  */
 public class LockCommand {
+    private static final Pattern FOUR_DIGITS = Pattern.compile("\\d{4}");
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("lock")
@@ -95,7 +98,7 @@ public class LockCommand {
             return 0;
         }
 
-        if (code.length() != 4 || !code.matches("\\d{4}")) {
+        if (code.length() != 4 || !FOUR_DIGITS.matcher(code).matches()) {
             src.sendFailure(Component.literal("\u00A7cCode muss 4 Ziffern haben!"));
             return 0;
         }

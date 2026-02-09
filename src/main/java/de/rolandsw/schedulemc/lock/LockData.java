@@ -1,11 +1,14 @@
 package de.rolandsw.schedulemc.lock;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 /**
  * Daten eines einzelnen Schlosses an einer Tuer-Position.
  */
 public class LockData {
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     /** Nil-UUID fuer Schloesser ohne Besitzer (Admin-Platzierung). */
     public static final UUID NO_OWNER = new UUID(0, 0);
@@ -67,7 +70,7 @@ public class LockData {
     public long getLastCodeRotation() { return lastCodeRotation; }
     public void setLastCodeRotation(long t) { this.lastCodeRotation = t; }
 
-    public Set<UUID> getAuthorizedPlayers() { return authorizedPlayers; }
+    public Set<UUID> getAuthorizedPlayers() { return Collections.unmodifiableSet(authorizedPlayers); }
     public void addAuthorized(UUID uuid) { authorizedPlayers.add(uuid); }
     public void removeAuthorized(UUID uuid) { authorizedPlayers.remove(uuid); }
 
@@ -93,7 +96,7 @@ public class LockData {
 
     /** Generiert einen neuen zufaelligen 4-stelligen Code. */
     public String rotateCode() {
-        String newCode = String.format("%04d", new Random().nextInt(10000));
+        String newCode = String.format("%04d", SECURE_RANDOM.nextInt(10000));
         setCode(newCode);
         return newCode;
     }

@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class VersionChecker {
     private static final String GITHUB_API_URL = "https://api.github.com/repos/Minecraft425HD/ScheduleMC/releases/latest";
-    private static String CURRENT_VERSION = null;
+    private static volatile String CURRENT_VERSION = null;
 
     private static volatile String latestVersion = null;
     private static volatile String downloadUrl = null;
@@ -58,7 +58,7 @@ public class VersionChecker {
                             parseResponse(response.toString());
                         }
                     } else {
-                        ScheduleMC.LOGGER.warn("Version check failed with response code: " + responseCode);
+                        ScheduleMC.LOGGER.warn("Version check failed with response code: {}", responseCode);
                     }
                 } finally {
                     connection.disconnect();
@@ -86,8 +86,8 @@ public class VersionChecker {
 
             // Prüfe ob die Version ein gültiges Format hat (x.y.z)
             if (!isValidVersionFormat(latestVersion)) {
-                ScheduleMC.LOGGER.warn("Invalid version format in GitHub release: " + latestVersion);
-                ScheduleMC.LOGGER.info("Running version: " + getCurrentVersion());
+                ScheduleMC.LOGGER.warn("Invalid version format in GitHub release: {}", latestVersion);
+                ScheduleMC.LOGGER.info("Running version: {}", getCurrentVersion());
                 return;
             }
 
@@ -95,9 +95,9 @@ public class VersionChecker {
             updateAvailable = isNewerVersion(latestVersion, getCurrentVersion());
 
             if (updateAvailable) {
-                ScheduleMC.LOGGER.info("Update available! Current: " + getCurrentVersion() + ", Latest: " + latestVersion);
+                ScheduleMC.LOGGER.info("Update available! Current: {}, Latest: {}", getCurrentVersion(), latestVersion);
             } else {
-                ScheduleMC.LOGGER.info("Running latest version: " + getCurrentVersion());
+                ScheduleMC.LOGGER.info("Running latest version: {}", getCurrentVersion());
             }
         } catch (Exception e) {
             ScheduleMC.LOGGER.error("Error parsing version response", e);

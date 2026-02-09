@@ -15,6 +15,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Verwaltet Wanted-Level (Fahndungsstufen) fuer Spieler
@@ -140,15 +141,13 @@ public class CrimeManager {
      */
     public static void addCrimeRecord(UUID playerUUID, CrimeType crimeType, @Nullable BlockPos location) {
         CrimeRecord record = new CrimeRecord(playerUUID, crimeType, location);
-        List<CrimeRecord> records = crimeHistory.computeIfAbsent(playerUUID, k -> Collections.synchronizedList(new ArrayList<>()));
+        List<CrimeRecord> records = crimeHistory.computeIfAbsent(playerUUID, k -> new CopyOnWriteArrayList<>());
 
-        // Limit einhalten (synchronized um ConcurrentModificationException zu vermeiden)
-        synchronized (records) {
-            while (records.size() >= MAX_RECORDS_PER_PLAYER) {
-                records.remove(0);
-            }
-            records.add(record);
+        // Limit einhalten
+        while (records.size() >= MAX_RECORDS_PER_PLAYER) {
+            records.remove(0);
         }
+        records.add(record);
         markDirty();
         LOGGER.debug("CrimeRecord added for {}: {}", playerUUID, crimeType.name());
     }
@@ -411,7 +410,7 @@ public class CrimeManager {
                         UUID playerUUID = UUID.fromString(entry.getKey());
                         List<CrimeRecord> records = entry.getValue();
                         if (records != null && !records.isEmpty()) {
-                            crimeHistory.put(playerUUID, new ArrayList<>(records));
+                            crimeHistory.put(playerUUID, new CopyOnWriteArrayList<>(records));
                         }
                     } catch (IllegalArgumentException e) {
                         LOGGER.error("Invalid UUID in crime records: {}", entry.getKey(), e);

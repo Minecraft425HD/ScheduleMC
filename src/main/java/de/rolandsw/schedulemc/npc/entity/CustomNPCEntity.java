@@ -636,15 +636,17 @@ public class CustomNPCEntity extends PathfinderMob {
         this.entityData.set(PERSONALITY, personality.name());
     }
 
+    // Gecachtes enum-Array um wiederholte Allokation durch .values() zu vermeiden
+    private static final NPCActivityStatus[] ACTIVITY_STATUS_VALUES = NPCActivityStatus.values();
+
     /**
      * Gibt den Activity-Status des NPCs zurück (Client-safe via synced data)
      * Wird für die Kartenanzeige verwendet (Filterung von NPCs auf Arbeit/Zuhause)
      */
     public NPCActivityStatus getActivityStatus() {
         int ordinal = this.entityData.get(ACTIVITY_STATUS);
-        NPCActivityStatus[] values = NPCActivityStatus.values();
-        if (ordinal >= 0 && ordinal < values.length) {
-            return values[ordinal];
+        if (ordinal >= 0 && ordinal < ACTIVITY_STATUS_VALUES.length) {
+            return ACTIVITY_STATUS_VALUES[ordinal];
         }
         return NPCActivityStatus.ROAMING;
     }
@@ -902,13 +904,11 @@ public class CustomNPCEntity extends PathfinderMob {
     public void remove(RemovalReason reason) {
         super.remove(reason);
 
-        // Performance-Optimierung: Unregistriere aus NPCEntityRegistry
         if (!this.level().isClientSide) {
+            // Unregistriere aus NPCEntityRegistry
             NPCEntityRegistry.unregisterNPC(this);
-        }
 
-        // Unregistriere Namen aus dem Registry nur auf Server-Seite
-        if (!this.level().isClientSide) {
+            // Unregistriere Namen aus dem Registry
             String npcName = getNpcName();
             if (npcName != null && !npcName.isEmpty()) {
                 NPCNameRegistry.unregisterName(npcName);

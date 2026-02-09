@@ -5,9 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,26 +18,46 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LockManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("ScheduleMC-LockManager");
-    private static LockManager instance;
+    // SICHERHEIT: volatile für Double-Checked Locking Pattern
+    private static volatile LockManager instance;
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     // BlockPos-Key: "dim:x:y:z" (immer lower half der Tuer)
     private final ConcurrentHashMap<String, LockData> locks = new ConcurrentHashMap<>();
     private final Path saveFile;
-    private boolean dirty = false;
+    private volatile boolean dirty = false;
 
     private LockManager(Path configDir) {
         this.saveFile = configDir.resolve("schedulemc_locks.json");
         load();
     }
 
+    /**
+     * SICHERHEIT: Double-Checked Locking für Thread-Safety
+     */
     public static LockManager getInstance(Path configDir) {
-        if (instance == null) instance = new LockManager(configDir);
-        return instance;
+        LockManager localRef = instance;
+        if (localRef == null) {
+            synchronized (LockManager.class) {
+                localRef = instance;
+                if (localRef == null) {
+                    instance = localRef = new LockManager(configDir);
+                }
+            }
+        }
+        return localRef;
     }
 
     public static LockManager getInstance() { return instance; }
 
-    public static void resetInstance() { instance = null; }
+    public static void resetInstance() {
+        synchronized (LockManager.class) {
+            if (instance != null) {
+                instance.save();
+            }
+            instance = null;
+        }
+    }
 
     // ═══════════════════════════════════════════════════════════
     // POSITIONS-KEY
@@ -110,7 +131,7 @@ public class LockManager {
 
     /** Alle Schloesser (unabhaengig vom Besitzer). */
     public Collection<LockData> getAllLocks() {
-        return locks.values();
+        return Collections.unmodifiableCollection(locks.values());
     }
 
     /** Schloss anhand seiner Lock-ID finden. */
@@ -149,9 +170,12 @@ public class LockManager {
             for (var entry : locks.entrySet()) {
                 arr.add(serializeLock(entry.getKey(), entry.getValue()));
             }
-            try (Writer w = new FileWriter(saveFile.toFile())) {
-                new GsonBuilder().setPrettyPrinting().create().toJson(arr, w);
+            // Atomic write: temp file + move verhindert Korruption bei Crash
+            File tempFile = new File(saveFile.toFile().getParent(), saveFile.getFileName() + ".tmp");
+            try (Writer w = new FileWriter(tempFile)) {
+                GSON.toJson(arr, w);
             }
+            Files.move(tempFile.toPath(), saveFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             dirty = false;
         } catch (IOException e) {
             LOGGER.error("Failed to save locks", e);
@@ -163,11 +187,19 @@ public class LockManager {
         if (!file.exists()) return;
         try (Reader r = new FileReader(file)) {
             JsonArray arr = JsonParser.parseReader(r).getAsJsonArray();
+            int skipped = 0;
             for (JsonElement el : arr) {
                 JsonObject obj = el.getAsJsonObject();
                 String posKey = obj.get("posKey").getAsString();
                 LockData data = deserializeLock(obj);
-                if (data != null) locks.put(posKey, data);
+                if (data != null) {
+                    locks.put(posKey, data);
+                } else {
+                    skipped++;
+                }
+            }
+            if (skipped > 0) {
+                LOGGER.error("Skipped {} corrupted lock entries during load!", skipped);
             }
             LOGGER.info("Loaded {} locks", locks.size());
         } catch (Exception e) {
@@ -218,7 +250,7 @@ public class LockManager {
             }
             return data;
         } catch (Exception e) {
-            LOGGER.warn("Failed to deserialize lock: {}", e.getMessage());
+            LOGGER.error("Failed to deserialize lock entry: {}", obj, e);
             return null;
         }
     }

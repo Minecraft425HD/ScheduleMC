@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -54,12 +56,12 @@ public class DynamicMarketManager {
 
     private static final File MARKET_FILE = new File("config/plotmod_market.json");
     private static final Gson GSON = GsonHelper.get();
-    private boolean dirty = false;
+    private volatile boolean dirty = false;
 
     // Statistics
-    private long lastUpdateTime = 0;
-    private long totalUpdates = 0;
-    private int tickCounter = 0;
+    private volatile long lastUpdateTime = 0;
+    private volatile long totalUpdates = 0;
+    private volatile int tickCounter = 0;
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -224,6 +226,9 @@ public class DynamicMarketManager {
         int itemsUpdated = 0;
 
         for (MarketData data : marketData.values()) {
+            // Snapshot für Trend-Analyse (vor Decay, nicht bei jeder Transaktion)
+            data.snapshotForTrend();
+
             // Decay Supply & Demand
             data.decaySupply(supplyDecayRate);
             data.decayDemand(demandDecayRate);
@@ -462,6 +467,8 @@ public class DynamicMarketManager {
     // ═══════════════════════════════════════════════════════════
 
     public void load() {
+        marketData.clear();
+
         if (!MARKET_FILE.exists()) {
             LOGGER.info("No market file found, starting fresh");
             return;
@@ -558,10 +565,14 @@ public class DynamicMarketManager {
                 ));
             }
 
-            try (FileWriter writer = new FileWriter(MARKET_FILE)) {
+            // Atomic write: temp file + move
+            File tempFile = new File(MARKET_FILE.getParent(), MARKET_FILE.getName() + ".tmp");
+            try (FileWriter writer = new FileWriter(tempFile)) {
                 GSON.toJson(toSave, writer);
                 writer.flush();
             }
+            Files.move(tempFile.toPath(), MARKET_FILE.toPath(),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 
             dirty = false;
             LOGGER.info("Market data saved: {} items", toSave.size());

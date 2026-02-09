@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Production Registry - Zentrale Verwaltung aller Produktionstypen
@@ -66,7 +67,7 @@ public class ProductionRegistry {
 
         // Kategorisierung
         ProductionConfig.ProductionCategory category = config.getCategory();
-        byCategory.computeIfAbsent(category, k -> Collections.synchronizedList(new ArrayList<>())).add(config);
+        byCategory.computeIfAbsent(category, k -> new CopyOnWriteArrayList<>()).add(config);
 
         LOGGER.info("Registered production: {} ({}) - {}",
             id, config.getDisplayName(), category.getDisplayName());

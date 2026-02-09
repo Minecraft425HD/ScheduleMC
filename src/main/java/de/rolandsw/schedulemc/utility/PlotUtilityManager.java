@@ -15,6 +15,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.slf4j.Logger;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -94,9 +96,14 @@ public class PlotUtilityManager {
 
             root.add("plots", plotsArray);
 
-            try (FileWriter writer = new FileWriter(DATA_FILE)) {
+            // Atomic write: temp file + move
+            File tempFile = new File(DATA_FILE.getParent(), DATA_FILE.getName() + ".tmp");
+            try (FileWriter writer = new FileWriter(tempFile)) {
                 GSON.toJson(root, writer);
+                writer.flush();
             }
+            Files.move(tempFile.toPath(), DATA_FILE.toPath(),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 
             dirty = false;
             LOGGER.debug("Utility-Daten gespeichert: {} Plots", plotData.size());

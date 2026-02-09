@@ -221,8 +221,6 @@ public class PersistenceHelper {
     private static <T> SaveResult retrySave(File file, Gson gson, T data, String componentName) {
         LOGGER.warn("{}: Versuche erneut zu speichern...", componentName);
         try {
-            Thread.sleep(100);
-
             File tempFile = new File(file.getParent(), file.getName() + ".tmp");
 
             try (FileWriter writer = new FileWriter(tempFile)) {

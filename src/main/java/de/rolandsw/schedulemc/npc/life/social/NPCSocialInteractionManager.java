@@ -7,7 +7,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -137,16 +140,16 @@ public class NPCSocialInteractionManager {
     }
 
     private NPCInteractionType determineInteractionType(int relation) {
-        Random random = new Random();
+        java.util.concurrent.ThreadLocalRandom rng = java.util.concurrent.ThreadLocalRandom.current();
         if (relation > 30) {
             // Gute Beziehung: meist positiv
-            return random.nextFloat() < 0.7f ? NPCInteractionType.CHATTING : NPCInteractionType.TRADING;
+            return rng.nextFloat() < 0.7f ? NPCInteractionType.CHATTING : NPCInteractionType.TRADING;
         } else if (relation < -30) {
             // Schlechte Beziehung: oft Streit
-            return random.nextFloat() < 0.6f ? NPCInteractionType.ARGUING : NPCInteractionType.GREETING;
+            return rng.nextFloat() < 0.6f ? NPCInteractionType.ARGUING : NPCInteractionType.GREETING;
         } else {
             // Neutral: gemischt
-            float roll = random.nextFloat();
+            float roll = rng.nextFloat();
             if (roll < 0.4f) return NPCInteractionType.GREETING;
             if (roll < 0.7f) return NPCInteractionType.CHATTING;
             return NPCInteractionType.TRADING;

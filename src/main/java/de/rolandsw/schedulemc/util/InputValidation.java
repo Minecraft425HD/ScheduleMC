@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
+import java.util.regex.Pattern;
 
 /**
  * Zentrale Input-Validierung für alle Benutzereingaben
@@ -45,8 +46,9 @@ public class InputValidation {
     public static final int MAX_Y = 320;
     public static final int MAX_COORDINATE = 30_000_000;
 
-    private static final String ALLOWED_NAME_CHARS = "^[a-zA-Z0-9_ äöüÄÖÜßéèêëàâáãåçñ\\-\\.]+$";
-    private static final String ALLOWED_FILENAME_CHARS = "^[a-zA-Z0-9_\\-\\.]+$";
+    private static final Pattern ALLOWED_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_ äöüÄÖÜßéèêëàâáãåçñ\\-\\.]+$");
+    private static final Pattern ALLOWED_FILENAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-\\.]+$");
+    private static final Pattern WINDOWS_DRIVE_PATTERN = Pattern.compile("^[A-Za-z]:.*");
 
     public static class Result {
         private final boolean valid;
@@ -95,7 +97,7 @@ public class InputValidation {
         if (trimmed.length() < 2) {
             return Result.failure("validation.npc.min_length");
         }
-        if (!trimmed.matches(ALLOWED_NAME_CHARS)) {
+        if (!ALLOWED_NAME_PATTERN.matcher(trimmed).matches()) {
             return Result.failure("validation.npc.invalid_characters");
         }
         if (containsDangerousPatterns(trimmed)) {
@@ -112,7 +114,7 @@ public class InputValidation {
         if (trimmed.length() > MAX_PLOT_NAME_LENGTH) {
             return Result.failure("validation.plot.max_length", MAX_PLOT_NAME_LENGTH);
         }
-        if (!trimmed.matches(ALLOWED_NAME_CHARS)) {
+        if (!ALLOWED_NAME_PATTERN.matcher(trimmed).matches()) {
             return Result.failure("validation.plot.invalid_characters");
         }
         return Result.success(trimmed);
@@ -130,7 +132,7 @@ public class InputValidation {
         if (trimmed.length() > MAX_TERRITORY_NAME_LENGTH) {
             return Result.failure("validation.territory.max_length", MAX_TERRITORY_NAME_LENGTH);
         }
-        if (!trimmed.matches(ALLOWED_NAME_CHARS)) {
+        if (!ALLOWED_NAME_PATTERN.matcher(trimmed).matches()) {
             return Result.failure("validation.territory.invalid_characters");
         }
         if (containsDangerousPatterns(trimmed)) {
@@ -151,7 +153,7 @@ public class InputValidation {
         if (trimmed.length() > MAX_SKIN_FILE_LENGTH) {
             return Result.failure("validation.skin.filename_too_long");
         }
-        if (!trimmed.matches(ALLOWED_FILENAME_CHARS)) {
+        if (!ALLOWED_FILENAME_PATTERN.matcher(trimmed).matches()) {
             return Result.failure("validation.skin.invalid_characters");
         }
         // SICHERHEIT: Verhindere Path Traversal
@@ -223,7 +225,7 @@ public class InputValidation {
             return Result.failure("validation.path.traversal");
         }
         // SICHERHEIT: Blockiere absolute Pfade
-        if (normalized.startsWith("/") || normalized.matches("^[A-Za-z]:.*")) {
+        if (normalized.startsWith("/") || WINDOWS_DRIVE_PATTERN.matcher(normalized).matches()) {
             return Result.failure("validation.path.absolute_not_allowed");
         }
         // SICHERHEIT: Whitelist für erlaubte Basis-Verzeichnisse

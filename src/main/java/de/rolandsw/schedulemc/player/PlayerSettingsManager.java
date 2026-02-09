@@ -93,29 +93,27 @@ public class PlayerSettingsManager {
         settings.setPlayerUUID(playerUUID.toString());
         settingsMap.put(playerUUID.toString(), settings);
         needsSave = true;
-        save();
     }
 
     /**
      * Setzt eine spezifische Einstellung
+     * OPTIMIERUNG: Setzt nur needsSave statt sofortigem save() - IncrementalSaveManager speichert periodisch
      */
     public static void setUtilityWarningsEnabled(UUID playerUUID, boolean enabled) {
         PlayerSettings settings = getSettings(playerUUID);
         settings.setUtilityWarningsEnabled(enabled);
         needsSave = true;
-        save();
     }
 
     public static void setElectricityThreshold(UUID playerUUID, double threshold) {
         PlayerSettings settings = getSettings(playerUUID);
         settings.setElectricityWarningThreshold(threshold);
         needsSave = true;
-        save();
     }
 
     public static void setWaterThreshold(UUID playerUUID, double threshold) {
         PlayerSettings settings = getSettings(playerUUID);
         settings.setWaterWarningThreshold(threshold);
-        save();
+        needsSave = true;
     }
 }

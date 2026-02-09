@@ -159,7 +159,7 @@ public class WarehouseManager {
             }
 
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Prüfen von Warehouse @ " + pos.toShortString(), e);
+            LOGGER.error("Fehler beim Prüfen von Warehouse @ {}", pos.toShortString(), e);
         }
     }
 
@@ -204,6 +204,10 @@ public class WarehouseManager {
         LOGGER.info("★★★ [WarehouseManager] load() aufgerufen! ★★★");
         File dataFile = getDataFile(server);
         LOGGER.info("[WarehouseManager] Data file: {}, exists: {}", dataFile.getAbsolutePath(), dataFile.exists());
+
+        // Alte Daten leeren um Duplikate bei Reload zu vermeiden
+        warehouses.clear();
+        lastDeliveryDayCache.clear();
 
         if (!dataFile.exists()) {
             LOGGER.info("★★★ [WarehouseManager] Keine Warehouse-Daten gefunden - warehouses map ist leer! ★★★");

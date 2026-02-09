@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 /**
@@ -33,7 +34,7 @@ public final class ServiceRegistry {
     private static final Map<Class<?>, ServiceEntry<?>> services = new ConcurrentHashMap<>();
 
     // Initialisierungs-Reihenfolge fuer geordnetes Shutdown
-    private static final List<Class<?>> initOrder = Collections.synchronizedList(new ArrayList<>());
+    private static final List<Class<?>> initOrder = new CopyOnWriteArrayList<>();
 
     // Shutdown-Hooks
     private static final Map<Class<?>, Runnable> shutdownHooks = new ConcurrentHashMap<>();
