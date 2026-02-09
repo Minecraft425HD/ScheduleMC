@@ -48,6 +48,7 @@ public class InputValidation {
 
     private static final Pattern ALLOWED_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_ äöüÄÖÜßéèêëàâáãåçñ\\-\\.]+$");
     private static final Pattern ALLOWED_FILENAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-\\.]+$");
+    private static final Pattern WINDOWS_DRIVE_PATTERN = Pattern.compile("^[A-Za-z]:.*");
 
     public static class Result {
         private final boolean valid;
@@ -224,7 +225,7 @@ public class InputValidation {
             return Result.failure("validation.path.traversal");
         }
         // SICHERHEIT: Blockiere absolute Pfade
-        if (normalized.startsWith("/") || normalized.matches("^[A-Za-z]:.*")) {
+        if (normalized.startsWith("/") || WINDOWS_DRIVE_PATTERN.matcher(normalized).matches()) {
             return Result.failure("validation.path.absolute_not_allowed");
         }
         // SICHERHEIT: Whitelist für erlaubte Basis-Verzeichnisse

@@ -18,6 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * GUI für Shop-Editor (Admin-Only)
@@ -25,6 +26,7 @@ import java.util.List;
  */
 @OnlyIn(Dist.CLIENT)
 public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
+    private static final Pattern DIGITS_ONLY = Pattern.compile("\\d*");
 
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/container/generic_54.png");
@@ -130,7 +132,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 Component.translatable("gui.common.price"));
             row.priceInput.setMaxLength(6);
             row.priceInput.setValue(String.valueOf(menu.getItemPrices()[slotIndex]));
-            row.priceInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
+            row.priceInput.setFilter(s -> DIGITS_ONLY.matcher(s).matches()); // Nur Zahlen
 
             final int finalSlotIndex = slotIndex;
             row.priceInput.setResponder(value -> {
@@ -171,7 +173,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 Component.translatable("gui.warehouse.storage"));
             row.stockInput.setMaxLength(6);
             row.stockInput.setValue(String.valueOf(menu.getItemStock()[slotIndex]));
-            row.stockInput.setFilter(s -> s.matches("\\d*")); // Nur Zahlen
+            row.stockInput.setFilter(s -> DIGITS_ONLY.matcher(s).matches()); // Nur Zahlen
 
             // Deaktiviere Stock-Feld wenn Unlimited
             boolean unlimited = menu.getItemUnlimited()[slotIndex];
