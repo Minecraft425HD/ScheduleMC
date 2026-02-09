@@ -354,17 +354,7 @@ public class HealthCheckManager {
      * Gibt den Overall-Status zurück
      */
     public static SystemHealth getOverallHealth() {
-        Map<String, ComponentHealth> results = checkAllSystems();
-
-        boolean hasUnhealthy = results.values().stream()
-            .anyMatch(h -> h.getStatus() == SystemHealth.UNHEALTHY);
-        if (hasUnhealthy) return SystemHealth.UNHEALTHY;
-
-        boolean hasDegraded = results.values().stream()
-            .anyMatch(h -> h.getStatus() == SystemHealth.DEGRADED);
-        if (hasDegraded) return SystemHealth.DEGRADED;
-
-        return SystemHealth.HEALTHY;
+        return calculateOverallHealth(checkAllSystems());
     }
 
     /**
@@ -397,21 +387,39 @@ public class HealthCheckManager {
 
     /**
      * Gibt eine kurze Status-Zusammenfassung zurück
+     * OPTIMIERT: Berechnet Overall-Status aus vorhandenem Ergebnis statt doppeltem Check
      */
     public static String getQuickStatus() {
         Map<String, ComponentHealth> results = checkAllSystems();
         long healthy = results.values().stream().filter(h -> h.getStatus() == SystemHealth.HEALTHY).count();
-        SystemHealth overall = getOverallHealth();
+        SystemHealth overall = calculateOverallHealth(results);
         return String.format("§7System Status: %s §7(%d/%d Systeme gesund)",
             overall.getDisplayName(), healthy, results.size());
     }
 
     /**
+     * Berechnet den Overall-Status aus einem vorhandenen Ergebnis
+     */
+    private static SystemHealth calculateOverallHealth(Map<String, ComponentHealth> results) {
+        boolean hasUnhealthy = results.values().stream()
+            .anyMatch(h -> h.getStatus() == SystemHealth.UNHEALTHY);
+        if (hasUnhealthy) return SystemHealth.UNHEALTHY;
+
+        boolean hasDegraded = results.values().stream()
+            .anyMatch(h -> h.getStatus() == SystemHealth.DEGRADED);
+        if (hasDegraded) return SystemHealth.DEGRADED;
+
+        return SystemHealth.HEALTHY;
+    }
+
+    /**
      * Gibt den Health-Status eines einzelnen Systems zurück
+     * OPTIMIERT: Führt nur den einen relevanten Check aus statt alle 38
      */
     public static ComponentHealth checkSystem(String systemKey) {
-        Map<String, ComponentHealth> all = checkAllSystems();
-        return all.get(systemKey);
+        HealthCheckEntry entry = checkRegistry.get(systemKey);
+        if (entry == null) return null;
+        return checkSingletonManager(systemKey, entry.supplier);
     }
 
     // ==========================================

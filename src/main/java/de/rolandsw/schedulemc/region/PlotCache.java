@@ -156,13 +156,6 @@ public class PlotCache {
     }
 
     /**
-     * Hilfsmethode: Berechnet ChunkPos aus BlockPos
-     */
-    private static ChunkPos getChunkPos(BlockPos pos) {
-        return new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
-    }
-
-    /**
      * Invalidiert alle Cache-Einträge für einen Plot
      *
      * OPTIMIERT: Entfernt auch aus Chunk-Index
@@ -219,37 +212,47 @@ public class PlotCache {
 
         int removedCount = 0;
 
-        // Iteriere nur über betroffene Chunks (typisch 1-4 statt 1000 Einträge)
+        // Sammle zuerst alle zu entfernenden Positionen
+        Set<BlockPos> allToRemove = new HashSet<>();
         for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
             for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
                 ChunkPos chunkPos = new ChunkPos(chunkX, chunkZ);
                 Set<BlockPos> positionsInChunk = chunkIndex.get(chunkPos);
 
                 if (positionsInChunk != null) {
-                    // Kopiere zum sicheren Iterieren
-                    Set<BlockPos> toRemove = new HashSet<>();
-
                     for (BlockPos pos : positionsInChunk) {
-                        // Prüfe ob Position tatsächlich in der Region liegt
                         if (pos.getX() >= min.getX() && pos.getX() <= max.getX() &&
                             pos.getY() >= min.getY() && pos.getY() <= max.getY() &&
                             pos.getZ() >= min.getZ() && pos.getZ() <= max.getZ()) {
-                            toRemove.add(pos);
+                            allToRemove.add(pos);
                         }
                     }
+                }
+            }
+        }
 
-                    // Entferne aus beiden Indizes
-                    for (BlockPos pos : toRemove) {
-                        cache.remove(pos);
-                        positionsInChunk.remove(pos);
-                        removedCount++;
-                    }
+        // Entferne aus Cache unter WriteLock (Thread-Safety für LinkedHashMap)
+        if (!allToRemove.isEmpty()) {
+            rwLock.writeLock().lock();
+            try {
+                for (BlockPos pos : allToRemove) {
+                    cache.remove(pos);
+                }
+            } finally {
+                rwLock.writeLock().unlock();
+            }
 
-                    // Chunk-Set aufräumen wenn leer
+            // Entferne aus Chunk-Index (ConcurrentHashMap - thread-safe)
+            for (BlockPos pos : allToRemove) {
+                ChunkPos chunkPos = new ChunkPos(pos);
+                Set<BlockPos> positionsInChunk = chunkIndex.get(chunkPos);
+                if (positionsInChunk != null) {
+                    positionsInChunk.remove(pos);
                     if (positionsInChunk.isEmpty()) {
                         chunkIndex.remove(chunkPos);
                     }
                 }
+                removedCount++;
             }
         }
 

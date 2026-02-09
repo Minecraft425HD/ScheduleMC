@@ -69,6 +69,11 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             instance = new EconomyManager();
         }
         instance.server = server;
+
+        // RateLimiter Auto-Cleanup aktivieren (verhindert Memory Leak bei Spieler-Fluktuation)
+        transferLimiter.startAutoCleanup();
+        withdrawLimiter.startAutoCleanup();
+        depositLimiter.startAutoCleanup();
     }
 
     /**
@@ -230,10 +235,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * Prüft ob ein Konto existiert
      */
     public static boolean hasAccount(UUID uuid) {
-        boolean exists = balances.containsKey(uuid);
-        LOGGER.debug("hasAccount({}) = {} (current balance: {})", uuid, exists,
-            exists ? balances.get(uuid) : "N/A");
-        return exists;
+        return balances.containsKey(uuid);
     }
 
     /**
@@ -353,9 +355,10 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Gibt alle Konten zurück (für Admin-Befehle)
+     * Gibt eine unmodifiable View zurück - keine Kopie nötig
      */
     public static Map<UUID, Double> getAllAccounts() {
-        return new HashMap<>(balances);
+        return Collections.unmodifiableMap(balances);
     }
 
     /**
@@ -383,30 +386,41 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Transfer zwischen zwei Spielern
+     * SICHERHEIT: Atomare Operation verhindert Geldverlust bei Crash/Exception
      * SICHERHEIT: Rate Limiting gegen Spam
      */
     public static boolean transfer(UUID from, UUID to, double amount, @Nullable String description) {
+        if (amount < 0) {
+            LOGGER.warn("Attempt to transfer negative amount: {}", amount);
+            return false;
+        }
+
         // Rate Limiting für Transfers
         if (!transferLimiter.allowOperation(from)) {
             LOGGER.warn("Rate limit exceeded for transfer by player {}", from);
             return false;
         }
 
-        if (withdraw(from, amount)) {
-            deposit(to, amount, TransactionType.TRANSFER, description);
-
-            // Separate Logging für beide Seiten
-            double fromBalance = getBalance(from);
-            double toBalance = getBalance(to);
-
-            logTransaction(from, TransactionType.TRANSFER, from, to, -amount,
-                description != null ? "An " + to : null, fromBalance);
-            logTransaction(to, TransactionType.TRANSFER, from, to, amount,
-                description != null ? "Von " + from : null, toBalance);
-
-            return true;
+        // SICHERHEIT: Atomare Transfer-Operation
+        // Beide Balance-Änderungen passieren zusammen - kein Geldverlust bei Crash
+        double fromBalance;
+        double toBalance;
+        synchronized (balances) {
+            fromBalance = balances.getOrDefault(from, 0.0) - amount;
+            balances.put(from, fromBalance);
+            toBalance = balances.merge(to, amount, Double::sum);
         }
-        return false;
+
+        markDirty();
+        LOGGER.debug("Transfer: {} € from {} to {}", amount, from, to);
+
+        // Transaction History für beide Seiten
+        logTransaction(from, TransactionType.TRANSFER, from, to, -amount,
+            description != null ? "An " + to : null, fromBalance);
+        logTransaction(to, TransactionType.TRANSFER, from, to, amount,
+            description != null ? "Von " + from : null, toBalance);
+
+        return true;
     }
 
     /**

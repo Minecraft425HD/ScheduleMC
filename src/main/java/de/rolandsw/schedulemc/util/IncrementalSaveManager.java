@@ -217,7 +217,7 @@ public class IncrementalSaveManager {
 
             totalSaves.incrementAndGet();
 
-            LOGGER.debug("Saved {} in {:.2f}ms", saveable.getName(), durationMs);
+            LOGGER.debug("Saved {} in {}ms", saveable.getName(), String.format("%.2f", durationMs));
 
         } catch (Exception e) {
             LOGGER.error("Error saving {}", saveable.getName(), e);
@@ -255,8 +255,8 @@ public class IncrementalSaveManager {
 
         fullSaves.incrementAndGet();
 
-        LOGGER.info("Full save completed: {} saved, {} skipped (not dirty) in {:.2f}ms",
-            saved, skipped, durationMs);
+        LOGGER.info("Full save completed: {} saved, {} skipped (not dirty) in {}ms",
+            saved, skipped, String.format("%.2f", durationMs));
     }
 
     /**
@@ -276,8 +276,8 @@ public class IncrementalSaveManager {
 
         fullSaves.incrementAndGet();
 
-        LOGGER.warn("Force save completed: {} components in {:.2f}ms",
-            saveables.size(), durationMs);
+        LOGGER.warn("Force save completed: {} components in {}ms",
+            saveables.size(), String.format("%.2f", durationMs));
     }
 
     // ═══════════════════════════════════════════════════════════
