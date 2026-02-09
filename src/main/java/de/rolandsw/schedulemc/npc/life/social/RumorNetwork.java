@@ -40,10 +40,10 @@ public class RumorNetwork {
     // ═══════════════════════════════════════════════════════════
 
     /** Alle aktiven Gerüchte, nach Spieler-UUID gruppiert */
-    private final Map<UUID, List<Rumor>> rumorsByPlayer = new HashMap<>();
+    private final Map<UUID, List<Rumor>> rumorsByPlayer = new ConcurrentHashMap<>();
 
     /** Welche NPCs kennen welche Gerüchte */
-    private final Map<UUID, Set<String>> npcKnownRumors = new HashMap<>();
+    private final Map<UUID, Set<String>> npcKnownRumors = new ConcurrentHashMap<>();
 
     /** Letzter bekannter Tag für Tageswechsel-Logik */
     private long lastKnownDay = -1;

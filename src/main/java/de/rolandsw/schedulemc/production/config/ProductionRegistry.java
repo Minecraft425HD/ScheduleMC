@@ -66,7 +66,7 @@ public class ProductionRegistry {
 
         // Kategorisierung
         ProductionConfig.ProductionCategory category = config.getCategory();
-        byCategory.computeIfAbsent(category, k -> new ArrayList<>()).add(config);
+        byCategory.computeIfAbsent(category, k -> Collections.synchronizedList(new ArrayList<>())).add(config);
 
         LOGGER.info("Registered production: {} ({}) - {}",
             id, config.getDisplayName(), category.getDisplayName());
@@ -78,7 +78,11 @@ public class ProductionRegistry {
     public boolean unregister(String id) {
         ProductionConfig removed = productions.remove(id);
         if (removed != null) {
-            byCategory.get(removed.getCategory()).remove(removed);
+            // Sicher: computeIfPresent vermeidet NPE wenn Kategorie nicht existiert
+            byCategory.computeIfPresent(removed.getCategory(), (k, v) -> {
+                v.remove(removed);
+                return v.isEmpty() ? null : v;
+            });
             LOGGER.info("Unregistered production: {}", id);
             return true;
         }
