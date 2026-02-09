@@ -41,7 +41,9 @@ public class RoastedCoffeeBeanItem extends Item {
     public static CoffeeType getType(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("CoffeeType")) {
-            return CoffeeType.valueOf(tag.getString("CoffeeType"));
+            try {
+                return CoffeeType.valueOf(tag.getString("CoffeeType"));
+            } catch (IllegalArgumentException ignored) {}
         }
         return CoffeeType.ARABICA;
     }
@@ -52,7 +54,9 @@ public class RoastedCoffeeBeanItem extends Item {
     public static CoffeeQuality getQuality(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("Quality")) {
-            return CoffeeQuality.valueOf(tag.getString("Quality"));
+            try {
+                return CoffeeQuality.valueOf(tag.getString("Quality"));
+            } catch (IllegalArgumentException ignored) {}
         }
         return CoffeeQuality.GOOD;
     }
@@ -63,7 +67,9 @@ public class RoastedCoffeeBeanItem extends Item {
     public static CoffeeRoastLevel getRoastLevel(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("RoastLevel")) {
-            return CoffeeRoastLevel.valueOf(tag.getString("RoastLevel"));
+            try {
+                return CoffeeRoastLevel.valueOf(tag.getString("RoastLevel"));
+            } catch (IllegalArgumentException ignored) {}
         }
         return CoffeeRoastLevel.MEDIUM;
     }

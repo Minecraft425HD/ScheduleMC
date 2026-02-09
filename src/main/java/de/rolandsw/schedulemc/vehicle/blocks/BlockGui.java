@@ -56,7 +56,7 @@ public abstract class BlockGui<T extends BlockEntity> extends BlockBase implemen
                 T tile = (T) tileEntity;
                 openGui(state, worldIn, pos, (ServerPlayer) player, handIn, tile);
             } catch (ClassCastException e) {
-
+                // BlockEntity type mismatch - wrong tile entity at position
             }
             return InteractionResult.SUCCESS;
         }

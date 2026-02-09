@@ -162,7 +162,9 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
     }
 
     public int getTotalMoldingTime() {
-        return (int) (BASE_PROCESSING_TIME / getSpeedMultiplier());
+        double speed = getSpeedMultiplier();
+        if (speed <= 0) speed = 1.0;
+        return (int) (BASE_PROCESSING_TIME / speed);
     }
 
     public void setProcessingMethod(de.rolandsw.schedulemc.chocolate.ChocolateProcessingMethod method) {

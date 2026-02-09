@@ -135,7 +135,9 @@ public class MushroomPlantData {
 
         // Zufällige Variation
         int variation = (int) (baseYield * 0.2);
-        baseYield += ThreadLocalRandom.current().nextInt((int)(variation * 2)) - variation;
+        if (variation > 0) {
+            baseYield += ThreadLocalRandom.current().nextInt(variation * 2) - variation;
+        }
 
         return Math.min(10, Math.max(1, baseYield));
     }

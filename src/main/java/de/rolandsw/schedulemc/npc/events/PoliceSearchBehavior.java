@@ -445,8 +445,9 @@ public class PoliceSearchBehavior {
                 double distance = searchRadius * (0.5 + police.getRandom().nextDouble() * 0.5); // 50-100% des Radius
                 double spread = searchRadius * 0.3; // 30% Streuung
 
-                int targetX = lastPos.getX() + (int)(dirX * distance) + (police.getRandom().nextInt((int)(spread * 2)) - (int)spread);
-                int targetZ = lastPos.getZ() + (int)(dirZ * distance) + (police.getRandom().nextInt((int)(spread * 2)) - (int)spread);
+                int spreadInt = Math.max(1, (int)(spread * 2));
+                int targetX = lastPos.getX() + (int)(dirX * distance) + (police.getRandom().nextInt(spreadInt) - spreadInt / 2);
+                int targetZ = lastPos.getZ() + (int)(dirZ * distance) + (police.getRandom().nextInt(spreadInt) - spreadInt / 2);
 
                 searchTarget = new BlockPos(targetX, lastPos.getY(), targetZ);
 

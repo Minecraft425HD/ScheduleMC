@@ -52,6 +52,7 @@ public enum ProductionSize {
      * @return Angepasste Verarbeitungszeit
      */
     public int getProcessingTime(int baseTime) {
+        if (speedMultiplier <= 0) return baseTime;
         return (int) (baseTime / speedMultiplier);
     }
 }

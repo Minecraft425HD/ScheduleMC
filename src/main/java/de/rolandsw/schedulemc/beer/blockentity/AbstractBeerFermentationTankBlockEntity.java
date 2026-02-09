@@ -145,7 +145,9 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
     }
 
     public int getTotalFermentationTime() {
-        return (int) (2400 / getSpeedMultiplier()); // Base 120 seconds (2 minutes), adjusted by speed
+        double speed = getSpeedMultiplier();
+        if (speed <= 0) speed = 1.0;
+        return (int) (2400 / speed); // Base 120 seconds (2 minutes), adjusted by speed
     }
 
     public int getProgress() {

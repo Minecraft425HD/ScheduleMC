@@ -39,7 +39,9 @@ public class FreshCocaLeafItem extends Item {
     public static CocaType getType(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("CocaType")) {
-            return CocaType.valueOf(tag.getString("CocaType"));
+            try {
+                return CocaType.valueOf(tag.getString("CocaType"));
+            } catch (IllegalArgumentException ignored) {}
         }
         return CocaType.BOLIVIANISCH; // Default
     }
@@ -50,7 +52,9 @@ public class FreshCocaLeafItem extends Item {
     public static TobaccoQuality getQuality(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("Quality")) {
-            return TobaccoQuality.valueOf(tag.getString("Quality"));
+            try {
+                return TobaccoQuality.valueOf(tag.getString("Quality"));
+            } catch (IllegalArgumentException ignored) {}
         }
         return TobaccoQuality.GUT; // Default
     }
