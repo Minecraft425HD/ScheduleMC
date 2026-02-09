@@ -313,7 +313,7 @@ public class NegotiationState {
         NPCPersonality personality = buf.readEnum(NPCPersonality.class);
         NPCPersonalityTrait trait = buf.readEnum(NPCPersonalityTrait.class);
         double lastCounterOffer = buf.readDouble();
-        String lastNPCResponse = buf.readUtf();
+        String lastNPCResponse = buf.readUtf(1024);
 
         NegotiationState state = new NegotiationState(personality, trait);
         state.currentRound = currentRound;

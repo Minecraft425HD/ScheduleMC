@@ -179,10 +179,13 @@ public class FuelStationRegistry {
 
     private static BlockPos parseBlockPos(String str) {
         String[] parts = str.split(",");
+        if (parts.length < 3) {
+            throw new IllegalArgumentException("Invalid BlockPos format: " + str);
+        }
         return new BlockPos(
-            Integer.parseInt(parts[0]),
-            Integer.parseInt(parts[1]),
-            Integer.parseInt(parts[2])
+            Integer.parseInt(parts[0].trim()),
+            Integer.parseInt(parts[1].trim()),
+            Integer.parseInt(parts[2].trim())
         );
     }
 }
