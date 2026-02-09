@@ -356,17 +356,21 @@ public class Quest {
         String id = tag.getString("id");
         String title = tag.getString("title");
         String description = tag.getString("description");
-        QuestType type = QuestType.valueOf(tag.getString("type"));
+        QuestType type;
+        try { type = QuestType.valueOf(tag.getString("type")); }
+        catch (IllegalArgumentException e) { type = QuestType.values()[0]; }
         UUID questGiverNPC = tag.getUUID("questGiverNPC");
 
         Faction faction = null;
         if (tag.contains("faction")) {
-            faction = Faction.valueOf(tag.getString("faction"));
+            try { faction = Faction.valueOf(tag.getString("faction")); }
+            catch (IllegalArgumentException ignored) {}
         }
 
         Quest quest = new Quest(id, title, description, type, questGiverNPC, faction);
 
-        quest.status = QuestStatus.valueOf(tag.getString("status"));
+        try { quest.status = QuestStatus.valueOf(tag.getString("status")); }
+        catch (IllegalArgumentException ignored) {}
         quest.timeLimitDays = tag.getInt("timeLimitDays");
         quest.startDay = tag.getLong("startDay");
         quest.difficulty = tag.getInt("difficulty");

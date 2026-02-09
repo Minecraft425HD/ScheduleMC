@@ -41,7 +41,9 @@ public class DriedMushroomItem extends Item {
     public static TobaccoQuality getQuality(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("Quality")) {
-            return TobaccoQuality.valueOf(tag.getString("Quality"));
+            try {
+                return TobaccoQuality.valueOf(tag.getString("Quality"));
+            } catch (IllegalArgumentException ignored) {}
         }
         return TobaccoQuality.GUT;
     }

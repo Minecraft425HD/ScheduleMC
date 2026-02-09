@@ -223,7 +223,10 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
         rennetInput = tag.contains("RennetInput") ? ItemStack.of(tag.getCompound("RennetInput")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         curdlingProgress = tag.getInt("Progress");
-        if (tag.contains("Quality")) quality = CheeseQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Quality")) {
+            try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

@@ -129,7 +129,8 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
             // Extract quality from NBT
             CompoundTag tag = handlerCocoaMass.getTag();
             if (tag != null && tag.contains("Quality")) {
-                quality = ChocolateQuality.valueOf(tag.getString("Quality"));
+                try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
+                catch (IllegalArgumentException ignored) {}
             } else {
                 quality = ChocolateQuality.BASIC;
             }
@@ -309,7 +310,10 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
 
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         conchingProgress = tag.getInt("Progress");
-        if (tag.contains("Quality")) quality = ChocolateQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Quality")) {
+            try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

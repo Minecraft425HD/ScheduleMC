@@ -125,20 +125,23 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
             CompoundTag tag = handlerBeer.getTag();
             if (tag != null) {
                 if (tag.contains("BeerType")) {
-                    beerType = BeerType.valueOf(tag.getString("BeerType"));
+                    try { beerType = BeerType.valueOf(tag.getString("BeerType")); }
+                    catch (IllegalArgumentException ignored) {}
                 } else {
                     // Default beer type if not specified
                     beerType = BeerType.PILSNER;
                 }
 
                 if (tag.contains("Quality")) {
-                    quality = BeerQuality.valueOf(tag.getString("Quality"));
+                    try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
+                    catch (IllegalArgumentException ignored) {}
                 } else {
                     quality = BeerQuality.BASIC;
                 }
 
                 if (tag.contains("AgeLevel")) {
-                    ageLevel = BeerAgeLevel.valueOf(tag.getString("AgeLevel"));
+                    try { ageLevel = BeerAgeLevel.valueOf(tag.getString("AgeLevel")); }
+                    catch (IllegalArgumentException ignored) {}
                 } else {
                     ageLevel = BeerAgeLevel.YOUNG;
                 }
@@ -328,11 +331,21 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
         capStack = tag.contains("Cap") ? ItemStack.of(tag.getCompound("Cap")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         bottlingProgress = tag.getInt("BottlingProgress");
-        if (tag.contains("BeerType")) beerType = BeerType.valueOf(tag.getString("BeerType"));
-        if (tag.contains("Quality")) quality = BeerQuality.valueOf(tag.getString("Quality"));
-        if (tag.contains("AgeLevel")) ageLevel = BeerAgeLevel.valueOf(tag.getString("AgeLevel"));
+        if (tag.contains("BeerType")) {
+            try { beerType = BeerType.valueOf(tag.getString("BeerType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("AgeLevel")) {
+            try { ageLevel = BeerAgeLevel.valueOf(tag.getString("AgeLevel")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         if (tag.contains("ProcessingMethod")) {
-            processingMethod = BeerProcessingMethod.valueOf(tag.getString("ProcessingMethod"));
+            try { processingMethod = BeerProcessingMethod.valueOf(tag.getString("ProcessingMethod")); }
+            catch (IllegalArgumentException ignored) {}
         } else {
             processingMethod = BeerProcessingMethod.BOTTLED;
         }

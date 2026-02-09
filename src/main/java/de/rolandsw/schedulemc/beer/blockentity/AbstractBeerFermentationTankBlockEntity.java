@@ -111,7 +111,8 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
             // Extract quality from NBT
             CompoundTag tag = handlerBeer.getTag();
             if (tag != null && tag.contains("Quality")) {
-                quality = BeerQuality.valueOf(tag.getString("Quality"));
+                try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
+                catch (IllegalArgumentException ignored) {}
             } else {
                 quality = BeerQuality.BASIC;
             }
@@ -240,7 +241,10 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
         yeastStack = tag.contains("Yeast") ? ItemStack.of(tag.getCompound("Yeast")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         fermentationProgress = tag.getInt("Progress");
-        if (tag.contains("Quality")) quality = BeerQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Quality")) {
+            try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

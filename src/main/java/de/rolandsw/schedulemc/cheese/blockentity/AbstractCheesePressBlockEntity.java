@@ -204,7 +204,10 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         pressingProgress = tag.getInt("Progress");
-        if (tag.contains("Quality")) quality = CheeseQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Quality")) {
+            try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

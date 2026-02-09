@@ -291,10 +291,12 @@ public class KochstationBlockEntity extends BlockEntity implements IUtilityConsu
             progress[i] = tag.getInt("Progress" + i);
 
             if (tag.contains("Type" + i)) {
-                types[i] = PoppyType.valueOf(tag.getString("Type" + i));
+                try { types[i] = PoppyType.valueOf(tag.getString("Type" + i)); }
+                catch (IllegalArgumentException ignored) {}
             }
             if (tag.contains("Quality" + i)) {
-                qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i));
+                try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
+                catch (IllegalArgumentException ignored) {}
             }
         }
     }

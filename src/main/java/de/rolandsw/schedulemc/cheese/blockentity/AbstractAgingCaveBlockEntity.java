@@ -85,8 +85,14 @@ public abstract class AbstractAgingCaveBlockEntity extends BlockEntity implement
             storedCheese = handlerInput.copy();
             CompoundTag tag = handlerInput.getTag();
             if (tag != null) {
-                if (tag.contains("CheeseType")) cheeseType = CheeseType.valueOf(tag.getString("CheeseType"));
-                if (tag.contains("Quality")) quality = CheeseQuality.valueOf(tag.getString("Quality"));
+                if (tag.contains("CheeseType")) {
+                    try { cheeseType = CheeseType.valueOf(tag.getString("CheeseType")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("Quality")) {
+                    try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
                 if (tag.contains("WeightKg")) weightKg = tag.getDouble("WeightKg");
                 if (tag.contains("AgingTicks")) agingTicks = tag.getInt("AgingTicks");
                 else agingTicks = 0;
@@ -166,8 +172,14 @@ public abstract class AbstractAgingCaveBlockEntity extends BlockEntity implement
         if (itemHandler == null) createItemHandler();
         storedCheese = tag.contains("StoredCheese") ? ItemStack.of(tag.getCompound("StoredCheese")) : ItemStack.EMPTY;
         agingTicks = tag.getInt("AgingTicks");
-        if (tag.contains("CheeseType")) cheeseType = CheeseType.valueOf(tag.getString("CheeseType"));
-        if (tag.contains("Quality")) quality = CheeseQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("CheeseType")) {
+            try { cheeseType = CheeseType.valueOf(tag.getString("CheeseType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         weightKg = tag.getDouble("WeightKg");
         if (!storedCheese.isEmpty()) itemHandler.setStackInSlot(0, storedCheese.copy());
     }

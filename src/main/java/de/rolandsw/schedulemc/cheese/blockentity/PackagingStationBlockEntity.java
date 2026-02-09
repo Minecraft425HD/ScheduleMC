@@ -98,10 +98,18 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
             wheelInput = handlerWheel.copy();
             CompoundTag tag = handlerWheel.getTag();
             if (tag != null) {
-                if (tag.contains("CheeseType")) cheeseType = CheeseType.valueOf(tag.getString("CheeseType"));
-                if (tag.contains("Quality")) quality = CheeseQuality.valueOf(tag.getString("Quality"));
-                if (tag.contains("AgeLevel")) ageLevel = CheeseAgeLevel.valueOf(tag.getString("AgeLevel"));
-                else ageLevel = CheeseAgeLevel.FRESH;
+                if (tag.contains("CheeseType")) {
+                    try { cheeseType = CheeseType.valueOf(tag.getString("CheeseType")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("Quality")) {
+                    try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("AgeLevel")) {
+                    try { ageLevel = CheeseAgeLevel.valueOf(tag.getString("AgeLevel")); }
+                    catch (IllegalArgumentException ignored) {}
+                } else ageLevel = CheeseAgeLevel.FRESH;
                 if (tag.contains("WeightKg")) wheelWeight = tag.getDouble("WeightKg");
             }
             packagingProgress = 0;
@@ -259,11 +267,21 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
         output = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         secondaryOutput = tag.contains("SecondaryOutput") ? ItemStack.of(tag.getCompound("SecondaryOutput")) : ItemStack.EMPTY;
         packagingProgress = tag.getInt("PackagingProgress");
-        if (tag.contains("CheeseType")) cheeseType = CheeseType.valueOf(tag.getString("CheeseType"));
-        if (tag.contains("Quality")) quality = CheeseQuality.valueOf(tag.getString("Quality"));
-        if (tag.contains("AgeLevel")) ageLevel = CheeseAgeLevel.valueOf(tag.getString("AgeLevel"));
+        if (tag.contains("CheeseType")) {
+            try { cheeseType = CheeseType.valueOf(tag.getString("CheeseType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("AgeLevel")) {
+            try { ageLevel = CheeseAgeLevel.valueOf(tag.getString("AgeLevel")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         if (tag.contains("ProcessingMethod")) {
-            processingMethod = CheeseProcessingMethod.valueOf(tag.getString("ProcessingMethod"));
+            try { processingMethod = CheeseProcessingMethod.valueOf(tag.getString("ProcessingMethod")); }
+            catch (IllegalArgumentException ignored) {}
         } else {
             processingMethod = CheeseProcessingMethod.NATURAL;
         }

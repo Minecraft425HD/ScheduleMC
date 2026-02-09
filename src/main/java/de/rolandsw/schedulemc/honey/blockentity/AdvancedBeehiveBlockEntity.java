@@ -194,8 +194,14 @@ public class AdvancedBeehiveBlockEntity extends BlockEntity implements IUtilityC
         if (itemHandler == null) createItemHandler();
         itemHandler.deserializeNBT(tag.getCompound("Inventory"));
         tickCount = tag.getInt("TickCount");
-        if (tag.contains("HoneyType")) honeyType = HoneyType.valueOf(tag.getString("HoneyType"));
-        if (tag.contains("Quality")) quality = HoneyQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("HoneyType")) {
+            try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
     }
 
     @Override

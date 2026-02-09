@@ -301,10 +301,12 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
         dryingProgress = tag.getInt("Progress");
 
         if (tag.contains("CoffeeType")) {
-            coffeeType = CoffeeType.valueOf(tag.getString("CoffeeType"));
+            try { coffeeType = CoffeeType.valueOf(tag.getString("CoffeeType")); }
+            catch (IllegalArgumentException ignored) {}
         }
         if (tag.contains("Quality")) {
-            quality = CoffeeQuality.valueOf(tag.getString("Quality"));
+            try { quality = CoffeeQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
         }
 
         syncToHandler();

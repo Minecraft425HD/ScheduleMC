@@ -301,10 +301,12 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         dryingProgress = tag.getInt("Progress");
 
         if (tag.contains("Type")) {
-            tobaccoType = TobaccoType.valueOf(tag.getString("Type"));
+            try { tobaccoType = TobaccoType.valueOf(tag.getString("Type")); }
+            catch (IllegalArgumentException ignored) {}
         }
         if (tag.contains("Quality")) {
-            quality = TobaccoQuality.valueOf(tag.getString("Quality"));
+            try { quality = TobaccoQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
         }
 
         syncToHandler();

@@ -246,14 +246,18 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         roastingProgress = tag.getInt("Progress");
-        selectedRoastLevel = tag.contains("RoastLevel") ?
-            CoffeeRoastLevel.valueOf(tag.getString("RoastLevel")) : CoffeeRoastLevel.MEDIUM;
+        if (tag.contains("RoastLevel")) {
+            try { selectedRoastLevel = CoffeeRoastLevel.valueOf(tag.getString("RoastLevel")); }
+            catch (IllegalArgumentException ignored) { selectedRoastLevel = CoffeeRoastLevel.MEDIUM; }
+        } else { selectedRoastLevel = CoffeeRoastLevel.MEDIUM; }
 
         if (tag.contains("CoffeeType")) {
-            coffeeType = CoffeeType.valueOf(tag.getString("CoffeeType"));
+            try { coffeeType = CoffeeType.valueOf(tag.getString("CoffeeType")); }
+            catch (IllegalArgumentException ignored) {}
         }
         if (tag.contains("Quality")) {
-            quality = CoffeeQuality.valueOf(tag.getString("Quality"));
+            try { quality = CoffeeQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
         }
 
         syncToHandler();

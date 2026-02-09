@@ -117,10 +117,18 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
             honeyInput = handlerHoney.copy();
             CompoundTag tag = handlerHoney.getTag();
             if (tag != null) {
-                if (tag.contains("HoneyType")) honeyType = HoneyType.valueOf(tag.getString("HoneyType"));
-                if (tag.contains("Quality")) quality = HoneyQuality.valueOf(tag.getString("Quality"));
-                if (tag.contains("AgeLevel")) ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel"));
-                else ageLevel = HoneyAgeLevel.FRESH;
+                if (tag.contains("HoneyType")) {
+                    try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("Quality")) {
+                    try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("AgeLevel")) {
+                    try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }
+                    catch (IllegalArgumentException ignored) {}
+                } else ageLevel = HoneyAgeLevel.FRESH;
             }
 
             // Determine processing method from input item
@@ -290,11 +298,21 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
         lidInput = tag.contains("LidInput") ? ItemStack.of(tag.getCompound("LidInput")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         processingProgress = tag.getInt("Progress");
-        if (tag.contains("HoneyType")) honeyType = HoneyType.valueOf(tag.getString("HoneyType"));
-        if (tag.contains("Quality")) quality = HoneyQuality.valueOf(tag.getString("Quality"));
-        if (tag.contains("AgeLevel")) ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel"));
+        if (tag.contains("HoneyType")) {
+            try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("AgeLevel")) {
+            try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         if (tag.contains("ProcessingMethod")) {
-            processingMethod = HoneyProcessingMethod.valueOf(tag.getString("ProcessingMethod"));
+            try { processingMethod = HoneyProcessingMethod.valueOf(tag.getString("ProcessingMethod")); }
+            catch (IllegalArgumentException ignored) {}
         } else {
             processingMethod = HoneyProcessingMethod.LIQUID;
         }

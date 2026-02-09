@@ -120,7 +120,8 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
             CompoundTag tag = handlerChocolate.getTag();
             if (tag != null) {
                 if (tag.contains("Quality")) {
-                    quality = ChocolateQuality.valueOf(tag.getString("Quality"));
+                    try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
+                    catch (IllegalArgumentException ignored) {}
                 } else {
                     quality = ChocolateQuality.BASIC;
                 }
@@ -287,7 +288,10 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
         moldInput = tag.contains("MoldInput") ? ItemStack.of(tag.getCompound("MoldInput")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         moldingProgress = tag.getInt("Progress");
-        if (tag.contains("Quality")) quality = ChocolateQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Quality")) {
+            try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         hasMilk = tag.getBoolean("HasMilk");
         hasVanilla = tag.getBoolean("HasVanilla");
         syncToHandler();

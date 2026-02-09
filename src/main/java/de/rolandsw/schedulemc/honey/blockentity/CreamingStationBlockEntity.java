@@ -97,10 +97,18 @@ public class CreamingStationBlockEntity extends BlockEntity implements IUtilityC
             inputStack = handlerInput.copy();
             CompoundTag tag = handlerInput.getTag();
             if (tag != null) {
-                if (tag.contains("HoneyType")) honeyType = HoneyType.valueOf(tag.getString("HoneyType"));
-                if (tag.contains("Quality")) quality = HoneyQuality.valueOf(tag.getString("Quality"));
-                if (tag.contains("AgeLevel")) ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel"));
-                else ageLevel = HoneyAgeLevel.FRESH;
+                if (tag.contains("HoneyType")) {
+                    try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("Quality")) {
+                    try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
+                    catch (IllegalArgumentException ignored) {}
+                }
+                if (tag.contains("AgeLevel")) {
+                    try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }
+                    catch (IllegalArgumentException ignored) {}
+                } else ageLevel = HoneyAgeLevel.FRESH;
             }
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -215,9 +223,18 @@ public class CreamingStationBlockEntity extends BlockEntity implements IUtilityC
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         processingProgress = tag.getInt("Progress");
-        if (tag.contains("HoneyType")) honeyType = HoneyType.valueOf(tag.getString("HoneyType"));
-        if (tag.contains("Quality")) quality = HoneyQuality.valueOf(tag.getString("Quality"));
-        if (tag.contains("AgeLevel")) ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel"));
+        if (tag.contains("HoneyType")) {
+            try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("Quality")) {
+            try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("AgeLevel")) {
+            try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

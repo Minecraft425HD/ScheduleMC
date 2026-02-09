@@ -96,7 +96,8 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
             // Extract quality from NBT
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
-                quality = ChocolateQuality.valueOf(tag.getString("Quality"));
+                try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
+                catch (IllegalArgumentException ignored) {}
             } else {
                 quality = ChocolateQuality.BASIC;
             }
@@ -209,7 +210,10 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         byproductStack = tag.contains("Byproduct") ? ItemStack.of(tag.getCompound("Byproduct")) : ItemStack.EMPTY;
         winnowingProgress = tag.getInt("Progress");
-        if (tag.contains("Quality")) quality = ChocolateQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Quality")) {
+            try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

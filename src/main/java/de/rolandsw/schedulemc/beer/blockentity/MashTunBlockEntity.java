@@ -102,7 +102,8 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
             // Extract quality from NBT
             CompoundTag tag = handlerGrain.getTag();
             if (tag != null && tag.contains("Quality")) {
-                quality = BeerQuality.valueOf(tag.getString("Quality"));
+                try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
+                catch (IllegalArgumentException ignored) {}
             } else {
                 quality = BeerQuality.BASIC;
             }
@@ -236,7 +237,10 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
         waterBucketStack = tag.contains("WaterBucket") ? ItemStack.of(tag.getCompound("WaterBucket")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         mashingProgress = tag.getInt("Progress");
-        if (tag.contains("Quality")) quality = BeerQuality.valueOf(tag.getString("Quality"));
+        if (tag.contains("Quality")) {
+            try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
         syncToHandler();
     }
 

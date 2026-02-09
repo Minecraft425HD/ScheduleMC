@@ -308,8 +308,10 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
         packageInput = tag.contains("PackageInput") ? ItemStack.of(tag.getCompound("PackageInput")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         packagingProgress = tag.getInt("Progress");
-        selectedSize = tag.contains("PackageSize") ?
-            PackageSize.valueOf(tag.getString("PackageSize")) : PackageSize.MEDIUM;
+        if (tag.contains("PackageSize")) {
+            try { selectedSize = PackageSize.valueOf(tag.getString("PackageSize")); }
+            catch (IllegalArgumentException ignored) { selectedSize = PackageSize.MEDIUM; }
+        } else { selectedSize = PackageSize.MEDIUM; }
 
         syncToHandler();
     }
