@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -215,9 +217,14 @@ public class NPCNameRegistry {
         try {
             REGISTRY_FILE.getParentFile().mkdirs();
 
-            try (FileWriter writer = new FileWriter(REGISTRY_FILE)) {
+            // Atomic write: temp file + move
+            File tempFile = new File(REGISTRY_FILE.getParent(), REGISTRY_FILE.getName() + ".tmp");
+            try (FileWriter writer = new FileWriter(tempFile)) {
                 GSON.toJson(nameToEntityId, writer);
+                writer.flush();
             }
+            Files.move(tempFile.toPath(), REGISTRY_FILE.toPath(),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 
             dirty = false;
             LOGGER.info("NPC-Namen gespeichert: {} NPCs", nameToEntityId.size());

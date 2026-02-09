@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -26,8 +28,9 @@ public class TransferLimitTracker {
     private static volatile TransferLimitTracker instance;
 
     private final Map<UUID, DailyTransferData> dailyTransfers = new ConcurrentHashMap<>();
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File saveFile;
+    private volatile boolean dirty = false;
 
     private long currentDay = 0;
 
@@ -77,7 +80,7 @@ public class TransferLimitTracker {
         }
 
         data.totalTransferred = newTotal;
-        save();
+        dirty = true;
         return true;
     }
 
@@ -131,7 +134,7 @@ public class TransferLimitTracker {
 
         try (FileReader reader = new FileReader(saveFile)) {
             Type type = new TypeToken<Map<UUID, DailyTransferData>>(){}.getType();
-            Map<UUID, DailyTransferData> loaded = gson.fromJson(reader, type);
+            Map<UUID, DailyTransferData> loaded = GSON.fromJson(reader, type);
 
             if (loaded != null) {
                 dailyTransfers.putAll(loaded);
@@ -142,13 +145,24 @@ public class TransferLimitTracker {
         }
     }
 
+    public void saveIfDirty() {
+        if (!dirty) return;
+        save();
+    }
+
     private void save() {
         try {
             saveFile.getParentFile().mkdirs();
 
-            try (FileWriter writer = new FileWriter(saveFile)) {
-                gson.toJson(dailyTransfers, writer);
+            // Atomic write: temp file + move
+            File tempFile = new File(saveFile.getParent(), saveFile.getName() + ".tmp");
+            try (FileWriter writer = new FileWriter(tempFile)) {
+                GSON.toJson(dailyTransfers, writer);
+                writer.flush();
             }
+            Files.move(tempFile.toPath(), saveFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            dirty = false;
         } catch (Exception e) {
             LOGGER.error("Failed to save transfer limits", e);
         }

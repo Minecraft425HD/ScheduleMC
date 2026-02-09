@@ -114,7 +114,7 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
      * @param amount     Menge
      * @param revenue    Einnahmen
      */
-    public void onSale(UUID playerUUID, ItemCategory category, int amount, double revenue) {
+    public synchronized void onSale(UUID playerUUID, ItemCategory category, int amount, double revenue) {
         categorySalesVolume.merge(category, (long) amount, Long::sum);
         categoryRevenue.merge(category, revenue, Double::sum);
         dailyPlayerEarnings.merge(playerUUID, revenue, Double::sum);
@@ -122,8 +122,8 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
         totalTransactionVolume += revenue;
         needsSave = true;
 
-        LOGGER.debug("Sale tracked: player={}, cat={}, amt={}, rev={:.2f}",
-                playerUUID, category.name(), amount, revenue);
+        LOGGER.debug("Sale tracked: player={}, cat={}, amt={}, rev={}",
+                playerUUID, category.name(), amount, String.format("%.2f", revenue));
     }
 
     /**
@@ -133,7 +133,7 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
      * @param amount   Menge
      * @param cost     Kosten
      */
-    public void onPurchase(ItemCategory category, int amount, double cost) {
+    public synchronized void onPurchase(ItemCategory category, int amount, double cost) {
         categoryPurchaseVolume.merge(category, (long) amount, Long::sum);
         dailyTransactionVolume += cost;
         totalTransactionVolume += cost;
@@ -161,8 +161,8 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
         }
 
         needsSave = true;
-        LOGGER.debug("Money supply updated: {:.2f}€ ({} players), inflation: {:.4f}",
-                totalMoneySupply, activePlayerCount, inflationRate);
+        LOGGER.debug("Money supply updated: {}€ ({} players), inflation: {}",
+                String.format("%.2f", totalMoneySupply), activePlayerCount, String.format("%.4f", inflationRate));
     }
 
     /**
@@ -302,7 +302,7 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
                 });
             }
 
-            LOGGER.info("GlobalEconomyTracker loaded: money={:.2f}, inflation={:.4f}", totalMoneySupply, inflationRate);
+            LOGGER.info("GlobalEconomyTracker loaded: money={}, inflation={}", String.format("%.2f", totalMoneySupply), String.format("%.4f", inflationRate));
         }
     }
 

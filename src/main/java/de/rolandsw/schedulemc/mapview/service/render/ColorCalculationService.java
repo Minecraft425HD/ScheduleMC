@@ -75,6 +75,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ColorCalculationService {
+    private static final Pattern BLOCK_PROPERTIES_PATTERN = Pattern.compile(".*/block_(.+).properties");
     private boolean resourcePacksChanged;
     private ClientLevel world;
     private BufferedImage terrainBuff;
@@ -797,8 +798,7 @@ public class ColorCalculationService {
             String[] biomesArray = biomes.split(" ");
             if (blockStates.isEmpty()) {
                 Block block;
-                Pattern pattern = Pattern.compile(".*/block_(.+).properties");
-                Matcher matcher = pattern.matcher(filePath);
+                Matcher matcher = BLOCK_PROPERTIES_PATTERN.matcher(filePath);
                 if (matcher.find()) {
                     block = this.getBlockFromName(matcher.group(1));
                     if (block != null) {

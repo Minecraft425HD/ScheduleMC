@@ -27,6 +27,7 @@ public class RedemptionQuestManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static volatile RedemptionQuestManager instance;
+    private static final RedemptionQuestType[] QUEST_TYPES = RedemptionQuestType.values();
 
     // Aktive Vergebungs-Quests pro Spieler
     private final Map<UUID, RedemptionQuest> activeQuests = new ConcurrentHashMap<>();
@@ -136,8 +137,7 @@ public class RedemptionQuestManager {
         if (!canAcceptQuest(uuid, faction)) return null;
 
         // Zufaelligen Quest-Typ waehlen
-        RedemptionQuestType[] types = RedemptionQuestType.values();
-        RedemptionQuestType type = types[new Random().nextInt(types.length)];
+        RedemptionQuestType type = QUEST_TYPES[java.util.concurrent.ThreadLocalRandom.current().nextInt(QUEST_TYPES.length)];
 
         RedemptionQuest quest = new RedemptionQuest(uuid, faction, type);
         activeQuests.put(uuid, quest);

@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -28,8 +30,9 @@ public class StockMarketData {
     private static volatile StockMarketData instance;
 
     private final Map<Item, StockPrice> prices = new ConcurrentHashMap<>();
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File saveFile;
+    private volatile boolean dirty = false;
 
     private long currentDay = 0;
     private long lastPriceUpdate = 0;
@@ -157,7 +160,7 @@ public class StockMarketData {
             currentDay = day;
             lastPriceUpdate = day;
             updatePrices();
-            save();
+            dirty = true;
         }
     }
 
@@ -222,7 +225,7 @@ public class StockMarketData {
 
         try (FileReader reader = new FileReader(saveFile)) {
             Type type = new TypeToken<SaveData>(){}.getType();
-            SaveData data = gson.fromJson(reader, type);
+            SaveData data = GSON.fromJson(reader, type);
 
             if (data != null) {
                 // Lade Preise aus SaveData
@@ -258,6 +261,11 @@ public class StockMarketData {
         }
     }
 
+    public void saveIfDirty() {
+        if (!dirty) return;
+        save();
+    }
+
     private void save() {
         try {
             saveFile.getParentFile().mkdirs();
@@ -268,9 +276,15 @@ public class StockMarketData {
             data.emeraldPrice = prices.get(Items.EMERALD);
             data.lastUpdateDay = currentDay;
 
-            try (FileWriter writer = new FileWriter(saveFile)) {
-                gson.toJson(data, writer);
+            // Atomic write: temp file + move
+            File tempFile = new File(saveFile.getParent(), saveFile.getName() + ".tmp");
+            try (FileWriter writer = new FileWriter(tempFile)) {
+                GSON.toJson(data, writer);
+                writer.flush();
             }
+            Files.move(tempFile.toPath(), saveFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            dirty = false;
         } catch (Exception e) {
             LOGGER.error("Failed to save stock market data", e);
         }

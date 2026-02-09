@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Dietrich-Set: Versucht gesperrte Tueren zu knacken.
@@ -29,7 +29,6 @@ import java.util.Random;
 public class LockPickItem extends Item {
 
     private static final int MAX_DURABILITY = 15;
-    private static final Random RANDOM = new Random();
 
     public LockPickItem() {
         super(new Properties().stacksTo(1).durability(MAX_DURABILITY));
@@ -75,7 +74,7 @@ public class LockPickItem extends Item {
 
         // Erfolg pruefen
         float chance = type.getPickChance();
-        boolean success = RANDOM.nextFloat() < chance;
+        boolean success = ThreadLocalRandom.current().nextFloat() < chance;
 
         if (success) {
             // Tuer oeffnen

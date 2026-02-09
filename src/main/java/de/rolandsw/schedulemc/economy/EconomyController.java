@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EconomyController {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final ItemCategory[] ITEM_CATEGORIES = ItemCategory.values();
 
     // Singleton
     private static volatile EconomyController instance;
@@ -489,7 +490,7 @@ public class EconomyController {
             categories.addAll(java.util.List.of(ItemCategory.CANNABIS, ItemCategory.MDMA, ItemCategory.LSD, ItemCategory.COCAINE));
         }
         if (name.contains("konkurrenz") || name.contains("grenz")) {
-            for (ItemCategory cat : ItemCategory.values()) {
+            for (ItemCategory cat : ITEM_CATEGORIES) {
                 if (cat.isIllegal()) categories.add(cat);
             }
         }
