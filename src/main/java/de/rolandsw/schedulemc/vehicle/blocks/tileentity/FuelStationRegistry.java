@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,12 +69,19 @@ public class FuelStationRegistry {
      * Speichert Registry auf Disk
      */
     public static void save() {
-        try (FileWriter writer = new FileWriter(REGISTRY_FILE)) {
+        try {
+            REGISTRY_FILE.getParentFile().mkdirs();
             Map<String, String> toSave = new HashMap<>();
             for (Map.Entry<UUID, BlockPos> entry : fuelStations.entrySet()) {
                 toSave.put(entry.getKey().toString(), posToString(entry.getValue()));
             }
-            GSON.toJson(toSave, writer);
+            File tempFile = new File(REGISTRY_FILE.getParent(), REGISTRY_FILE.getName() + ".tmp");
+            try (FileWriter writer = new FileWriter(tempFile)) {
+                GSON.toJson(toSave, writer);
+                writer.flush();
+            }
+            Files.move(tempFile.toPath(), REGISTRY_FILE.toPath(),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             isDirty = false;
             LOGGER.info("Fuel Station Registry gespeichert");
         } catch (Exception e) {

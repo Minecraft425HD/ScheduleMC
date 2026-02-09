@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -59,13 +61,19 @@ public class VehicleSpawnRegistry {
      * Speichert Spawn-Punkte auf Disk
      */
     public static void save() {
-        SPAWN_FILE.getParentFile().mkdirs(); // Erstelle config-Ordner falls nicht vorhanden
-        try (FileWriter writer = new FileWriter(SPAWN_FILE)) {
+        SPAWN_FILE.getParentFile().mkdirs();
+        try {
             Map<String, List<VehicleSpawnPoint>> toSave = new HashMap<>();
             for (Map.Entry<UUID, List<VehicleSpawnPoint>> entry : dealerSpawnPoints.entrySet()) {
                 toSave.put(entry.getKey().toString(), entry.getValue());
             }
-            GSON.toJson(toSave, writer);
+            File tempFile = new File(SPAWN_FILE.getParent(), SPAWN_FILE.getName() + ".tmp");
+            try (FileWriter writer = new FileWriter(tempFile)) {
+                GSON.toJson(toSave, writer);
+                writer.flush();
+            }
+            Files.move(tempFile.toPath(), SPAWN_FILE.toPath(),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             isDirty = false;
             LOGGER.info("Fahrzeug-Spawn-Punkte gespeichert");
         } catch (Exception e) {

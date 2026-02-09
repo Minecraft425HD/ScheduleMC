@@ -280,10 +280,14 @@ public class HotReloadableConfig<T> {
     private void saveToFile(T config) {
         try {
             configFile.getParentFile().mkdirs();
-            try (FileWriter writer = new FileWriter(configFile)) {
+            // Atomic write: temp file + move
+            File tempFile = new File(configFile.getAbsolutePath() + ".tmp");
+            try (FileWriter writer = new FileWriter(tempFile)) {
                 GSON.toJson(config, writer);
                 writer.flush();
             }
+            Files.move(tempFile.toPath(), configFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             lastModified = configFile.lastModified();
             LOGGER.debug("Config gespeichert: {}", configFile.getName());
         } catch (IOException e) {

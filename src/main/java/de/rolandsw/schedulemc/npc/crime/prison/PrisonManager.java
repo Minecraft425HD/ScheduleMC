@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -507,9 +509,14 @@ public class PrisonManager {
                 saveData.put(entry.getKey().toString(), entry.getValue());
             }
 
-            try (Writer writer = new FileWriter(file)) {
+            // Atomic write: temp file + move
+            File tempFile = new File(file.getAbsolutePath() + ".tmp");
+            try (Writer writer = new FileWriter(tempFile)) {
                 GSON.toJson(saveData, writer);
+                ((FileWriter) writer).flush();
             }
+            Files.move(tempFile.toPath(), file.toPath(),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
             LOGGER.error("Error saving prisoner data", e);
         }
