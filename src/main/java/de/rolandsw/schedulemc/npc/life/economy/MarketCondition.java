@@ -109,14 +109,14 @@ public enum MarketCondition {
      * Berechnet den angepassten Preis
      */
     public int applyToPrice(int basePrice) {
-        return Math.max(1, (int) (basePrice * priceMultiplier));
+        return Math.max(1, Math.round(basePrice * priceMultiplier));
     }
 
     /**
      * Berechnet den angepassten Preis mit zusätzlichem Modifikator
      */
     public int applyToPrice(int basePrice, float additionalModifier) {
-        return Math.max(1, (int) (basePrice * priceMultiplier * additionalModifier));
+        return Math.max(1, Math.round(basePrice * priceMultiplier * additionalModifier));
     }
 
     /**
