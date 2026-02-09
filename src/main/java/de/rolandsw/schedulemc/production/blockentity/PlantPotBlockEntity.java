@@ -81,6 +81,7 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
                     // Wachstumsgeschwindigkeit basierend auf Licht
                     double lightSpeedMultiplier = getLightSpeedMultiplier();
+                    if (lightSpeedMultiplier <= 0) lightSpeedMultiplier = 0.1;
                     int ticksNeeded = (int) Math.max(1, 4 / lightSpeedMultiplier);
 
                     // Hole aktuelles Stadium

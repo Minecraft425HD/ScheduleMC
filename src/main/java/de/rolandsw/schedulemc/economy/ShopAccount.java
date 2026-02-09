@@ -75,7 +75,7 @@ public class ShopAccount {
 
         // Berechne und ziehe MwSt ab
         double salesTaxRate = ModConfigHandler.COMMON.TAX_SALES_RATE.get();
-        int salesTax = (int) (amount * salesTaxRate);
+        int salesTax = (int) Math.round(amount * salesTaxRate);
         int netRevenue = amount - salesTax;
 
         // Registriere Netto-Umsatz im Tracking

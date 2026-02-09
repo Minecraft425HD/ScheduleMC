@@ -423,6 +423,14 @@ public class PoliceSearchBehavior {
             if (dirStr != null) {
                 // Suche in Bewegungsrichtung des Spielers
                 String[] parts = dirStr.split(",");
+                if (parts.length < 3) {
+                    // Ungültiges Format - verwende zufällige Position statt Crash
+                    int randomX = lastPos.getX() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
+                    int randomZ = lastPos.getZ() + (police.getRandom().nextInt(searchRadius * 2) - searchRadius);
+                    searchTarget = new BlockPos(randomX, lastPos.getY(), randomZ);
+                    police.getNavigation().moveTo(searchTarget.getX(), searchTarget.getY(), searchTarget.getZ(), 0.7);
+                    return;
+                }
                 double dirX = Double.parseDouble(parts[0]);
                 double dirZ = Double.parseDouble(parts[2]);
 
