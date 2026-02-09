@@ -203,7 +203,7 @@ public class SyncFullBankDataPacket {
         double maxTransferLimit = buf.readDouble();
 
         // Transactions
-        int txCount = buf.readInt();
+        int txCount = Math.min(buf.readInt(), 500);
         List<TransactionData> transactions = new ArrayList<>(txCount);
         for (int i = 0; i < txCount; i++) {
             String transactionId = buf.readUtf(256);
@@ -219,7 +219,7 @@ public class SyncFullBankDataPacket {
         }
 
         // Recurring Payments
-        int rpCount = buf.readInt();
+        int rpCount = Math.min(buf.readInt(), 100);
         List<RecurringPaymentData> recurringPayments = new ArrayList<>(rpCount);
         for (int i = 0; i < rpCount; i++) {
             String paymentId = buf.readUtf(64);

@@ -79,7 +79,7 @@ public class SyncProducerLevelDataPacket {
         int totalUnlocked = buf.readInt();
         int totalUnlockables = buf.readInt();
 
-        int size = buf.readInt();
+        int size = Math.min(buf.readInt(), 200);
         List<UnlockableData> unlockables = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             unlockables.add(UnlockableData.decode(buf));
