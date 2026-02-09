@@ -34,7 +34,7 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
 
     private final File dataFile;
     private final Gson gson;
-    private boolean needsSave = false;
+    private volatile boolean needsSave = false;
     private boolean isHealthy = true;
     private String lastError = null;
 

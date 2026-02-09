@@ -150,12 +150,17 @@ public class MarketData {
      * - Ausgeglichen (1:1): ratio=1, multiplier=1.0x
      * - Hohe Supply, niedrige Demand (1:10): ratio=0.1, multiplier=0.5x
      */
-    private void updatePrice() {
-        // Speichere vorherigen Preis für Trend
+    /**
+     * Speichert aktuellen State als "previous" für Trend-Analyse.
+     * Wird nur bei periodischen Market-Updates aufgerufen (nicht bei jeder Transaktion).
+     */
+    public void snapshotForTrend() {
         previousPrice = currentPrice;
         previousSupply = supply;
         previousDemand = demand;
+    }
 
+    private void updatePrice() {
         // Berechne S&D Ratio
         double ratio = (double) demand / Math.max(1, supply);
 
@@ -168,8 +173,9 @@ public class MarketData {
         // Berechne finalen Preis
         currentPrice = basePrice * multiplier;
 
-        LOGGER.debug("Price updated for {}: S/D={}/{} (ratio={:.2f}), price={:.2f} (×{:.2f})",
-            getItemName(), supply, demand, ratio, currentPrice, multiplier);
+        LOGGER.debug("Price updated for {}: S/D={}/{} (ratio={}), price={} (x{})",
+            getItemName(), supply, demand,
+            String.format("%.2f", ratio), String.format("%.2f", currentPrice), String.format("%.2f", multiplier));
     }
 
     // ═══════════════════════════════════════════════════════════

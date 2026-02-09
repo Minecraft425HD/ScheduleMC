@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class VersionChecker {
     private static final String GITHUB_API_URL = "https://api.github.com/repos/Minecraft425HD/ScheduleMC/releases/latest";
-    private static String CURRENT_VERSION = null;
+    private static volatile String CURRENT_VERSION = null;
 
     private static volatile String latestVersion = null;
     private static volatile String downloadUrl = null;

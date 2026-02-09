@@ -8,11 +8,13 @@ import javax.annotation.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Repraesentiert eine Gang mit Mitgliedern, Level, Perks und Territorien.
  *
  * Thread-Safety: Alle Collections sind thread-safe.
+ * SICHERHEIT: gangXP und gangBalance verwenden AtomicInteger fuer atomare compound ops.
  */
 public class Gang {
 
@@ -22,8 +24,8 @@ public class Gang {
     private volatile String name;
     private volatile String tag; // 3-4 Buchstaben
     private volatile int gangLevel;
-    private volatile int gangXP;
-    private volatile int gangBalance;
+    private final AtomicInteger gangXP;
+    private final AtomicInteger gangBalance;
     private volatile ChatFormatting color;
     private volatile long foundedTimestamp;
     private volatile int weeklyFee; // Wochenbeitrag (0 = kein Beitrag, max 10000)
@@ -43,8 +45,8 @@ public class Gang {
         this.name = name;
         this.tag = tag.toUpperCase();
         this.gangLevel = 1;
-        this.gangXP = 0;
-        this.gangBalance = 0;
+        this.gangXP = new AtomicInteger(0);
+        this.gangBalance = new AtomicInteger(0);
         this.color = color;
         this.foundedTimestamp = System.currentTimeMillis();
         this.weeklyFee = 0;
@@ -67,8 +69,8 @@ public class Gang {
         this.name = name;
         this.tag = tag;
         this.gangLevel = gangLevel;
-        this.gangXP = gangXP;
-        this.gangBalance = gangBalance;
+        this.gangXP = new AtomicInteger(gangXP);
+        this.gangBalance = new AtomicInteger(gangBalance);
         this.color = color;
         this.foundedTimestamp = foundedTimestamp;
         this.weeklyFee = Math.max(0, Math.min(10000, weeklyFee));
@@ -86,7 +88,7 @@ public class Gang {
         if (xp <= 0) return false;
         if (gangLevel >= GangLevelRequirements.MAX_LEVEL) return false;
 
-        gangXP += xp;
+        int newXP = gangXP.addAndGet(xp);
 
         // Contributor-XP tracken
         GangMemberData member = members.get(contributorUUID);
@@ -94,7 +96,7 @@ public class Gang {
             member.addContributedXP(xp);
         }
 
-        int newLevel = GangLevelRequirements.getLevelForXP(gangXP);
+        int newLevel = GangLevelRequirements.getLevelForXP(newXP);
         if (newLevel > gangLevel) {
             int oldLevel = gangLevel;
             gangLevel = newLevel;
@@ -263,18 +265,22 @@ public class Gang {
     // FINANZEN
     // ═══════════════════════════════════════════════════════════
 
-    public int getGangBalance() { return gangBalance; }
+    public int getGangBalance() { return gangBalance.get(); }
 
     public boolean deposit(int amount) {
         if (amount <= 0) return false;
-        gangBalance += amount;
+        gangBalance.addAndGet(amount);
         return true;
     }
 
     public boolean withdraw(int amount) {
-        if (amount <= 0 || amount > gangBalance) return false;
-        gangBalance -= amount;
-        return true;
+        if (amount <= 0) return false;
+        // Atomarer Check-and-Subtract
+        while (true) {
+            int current = gangBalance.get();
+            if (amount > current) return false;
+            if (gangBalance.compareAndSet(current, current - amount)) return true;
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -285,7 +291,7 @@ public class Gang {
     public String getName() { return name; }
     public String getTag() { return tag; }
     public int getGangLevel() { return gangLevel; }
-    public int getGangXP() { return gangXP; }
+    public int getGangXP() { return gangXP.get(); }
     public ChatFormatting getColor() { return color; }
     public long getFoundedTimestamp() { return foundedTimestamp; }
 
@@ -320,11 +326,11 @@ public class Gang {
      * Gang-Fortschritt zum naechsten Level.
      */
     public double getProgress() {
-        return GangLevelRequirements.getProgress(gangLevel, gangXP);
+        return GangLevelRequirements.getProgress(gangLevel, gangXP.get());
     }
 
     public int getXPToNextLevel() {
-        return GangLevelRequirements.getXPToNextLevel(gangLevel, gangXP);
+        return GangLevelRequirements.getXPToNextLevel(gangLevel, gangXP.get());
     }
 
     /**
@@ -333,7 +339,7 @@ public class Gang {
      */
     public void setLevelDirect(int level) {
         this.gangLevel = Math.max(1, Math.min(GangLevelRequirements.MAX_LEVEL, level));
-        this.gangXP = GangLevelRequirements.getRequiredXP(this.gangLevel);
+        this.gangXP.set(GangLevelRequirements.getRequiredXP(this.gangLevel));
     }
 
     /**
@@ -343,8 +349,8 @@ public class Gang {
     public boolean addXPDirect(int xp) {
         if (xp <= 0) return false;
         if (gangLevel >= GangLevelRequirements.MAX_LEVEL) return false;
-        gangXP += xp;
-        int newLevel = GangLevelRequirements.getLevelForXP(gangXP);
+        int newXP = gangXP.addAndGet(xp);
+        int newLevel = GangLevelRequirements.getLevelForXP(newXP);
         if (newLevel > gangLevel) {
             int oldLevel = gangLevel;
             gangLevel = newLevel;

@@ -69,7 +69,7 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
         long key = Territory.getChunkKey(chunkX, chunkZ);
         Territory territory = new Territory(chunkX, chunkZ, type, name, ownerUUID);
         territories.put(key, territory);
-        save();
+        markDirty();
 
         // Performance-Optimierung: Delta-Update an alle Clients senden
         if (server != null) {
@@ -87,7 +87,7 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
         long key = Territory.getChunkKey(chunkX, chunkZ);
         boolean removed = territories.remove(key) != null;
         if (removed) {
-            save();
+            markDirty();
 
             // Performance-Optimierung: Delta-Update an alle Clients senden
             if (server != null) {
@@ -172,7 +172,7 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
             }
         }
         if (removed > 0) {
-            save();
+            markDirty();
         }
         return removed;
     }

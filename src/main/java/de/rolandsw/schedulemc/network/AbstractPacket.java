@@ -165,7 +165,7 @@ public abstract class AbstractPacket {
      * Liest eine UUID-Liste aus dem Buffer
      */
     protected static java.util.List<java.util.UUID> readUUIDList(FriendlyByteBuf buf) {
-        int size = buf.readInt();
+        int size = Math.min(buf.readInt(), 1000); // Max 1000 Einträge gegen DoS
         java.util.List<java.util.UUID> list = new java.util.ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             list.add(readUUID(buf));
