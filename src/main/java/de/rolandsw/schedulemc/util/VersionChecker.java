@@ -44,23 +44,25 @@ public class VersionChecker {
                 connection.setConnectTimeout(5000);
                 connection.setReadTimeout(5000);
 
-                int responseCode = connection.getResponseCode();
-                if (responseCode == 200) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder response = new StringBuilder();
-                    String line;
+                try {
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode == 200) {
+                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                            StringBuilder response = new StringBuilder();
+                            String line;
 
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
+                            while ((line = reader.readLine()) != null) {
+                                response.append(line);
+                            }
+
+                            parseResponse(response.toString());
+                        }
+                    } else {
+                        ScheduleMC.LOGGER.warn("Version check failed with response code: " + responseCode);
                     }
-                    reader.close();
-
-                    parseResponse(response.toString());
-                } else {
-                    ScheduleMC.LOGGER.warn("Version check failed with response code: " + responseCode);
+                } finally {
+                    connection.disconnect();
                 }
-
-                connection.disconnect();
             } catch (Exception e) {
                 ScheduleMC.LOGGER.error("Error checking for updates", e);
             } finally {
