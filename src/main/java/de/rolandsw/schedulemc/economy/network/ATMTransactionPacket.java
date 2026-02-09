@@ -51,6 +51,12 @@ public class ATMTransactionPacket {
      */
     public static void handle(ATMTransactionPacket msg, Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
+            // Validierung: Betrag muss positiv, endlich und im gueltigen Bereich sein
+            if (msg.amount <= 0 || Double.isInfinite(msg.amount) || Double.isNaN(msg.amount) || msg.amount > 1_000_000_000) return;
+
+            // Entfernungs-Check (max 6 Bloecke zum ATM)
+            if (player.distanceToSqr(msg.pos.getX() + 0.5, msg.pos.getY() + 0.5, msg.pos.getZ() + 0.5) > 36.0) return;
+
             BlockEntity be = player.level().getBlockEntity(msg.pos);
             if (!(be instanceof ATMBlockEntity atmBE)) return;
 

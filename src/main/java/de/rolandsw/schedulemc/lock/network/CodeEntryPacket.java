@@ -38,10 +38,10 @@ public class CodeEntryPacket {
     }
 
     public CodeEntryPacket(FriendlyByteBuf buf) {
-        this.lockId = buf.readUtf();
+        this.lockId = buf.readUtf(256);
         this.doorPos = buf.readBlockPos();
-        this.dimension = buf.readUtf();
-        this.enteredCode = buf.readUtf();
+        this.dimension = buf.readUtf(128);
+        this.enteredCode = buf.readUtf(10);
     }
 
     public void encode(FriendlyByteBuf buf) {

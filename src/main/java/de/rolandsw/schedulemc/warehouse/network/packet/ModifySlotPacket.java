@@ -48,6 +48,9 @@ public class ModifySlotPacket {
             WarehouseSlot[] slots = warehouse.getSlots();
             if (msg.slotIndex < 0 || msg.slotIndex >= slots.length) return;
 
+            // Schutz gegen Integer-Overflow (Integer.MIN_VALUE negiert = Integer.MIN_VALUE)
+            if (msg.amount == Integer.MIN_VALUE || msg.amount > 1000000 || msg.amount < -1000000) return;
+
             WarehouseSlot slot = slots[msg.slotIndex];
             if (slot.isEmpty() || slot.getAllowedItem() == null) {
                 player.sendSystemMessage(Component.translatable("message.warehouse.slot_empty"));
