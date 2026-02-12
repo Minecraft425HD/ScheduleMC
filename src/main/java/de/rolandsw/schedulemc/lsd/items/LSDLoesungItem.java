@@ -38,10 +38,10 @@ public class LSDLoesungItem extends Item {
             try {
                 return LSDDosage.valueOf(tag.getString("Dosage"));
             } catch (IllegalArgumentException e) {
-                return LSDDosage.STANDARD;
+                return LSDDosage.GUT;
             }
         }
-        return LSDDosage.STANDARD;
+        return LSDDosage.GUT;
     }
 
     public static int getMicrograms(ItemStack stack) {
