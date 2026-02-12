@@ -98,7 +98,7 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = ChocolateQuality.BASIC;
+                quality = ChocolateQuality.GUT;
             }
             pressingProgress = 0;
         } else if (handlerInput.isEmpty()) {

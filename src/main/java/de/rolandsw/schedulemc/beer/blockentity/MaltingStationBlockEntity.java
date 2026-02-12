@@ -97,7 +97,7 @@ public class MaltingStationBlockEntity extends BlockEntity implements IUtilityCo
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = BeerQuality.BASIC;
+                quality = BeerQuality.SCHLECHT;
             }
 
             maltingProgress = 0;

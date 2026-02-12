@@ -138,7 +138,7 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
 
                 ItemStack cheeseWheel = CheeseWheelItem.create(
                     CheeseType.GOUDA, // Default type, can be specialized later
-                    quality != null ? quality : CheeseQuality.STANDARD,
+                    quality != null ? quality : CheeseQuality.SCHLECHT,
                     CheeseAgeLevel.FRESH,
                     weightKg,
                     1

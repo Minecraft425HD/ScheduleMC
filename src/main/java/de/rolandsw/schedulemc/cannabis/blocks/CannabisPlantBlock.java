@@ -136,11 +136,11 @@ public class CannabisPlantBlock extends Block {
             if (age >= 7) {
                 // Voll ausgewachsen - voller Ertrag
                 int yield = strain.getBaseYield();
-                drops.add(FreshBudItem.create(strain, CannabisQuality.DANK, yield));
+                drops.add(FreshBudItem.create(strain, CannabisQuality.SEHR_GUT, yield));
             } else if (age >= 4) {
                 // Teilweise gewachsen - reduzierter Ertrag
                 int yield = (int) (strain.getBaseYield() * 0.5);
-                drops.add(FreshBudItem.create(strain, CannabisQuality.MIDS, yield));
+                drops.add(FreshBudItem.create(strain, CannabisQuality.GUT, yield));
             }
             // Stufe 0-3: kein Drop
         }

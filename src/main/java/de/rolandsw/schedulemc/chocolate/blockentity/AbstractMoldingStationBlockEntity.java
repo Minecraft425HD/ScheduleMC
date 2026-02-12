@@ -123,12 +123,12 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
                     try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
                     catch (IllegalArgumentException ignored) {}
                 } else {
-                    quality = ChocolateQuality.BASIC;
+                    quality = ChocolateQuality.GUT;
                 }
                 hasMilk = tag.getBoolean("HasMilk");
                 hasVanilla = tag.getBoolean("HasVanilla");
             } else {
-                quality = ChocolateQuality.BASIC;
+                quality = ChocolateQuality.GUT;
                 hasMilk = false;
                 hasVanilla = false;
             }

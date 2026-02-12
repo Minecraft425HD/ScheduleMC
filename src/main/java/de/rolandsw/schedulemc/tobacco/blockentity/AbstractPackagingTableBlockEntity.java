@@ -174,7 +174,7 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.coca.items.CrackRockItem.create(
                         de.rolandsw.schedulemc.coca.CocaType.BOLIVIANISCH,
-                        de.rolandsw.schedulemc.coca.CrackQuality.STANDARD,
+                        de.rolandsw.schedulemc.coca.CrackQuality.SCHLECHT,
                         count
                     );
                 }
@@ -200,7 +200,7 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
                 } else {
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.meth.items.MethItem.create(
-                        de.rolandsw.schedulemc.meth.MethQuality.STANDARD,
+                        de.rolandsw.schedulemc.meth.MethQuality.SCHLECHT,
                         count
                     );
                 }
@@ -230,7 +230,7 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem.create(
                         de.rolandsw.schedulemc.cannabis.CannabisStrain.HYBRID,
-                        de.rolandsw.schedulemc.cannabis.CannabisQuality.MIDS,
+                        de.rolandsw.schedulemc.cannabis.CannabisQuality.GUT,
                         count
                     );
                 }
@@ -244,7 +244,7 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.cannabis.items.CuredBudItem.create(
                         de.rolandsw.schedulemc.cannabis.CannabisStrain.HYBRID,
-                        de.rolandsw.schedulemc.cannabis.CannabisQuality.MIDS,
+                        de.rolandsw.schedulemc.cannabis.CannabisQuality.GUT,
                         count,
                         0
                     );

@@ -119,7 +119,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = ChocolateQuality.BASIC;
+                quality = ChocolateQuality.GUT;
             }
             enrobingProgress = 0;
         } else if (handlerChocolate.isEmpty()) {

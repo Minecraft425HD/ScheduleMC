@@ -48,6 +48,15 @@ public enum MethQuality implements ProductionQuality {
         return colorCode + getDisplayName();
     }
 
+    public String getColorDescription() {
+        return switch (this) {
+            case SCHLECHT -> "Weiß";
+            case GUT -> "Gelblich";
+            case SEHR_GUT -> "Bläulich";
+            case LEGENDAER -> "Blau";
+        };
+    }
+
     @Override
     public String getDescription() {
         return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();

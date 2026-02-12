@@ -101,7 +101,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = ChocolateQuality.BASIC;
+                quality = ChocolateQuality.GUT;
             }
             temperingProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -140,7 +140,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
 
                 // Tempering can upgrade quality significantly!
                 // If already at PREMIUM, can reach EXCEPTIONAL
-                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.RAW;
+                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.SCHLECHT;
                 upgradedQuality = (ChocolateQuality) upgradedQuality.upgrade();
 
                 // Tempering is the only process that can reach EXCEPTIONAL

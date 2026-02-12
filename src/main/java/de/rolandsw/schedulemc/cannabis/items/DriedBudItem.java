@@ -47,10 +47,10 @@ public class DriedBudItem extends Item {
             try {
                 return CannabisQuality.valueOf(stack.getTag().getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return CannabisQuality.MIDS;
+                return CannabisQuality.GUT;
             }
         }
-        return CannabisQuality.MIDS;
+        return CannabisQuality.GUT;
     }
 
     public static int getWeight(ItemStack stack) {

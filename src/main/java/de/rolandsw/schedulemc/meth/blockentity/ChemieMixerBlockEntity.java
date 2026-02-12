@@ -118,7 +118,7 @@ public class ChemieMixerBlockEntity extends BlockEntity implements IUtilityConsu
      */
     public ItemStack extractAllOutput() {
         int totalCount = 0;
-        MethQuality bestQuality = MethQuality.STANDARD;
+        MethQuality bestQuality = MethQuality.SCHLECHT;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!outputSlots[i].isEmpty()) {
@@ -201,7 +201,7 @@ public class ChemieMixerBlockEntity extends BlockEntity implements IUtilityConsu
         if (level != null && level.random.nextFloat() < qualityChance) {
             return MethQuality.GUT; // Chance auf bessere Qualität
         }
-        return MethQuality.STANDARD;
+        return MethQuality.SCHLECHT;
     }
 
     public boolean isActive() {

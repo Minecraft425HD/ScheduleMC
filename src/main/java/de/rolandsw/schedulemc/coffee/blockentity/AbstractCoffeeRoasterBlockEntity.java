@@ -109,7 +109,7 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
             // These are determined by the plant's growing conditions and set during roasting
             // For now, use default values - proper implementation would track from harvest
             coffeeType = CoffeeType.ARABICA;
-            quality = CoffeeQuality.GOOD;
+            quality = CoffeeQuality.SEHR_GUT;
             roastingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;

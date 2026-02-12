@@ -96,7 +96,7 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = ChocolateQuality.BASIC;
+                quality = ChocolateQuality.GUT;
             }
             grindingProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -134,12 +134,12 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
                 ItemStack cocoaMass = new ItemStack(ChocolateItems.COCOA_MASS.get(), inputStack.getCount());
 
                 // Upgrade quality by 1 level (max GOOD)
-                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.RAW;
+                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.SCHLECHT;
                 upgradedQuality = (ChocolateQuality) upgradedQuality.upgrade();
 
                 // Cap at GOOD quality for grinding mill
-                if (upgradedQuality.getLevel() > ChocolateQuality.GOOD.getLevel()) {
-                    upgradedQuality = ChocolateQuality.GOOD;
+                if (upgradedQuality.getLevel() > ChocolateQuality.SEHR_GUT.getLevel()) {
+                    upgradedQuality = ChocolateQuality.SEHR_GUT;
                 }
 
                 CompoundTag tag = cocoaMass.getOrCreateTag();

@@ -31,7 +31,7 @@ public class CuringGlasBlockEntity extends BlockEntity implements IUtilityConsum
 
     private ItemStack storedItem = ItemStack.EMPTY;
     private CannabisStrain strain = CannabisStrain.HYBRID;
-    private CannabisQuality baseQuality = CannabisQuality.MIDS;
+    private CannabisQuality baseQuality = CannabisQuality.GUT;
     private int weight = 0;
     private int curingTicks = 0;
 
@@ -141,7 +141,7 @@ public class CuringGlasBlockEntity extends BlockEntity implements IUtilityConsum
         try { strain = CannabisStrain.valueOf(tag.getString("Strain")); }
         catch (IllegalArgumentException e) { strain = CannabisStrain.HYBRID; }
         try { baseQuality = CannabisQuality.valueOf(tag.getString("Quality")); }
-        catch (IllegalArgumentException e) { baseQuality = CannabisQuality.MIDS; }
+        catch (IllegalArgumentException e) { baseQuality = CannabisQuality.GUT; }
         weight = tag.getInt("Weight");
         curingTicks = tag.getInt("CuringTicks");
     }

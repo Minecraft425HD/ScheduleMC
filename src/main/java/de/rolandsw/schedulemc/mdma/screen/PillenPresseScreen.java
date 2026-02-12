@@ -201,15 +201,15 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         int qualityColor;
 
         switch (quality) {
-            case PREMIUM -> {
+            case LEGENDAER -> {
                 qualityText = Component.translatable("gui.pill_press.result.premium").getString();
                 qualityColor = 0xFFFFAA00;
             }
-            case GUT -> {
+            case SEHR_GUT -> {
                 qualityText = Component.translatable("gui.pill_press.result.good").getString();
                 qualityColor = 0xFF55FF55;
             }
-            case STANDARD -> {
+            case GUT -> {
                 qualityText = Component.translatable("gui.pill_press.result.standard").getString();
                 qualityColor = 0xFFFFFF55;
             }

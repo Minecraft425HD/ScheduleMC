@@ -47,10 +47,10 @@ public class CannabisOilItem extends Item {
             try {
                 return CannabisQuality.valueOf(stack.getTag().getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return CannabisQuality.MIDS;
+                return CannabisQuality.GUT;
             }
         }
-        return CannabisQuality.MIDS;
+        return CannabisQuality.GUT;
     }
 
     public static int getMilliliters(ItemStack stack) {

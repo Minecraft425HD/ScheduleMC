@@ -114,7 +114,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = BeerQuality.BASIC;
+                quality = BeerQuality.SCHLECHT;
             }
 
             fermentationProgress = 0;

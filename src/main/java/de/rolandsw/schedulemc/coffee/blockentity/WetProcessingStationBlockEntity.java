@@ -81,7 +81,7 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
         if (!handlerInput.isEmpty() && inputStack.isEmpty()) {
             inputStack = handlerInput.copy();
             coffeeType = CoffeeType.ARABICA;
-            quality = CoffeeQuality.GOOD;
+            quality = CoffeeQuality.SEHR_GUT;
             currentStage = ProcessingStage.IDLE;
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {

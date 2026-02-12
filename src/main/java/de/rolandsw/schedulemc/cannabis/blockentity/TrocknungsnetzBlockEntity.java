@@ -40,7 +40,7 @@ public class TrocknungsnetzBlockEntity extends BlockEntity implements IUtilityCo
             dryingItems[i] = ItemStack.EMPTY;
             dryingProgress[i] = 0;
             strains[i] = CannabisStrain.HYBRID;
-            qualities[i] = CannabisQuality.MIDS;
+            qualities[i] = CannabisQuality.GUT;
             weights[i] = 0;
         }
     }
@@ -177,7 +177,7 @@ public class TrocknungsnetzBlockEntity extends BlockEntity implements IUtilityCo
                 try {
                     qualities[i] = CannabisQuality.valueOf(tag.getString("Quality" + i));
                 } catch (IllegalArgumentException e) {
-                    qualities[i] = CannabisQuality.MIDS;
+                    qualities[i] = CannabisQuality.GUT;
                 }
                 weights[i] = tag.getInt("Weight" + i);
             } else {

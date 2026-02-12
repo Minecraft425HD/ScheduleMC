@@ -44,7 +44,7 @@ public class KristallisatorBlockEntity extends BlockEntity implements IUtilityCo
             inputs[i] = ItemStack.EMPTY;
             outputs[i] = ItemStack.EMPTY;
             progress[i] = 0;
-            qualities[i] = MethQuality.STANDARD;
+            qualities[i] = MethQuality.SCHLECHT;
         }
     }
 
@@ -74,7 +74,7 @@ public class KristallisatorBlockEntity extends BlockEntity implements IUtilityCo
      */
     public ItemStack extractAllOutput() {
         int totalCount = 0;
-        MethQuality bestQuality = MethQuality.STANDARD;
+        MethQuality bestQuality = MethQuality.SCHLECHT;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!outputs[i].isEmpty()) {
@@ -88,7 +88,7 @@ public class KristallisatorBlockEntity extends BlockEntity implements IUtilityCo
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 progress[i] = 0;
-                qualities[i] = MethQuality.STANDARD;
+                qualities[i] = MethQuality.SCHLECHT;
             }
         }
 
@@ -242,7 +242,7 @@ public class KristallisatorBlockEntity extends BlockEntity implements IUtilityCo
                 try {
                     qualities[i] = MethQuality.valueOf(tag.getString("Quality" + i));
                 } catch (IllegalArgumentException e) {
-                    qualities[i] = MethQuality.STANDARD;
+                    qualities[i] = MethQuality.SCHLECHT;
                 }
             }
         }

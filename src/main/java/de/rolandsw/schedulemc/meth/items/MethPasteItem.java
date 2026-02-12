@@ -40,10 +40,10 @@ public class MethPasteItem extends Item {
             try {
                 return MethQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return MethQuality.STANDARD;
+                return MethQuality.SCHLECHT;
             }
         }
-        return MethQuality.STANDARD;
+        return MethQuality.SCHLECHT;
     }
 
     @Override

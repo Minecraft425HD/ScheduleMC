@@ -45,7 +45,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
     // Zustände
     private int kristallCount = 0;
     private int bindemittelCount = 0;
-    private MDMAQuality inputQuality = MDMAQuality.STANDARD;
+    private MDMAQuality inputQuality = MDMAQuality.SCHLECHT;
     private PillDesign selectedDesign = PillDesign.TESLA;
     private PillColor selectedColor = PillColor.PINK;
 
@@ -298,7 +298,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
         bindemittelCount = tag.getInt("Bindemittel");
         if (tag.contains("Quality")) {
             try { inputQuality = MDMAQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { inputQuality = MDMAQuality.STANDARD; }
+            catch (IllegalArgumentException e) { inputQuality = MDMAQuality.SCHLECHT; }
         }
         if (tag.contains("Design")) {
             try { selectedDesign = PillDesign.valueOf(tag.getString("Design")); }

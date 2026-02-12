@@ -142,7 +142,7 @@ public class CrackKocherBlockEntity extends BlockEntity implements IUtilityConsu
         CrackQuality quality = CrackQuality.fromTimingScore(timingScore);
 
         // Input-Qualität kann Ergebnis verbessern
-        if (inputQuality == TobaccoQuality.LEGENDAER && quality.getLevel() < CrackQuality.FISHSCALE.getLevel()) {
+        if (inputQuality == TobaccoQuality.LEGENDAER && quality.getLevel() < CrackQuality.LEGENDAER.getLevel()) {
             quality = CrackQuality.fromLevel(quality.getLevel() + 1);
         }
 

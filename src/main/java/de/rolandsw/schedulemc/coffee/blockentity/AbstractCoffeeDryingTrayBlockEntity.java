@@ -107,7 +107,7 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
             // Note: CoffeeCherries would need NBT tracking from harvest to preserve variety/quality
             // For now using defaults - proper implementation needs CoffeePlantBlock harvest tracking
             coffeeType = CoffeeType.ARABICA;
-            quality = CoffeeQuality.GOOD;
+            quality = CoffeeQuality.SEHR_GUT;
             dryingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
@@ -134,7 +134,7 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
             inputStack.setCount(Math.min(stack.getCount(), getCapacity()));
             // Note: Type & quality would be extracted from NBT if CoffeeCherries tracked harvest data
             coffeeType = CoffeeType.ARABICA; // Default
-            quality = CoffeeQuality.GOOD; // Default
+            quality = CoffeeQuality.SEHR_GUT; // Default
             dryingProgress = 0;
             syncToHandler();
             setChanged();
