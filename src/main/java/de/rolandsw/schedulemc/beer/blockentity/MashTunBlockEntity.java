@@ -105,7 +105,7 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = BeerQuality.BASIC;
+                quality = BeerQuality.SCHLECHT;
             }
 
             mashingProgress = 0;
@@ -155,7 +155,7 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
 
                 // Quality upgrade: can improve by 1 level (max GOOD)
                 BeerQuality outputQuality = quality;
-                if (outputQuality != null && outputQuality.getLevel() < BeerQuality.GOOD.getLevel()) {
+                if (outputQuality != null && outputQuality.getLevel() < BeerQuality.GUT.getLevel()) {
                     outputQuality = (BeerQuality) outputQuality.upgrade();
                 }
 

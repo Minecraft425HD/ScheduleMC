@@ -41,7 +41,7 @@ public class BeehiveBlockEntity extends BlockEntity implements IUtilityConsumer,
 
     private int tickCount = 0;
     private HoneyType honeyType = HoneyType.WILDFLOWER;
-    private HoneyQuality quality = HoneyQuality.BASIC;
+    private HoneyQuality quality = HoneyQuality.GUT;
     private boolean biomeDetermined = false;
 
     protected ItemStackHandler itemHandler;
@@ -144,16 +144,16 @@ public class BeehiveBlockEntity extends BlockEntity implements IUtilityConsumer,
         // Determine honey type based on biome
         if (temperature > 1.5f) {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.BASIC;
+            quality = HoneyQuality.GUT;
         } else if (temperature < 0.3f) {
             honeyType = HoneyType.FOREST;
-            quality = HoneyQuality.GOOD;
+            quality = HoneyQuality.SEHR_GUT;
         } else if (temperature >= 0.6f && temperature <= 0.95f) {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.GOOD;
+            quality = HoneyQuality.SEHR_GUT;
         } else {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.BASIC;
+            quality = HoneyQuality.GUT;
         }
     }
 

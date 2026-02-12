@@ -114,7 +114,7 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = BeerQuality.BASIC;
+                quality = BeerQuality.SCHLECHT;
             }
 
             brewingProgress = 0;
@@ -170,7 +170,7 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
 
                 // Quality upgrade: can improve by 1 level (max PREMIUM)
                 BeerQuality outputQuality = quality;
-                if (outputQuality != null && outputQuality.getLevel() < BeerQuality.PREMIUM.getLevel()) {
+                if (outputQuality != null && outputQuality.getLevel() < BeerQuality.SEHR_GUT.getLevel()) {
                     outputQuality = (BeerQuality) outputQuality.upgrade();
                 }
 

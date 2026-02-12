@@ -106,13 +106,13 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
         // Qualität basierend auf Menge (mehr Trim = bessere Verdichtung)
         CannabisQuality quality;
         if (trimWeight >= 80) {
-            quality = CannabisQuality.TOP_SHELF;
+            quality = CannabisQuality.LEGENDAER;
         } else if (trimWeight >= 50) {
-            quality = CannabisQuality.DANK;
+            quality = CannabisQuality.SEHR_GUT;
         } else if (trimWeight >= 30) {
-            quality = CannabisQuality.MIDS;
+            quality = CannabisQuality.GUT;
         } else {
-            quality = CannabisQuality.SCHWAG;
+            quality = CannabisQuality.SCHLECHT;
         }
 
         outputItem = HashItem.create(strain, quality, hashWeight);

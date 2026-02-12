@@ -137,13 +137,13 @@ public class HealthCheckManager {
             () -> WalletManager.isHealthy(), WalletManager::getHealthInfo, WalletManager::getLastError);
 
         // === Finanz-Systeme (9) ===
-        registerManagerCheck("loan", "Finanz", "Loan", LoanManager::getInstance);
-        registerManagerCheck("creditloan", "Finanz", "Credit Loan", CreditLoanManager::getInstance);
-        registerManagerCheck("creditscore", "Finanz", "Credit Score", CreditScoreManager::getInstance);
-        registerManagerCheck("savings", "Finanz", "Savings", SavingsAccountManager::getInstance);
-        registerManagerCheck("tax", "Finanz", "Tax", TaxManager::getInstance);
-        registerManagerCheck("overdraft", "Finanz", "Overdraft", OverdraftManager::getInstance);
-        registerManagerCheck("recurring", "Finanz", "Recurring Payments", RecurringPaymentManager::getInstance);
+        registerManagerCheck("loan", "Finanz", "Loan", () -> LoanManager.getInstance(null));
+        registerManagerCheck("creditloan", "Finanz", "Credit Loan", () -> CreditLoanManager.getInstance(null));
+        registerManagerCheck("creditscore", "Finanz", "Credit Score", () -> CreditScoreManager.getInstance(null));
+        registerManagerCheck("savings", "Finanz", "Savings", () -> SavingsAccountManager.getInstance(null));
+        registerManagerCheck("tax", "Finanz", "Tax", () -> TaxManager.getInstance(null));
+        registerManagerCheck("overdraft", "Finanz", "Overdraft", () -> OverdraftManager.getInstance(null));
+        registerManagerCheck("recurring", "Finanz", "Recurring Payments", () -> RecurringPaymentManager.getInstance(null));
         registerCheck("shopaccount", "Finanz", () -> {
             int count = ShopAccountManager.getShopCount();
             return new ComponentHealth("Shop Accounts", SystemHealth.HEALTHY, "Aktiv, " + count + " Shops registriert");

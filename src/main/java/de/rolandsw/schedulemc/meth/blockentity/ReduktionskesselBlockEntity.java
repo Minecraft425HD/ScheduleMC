@@ -62,7 +62,7 @@ public class ReduktionskesselBlockEntity extends BlockEntity implements IUtility
 
     private ItemStack inputItem = ItemStack.EMPTY;
     private ItemStack outputItem = ItemStack.EMPTY;
-    private MethQuality inputQuality = MethQuality.STANDARD;
+    private MethQuality inputQuality = MethQuality.SCHLECHT;
 
     private UUID activePlayer = null; // Spieler der gerade die GUI bedient
 
@@ -249,7 +249,7 @@ public class ReduktionskesselBlockEntity extends BlockEntity implements IUtility
         } else if (optimalPercent >= 0.9) {
             // 90%+ optimal -> Chance auf Blue Sky!
             if (level != null && level.random.nextFloat() < 0.3) { // 30% Chance
-                finalQuality = MethQuality.BLUE_SKY;
+                finalQuality = MethQuality.LEGENDAER;
             } else {
                 finalQuality = inputQuality.upgrade();
             }
@@ -435,7 +435,7 @@ public class ReduktionskesselBlockEntity extends BlockEntity implements IUtility
             try {
                 inputQuality = MethQuality.valueOf(tag.getString("InputQuality"));
             } catch (IllegalArgumentException e) {
-                inputQuality = MethQuality.STANDARD;
+                inputQuality = MethQuality.SCHLECHT;
             }
         }
 

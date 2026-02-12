@@ -31,7 +31,7 @@ public class ReaktionsKesselBlockEntity extends BlockEntity implements IUtilityC
     private int safrolCount = 0;
     private int synthesisProgress = 0;
     private int outputCount = 0;
-    private MDMAQuality outputQuality = MDMAQuality.STANDARD;
+    private MDMAQuality outputQuality = MDMAQuality.SCHLECHT;
     private boolean isActive = false;
 
     public ReaktionsKesselBlockEntity(BlockPos pos, BlockState state) {
@@ -73,7 +73,7 @@ public class ReaktionsKesselBlockEntity extends BlockEntity implements IUtilityC
                 if (level.random.nextFloat() < qualityChance) {
                     outputQuality = MDMAQuality.GUT;
                 } else {
-                    outputQuality = MDMAQuality.STANDARD;
+                    outputQuality = MDMAQuality.SCHLECHT;
                 }
 
                 outputCount = safrolCount;
@@ -131,7 +131,7 @@ public class ReaktionsKesselBlockEntity extends BlockEntity implements IUtilityC
             try {
                 outputQuality = MDMAQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                outputQuality = MDMAQuality.STANDARD;
+                outputQuality = MDMAQuality.SCHLECHT;
             }
         }
         isActive = tag.getBoolean("Active");

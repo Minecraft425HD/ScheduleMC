@@ -64,10 +64,10 @@ public class CheeseWedgeItem extends Item {
             try {
                 return CheeseQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return CheeseQuality.STANDARD;
+                return CheeseQuality.SCHLECHT;
             }
         }
-        return CheeseQuality.STANDARD;
+        return CheeseQuality.SCHLECHT;
     }
 
     public static CheeseAgeLevel getAgeLevel(ItemStack stack) {

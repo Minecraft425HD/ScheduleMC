@@ -86,10 +86,10 @@ public class BeerBottleItem extends Item {
             try {
                 return BeerQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return BeerQuality.BASIC;
+                return BeerQuality.SCHLECHT;
             }
         }
-        return BeerQuality.BASIC;
+        return BeerQuality.SCHLECHT;
     }
 
     public static BeerAgeLevel getAgeLevel(ItemStack stack) {

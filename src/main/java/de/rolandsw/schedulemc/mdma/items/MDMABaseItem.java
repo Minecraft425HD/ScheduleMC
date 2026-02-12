@@ -33,10 +33,10 @@ public class MDMABaseItem extends Item {
             try {
                 return MDMAQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return MDMAQuality.STANDARD;
+                return MDMAQuality.SCHLECHT;
             }
         }
-        return MDMAQuality.STANDARD;
+        return MDMAQuality.SCHLECHT;
     }
 
     @Override

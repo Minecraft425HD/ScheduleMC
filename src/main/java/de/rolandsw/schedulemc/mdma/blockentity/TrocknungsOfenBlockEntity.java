@@ -29,7 +29,7 @@ public class TrocknungsOfenBlockEntity extends BlockEntity implements IUtilityCo
     private static final int CAPACITY = 8;
 
     private int inputCount = 0;
-    private MDMAQuality inputQuality = MDMAQuality.STANDARD;
+    private MDMAQuality inputQuality = MDMAQuality.SCHLECHT;
     private int dryingProgress = 0;
     private int outputCount = 0;
     private boolean isActive = false;
@@ -122,7 +122,7 @@ public class TrocknungsOfenBlockEntity extends BlockEntity implements IUtilityCo
             try {
                 inputQuality = MDMAQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                inputQuality = MDMAQuality.STANDARD;
+                inputQuality = MDMAQuality.SCHLECHT;
             }
         }
         dryingProgress = tag.getInt("Progress");

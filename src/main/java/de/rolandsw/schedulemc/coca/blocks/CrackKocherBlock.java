@@ -76,9 +76,9 @@ public class CrackKocherBlock extends BaseEntityBlock {
             CrackQuality quality = CrackQuality.fromTimingScore(score);
 
             Component message = switch (quality) {
-                case FISHSCALE -> Component.translatable("block.crack_kocher.fishscale");
-                case GUT -> Component.translatable("block.crack_kocher.good");
-                case STANDARD -> Component.translatable("block.crack_kocher.standard");
+                case LEGENDAER -> Component.translatable("block.crack_kocher.fishscale");
+                case SEHR_GUT -> Component.translatable("block.crack_kocher.good");
+                case GUT -> Component.translatable("block.crack_kocher.standard");
                 case SCHLECHT -> kocher.getCookTick() < 28 ? Component.translatable("block.crack_kocher.bad_early") : Component.translatable("block.crack_kocher.bad_burnt");
             };
             player.displayClientMessage(message, true);

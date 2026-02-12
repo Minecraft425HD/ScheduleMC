@@ -203,13 +203,12 @@ public class ProcessingStationBlockEntity extends BlockEntity implements IUtilit
     }
 
     private HoneyQuality upgradeQuality(HoneyQuality current) {
-        if (current == null) return HoneyQuality.GOOD;
+        if (current == null) return HoneyQuality.SEHR_GUT;
         return switch (current) {
-            case RAW -> HoneyQuality.BASIC;
-            case BASIC -> HoneyQuality.GOOD;
-            case GOOD -> HoneyQuality.PREMIUM;
-            case PREMIUM -> HoneyQuality.PREMIUM; // Already max
-            case EXCEPTIONAL -> HoneyQuality.EXCEPTIONAL;
+            case SCHLECHT -> HoneyQuality.GUT;
+            case GUT -> HoneyQuality.SEHR_GUT;
+            case SEHR_GUT -> HoneyQuality.LEGENDAER;
+            case LEGENDAER -> HoneyQuality.LEGENDAER; // Already max
         };
     }
 

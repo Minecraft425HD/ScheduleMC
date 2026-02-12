@@ -41,7 +41,7 @@ public class ApiaryBlockEntity extends BlockEntity implements IUtilityConsumer, 
 
     private int tickCount = 0;
     private HoneyType honeyType = HoneyType.WILDFLOWER;
-    private HoneyQuality quality = HoneyQuality.PREMIUM;
+    private HoneyQuality quality = HoneyQuality.LEGENDAER;
 
     protected ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
@@ -142,16 +142,16 @@ public class ApiaryBlockEntity extends BlockEntity implements IUtilityConsumer, 
         // Apiary produces premium quality
         if (temperature > 1.5f) {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.PREMIUM;
+            quality = HoneyQuality.LEGENDAER;
         } else if (temperature < 0.3f) {
             honeyType = HoneyType.FOREST;
-            quality = HoneyQuality.PREMIUM;
+            quality = HoneyQuality.LEGENDAER;
         } else if (temperature >= 0.6f && temperature <= 0.95f) {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.PREMIUM;
+            quality = HoneyQuality.LEGENDAER;
         } else {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.PREMIUM;
+            quality = HoneyQuality.LEGENDAER;
         }
     }
 

@@ -58,7 +58,7 @@ public class RoastedCoffeeBeanItem extends Item {
                 return CoffeeQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException ignored) {}
         }
-        return CoffeeQuality.GOOD;
+        return CoffeeQuality.SEHR_GUT;
     }
 
     /**

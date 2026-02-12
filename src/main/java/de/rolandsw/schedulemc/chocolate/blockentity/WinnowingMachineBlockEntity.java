@@ -99,7 +99,7 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = ChocolateQuality.BASIC;
+                quality = ChocolateQuality.GUT;
             }
             winnowingProgress = 0;
         } else if (handlerInput.isEmpty()) {

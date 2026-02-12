@@ -34,7 +34,7 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
     private int materialWeight = 0;
     private boolean isFromBuds = false; // true = Buds, false = Trim
     private CannabisStrain strain = CannabisStrain.HYBRID;
-    private CannabisQuality baseQuality = CannabisQuality.MIDS;
+    private CannabisQuality baseQuality = CannabisQuality.GUT;
     private int solventCount = 0;
 
     private int extractionProgress = 0;
@@ -63,7 +63,7 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
                 return false;
             }
             strain = trimStrain;
-            baseQuality = CannabisQuality.MIDS;
+            baseQuality = CannabisQuality.GUT;
             materialWeight += TrimItem.getWeight(stack);
             isFromBuds = false;
         } else {
@@ -197,7 +197,7 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
         try { strain = CannabisStrain.valueOf(tag.getString("Strain")); }
         catch (IllegalArgumentException e) { strain = CannabisStrain.HYBRID; }
         try { baseQuality = CannabisQuality.valueOf(tag.getString("Quality")); }
-        catch (IllegalArgumentException e) { baseQuality = CannabisQuality.MIDS; }
+        catch (IllegalArgumentException e) { baseQuality = CannabisQuality.GUT; }
         solventCount = tag.getInt("SolventCount");
         extractionProgress = tag.getInt("ExtractionProgress");
         isExtracting = tag.getBoolean("IsExtracting");

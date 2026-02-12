@@ -88,7 +88,7 @@ public class VakuumTrocknerBlock extends Block implements EntityBlock {
 
                     // Spezielle Nachricht für Blue Sky
                     MethQuality quality = de.rolandsw.schedulemc.meth.items.MethItem.getQuality(output);
-                    Component message = quality == MethQuality.BLUE_SKY ?
+                    Component message = quality == MethQuality.LEGENDAER ?
                             Component.translatable("block.meth.vakuum_output_blue_sky", output.getCount()) :
                             Component.translatable("block.meth.vakuum_output_crystal", output.getCount());
 
@@ -109,9 +109,10 @@ public class VakuumTrocknerBlock extends Block implements EntityBlock {
 
                 MethQuality best = trockner.getBestQuality();
                 String qualityInfo = switch (best) {
-                    case STANDARD -> Component.translatable("block.meth.vakuum_quality_standard").getString();
+                    case SCHLECHT -> Component.translatable("block.meth.vakuum_quality_standard").getString();
                     case GUT -> Component.translatable("block.meth.vakuum_quality_premium").getString();
-                    case BLUE_SKY -> Component.translatable("block.meth.vakuum_quality_blue_sky").getString();
+                    case SEHR_GUT -> Component.translatable("block.meth.vakuum_quality_premium").getString();
+                    case LEGENDAER -> Component.translatable("block.meth.vakuum_quality_blue_sky").getString();
                 };
                 status.append(Component.translatable("block.meth.vakuum_best_quality", qualityInfo).getString());
             }

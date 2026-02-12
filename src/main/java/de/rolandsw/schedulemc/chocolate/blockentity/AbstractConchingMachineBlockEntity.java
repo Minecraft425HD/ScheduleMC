@@ -132,7 +132,7 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = ChocolateQuality.BASIC;
+                quality = ChocolateQuality.GUT;
             }
             conchingProgress = 0;
         } else if (handlerCocoaMass.isEmpty()) {
@@ -196,12 +196,12 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
                 ItemStack conchedChocolate = new ItemStack(ChocolateItems.CONCHED_CHOCOLATE.get(), cocoaMassInput.getCount());
 
                 // Upgrade quality by 1 level (max PREMIUM)
-                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.RAW;
+                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.SCHLECHT;
                 upgradedQuality = (ChocolateQuality) upgradedQuality.upgrade();
 
                 // Cap at PREMIUM quality for conching
-                if (upgradedQuality.getLevel() > ChocolateQuality.PREMIUM.getLevel()) {
-                    upgradedQuality = ChocolateQuality.PREMIUM;
+                if (upgradedQuality.getLevel() > ChocolateQuality.LEGENDAER.getLevel()) {
+                    upgradedQuality = ChocolateQuality.LEGENDAER;
                 }
 
                 CompoundTag tag = conchedChocolate.getOrCreateTag();

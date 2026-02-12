@@ -41,10 +41,10 @@ public class MethItem extends Item {
             try {
                 return MethQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return MethQuality.STANDARD;
+                return MethQuality.SCHLECHT;
             }
         }
-        return MethQuality.STANDARD;
+        return MethQuality.SCHLECHT;
     }
 
     @Override
@@ -57,14 +57,15 @@ public class MethItem extends Item {
         tooltip.add(Component.literal(""));
 
         String colorDesc = switch (quality) {
-            case STANDARD -> "tooltip.meth.white_crystals";
+            case SCHLECHT -> "tooltip.meth.white_crystals";
             case GUT -> "tooltip.meth.yellowish_crystals";
-            case BLUE_SKY -> "tooltip.meth.blue_crystals";
+            case SEHR_GUT -> "tooltip.meth.yellowish_crystals";
+            case LEGENDAER -> "tooltip.meth.blue_crystals";
         };
         tooltip.add(Component.translatable(colorDesc));
         tooltip.add(Component.translatable("tooltip.meth.can_package"));
 
-        if (quality == MethQuality.BLUE_SKY) {
+        if (quality == MethQuality.LEGENDAER) {
             tooltip.add(Component.literal(""));
             tooltip.add(Component.translatable("tooltip.meth.say_my_name"));
         }
@@ -72,9 +73,10 @@ public class MethItem extends Item {
 
     private int getPurityPercent(MethQuality quality) {
         return switch (quality) {
-            case STANDARD -> 70 + ThreadLocalRandom.current().nextInt(10); // 70-79%
+            case SCHLECHT -> 70 + ThreadLocalRandom.current().nextInt(10); // 70-79%
             case GUT -> 80 + ThreadLocalRandom.current().nextInt(10);      // 80-89%
-            case BLUE_SKY -> 96 + ThreadLocalRandom.current().nextInt(4);  // 96-99%
+            case SEHR_GUT -> 90 + ThreadLocalRandom.current().nextInt(6);  // 90-95%
+            case LEGENDAER -> 96 + ThreadLocalRandom.current().nextInt(4); // 96-99%
         };
     }
 
@@ -82,9 +84,10 @@ public class MethItem extends Item {
     public Component getName(ItemStack stack) {
         MethQuality quality = getQuality(stack);
         String key = switch (quality) {
-            case STANDARD -> "item.schedulemc.meth.standard_name";
+            case SCHLECHT -> "item.schedulemc.meth.standard_name";
             case GUT -> "item.schedulemc.meth.gut_name";
-            case BLUE_SKY -> "item.schedulemc.meth.blue_sky_name";
+            case SEHR_GUT -> "item.schedulemc.meth.gut_name";
+            case LEGENDAER -> "item.schedulemc.meth.blue_sky_name";
         };
         return Component.literal(quality.getColorCode() + Component.translatable(key).getString());
     }

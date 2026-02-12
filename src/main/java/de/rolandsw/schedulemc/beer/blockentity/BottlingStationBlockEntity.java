@@ -136,7 +136,7 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
                     try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
                     catch (IllegalArgumentException ignored) {}
                 } else {
-                    quality = BeerQuality.BASIC;
+                    quality = BeerQuality.SCHLECHT;
                 }
 
                 if (tag.contains("AgeLevel")) {
@@ -147,7 +147,7 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
                 }
             } else {
                 beerType = BeerType.PILSNER;
-                quality = BeerQuality.BASIC;
+                quality = BeerQuality.SCHLECHT;
                 ageLevel = BeerAgeLevel.YOUNG;
             }
 
@@ -234,7 +234,7 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
                 // Bottling complete: Create final beer bottle with all NBT data
                 ItemStack filledBeer = BeerBottleItem.create(
                     beerType != null ? beerType : BeerType.PILSNER,
-                    quality != null ? quality : BeerQuality.BASIC,
+                    quality != null ? quality : BeerQuality.SCHLECHT,
                     ageLevel != null ? ageLevel : BeerAgeLevel.YOUNG,
                     processingMethod,
                     bottleSize,
