@@ -81,7 +81,7 @@ public class WantedLevelOverlay {
                 String escapeText = cachedEscapeText;
 
                 // Fortschrittsbalken
-                float progress = (float) escapeTime / CrimeManager.ESCAPE_DURATION;
+                float progress = (float) escapeTime / CrimeManager.BASE_ESCAPE_DURATION;
                 int barWidth = 120;
                 int barHeight = 6;
 

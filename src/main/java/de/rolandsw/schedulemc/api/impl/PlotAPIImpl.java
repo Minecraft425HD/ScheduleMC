@@ -166,7 +166,7 @@ public class PlotAPIImpl implements IPlotAPI {
         if (plot == null) {
             return false;
         }
-        plot.setOwner(ownerUUID);
+        plot.setOwner(ownerUUID, null);
         return true;
     }
 
@@ -233,7 +233,9 @@ public class PlotAPIImpl implements IPlotAPI {
         if (plot == null) {
             return Collections.emptySet();
         }
-        return Collections.unmodifiableSet(plot.getTrustedPlayers());
+        return plot.getTrustedPlayers().stream()
+            .map(UUID::fromString)
+            .collect(java.util.stream.Collectors.toUnmodifiableSet());
     }
 
     /**

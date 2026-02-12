@@ -1,17 +1,14 @@
 package de.rolandsw.schedulemc.npc.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import de.maxhenkel.corelib.client.obj.OBJModel;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.client.model.CustomNPCModel;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -90,8 +87,7 @@ public class NPCVehicleLayer extends RenderLayer<CustomNPCEntity, CustomNPCModel
         poseStack.translate(0.0, -4.0 / 16.0, 0.0);
 
         // 5. Rendere das OBJ-Modell
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutout(texture));
-        cachedModel.render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0f, 1.0f, 1.0f, 1.0f);
+        cachedModel.render(texture, poseStack, bufferSource, packedLight);
 
         poseStack.popPose();
     }

@@ -102,9 +102,14 @@ public class NPCSocialInteractionManager {
      * Findet nahegelegene NPC-Paare und loest Interaktionen aus.
      */
     public void tick(ServerLevel level) {
+        net.minecraft.world.level.border.WorldBorder border = level.getWorldBorder();
+        net.minecraft.world.phys.AABB worldArea = new net.minecraft.world.phys.AABB(
+            border.getMinX(), level.getMinBuildHeight(), border.getMinZ(),
+            border.getMaxX(), level.getMaxBuildHeight(), border.getMaxZ()
+        );
         List<CustomNPCEntity> npcs = level.getEntitiesOfClass(
             CustomNPCEntity.class,
-            level.getWorldBorder().getAABB()
+            worldArea
         );
 
         // Fuer jedes NPC-Paar in Reichweite: Interaktion auswuerfeln
@@ -135,7 +140,7 @@ public class NPCSocialInteractionManager {
         modifyRelation(npc1.getUUID(), npc2.getUUID(), type.getRelationChange());
 
         LOGGER.debug("NPC interaction: {} {} {} (relation: {} -> {})",
-            npc1.getNPCName(), type.getDisplayName(), npc2.getNPCName(),
+            npc1.getNpcName(), type.getDisplayName(), npc2.getNpcName(),
             relation, relation + type.getRelationChange());
     }
 
