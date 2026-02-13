@@ -188,8 +188,8 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (config == null) {
             return false;
         }
-        config.setBasePrice(newBasePrice);
-        return true;
+        // ProductionConfig is immutable - base price cannot be changed at runtime
+        return false;
     }
 
     /**

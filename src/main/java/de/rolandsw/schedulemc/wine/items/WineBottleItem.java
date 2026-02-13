@@ -80,10 +80,10 @@ public class WineBottleItem extends Item {
             try {
                 return WineQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return WineQuality.LANDWEIN;
+                return WineQuality.SCHLECHT;
             }
         }
-        return WineQuality.LANDWEIN;
+        return WineQuality.SCHLECHT;
     }
 
     public static WineAgeLevel getAgeLevel(ItemStack stack) {

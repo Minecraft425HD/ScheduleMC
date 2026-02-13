@@ -109,7 +109,7 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
                 try { quality = WineQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = WineQuality.LANDWEIN;
+                quality = WineQuality.SCHLECHT;
             }
             pressingProgress = 0;
         } else if (handlerInput.isEmpty()) {

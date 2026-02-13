@@ -66,7 +66,8 @@ public class PoliceVehiclePursuit {
         }
 
         // Polizei muss Fahrzeug haben
-        if (!NPCVehicleAssignment.hasVehicle(policeUUID)) {
+        if (!(police.level() instanceof net.minecraft.server.level.ServerLevel sl)
+                || !NPCVehicleAssignment.get(sl).hasVehicle(policeUUID)) {
             return false;
         }
 
@@ -188,7 +189,8 @@ public class PoliceVehiclePursuit {
         if (police.isDriving()) return false;
 
         // Polizei muss Fahrzeug haben
-        if (!NPCVehicleAssignment.hasVehicle(police.getUUID())) return false;
+        if (!(police.level() instanceof net.minecraft.server.level.ServerLevel sl)
+                || !NPCVehicleAssignment.get(sl).hasVehicle(police.getUUID())) return false;
 
         // Abstand muss gross genug sein
         double distance = police.distanceTo(target);

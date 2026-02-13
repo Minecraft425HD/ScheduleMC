@@ -177,7 +177,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
      */
     @Override
     public Map<UUID, Double> getAllBalances() {
-        return Collections.unmodifiableMap(economyManager.getAllBalances());
+        return Collections.unmodifiableMap(EconomyManager.getAllAccounts());
     }
 
     /**
@@ -185,7 +185,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
      */
     @Override
     public double getTotalMoneyInCirculation() {
-        return economyManager.getAllBalances().values().stream()
+        return EconomyManager.getAllAccounts().values().stream()
             .mapToDouble(Double::doubleValue)
             .sum();
     }
@@ -195,7 +195,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
      */
     @Override
     public int getAccountCount() {
-        return economyManager.getAllBalances().size();
+        return EconomyManager.getAllAccounts().size();
     }
 
     /**
@@ -206,7 +206,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
         if (limit < 1) {
             throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
         }
-        return economyManager.getAllBalances().entrySet().stream()
+        return EconomyManager.getAllAccounts().entrySet().stream()
             .sorted(Map.Entry.<UUID, Double>comparingByValue().reversed())
             .limit(limit)
             .collect(Collectors.toList());

@@ -39,10 +39,10 @@ public class BlotterItem extends Item {
             try {
                 return LSDDosage.valueOf(tag.getString("Dosage"));
             } catch (IllegalArgumentException e) {
-                return LSDDosage.STANDARD;
+                return LSDDosage.GUT;
             }
         }
-        return LSDDosage.STANDARD;
+        return LSDDosage.GUT;
     }
 
     public static int getMicrograms(ItemStack stack) {
@@ -87,7 +87,7 @@ public class BlotterItem extends Item {
         tooltip.add(Component.translatable("tooltip.blotter.paper_with_design"));
         tooltip.add(Component.translatable("tooltip.blotter.can_consume_sell"));
 
-        if (dosage == LSDDosage.BICYCLE_DAY) {
+        if (dosage == LSDDosage.LEGENDAER) {
             tooltip.add(Component.literal(""));
             tooltip.add(Component.translatable("tooltip.blotter.bicycle_day"));
         }

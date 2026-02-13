@@ -493,7 +493,7 @@ public class PoliceAIHandler {
             de.rolandsw.schedulemc.npc.crime.BountyManager bountyManager =
                 de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance();
             if (bountyManager != null) {
-                bountyManager.claimBounty(player.getUUID());
+                bountyManager.claimBounty(police.getUUID(), player.getUUID());
             }
         } catch (Exception e) {
             LOGGER.debug("BountyManager claim failed: {}", e.getMessage());

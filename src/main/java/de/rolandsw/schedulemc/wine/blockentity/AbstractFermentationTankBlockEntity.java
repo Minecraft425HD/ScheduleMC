@@ -100,7 +100,7 @@ public abstract class AbstractFermentationTankBlockEntity extends BlockEntity im
                 try { quality = WineQuality.valueOf(tag.getString("Quality")); }
                 catch (IllegalArgumentException ignored) {}
             } else {
-                quality = WineQuality.LANDWEIN;
+                quality = WineQuality.SCHLECHT;
             }
             fermentationProgress = 0;
         } else if (handlerInput.isEmpty()) {

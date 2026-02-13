@@ -129,7 +129,7 @@ public class DialogueConsequenceSystem {
         // Nachricht an Spieler
         if (consequence.getMessage() != null) {
             player.sendSystemMessage(Component.literal(
-                "\u00A77[" + npc.getNPCName() + "] \u00A7f" + consequence.getMessage()
+                "\u00A77[" + npc.getNpcName() + "] \u00A7f" + consequence.getMessage()
             ));
         }
     }
