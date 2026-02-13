@@ -280,8 +280,12 @@ public class QualityItemColors {
     private static int parseUnifiedQualityLevel(String qualityName) {
         if (qualityName == null || qualityName.isEmpty()) return 1;
 
-        // Normalisiere Input: trim und uppercase
-        String normalized = qualityName.trim().toUpperCase();
+        // Normalisiere Input: trim, uppercase, Umlaute konvertieren
+        String normalized = qualityName.trim().toUpperCase()
+            .replace("Ä", "AE")
+            .replace("Ö", "OE")
+            .replace("Ü", "UE")
+            .replace("ß", "SS");
 
         return switch (normalized) {
             // === LEVEL 0: SCHLECHT / POOR ===
@@ -309,8 +313,8 @@ public class QualityItemColors {
             case "§AEXCELLENT", "§A§LEXCELLENT" -> 2;
 
             // === LEVEL 3: LEGENDAER / LEGENDARY ===
-            // Deutsche Namen
-            case "LEGENDAER", "LEGENDÄR", "LEGEND" + "AER", "LEGEND" + "AR" -> 3;
+            // Deutsche Namen (LEGENDÄR wird zu LEGENDAER normalisiert)
+            case "LEGENDAER" -> 3;
             // Englische Namen
             case "LEGENDARY", "PREMIUM", "EXCEPTIONAL", "EPIC" -> 3;
             // Übersetzungs-Varianten
