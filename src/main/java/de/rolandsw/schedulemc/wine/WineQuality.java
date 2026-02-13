@@ -16,7 +16,7 @@ public enum WineQuality implements ProductionQuality {
     SCHLECHT("§c", 0, 0.7),
     GUT("§e", 1, 1.0),
     SEHR_GUT("§a", 2, 2.0),
-    LEGENDAER("§d§l", 3, 4.0);
+    LEGENDAER("§6§l", 3, 4.0);
 
     private final String colorCode;
     private final int level;

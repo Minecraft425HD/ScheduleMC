@@ -107,10 +107,10 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
         // Dosierung anzeigen
         String dosageText = Component.translatable("gui.mikro_dosierer.dose_display", micrograms, dosage.getDisplayName()).getString();
         int textColor = switch (dosage) {
-            case SCHLECHT -> 0xAAAAAA;
-            case GUT -> 0x55FF55;
-            case SEHR_GUT -> 0xFFFF55;
-            case LEGENDAER -> 0xFF55FF;
+            case SCHLECHT -> 0xFF888888;  // Grau
+            case GUT -> 0xFFFFFF55;       // Gelb
+            case SEHR_GUT -> 0xFF55FF55;  // Grün
+            case LEGENDAER -> 0xFFFFD700; // Gold
         };
 
         int textWidth = this.font.width(dosageText);

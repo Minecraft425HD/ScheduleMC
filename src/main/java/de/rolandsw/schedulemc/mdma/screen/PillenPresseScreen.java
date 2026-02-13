@@ -203,7 +203,7 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         switch (quality) {
             case LEGENDAER -> {
                 qualityText = Component.translatable("gui.pill_press.result.premium").getString();
-                qualityColor = 0xFFFFAA00;
+                qualityColor = 0xFFFFD700;
             }
             case SEHR_GUT -> {
                 qualityText = Component.translatable("gui.pill_press.result.good").getString();
@@ -215,7 +215,7 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
             }
             default -> {
                 qualityText = Component.translatable("gui.pill_press.result.bad").getString();
-                qualityColor = 0xFFFF5555;
+                qualityColor = 0xFF888888;
             }
         }
 

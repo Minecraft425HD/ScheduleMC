@@ -270,10 +270,16 @@ public class QualityItemColors {
         if (qualityName == null || qualityName.isEmpty()) return 1;
 
         return switch (qualityName.toUpperCase()) {
+            // Deutsche Namen
             case "SCHLECHT" -> 0;
             case "GUT" -> 1;
             case "SEHR_GUT" -> 2;
             case "LEGENDAER", "LEGENDÄR" -> 3;
+            // Englische Namen
+            case "POOR", "BAD", "INFERIOR" -> 0;
+            case "GOOD", "AVERAGE", "STANDARD", "NORMAL" -> 1;
+            case "VERY_GOOD", "EXCELLENT", "SUPERIOR" -> 2;
+            case "LEGENDARY", "PREMIUM", "EXCEPTIONAL" -> 3;
             default -> 1; // Fallback: GUT
         };
     }

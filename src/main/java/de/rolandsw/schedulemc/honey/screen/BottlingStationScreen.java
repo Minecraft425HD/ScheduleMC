@@ -91,7 +91,7 @@ public class BottlingStationScreen extends AbstractContainerScreen<BottlingStati
         int maxProgress = menu.getMaxProgress();
         if (progress > 0 && maxProgress > 0) {
             int percent = (int) (100.0f * progress / maxProgress);
-            graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 96, y + 56, 0xFFAA00, false);
+            graphics.drawString(this.font, Component.translatable("gui.progress_percent", percent).getString(), x + 96, y + 56, 0xFFFFAA00, false);
         }
     }
 

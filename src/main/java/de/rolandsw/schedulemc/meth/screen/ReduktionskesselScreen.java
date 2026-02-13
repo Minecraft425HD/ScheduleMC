@@ -213,10 +213,10 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
 
         // Qualitäts-Farbe
         int qualityColor = switch (expected) {
-            case SCHLECHT -> 0xFFAAAAAA;  // Grau-weiß
+            case SCHLECHT -> 0xFF888888;  // Grau
             case GUT -> 0xFFFFFF55;       // Gelb
             case SEHR_GUT -> 0xFF55FF55;  // Grün
-            case LEGENDAER -> 0xFF55FFFF; // Cyan/Blau
+            case LEGENDAER -> 0xFFFFD700; // Gold
         };
 
         graphics.fill(x + 2, y + 2, x + 128, y + 14, qualityColor);
