@@ -28,6 +28,9 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
     private static volatile EconomyManager instance;
     private static final Map<UUID, Double> balances = new ConcurrentHashMap<>();
+
+    // SICHERHEIT: Maximales Guthaben um Overflow zu verhindern
+    private static final double MAX_BALANCE = 1_000_000_000_000.0; // 1 Billion €
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
     private static volatile File file = new File("config/plotmod_economy.json");
     private static final Gson gson = GsonHelper.get();
@@ -271,7 +274,11 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         }
 
         // SICHERHEIT: Atomare Operation mit merge() — vermeidet Array-Allokation für Lambda-Capture
-        double newBalance = balances.merge(uuid, amount, Double::sum);
+        // SICHERHEIT: Overflow-Prüfung mit MAX_BALANCE
+        double newBalance = balances.merge(uuid, amount, (oldVal, addVal) -> {
+            double sum = oldVal + addVal;
+            return sum > MAX_BALANCE ? MAX_BALANCE : sum;
+        });
 
         markDirty();
         LOGGER.debug("Deposit: {} € for {} ({})", amount, uuid, type);
@@ -334,6 +341,9 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     public static void setBalance(UUID uuid, double amount, TransactionType type, @Nullable String description) {
         if (amount < 0) {
             amount = 0;
+        }
+        if (amount > MAX_BALANCE) {
+            amount = MAX_BALANCE;
         }
         // OPTIMIERT: Einziger Map-Zugriff statt getOrDefault + put (2 Lookups)
         final double setAmount = amount;
