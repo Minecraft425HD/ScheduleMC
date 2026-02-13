@@ -371,6 +371,16 @@ public class NPCLifeSystemIntegration {
             case FRAUD -> "Betrug";
             case THREAT -> "einer Bedrohung";
             case EVADING_POLICE -> "Flucht vor der Polizei";
+            case MURDER -> "einem Mord";
+            case GANG_VIOLENCE -> "Bandengewalt";
+            case ARSON -> "Brandstiftung";
+            case BLACK_MARKET -> "Schwarzmarkthandel";
+            case PRISON_ESCAPE -> "einem Gefaengnisausbruch";
+            case POLICE_ASSAULT -> "einem Angriff auf die Polizei";
+            case TERRORISM -> "Terrorismus";
+            case TRAFFIC_VIOLATION -> "einem Verkehrsdelikt";
+            case RECKLESS_DRIVING -> "ruecksichtslosem Fahren";
+            case HIT_AND_RUN -> "Fahrerflucht";
         };
     }
 
