@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.google.gson.annotations.SerializedName;
+import de.rolandsw.schedulemc.util.UUIDHelper;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -43,7 +44,8 @@ public class Transaction {
 
     public Transaction(TransactionType type, @Nullable UUID fromPlayer, @Nullable UUID toPlayer,
                       double amount, String description, double balanceAfter) {
-        this.transactionId = UUID.randomUUID().toString();
+        // OPTIMIERT: UUIDHelper vermeidet redundante toString() Aufrufe
+        this.transactionId = UUIDHelper.randomUUIDString();
         this.timestamp = System.currentTimeMillis();
         this.type = type;
         this.fromPlayer = fromPlayer;

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.google.gson.annotations.SerializedName;
+import de.rolandsw.schedulemc.util.UUIDHelper;
 
 import java.util.UUID;
 
@@ -37,7 +38,8 @@ public class RecurringPayment {
 
     public RecurringPayment(UUID fromPlayer, UUID toPlayer, double amount, int intervalDays,
                            String description, long currentDay) {
-        this.paymentId = UUID.randomUUID().toString();
+        // OPTIMIERT: UUIDHelper vermeidet redundante toString() Aufrufe
+        this.paymentId = UUIDHelper.randomUUIDString();
         this.fromPlayer = fromPlayer;
         this.toPlayer = toPlayer;
         this.amount = amount;
