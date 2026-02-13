@@ -216,7 +216,7 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
             case SCHLECHT -> 0xFFFF5555;  // Rot (00a7c)
             case GUT -> 0xFFFFFF55;       // Gelb
             case SEHR_GUT -> 0xFF55FF55;  // Grün
-            case LEGENDAER -> 0xFFFFD700; // Gold
+            case LEGENDAER -> 0xFFFFAA00; // Gold (00a76)
         };
 
         graphics.fill(x + 2, y + 2, x + 128, y + 14, qualityColor);

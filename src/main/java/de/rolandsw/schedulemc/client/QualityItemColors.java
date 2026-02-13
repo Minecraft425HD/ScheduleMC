@@ -39,10 +39,11 @@ import net.minecraftforge.fml.common.Mod;
 public class QualityItemColors {
 
     // Qualitäts-Farben (ARGB Format) - Einheitliches 4-Stufen-System
+    // Farben entsprechen exakt den Minecraft Chat-Codes!
     private static final int COLOR_QUALITY_0 = 0xFFFF5555; // Rot - SCHLECHT (§c)
     private static final int COLOR_QUALITY_1 = 0xFFFFFF55; // Gelb - GUT (§e)
     private static final int COLOR_QUALITY_2 = 0xFF55FF55; // Grün - SEHR_GUT (§a)
-    private static final int COLOR_QUALITY_3 = 0xFFFFD700; // Gold - LEGENDAER (§6)
+    private static final int COLOR_QUALITY_3 = 0xFFFFAA00; // Gold - LEGENDAER (§6)
     private static final int COLOR_DEFAULT = 0xFFFFFFFF;   // Weiß - Keine Qualität/Fallback
 
     @SubscribeEvent
@@ -289,10 +290,10 @@ public class QualityItemColors {
      */
     private static int getColorForLevel(int level) {
         return switch (level) {
-            case 0 -> COLOR_QUALITY_0; // Grau - SCHLECHT
-            case 1 -> COLOR_QUALITY_1; // Gelb - GUT
-            case 2 -> COLOR_QUALITY_2; // Grün - SEHR_GUT
-            case 3 -> COLOR_QUALITY_3; // Gold - LEGENDAER
+            case 0 -> COLOR_QUALITY_0; // Rot (§c) - SCHLECHT
+            case 1 -> COLOR_QUALITY_1; // Gelb (§e) - GUT
+            case 2 -> COLOR_QUALITY_2; // Grün (§a) - SEHR_GUT
+            case 3 -> COLOR_QUALITY_3; // Gold (§6) - LEGENDAER
             default -> COLOR_DEFAULT;
         };
     }
