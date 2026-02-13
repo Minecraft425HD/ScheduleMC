@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.google.gson.annotations.SerializedName;
+import de.rolandsw.schedulemc.util.UUIDHelper;
 
 import java.util.UUID;
 
@@ -36,7 +37,8 @@ public class Loan {
     private final double dailyPayment;
 
     public Loan(UUID playerUUID, LoanType type, long currentDay) {
-        this.loanId = UUID.randomUUID().toString();
+        // OPTIMIERT: UUIDHelper vermeidet redundante toString() Aufrufe
+        this.loanId = UUIDHelper.randomUUIDString();
         this.playerUUID = playerUUID;
         this.type = type;
         this.principal = type.getAmount();

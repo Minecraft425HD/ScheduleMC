@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.economy;
 
 import com.google.gson.annotations.SerializedName;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.util.UUIDHelper;
 
 import java.util.UUID;
 
@@ -25,7 +26,8 @@ public class SavingsAccount {
     private long lastInterestDay;
 
     public SavingsAccount(UUID playerUUID, double initialDeposit, long currentDay) {
-        this.accountId = UUID.randomUUID().toString();
+        // OPTIMIERT: UUIDHelper vermeidet redundante toString() Aufrufe
+        this.accountId = UUIDHelper.randomUUIDString();
         this.playerUUID = playerUUID;
         this.balance = initialDeposit;
         this.createdDay = currentDay;
