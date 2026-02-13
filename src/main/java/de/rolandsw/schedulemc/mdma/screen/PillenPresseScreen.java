@@ -215,7 +215,7 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
             }
             default -> {
                 qualityText = Component.translatable("gui.pill_press.result.bad").getString();
-                qualityColor = 0xFF888888;
+                qualityColor = 0xFFFF5555; // Rot (00a7c)
             }
         }
 

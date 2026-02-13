@@ -213,7 +213,7 @@ public class ReduktionskesselScreen extends AbstractContainerScreen<Reduktionske
 
         // Qualitäts-Farbe
         int qualityColor = switch (expected) {
-            case SCHLECHT -> 0xFF888888;  // Grau
+            case SCHLECHT -> 0xFFFF5555;  // Rot (00a7c)
             case GUT -> 0xFFFFFF55;       // Gelb
             case SEHR_GUT -> 0xFF55FF55;  // Grün
             case LEGENDAER -> 0xFFFFD700; // Gold
