@@ -222,7 +222,17 @@ public class QualityItemColors {
         // Standard "Quality" Tag (verwendet von den meisten Items)
         if (tag.contains("Quality")) {
             String qualityStr = tag.getString("Quality");
-            return parseUnifiedQualityLevel(qualityStr);
+            int level = parseUnifiedQualityLevel(qualityStr);
+
+            // DEBUG: Log wenn "poor" im String vorkommt aber nicht Level 0 ist
+            if (qualityStr.toLowerCase().contains("poor") && level != 0) {
+                System.out.println("[QualityItemColors] WARNING: Quality string '" + qualityStr +
+                    "' contains 'poor' but was parsed as level " + level + " instead of 0!");
+                System.out.println("[QualityItemColors] Item: " + stack.getItem().toString());
+                System.out.println("[QualityItemColors] Full NBT: " + tag.toString());
+            }
+
+            return level;
         }
 
         // CannabisQuality Tag
@@ -270,18 +280,56 @@ public class QualityItemColors {
     private static int parseUnifiedQualityLevel(String qualityName) {
         if (qualityName == null || qualityName.isEmpty()) return 1;
 
-        return switch (qualityName.toUpperCase()) {
+        // Normalisiere Input: trim und uppercase
+        String normalized = qualityName.trim().toUpperCase();
+
+        return switch (normalized) {
+            // === LEVEL 0: SCHLECHT / POOR ===
             // Deutsche Namen
             case "SCHLECHT" -> 0;
-            case "GUT" -> 1;
-            case "SEHR_GUT" -> 2;
-            case "LEGENDAER", "LEGENDÄR" -> 3;
             // Englische Namen
-            case "POOR", "BAD", "INFERIOR" -> 0;
-            case "GOOD", "AVERAGE", "STANDARD", "NORMAL" -> 1;
-            case "VERY_GOOD", "EXCELLENT", "SUPERIOR" -> 2;
-            case "LEGENDARY", "PREMIUM", "EXCEPTIONAL" -> 3;
-            default -> 1; // Fallback: GUT
+            case "POOR", "BAD", "INFERIOR", "LOW" -> 0;
+            // Übersetzungs-Varianten
+            case "§CPOOR", "§C§LPOOR" -> 0;
+
+            // === LEVEL 1: GUT / GOOD ===
+            // Deutsche Namen
+            case "GUT" -> 1;
+            // Englische Namen
+            case "GOOD", "AVERAGE", "STANDARD", "NORMAL", "DECENT" -> 1;
+            // Übersetzungs-Varianten
+            case "§EGOOD", "§E§LGOOD" -> 1;
+
+            // === LEVEL 2: SEHR_GUT / EXCELLENT ===
+            // Deutsche Namen
+            case "SEHR_GUT", "SEHR GUT", "SEHRGUT" -> 2;
+            // Englische Namen
+            case "VERY_GOOD", "VERY GOOD", "EXCELLENT", "SUPERIOR", "HIGH" -> 2;
+            // Übersetzungs-Varianten
+            case "§AEXCELLENT", "§A§LEXCELLENT" -> 2;
+
+            // === LEVEL 3: LEGENDAER / LEGENDARY ===
+            // Deutsche Namen
+            case "LEGENDAER", "LEGENDÄR", "LEGEND" + "AER", "LEGEND" + "AR" -> 3;
+            // Englische Namen
+            case "LEGENDARY", "PREMIUM", "EXCEPTIONAL", "EPIC" -> 3;
+            // Übersetzungs-Varianten
+            case "§6LEGENDARY", "§6§LLEGENDARY" -> 3;
+
+            default -> {
+                // Versuche Format "ClassName.QUALITY" zu parsen
+                if (normalized.contains(".")) {
+                    String[] parts = normalized.split("\\.");
+                    if (parts.length >= 2) {
+                        // Rekursiver Aufruf mit dem Teil nach dem Punkt
+                        int result = parseUnifiedQualityLevel(parts[parts.length - 1]);
+                        if (result != 1 || parts[parts.length - 1].equals("GUT") || parts[parts.length - 1].equals("GOOD")) {
+                            yield result;
+                        }
+                    }
+                }
+                yield 1; // Default: GUT
+            }
         };
     }
 
