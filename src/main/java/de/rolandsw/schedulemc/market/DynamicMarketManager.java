@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Dynamic Market Manager - Zentrale Verwaltung des dynamischen Marktes
@@ -61,7 +62,8 @@ public class DynamicMarketManager {
     // Statistics
     private volatile long lastUpdateTime = 0;
     private volatile long totalUpdates = 0;
-    private volatile int tickCounter = 0;
+    // CONCURRENCY: AtomicInteger für thread-safe Inkrement-Operationen
+    private final AtomicInteger tickCounter = new AtomicInteger(0);
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -209,10 +211,10 @@ public class DynamicMarketManager {
     public void tick() {
         if (!enabled) return;
 
-        tickCounter++;
+        tickCounter.incrementAndGet();
 
-        if (tickCounter >= updateInterval) {
-            tickCounter = 0;
+        if (tickCounter.get() >= updateInterval) {
+            tickCounter.set(0);
             performMarketUpdate();
         }
     }
@@ -624,7 +626,7 @@ public class DynamicMarketManager {
 
     public void reset() {
         marketData.clear();
-        tickCounter = 0;
+        tickCounter.set(0);
         totalUpdates = 0;
         dirty = true;
         LOGGER.warn("Market reset!");
@@ -635,7 +637,7 @@ public class DynamicMarketManager {
         LOGGER.info("Enabled: {}", enabled);
         LOGGER.info("Registered Items: {}", marketData.size());
         LOGGER.info("Statistics: {}", getStatistics());
-        LOGGER.info("Next update in: {} ticks", updateInterval - tickCounter);
+        LOGGER.info("Next update in: {} ticks", updateInterval - tickCounter.get());
         LOGGER.info("═══════════════════════════════════════");
     }
 }
