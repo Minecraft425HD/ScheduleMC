@@ -19,6 +19,7 @@ import de.rolandsw.schedulemc.honey.items.HoneyJarItem;
 import de.rolandsw.schedulemc.items.ModItems;
 import de.rolandsw.schedulemc.lsd.items.BlotterItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
+import de.rolandsw.schedulemc.lsd.items.LSDLoesungItem;
 import de.rolandsw.schedulemc.mdma.items.*;
 import de.rolandsw.schedulemc.meth.items.*;
 import de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem;
