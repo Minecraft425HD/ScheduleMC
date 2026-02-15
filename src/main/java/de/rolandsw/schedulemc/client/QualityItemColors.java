@@ -194,17 +194,31 @@ public class QualityItemColors {
      * @return ARGB Farbwert
      */
     private static int getQualityColor(ItemStack stack, int tintIndex) {
+        // DEBUG: Log JEDEN Aufruf um zu sehen ob die Methode überhaupt aufgerufen wird
+        System.out.println("[QualityItemColors] ===== getQualityColor called =====");
+        System.out.println("  → Item: " + stack.getDescriptionId());
+        System.out.println("  → tintIndex: " + tintIndex);
+        System.out.println("  → Has NBT: " + (stack.getTag() != null));
+        if (stack.getTag() != null) {
+            System.out.println("  → NBT: " + stack.getTag().toString());
+        }
+
         // Layer 0 (Basis-Textur) - keine Färbung
         if (tintIndex == 0) {
+            System.out.println("  → Returning DEFAULT (layer 0)");
             return COLOR_DEFAULT;
         }
 
         // Layer 1 (Qualitäts-Rahmen) - Qualitätsfarbe
         if (tintIndex == 1) {
             int qualityLevel = extractQualityLevel(stack);
-            return getColorForLevel(qualityLevel);
+            int color = getColorForLevel(qualityLevel);
+            System.out.println("  → Quality level: " + qualityLevel);
+            System.out.println("  → Returning color: 0x" + Integer.toHexString(color) + " (" + getColorName(qualityLevel) + ")");
+            return color;
         }
 
+        System.out.println("  → Returning DEFAULT (unknown tintIndex)");
         return COLOR_DEFAULT;
     }
 
@@ -223,14 +237,7 @@ public class QualityItemColors {
         if (tag.contains("Quality")) {
             String qualityStr = tag.getString("Quality");
             int level = parseUnifiedQualityLevel(qualityStr);
-
-            // DEBUG: Log ALLE Quality-Werte um das Problem zu finden
-            System.out.println("[QualityItemColors] DEBUG: Found Quality tag!");
-            System.out.println("  → Item: " + stack.getDescriptionId());
-            System.out.println("  → Quality NBT value: '" + qualityStr + "'");
-            System.out.println("  → Parsed to level: " + level);
-            System.out.println("  → Expected color: " + getColorName(level));
-
+            System.out.println("  → Found Quality tag: '" + qualityStr + "' → level " + level);
             return level;
         }
 
