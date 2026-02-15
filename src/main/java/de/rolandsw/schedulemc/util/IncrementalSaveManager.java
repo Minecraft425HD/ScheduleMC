@@ -90,8 +90,8 @@ public class IncrementalSaveManager {
     /**
      * Config
      */
-    private volatile int saveIntervalTicks = 20;  // Alle 20 ticks (1 Sekunde)
-    private volatile int batchSize = 5;            // Max 5 Saves pro Tick
+    private volatile int saveIntervalTicks = 1200;  // Alle 1200 ticks (1 Minute)
+    private volatile int batchSize = 10;             // Max 10 Saves pro Tick
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
@@ -197,7 +197,10 @@ public class IncrementalSaveManager {
 
         if (saved > 0) {
             incrementalSaves.incrementAndGet();
-            LOGGER.debug("Incremental save: {} components saved", saved);
+            // Nur bei vielen Saves loggen (>=5)
+            if (saved >= 5) {
+                LOGGER.debug("Incremental save: {} components saved", saved);
+            }
         }
     }
 
@@ -217,7 +220,10 @@ public class IncrementalSaveManager {
 
             totalSaves.incrementAndGet();
 
-            LOGGER.debug("Saved {} in {}ms", saveable.getName(), String.format("%.2f", durationMs));
+            // Nur langsame Saves loggen (>50ms)
+            if (durationMs > 50.0) {
+                LOGGER.debug("Saved {} in {}ms", saveable.getName(), String.format("%.2f", durationMs));
+            }
 
         } catch (Exception e) {
             LOGGER.error("Error saving {}", saveable.getName(), e);
