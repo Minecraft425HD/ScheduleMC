@@ -171,44 +171,44 @@ public class ModCreativeTabs {
                 // TABAK - BLÄTTER (Frisch) - mit Quality NBT
                 output.accept(de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.VIRGINIA,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
                 output.accept(de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.BURLEY,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
                 output.accept(de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.ORIENTAL,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
                 output.accept(de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.HAVANA,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
 
                 // TABAK - BLÄTTER (Getrocknet) - mit Quality NBT
                 output.accept(de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.VIRGINIA,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
                 output.accept(de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.BURLEY,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
                 output.accept(de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.ORIENTAL,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
                 output.accept(de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.HAVANA,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
 
                 // TABAK - BLÄTTER (Fermentiert) - mit Quality NBT
                 output.accept(de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.VIRGINIA,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
                 output.accept(de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.BURLEY,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
                 output.accept(de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.ORIENTAL,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
                 output.accept(de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(
                     de.rolandsw.schedulemc.tobacco.TobaccoType.HAVANA,
-                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT, 1));
 
                 // TABAK - FLASCHEN & WERKZEUGE
                 output.accept(TobaccoItems.FERTILIZER_BOTTLE.get());
