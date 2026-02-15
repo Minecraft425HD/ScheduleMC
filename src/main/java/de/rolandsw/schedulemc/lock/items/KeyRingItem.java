@@ -152,36 +152,32 @@ public class KeyRingItem extends Item {
         // Abgelaufene Schluessel bereinigen
         int expired = cleanExpiredKeys(ring);
         if (expired > 0) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A78" + expired + " abgelaufene Schluessel entfernt."));
+            player.sendSystemMessage(Component.translatable("lock.ring.expired_removed", expired));
         }
 
         // Passenden Schluessel suchen
         int keyIdx = findKeyForLock(ring, lockData.getLockId());
         if (keyIdx < 0) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7cKein passender Schluessel im Ring!"));
+            player.sendSystemMessage(Component.translatable("lock.ring.no_matching_key"));
             return InteractionResult.FAIL;
         }
 
         // Dual-Lock: Code noetig
         if (lockData.getType() == LockType.DUAL) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7eSchluessel gefunden! Gib jetzt den Code ein (Linksklick auf die Tuer)."));
+            player.sendSystemMessage(Component.translatable("lock.ring.dual_enter_code"));
             return InteractionResult.SUCCESS;
         }
 
         // Nutzung abziehen
         boolean depleted = consumeKeyUse(ring, keyIdx);
         if (depleted) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A77Ein Schluessel im Ring wurde aufgebraucht."));
+            player.sendSystemMessage(Component.translatable("lock.ring.key_depleted"));
         }
 
         // Tuer oeffnen
         DoorBlock door = (DoorBlock) level.getBlockState(pos).getBlock();
         door.setOpen(null, level, level.getBlockState(pos), pos, !level.getBlockState(pos).getValue(DoorBlock.OPEN));
-        player.sendSystemMessage(Component.literal("\u00A7a\u2714 Tuer entriegelt (Ring)!"));
+        player.sendSystemMessage(Component.translatable("lock.ring.unlocked"));
 
         return InteractionResult.SUCCESS;
     }
@@ -194,8 +190,7 @@ public class KeyRingItem extends Item {
         // Abgelaufene bereinigen
         int expired = cleanExpiredKeys(ring);
         if (expired > 0) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A78" + expired + " abgelaufene Schluessel entfernt."));
+            player.sendSystemMessage(Component.translatable("lock.ring.expired_removed", expired));
         }
 
         // Sneak: Schluessel aus anderer Hand hinzufuegen
@@ -204,14 +199,12 @@ public class KeyRingItem extends Item {
             ItemStack otherItem = player.getItemInHand(other);
             if (otherItem.getItem() instanceof KeyItem && !KeyItem.isBlank(otherItem)) {
                 if (getKeyCount(ring) >= MAX_KEYS) {
-                    player.sendSystemMessage(Component.literal(
-                            "\u00A7cSchluesselring ist voll! (Max " + MAX_KEYS + ")"));
+                    player.sendSystemMessage(Component.translatable("lock.ring.full", MAX_KEYS));
                 } else {
                     addKey(ring, otherItem);
                     player.setItemInHand(other, ItemStack.EMPTY);
-                    player.sendSystemMessage(Component.literal(
-                            "\u00A7a\u2714 Schluessel zum Ring hinzugefuegt (" +
-                                    getKeyCount(ring) + "/" + MAX_KEYS + ")"));
+                    player.sendSystemMessage(Component.translatable("lock.ring.added",
+                            getKeyCount(ring), MAX_KEYS));
                 }
                 return InteractionResultHolder.success(ring);
             }
@@ -224,12 +217,11 @@ public class KeyRingItem extends Item {
 
     private void showKeyRingInfo(Player player, ItemStack ring) {
         int count = getKeyCount(ring);
-        player.sendSystemMessage(Component.literal(
-                "\u00A76\u2550\u2550\u2550 Schluesselring (" + count + "/" + MAX_KEYS + ") \u2550\u2550\u2550"));
+        player.sendSystemMessage(Component.translatable("lock.ring.info_header", count, MAX_KEYS));
 
         CompoundTag tag = ring.getTag();
         if (tag == null || count == 0) {
-            player.sendSystemMessage(Component.literal("\u00A78Keine Schluessel."));
+            player.sendSystemMessage(Component.translatable("lock.ring.empty"));
             return;
         }
 
@@ -263,11 +255,11 @@ public class KeyRingItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tips, TooltipFlag flag) {
         int count = getKeyCount(stack);
-        tips.add(Component.literal("\u00A76Schluesselring").withStyle(ChatFormatting.GOLD));
-        tips.add(Component.literal("\u00A77" + count + "/" + MAX_KEYS + " Schluessel"));
-        tips.add(Component.literal("\u00A78Rechtsklick auf Tuer: Oeffnen"));
-        tips.add(Component.literal("\u00A78Rechtsklick in Luft: Info"));
-        tips.add(Component.literal("\u00A78Sneak+Rechtsklick: Schluessel hinzufuegen"));
+        tips.add(Component.translatable("lock.ring.tooltip.title").withStyle(ChatFormatting.GOLD));
+        tips.add(Component.translatable("lock.ring.tooltip.count", count, MAX_KEYS));
+        tips.add(Component.translatable("lock.ring.tooltip.use_on_door"));
+        tips.add(Component.translatable("lock.ring.tooltip.use_in_air"));
+        tips.add(Component.translatable("lock.ring.tooltip.sneak_add"));
     }
 
     @Override

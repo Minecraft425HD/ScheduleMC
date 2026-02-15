@@ -55,7 +55,7 @@ public class LockPickItem extends Item {
         LockData lockData = mgr.getLock(posKey);
 
         if (lockData == null) {
-            player.sendSystemMessage(Component.literal("\u00A77Diese Tuer ist nicht gesperrt."));
+            player.sendSystemMessage(Component.translatable("lock.pick.not_locked"));
             return InteractionResult.PASS;
         }
 
@@ -63,8 +63,7 @@ public class LockPickItem extends Item {
 
         // Zahlenschloss: Dietrich funktioniert nicht
         if (type == LockType.COMBINATION) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7cZahlenschloss! Dietrich nutzlos. Versuche den Code."));
+            player.sendSystemMessage(Component.translatable("lock.pick.combination_useless"));
             return InteractionResult.FAIL;
         }
 
@@ -81,20 +80,16 @@ public class LockPickItem extends Item {
             DoorBlock door = (DoorBlock) level.getBlockState(pos).getBlock();
             door.setOpen(null, level, level.getBlockState(pos), pos, !level.getBlockState(pos).getValue(DoorBlock.OPEN));
 
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7a\u2714 Schloss geknackt! (" + (int)(chance * 100) + "% Chance)"));
+            player.sendSystemMessage(Component.translatable("lock.pick.success", (int)(chance * 100)));
         } else {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7c\u2716 Fehlgeschlagen! (" + (int)(chance * 100) + "% Chance)"));
+            player.sendSystemMessage(Component.translatable("lock.pick.failed", (int)(chance * 100)));
 
             // Alarm bei Hochsicherheit
             if (type.triggersAlarm()) {
-                player.sendSystemMessage(Component.literal(
-                        "\u00A74\u26A0 ALARM AUSGELOEST! Fahndungslevel erhoecht!"));
+                player.sendSystemMessage(Component.translatable("lock.pick.alarm"));
                 triggerAlarm(player);
             } else if (type == LockType.SECURITY) {
-                player.sendSystemMessage(Component.literal(
-                        "\u00A7e\u26A0 Warnung: Verdaechtige Aktivitaet registriert."));
+                player.sendSystemMessage(Component.translatable("lock.pick.warning"));
             }
         }
 
@@ -114,14 +109,14 @@ public class LockPickItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tips, TooltipFlag flag) {
-        tips.add(Component.literal("\u00A76Dietrich-Set").withStyle(ChatFormatting.GOLD));
-        tips.add(Component.literal("\u00A77Rechtsklick auf gesperrte Tuer"));
+        tips.add(Component.translatable("lock.pick.tooltip.title").withStyle(ChatFormatting.GOLD));
+        tips.add(Component.translatable("lock.pick.tooltip.rightclick"));
         tips.add(Component.literal(""));
-        tips.add(Component.literal("\u00A78Erfolgschancen:"));
-        tips.add(Component.literal("\u00A7a  Einfach: 80%"));
-        tips.add(Component.literal("\u00A7e  Sicher: 40% + Warnung"));
-        tips.add(Component.literal("\u00A7c  Hochsicher: 10% + Alarm"));
-        tips.add(Component.literal("\u00A75  Dual-Lock: 5% + Alarm"));
-        tips.add(Component.literal("\u00A78  Zahlenschloss: Nicht moeglich"));
+        tips.add(Component.translatable("lock.pick.tooltip.chances"));
+        tips.add(Component.translatable("lock.pick.tooltip.chance.simple"));
+        tips.add(Component.translatable("lock.pick.tooltip.chance.security"));
+        tips.add(Component.translatable("lock.pick.tooltip.chance.high_security"));
+        tips.add(Component.translatable("lock.pick.tooltip.chance.dual"));
+        tips.add(Component.translatable("lock.pick.tooltip.chance.combination"));
     }
 }

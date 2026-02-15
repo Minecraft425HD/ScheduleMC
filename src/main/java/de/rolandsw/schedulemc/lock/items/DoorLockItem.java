@@ -55,7 +55,7 @@ public class DoorLockItem extends Item {
 
         // Bereits gesperrt?
         if (mgr.isLocked(posKey)) {
-            player.sendSystemMessage(Component.literal("\u00A7cDiese Tuer ist bereits gesperrt!"));
+            player.sendSystemMessage(Component.translatable("lock.door.already_locked"));
             return InteractionResult.FAIL;
         }
 
@@ -73,25 +73,21 @@ public class DoorLockItem extends Item {
 
         // Nachricht
         if (lockType.hasCode()) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7a\u2714 " + lockType.getDisplayName() + " angebracht! Code: \u00A7e\u00A7l" + data.getCode()));
+            player.sendSystemMessage(Component.translatable("lock.door.placed",
+                    lockType.getDisplayName(), data.getCode()));
             if (lockType.supportsKeys()) {
-                player.sendSystemMessage(Component.literal(
-                        "\u00A77Dieser Lock braucht Schluessel UND Code."));
+                player.sendSystemMessage(Component.translatable("lock.door.needs_key_and_code"));
             }
         } else {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7a\u2714 " + lockType.getDisplayName() + " angebracht!"));
-            player.sendSystemMessage(Component.literal(
-                    "\u00A77Benutze einen Schluessel-Rohling auf diese Tuer."));
+            player.sendSystemMessage(Component.translatable("lock.door.placed_no_code",
+                    lockType.getDisplayName()));
+            player.sendSystemMessage(Component.translatable("lock.door.needs_key_blank"));
         }
-        player.sendSystemMessage(Component.literal(
-                "\u00A78Lock-ID: " + data.getLockId()));
+        player.sendSystemMessage(Component.translatable("lock.door.lock_id", data.getLockId()));
 
         // Admin-Hinweis
         if (isAdmin) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7d[Admin] Schloss ohne Besitzer platziert."));
+            player.sendSystemMessage(Component.translatable("lock.door.admin_no_owner"));
         }
 
         return InteractionResult.SUCCESS;
@@ -100,21 +96,21 @@ public class DoorLockItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tips, TooltipFlag flag) {
         tips.add(Component.literal(lockType.getDisplayName()).withStyle(ChatFormatting.GOLD));
-        tips.add(Component.literal("\u00A77Rechtsklick auf Tuer zum Sperren"));
+        tips.add(Component.translatable("lock.door.tooltip.rightclick"));
 
         if (lockType.supportsKeys()) {
             long dur = lockType.getKeyDurationMs();
             String durStr = dur >= 86400000 ? (dur / 86400000) + " Tage" : (dur / 3600000) + " Stunden";
-            tips.add(Component.literal("\u00A78Schluessel-Dauer: " + durStr));
-            tips.add(Component.literal("\u00A78Nutzungen: " + lockType.getKeyMaxUses() + "x"));
+            tips.add(Component.translatable("lock.door.tooltip.key_duration", durStr));
+            tips.add(Component.translatable("lock.door.tooltip.uses", lockType.getKeyMaxUses()));
         }
         if (lockType.hasCode()) {
-            tips.add(Component.literal("\u00A7e\u2699 Zahlenschloss (4-stellig)"));
+            tips.add(Component.translatable("lock.door.tooltip.combination"));
         }
         int pct = (int)(lockType.getPickChance() * 100);
-        tips.add(Component.literal("\u00A78Dietrich: " + pct + "% Chance"));
+        tips.add(Component.translatable("lock.door.tooltip.lockpick_chance", pct));
         if (lockType.triggersAlarm()) {
-            tips.add(Component.literal("\u00A7c\u26A0 Alarm bei Einbruchversuch"));
+            tips.add(Component.translatable("lock.door.tooltip.alarm"));
         }
     }
 }
