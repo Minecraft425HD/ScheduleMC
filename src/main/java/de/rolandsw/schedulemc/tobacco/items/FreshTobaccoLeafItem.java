@@ -26,7 +26,15 @@ public class FreshTobaccoLeafItem extends Item {
      * Erstellt ItemStack mit Typ und Qualität
      */
     public static ItemStack create(TobaccoType type, TobaccoQuality quality, int count) {
-        ItemStack stack = new ItemStack(TobaccoItems.FRESH_VIRGINIA_LEAF.get(), count);
+        // Wähle das richtige Item basierend auf dem TobaccoType
+        Item item = switch (type) {
+            case VIRGINIA -> TobaccoItems.FRESH_VIRGINIA_LEAF.get();
+            case BURLEY -> TobaccoItems.FRESH_BURLEY_LEAF.get();
+            case ORIENTAL -> TobaccoItems.FRESH_ORIENTAL_LEAF.get();
+            case HAVANA -> TobaccoItems.FRESH_HAVANA_LEAF.get();
+        };
+
+        ItemStack stack = new ItemStack(item, count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("TobaccoType", type.name());
         tag.putString("Quality", quality.name());
