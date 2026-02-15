@@ -168,23 +168,47 @@ public class ModCreativeTabs {
                 output.accept(TobaccoItems.ORIENTAL_SEEDS.get());
                 output.accept(TobaccoItems.HAVANA_SEEDS.get());
 
-                // TABAK - BLÄTTER (Frisch)
-                output.accept(TobaccoItems.FRESH_VIRGINIA_LEAF.get());
-                output.accept(TobaccoItems.FRESH_BURLEY_LEAF.get());
-                output.accept(TobaccoItems.FRESH_ORIENTAL_LEAF.get());
-                output.accept(TobaccoItems.FRESH_HAVANA_LEAF.get());
+                // TABAK - BLÄTTER (Frisch) - mit Quality NBT
+                output.accept(de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.VIRGINIA,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                output.accept(de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.BURLEY,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                output.accept(de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.ORIENTAL,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                output.accept(de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.HAVANA,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
 
-                // TABAK - BLÄTTER (Getrocknet)
-                output.accept(TobaccoItems.DRIED_VIRGINIA_LEAF.get());
-                output.accept(TobaccoItems.DRIED_BURLEY_LEAF.get());
-                output.accept(TobaccoItems.DRIED_ORIENTAL_LEAF.get());
-                output.accept(TobaccoItems.DRIED_HAVANA_LEAF.get());
+                // TABAK - BLÄTTER (Getrocknet) - mit Quality NBT
+                output.accept(de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.VIRGINIA,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                output.accept(de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.BURLEY,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                output.accept(de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.ORIENTAL,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                output.accept(de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.HAVANA,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
 
-                // TABAK - BLÄTTER (Fermentiert)
-                output.accept(TobaccoItems.FERMENTED_VIRGINIA_LEAF.get());
-                output.accept(TobaccoItems.FERMENTED_BURLEY_LEAF.get());
-                output.accept(TobaccoItems.FERMENTED_ORIENTAL_LEAF.get());
-                output.accept(TobaccoItems.FERMENTED_HAVANA_LEAF.get());
+                // TABAK - BLÄTTER (Fermentiert) - mit Quality NBT
+                output.accept(de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.VIRGINIA,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                output.accept(de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.BURLEY,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                output.accept(de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.ORIENTAL,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
+                output.accept(de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(
+                    de.rolandsw.schedulemc.tobacco.TobaccoType.HAVANA,
+                    de.rolandsw.schedulemc.tobacco.TobaccoQuality.COMMON, 1));
 
                 // TABAK - FLASCHEN & WERKZEUGE
                 output.accept(TobaccoItems.FERTILIZER_BOTTLE.get());
