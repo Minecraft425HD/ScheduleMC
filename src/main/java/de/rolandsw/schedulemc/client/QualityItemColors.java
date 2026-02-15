@@ -1,22 +1,37 @@
 package de.rolandsw.schedulemc.client;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.beer.items.BeerBottleItem;
 import de.rolandsw.schedulemc.beer.items.BeerItems;
-import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
-import de.rolandsw.schedulemc.chocolate.items.ChocolateItems;
-import de.rolandsw.schedulemc.coca.items.CocaItems;
-import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
+import de.rolandsw.schedulemc.cannabis.items.*;
+import de.rolandsw.schedulemc.cheese.items.CheeseCurdItem;
 import de.rolandsw.schedulemc.cheese.items.CheeseItems;
+import de.rolandsw.schedulemc.cheese.items.CheeseWedgeItem;
+import de.rolandsw.schedulemc.cheese.items.CheeseWheelItem;
+import de.rolandsw.schedulemc.chocolate.items.ChocolateBarItem;
+import de.rolandsw.schedulemc.chocolate.items.ChocolateItems;
+import de.rolandsw.schedulemc.coca.items.*;
+import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
+import de.rolandsw.schedulemc.coffee.items.GroundCoffeeItem;
+import de.rolandsw.schedulemc.coffee.items.RoastedCoffeeBeanItem;
 import de.rolandsw.schedulemc.honey.items.HoneyItems;
+import de.rolandsw.schedulemc.honey.items.HoneyJarItem;
 import de.rolandsw.schedulemc.items.ModItems;
+import de.rolandsw.schedulemc.lsd.items.BlotterItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
-import de.rolandsw.schedulemc.mdma.items.MDMAItems;
-import de.rolandsw.schedulemc.meth.items.MethItems;
+import de.rolandsw.schedulemc.mdma.items.*;
+import de.rolandsw.schedulemc.meth.items.*;
+import de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem;
+import de.rolandsw.schedulemc.mushroom.items.FreshMushroomItem;
 import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
-import de.rolandsw.schedulemc.poppy.items.PoppyItems;
-import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
+import de.rolandsw.schedulemc.poppy.items.*;
+import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
+import de.rolandsw.schedulemc.tobacco.items.*;
+import de.rolandsw.schedulemc.wine.items.GrapeItem;
+import de.rolandsw.schedulemc.wine.items.WineBottleItem;
 import de.rolandsw.schedulemc.wine.items.WineItems;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
@@ -210,122 +225,161 @@ public class QualityItemColors {
 
     /**
      * Extrahiert das Qualitäts-Level aus einem ItemStack.
-     * Alle Qualitäts-Enums verwenden jetzt das einheitliche 4-Stufen-System:
+     *
+     * LÖSUNG 2: Ruft die Item-spezifische getQuality() Methode auf!
+     * Dies garantiert 100% Konsistenz zwischen Tooltip und Rahmenfarbe,
+     * da beide die GLEICHE Methode verwenden!
+     *
+     * Alle Qualitäts-Enums verwenden das einheitliche 4-Stufen-System:
      * SCHLECHT (0), GUT (1), SEHR_GUT (2), LEGENDAER (3)
      */
     private static int extractQualityLevel(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) {
-            return 0; // Default: SCHLECHT (wie in MethItem.getQuality)
+        Item item = stack.getItem();
+
+        // === METH ITEMS ===
+        if (item instanceof MethItem) {
+            return MethItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof KristallMethItem) {
+            return KristallMethItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof RohMethItem) {
+            return RohMethItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof MethPasteItem) {
+            return MethPasteItem.getQuality(stack).ordinal();
         }
 
-        // Standard "Quality" Tag (verwendet von den meisten Items)
-        if (tag.contains("Quality")) {
-            String qualityStr = tag.getString("Quality");
-            return parseUnifiedQualityLevel(qualityStr);
+        // === MDMA ITEMS ===
+        if (item instanceof MDMAKristallItem) {
+            return MDMAKristallItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof MDMABaseItem) {
+            return MDMABaseItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof EcstasyPillItem) {
+            return EcstasyPillItem.getQuality(stack).ordinal();
         }
 
-        // CannabisQuality Tag
-        if (tag.contains("CannabisQuality")) {
-            String qualityStr = tag.getString("CannabisQuality");
-            return parseUnifiedQualityLevel(qualityStr);
+        // === CANNABIS ITEMS ===
+        if (item instanceof CuredBudItem) {
+            return CuredBudItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof DriedBudItem) {
+            return DriedBudItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof FreshBudItem) {
+            return FreshBudItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof TrimmedBudItem) {
+            return TrimmedBudItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof HashItem) {
+            return HashItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof CannabisOilItem) {
+            return CannabisOilItem.getQuality(stack).ordinal();
         }
 
-        // MethQuality Tag
-        if (tag.contains("MethQuality")) {
-            String qualityStr = tag.getString("MethQuality");
-            return parseUnifiedQualityLevel(qualityStr);
+        // === TOBACCO ITEMS ===
+        if (item instanceof FreshTobaccoLeafItem) {
+            return FreshTobaccoLeafItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof DriedTobaccoLeafItem) {
+            return DriedTobaccoLeafItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof FermentedTobaccoLeafItem) {
+            return FermentedTobaccoLeafItem.getQuality(stack).ordinal();
         }
 
-        // LSD Dosage Tag
-        if (tag.contains("LSDDosage")) {
-            String qualityStr = tag.getString("LSDDosage");
-            return parseUnifiedQualityLevel(qualityStr);
+        // === COCA ITEMS ===
+        if (item instanceof CocaineItem) {
+            return CocaineItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof CocaPasteItem) {
+            return CocaPasteItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof FreshCocaLeafItem) {
+            return FreshCocaLeafItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof CrackRockItem) {
+            return CrackRockItem.getQuality(stack).ordinal();
         }
 
-        // PackagedDrugItem Format "ClassName.VALUE"
-        if (tag.contains("DrugType")) {
-            String qualityStr = tag.getString("Quality");
-            if (qualityStr.contains(".")) {
-                String[] parts = qualityStr.split("\\.");
-                if (parts.length >= 2) {
-                    return parseUnifiedQualityLevel(parts[1]);
-                }
-            }
-            return parseUnifiedQualityLevel(qualityStr);
+        // === POPPY/OPIATE ITEMS ===
+        if (item instanceof HeroinItem) {
+            return HeroinItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof MorphineItem) {
+            return MorphineItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof RawOpiumItem) {
+            return RawOpiumItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof PoppyPodItem) {
+            return PoppyPodItem.getQuality(stack).ordinal();
         }
 
-        return 1; // Default: GUT
+        // === WINE ITEMS ===
+        if (item instanceof WineBottleItem) {
+            return WineBottleItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof GrapeItem) {
+            return GrapeItem.getQuality(stack).ordinal();
+        }
+
+        // === BEER ITEMS ===
+        if (item instanceof BeerBottleItem) {
+            return BeerBottleItem.getQuality(stack).ordinal();
+        }
+
+        // === CHEESE ITEMS ===
+        if (item instanceof CheeseCurdItem) {
+            return CheeseCurdItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof CheeseWedgeItem) {
+            return CheeseWedgeItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof CheeseWheelItem) {
+            return CheeseWheelItem.getQuality(stack).ordinal();
+        }
+
+        // === COFFEE ITEMS ===
+        if (item instanceof RoastedCoffeeBeanItem) {
+            return RoastedCoffeeBeanItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof GroundCoffeeItem) {
+            return GroundCoffeeItem.getQuality(stack).ordinal();
+        }
+
+        // === MUSHROOM ITEMS ===
+        if (item instanceof FreshMushroomItem) {
+            return FreshMushroomItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof DriedMushroomItem) {
+            return DriedMushroomItem.getQuality(stack).ordinal();
+        }
+
+        // === OTHER ITEMS ===
+        if (item instanceof HoneyJarItem) {
+            return HoneyJarItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof ChocolateBarItem) {
+            return ChocolateBarItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof PackagedDrugItem) {
+            return PackagedDrugItem.getQuality(stack).ordinal();
+        }
+
+        // === LSD ITEMS (special handling for dosage) ===
+        if (item instanceof BlotterItem) {
+            return BlotterItem.getDosage(stack).ordinal();
+        }
+
+        // Fallback: Item hat keine Quality
+        return 0; // Default: SCHLECHT
     }
 
-    /**
-     * Parst einheitliche Qualitätsnamen und gibt das Level zurück.
-     *
-     * Einheitliches 4-Stufen-System:
-     * - 0: SCHLECHT
-     * - 1: GUT
-     * - 2: SEHR_GUT
-     * - 3: LEGENDAER
-     */
-    private static int parseUnifiedQualityLevel(String qualityName) {
-        if (qualityName == null || qualityName.isEmpty()) return 1;
-
-        // Normalisiere Input: trim, uppercase, Umlaute konvertieren
-        String normalized = qualityName.trim().toUpperCase()
-            .replace("Ä", "AE")
-            .replace("Ö", "OE")
-            .replace("Ü", "UE")
-            .replace("ß", "SS");
-
-        return switch (normalized) {
-            // === LEVEL 0: SCHLECHT / POOR ===
-            // Deutsche Namen
-            case "SCHLECHT" -> 0;
-            // Englische Namen
-            case "POOR", "BAD", "INFERIOR", "LOW" -> 0;
-            // Übersetzungs-Varianten
-            case "§CPOOR", "§C§LPOOR" -> 0;
-
-            // === LEVEL 1: GUT / GOOD ===
-            // Deutsche Namen
-            case "GUT" -> 1;
-            // Englische Namen
-            case "GOOD", "AVERAGE", "STANDARD", "NORMAL", "DECENT" -> 1;
-            // Übersetzungs-Varianten
-            case "§EGOOD", "§E§LGOOD" -> 1;
-
-            // === LEVEL 2: SEHR_GUT / EXCELLENT ===
-            // Deutsche Namen
-            case "SEHR_GUT", "SEHR GUT", "SEHRGUT" -> 2;
-            // Englische Namen
-            case "VERY_GOOD", "VERY GOOD", "EXCELLENT", "SUPERIOR", "HIGH" -> 2;
-            // Übersetzungs-Varianten
-            case "§AEXCELLENT", "§A§LEXCELLENT" -> 2;
-
-            // === LEVEL 3: LEGENDAER / LEGENDARY ===
-            // Deutsche Namen (LEGENDÄR wird zu LEGENDAER normalisiert)
-            case "LEGENDAER" -> 3;
-            // Englische Namen
-            case "LEGENDARY", "PREMIUM", "EXCEPTIONAL", "EPIC" -> 3;
-            // Übersetzungs-Varianten
-            case "§6LEGENDARY", "§6§LLEGENDARY" -> 3;
-
-            default -> {
-                // Versuche Format "ClassName.QUALITY" zu parsen
-                if (normalized.contains(".")) {
-                    String[] parts = normalized.split("\\.");
-                    if (parts.length >= 2) {
-                        // Rekursiver Aufruf mit dem Teil nach dem Punkt
-                        int result = parseUnifiedQualityLevel(parts[parts.length - 1]);
-                        if (result != 1 || parts[parts.length - 1].equals("GUT") || parts[parts.length - 1].equals("GOOD")) {
-                            yield result;
-                        }
-                    }
-                }
-                yield 1; // Default: GUT
-            }
-        };
-    }
 
     /**
      * Gibt die Farbe für ein Qualitäts-Level zurück.
