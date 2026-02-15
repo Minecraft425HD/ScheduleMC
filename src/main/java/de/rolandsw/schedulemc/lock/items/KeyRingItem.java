@@ -236,19 +236,37 @@ public class KeyRingItem extends Item {
             long remaining = kt.contains("expire_time") ? kt.getLong("expire_time") - now : -1;
 
             String timeStr;
-            if (remaining < 0) timeStr = "\u00A7a\u221E";
-            else if (remaining <= 0) timeStr = "\u00A7cAbgelaufen";
-            else if (remaining > 86400000) timeStr = "\u00A7a" + (remaining / 86400000) + "d";
-            else if (remaining > 3600000) timeStr = "\u00A7e" + (remaining / 3600000) + "h";
-            else timeStr = "\u00A7c" + (remaining / 60000) + "m";
+            if (remaining < 0) {
+                timeStr = "§a" + Component.translatable("lock.ring.key_info.infinite").getString();
+            } else if (remaining <= 0) {
+                timeStr = "§c" + Component.translatable("lock.ring.key_info.expired").getString();
+            } else if (remaining > 86400000) {
+                timeStr = "§a" + Component.translatable("lock.time.days_hours",
+                        (int)(remaining / 86400000),
+                        (int)((remaining % 86400000) / 3600000)).getString();
+            } else if (remaining > 3600000) {
+                timeStr = "§e" + Component.translatable("lock.time.hours_short",
+                        (int)(remaining / 3600000)).getString();
+            } else {
+                timeStr = "§c" + Component.translatable("lock.time.minutes",
+                        (int)(remaining / 60000)).getString();
+            }
 
-            String usesStr = usesLeft > 0 ? usesLeft + "x" : "\u00A7cLeer";
-            String originShort = origin.equals("STOLEN") ? "\u00A7c[G]" :
-                    origin.equals("COPY") ? "\u00A7e[K]" : "\u00A7a[O]";
+            String usesStr = usesLeft > 0 ? usesLeft + "x" :
+                    "§c" + Component.translatable("lock.ring.key_info.empty").getString();
+
+            String originShort;
+            if (origin.equals("STOLEN")) {
+                originShort = "§c" + Component.translatable("lock.ring.key_info.origin.stolen").getString();
+            } else if (origin.equals("COPY")) {
+                originShort = "§e" + Component.translatable("lock.ring.key_info.origin.copy").getString();
+            } else {
+                originShort = "§a" + Component.translatable("lock.ring.key_info.origin.original").getString();
+            }
 
             player.sendSystemMessage(Component.literal(
-                    "\u00A77" + (i + 1) + ". " + originShort + " \u00A7f" + lockId +
-                            " \u00A78(" + lockType + ") " + timeStr + " \u00A78| " + usesStr));
+                    "§7" + (i + 1) + ". " + originShort + " §f" + lockId +
+                            " §8(" + lockType + ") " + timeStr + " §8| " + usesStr));
         }
     }
 

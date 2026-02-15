@@ -180,7 +180,12 @@ public class KeyItem extends Item {
         player.sendSystemMessage(Component.translatable("lock.key.created", lockData.getLockId()));
 
         long dur = lockData.getType().getKeyDuration(LockType.KeyOrigin.ORIGINAL);
-        String durStr = dur >= 86400000 ? (dur / 86400000) + " Tage" : (dur / 3600000) + "h";
+        String durStr;
+        if (dur >= 86400000) {
+            durStr = Component.translatable("lock.time.days", (int)(dur / 86400000)).getString();
+        } else {
+            durStr = Component.translatable("lock.time.hours_short", (int)(dur / 3600000)).getString();
+        }
         int uses = lockData.getType().getKeyUses(LockType.KeyOrigin.ORIGINAL);
         player.sendSystemMessage(Component.translatable("lock.key.durability_info", durStr, uses));
 
@@ -267,8 +272,9 @@ public class KeyItem extends Item {
             // Rohling
             tips.add(Component.translatable("lock.key.blank.tooltip", tierName).withStyle(ChatFormatting.GOLD));
             tips.add(Component.translatable("lock.key.blank.tooltip.rightclick"));
-            String[] lockNames = {"Einfach", "Sicher", "Hochsicher/Dual"};
-            tips.add(Component.translatable("lock.key.blank.tooltip.for", lockNames[Math.min(blankTier, 2)]));
+            String lockTierKey = "lock.lock_tier." + (blankTier == 0 ? "simple" : blankTier == 1 ? "security" : "high_security");
+            tips.add(Component.translatable("lock.key.blank.tooltip.for",
+                    Component.translatable(lockTierKey).getString()));
             return;
         }
 
@@ -306,9 +312,17 @@ public class KeyItem extends Item {
                 tips.add(Component.translatable("lock.key.tooltip.expired"));
             } else {
                 String time;
-                if (remaining > 86400000) time = (remaining / 86400000) + "d " + ((remaining % 86400000) / 3600000) + "h";
-                else if (remaining > 3600000) time = (remaining / 3600000) + "h " + ((remaining % 3600000) / 60000) + "m";
-                else time = (remaining / 60000) + "m";
+                if (remaining > 86400000) {
+                    int days = (int)(remaining / 86400000);
+                    int hours = (int)((remaining % 86400000) / 3600000);
+                    time = Component.translatable("lock.time.days_hours", days, hours).getString();
+                } else if (remaining > 3600000) {
+                    int hours = (int)(remaining / 3600000);
+                    int minutes = (int)((remaining % 3600000) / 60000);
+                    time = Component.translatable("lock.time.hours_minutes", hours, minutes).getString();
+                } else {
+                    time = Component.translatable("lock.time.minutes", (int)(remaining / 60000)).getString();
+                }
                 tips.add(Component.translatable("lock.key.tooltip.time_remaining", time));
             }
         }

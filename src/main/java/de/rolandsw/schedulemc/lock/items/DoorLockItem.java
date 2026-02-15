@@ -100,7 +100,12 @@ public class DoorLockItem extends Item {
 
         if (lockType.supportsKeys()) {
             long dur = lockType.getKeyDurationMs();
-            String durStr = dur >= 86400000 ? (dur / 86400000) + " Tage" : (dur / 3600000) + " Stunden";
+            String durStr;
+            if (dur >= 86400000) {
+                durStr = Component.translatable("lock.time.days", (int)(dur / 86400000)).getString();
+            } else {
+                durStr = Component.translatable("lock.time.hours", (int)(dur / 3600000)).getString();
+            }
             tips.add(Component.translatable("lock.door.tooltip.key_duration", durStr));
             tips.add(Component.translatable("lock.door.tooltip.uses", lockType.getKeyMaxUses()));
         }

@@ -5836,5 +5836,20 @@
   "lock.ring.tooltip.sneak_add": "§8Sneak+Rechtsklick: Schluessel hinzufuegen",
   "lock.tier.copper": "Kupfer",
   "lock.tier.iron": "Eisen",
-  "lock.tier.netherite": "Netherite"
+  "lock.tier.netherite": "Netherite",
+  "lock.time.days": "%d Tage",
+  "lock.time.hours": "%d Stunden",
+  "lock.time.hours_short": "%dh",
+  "lock.time.days_hours": "%dd %dh",
+  "lock.time.hours_minutes": "%dh %dm",
+  "lock.time.minutes": "%dm",
+  "lock.lock_tier.simple": "Einfach",
+  "lock.lock_tier.security": "Sicher",
+  "lock.lock_tier.high_security": "Hochsicher/Dual",
+  "lock.ring.key_info.expired": "Abgelaufen",
+  "lock.ring.key_info.empty": "Leer",
+  "lock.ring.key_info.infinite": "∞",
+  "lock.ring.key_info.origin.stolen": "[G]",
+  "lock.ring.key_info.origin.copy": "[K]",
+  "lock.ring.key_info.origin.original": "[O]"
 }

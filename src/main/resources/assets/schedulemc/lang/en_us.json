@@ -5859,5 +5859,20 @@
   "lock.ring.tooltip.sneak_add": "§8Sneak+Right-click: Add key",
   "lock.tier.copper": "Copper",
   "lock.tier.iron": "Iron",
-  "lock.tier.netherite": "Netherite"
+  "lock.tier.netherite": "Netherite",
+  "lock.time.days": "%d days",
+  "lock.time.hours": "%d hours",
+  "lock.time.hours_short": "%dh",
+  "lock.time.days_hours": "%dd %dh",
+  "lock.time.hours_minutes": "%dh %dm",
+  "lock.time.minutes": "%dm",
+  "lock.lock_tier.simple": "Simple",
+  "lock.lock_tier.security": "Security",
+  "lock.lock_tier.high_security": "High-Security/Dual",
+  "lock.ring.key_info.expired": "Expired",
+  "lock.ring.key_info.empty": "Empty",
+  "lock.ring.key_info.infinite": "∞",
+  "lock.ring.key_info.origin.stolen": "[S]",
+  "lock.ring.key_info.origin.copy": "[C]",
+  "lock.ring.key_info.origin.original": "[O]"
 }
