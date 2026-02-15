@@ -25,6 +25,7 @@ import de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem;
 import de.rolandsw.schedulemc.mushroom.items.FreshMushroomItem;
 import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
 import de.rolandsw.schedulemc.poppy.items.*;
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
 import de.rolandsw.schedulemc.tobacco.items.*;
 import de.rolandsw.schedulemc.wine.items.GrapeItem;
@@ -368,7 +369,9 @@ public class QualityItemColors {
             return ChocolateBarItem.getQuality(stack).ordinal();
         }
         if (item instanceof PackagedDrugItem) {
-            return PackagedDrugItem.getQuality(stack).ordinal();
+            // PackagedDrugItem speichert Quality als String und parst es dann
+            ProductionQuality quality = PackagedDrugItem.parseQuality(PackagedDrugItem.getQuality(stack));
+            return quality.ordinal();
         }
 
         // === LSD ITEMS (special handling for dosage) ===
