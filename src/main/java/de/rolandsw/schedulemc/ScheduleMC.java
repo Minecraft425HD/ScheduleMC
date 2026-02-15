@@ -304,6 +304,16 @@ public class ScheduleMC {
         context.registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
         context.registerConfig(ModConfig.Type.CLIENT, ModConfigHandler.CLIENT_SPEC);
 
+        // Register config screen (client-side only)
+        net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT, () -> () -> {
+            context.registerExtensionPoint(
+                net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory.class,
+                () -> new net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory(
+                    (minecraft, screen) -> new de.rolandsw.schedulemc.client.gui.ConfigScreen(screen)
+                )
+            );
+        });
+
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new BlockProtectionHandler());
         MinecraftForge.EVENT_BUS.register(new PlayerJoinHandler());
