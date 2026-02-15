@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.util;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -197,9 +198,9 @@ public class IncrementalSaveManager {
 
         if (saved > 0) {
             incrementalSaves.incrementAndGet();
-            // Nur bei vielen Saves loggen (>=5)
-            if (saved >= 5) {
-                LOGGER.debug("Incremental save: {} components saved", saved);
+            // Nur bei vielen Saves loggen (>=5) UND wenn Debug aktiviert ist
+            if (saved >= 5 && isDebugEnabled()) {
+                LOGGER.info("Incremental save: {} components saved", saved);
             }
         }
     }
@@ -220,9 +221,9 @@ public class IncrementalSaveManager {
 
             totalSaves.incrementAndGet();
 
-            // Nur langsame Saves loggen (>50ms)
-            if (durationMs > 50.0) {
-                LOGGER.debug("Saved {} in {}ms", saveable.getName(), String.format("%.2f", durationMs));
+            // Nur langsame Saves loggen (>50ms) UND wenn Debug aktiviert ist
+            if (durationMs > 50.0 && isDebugEnabled()) {
+                LOGGER.info("Saved {} in {}ms", saveable.getName(), String.format("%.2f", durationMs));
             }
 
         } catch (Exception e) {
@@ -439,6 +440,22 @@ public class IncrementalSaveManager {
     public String toString() {
         return String.format("IncrementalSaveManager{registered=%d, dirty=%d, running=%b, totalSaves=%d}",
             saveables.size(), getDirtyCount(), running.get(), totalSaves.get());
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // DEBUG HELPER
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Prüft ob Debug-Logging aktiviert ist
+     */
+    private boolean isDebugEnabled() {
+        try {
+            return ModConfigHandler.VEHICLE_CLIENT.debugLogging.get();
+        } catch (Exception e) {
+            // Fallback: Wenn Config nicht verfügbar, kein Debug
+            return false;
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
