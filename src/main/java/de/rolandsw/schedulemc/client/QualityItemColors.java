@@ -371,7 +371,7 @@ public class QualityItemColors {
         if (item instanceof PackagedDrugItem) {
             // PackagedDrugItem speichert Quality als String und parst es dann
             ProductionQuality quality = PackagedDrugItem.parseQuality(PackagedDrugItem.getQuality(stack));
-            return quality.ordinal();
+            return quality.getLevel(); // Interface hat getLevel() statt ordinal()
         }
 
         // === LSD ITEMS (special handling for dosage) ===
