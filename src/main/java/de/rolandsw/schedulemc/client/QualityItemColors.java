@@ -68,16 +68,20 @@ public class QualityItemColors {
         // ILLEGALE PRODUKTE
         // ═══════════════════════════════════════════════════════════
 
-        // Tobacco Items (8)
+        // Tobacco Items (12 - Fresh, Dried, Fermented)
         event.register(QualityItemColors::getQualityColor,
-                TobaccoItems.FERMENTED_VIRGINIA_LEAF.get(),
-                TobaccoItems.FERMENTED_BURLEY_LEAF.get(),
-                TobaccoItems.FERMENTED_ORIENTAL_LEAF.get(),
-                TobaccoItems.FERMENTED_HAVANA_LEAF.get(),
+                TobaccoItems.FRESH_VIRGINIA_LEAF.get(),
+                TobaccoItems.FRESH_BURLEY_LEAF.get(),
+                TobaccoItems.FRESH_ORIENTAL_LEAF.get(),
+                TobaccoItems.FRESH_HAVANA_LEAF.get(),
                 TobaccoItems.DRIED_VIRGINIA_LEAF.get(),
                 TobaccoItems.DRIED_BURLEY_LEAF.get(),
                 TobaccoItems.DRIED_ORIENTAL_LEAF.get(),
-                TobaccoItems.DRIED_HAVANA_LEAF.get()
+                TobaccoItems.DRIED_HAVANA_LEAF.get(),
+                TobaccoItems.FERMENTED_VIRGINIA_LEAF.get(),
+                TobaccoItems.FERMENTED_BURLEY_LEAF.get(),
+                TobaccoItems.FERMENTED_ORIENTAL_LEAF.get(),
+                TobaccoItems.FERMENTED_HAVANA_LEAF.get()
         );
 
         // Cannabis Items (6)
@@ -90,8 +94,12 @@ public class QualityItemColors {
                 CannabisItems.CANNABIS_OIL.get()
         );
 
-        // Coca Items (2)
+        // Coca Items (6 - Fresh Leaves, Paste, Cocaine, Crack)
         event.register(QualityItemColors::getQualityColor,
+                CocaItems.FRESH_BOLIVIANISCH_LEAF.get(),
+                CocaItems.FRESH_KOLUMBIANISCH_LEAF.get(),
+                CocaItems.FRESH_PERUANISCH_LEAF.get(),
+                CocaItems.COCA_PASTE.get(),
                 CocaItems.COCAINE.get(),
                 CocaItems.CRACK_ROCK.get()
         );
@@ -112,15 +120,17 @@ public class QualityItemColors {
                 MethItems.METH.get()
         );
 
-        // MDMA Items (2)
+        // MDMA Items (3 - Base, Kristall, Ecstasy Pills)
         event.register(QualityItemColors::getQualityColor,
                 MDMAItems.MDMA_BASE.get(),
-                MDMAItems.MDMA_KRISTALL.get()
+                MDMAItems.MDMA_KRISTALL.get(),
+                MDMAItems.ECSTASY_PILL.get()
         );
 
-        // LSD Items (1)
+        // LSD Items (2 - Blotter, Lösung)
         event.register(QualityItemColors::getQualityColor,
-                LSDItems.BLOTTER.get()
+                LSDItems.BLOTTER.get(),
+                LSDItems.LSD_LOESUNG.get()
         );
 
         // Mushroom Items (6)
@@ -142,23 +152,17 @@ public class QualityItemColors {
         // LEGALE PRODUKTE
         // ═══════════════════════════════════════════════════════════
 
-        // Coffee Items (7)
+        // Coffee Items (2 - nur Beans und Ground haben Quality)
         event.register(QualityItemColors::getQualityColor,
                 CoffeeItems.ROASTED_COFFEE_BEANS.get(),
-                CoffeeItems.GROUND_COFFEE.get(),
-                CoffeeItems.COFFEE_PACKAGE_250G.get(),
-                CoffeeItems.COFFEE_PACKAGE_500G.get(),
-                CoffeeItems.COFFEE_PACKAGE_1KG.get(),
-                CoffeeItems.BREWED_COFFEE.get(),
-                CoffeeItems.ESPRESSO.get()
+                CoffeeItems.GROUND_COFFEE.get()
         );
 
-        // Wine Items (8)
+        // Wine Items (7 - Bottles und Grapes haben Quality, nicht Glass)
         event.register(QualityItemColors::getQualityColor,
                 WineItems.WINE_BOTTLE_375ML.get(),
                 WineItems.WINE_BOTTLE_750ML.get(),
                 WineItems.WINE_BOTTLE_1500ML.get(),
-                WineItems.GLASS_OF_WINE.get(),
                 WineItems.RIESLING_GRAPES.get(),
                 WineItems.SPAETBURGUNDER_GRAPES.get(),
                 WineItems.CHARDONNAY_GRAPES.get(),
