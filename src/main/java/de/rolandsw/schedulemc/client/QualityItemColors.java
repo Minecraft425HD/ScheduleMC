@@ -224,13 +224,12 @@ public class QualityItemColors {
             String qualityStr = tag.getString("Quality");
             int level = parseUnifiedQualityLevel(qualityStr);
 
-            // DEBUG: Log wenn "poor" im String vorkommt aber nicht Level 0 ist
-            if (qualityStr.toLowerCase().contains("poor") && level != 0) {
-                System.out.println("[QualityItemColors] WARNING: Quality string '" + qualityStr +
-                    "' contains 'poor' but was parsed as level " + level + " instead of 0!");
-                System.out.println("[QualityItemColors] Item: " + stack.getItem().toString());
-                System.out.println("[QualityItemColors] Full NBT: " + tag.toString());
-            }
+            // DEBUG: Log ALLE Quality-Werte um das Problem zu finden
+            System.out.println("[QualityItemColors] DEBUG: Found Quality tag!");
+            System.out.println("  → Item: " + stack.getDescriptionId());
+            System.out.println("  → Quality NBT value: '" + qualityStr + "'");
+            System.out.println("  → Parsed to level: " + level);
+            System.out.println("  → Expected color: " + getColorName(level));
 
             return level;
         }
@@ -347,6 +346,19 @@ public class QualityItemColors {
             case 2 -> COLOR_QUALITY_2; // Grün (§a) - SEHR_GUT
             case 3 -> COLOR_QUALITY_3; // Gold (§6) - LEGENDAER
             default -> COLOR_DEFAULT;
+        };
+    }
+
+    /**
+     * Debug-Hilfsmethode: Gibt den Farbnamen für ein Level zurück
+     */
+    private static String getColorName(int level) {
+        return switch (level) {
+            case 0 -> "ROT (SCHLECHT)";
+            case 1 -> "GELB (GUT)";
+            case 2 -> "GRÜN (SEHR_GUT)";
+            case 3 -> "GOLD (LEGENDAER)";
+            default -> "DEFAULT";
         };
     }
 }
