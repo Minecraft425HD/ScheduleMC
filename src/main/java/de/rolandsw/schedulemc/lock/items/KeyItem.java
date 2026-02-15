@@ -156,23 +156,20 @@ public class KeyItem extends Item {
     private InteractionResult handleBlankOnDoor(ServerPlayer player, ItemStack blank, LockData lockData) {
         // Nur Besitzer oder autorisierte Spieler duerfen Schluessel erstellen
         if (!lockData.isAuthorized(player.getUUID())) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7cDu bist nicht berechtigt, einen Schluessel zu erstellen!"));
+            player.sendSystemMessage(Component.translatable("lock.key.not_authorized"));
             return InteractionResult.FAIL;
         }
 
         // Tier pruefen
         int requiredTier = lockData.getType().getRequiredBlankTier();
         if (requiredTier < 0) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7cDieses Schloss benoetigt keinen Schluessel (Zahlenschloss)."));
+            player.sendSystemMessage(Component.translatable("lock.key.no_key_needed"));
             return InteractionResult.FAIL;
         }
         if (this.blankTier < requiredTier) {
-            String[] tierNames = {"Kupfer", "Eisen", "Netherite"};
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7cDu brauchst mindestens einen \u00A7e" + tierNames[requiredTier] +
-                            "-Rohling\u00A7c fuer dieses Schloss!"));
+            String tierName = Component.translatable("lock.tier." +
+                    (requiredTier == 0 ? "copper" : requiredTier == 1 ? "iron" : "netherite")).getString();
+            player.sendSystemMessage(Component.translatable("lock.key.wrong_tier", tierName));
             return InteractionResult.FAIL;
         }
 
@@ -180,14 +177,17 @@ public class KeyItem extends Item {
         ItemStack key = createKey(blank, lockData, LockType.KeyOrigin.ORIGINAL);
         player.getInventory().setItem(player.getInventory().selected, key);
 
-        player.sendSystemMessage(Component.literal(
-                "\u00A7a\u2714 Schluessel erstellt fuer Lock \u00A7e" + lockData.getLockId()));
+        player.sendSystemMessage(Component.translatable("lock.key.created", lockData.getLockId()));
 
         long dur = lockData.getType().getKeyDuration(LockType.KeyOrigin.ORIGINAL);
-        String durStr = dur >= 86400000 ? (dur / 86400000) + " Tage" : (dur / 3600000) + "h";
+        String durStr;
+        if (dur >= 86400000) {
+            durStr = Component.translatable("lock.time.days", (int)(dur / 86400000)).getString();
+        } else {
+            durStr = Component.translatable("lock.time.hours_short", (int)(dur / 3600000)).getString();
+        }
         int uses = lockData.getType().getKeyUses(LockType.KeyOrigin.ORIGINAL);
-        player.sendSystemMessage(Component.literal(
-                "\u00A77Haltbarkeit: " + durStr + " | Nutzungen: " + uses));
+        player.sendSystemMessage(Component.translatable("lock.key.durability_info", durStr, uses));
 
         return InteractionResult.SUCCESS;
     }
@@ -199,8 +199,7 @@ public class KeyItem extends Item {
 
         // Abgelaufen?
         if (isExpired(key)) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7cDieser Schluessel ist abgelaufen!"));
+            player.sendSystemMessage(Component.translatable("lock.key.expired"));
             player.getInventory().setItem(player.getInventory().selected, ItemStack.EMPTY);
             return InteractionResult.FAIL;
         }
@@ -208,15 +207,13 @@ public class KeyItem extends Item {
         // Lock-ID pruefen
         String keyLockId = tag.getString("lock_id");
         if (!keyLockId.equals(lockData.getLockId())) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7cDieser Schluessel passt nicht zu diesem Schloss!"));
+            player.sendSystemMessage(Component.translatable("lock.key.wrong_lock"));
             return InteractionResult.FAIL;
         }
 
         // Bei Dual-Lock: Schluessel akzeptiert, jetzt Code-GUI oeffnen
         if (lockData.getType() == LockType.DUAL) {
-            player.sendSystemMessage(Component.literal(
-                    "\u00A7a\u2714 Schluessel akzeptiert! Gib jetzt den Code ein."));
+            player.sendSystemMessage(Component.translatable("lock.key.accepted"));
             // Code-Eingabe GUI oeffnen
             String dim = level.dimension().location().toString();
             LockNetworkHandler.sendToPlayer(
@@ -229,7 +226,7 @@ public class KeyItem extends Item {
         boolean depleted = consumeUse(key);
         if (depleted) {
             player.getInventory().setItem(player.getInventory().selected, ItemStack.EMPTY);
-            player.sendSystemMessage(Component.literal("\u00A77Schluessel aufgebraucht."));
+            player.sendSystemMessage(Component.translatable("lock.key.depleted"));
         }
 
         // Tuer oeffnen (nur oeffnen, nicht toggle - schliesst automatisch)
@@ -237,7 +234,7 @@ public class KeyItem extends Item {
         if (!state.getValue(DoorBlock.OPEN)) {
             DoorBlock door = (DoorBlock) state.getBlock();
             door.setOpen(null, level, state, pos, true);
-            player.sendSystemMessage(Component.literal("\u00A7a\u2714 Tuer entriegelt!"));
+            player.sendSystemMessage(Component.translatable("lock.key.unlocked"));
 
             // Automatisch schliessen nach 3 Sekunden
             if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
@@ -273,50 +270,60 @@ public class KeyItem extends Item {
         CompoundTag tag = stack.getTag();
         if (tag == null || !tag.contains("lock_id")) {
             // Rohling
-            tips.add(Component.literal("\u00A7e" + tierName).withStyle(ChatFormatting.GOLD));
-            tips.add(Component.literal("\u00A77Rechtsklick auf gesperrte Tuer"));
-            String[] lockNames = {"Einfach", "Sicher", "Hochsicher/Dual"};
-            tips.add(Component.literal("\u00A78Fuer: " + lockNames[Math.min(blankTier, 2)] + "+"));
+            tips.add(Component.translatable("lock.key.blank.tooltip", tierName).withStyle(ChatFormatting.GOLD));
+            tips.add(Component.translatable("lock.key.blank.tooltip.rightclick"));
+            String lockTierKey = "lock.lock_tier." + (blankTier == 0 ? "simple" : blankTier == 1 ? "security" : "high_security");
+            tips.add(Component.translatable("lock.key.blank.tooltip.for",
+                    Component.translatable(lockTierKey).getString()));
             return;
         }
 
         // Schluessel
-        tips.add(Component.literal("\u00A76\u2714 Schluessel").withStyle(ChatFormatting.GOLD));
-        tips.add(Component.literal("\u00A78Lock-ID: " + tag.getString("lock_id")));
-        tips.add(Component.literal("\u00A78Typ: " + tag.getString("lock_type")));
+        tips.add(Component.translatable("lock.key.tooltip.title").withStyle(ChatFormatting.GOLD));
+        tips.add(Component.translatable("lock.key.tooltip.lock_id", tag.getString("lock_id")));
+        tips.add(Component.translatable("lock.key.tooltip.type", tag.getString("lock_type")));
 
         // Position
-        tips.add(Component.literal("\u00A78Tuer: " + tag.getInt("door_x") + ", " +
-                tag.getInt("door_y") + ", " + tag.getInt("door_z")));
+        tips.add(Component.translatable("lock.key.tooltip.door_position",
+                tag.getInt("door_x"), tag.getInt("door_y"), tag.getInt("door_z")));
 
         // Herkunft
         String origin = tag.getString("origin");
         ChatFormatting oc = origin.equals("STOLEN") ? ChatFormatting.RED :
                 origin.equals("COPY") ? ChatFormatting.YELLOW : ChatFormatting.GREEN;
         try {
-            tips.add(Component.literal("Herkunft: " + LockType.KeyOrigin.valueOf(origin).getDisplayName()).withStyle(oc));
+            tips.add(Component.translatable("lock.key.tooltip.origin",
+                    LockType.KeyOrigin.valueOf(origin).getDisplayName()).withStyle(oc));
         } catch (Exception e) {
-            tips.add(Component.literal("Herkunft: Unbekannt").withStyle(ChatFormatting.GRAY));
+            tips.add(Component.translatable("lock.key.tooltip.origin", "Unbekannt").withStyle(ChatFormatting.GRAY));
         }
 
         // Verbleibende Nutzungen
         if (tag.contains("uses_left")) {
             int left = tag.getInt("uses_left");
             ChatFormatting uc = left > 5 ? ChatFormatting.GREEN : left > 1 ? ChatFormatting.YELLOW : ChatFormatting.RED;
-            tips.add(Component.literal("Nutzungen: " + left).withStyle(uc));
+            tips.add(Component.translatable("lock.key.tooltip.uses", left).withStyle(uc));
         }
 
         // Ablaufzeit
         if (tag.contains("expire_time")) {
             long remaining = tag.getLong("expire_time") - System.currentTimeMillis();
             if (remaining <= 0) {
-                tips.add(Component.literal("\u00A7c\u2716 ABGELAUFEN"));
+                tips.add(Component.translatable("lock.key.tooltip.expired"));
             } else {
                 String time;
-                if (remaining > 86400000) time = (remaining / 86400000) + "d " + ((remaining % 86400000) / 3600000) + "h";
-                else if (remaining > 3600000) time = (remaining / 3600000) + "h " + ((remaining % 3600000) / 60000) + "m";
-                else time = (remaining / 60000) + "m";
-                tips.add(Component.literal("\u00A77\u23F1 " + time + " verbleibend"));
+                if (remaining > 86400000) {
+                    int days = (int)(remaining / 86400000);
+                    int hours = (int)((remaining % 86400000) / 3600000);
+                    time = Component.translatable("lock.time.days_hours", days, hours).getString();
+                } else if (remaining > 3600000) {
+                    int hours = (int)(remaining / 3600000);
+                    int minutes = (int)((remaining % 3600000) / 60000);
+                    time = Component.translatable("lock.time.hours_minutes", hours, minutes).getString();
+                } else {
+                    time = Component.translatable("lock.time.minutes", (int)(remaining / 60000)).getString();
+                }
+                tips.add(Component.translatable("lock.key.tooltip.time_remaining", time));
             }
         }
     }

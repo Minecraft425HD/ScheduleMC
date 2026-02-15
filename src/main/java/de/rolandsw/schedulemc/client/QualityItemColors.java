@@ -1,22 +1,39 @@
 package de.rolandsw.schedulemc.client;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.beer.items.BeerBottleItem;
 import de.rolandsw.schedulemc.beer.items.BeerItems;
-import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
-import de.rolandsw.schedulemc.chocolate.items.ChocolateItems;
-import de.rolandsw.schedulemc.coca.items.CocaItems;
-import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
+import de.rolandsw.schedulemc.cannabis.items.*;
+import de.rolandsw.schedulemc.cheese.items.CheeseCurdItem;
 import de.rolandsw.schedulemc.cheese.items.CheeseItems;
+import de.rolandsw.schedulemc.cheese.items.CheeseWedgeItem;
+import de.rolandsw.schedulemc.cheese.items.CheeseWheelItem;
+import de.rolandsw.schedulemc.chocolate.items.ChocolateBarItem;
+import de.rolandsw.schedulemc.chocolate.items.ChocolateItems;
+import de.rolandsw.schedulemc.coca.items.*;
+import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
+import de.rolandsw.schedulemc.coffee.items.GroundCoffeeItem;
+import de.rolandsw.schedulemc.coffee.items.RoastedCoffeeBeanItem;
 import de.rolandsw.schedulemc.honey.items.HoneyItems;
+import de.rolandsw.schedulemc.honey.items.HoneyJarItem;
 import de.rolandsw.schedulemc.items.ModItems;
+import de.rolandsw.schedulemc.lsd.items.BlotterItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
-import de.rolandsw.schedulemc.mdma.items.MDMAItems;
-import de.rolandsw.schedulemc.meth.items.MethItems;
+import de.rolandsw.schedulemc.lsd.items.LSDLoesungItem;
+import de.rolandsw.schedulemc.mdma.items.*;
+import de.rolandsw.schedulemc.meth.items.*;
+import de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem;
+import de.rolandsw.schedulemc.mushroom.items.FreshMushroomItem;
 import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
-import de.rolandsw.schedulemc.poppy.items.PoppyItems;
-import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
+import de.rolandsw.schedulemc.poppy.items.*;
+import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import de.rolandsw.schedulemc.production.items.PackagedDrugItem;
+import de.rolandsw.schedulemc.tobacco.items.*;
+import de.rolandsw.schedulemc.wine.items.GrapeItem;
+import de.rolandsw.schedulemc.wine.items.WineBottleItem;
 import de.rolandsw.schedulemc.wine.items.WineItems;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
@@ -39,10 +56,11 @@ import net.minecraftforge.fml.common.Mod;
 public class QualityItemColors {
 
     // Qualitäts-Farben (ARGB Format) - Einheitliches 4-Stufen-System
-    private static final int COLOR_QUALITY_0 = 0xFF888888; // Grau - SCHLECHT
-    private static final int COLOR_QUALITY_1 = 0xFFFFFF55; // Gelb - GUT
-    private static final int COLOR_QUALITY_2 = 0xFF55FF55; // Grün - SEHR_GUT
-    private static final int COLOR_QUALITY_3 = 0xFFFFD700; // Gold - LEGENDAER
+    // Farben entsprechen exakt den Minecraft Chat-Codes!
+    private static final int COLOR_QUALITY_0 = 0xFFFF5555; // Rot - SCHLECHT (§c)
+    private static final int COLOR_QUALITY_1 = 0xFFFFFF55; // Gelb - GUT (§e)
+    private static final int COLOR_QUALITY_2 = 0xFF55FF55; // Grün - SEHR_GUT (§a)
+    private static final int COLOR_QUALITY_3 = 0xFFFFAA00; // Gold - LEGENDAER (§6)
     private static final int COLOR_DEFAULT = 0xFFFFFFFF;   // Weiß - Keine Qualität/Fallback
 
     @SubscribeEvent
@@ -51,16 +69,20 @@ public class QualityItemColors {
         // ILLEGALE PRODUKTE
         // ═══════════════════════════════════════════════════════════
 
-        // Tobacco Items (8)
+        // Tobacco Items (12 - Fresh, Dried, Fermented)
         event.register(QualityItemColors::getQualityColor,
-                TobaccoItems.FERMENTED_VIRGINIA_LEAF.get(),
-                TobaccoItems.FERMENTED_BURLEY_LEAF.get(),
-                TobaccoItems.FERMENTED_ORIENTAL_LEAF.get(),
-                TobaccoItems.FERMENTED_HAVANA_LEAF.get(),
+                TobaccoItems.FRESH_VIRGINIA_LEAF.get(),
+                TobaccoItems.FRESH_BURLEY_LEAF.get(),
+                TobaccoItems.FRESH_ORIENTAL_LEAF.get(),
+                TobaccoItems.FRESH_HAVANA_LEAF.get(),
                 TobaccoItems.DRIED_VIRGINIA_LEAF.get(),
                 TobaccoItems.DRIED_BURLEY_LEAF.get(),
                 TobaccoItems.DRIED_ORIENTAL_LEAF.get(),
-                TobaccoItems.DRIED_HAVANA_LEAF.get()
+                TobaccoItems.DRIED_HAVANA_LEAF.get(),
+                TobaccoItems.FERMENTED_VIRGINIA_LEAF.get(),
+                TobaccoItems.FERMENTED_BURLEY_LEAF.get(),
+                TobaccoItems.FERMENTED_ORIENTAL_LEAF.get(),
+                TobaccoItems.FERMENTED_HAVANA_LEAF.get()
         );
 
         // Cannabis Items (6)
@@ -73,8 +95,12 @@ public class QualityItemColors {
                 CannabisItems.CANNABIS_OIL.get()
         );
 
-        // Coca Items (2)
+        // Coca Items (6 - Fresh Leaves, Paste, Cocaine, Crack)
         event.register(QualityItemColors::getQualityColor,
+                CocaItems.FRESH_BOLIVIANISCH_LEAF.get(),
+                CocaItems.FRESH_KOLUMBIANISCH_LEAF.get(),
+                CocaItems.FRESH_PERUANISCH_LEAF.get(),
+                CocaItems.COCA_PASTE.get(),
                 CocaItems.COCAINE.get(),
                 CocaItems.CRACK_ROCK.get()
         );
@@ -95,15 +121,17 @@ public class QualityItemColors {
                 MethItems.METH.get()
         );
 
-        // MDMA Items (2)
+        // MDMA Items (3 - Base, Kristall, Ecstasy Pills)
         event.register(QualityItemColors::getQualityColor,
                 MDMAItems.MDMA_BASE.get(),
-                MDMAItems.MDMA_KRISTALL.get()
+                MDMAItems.MDMA_KRISTALL.get(),
+                MDMAItems.ECSTASY_PILL.get()
         );
 
-        // LSD Items (1)
+        // LSD Items (2 - Blotter, Lösung)
         event.register(QualityItemColors::getQualityColor,
-                LSDItems.BLOTTER.get()
+                LSDItems.BLOTTER.get(),
+                LSDItems.LSD_LOESUNG.get()
         );
 
         // Mushroom Items (6)
@@ -125,23 +153,17 @@ public class QualityItemColors {
         // LEGALE PRODUKTE
         // ═══════════════════════════════════════════════════════════
 
-        // Coffee Items (7)
+        // Coffee Items (2 - nur Beans und Ground haben Quality)
         event.register(QualityItemColors::getQualityColor,
                 CoffeeItems.ROASTED_COFFEE_BEANS.get(),
-                CoffeeItems.GROUND_COFFEE.get(),
-                CoffeeItems.COFFEE_PACKAGE_250G.get(),
-                CoffeeItems.COFFEE_PACKAGE_500G.get(),
-                CoffeeItems.COFFEE_PACKAGE_1KG.get(),
-                CoffeeItems.BREWED_COFFEE.get(),
-                CoffeeItems.ESPRESSO.get()
+                CoffeeItems.GROUND_COFFEE.get()
         );
 
-        // Wine Items (8)
+        // Wine Items (7 - Bottles und Grapes haben Quality, nicht Glass)
         event.register(QualityItemColors::getQualityColor,
                 WineItems.WINE_BOTTLE_375ML.get(),
                 WineItems.WINE_BOTTLE_750ML.get(),
                 WineItems.WINE_BOTTLE_1500ML.get(),
-                WineItems.GLASS_OF_WINE.get(),
                 WineItems.RIESLING_GRAPES.get(),
                 WineItems.SPAETBURGUNDER_GRAPES.get(),
                 WineItems.CHARDONNAY_GRAPES.get(),
@@ -209,84 +231,176 @@ public class QualityItemColors {
 
     /**
      * Extrahiert das Qualitäts-Level aus einem ItemStack.
-     * Alle Qualitäts-Enums verwenden jetzt das einheitliche 4-Stufen-System:
+     *
+     * LÖSUNG 2: Ruft die Item-spezifische getQuality() Methode auf!
+     * Dies garantiert 100% Konsistenz zwischen Tooltip und Rahmenfarbe,
+     * da beide die GLEICHE Methode verwenden!
+     *
+     * Alle Qualitäts-Enums verwenden das einheitliche 4-Stufen-System:
      * SCHLECHT (0), GUT (1), SEHR_GUT (2), LEGENDAER (3)
      */
     private static int extractQualityLevel(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) {
-            return 1; // Default: GUT
+        Item item = stack.getItem();
+
+        // === METH ITEMS ===
+        if (item instanceof MethItem) {
+            return MethItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof KristallMethItem) {
+            return KristallMethItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof RohMethItem) {
+            return RohMethItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof MethPasteItem) {
+            return MethPasteItem.getQuality(stack).ordinal();
         }
 
-        // Standard "Quality" Tag (verwendet von den meisten Items)
-        if (tag.contains("Quality")) {
-            String qualityStr = tag.getString("Quality");
-            return parseUnifiedQualityLevel(qualityStr);
+        // === MDMA ITEMS ===
+        if (item instanceof MDMAKristallItem) {
+            return MDMAKristallItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof MDMABaseItem) {
+            return MDMABaseItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof EcstasyPillItem) {
+            return EcstasyPillItem.getQuality(stack).ordinal();
         }
 
-        // CannabisQuality Tag
-        if (tag.contains("CannabisQuality")) {
-            String qualityStr = tag.getString("CannabisQuality");
-            return parseUnifiedQualityLevel(qualityStr);
+        // === CANNABIS ITEMS ===
+        if (item instanceof CuredBudItem) {
+            return CuredBudItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof DriedBudItem) {
+            return DriedBudItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof FreshBudItem) {
+            return FreshBudItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof TrimmedBudItem) {
+            return TrimmedBudItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof HashItem) {
+            return HashItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof CannabisOilItem) {
+            return CannabisOilItem.getQuality(stack).ordinal();
         }
 
-        // MethQuality Tag
-        if (tag.contains("MethQuality")) {
-            String qualityStr = tag.getString("MethQuality");
-            return parseUnifiedQualityLevel(qualityStr);
+        // === TOBACCO ITEMS ===
+        if (item instanceof FreshTobaccoLeafItem) {
+            return FreshTobaccoLeafItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof DriedTobaccoLeafItem) {
+            return DriedTobaccoLeafItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof FermentedTobaccoLeafItem) {
+            return FermentedTobaccoLeafItem.getQuality(stack).ordinal();
         }
 
-        // LSD Dosage Tag
-        if (tag.contains("LSDDosage")) {
-            String qualityStr = tag.getString("LSDDosage");
-            return parseUnifiedQualityLevel(qualityStr);
+        // === COCA ITEMS ===
+        if (item instanceof CocaineItem) {
+            return CocaineItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof CocaPasteItem) {
+            return CocaPasteItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof FreshCocaLeafItem) {
+            return FreshCocaLeafItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof CrackRockItem) {
+            return CrackRockItem.getQuality(stack).ordinal();
         }
 
-        // PackagedDrugItem Format "ClassName.VALUE"
-        if (tag.contains("DrugType")) {
-            String qualityStr = tag.getString("Quality");
-            if (qualityStr.contains(".")) {
-                String[] parts = qualityStr.split("\\.");
-                if (parts.length >= 2) {
-                    return parseUnifiedQualityLevel(parts[1]);
-                }
-            }
-            return parseUnifiedQualityLevel(qualityStr);
+        // === POPPY/OPIATE ITEMS ===
+        if (item instanceof HeroinItem) {
+            return HeroinItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof MorphineItem) {
+            return MorphineItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof RawOpiumItem) {
+            return RawOpiumItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof PoppyPodItem) {
+            return PoppyPodItem.getQuality(stack).ordinal();
         }
 
-        return 1; // Default: GUT
+        // === WINE ITEMS ===
+        if (item instanceof WineBottleItem) {
+            return WineBottleItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof GrapeItem) {
+            return GrapeItem.getQuality(stack).ordinal();
+        }
+
+        // === BEER ITEMS ===
+        if (item instanceof BeerBottleItem) {
+            return BeerBottleItem.getQuality(stack).ordinal();
+        }
+
+        // === CHEESE ITEMS ===
+        if (item instanceof CheeseCurdItem) {
+            return CheeseCurdItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof CheeseWedgeItem) {
+            return CheeseWedgeItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof CheeseWheelItem) {
+            return CheeseWheelItem.getQuality(stack).ordinal();
+        }
+
+        // === COFFEE ITEMS ===
+        if (item instanceof RoastedCoffeeBeanItem) {
+            return RoastedCoffeeBeanItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof GroundCoffeeItem) {
+            return GroundCoffeeItem.getQuality(stack).ordinal();
+        }
+
+        // === MUSHROOM ITEMS ===
+        if (item instanceof FreshMushroomItem) {
+            return FreshMushroomItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof DriedMushroomItem) {
+            return DriedMushroomItem.getQuality(stack).ordinal();
+        }
+
+        // === OTHER ITEMS ===
+        if (item instanceof HoneyJarItem) {
+            return HoneyJarItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof ChocolateBarItem) {
+            return ChocolateBarItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof PackagedDrugItem) {
+            // PackagedDrugItem speichert Quality als String und parst es dann
+            ProductionQuality quality = PackagedDrugItem.parseQuality(PackagedDrugItem.getQuality(stack));
+            return quality.getLevel(); // Interface hat getLevel() statt ordinal()
+        }
+
+        // === LSD ITEMS (special handling for dosage) ===
+        if (item instanceof BlotterItem) {
+            return BlotterItem.getDosage(stack).ordinal();
+        }
+        if (item instanceof LSDLoesungItem) {
+            return LSDLoesungItem.getDosage(stack).ordinal();
+        }
+
+        // Fallback: Item hat keine Quality
+        return 0; // Default: SCHLECHT
     }
 
-    /**
-     * Parst einheitliche Qualitätsnamen und gibt das Level zurück.
-     *
-     * Einheitliches 4-Stufen-System:
-     * - 0: SCHLECHT
-     * - 1: GUT
-     * - 2: SEHR_GUT
-     * - 3: LEGENDAER
-     */
-    private static int parseUnifiedQualityLevel(String qualityName) {
-        if (qualityName == null || qualityName.isEmpty()) return 1;
-
-        return switch (qualityName.toUpperCase()) {
-            case "SCHLECHT" -> 0;
-            case "GUT" -> 1;
-            case "SEHR_GUT" -> 2;
-            case "LEGENDAER", "LEGENDÄR" -> 3;
-            default -> 1; // Fallback: GUT
-        };
-    }
 
     /**
      * Gibt die Farbe für ein Qualitäts-Level zurück.
      */
     private static int getColorForLevel(int level) {
         return switch (level) {
-            case 0 -> COLOR_QUALITY_0; // Grau - SCHLECHT
-            case 1 -> COLOR_QUALITY_1; // Gelb - GUT
-            case 2 -> COLOR_QUALITY_2; // Grün - SEHR_GUT
-            case 3 -> COLOR_QUALITY_3; // Gold - LEGENDAER
+            case 0 -> COLOR_QUALITY_0; // Rot (§c) - SCHLECHT
+            case 1 -> COLOR_QUALITY_1; // Gelb (§e) - GUT
+            case 2 -> COLOR_QUALITY_2; // Grün (§a) - SEHR_GUT
+            case 3 -> COLOR_QUALITY_3; // Gold (§6) - LEGENDAER
             default -> COLOR_DEFAULT;
         };
     }

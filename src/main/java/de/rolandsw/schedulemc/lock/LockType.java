@@ -8,8 +8,7 @@ package de.rolandsw.schedulemc.lock;
  */
 public enum LockType {
 
-    SIMPLE("Einfaches Schloss",
-            7 * 24 * 3600_000L,   // 7 Tage Schluessel-Dauer
+    SIMPLE(7 * 24 * 3600_000L,   // 7 Tage Schluessel-Dauer
             100,                   // 100 Nutzungen
             0.80f,                 // 80% Dietrich-Erfolg
             false,                 // kein Code
@@ -17,8 +16,7 @@ public enum LockType {
             false,                 // kein Alarm
             0xFF27AE60),
 
-    SECURITY("Sicherheitsschloss",
-            3 * 24 * 3600_000L,   // 3 Tage
+    SECURITY(3 * 24 * 3600_000L,   // 3 Tage
             30,                    // 30 Nutzungen
             0.40f,                 // 40%
             false,
@@ -26,8 +24,7 @@ public enum LockType {
             false,                 // Warnung, aber kein Fahndungslevel
             0xFF2980B9),
 
-    HIGH_SECURITY("Hochsicherheitsschloss",
-            12 * 3600_000L,       // 12 Stunden
+    HIGH_SECURITY(12 * 3600_000L,       // 12 Stunden
             10,                    // 10 Nutzungen
             0.10f,                 // 10%
             false,
@@ -35,8 +32,7 @@ public enum LockType {
             true,                  // Alarm + Fahndung bei Dietrich-Fehlschlag
             0xFFE74C3C),
 
-    COMBINATION("Zahlenschloss",
-            -1L,                   // kein Schluessel
+    COMBINATION(-1L,                   // kein Schluessel
             -1,
             0.0f,                  // kein Dietrich (Brute-Force moeglich)
             true,                  // hat Code
@@ -44,8 +40,7 @@ public enum LockType {
             false,
             0xFFF39C12),
 
-    DUAL("Dual-Lock",
-            12 * 3600_000L,       // 12 Stunden Schluessel
+    DUAL(12 * 3600_000L,       // 12 Stunden Schluessel
             10,                    // 10 Nutzungen
             0.05f,                 // 5% Dietrich
             true,                  // hat AUCH Code
@@ -53,7 +48,6 @@ public enum LockType {
             true,                  // Alarm + Fahndung
             0xFF8E44AD);
 
-    private final String displayName;
     private final long keyDurationMs;
     private final int keyMaxUses;
     private final float pickChance;
@@ -62,9 +56,8 @@ public enum LockType {
     private final boolean triggersAlarm;
     private final int color;
 
-    LockType(String displayName, long keyDurationMs, int keyMaxUses, float pickChance,
+    LockType(long keyDurationMs, int keyMaxUses, float pickChance,
              boolean hasCode, long codeRotationMs, boolean triggersAlarm, int color) {
-        this.displayName = displayName;
         this.keyDurationMs = keyDurationMs;
         this.keyMaxUses = keyMaxUses;
         this.pickChance = pickChance;
@@ -74,7 +67,10 @@ public enum LockType {
         this.color = color;
     }
 
-    public String getDisplayName() { return displayName; }
+    public String getDisplayName() {
+        return net.minecraft.network.chat.Component.translatable(
+                "lock.type." + this.name().toLowerCase()).getString();
+    }
     public long getKeyDurationMs() { return keyDurationMs; }
     public int getKeyMaxUses() { return keyMaxUses; }
     public float getPickChance() { return pickChance; }
@@ -113,21 +109,22 @@ public enum LockType {
     // ═══════════════════════════════════════════════════════════
 
     public enum KeyOrigin {
-        ORIGINAL("Original", 1.0f, 1.0f),
-        COPY("Kopie", 0.5f, 0.5f),
-        STOLEN("Gestohlen", 0.25f, 0.25f);
+        ORIGINAL(1.0f, 1.0f),
+        COPY(0.5f, 0.5f),
+        STOLEN(0.25f, 0.25f);
 
-        private final String displayName;
         private final float durationMultiplier;
         private final float usesMultiplier;
 
-        KeyOrigin(String displayName, float durationMultiplier, float usesMultiplier) {
-            this.displayName = displayName;
+        KeyOrigin(float durationMultiplier, float usesMultiplier) {
             this.durationMultiplier = durationMultiplier;
             this.usesMultiplier = usesMultiplier;
         }
 
-        public String getDisplayName() { return displayName; }
+        public String getDisplayName() {
+            return net.minecraft.network.chat.Component.translatable(
+                    "lock.origin." + this.name().toLowerCase()).getString();
+        }
         public float getDurationMultiplier() { return durationMultiplier; }
         public float getUsesMultiplier() { return usesMultiplier; }
     }

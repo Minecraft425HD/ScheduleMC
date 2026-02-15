@@ -26,7 +26,15 @@ public class DriedTobaccoLeafItem extends Item {
      * Erstellt ItemStack mit Typ und Qualität
      */
     public static ItemStack create(TobaccoType type, TobaccoQuality quality, int count) {
-        ItemStack stack = new ItemStack(TobaccoItems.DRIED_VIRGINIA_LEAF.get(), count);
+        // Wähle das richtige Item basierend auf dem TobaccoType
+        Item item = switch (type) {
+            case VIRGINIA -> TobaccoItems.DRIED_VIRGINIA_LEAF.get();
+            case BURLEY -> TobaccoItems.DRIED_BURLEY_LEAF.get();
+            case ORIENTAL -> TobaccoItems.DRIED_ORIENTAL_LEAF.get();
+            case HAVANA -> TobaccoItems.DRIED_HAVANA_LEAF.get();
+        };
+
+        ItemStack stack = new ItemStack(item, count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("TobaccoType", type.name());
         tag.putString("Quality", quality.name());

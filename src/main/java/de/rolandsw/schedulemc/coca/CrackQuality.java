@@ -16,7 +16,7 @@ public enum CrackQuality implements ProductionQuality {
     SCHLECHT("§c", 0, 0.7),
     GUT("§e", 1, 1.0),
     SEHR_GUT("§a", 2, 1.5),
-    LEGENDAER("§b§l", 3, 2.5);
+    LEGENDAER("§6§l", 3, 2.5);
 
     private final String colorCode;
     private final int level;

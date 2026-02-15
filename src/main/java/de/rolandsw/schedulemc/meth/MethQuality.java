@@ -16,7 +16,7 @@ public enum MethQuality implements ProductionQuality {
     SCHLECHT("§c", 0, 0.7),
     GUT("§e", 1, 1.0),
     SEHR_GUT("§a", 2, 2.0),
-    LEGENDAER("§b§l", 3, 5.0);  // Blue Sky Farbe beibehalten
+    LEGENDAER("§6§l", 3, 5.0);  // Gold-Farbe (Blue Sky entfernt für Konsistenz)
 
     private final String colorCode;
     private final int level;
