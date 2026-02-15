@@ -378,6 +378,9 @@ public class QualityItemColors {
         if (item instanceof BlotterItem) {
             return BlotterItem.getDosage(stack).ordinal();
         }
+        if (item instanceof LSDLoesungItem) {
+            return LSDLoesungItem.getDosage(stack).ordinal();
+        }
 
         // Fallback: Item hat keine Quality
         return 0; // Default: SCHLECHT
