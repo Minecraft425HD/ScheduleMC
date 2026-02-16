@@ -123,10 +123,6 @@ public class UtilityRegistry {
         registerById("schedulemc:big_drying_rack",
                 UtilityConsumptionData.of(40, 0, UtilityCategory.DRYING));
 
-        // Cannabis Trocknungsnetz
-        registerById("schedulemc:cannabis_trocknungsnetz",
-                UtilityConsumptionData.of(15, 0, UtilityCategory.DRYING));
-
         // ─────────────────────────────────────────────────────────────
         // FERMENTIERUNGSFÄSSER (Tabak)
         // Niedriger Strom für Temperaturkontrolle
@@ -346,8 +342,6 @@ public class UtilityRegistry {
                 de.rolandsw.schedulemc.mdma.blocks.MDMABlocks.PILLEN_PRESSE);
 
         // Cannabis Blocks
-        tryResolve("schedulemc:cannabis_trocknungsnetz",
-                de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.TROCKNUNGSNETZ);
         tryResolve("schedulemc:cannabis_trimm_station",
                 de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.TRIMM_STATION);
         tryResolve("schedulemc:cannabis_curing_glas",

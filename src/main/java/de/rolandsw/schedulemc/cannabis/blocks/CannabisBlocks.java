@@ -42,16 +42,6 @@ public class CannabisBlocks {
     // VERARBEITUNGS-BLÖCKE
     // ═══════════════════════════════════════════════════════════
 
-    // Trocknungsnetz
-    public static final RegistryObject<Block> TROCKNUNGSNETZ = BLOCKS.register("cannabis_trocknungsnetz",
-            () -> new TrocknungsnetzBlock(BlockBehaviour.Properties.of()
-                    .strength(1.5f)
-                    .sound(SoundType.SCAFFOLDING)
-                    .noOcclusion()));
-
-    public static final RegistryObject<Item> TROCKNUNGSNETZ_ITEM = ITEMS.register("cannabis_trocknungsnetz",
-            () -> new BlockItem(TROCKNUNGSNETZ.get(), new Item.Properties()));
-
     // Trimm-Station
     public static final RegistryObject<Block> TRIMM_STATION = BLOCKS.register("cannabis_trimm_station",
             () -> new TrimmStationBlock(BlockBehaviour.Properties.of()
