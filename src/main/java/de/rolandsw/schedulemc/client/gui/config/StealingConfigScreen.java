@@ -10,14 +10,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
- * NPC & Navigation Config Screen
+ * Stealing/Crime Config Screen - 4 Stealing Mechanics Options
  */
 @OnlyIn(Dist.CLIENT)
-public class NPCConfigScreen extends Screen {
+public class StealingConfigScreen extends Screen {
     private final Screen parent;
 
-    public NPCConfigScreen(Screen parent) {
-        super(Component.literal("NPC & Navigation Settings"));
+    public StealingConfigScreen(Screen parent) {
+        super(Component.literal("Stealing/Crime Settings"));
         this.parent = parent;
     }
 
@@ -25,23 +25,27 @@ public class NPCConfigScreen extends Screen {
     protected void init() {
         super.init();
 
-        int centerX = this.width / 2;
-        int y = 70;
+        int leftCol = this.width / 2 - 155;
+        int rightCol = this.width / 2 + 5;
+        int w = 150;
+        int y = 80;
         int s = 25;
-        int w = 200;
 
-        // NAVIGATION SETTINGS
-        this.addRenderableWidget(new IntSlider(centerX - w/2, y, w,
-            "Scan Radius: §e%d blocks",
-            ModConfigHandler.COMMON.NAVIGATION_SCAN_RADIUS, 5, 100));
+        this.addRenderableWidget(new DoubleSlider(leftCol, y, w,
+            "Indicator Speed: §e%.2f",
+            ModConfigHandler.COMMON.STEALING_INDICATOR_SPEED, 0.01, 1.0));
 
-        this.addRenderableWidget(new IntSlider(centerX - w/2, y + s, w,
-            "Path Update: §e%d ticks",
-            ModConfigHandler.COMMON.NAVIGATION_PATH_UPDATE_INTERVAL, 1, 100));
+        this.addRenderableWidget(new IntSlider(rightCol, y, w,
+            "Max Attempts: §e%d",
+            ModConfigHandler.COMMON.STEALING_MAX_ATTEMPTS, 1, 20));
 
-        this.addRenderableWidget(new DoubleSlider(centerX - w/2, y + s * 2, w,
-            "Arrival Distance: §e%.1f blocks",
-            ModConfigHandler.COMMON.NAVIGATION_ARRIVAL_DISTANCE, 0.5, 5.0));
+        this.addRenderableWidget(new DoubleSlider(leftCol, y + s, w,
+            "Min Zone: §e%.1f",
+            ModConfigHandler.COMMON.STEALING_MIN_ZONE_SIZE, 0.1, 1.0));
+
+        this.addRenderableWidget(new DoubleSlider(rightCol, y + s, w,
+            "Max Zone: §e%.1f",
+            ModConfigHandler.COMMON.STEALING_MAX_ZONE_SIZE, 0.1, 1.0));
 
         // Back Button
         this.addRenderableWidget(Button.builder(
@@ -57,19 +61,8 @@ public class NPCConfigScreen extends Screen {
 
         graphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
         graphics.drawCenteredString(this.font,
-            Component.literal("§7NPC Pathfinding & Navigation"),
-            this.width / 2, 40, 0x808080);
-
-        // Info about block lists (NPC_WALKABLE_BLOCKS & NAVIGATION_ROAD_BLOCKS)
-        graphics.drawCenteredString(this.font,
-            Component.literal("§6Block Lists (NPC Walkable & Road Blocks):"),
-            this.width / 2, this.height - 80, 0xFFAA00);
-        graphics.drawCenteredString(this.font,
-            Component.literal("§7npc.walkable_blocks & navigation.road_blocks"),
-            this.width / 2, this.height - 65, 0x808080);
-        graphics.drawCenteredString(this.font,
-            Component.literal("§8Edit in: config/schedulemc-common.toml"),
-            this.width / 2, this.height - 50, 0x606060);
+            Component.literal("§7Vehicle Stealing Mechanics"),
+            this.width / 2, 50, 0x808080);
     }
 
     @Override
