@@ -27,10 +27,7 @@ public class CheeseItems {
     // ═══════════════════════════════════════════════════════════
     // ROHSTOFFE
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> MILK_BUCKET = ITEMS.register(
-        "milk_bucket",
-        () -> new MilkBucketItem(new Item.Properties().stacksTo(16))
-    );
+    // MILK_BUCKET wurde entfernt - verwende net.minecraft.world.item.Items.MILK_BUCKET
 
     public static final RegistryObject<Item> RENNET = ITEMS.register(
         "rennet",

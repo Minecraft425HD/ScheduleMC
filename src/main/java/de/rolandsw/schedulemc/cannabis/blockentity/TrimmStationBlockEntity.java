@@ -138,7 +138,7 @@ public class TrimmStationBlockEntity extends BlockEntity implements IUtilityCons
         int trimCount = weight / 2; // 0,5g Trim pro 1g Input
 
         outputBud = TrimmedBudItem.create(strain, finalQuality, trimmedCount);
-        outputTrim = TrimItem.create(strain, trimCount);
+        outputTrim = TrimItem.create(strain, finalQuality, trimCount);
 
         inputItem = ItemStack.EMPTY;
         isMinigameActive = false;

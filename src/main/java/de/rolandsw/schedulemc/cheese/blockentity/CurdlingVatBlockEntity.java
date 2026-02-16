@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -69,7 +70,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 if (slot == 0) {
-                    return stack.getItem() == CheeseItems.MILK_BUCKET.get();
+                    return stack.getItem() == Items.MILK_BUCKET;
                 }
                 if (slot == 1) {
                     return stack.getItem() == CheeseItems.RENNET.get();
