@@ -17,16 +17,26 @@ import java.util.List;
  */
 public class CocaPasteItem extends Item {
 
-    public CocaPasteItem() {
+    private final CocaType cocaType;
+
+    public CocaPasteItem(CocaType type) {
         super(new Properties()
                 .stacksTo(20));
+        this.cocaType = type;
     }
 
     /**
      * Erstellt ItemStack mit Typ und Qualität
      */
     public static ItemStack create(CocaType type, TobaccoQuality quality, int count) {
-        ItemStack stack = new ItemStack(CocaItems.COCA_PASTE.get(), count);
+        // Wähle das richtige Item basierend auf dem CocaType
+        Item pasteItem = switch (type) {
+            case BOLIVIANISCH -> CocaItems.COCA_PASTE_BOLIVIANISCH.get();
+            case KOLUMBIANISCH -> CocaItems.COCA_PASTE_KOLUMBIANISCH.get();
+            case PERUANISCH -> CocaItems.COCA_PASTE_PERUANISCH.get();
+        };
+
+        ItemStack stack = new ItemStack(pasteItem, count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("CocaType", type.name());
         tag.putString("Quality", quality.name());
@@ -37,6 +47,12 @@ public class CocaPasteItem extends Item {
      * Liest Koka-Sorte aus ItemStack
      */
     public static CocaType getType(ItemStack stack) {
+        // Wenn es ein CocaPasteItem ist, verwende den gespeicherten Typ
+        if (stack.getItem() instanceof CocaPasteItem pasteItem) {
+            return pasteItem.cocaType;
+        }
+
+        // Fallback: Lese aus NBT
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("CocaType")) {
             try {
