@@ -263,7 +263,6 @@ public class ModCreativeTabs {
                 output.accept(CannabisItems.EXTRACTION_SOLVENT.get());
 
                 // CANNABIS - BLÖCKE
-                output.accept(CannabisBlocks.TROCKNUNGSNETZ_ITEM.get());
                 output.accept(CannabisBlocks.TRIMM_STATION_ITEM.get());
                 output.accept(CannabisBlocks.CURING_GLAS_ITEM.get());
                 output.accept(CannabisBlocks.HASH_PRESSE_ITEM.get());
