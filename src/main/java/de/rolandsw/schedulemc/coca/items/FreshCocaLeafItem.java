@@ -17,9 +17,12 @@ import java.util.List;
  */
 public class FreshCocaLeafItem extends Item {
 
-    public FreshCocaLeafItem() {
+    private final CocaType cocaType;
+
+    public FreshCocaLeafItem(CocaType type) {
         super(new Properties()
                 .stacksTo(20)); // 1 Blatt = 1g, max 20 Blätter pro Stack
+        this.cocaType = type;
     }
 
     /**
@@ -44,6 +47,12 @@ public class FreshCocaLeafItem extends Item {
      * Liest Koka-Sorte aus ItemStack
      */
     public static CocaType getType(ItemStack stack) {
+        // Wenn es ein FreshCocaLeafItem ist, verwende den gespeicherten Typ
+        if (stack.getItem() instanceof FreshCocaLeafItem freshLeaf) {
+            return freshLeaf.cocaType;
+        }
+
+        // Fallback: Lese aus NBT
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("CocaType")) {
             try {

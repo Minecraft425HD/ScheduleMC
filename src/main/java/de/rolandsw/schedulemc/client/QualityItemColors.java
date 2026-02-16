@@ -95,12 +95,14 @@ public class QualityItemColors {
                 CannabisItems.CANNABIS_OIL.get()
         );
 
-        // Coca Items (6 - Fresh Leaves, Paste, Cocaine, Crack)
+        // Coca Items (8 - Fresh Leaves, Paste (3 types), Cocaine, Crack)
         event.register(QualityItemColors::getQualityColor,
                 CocaItems.FRESH_BOLIVIANISCH_LEAF.get(),
                 CocaItems.FRESH_KOLUMBIANISCH_LEAF.get(),
                 CocaItems.FRESH_PERUANISCH_LEAF.get(),
-                CocaItems.COCA_PASTE.get(),
+                CocaItems.COCA_PASTE_BOLIVIANISCH.get(),
+                CocaItems.COCA_PASTE_KOLUMBIANISCH.get(),
+                CocaItems.COCA_PASTE_PERUANISCH.get(),
                 CocaItems.COCAINE.get(),
                 CocaItems.CRACK_ROCK.get()
         );

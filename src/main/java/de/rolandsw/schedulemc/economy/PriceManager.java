@@ -255,7 +255,9 @@ public class PriceManager {
         return List.of(
                 CocaItems.COCAINE.get(),
                 CocaItems.CRACK_ROCK.get(),
-                CocaItems.COCA_PASTE.get()
+                CocaItems.COCA_PASTE_BOLIVIANISCH.get(),
+                CocaItems.COCA_PASTE_KOLUMBIANISCH.get(),
+                CocaItems.COCA_PASTE_PERUANISCH.get()
         );
     }
 

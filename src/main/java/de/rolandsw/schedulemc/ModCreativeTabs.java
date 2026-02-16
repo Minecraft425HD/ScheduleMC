@@ -278,7 +278,9 @@ public class ModCreativeTabs {
                 output.accept(CocaItems.FRESH_BOLIVIANISCH_LEAF.get());
                 output.accept(CocaItems.FRESH_KOLUMBIANISCH_LEAF.get());
                 output.accept(CocaItems.FRESH_PERUANISCH_LEAF.get());
-                output.accept(CocaItems.COCA_PASTE.get());
+                output.accept(CocaItems.COCA_PASTE_BOLIVIANISCH.get());
+                output.accept(CocaItems.COCA_PASTE_KOLUMBIANISCH.get());
+                output.accept(CocaItems.COCA_PASTE_PERUANISCH.get());
                 output.accept(CocaItems.COCAINE.get());
                 output.accept(CocaItems.CRACK_ROCK.get());
                 output.accept(CocaItems.BACKPULVER.get());
