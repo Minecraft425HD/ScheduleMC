@@ -26,16 +26,20 @@ public class ConfigCategoryScreen extends Screen {
         super.init();
 
         int centerX = this.width / 2;
-        int startY = 60;
+        int leftCol = centerX - 205;
+        int rightCol = centerX + 5;
         int buttonWidth = 200;
-        int spacing = 25;
+        int startY = 50;
+        int spacing = 23;
+
+        // LEFT COLUMN
 
         // CLIENT SETTINGS
         this.addRenderableWidget(Button.builder(
             Component.literal("§b⚙ Client Settings"),
             button -> this.minecraft.setScreen(new ClientConfigScreen(this))
         )
-        .bounds(centerX - buttonWidth / 2, startY, buttonWidth, 20)
+        .bounds(leftCol, startY, buttonWidth, 20)
         .build());
 
         // ECONOMY SETTINGS
@@ -43,7 +47,7 @@ public class ConfigCategoryScreen extends Screen {
             Component.literal("§e$ Economy Settings"),
             button -> this.minecraft.setScreen(new EconomyConfigScreen(this))
         )
-        .bounds(centerX - buttonWidth / 2, startY + spacing, buttonWidth, 20)
+        .bounds(leftCol, startY + spacing, buttonWidth, 20)
         .build());
 
         // PLOT SETTINGS
@@ -51,7 +55,7 @@ public class ConfigCategoryScreen extends Screen {
             Component.literal("§a▣ Plot Settings"),
             button -> this.minecraft.setScreen(new PlotConfigScreen(this))
         )
-        .bounds(centerX - buttonWidth / 2, startY + spacing * 2, buttonWidth, 20)
+        .bounds(leftCol, startY + spacing * 2, buttonWidth, 20)
         .build());
 
         // POLICE SETTINGS
@@ -59,7 +63,7 @@ public class ConfigCategoryScreen extends Screen {
             Component.literal("§c★ Police Settings"),
             button -> this.minecraft.setScreen(new PoliceConfigScreen(this))
         )
-        .bounds(centerX - buttonWidth / 2, startY + spacing * 3, buttonWidth, 20)
+        .bounds(leftCol, startY + spacing * 3, buttonWidth, 20)
         .build());
 
         // NPC SETTINGS
@@ -67,7 +71,7 @@ public class ConfigCategoryScreen extends Screen {
             Component.literal("§d☺ NPC Settings"),
             button -> this.minecraft.setScreen(new NPCConfigScreen(this))
         )
-        .bounds(centerX - buttonWidth / 2, startY + spacing * 4, buttonWidth, 20)
+        .bounds(leftCol, startY + spacing * 4, buttonWidth, 20)
         .build());
 
         // WAREHOUSE SETTINGS
@@ -75,15 +79,17 @@ public class ConfigCategoryScreen extends Screen {
             Component.literal("§6■ Warehouse Settings"),
             button -> this.minecraft.setScreen(new WarehouseConfigScreen(this))
         )
-        .bounds(centerX - buttonWidth / 2, startY + spacing * 5, buttonWidth, 20)
+        .bounds(leftCol, startY + spacing * 5, buttonWidth, 20)
         .build());
+
+        // RIGHT COLUMN
 
         // DYNAMIC PRICING (UDPS)
         this.addRenderableWidget(Button.builder(
-            Component.literal("§9≈ Dynamic Pricing (UDPS)"),
+            Component.literal("§9≈ Dynamic Pricing"),
             button -> this.minecraft.setScreen(new DynamicPricingConfigScreen(this))
         )
-        .bounds(centerX - buttonWidth / 2, startY + spacing * 6, buttonWidth, 20)
+        .bounds(rightCol, startY, buttonWidth, 20)
         .build());
 
         // TOBACCO SETTINGS
@@ -91,7 +97,31 @@ public class ConfigCategoryScreen extends Screen {
             Component.literal("§2⚘ Tobacco Settings"),
             button -> this.minecraft.setScreen(new TobaccoConfigScreen(this))
         )
-        .bounds(centerX - buttonWidth / 2, startY + spacing * 7, buttonWidth, 20)
+        .bounds(rightCol, startY + spacing, buttonWidth, 20)
+        .build());
+
+        // WERKSTATT/WORKSHOP
+        this.addRenderableWidget(Button.builder(
+            Component.literal("§6⚒ Werkstatt/Workshop"),
+            button -> this.minecraft.setScreen(new WerkstattConfigScreen(this))
+        )
+        .bounds(rightCol, startY + spacing * 2, buttonWidth, 20)
+        .build());
+
+        // STEALING
+        this.addRenderableWidget(Button.builder(
+            Component.literal("§4⚠ Stealing/Crime"),
+            button -> this.minecraft.setScreen(new StealingConfigScreen(this))
+        )
+        .bounds(rightCol, startY + spacing * 3, buttonWidth, 20)
+        .build());
+
+        // ADVANCED ECONOMY
+        this.addRenderableWidget(Button.builder(
+            Component.literal("§e⚡ Advanced Economy"),
+            button -> this.minecraft.setScreen(new AdvancedEconomyConfigScreen(this))
+        )
+        .bounds(rightCol, startY + spacing * 4, buttonWidth, 20)
         .build());
 
         // Done Button
@@ -113,8 +143,8 @@ public class ConfigCategoryScreen extends Screen {
 
         // Subtitle
         graphics.drawCenteredString(this.font,
-            Component.literal("§7Select a category to configure"),
-            this.width / 2, 40, 0xFFFFFF);
+            Component.literal("§7160+ Config Options - Full Control!"),
+            this.width / 2, 35, 0xFFFF55);
 
         // Info
         graphics.drawCenteredString(this.font,
