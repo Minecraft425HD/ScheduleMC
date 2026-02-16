@@ -123,10 +123,6 @@ public class UtilityRegistry {
         registerById("schedulemc:big_drying_rack",
                 UtilityConsumptionData.of(40, 0, UtilityCategory.DRYING));
 
-        // Cannabis Trocknungsnetz
-        registerById("schedulemc:cannabis_trocknungsnetz",
-                UtilityConsumptionData.of(15, 0, UtilityCategory.DRYING));
-
         // ─────────────────────────────────────────────────────────────
         // FERMENTIERUNGSFÄSSER (Tabak)
         // Niedriger Strom für Temperaturkontrolle

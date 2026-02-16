@@ -15,12 +15,6 @@ public class CannabisBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
-    public static final RegistryObject<BlockEntityType<TrocknungsnetzBlockEntity>> TROCKNUNGSNETZ =
-            BLOCK_ENTITIES.register("cannabis_trocknungsnetz", () ->
-                    BlockEntityType.Builder.of(TrocknungsnetzBlockEntity::new,
-                            CannabisBlocks.TROCKNUNGSNETZ.get()
-                    ).build(null));
-
     public static final RegistryObject<BlockEntityType<TrimmStationBlockEntity>> TRIMM_STATION =
             BLOCK_ENTITIES.register("cannabis_trimm_station", () ->
                     BlockEntityType.Builder.of(TrimmStationBlockEntity::new,
