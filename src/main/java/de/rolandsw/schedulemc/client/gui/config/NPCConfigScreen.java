@@ -60,13 +60,16 @@ public class NPCConfigScreen extends Screen {
             Component.literal("§7NPC Pathfinding & Navigation"),
             this.width / 2, 40, 0x808080);
 
-        // Info about block lists
+        // Info about block lists (NPC_WALKABLE_BLOCKS & NAVIGATION_ROAD_BLOCKS)
         graphics.drawCenteredString(this.font,
-            Component.literal("§8NPC walkable blocks & road blocks:"),
-            this.width / 2, this.height - 70, 0x808080);
+            Component.literal("§6Block Lists (NPC Walkable & Road Blocks):"),
+            this.width / 2, this.height - 80, 0xFFAA00);
         graphics.drawCenteredString(this.font,
-            Component.literal("§7Edit in config/schedulemc-common.toml"),
-            this.width / 2, this.height - 55, 0x808080);
+            Component.literal("§7npc.walkable_blocks & navigation.road_blocks"),
+            this.width / 2, this.height - 65, 0x808080);
+        graphics.drawCenteredString(this.font,
+            Component.literal("§8Edit in: config/schedulemc-common.toml"),
+            this.width / 2, this.height - 50, 0x606060);
     }
 
     @Override

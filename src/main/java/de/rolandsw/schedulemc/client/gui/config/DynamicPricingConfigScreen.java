@@ -54,6 +54,18 @@ public class DynamicPricingConfigScreen extends Screen {
             "Update: §e%dmin",
             ModConfigHandler.COMMON.DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES, 1, 30));
 
+        this.addRenderableWidget(new DoubleSlider(leftCol, y + s * 3, w,
+            "SD Decay: §e%.3f",
+            ModConfigHandler.COMMON.DYNAMIC_PRICING_SD_DECAY_RATE, 0.001, 0.1));
+
+        this.addRenderableWidget(new DoubleSlider(rightCol, y + s * 3, w,
+            "Food Cost: §e%.0f€",
+            ModConfigHandler.COMMON.DYNAMIC_PRICING_DAILY_FOOD_COST, 5, 200));
+
+        this.addRenderableWidget(new DoubleSlider(leftCol, y + s * 4, w,
+            "Ref Income: §e%.0f€",
+            ModConfigHandler.COMMON.DYNAMIC_PRICING_DAILY_REFERENCE_INCOME, 50, 1000));
+
         this.addRenderableWidget(Button.builder(Component.literal("« Back"),
             button -> this.minecraft.setScreen(parent))
             .bounds(this.width / 2 - 100, this.height - 28, 200, 20).build());
@@ -64,7 +76,7 @@ public class DynamicPricingConfigScreen extends Screen {
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         graphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
-        graphics.drawCenteredString(this.font, Component.literal("§7Unified Dynamic Pricing System"),
+        graphics.drawCenteredString(this.font, Component.literal("§7Unified Dynamic Pricing System - 8 Options"),
             this.width / 2, 40, 0x808080);
     }
 

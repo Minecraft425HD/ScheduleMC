@@ -44,14 +44,19 @@ public class AdvancedEconomyConfigScreen extends Screen {
         configList.addRow(
             new BoolButton(0, 0, 180, "Rent Enabled",
                 ModConfigHandler.COMMON.RENT_ENABLED),
-            new DoubleSlider(0, 0, 180, "Min Price: %.0f€",
-                ModConfigHandler.COMMON.MIN_RENT_PRICE, 1, 10000)
+            new BoolButton(0, 0, 180, "Auto Evict",
+                ModConfigHandler.COMMON.AUTO_EVICT_EXPIRED)
         );
         configList.addRow(
+            new DoubleSlider(0, 0, 180, "Min Price: %.0f€",
+                ModConfigHandler.COMMON.MIN_RENT_PRICE, 1, 10000),
             new IntSlider(0, 0, 180, "Min Days: %d",
-                ModConfigHandler.COMMON.MIN_RENT_DAYS, 1, 365),
+                ModConfigHandler.COMMON.MIN_RENT_DAYS, 1, 365)
+        );
+        configList.addRow(
             new IntSlider(0, 0, 180, "Max Days: %d",
-                ModConfigHandler.COMMON.MAX_RENT_DAYS, 1, 365)
+                ModConfigHandler.COMMON.MAX_RENT_DAYS, 1, 365),
+            null
         );
 
         // === SHOP SYSTEM ===
