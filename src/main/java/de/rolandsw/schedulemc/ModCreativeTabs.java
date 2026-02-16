@@ -38,6 +38,7 @@ import de.rolandsw.schedulemc.wine.blocks.WineBlocks;
 import de.rolandsw.schedulemc.vehicle.items.ItemBioDieselCanister;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.DeferredRegister;
@@ -384,7 +385,7 @@ public class ModCreativeTabs {
                 // BIER
                 // ═══════════════════════════════════════════════════════════
                 output.accept(BeerItems.BARLEY.get());
-                output.accept(BeerItems.WHEAT_GRAIN.get());
+                output.accept(Items.WHEAT); // Minecraft vanilla wheat
                 output.accept(BeerItems.RYE.get());
                 output.accept(BeerItems.MALTED_BARLEY.get());
                 output.accept(BeerItems.MALTED_WHEAT.get());
@@ -535,7 +536,7 @@ public class ModCreativeTabs {
                 // ═══════════════════════════════════════════════════════════
                 // KÄSE
                 // ═══════════════════════════════════════════════════════════
-                output.accept(CheeseItems.MILK_BUCKET.get());
+                output.accept(Items.MILK_BUCKET); // Minecraft vanilla milk bucket
                 output.accept(CheeseItems.RENNET.get());
                 output.accept(CheeseItems.CHEESE_CURD.get());
                 output.accept(CheeseItems.WHEY.get());
@@ -586,12 +587,13 @@ public class ModCreativeTabs {
                 output.accept(CoffeeItems.COFFEE_PACKAGE_250G.get());
                 output.accept(CoffeeItems.COFFEE_PACKAGE_500G.get());
                 output.accept(CoffeeItems.COFFEE_PACKAGE_1KG.get());
-                output.accept(CoffeeItems.WATERING_CAN.get());
+                output.accept(TobaccoItems.WATERING_CAN.get()); // Verwende Tobacco's Watering Can
                 output.accept(CoffeeItems.PULPING_TOOL.get());
                 output.accept(CoffeeItems.ROASTING_TRAY.get());
-                output.accept(CoffeeItems.COFFEE_FERTILIZER.get());
-                output.accept(CoffeeItems.GROWTH_ACCELERATOR.get());
-                output.accept(CoffeeItems.QUALITY_ENHANCER.get());
+                // Verwende Tobacco's Boosters (wiederverwendbar für alle Produktionen)
+                output.accept(TobaccoItems.FERTILIZER_BOTTLE.get()); // Yield Booster
+                output.accept(TobaccoItems.GROWTH_BOOSTER_BOTTLE.get()); // Growth Booster
+                output.accept(TobaccoItems.QUALITY_BOOSTER_BOTTLE.get()); // Quality Booster
                 output.accept(CoffeeItems.COFFEE_BAG_SMALL.get());
                 output.accept(CoffeeItems.COFFEE_BAG_MEDIUM.get());
                 output.accept(CoffeeItems.COFFEE_BAG_LARGE.get());
@@ -600,10 +602,11 @@ public class ModCreativeTabs {
                 output.accept(CoffeeItems.ESPRESSO.get());
 
                 // KAFFEE - BLÖCKE
-                output.accept(CoffeeBlocks.COFFEE_TERRACOTTA_POT.get());
-                output.accept(CoffeeBlocks.COFFEE_CERAMIC_POT.get());
-                output.accept(CoffeeBlocks.COFFEE_IRON_POT.get());
-                output.accept(CoffeeBlocks.COFFEE_GOLDEN_POT.get());
+                // Verwende Tobacco Pots (wiederverwendbar für alle Pflanzen)
+                output.accept(TobaccoBlocks.TERRACOTTA_POT.get());
+                output.accept(TobaccoBlocks.CERAMIC_POT.get());
+                output.accept(TobaccoBlocks.IRON_POT.get());
+                output.accept(TobaccoBlocks.GOLDEN_POT.get());
                 output.accept(CoffeeBlocks.WET_PROCESSING_STATION.get());
                 output.accept(CoffeeBlocks.SMALL_DRYING_TRAY.get());
                 output.accept(CoffeeBlocks.MEDIUM_DRYING_TRAY.get());

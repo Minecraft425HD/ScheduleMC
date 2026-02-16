@@ -41,11 +41,7 @@ public class BeerItems {
             .food(new FoodProperties.Builder().nutrition(1).saturationMod(0.2f).build()))
     );
 
-    public static final RegistryObject<Item> WHEAT_GRAIN = ITEMS.register(
-        "wheat_grain",
-        () -> new Item(new Item.Properties()
-            .food(new FoodProperties.Builder().nutrition(1).saturationMod(0.2f).build()))
-    );
+    // WHEAT_GRAIN wurde entfernt - verwende net.minecraft.world.item.Items.WHEAT
 
     public static final RegistryObject<Item> RYE = ITEMS.register(
         "rye",

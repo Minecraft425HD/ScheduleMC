@@ -27,52 +27,9 @@ public class CoffeeBlocks {
         DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
 
     // ═══════════════════════════════════════════════════════════
-    // TÖPFE (nutzen dieselben wie Tabak aus production.blocks)
+    // TÖPFE - Verwende TobaccoBlocks.TERRACOTTA_POT, CERAMIC_POT, IRON_POT, GOLDEN_POT
+    // Coffee-spezifische Pots wurden entfernt
     // ═══════════════════════════════════════════════════════════
-
-    public static final RegistryObject<Block> COFFEE_TERRACOTTA_POT = registerBlockWithItem(
-        "coffee_terracotta_pot",
-        () -> new PlantPotBlock(
-            PotType.TERRACOTTA,
-            BlockBehaviour.Properties.of()
-                .strength(2.0f)
-                .sound(SoundType.STONE)
-                .noOcclusion()
-        )
-    );
-
-    public static final RegistryObject<Block> COFFEE_CERAMIC_POT = registerBlockWithItem(
-        "coffee_ceramic_pot",
-        () -> new PlantPotBlock(
-            PotType.CERAMIC,
-            BlockBehaviour.Properties.of()
-                .strength(2.0f)
-                .sound(SoundType.STONE)
-                .noOcclusion()
-        )
-    );
-
-    public static final RegistryObject<Block> COFFEE_IRON_POT = registerBlockWithItem(
-        "coffee_iron_pot",
-        () -> new PlantPotBlock(
-            PotType.IRON,
-            BlockBehaviour.Properties.of()
-                .strength(3.0f)
-                .sound(SoundType.METAL)
-                .noOcclusion()
-        )
-    );
-
-    public static final RegistryObject<Block> COFFEE_GOLDEN_POT = registerBlockWithItem(
-        "coffee_golden_pot",
-        () -> new PlantPotBlock(
-            PotType.GOLDEN,
-            BlockBehaviour.Properties.of()
-                .strength(2.0f)
-                .sound(SoundType.METAL)
-                .noOcclusion()
-        )
-    );
 
     // ═══════════════════════════════════════════════════════════
     // PROCESSING-BLÖCKE

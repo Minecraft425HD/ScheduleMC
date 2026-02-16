@@ -26,7 +26,14 @@ public class FreshCocaLeafItem extends Item {
      * Erstellt ItemStack mit Typ und Qualität
      */
     public static ItemStack create(CocaType type, TobaccoQuality quality, int count) {
-        ItemStack stack = new ItemStack(CocaItems.FRESH_BOLIVIANISCH_LEAF.get(), count);
+        // Wähle das richtige Item basierend auf dem CocaType
+        Item leafItem = switch (type) {
+            case BOLIVIANISCH -> CocaItems.FRESH_BOLIVIANISCH_LEAF.get();
+            case KOLUMBIANISCH -> CocaItems.FRESH_KOLUMBIANISCH_LEAF.get();
+            case PERUANISCH -> CocaItems.FRESH_PERUANISCH_LEAF.get();
+        };
+
+        ItemStack stack = new ItemStack(leafItem, count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("CocaType", type.name());
         tag.putString("Quality", quality.name());

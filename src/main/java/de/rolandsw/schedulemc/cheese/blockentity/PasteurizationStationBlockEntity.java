@@ -118,7 +118,7 @@ public class PasteurizationStationBlockEntity extends BlockEntity implements IUt
 
             if (pasteurizationProgress >= getTotalPasteurizationTime()) {
                 // Pasteurization complete: Raw Milk → Pasteurized Milk
-                ItemStack pasteurizedMilk = new ItemStack(CheeseItems.MILK_BUCKET.get(), inputStack.getCount());
+                ItemStack pasteurizedMilk = new ItemStack(Items.MILK_BUCKET, inputStack.getCount());
 
                 outputStack = pasteurizedMilk;
                 pasteurizationProgress = 0;

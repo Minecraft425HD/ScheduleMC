@@ -94,8 +94,7 @@ public class CoffeeItems {
     // WERKZEUGE & HILFSMITTEL
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Item> WATERING_CAN =
-        ITEMS.register("coffee_watering_can", () -> new Item(new Item.Properties().stacksTo(1).durability(100)));
+    // WATERING_CAN wurde entfernt - verwende TobaccoItems.WATERING_CAN
 
     public static final RegistryObject<Item> PULPING_TOOL =
         ITEMS.register("pulping_tool", () -> new Item(new Item.Properties().stacksTo(1).durability(200)));
@@ -104,17 +103,11 @@ public class CoffeeItems {
         ITEMS.register("roasting_tray", () -> new Item(new Item.Properties().stacksTo(16)));
 
     // ═══════════════════════════════════════════════════════════
-    // ZUSÄTZE & BOOSTER
+    // ZUSÄTZE & BOOSTER - Verwende TobaccoItems Boosters
     // ═══════════════════════════════════════════════════════════
-
-    public static final RegistryObject<Item> COFFEE_FERTILIZER =
-        ITEMS.register("coffee_fertilizer", () -> new Item(new Item.Properties().stacksTo(64)));
-
-    public static final RegistryObject<Item> GROWTH_ACCELERATOR =
-        ITEMS.register("growth_accelerator", () -> new Item(new Item.Properties().stacksTo(64)));
-
-    public static final RegistryObject<Item> QUALITY_ENHANCER =
-        ITEMS.register("quality_enhancer", () -> new Item(new Item.Properties().stacksTo(64)));
+    // COFFEE_FERTILIZER → TobaccoItems.FERTILIZER_BOTTLE
+    // GROWTH_ACCELERATOR → TobaccoItems.GROWTH_BOOSTER_BOTTLE
+    // QUALITY_ENHANCER → TobaccoItems.QUALITY_BOOSTER_BOTTLE
 
     // ═══════════════════════════════════════════════════════════
     // VERPACKUNGSMATERIALIEN
