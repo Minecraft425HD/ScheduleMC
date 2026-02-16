@@ -1,5 +1,9 @@
 package de.rolandsw.schedulemc.tobacco.blockentity;
 
+import de.rolandsw.schedulemc.cannabis.CannabisQuality;
+import de.rolandsw.schedulemc.cannabis.CannabisStrain;
+import de.rolandsw.schedulemc.cannabis.items.DriedBudItem;
+import de.rolandsw.schedulemc.cannabis.items.FreshBudItem;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
@@ -36,8 +40,17 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int dryingProgress = 0;
+
+    // Produkttyp (tobacco oder cannabis)
+    private ContentType contentType = ContentType.NONE;
+
+    // Tobacco-spezifische Daten
     private TobaccoType tobaccoType;
-    private TobaccoQuality quality;
+    private TobaccoQuality tobaccoQuality;
+
+    // Cannabis-spezifische Daten
+    private CannabisStrain cannabisStrain;
+    private CannabisQuality cannabisQuality;
 
     // ItemHandler für GUI-Zugriff (Slot 0 = Input, Slot 1 = Output)
     protected ItemStackHandler itemHandler;
@@ -77,7 +90,8 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 if (slot == 0) {
-                    return stack.getItem() instanceof FreshTobaccoLeafItem;
+                    return stack.getItem() instanceof FreshTobaccoLeafItem ||
+                           stack.getItem() instanceof FreshBudItem;
                 }
                 return false; // Output slot ist read-only
             }
@@ -105,14 +119,22 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         if (!handlerInput.isEmpty() && inputStack.isEmpty()) {
             inputStack = handlerInput.copy();
             if (handlerInput.getItem() instanceof FreshTobaccoLeafItem) {
+                contentType = ContentType.TOBACCO;
                 tobaccoType = FreshTobaccoLeafItem.getType(handlerInput);
-                quality = FreshTobaccoLeafItem.getQuality(handlerInput);
+                tobaccoQuality = FreshTobaccoLeafItem.getQuality(handlerInput);
+            } else if (handlerInput.getItem() instanceof FreshBudItem) {
+                contentType = ContentType.CANNABIS;
+                cannabisStrain = FreshBudItem.getStrain(handlerInput);
+                cannabisQuality = FreshBudItem.getQuality(handlerInput);
             }
             dryingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
+            contentType = ContentType.NONE;
             tobaccoType = null;
-            quality = null;
+            tobaccoQuality = null;
+            cannabisStrain = null;
+            cannabisQuality = null;
             dryingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -125,29 +147,53 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
     }
 
     public boolean addFreshLeaves(ItemStack stack) {
-        if (!(stack.getItem() instanceof FreshTobaccoLeafItem)) {
+        boolean isTobacco = stack.getItem() instanceof FreshTobaccoLeafItem;
+        boolean isCannabis = stack.getItem() instanceof FreshBudItem;
+
+        if (!isTobacco && !isCannabis) {
             return false;
         }
 
         if (inputStack.isEmpty() && outputStack.isEmpty()) {
             inputStack = stack.copy();
             inputStack.setCount(Math.min(stack.getCount(), getCapacity()));
-            tobaccoType = FreshTobaccoLeafItem.getType(stack);
-            quality = FreshTobaccoLeafItem.getQuality(stack);
+
+            if (isTobacco) {
+                contentType = ContentType.TOBACCO;
+                tobaccoType = FreshTobaccoLeafItem.getType(stack);
+                tobaccoQuality = FreshTobaccoLeafItem.getQuality(stack);
+            } else {
+                contentType = ContentType.CANNABIS;
+                cannabisStrain = FreshBudItem.getStrain(stack);
+                cannabisQuality = FreshBudItem.getQuality(stack);
+            }
+
             dryingProgress = 0;
             syncToHandler();
             setChanged();
             return true;
         } else if (!inputStack.isEmpty() && inputStack.getCount() < getCapacity() && outputStack.isEmpty()) {
-            // Blätter hinzufügen wenn gleicher Typ
-            TobaccoType newType = FreshTobaccoLeafItem.getType(stack);
-            TobaccoQuality newQuality = FreshTobaccoLeafItem.getQuality(stack);
-            if (newType == tobaccoType && newQuality == quality) {
-                int canAdd = Math.min(stack.getCount(), getCapacity() - inputStack.getCount());
-                inputStack.grow(canAdd);
-                syncToHandler();
-                setChanged();
-                return true;
+            // Items hinzufügen wenn gleicher Typ und Qualität
+            if (contentType == ContentType.TOBACCO && isTobacco) {
+                TobaccoType newType = FreshTobaccoLeafItem.getType(stack);
+                TobaccoQuality newQuality = FreshTobaccoLeafItem.getQuality(stack);
+                if (newType == tobaccoType && newQuality == tobaccoQuality) {
+                    int canAdd = Math.min(stack.getCount(), getCapacity() - inputStack.getCount());
+                    inputStack.grow(canAdd);
+                    syncToHandler();
+                    setChanged();
+                    return true;
+                }
+            } else if (contentType == ContentType.CANNABIS && isCannabis) {
+                CannabisStrain newStrain = FreshBudItem.getStrain(stack);
+                CannabisQuality newQuality = FreshBudItem.getQuality(stack);
+                if (newStrain == cannabisStrain && newQuality == cannabisQuality) {
+                    int canAdd = Math.min(stack.getCount(), getCapacity() - inputStack.getCount());
+                    inputStack.grow(canAdd);
+                    syncToHandler();
+                    setChanged();
+                    return true;
+                }
             }
         }
         return false;
@@ -159,8 +205,11 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
             outputStack = ItemStack.EMPTY;
             inputStack = ItemStack.EMPTY;
             dryingProgress = 0;
+            contentType = ContentType.NONE;
             tobaccoType = null;
-            quality = null;
+            tobaccoQuality = null;
+            cannabisStrain = null;
+            cannabisQuality = null;
             syncToHandler();
             setChanged();
             return result;
@@ -212,8 +261,12 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
 
             int totalTime = getDryingTime() * inputStack.getCount();
             if (dryingProgress >= totalTime) {
-                // Trocknung abgeschlossen
-                outputStack = DriedTobaccoLeafItem.create(tobaccoType, quality, inputStack.getCount());
+                // Trocknung abgeschlossen - erstelle richtigen Output
+                if (contentType == ContentType.TOBACCO) {
+                    outputStack = DriedTobaccoLeafItem.create(tobaccoType, tobaccoQuality, inputStack.getCount());
+                } else if (contentType == ContentType.CANNABIS) {
+                    outputStack = DriedBudItem.create(cannabisStrain, cannabisQuality, inputStack.getCount());
+                }
                 changed = true;
             }
 
@@ -279,12 +332,19 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         }
 
         tag.putInt("Progress", dryingProgress);
+        tag.putString("ContentType", contentType.name());
 
         if (tobaccoType != null) {
-            tag.putString("Type", tobaccoType.name());
+            tag.putString("TobaccoType", tobaccoType.name());
         }
-        if (quality != null) {
-            tag.putString("Quality", quality.name());
+        if (tobaccoQuality != null) {
+            tag.putString("TobaccoQuality", tobaccoQuality.name());
+        }
+        if (cannabisStrain != null) {
+            tag.putString("CannabisStrain", cannabisStrain.name());
+        }
+        if (cannabisQuality != null) {
+            tag.putString("CannabisQuality", cannabisQuality.name());
         }
     }
 
@@ -300,12 +360,36 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         dryingProgress = tag.getInt("Progress");
 
+        if (tag.contains("ContentType")) {
+            try { contentType = ContentType.valueOf(tag.getString("ContentType")); }
+            catch (IllegalArgumentException ignored) { contentType = ContentType.NONE; }
+        }
+
+        // Legacy-Support: "Type" und "Quality" für alte Saves
         if (tag.contains("Type")) {
             try { tobaccoType = TobaccoType.valueOf(tag.getString("Type")); }
             catch (IllegalArgumentException ignored) {}
         }
         if (tag.contains("Quality")) {
-            try { quality = TobaccoQuality.valueOf(tag.getString("Quality")); }
+            try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("Quality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+
+        // Neue Felder
+        if (tag.contains("TobaccoType")) {
+            try { tobaccoType = TobaccoType.valueOf(tag.getString("TobaccoType")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("TobaccoQuality")) {
+            try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("TobaccoQuality")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("CannabisStrain")) {
+            try { cannabisStrain = CannabisStrain.valueOf(tag.getString("CannabisStrain")); }
+            catch (IllegalArgumentException ignored) {}
+        }
+        if (tag.contains("CannabisQuality")) {
+            try { cannabisQuality = CannabisQuality.valueOf(tag.getString("CannabisQuality")); }
             catch (IllegalArgumentException ignored) {}
         }
 
@@ -323,5 +407,14 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         CompoundTag tag = new CompoundTag();
         saveAdditional(tag);
         return tag;
+    }
+
+    /**
+     * Enum für den Inhaltstyp des Drying Racks
+     */
+    private enum ContentType {
+        NONE,       // Leer
+        TOBACCO,    // Tabak
+        CANNABIS    // Cannabis
     }
 }
