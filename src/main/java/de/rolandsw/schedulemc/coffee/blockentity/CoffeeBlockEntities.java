@@ -23,27 +23,10 @@ public class CoffeeBlockEntities {
                 CoffeeBlocks.WET_PROCESSING_STATION.get()
             ).build(null));
 
-    // Drying Trays
-    public static final RegistryObject<BlockEntityType<SmallDryingTrayBlockEntity>> SMALL_DRYING_TRAY =
-        BLOCK_ENTITIES.register("small_coffee_drying_tray",
-            () -> BlockEntityType.Builder.of(
-                SmallDryingTrayBlockEntity::new,
-                CoffeeBlocks.SMALL_DRYING_TRAY.get()
-            ).build(null));
-
-    public static final RegistryObject<BlockEntityType<MediumDryingTrayBlockEntity>> MEDIUM_DRYING_TRAY =
-        BLOCK_ENTITIES.register("medium_coffee_drying_tray",
-            () -> BlockEntityType.Builder.of(
-                MediumDryingTrayBlockEntity::new,
-                CoffeeBlocks.MEDIUM_DRYING_TRAY.get()
-            ).build(null));
-
-    public static final RegistryObject<BlockEntityType<LargeDryingTrayBlockEntity>> LARGE_DRYING_TRAY =
-        BLOCK_ENTITIES.register("large_coffee_drying_tray",
-            () -> BlockEntityType.Builder.of(
-                LargeDryingTrayBlockEntity::new,
-                CoffeeBlocks.LARGE_DRYING_TRAY.get()
-            ).build(null));
+    // Drying Trays - ENTFERNT
+    // Coffee Drying Trays wurden durch TobaccoBlocks.SMALL/MEDIUM/BIG_DRYING_RACK ersetzt
+    // Verwende stattdessen TobaccoBlockEntities.SMALL/MEDIUM/BIG_DRYING_RACK
+    // Die Coffee-spezifischen BlockEntities (SmallDryingTrayBlockEntity, etc.) können entfernt werden
 
     // Coffee Roasters
     public static final RegistryObject<BlockEntityType<SmallCoffeeRoasterBlockEntity>> SMALL_COFFEE_ROASTER =
