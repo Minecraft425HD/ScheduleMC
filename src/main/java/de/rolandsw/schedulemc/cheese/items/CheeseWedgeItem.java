@@ -149,8 +149,6 @@ public class CheeseWedgeItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        CheeseType type = getCheeseType(stack);
-        CheeseQuality quality = getQuality(stack);
-        return Component.translatable("item.schedulemc.cheese_wedge.display", quality.getColorCode(), type.getDisplayName());
+        return Component.translatable("item.schedulemc.cheese_wedge.display");
     }
 }

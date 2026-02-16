@@ -223,8 +223,6 @@ public class HoneyJarItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        HoneyType type = getHoneyType(stack);
-        HoneyQuality quality = getQuality(stack);
         double weight = getWeightKg(stack);
 
         String weightStr;
@@ -234,6 +232,6 @@ public class HoneyJarItem extends Item {
             weightStr = String.format("%.1fkg", weight);
         }
 
-        return Component.translatable("tooltip.honey.name", quality.getColorCode() + type.getDisplayName(), weightStr);
+        return Component.translatable("tooltip.honey.name", weightStr);
     }
 }

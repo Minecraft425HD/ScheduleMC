@@ -89,9 +89,9 @@ public class EcstasyPillItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        PillDesign design = getDesign(stack);
         PillColor color = getColor(stack);
+        PillDesign design = getDesign(stack);
         return Component.literal(color.getColorCode() + design.getSymbol() + " ")
-            .append(Component.translatable("item.ecstasy_pill.name", design.getDisplayName()));
+            .append(Component.translatable("item.ecstasy_pill.name"));
     }
 }

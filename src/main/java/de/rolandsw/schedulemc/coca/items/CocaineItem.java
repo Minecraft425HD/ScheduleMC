@@ -74,7 +74,6 @@ public class CocaineItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        CocaType type = getType(stack);
-        return Component.translatable("item.cocaine.name", type.getDisplayName());
+        return Component.translatable("item.cocaine.name");
     }
 }

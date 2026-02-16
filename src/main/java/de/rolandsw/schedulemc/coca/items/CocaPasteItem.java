@@ -89,7 +89,6 @@ public class CocaPasteItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        CocaType type = getType(stack);
-        return Component.translatable("item.coca_paste.name", type.getDisplayName());
+        return Component.translatable("item.coca_paste.name");
     }
 }

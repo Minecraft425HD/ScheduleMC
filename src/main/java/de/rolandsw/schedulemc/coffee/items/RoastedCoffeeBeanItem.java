@@ -119,15 +119,6 @@ public class RoastedCoffeeBeanItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        CoffeeType type = getType(stack);
-        CoffeeQuality quality = getQuality(stack);
-        CoffeeRoastLevel roastLevel = getRoastLevel(stack);
-
-        return Component.empty()
-            .append(quality.getColoredName())
-            .append(" ")
-            .append(roastLevel.getColoredName())
-            .append(" ")
-            .append(Component.translatable("item.roasted_coffee_beans.name", type.getDisplayName()));
+        return Component.translatable("item.roasted_coffee_beans.name");
     }
 }
