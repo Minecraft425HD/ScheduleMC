@@ -71,12 +71,8 @@ public class TrimmedBudItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        CannabisStrain strain = getStrain(stack);
-        CannabisQuality quality = getQuality(stack);
         return Component.literal("§a✂ ")
-            .append(Component.literal(quality.getColorCode()))
-            .append(Component.literal(strain.getDisplayName()))
-            .append(Component.translatable("item.trimmed_bud.suffix"));
+            .append(Component.translatable("item.trimmed_bud.name"));
     }
 
     @Override

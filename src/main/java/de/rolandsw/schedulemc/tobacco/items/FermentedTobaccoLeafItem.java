@@ -110,10 +110,6 @@ public class FermentedTobaccoLeafItem extends Item {
     
     @Override
     public Component getName(ItemStack stack) {
-        TobaccoType type = getType(stack);
-        TobaccoQuality quality = getQuality(stack);
-        return Component.empty()
-            .append(quality.getColoredName())
-            .append(Component.translatable("item.fermented_tobacco_leaf.name", type.getDisplayName()));
+        return Component.translatable("item.fermented_tobacco_leaf.name");
     }
 }

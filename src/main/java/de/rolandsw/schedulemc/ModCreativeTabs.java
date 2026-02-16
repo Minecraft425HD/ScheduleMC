@@ -610,10 +610,11 @@ public class ModCreativeTabs {
                 output.accept(TobaccoBlocks.CERAMIC_POT.get());
                 output.accept(TobaccoBlocks.IRON_POT.get());
                 output.accept(TobaccoBlocks.GOLDEN_POT.get());
+                // Verwende Tobacco Drying Racks (wiederverwendbar für Coffee & Tobacco)
+                output.accept(TobaccoBlocks.SMALL_DRYING_RACK.get());
+                output.accept(TobaccoBlocks.MEDIUM_DRYING_RACK.get());
+                output.accept(TobaccoBlocks.BIG_DRYING_RACK.get());
                 output.accept(CoffeeBlocks.WET_PROCESSING_STATION.get());
-                output.accept(CoffeeBlocks.SMALL_DRYING_TRAY.get());
-                output.accept(CoffeeBlocks.MEDIUM_DRYING_TRAY.get());
-                output.accept(CoffeeBlocks.LARGE_DRYING_TRAY.get());
                 output.accept(CoffeeBlocks.SMALL_COFFEE_ROASTER.get());
                 output.accept(CoffeeBlocks.MEDIUM_COFFEE_ROASTER.get());
                 output.accept(CoffeeBlocks.LARGE_COFFEE_ROASTER.get());

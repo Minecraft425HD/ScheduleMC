@@ -46,36 +46,8 @@ public class CoffeeBlocks {
         )
     );
 
-    // Dry Processing Trays (3 Größen)
-    public static final RegistryObject<Block> SMALL_DRYING_TRAY = registerBlockWithItem(
-        "small_coffee_drying_tray",
-        () -> new SmallDryingTrayBlock(
-            BlockBehaviour.Properties.of()
-                .strength(2.0f)
-                .sound(SoundType.WOOD)
-                .noOcclusion()
-        )
-    );
-
-    public static final RegistryObject<Block> MEDIUM_DRYING_TRAY = registerBlockWithItem(
-        "medium_coffee_drying_tray",
-        () -> new MediumDryingTrayBlock(
-            BlockBehaviour.Properties.of()
-                .strength(2.0f)
-                .sound(SoundType.WOOD)
-                .noOcclusion()
-        )
-    );
-
-    public static final RegistryObject<Block> LARGE_DRYING_TRAY = registerBlockWithItem(
-        "large_coffee_drying_tray",
-        () -> new LargeDryingTrayBlock(
-            BlockBehaviour.Properties.of()
-                .strength(2.0f)
-                .sound(SoundType.WOOD)
-                .noOcclusion()
-        )
-    );
+    // Dry Processing Trays - ENTFERNT
+    // Verwende TobaccoBlocks.SMALL_DRYING_RACK, MEDIUM_DRYING_RACK, LARGE_DRYING_RACK
 
     // Coffee Roaster (3 Größen)
     public static final RegistryObject<Block> SMALL_COFFEE_ROASTER = registerBlockWithItem(

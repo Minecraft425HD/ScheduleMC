@@ -75,12 +75,8 @@ public class HashItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        CannabisStrain strain = getStrain(stack);
-        CannabisQuality quality = getQuality(stack);
         return Component.literal("§6🟤 ")
-            .append(Component.literal(quality.getColorCode()))
-            .append(Component.literal(strain.getDisplayName()))
-            .append(Component.translatable("item.hash.suffix"));
+            .append(Component.translatable("item.hash.name"));
     }
 
     @Override
