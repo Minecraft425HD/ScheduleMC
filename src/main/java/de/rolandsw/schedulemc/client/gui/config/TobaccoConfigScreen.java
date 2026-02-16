@@ -4,17 +4,26 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Tobacco Config Screen - 31 Tobacco System Options (Compact Layout)
+ * Tobacco Config Screen - 31 Tobacco System Options (SCROLLABLE!)
+ * Organized into logical categories with headers
  */
 @OnlyIn(Dist.CLIENT)
 public class TobaccoConfigScreen extends Screen {
     private final Screen parent;
+    private ConfigList configList;
 
     public TobaccoConfigScreen(Screen parent) {
         super(Component.literal("Tobacco Settings"));
@@ -25,105 +34,137 @@ public class TobaccoConfigScreen extends Screen {
     protected void init() {
         super.init();
 
-        int col1 = 10;
-        int col2 = 110;
-        int col3 = 210;
-        int col4 = 310;
-        int w = 95;
-        int y = 45;
-        int s = 22;
+        // Create scrollable config list
+        this.configList = new ConfigList(this.minecraft, this.width, this.height, 55, this.height - 55, 25);
+        this.addWidget(this.configList);
 
-        // Row 1: General
-        addWidget(new BoolButton(col1, y, w, "Enabled",
-            ModConfigHandler.TOBACCO.TOBACCO_ENABLED));
-        addWidget(new DoubleSlider(col2, y, w, "Grow:%.1fx",
-            ModConfigHandler.TOBACCO.TOBACCO_GROWTH_SPEED_MULTIPLIER, 0.1, 10.0));
-        addWidget(new IntSlider(col3, y, w, "Dry:%dt",
-            ModConfigHandler.TOBACCO.TOBACCO_DRYING_TIME, 100, 72000));
-        addWidget(new IntSlider(col4, y, w, "Ferm:%dt",
-            ModConfigHandler.TOBACCO.TOBACCO_FERMENTING_TIME, 100, 72000));
-        y += s;
+        // === GENERAL SETTINGS ===
+        configList.addHeader("§2🌿 GENERAL SETTINGS");
+        configList.addRow(
+            new BoolButton(0, 0, 180, "Tobacco Enabled",
+                ModConfigHandler.TOBACCO.TOBACCO_ENABLED),
+            new DoubleSlider(0, 0, 180, "Growth Speed: %.1fx",
+                ModConfigHandler.TOBACCO.TOBACCO_GROWTH_SPEED_MULTIPLIER, 0.1, 10.0)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Drying Time: %d ticks",
+                ModConfigHandler.TOBACCO.TOBACCO_DRYING_TIME, 100, 72000),
+            new IntSlider(0, 0, 180, "Fermenting: %d ticks",
+                ModConfigHandler.TOBACCO.TOBACCO_FERMENTING_TIME, 100, 72000)
+        );
+        configList.addRow(
+            new DoubleSlider(0, 0, 180, "Quality Chance: %.0f%%",
+                ModConfigHandler.TOBACCO.FERMENTATION_QUALITY_CHANCE, 0, 1.0, 100),
+            null
+        );
 
-        // Row 2: Quality
-        addWidget(new DoubleSlider(col1, y, w, "FermQ:%.0f%%",
-            ModConfigHandler.TOBACCO.FERMENTATION_QUALITY_CHANCE, 0, 1.0, 100));
-        y += s;
+        // === DRYING RACKS ===
+        configList.addHeader("§6📦 DRYING RACKS");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Small Rack: %d",
+                ModConfigHandler.TOBACCO.SMALL_DRYING_RACK_CAPACITY, 1, 64),
+            new IntSlider(0, 0, 180, "Medium Rack: %d",
+                ModConfigHandler.TOBACCO.MEDIUM_DRYING_RACK_CAPACITY, 1, 64)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Large Rack: %d",
+                ModConfigHandler.TOBACCO.BIG_DRYING_RACK_CAPACITY, 1, 64),
+            null
+        );
 
-        // Row 3-4: Drying Racks
-        addWidget(new IntSlider(col1, y, w, "RackS:%d",
-            ModConfigHandler.TOBACCO.SMALL_DRYING_RACK_CAPACITY, 1, 64));
-        addWidget(new IntSlider(col2, y, w, "RackM:%d",
-            ModConfigHandler.TOBACCO.MEDIUM_DRYING_RACK_CAPACITY, 1, 64));
-        addWidget(new IntSlider(col3, y, w, "RackL:%d",
-            ModConfigHandler.TOBACCO.BIG_DRYING_RACK_CAPACITY, 1, 64));
-        y += s;
+        // === FERMENTATION BARRELS ===
+        configList.addHeader("§c🛢 FERMENTATION BARRELS");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Small Barrel: %d",
+                ModConfigHandler.TOBACCO.SMALL_FERMENTATION_BARREL_CAPACITY, 1, 64),
+            new IntSlider(0, 0, 180, "Medium Barrel: %d",
+                ModConfigHandler.TOBACCO.MEDIUM_FERMENTATION_BARREL_CAPACITY, 1, 64)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Large Barrel: %d",
+                ModConfigHandler.TOBACCO.BIG_FERMENTATION_BARREL_CAPACITY, 1, 64),
+            null
+        );
 
-        // Row 5-6: Fermentation Barrels
-        addWidget(new IntSlider(col1, y, w, "BarrelS:%d",
-            ModConfigHandler.TOBACCO.SMALL_FERMENTATION_BARREL_CAPACITY, 1, 64));
-        addWidget(new IntSlider(col2, y, w, "BarrelM:%d",
-            ModConfigHandler.TOBACCO.MEDIUM_FERMENTATION_BARREL_CAPACITY, 1, 64));
-        addWidget(new IntSlider(col3, y, w, "BarrelL:%d",
-            ModConfigHandler.TOBACCO.BIG_FERMENTATION_BARREL_CAPACITY, 1, 64));
-        y += s;
+        // === POT WATER CAPACITY ===
+        configList.addHeader("§9💧 POT WATER CAPACITY");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Terracotta: %d",
+                ModConfigHandler.TOBACCO.TERRACOTTA_WATER_CAPACITY, 10, 10000),
+            new IntSlider(0, 0, 180, "Ceramic: %d",
+                ModConfigHandler.TOBACCO.CERAMIC_WATER_CAPACITY, 10, 10000)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Iron: %d",
+                ModConfigHandler.TOBACCO.IRON_WATER_CAPACITY, 10, 10000),
+            new IntSlider(0, 0, 180, "Golden: %d",
+                ModConfigHandler.TOBACCO.GOLDEN_WATER_CAPACITY, 10, 10000)
+        );
 
-        // Row 7-8: Pot Water Capacities
-        addWidget(new IntSlider(col1, y, w, "TerraW:%d",
-            ModConfigHandler.TOBACCO.TERRACOTTA_WATER_CAPACITY, 10, 10000));
-        addWidget(new IntSlider(col2, y, w, "CeramW:%d",
-            ModConfigHandler.TOBACCO.CERAMIC_WATER_CAPACITY, 10, 10000));
-        addWidget(new IntSlider(col3, y, w, "IronW:%d",
-            ModConfigHandler.TOBACCO.IRON_WATER_CAPACITY, 10, 10000));
-        addWidget(new IntSlider(col4, y, w, "GoldW:%d",
-            ModConfigHandler.TOBACCO.GOLDEN_WATER_CAPACITY, 10, 10000));
-        y += s;
+        // === POT SOIL CAPACITY ===
+        configList.addHeader("§e🏺 POT SOIL CAPACITY");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Terracotta: %d",
+                ModConfigHandler.TOBACCO.TERRACOTTA_SOIL_CAPACITY, 10, 10000),
+            new IntSlider(0, 0, 180, "Ceramic: %d",
+                ModConfigHandler.TOBACCO.CERAMIC_SOIL_CAPACITY, 10, 10000)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Iron: %d",
+                ModConfigHandler.TOBACCO.IRON_SOIL_CAPACITY, 10, 10000),
+            new IntSlider(0, 0, 180, "Golden: %d",
+                ModConfigHandler.TOBACCO.GOLDEN_SOIL_CAPACITY, 10, 10000)
+        );
 
-        // Row 9-10: Pot Soil Capacities
-        addWidget(new IntSlider(col1, y, w, "TerraS:%d",
-            ModConfigHandler.TOBACCO.TERRACOTTA_SOIL_CAPACITY, 10, 10000));
-        addWidget(new IntSlider(col2, y, w, "CeramS:%d",
-            ModConfigHandler.TOBACCO.CERAMIC_SOIL_CAPACITY, 10, 10000));
-        addWidget(new IntSlider(col3, y, w, "IronS:%d",
-            ModConfigHandler.TOBACCO.IRON_SOIL_CAPACITY, 10, 10000));
-        addWidget(new IntSlider(col4, y, w, "GoldS:%d",
-            ModConfigHandler.TOBACCO.GOLDEN_SOIL_CAPACITY, 10, 10000));
-        y += s;
+        // === BOTTLE EFFECTS ===
+        configList.addHeader("§d🧪 BOTTLE EFFECTS");
+        configList.addRow(
+            new DoubleSlider(0, 0, 180, "Fertilizer: %.1fx",
+                ModConfigHandler.TOBACCO.FERTILIZER_YIELD_BONUS, 0, 5.0),
+            new DoubleSlider(0, 0, 180, "Growth Boost: %.1fx",
+                ModConfigHandler.TOBACCO.GROWTH_BOOSTER_SPEED_MULTIPLIER, 1.0, 10.0)
+        );
 
-        // Row 11: Bottle Effects
-        addWidget(new DoubleSlider(col1, y, w, "Fert:%.1fx",
-            ModConfigHandler.TOBACCO.FERTILIZER_YIELD_BONUS, 0, 5.0));
-        addWidget(new DoubleSlider(col2, y, w, "Boost:%.1fx",
-            ModConfigHandler.TOBACCO.GROWTH_BOOSTER_SPEED_MULTIPLIER, 1.0, 10.0));
-        y += s;
+        // === LIGHT REQUIREMENTS ===
+        configList.addHeader("§6💡 LIGHT REQUIREMENTS");
+        configList.addRow(
+            new BoolButton(0, 0, 180, "Require Light",
+                ModConfigHandler.TOBACCO.REQUIRE_LIGHT_FOR_GROWTH),
+            new IntSlider(0, 0, 180, "Min Light Level: %d",
+                ModConfigHandler.TOBACCO.MIN_LIGHT_LEVEL, 0, 15)
+        );
 
-        // Row 12: Light Requirements
-        addWidget(new BoolButton(col1, y, w, "NeedLight",
-            ModConfigHandler.TOBACCO.REQUIRE_LIGHT_FOR_GROWTH));
-        addWidget(new IntSlider(col2, y, w, "MinLvl:%d",
-            ModConfigHandler.TOBACCO.MIN_LIGHT_LEVEL, 0, 15));
-        y += s;
+        // === BASIC GROW LIGHT ===
+        configList.addHeader("§a🔦 BASIC GROW LIGHT");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Light Level: %d",
+                ModConfigHandler.TOBACCO.BASIC_GROW_LIGHT_LEVEL, 0, 15),
+            new DoubleSlider(0, 0, 180, "Speed: %.1fx",
+                ModConfigHandler.TOBACCO.BASIC_GROW_LIGHT_SPEED, 0.1, 10.0)
+        );
 
-        // Row 13-14: Basic Grow Light
-        addWidget(new IntSlider(col1, y, w, "BasicL:%d",
-            ModConfigHandler.TOBACCO.BASIC_GROW_LIGHT_LEVEL, 0, 15));
-        addWidget(new DoubleSlider(col2, y, w, "BasicS:%.1fx",
-            ModConfigHandler.TOBACCO.BASIC_GROW_LIGHT_SPEED, 0.1, 10.0));
-        y += s;
+        // === ADVANCED GROW LIGHT ===
+        configList.addHeader("§b✨ ADVANCED GROW LIGHT");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Light Level: %d",
+                ModConfigHandler.TOBACCO.ADVANCED_GROW_LIGHT_LEVEL, 0, 15),
+            new DoubleSlider(0, 0, 180, "Speed: %.2fx",
+                ModConfigHandler.TOBACCO.ADVANCED_GROW_LIGHT_SPEED, 0.1, 10.0)
+        );
 
-        // Row 15-16: Advanced Grow Light
-        addWidget(new IntSlider(col1, y, w, "AdvL:%d",
-            ModConfigHandler.TOBACCO.ADVANCED_GROW_LIGHT_LEVEL, 0, 15));
-        addWidget(new DoubleSlider(col2, y, w, "AdvS:%.2fx",
-            ModConfigHandler.TOBACCO.ADVANCED_GROW_LIGHT_SPEED, 0.1, 10.0));
-        y += s;
-
-        // Row 17-19: Premium Grow Light
-        addWidget(new IntSlider(col1, y, w, "PremL:%d",
-            ModConfigHandler.TOBACCO.PREMIUM_GROW_LIGHT_LEVEL, 0, 15));
-        addWidget(new DoubleSlider(col2, y, w, "PremS:%.1fx",
-            ModConfigHandler.TOBACCO.PREMIUM_GROW_LIGHT_SPEED, 0.1, 10.0));
-        addWidget(new DoubleSlider(col3, y, w, "PremQ:%.0f%%",
-            ModConfigHandler.TOBACCO.PREMIUM_GROW_LIGHT_QUALITY_BONUS, 0, 1.0, 100));
+        // === PREMIUM GROW LIGHT ===
+        configList.addHeader("§6⭐ PREMIUM GROW LIGHT");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Light Level: %d",
+                ModConfigHandler.TOBACCO.PREMIUM_GROW_LIGHT_LEVEL, 0, 15),
+            new DoubleSlider(0, 0, 180, "Speed: %.1fx",
+                ModConfigHandler.TOBACCO.PREMIUM_GROW_LIGHT_SPEED, 0.1, 10.0)
+        );
+        configList.addRow(
+            new DoubleSlider(0, 0, 180, "Quality Bonus: %.0f%%",
+                ModConfigHandler.TOBACCO.PREMIUM_GROW_LIGHT_QUALITY_BONUS, 0, 1.0, 100),
+            null
+        );
 
         // Back Button
         this.addRenderableWidget(Button.builder(
@@ -132,27 +173,162 @@ public class TobaccoConfigScreen extends Screen {
         ).bounds(this.width / 2 - 100, this.height - 28, 200, 20).build());
     }
 
-    private void addWidget(AbstractSliderButton widget) {
-        this.addRenderableWidget(widget);
-    }
-
-    private void addWidget(Button widget) {
-        this.addRenderableWidget(widget);
-    }
-
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics);
+
+        // Render scrollable list
+        this.configList.render(graphics, mouseX, mouseY, partialTick);
+
         super.render(graphics, mouseX, mouseY, partialTick);
+
+        // Title
         graphics.drawCenteredString(this.font, this.title, this.width / 2, 8, 0xFFFFFF);
+
+        // Subtitle
         graphics.drawCenteredString(this.font,
-            Component.literal("§231 Tobacco Options - Complete Control!"),
-            this.width / 2, 22, 0x55FF55);
+            Component.literal("§231 Tobacco Options - Now Scrollable & Organized!"),
+            this.width / 2, 22, 0xFFFF55);
+
+        // Info
+        graphics.drawCenteredString(this.font,
+            Component.literal("§8Scroll to see all tobacco features"),
+            this.width / 2, this.height - 45, 0x808080);
     }
 
     @Override
     public void onClose() {
         this.minecraft.setScreen(parent);
+    }
+
+    // === SCROLLABLE CONFIG LIST ===
+
+    private class ConfigList extends ContainerObjectSelectionList<ConfigList.Entry> {
+
+        public ConfigList(net.minecraft.client.Minecraft mc, int width, int height, int top, int bottom, int itemHeight) {
+            super(mc, width, height, top, bottom, itemHeight);
+        }
+
+        @Override
+        public int getRowWidth() {
+            return 400;
+        }
+
+        @Override
+        protected int getScrollbarPosition() {
+            return this.width / 2 + 210;
+        }
+
+        public void addHeader(String text) {
+            this.addEntry(new HeaderEntry(text));
+        }
+
+        public void addRow(@Nullable GuiEventListener left, @Nullable GuiEventListener right) {
+            this.addEntry(new WidgetRowEntry(left, right));
+        }
+
+        // === HEADER ENTRY ===
+
+        public class HeaderEntry extends Entry {
+            private final String text;
+
+            public HeaderEntry(String text) {
+                this.text = text;
+            }
+
+            @Override
+            public void render(GuiGraphics graphics, int index, int top, int left, int width, int height,
+                             int mouseX, int mouseY, boolean hovering, float partialTick) {
+                graphics.drawCenteredString(
+                    TobaccoConfigScreen.this.font,
+                    Component.literal(text),
+                    TobaccoConfigScreen.this.width / 2,
+                    top + 5,
+                    0xFFFFAA
+                );
+            }
+
+            @Override
+            public List<? extends GuiEventListener> children() {
+                return List.of();
+            }
+
+            @Override
+            public List<? extends NarratableEntry> narratables() {
+                return List.of();
+            }
+        }
+
+        // === WIDGET ROW ENTRY ===
+
+        public class WidgetRowEntry extends Entry {
+            private final List<GuiEventListener> children = new ArrayList<>();
+            @Nullable private final GuiEventListener leftWidget;
+            @Nullable private final GuiEventListener rightWidget;
+
+            public WidgetRowEntry(@Nullable GuiEventListener left, @Nullable GuiEventListener right) {
+                this.leftWidget = left;
+                this.rightWidget = right;
+                if (left != null) children.add(left);
+                if (right != null) children.add(right);
+            }
+
+            @Override
+            public void render(GuiGraphics graphics, int index, int top, int left, int width, int height,
+                             int mouseX, int mouseY, boolean hovering, float partialTick) {
+                int centerX = TobaccoConfigScreen.this.width / 2;
+                int leftCol = centerX - 190;
+                int rightCol = centerX + 10;
+
+                // Render left widget
+                if (leftWidget instanceof AbstractSliderButton slider) {
+                    slider.setY(top);
+                    slider.setX(leftCol);
+                    slider.render(graphics, mouseX, mouseY, partialTick);
+                } else if (leftWidget instanceof Button button) {
+                    button.setY(top);
+                    button.setX(leftCol);
+                    button.render(graphics, mouseX, mouseY, partialTick);
+                }
+
+                // Render right widget
+                if (rightWidget instanceof AbstractSliderButton slider) {
+                    slider.setY(top);
+                    slider.setX(rightCol);
+                    slider.render(graphics, mouseX, mouseY, partialTick);
+                } else if (rightWidget instanceof Button button) {
+                    button.setY(top);
+                    button.setX(rightCol);
+                    button.render(graphics, mouseX, mouseY, partialTick);
+                }
+            }
+
+            @Override
+            public List<? extends GuiEventListener> children() {
+                return children;
+            }
+
+            @Override
+            public List<? extends NarratableEntry> narratables() {
+                List<NarratableEntry> list = new ArrayList<>();
+                if (leftWidget instanceof NarratableEntry ne) list.add(ne);
+                if (rightWidget instanceof NarratableEntry ne) list.add(ne);
+                return list;
+            }
+
+            @Override
+            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+                for (GuiEventListener child : children) {
+                    if (child.mouseClicked(mouseX, mouseY, button)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        public abstract class Entry extends ContainerObjectSelectionList.Entry<Entry> {
+        }
     }
 
     // === SLIDER & BUTTON CLASSES ===
@@ -238,7 +414,7 @@ public class TobaccoConfigScreen extends Screen {
 
         private void updateMessage() {
             boolean val = config.get();
-            this.setMessage(Component.literal(label + ":" + (val ? "§aON" : "§cOFF")));
+            this.setMessage(Component.literal(label + ": " + (val ? "§aON" : "§cOFF")));
         }
 
         @Override

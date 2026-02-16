@@ -4,17 +4,26 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Police Config Screen - 44 Police System Options (Compact Layout)
+ * Police Config Screen - 36 Police System Options (SCROLLABLE!)
+ * Organized into logical categories with headers
  */
 @OnlyIn(Dist.CLIENT)
 public class PoliceConfigScreen extends Screen {
     private final Screen parent;
+    private ConfigList configList;
 
     public PoliceConfigScreen(Screen parent) {
         super(Component.literal("Police Settings"));
@@ -25,117 +34,149 @@ public class PoliceConfigScreen extends Screen {
     protected void init() {
         super.init();
 
-        int col1 = 10;
-        int col2 = 110;
-        int col3 = 210;
-        int col4 = 310;
-        int w = 95;
-        int y = 50;
-        int s = 22;
+        // Create scrollable config list
+        this.configList = new ConfigList(this.minecraft, this.width, this.height, 55, this.height - 55, 25);
+        this.addWidget(this.configList);
 
-        // Row 1: Detection & Arrest
-        addWidget(new IntSlider(col1, y, w, "ArrestCD:%ds",
-            ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS, 1, 300));
-        addWidget(new IntSlider(col2, y, w, "Detect:%dm",
-            ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS, 5, 100));
-        addWidget(new DoubleSlider(col3, y, w, "Dist:%.1fm",
-            ModConfigHandler.COMMON.POLICE_ARREST_DISTANCE, 1, 10));
-        addWidget(new BoolButton(col4, y, w, "Evidence",
-            ModConfigHandler.COMMON.POLICE_EVIDENCE_MULTIPLIER_ENABLED));
-        y += s;
+        // === DETECTION & ARREST ===
+        configList.addHeader("§c👮 DETECTION & ARREST");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Arrest Cooldown: %ds",
+                ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS, 1, 300),
+            new IntSlider(0, 0, 180, "Detection Radius: %d blocks",
+                ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS, 5, 100)
+        );
+        configList.addRow(
+            new DoubleSlider(0, 0, 180, "Arrest Distance: %.1f blocks",
+                ModConfigHandler.COMMON.POLICE_ARREST_DISTANCE, 1, 10),
+            new BoolButton(0, 0, 180, "Evidence Multiplier",
+                ModConfigHandler.COMMON.POLICE_EVIDENCE_MULTIPLIER_ENABLED)
+        );
 
-        // Row 2: Search
-        addWidget(new IntSlider(col1, y, w, "Search:%ds",
-            ModConfigHandler.COMMON.POLICE_SEARCH_DURATION_SECONDS, 10, 600));
-        addWidget(new IntSlider(col2, y, w, "SearchR:%dm",
-            ModConfigHandler.COMMON.POLICE_SEARCH_RADIUS, 10, 200));
-        addWidget(new IntSlider(col3, y, w, "Update:%ds",
-            ModConfigHandler.COMMON.POLICE_SEARCH_TARGET_UPDATE_SECONDS, 1, 30));
-        addWidget(new IntSlider(col4, y, w, "Backup:%dm",
-            ModConfigHandler.COMMON.POLICE_BACKUP_SEARCH_RADIUS, 10, 500));
-        y += s;
+        // === SEARCH & PURSUIT ===
+        configList.addHeader("§e🔍 SEARCH & PURSUIT");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Search Duration: %ds",
+                ModConfigHandler.COMMON.POLICE_SEARCH_DURATION_SECONDS, 10, 600),
+            new IntSlider(0, 0, 180, "Search Radius: %d blocks",
+                ModConfigHandler.COMMON.POLICE_SEARCH_RADIUS, 10, 200)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Target Update: %ds",
+                ModConfigHandler.COMMON.POLICE_SEARCH_TARGET_UPDATE_SECONDS, 1, 30),
+            new IntSlider(0, 0, 180, "Backup Radius: %d blocks",
+                ModConfigHandler.COMMON.POLICE_BACKUP_SEARCH_RADIUS, 10, 500)
+        );
+        configList.addRow(
+            new BoolButton(0, 0, 180, "Indoor Hiding",
+                ModConfigHandler.COMMON.POLICE_INDOOR_HIDING_ENABLED),
+            new BoolButton(0, 0, 180, "Block Doors",
+                ModConfigHandler.COMMON.POLICE_BLOCK_DOORS_DURING_PURSUIT)
+        );
+        configList.addRow(
+            new BoolButton(0, 0, 180, "Flanking AI",
+                ModConfigHandler.COMMON.POLICE_FLANKING_ENABLED),
+            null
+        );
 
-        // Row 3: Search Features
-        addWidget(new BoolButton(col1, y, w, "IndoorHide",
-            ModConfigHandler.COMMON.POLICE_INDOOR_HIDING_ENABLED));
-        addWidget(new BoolButton(col2, y, w, "BlockDoors",
-            ModConfigHandler.COMMON.POLICE_BLOCK_DOORS_DURING_PURSUIT));
-        addWidget(new BoolButton(col3, y, w, "Flanking",
-            ModConfigHandler.COMMON.POLICE_FLANKING_ENABLED));
-        y += s;
+        // === RAIDS & SCANNING ===
+        configList.addHeader("§4🏠 RAIDS & SCANNING");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Raid Radius: %d blocks",
+                ModConfigHandler.COMMON.POLICE_RAID_SCAN_RADIUS, 5, 50),
+            new DoubleSlider(0, 0, 180, "Illegal Cash: %.0f€",
+                ModConfigHandler.COMMON.POLICE_ILLEGAL_CASH_THRESHOLD, 1000, 1000000)
+        );
+        configList.addRow(
+            new DoubleSlider(0, 0, 180, "Account Fine: %.0f%%",
+                ModConfigHandler.COMMON.POLICE_RAID_ACCOUNT_PERCENTAGE, 0, 1.0, 100),
+            new DoubleSlider(0, 0, 180, "Min Fine: %.0f€",
+                ModConfigHandler.COMMON.POLICE_RAID_MIN_FINE, 100, 100000)
+        );
+        configList.addRow(
+            new BoolButton(0, 0, 180, "Room Scan",
+                ModConfigHandler.COMMON.POLICE_ROOM_SCAN_ENABLED),
+            new IntSlider(0, 0, 180, "Max Room Size: %d",
+                ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_SIZE, 10, 1000)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Scan Depth: %d",
+                ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_DEPTH, 1, 20),
+            new IntSlider(0, 0, 180, "Extra Rooms: %d",
+                ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_ADDITIONAL_ROOMS, 0, 10)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Container Depth: %d",
+                ModConfigHandler.COMMON.POLICE_CONTAINER_SCAN_DEPTH, 1, 10),
+            null
+        );
 
-        // Row 4: Raids
-        addWidget(new IntSlider(col1, y, w, "RaidR:%dm",
-            ModConfigHandler.COMMON.POLICE_RAID_SCAN_RADIUS, 5, 50));
-        addWidget(new DoubleSlider(col2, y, w, "Cash:%.0f€",
-            ModConfigHandler.COMMON.POLICE_ILLEGAL_CASH_THRESHOLD, 1000, 1000000));
-        addWidget(new DoubleSlider(col3, y, w, "Raid%%:%.0f",
-            ModConfigHandler.COMMON.POLICE_RAID_ACCOUNT_PERCENTAGE, 0, 1.0, 100));
-        addWidget(new DoubleSlider(col4, y, w, "MinF:%.0f€",
-            ModConfigHandler.COMMON.POLICE_RAID_MIN_FINE, 100, 100000));
-        y += s;
+        // === STATION & PATROL ===
+        configList.addHeader("§9🏢 STATION & PATROL");
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Station Wait: %d min",
+                ModConfigHandler.COMMON.POLICE_STATION_WAIT_MINUTES, 1, 60),
+            new IntSlider(0, 0, 180, "Station Radius: %d blocks",
+                ModConfigHandler.COMMON.POLICE_STATION_RADIUS, 10, 200)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Patrol Wait: %d min",
+                ModConfigHandler.COMMON.POLICE_PATROL_WAIT_MINUTES, 1, 60),
+            new IntSlider(0, 0, 180, "Patrol Radius: %d blocks",
+                ModConfigHandler.COMMON.POLICE_PATROL_RADIUS, 10, 200)
+        );
 
-        // Row 5: Room Scan
-        addWidget(new BoolButton(col1, y, w, "RoomScan",
-            ModConfigHandler.COMMON.POLICE_ROOM_SCAN_ENABLED));
-        addWidget(new IntSlider(col2, y, w, "RoomSz:%d",
-            ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_SIZE, 10, 1000));
-        addWidget(new IntSlider(col3, y, w, "Depth:%d",
-            ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_DEPTH, 1, 20));
-        addWidget(new IntSlider(col4, y, w, "Extra:%d",
-            ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_ADDITIONAL_ROOMS, 0, 10));
-        y += s;
+        // === VEHICLES & PURSUIT ===
+        configList.addHeader("§b🚓 VEHICLES & PURSUIT");
+        configList.addRow(
+            new BoolButton(0, 0, 180, "Vehicle Chase",
+                ModConfigHandler.COMMON.POLICE_VEHICLE_PURSUIT_ENABLED),
+            new DoubleSlider(0, 0, 180, "Speed: %.1fx",
+                ModConfigHandler.COMMON.POLICE_VEHICLE_SPEED_MULTIPLIER, 0.5, 3.0)
+        );
+        configList.addRow(
+            new BoolButton(0, 0, 180, "Siren Enabled",
+                ModConfigHandler.COMMON.POLICE_SIREN_ENABLED),
+            new IntSlider(0, 0, 180, "Siren Radius: %d blocks",
+                ModConfigHandler.COMMON.POLICE_SIREN_SOUND_RADIUS, 10, 200)
+        );
 
-        // Row 6: Container & Station
-        addWidget(new IntSlider(col1, y, w, "ContScan:%d",
-            ModConfigHandler.COMMON.POLICE_CONTAINER_SCAN_DEPTH, 1, 10));
-        addWidget(new IntSlider(col2, y, w, "StaWait:%dm",
-            ModConfigHandler.COMMON.POLICE_STATION_WAIT_MINUTES, 1, 60));
-        addWidget(new IntSlider(col3, y, w, "StaR:%dm",
-            ModConfigHandler.COMMON.POLICE_STATION_RADIUS, 10, 200));
-        y += s;
+        // === ROADBLOCKS ===
+        configList.addHeader("§6🚧 ROADBLOCKS");
+        configList.addRow(
+            new BoolButton(0, 0, 180, "Roadblocks",
+                ModConfigHandler.COMMON.POLICE_ROADBLOCK_ENABLED),
+            new IntSlider(0, 0, 180, "Max Roadblocks: %d",
+                ModConfigHandler.COMMON.POLICE_MAX_ROADBLOCKS, 1, 20)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Duration: %ds",
+                ModConfigHandler.COMMON.POLICE_ROADBLOCK_DURATION_SECONDS, 30, 600),
+            null
+        );
 
-        // Row 7: Patrol
-        addWidget(new IntSlider(col1, y, w, "PatWait:%dm",
-            ModConfigHandler.COMMON.POLICE_PATROL_WAIT_MINUTES, 1, 60));
-        addWidget(new IntSlider(col2, y, w, "PatR:%dm",
-            ModConfigHandler.COMMON.POLICE_PATROL_RADIUS, 10, 200));
-        y += s;
+        // === TRAFFIC & VIOLATIONS ===
+        configList.addHeader("§a🚦 TRAFFIC & VIOLATIONS");
+        configList.addRow(
+            new BoolButton(0, 0, 180, "Traffic Violations",
+                ModConfigHandler.COMMON.POLICE_TRAFFIC_VIOLATIONS_ENABLED),
+            new DoubleSlider(0, 0, 180, "Speed Limit: %.0f",
+                ModConfigHandler.COMMON.POLICE_SPEED_LIMIT_DEFAULT, 20, 200)
+        );
 
-        // Row 8: Vehicles
-        addWidget(new BoolButton(col1, y, w, "VehChase",
-            ModConfigHandler.COMMON.POLICE_VEHICLE_PURSUIT_ENABLED));
-        addWidget(new DoubleSlider(col2, y, w, "Speed:%.1fx",
-            ModConfigHandler.COMMON.POLICE_VEHICLE_SPEED_MULTIPLIER, 0.5, 3.0));
-        addWidget(new BoolButton(col3, y, w, "Siren",
-            ModConfigHandler.COMMON.POLICE_SIREN_ENABLED));
-        addWidget(new IntSlider(col4, y, w, "SirenR:%dm",
-            ModConfigHandler.COMMON.POLICE_SIREN_SOUND_RADIUS, 10, 200));
-        y += s;
-
-        // Row 9: Roadblocks
-        addWidget(new BoolButton(col1, y, w, "Roadblock",
-            ModConfigHandler.COMMON.POLICE_ROADBLOCK_ENABLED));
-        addWidget(new IntSlider(col2, y, w, "MaxBlock:%d",
-            ModConfigHandler.COMMON.POLICE_MAX_ROADBLOCKS, 1, 20));
-        addWidget(new IntSlider(col3, y, w, "BlockT:%ds",
-            ModConfigHandler.COMMON.POLICE_ROADBLOCK_DURATION_SECONDS, 30, 600));
-        y += s;
-
-        // Row 10: Traffic
-        addWidget(new BoolButton(col1, y, w, "Traffic",
-            ModConfigHandler.COMMON.POLICE_TRAFFIC_VIOLATIONS_ENABLED));
-        addWidget(new DoubleSlider(col2, y, w, "Limit:%.0f",
-            ModConfigHandler.COMMON.POLICE_SPEED_LIMIT_DEFAULT, 20, 200));
-        y += s;
-
-        // Row 11: Warnings & Wanted
-        addWidget(new BoolButton(col1, y, w, "Warnings",
-            ModConfigHandler.COMMON.POLICE_WARNING_ENABLED));
-        addWidget(new IntSlider(col2, y, w, "WarnT:%ds",
-            ModConfigHandler.COMMON.POLICE_WARNING_TIMEOUT_SECONDS, 5, 60));
-        addWidget(new IntSlider(col3, y, w, "PosterLv:%d",
-            ModConfigHandler.COMMON.POLICE_WANTED_POSTERS_MIN_LEVEL, 1, 5));
+        // === WARNINGS & WANTED ===
+        configList.addHeader("§d⚠ WARNINGS & WANTED");
+        configList.addRow(
+            new BoolButton(0, 0, 180, "Warnings",
+                ModConfigHandler.COMMON.POLICE_WARNING_ENABLED),
+            new IntSlider(0, 0, 180, "Warning Timeout: %ds",
+                ModConfigHandler.COMMON.POLICE_WARNING_TIMEOUT_SECONDS, 5, 60)
+        );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Poster Min Level: %d",
+                ModConfigHandler.COMMON.POLICE_WANTED_POSTERS_MIN_LEVEL, 1, 5),
+            null
+        );
 
         // Back Button
         this.addRenderableWidget(Button.builder(
@@ -144,27 +185,162 @@ public class PoliceConfigScreen extends Screen {
         ).bounds(this.width / 2 - 100, this.height - 28, 200, 20).build());
     }
 
-    private void addWidget(AbstractSliderButton widget) {
-        this.addRenderableWidget(widget);
-    }
-
-    private void addWidget(Button widget) {
-        this.addRenderableWidget(widget);
-    }
-
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics);
+
+        // Render scrollable list
+        this.configList.render(graphics, mouseX, mouseY, partialTick);
+
         super.render(graphics, mouseX, mouseY, partialTick);
-        graphics.drawCenteredString(this.font, this.title, this.width / 2, 10, 0xFFFFFF);
+
+        // Title
+        graphics.drawCenteredString(this.font, this.title, this.width / 2, 8, 0xFFFFFF);
+
+        // Subtitle
         graphics.drawCenteredString(this.font,
-            Component.literal("§c44 Police Options - All configurable!"),
-            this.width / 2, 25, 0xFF5555);
+            Component.literal("§c36 Police Options - Now Scrollable & Organized!"),
+            this.width / 2, 22, 0xFFFF55);
+
+        // Info
+        graphics.drawCenteredString(this.font,
+            Component.literal("§8Scroll to see all police features"),
+            this.width / 2, this.height - 45, 0x808080);
     }
 
     @Override
     public void onClose() {
         this.minecraft.setScreen(parent);
+    }
+
+    // === SCROLLABLE CONFIG LIST ===
+
+    private class ConfigList extends ContainerObjectSelectionList<ConfigList.Entry> {
+
+        public ConfigList(net.minecraft.client.Minecraft mc, int width, int height, int top, int bottom, int itemHeight) {
+            super(mc, width, height, top, bottom, itemHeight);
+        }
+
+        @Override
+        public int getRowWidth() {
+            return 400;
+        }
+
+        @Override
+        protected int getScrollbarPosition() {
+            return this.width / 2 + 210;
+        }
+
+        public void addHeader(String text) {
+            this.addEntry(new HeaderEntry(text));
+        }
+
+        public void addRow(@Nullable GuiEventListener left, @Nullable GuiEventListener right) {
+            this.addEntry(new WidgetRowEntry(left, right));
+        }
+
+        // === HEADER ENTRY ===
+
+        public class HeaderEntry extends Entry {
+            private final String text;
+
+            public HeaderEntry(String text) {
+                this.text = text;
+            }
+
+            @Override
+            public void render(GuiGraphics graphics, int index, int top, int left, int width, int height,
+                             int mouseX, int mouseY, boolean hovering, float partialTick) {
+                graphics.drawCenteredString(
+                    PoliceConfigScreen.this.font,
+                    Component.literal(text),
+                    PoliceConfigScreen.this.width / 2,
+                    top + 5,
+                    0xFFFFAA
+                );
+            }
+
+            @Override
+            public List<? extends GuiEventListener> children() {
+                return List.of();
+            }
+
+            @Override
+            public List<? extends NarratableEntry> narratables() {
+                return List.of();
+            }
+        }
+
+        // === WIDGET ROW ENTRY ===
+
+        public class WidgetRowEntry extends Entry {
+            private final List<GuiEventListener> children = new ArrayList<>();
+            @Nullable private final GuiEventListener leftWidget;
+            @Nullable private final GuiEventListener rightWidget;
+
+            public WidgetRowEntry(@Nullable GuiEventListener left, @Nullable GuiEventListener right) {
+                this.leftWidget = left;
+                this.rightWidget = right;
+                if (left != null) children.add(left);
+                if (right != null) children.add(right);
+            }
+
+            @Override
+            public void render(GuiGraphics graphics, int index, int top, int left, int width, int height,
+                             int mouseX, int mouseY, boolean hovering, float partialTick) {
+                int centerX = PoliceConfigScreen.this.width / 2;
+                int leftCol = centerX - 190;
+                int rightCol = centerX + 10;
+
+                // Render left widget
+                if (leftWidget instanceof AbstractSliderButton slider) {
+                    slider.setY(top);
+                    slider.setX(leftCol);
+                    slider.render(graphics, mouseX, mouseY, partialTick);
+                } else if (leftWidget instanceof Button button) {
+                    button.setY(top);
+                    button.setX(leftCol);
+                    button.render(graphics, mouseX, mouseY, partialTick);
+                }
+
+                // Render right widget
+                if (rightWidget instanceof AbstractSliderButton slider) {
+                    slider.setY(top);
+                    slider.setX(rightCol);
+                    slider.render(graphics, mouseX, mouseY, partialTick);
+                } else if (rightWidget instanceof Button button) {
+                    button.setY(top);
+                    button.setX(rightCol);
+                    button.render(graphics, mouseX, mouseY, partialTick);
+                }
+            }
+
+            @Override
+            public List<? extends GuiEventListener> children() {
+                return children;
+            }
+
+            @Override
+            public List<? extends NarratableEntry> narratables() {
+                List<NarratableEntry> list = new ArrayList<>();
+                if (leftWidget instanceof NarratableEntry ne) list.add(ne);
+                if (rightWidget instanceof NarratableEntry ne) list.add(ne);
+                return list;
+            }
+
+            @Override
+            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+                for (GuiEventListener child : children) {
+                    if (child.mouseClicked(mouseX, mouseY, button)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        public abstract class Entry extends ContainerObjectSelectionList.Entry<Entry> {
+        }
     }
 
     // === SLIDER & BUTTON CLASSES ===
@@ -250,7 +426,7 @@ public class PoliceConfigScreen extends Screen {
 
         private void updateMessage() {
             boolean val = config.get();
-            this.setMessage(Component.literal(label + ":" + (val ? "§aON" : "§cOFF")));
+            this.setMessage(Component.literal(label + ": " + (val ? "§aON" : "§cOFF")));
         }
 
         @Override
