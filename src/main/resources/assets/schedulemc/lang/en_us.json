@@ -5920,5 +5920,28 @@
 
   "towing.membership.cancelled": "§c✗ Your towing membership has been cancelled due to non-payment.",
 
-  "vehicle.purchase.too_far": "§cYou are too far from the vehicle to purchase it!"
+  "vehicle.purchase.too_far": "§cYou are too far from the vehicle to purchase it!",
+
+  "item.schedulemc.cocoa_beans_raw": "Raw Cocoa Beans",
+  "item.schedulemc.sugar_refined": "Refined Sugar",
+  "item.schedulemc.chocolate_mold": "Chocolate Mold",
+  "item.schedulemc.chocolate_mold_bar": "Chocolate Bar Mold",
+  "item.schedulemc.chocolate_mold_praline": "Praline Mold",
+  "item.schedulemc.chocolate_wrapper_gold": "Gold Chocolate Wrapper",
+  "item.schedulemc.chocolate_box_premium": "Premium Chocolate Box",
+
+  "item.schedulemc.riesling_grapes": "Riesling Grapes",
+  "item.schedulemc.spaetburgunder_grapes": "Pinot Noir Grapes",
+  "item.schedulemc.chardonnay_grapes": "Chardonnay Grapes",
+  "item.schedulemc.merlot_grapes": "Merlot Grapes",
+  "item.schedulemc.fermenting_wine": "Fermenting Wine",
+  "item.schedulemc.wine_bottle_375ml": "Wine Bottle (375ml)",
+  "item.schedulemc.wine_bottle_750ml": "Wine Bottle (750ml)",
+  "item.schedulemc.wine_bottle_1500ml": "Wine Bottle (1500ml)",
+  "item.schedulemc.glass_of_wine": "Glass of Wine",
+
+  "block.schedulemc.arabica_plant": "Arabica Plant",
+  "block.schedulemc.robusta_plant": "Robusta Plant",
+  "block.schedulemc.liberica_plant": "Liberica Plant",
+  "block.schedulemc.excelsa_plant": "Excelsa Plant"
 }

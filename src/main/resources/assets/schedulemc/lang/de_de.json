@@ -5925,5 +5925,28 @@
 
   "economy.risk.info": "Risikoprämie: %sx",
   "economy.risk.raid_recent": "Kürzliche Razzia-Aktivität erkannt!",
-  "economy.risk.wanted_level": "Fahndungsstufe: %s"
+  "economy.risk.wanted_level": "Fahndungsstufe: %s",
+
+  "item.schedulemc.cocoa_beans_raw": "Rohe Kakaobohnen",
+  "item.schedulemc.sugar_refined": "Raffinierter Zucker",
+  "item.schedulemc.chocolate_mold": "Schokoladenform",
+  "item.schedulemc.chocolate_mold_bar": "Tafelschokoladenform",
+  "item.schedulemc.chocolate_mold_praline": "Pralinenform",
+  "item.schedulemc.chocolate_wrapper_gold": "Goldene Schokoladenverpackung",
+  "item.schedulemc.chocolate_box_premium": "Premium-Schokoladenbox",
+
+  "item.schedulemc.riesling_grapes": "Riesling-Trauben",
+  "item.schedulemc.spaetburgunder_grapes": "Spätburgunder-Trauben",
+  "item.schedulemc.chardonnay_grapes": "Chardonnay-Trauben",
+  "item.schedulemc.merlot_grapes": "Merlot-Trauben",
+  "item.schedulemc.fermenting_wine": "Gärender Wein",
+  "item.schedulemc.wine_bottle_375ml": "Weinflasche (375ml)",
+  "item.schedulemc.wine_bottle_750ml": "Weinflasche (750ml)",
+  "item.schedulemc.wine_bottle_1500ml": "Weinflasche (1500ml)",
+  "item.schedulemc.glass_of_wine": "Glas Wein",
+
+  "block.schedulemc.arabica_plant": "Arabica-Pflanze",
+  "block.schedulemc.robusta_plant": "Robusta-Pflanze",
+  "block.schedulemc.liberica_plant": "Liberica-Pflanze",
+  "block.schedulemc.excelsa_plant": "Excelsa-Pflanze"
 }
