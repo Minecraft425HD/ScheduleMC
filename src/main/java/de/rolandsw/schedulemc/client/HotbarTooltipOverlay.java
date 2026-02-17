@@ -82,17 +82,13 @@ public class HotbarTooltipOverlay {
             if (item.isEmpty()) return;
 
             GuiGraphics guiGraphics = event.getGuiGraphics();
-            int screenWidth = mc.getWindow().getGuiScaledWidth();
             int screenHeight = mc.getWindow().getGuiScaledHeight();
 
-            // X-Position: Mitte des aktiven Hotbar-Slots
-            // Hotbar startet bei screenWidth/2 - 91, jeder Slot ist 20px breit
-            int slotCenterX = screenWidth / 2 - 91 + selectedSlot * 20 + 10;
-
-            // Y-Position: knapp über der Hotbar
+            // Position: untere linke Ecke
+            int tooltipX = 10;
             int tooltipY = screenHeight - 30;
 
-            guiGraphics.renderTooltip(mc.font, item, slotCenterX, tooltipY);
+            guiGraphics.renderTooltip(mc.font, item, tooltipX, tooltipY);
         }, "HotbarTooltipOverlay_Render");
     }
 
