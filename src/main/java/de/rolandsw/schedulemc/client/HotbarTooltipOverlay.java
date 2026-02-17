@@ -85,7 +85,7 @@ public class HotbarTooltipOverlay {
             int screenHeight = mc.getWindow().getGuiScaledHeight();
 
             // Position: untere linke Ecke
-            int tooltipX = 10;
+            int tooltipX = 4;
             int tooltipY = screenHeight - 30;
 
             guiGraphics.renderTooltip(mc.font, item, tooltipX, tooltipY);
