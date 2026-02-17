@@ -5887,5 +5887,38 @@
   "item.soil_bag.small": "Small Soil Bag",
   "item.soil_bag.medium": "Medium Soil Bag",
   "item.soil_bag.large": "Large Soil Bag",
-  "item.trimmed_bud.name": "Trimmed Bud"
+  "item.trimmed_bud.name": "Trimmed Bud",
+
+  "event.police.warning_stop": "§c⚠ STOP! Hands up! Police!",
+  "event.police.warning_comply": "§6Comply with the officer or face consequences!",
+  "event.police.warning_complied": "§a✓ You complied. Fine issued.",
+  "event.police.warning_fled": "§c✗ You fled! Wanted level increased!",
+
+  "event.traffic.hit_and_run": "§c⚠ Hit and run! Wanted level increased!",
+  "event.traffic.reckless_driving": "§e⚠ Reckless driving! Fine issued.",
+
+  "gui.warehouse.max_capacity_input": "Enter max capacity...",
+
+  "message.bank.transfer_header": "BANK TRANSFER",
+  "message.bank.transfer_received": "Transfer received from %s",
+
+  "message.common.server_unavailable": "§c⚠ Server service unavailable. Try again later.",
+
+  "message.negotiation.invalid_drug_type": "§c✗ This NPC does not buy this type of drug.",
+  "message.negotiation.not_a_drug_item": "§c✗ That is not a drug item!",
+
+  "message.npc.not_willing_to_trade": "§c✗ This NPC is not willing to trade right now.",
+  "message.npc.shop_unavailable": "§c✗ This shop is currently unavailable.",
+  "message.npc.too_angry_to_trade": "§c✗ The NPC is too angry to trade!",
+  "message.npc.too_scared_to_trade": "§c✗ The NPC is too scared to trade!",
+  "message.npc.too_tired_to_trade": "§c✗ The NPC is too tired to trade right now.",
+
+  "tooltip.coca_paste.brown_paste": "§7Raw brown coca paste",
+  "tooltip.coca_paste.must_refine": "§8Must be refined before selling",
+
+  "tooltip.soil_bag.enough_for_one_plant": "§7Enough soil for one plant pot",
+
+  "towing.membership.cancelled": "§c✗ Your towing membership has been cancelled due to non-payment.",
+
+  "vehicle.purchase.too_far": "§cYou are too far from the vehicle to purchase it!"
 }
