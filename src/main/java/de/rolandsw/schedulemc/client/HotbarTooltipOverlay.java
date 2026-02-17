@@ -13,7 +13,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * HUD Overlay für Nicht-Admins:
+ * HUD Overlay für alle Spieler (inkl. Admins):
  * Zeigt den Item-Tooltip des aktiven Hotbar-Slots an,
  * wenn der Spieler den Slot wechselt oder das Item ändert.
  * Der Tooltip erscheint für 4 Sekunden über der Hotbar.
@@ -41,9 +41,6 @@ public class HotbarTooltipOverlay {
 
             Minecraft mc = Minecraft.getInstance();
             if (mc.player == null || mc.level == null) return;
-
-            // Admins haben Inventarzugriff — kein Overlay nötig
-            if (mc.player.hasPermissions(2)) return;
 
             int selectedSlot = mc.player.getInventory().selected;
             ItemStack item = mc.player.getInventory().getItem(selectedSlot);
@@ -74,9 +71,6 @@ public class HotbarTooltipOverlay {
 
             Minecraft mc = Minecraft.getInstance();
             if (mc.player == null || mc.level == null) return;
-
-            // Admins haben Inventarzugriff — kein Overlay nötig
-            if (mc.player.hasPermissions(2)) return;
 
             // Kein Overlay wenn ein anderer Screen (z.B. Chat, Werkzeugkiste) offen ist
             if (mc.screen != null) return;
