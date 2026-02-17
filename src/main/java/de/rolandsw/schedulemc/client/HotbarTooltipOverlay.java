@@ -4,13 +4,19 @@ import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.joml.Vector2i;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * HUD Overlay für alle Spieler (inkl. Admins):
@@ -82,13 +88,18 @@ public class HotbarTooltipOverlay {
             if (item.isEmpty()) return;
 
             GuiGraphics guiGraphics = event.getGuiGraphics();
-            int screenHeight = mc.getWindow().getGuiScaledHeight();
 
-            // Position: untere linke Ecke
-            int tooltipX = 4;
-            int tooltipY = screenHeight - 30;
+            // Tooltip-Komponenten aus dem Item ermitteln
+            TooltipFlag flag = mc.options.advancedItemTooltips.get()
+                    ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
+            List<ClientTooltipComponent> components = item.getTooltipLines(mc.player, flag).stream()
+                    .map(l -> ClientTooltipComponent.create(l.getVisualOrderText()))
+                    .collect(Collectors.toList());
+            if (components.isEmpty()) return;
 
-            guiGraphics.renderTooltip(mc.font, item, tooltipX, tooltipY);
+            // Exakt oben links (0,0) – eigener Positioner umgeht den Default-Offset (+12/-12)
+            guiGraphics.renderTooltip(mc.font, components, 0, 0,
+                    (sw, sh, mx, my, tw, th) -> new Vector2i(0, 0));
         }, "HotbarTooltipOverlay_Render");
     }
 
