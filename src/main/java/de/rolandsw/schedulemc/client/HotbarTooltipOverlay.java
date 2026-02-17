@@ -99,7 +99,7 @@ public class HotbarTooltipOverlay {
 
             // Exakt oben links (0,0) – eigener Positioner umgeht den Default-Offset (+12/-12)
             guiGraphics.renderTooltip(mc.font, lines,
-                    (sw, sh, mx, my, tw, th) -> new Vector2i(0, 0), 0, 0);
+                    (sw, sh, mx, my, tw, th) -> new Vector2i(5, 5), 0, 0);
         }, "HotbarTooltipOverlay_Render");
     }
 
