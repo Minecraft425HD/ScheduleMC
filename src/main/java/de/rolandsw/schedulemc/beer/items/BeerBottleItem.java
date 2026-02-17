@@ -199,6 +199,10 @@ public class BeerBottleItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        return Component.translatable("item.schedulemc.beer_bottle.display", volumeLiters);
+        BeerType type = getBeerType(stack);
+        BeerQuality quality = getQuality(stack);
+        String formattedVolume = String.format("%.2f", volumeLiters);
+        return Component.translatable("item.schedulemc.beer_bottle.display",
+                quality.getColorCode(), quality.getDisplayName(), type.getDisplayName(), formattedVolume);
     }
 }

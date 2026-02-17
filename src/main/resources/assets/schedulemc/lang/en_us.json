@@ -3142,7 +3142,7 @@
   "item.schedulemc.barley": "Barley",
   "item.schedulemc.beekeeper_suit": "Beekeeper Suit",
   "item.schedulemc.beer_bottle": "Beer Bottle",
-  "item.schedulemc.beer_bottle.display": "%s%s %s (%.2fL)",
+  "item.schedulemc.beer_bottle.display": "%s%s %s (%sL)",
   "item.schedulemc.beer_bottle_empty": "Empty Beer Bottle",
   "item.schedulemc.beer_can_empty": "Empty Beer Can",
   "item.schedulemc.beer_keg": "Beer Keg",
