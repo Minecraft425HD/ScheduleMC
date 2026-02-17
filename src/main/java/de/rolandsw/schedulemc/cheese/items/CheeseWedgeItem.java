@@ -135,13 +135,11 @@ public class CheeseWedgeItem extends Item {
         CheeseQuality quality = getQuality(stack);
         CheeseAgeLevel ageLevel = getAgeLevel(stack);
         CheeseProcessingMethod method = getProcessingMethod(stack);
-        double weight = getWeightGrams(stack);
 
         tooltip.add(Component.translatable("tooltip.cheese.type", type.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.cheese.quality", quality.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.cheese.age_level", ageLevel.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.cheese.processing", method.getDisplayName()));
-        tooltip.add(Component.translatable("tooltip.cheese.weight_g", weight));
 
         double price = calculatePrice(stack);
         tooltip.add(Component.translatable("tooltip.cheese.value", price));

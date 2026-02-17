@@ -81,14 +81,8 @@ public class CoffeeItems {
     // VERPACKTE PRODUKTE (verschiedene Größen)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Item> COFFEE_PACKAGE_250G =
-        ITEMS.register("coffee_package_250g", PackagedCoffeeItem::new);
-
-    public static final RegistryObject<Item> COFFEE_PACKAGE_500G =
-        ITEMS.register("coffee_package_500g", PackagedCoffeeItem::new);
-
-    public static final RegistryObject<Item> COFFEE_PACKAGE_1KG =
-        ITEMS.register("coffee_package_1kg", PackagedCoffeeItem::new);
+    public static final RegistryObject<Item> COFFEE_PACKAGE =
+        ITEMS.register("coffee_package", PackagedCoffeeItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // WERKZEUGE & HILFSMITTEL
@@ -113,14 +107,8 @@ public class CoffeeItems {
     // VERPACKUNGSMATERIALIEN
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Item> COFFEE_BAG_SMALL =
-        ITEMS.register("coffee_bag_small", () -> new Item(new Item.Properties().stacksTo(64)));
-
-    public static final RegistryObject<Item> COFFEE_BAG_MEDIUM =
-        ITEMS.register("coffee_bag_medium", () -> new Item(new Item.Properties().stacksTo(64)));
-
-    public static final RegistryObject<Item> COFFEE_BAG_LARGE =
-        ITEMS.register("coffee_bag_large", () -> new Item(new Item.Properties().stacksTo(64)));
+    public static final RegistryObject<Item> COFFEE_BAG =
+        ITEMS.register("coffee_bag", () -> new Item(new Item.Properties().stacksTo(64)));
 
     public static final RegistryObject<Item> VACUUM_SEAL =
         ITEMS.register("vacuum_seal", () -> new Item(new Item.Properties().stacksTo(64)));

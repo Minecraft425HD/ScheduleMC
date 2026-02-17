@@ -204,21 +204,11 @@ public class ChocolateItems {
     );
 
     // ═══════════════════════════════════════════════════════════
-    // SCHOKOLADENTAFELN (Fertigprodukt mit NBT-Daten)
+    // SCHOKOLADENTAFEL (Fertigprodukt mit NBT-Daten)
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> CHOCOLATE_BAR_100G = ITEMS.register(
-        "chocolate_bar_100g",
-        () -> new ChocolateBarItem(0.1, new Item.Properties().stacksTo(16))
-    );
-
-    public static final RegistryObject<Item> CHOCOLATE_BAR_200G = ITEMS.register(
-        "chocolate_bar_200g",
-        () -> new ChocolateBarItem(0.2, new Item.Properties().stacksTo(16))
-    );
-
-    public static final RegistryObject<Item> CHOCOLATE_BAR_500G = ITEMS.register(
-        "chocolate_bar_500g",
-        () -> new ChocolateBarItem(0.5, new Item.Properties().stacksTo(8))
+    public static final RegistryObject<Item> CHOCOLATE_BAR = ITEMS.register(
+        "chocolate_bar",
+        () -> new ChocolateBarItem(new Item.Properties().stacksTo(16))
     );
 
     // ═══════════════════════════════════════════════════════════

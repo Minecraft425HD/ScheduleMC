@@ -507,9 +507,7 @@ public class ModCreativeTabs {
                 output.accept(ChocolateItems.WRAPPER_GOLD.get());
                 output.accept(ChocolateItems.BOX.get());
                 output.accept(ChocolateItems.BOX_PREMIUM.get());
-                output.accept(ChocolateItems.CHOCOLATE_BAR_100G.get());
-                output.accept(ChocolateItems.CHOCOLATE_BAR_200G.get());
-                output.accept(ChocolateItems.CHOCOLATE_BAR_500G.get());
+                output.accept(ChocolateItems.CHOCOLATE_BAR.get());
                 output.accept(ChocolateItems.CHOCOLATE_TRUFFLE.get());
                 output.accept(ChocolateItems.CHOCOLATE_PRALINE.get());
                 output.accept(ChocolateItems.HOT_CHOCOLATE_MIX.get());
@@ -582,9 +580,7 @@ public class ModCreativeTabs {
                 output.accept(CoffeeItems.GREEN_EXCELSA_BEANS.get());
                 output.accept(CoffeeItems.ROASTED_COFFEE_BEANS.get());
                 output.accept(CoffeeItems.GROUND_COFFEE.get());
-                output.accept(CoffeeItems.COFFEE_PACKAGE_250G.get());
-                output.accept(CoffeeItems.COFFEE_PACKAGE_500G.get());
-                output.accept(CoffeeItems.COFFEE_PACKAGE_1KG.get());
+                output.accept(CoffeeItems.COFFEE_PACKAGE.get());
                 output.accept(TobaccoItems.WATERING_CAN.get()); // Verwende Tobacco's Watering Can
                 output.accept(CoffeeItems.PULPING_TOOL.get());
                 output.accept(CoffeeItems.ROASTING_TRAY.get());
@@ -592,9 +588,7 @@ public class ModCreativeTabs {
                 output.accept(TobaccoItems.FERTILIZER_BOTTLE.get()); // Yield Booster
                 output.accept(TobaccoItems.GROWTH_BOOSTER_BOTTLE.get()); // Growth Booster
                 output.accept(TobaccoItems.QUALITY_BOOSTER_BOTTLE.get()); // Quality Booster
-                output.accept(CoffeeItems.COFFEE_BAG_SMALL.get());
-                output.accept(CoffeeItems.COFFEE_BAG_MEDIUM.get());
-                output.accept(CoffeeItems.COFFEE_BAG_LARGE.get());
+                output.accept(CoffeeItems.COFFEE_BAG.get());
                 output.accept(CoffeeItems.VACUUM_SEAL.get());
                 output.accept(CoffeeItems.BREWED_COFFEE.get());
                 output.accept(CoffeeItems.ESPRESSO.get());

@@ -192,11 +192,9 @@ public class QualityItemColors {
                 HoneyItems.HONEY_JAR.get()
         );
 
-        // Chocolate Items (3)
+        // Chocolate Items (1)
         event.register(QualityItemColors::getQualityColor,
-                ChocolateItems.CHOCOLATE_BAR_100G.get(),
-                ChocolateItems.CHOCOLATE_BAR_200G.get(),
-                ChocolateItems.CHOCOLATE_BAR_500G.get()
+                ChocolateItems.CHOCOLATE_BAR.get()
         );
 
         // Beer Items (1)

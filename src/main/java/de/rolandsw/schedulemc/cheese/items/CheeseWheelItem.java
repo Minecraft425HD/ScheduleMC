@@ -104,12 +104,10 @@ public class CheeseWheelItem extends Item {
         CheeseType type = getCheeseType(stack);
         CheeseQuality quality = getQuality(stack);
         CheeseAgeLevel ageLevel = getAgeLevel(stack);
-        double weight = getWeightKg(stack);
 
         tooltip.add(Component.translatable("tooltip.cheese.type", type.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.cheese.quality", quality.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.cheese.age_level", ageLevel.getDisplayName()));
-        tooltip.add(Component.translatable("tooltip.cheese.weight_kg", weight));
     }
 
     @Override
