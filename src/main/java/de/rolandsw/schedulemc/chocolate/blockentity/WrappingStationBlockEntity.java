@@ -76,9 +76,7 @@ public class WrappingStationBlockEntity extends BlockEntity implements IUtilityC
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 if (slot == 0) {
                     // Accept chocolate bars and other chocolate products
-                    return stack.getItem() == ChocolateItems.CHOCOLATE_BAR_100G.get() ||
-                           stack.getItem() == ChocolateItems.CHOCOLATE_BAR_200G.get() ||
-                           stack.getItem() == ChocolateItems.CHOCOLATE_BAR_500G.get() ||
+                    return stack.getItem() == ChocolateItems.CHOCOLATE_BAR.get() ||
                            stack.getItem() == ChocolateItems.CHOCOLATE_TRUFFLE.get() ||
                            stack.getItem() == ChocolateItems.CHOCOLATE_PRALINE.get();
                 }
