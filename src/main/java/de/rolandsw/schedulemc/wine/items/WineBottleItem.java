@@ -158,6 +158,8 @@ public class WineBottleItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        return Component.translatable("tooltip.wine.name", volumeLiters);
+        WineType type = getWineType(stack);
+        String formattedVolume = String.format("%.2f", volumeLiters);
+        return Component.translatable("tooltip.wine.name", type.getDisplayName(), formattedVolume);
     }
 }
