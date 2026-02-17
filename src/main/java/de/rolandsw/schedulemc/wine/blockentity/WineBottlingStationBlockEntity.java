@@ -67,9 +67,7 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 if (slot == 0) return stack.getItem() == WineItems.YOUNG_WINE.get();
                 if (slot == 1) {
-                    return stack.getItem() == WineItems.EMPTY_WINE_BOTTLE_375ML.get()
-                            || stack.getItem() == WineItems.EMPTY_WINE_BOTTLE_750ML.get()
-                            || stack.getItem() == WineItems.EMPTY_WINE_BOTTLE_1500ML.get();
+                    return stack.getItem() == WineItems.EMPTY_WINE_BOTTLE.get();
                 }
                 return slot == 2;
             }
@@ -112,12 +110,8 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
 
         if (!handlerBottleInput.isEmpty() && bottleInput.isEmpty()) {
             bottleInput = handlerBottleInput.copy();
-            if (bottleInput.getItem() == WineItems.EMPTY_WINE_BOTTLE_375ML.get()) {
-                bottleSize = 0.375;
-            } else if (bottleInput.getItem() == WineItems.EMPTY_WINE_BOTTLE_750ML.get()) {
+            if (bottleInput.getItem() == WineItems.EMPTY_WINE_BOTTLE.get()) {
                 bottleSize = 0.75;
-            } else if (bottleInput.getItem() == WineItems.EMPTY_WINE_BOTTLE_1500ML.get()) {
-                bottleSize = 1.5;
             }
         } else if (handlerBottleInput.isEmpty()) {
             bottleInput = ItemStack.EMPTY;

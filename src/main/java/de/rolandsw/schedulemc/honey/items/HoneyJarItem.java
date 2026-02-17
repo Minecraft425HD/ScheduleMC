@@ -43,16 +43,7 @@ public class HoneyJarItem extends Item {
      */
     public static ItemStack create(HoneyType type, HoneyQuality quality, HoneyAgeLevel ageLevel,
                                    HoneyProcessingMethod method, double weightKg, long productionDate, int count) {
-        Item jarItem;
-        if (weightKg <= 0.25) {
-            jarItem = HoneyItems.HONEY_JAR_250G.get();
-        } else if (weightKg <= 0.5) {
-            jarItem = HoneyItems.HONEY_JAR_500G.get();
-        } else {
-            jarItem = HoneyItems.HONEY_JAR_1KG.get();
-        }
-
-        ItemStack stack = new ItemStack(jarItem, count);
+        ItemStack stack = new ItemStack(HoneyItems.HONEY_JAR.get(), count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("HoneyType", type.name());
         tag.putString("Quality", quality.name());
@@ -224,15 +215,6 @@ public class HoneyJarItem extends Item {
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
         HoneyType type = getHoneyType(stack);
-        double weight = getWeightKg(stack);
-
-        String weightStr;
-        if (weight < 1.0) {
-            weightStr = String.format("%.0fg", weight * 1000);
-        } else {
-            weightStr = String.format("%.1fkg", weight);
-        }
-
-        return Component.translatable("tooltip.honey.name", type.getDisplayName(), weightStr);
+        return Component.translatable("tooltip.honey.name", type.getDisplayName());
     }
 }

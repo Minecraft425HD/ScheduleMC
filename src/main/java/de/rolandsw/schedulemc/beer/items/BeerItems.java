@@ -29,7 +29,7 @@ public class BeerItems {
     // ═══════════════════════════════════════════════════════════
     public static final RegistryObject<Item> BEER_BOTTLE = ITEMS.register(
         "beer_bottle",
-        () -> new BeerBottleItem(0.5, new Item.Properties().stacksTo(16))
+        () -> new BeerBottleItem(new Item.Properties().stacksTo(16))
     );
 
     // ═══════════════════════════════════════════════════════════

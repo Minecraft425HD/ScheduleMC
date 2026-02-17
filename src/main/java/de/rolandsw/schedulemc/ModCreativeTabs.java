@@ -453,12 +453,8 @@ public class ModCreativeTabs {
                 output.accept(WineItems.MERLOT_JUICE.get());
                 output.accept(WineItems.FERMENTING_WINE.get());
                 output.accept(WineItems.YOUNG_WINE.get());
-                output.accept(WineItems.WINE_BOTTLE_375ML.get());
-                output.accept(WineItems.WINE_BOTTLE_750ML.get());
-                output.accept(WineItems.WINE_BOTTLE_1500ML.get());
-                output.accept(WineItems.EMPTY_WINE_BOTTLE_375ML.get());
-                output.accept(WineItems.EMPTY_WINE_BOTTLE_750ML.get());
-                output.accept(WineItems.EMPTY_WINE_BOTTLE_1500ML.get());
+                output.accept(WineItems.WINE_BOTTLE.get());
+                output.accept(WineItems.EMPTY_WINE_BOTTLE.get());
                 output.accept(WineItems.GLASS_OF_WINE.get());
 
                 // WEIN - BLÖCKE
@@ -629,17 +625,13 @@ public class ModCreativeTabs {
                 output.accept(HoneyItems.RAW_HONEY_BUCKET.get());
                 output.accept(HoneyItems.FILTERED_HONEY_BUCKET.get());
                 output.accept(HoneyItems.LIQUID_HONEY_BOTTLE.get());
-                output.accept(HoneyItems.HONEY_JAR_250G.get());
-                output.accept(HoneyItems.HONEY_JAR_500G.get());
-                output.accept(HoneyItems.HONEY_JAR_1KG.get());
+                output.accept(HoneyItems.HONEY_JAR.get());
                 output.accept(HoneyItems.BEESWAX.get());
                 output.accept(HoneyItems.BEESWAX_BLOCK.get());
                 output.accept(HoneyItems.PROPOLIS.get());
                 output.accept(HoneyItems.POLLEN.get());
                 output.accept(HoneyItems.ROYAL_JELLY.get());
                 output.accept(HoneyItems.GLASS_JAR.get());
-                output.accept(HoneyItems.GLASS_JAR_SMALL.get());
-                output.accept(HoneyItems.GLASS_JAR_LARGE.get());
                 output.accept(HoneyItems.JAR_LID.get());
                 output.accept(HoneyItems.JAR_LID_GOLD.get());
                 output.accept(HoneyItems.CREAMED_HONEY.get());

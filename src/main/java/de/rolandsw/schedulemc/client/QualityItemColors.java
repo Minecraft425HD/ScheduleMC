@@ -161,11 +161,9 @@ public class QualityItemColors {
                 CoffeeItems.GROUND_COFFEE.get()
         );
 
-        // Wine Items (7 - Bottles und Grapes haben Quality, nicht Glass)
+        // Wine Items (5 - Bottle und Grapes haben Quality, nicht Glass)
         event.register(QualityItemColors::getQualityColor,
-                WineItems.WINE_BOTTLE_375ML.get(),
-                WineItems.WINE_BOTTLE_750ML.get(),
-                WineItems.WINE_BOTTLE_1500ML.get(),
+                WineItems.WINE_BOTTLE.get(),
                 WineItems.RIESLING_GRAPES.get(),
                 WineItems.SPAETBURGUNDER_GRAPES.get(),
                 WineItems.CHARDONNAY_GRAPES.get(),
@@ -189,11 +187,9 @@ public class QualityItemColors {
                 CheeseItems.HERB_CHEESE.get()
         );
 
-        // Honey Items (3)
+        // Honey Items (1)
         event.register(QualityItemColors::getQualityColor,
-                HoneyItems.HONEY_JAR_250G.get(),
-                HoneyItems.HONEY_JAR_500G.get(),
-                HoneyItems.HONEY_JAR_1KG.get()
+                HoneyItems.HONEY_JAR.get()
         );
 
         // Chocolate Items (3)
