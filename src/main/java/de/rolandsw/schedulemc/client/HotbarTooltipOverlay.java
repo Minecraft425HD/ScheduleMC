@@ -4,7 +4,7 @@ import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.api.distmarker.Dist;
@@ -89,17 +89,17 @@ public class HotbarTooltipOverlay {
 
             GuiGraphics guiGraphics = event.getGuiGraphics();
 
-            // Tooltip-Komponenten aus dem Item ermitteln
-            TooltipFlag flag = mc.options.advancedItemTooltips.get()
+            // Tooltip-Zeilen aus dem Item ermitteln
+            TooltipFlag flag = mc.options.advancedItemTooltips
                     ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
-            List<ClientTooltipComponent> components = item.getTooltipLines(mc.player, flag).stream()
-                    .map(l -> ClientTooltipComponent.create(l.getVisualOrderText()))
+            List<FormattedCharSequence> lines = item.getTooltipLines(mc.player, flag).stream()
+                    .map(net.minecraft.network.chat.Component::getVisualOrderText)
                     .collect(Collectors.toList());
-            if (components.isEmpty()) return;
+            if (lines.isEmpty()) return;
 
             // Exakt oben links (0,0) – eigener Positioner umgeht den Default-Offset (+12/-12)
-            guiGraphics.renderTooltip(mc.font, components, 0, 0,
-                    (sw, sh, mx, my, tw, th) -> new Vector2i(0, 0));
+            guiGraphics.renderTooltip(mc.font, lines,
+                    (sw, sh, mx, my, tw, th) -> new Vector2i(0, 0), 0, 0);
         }, "HotbarTooltipOverlay_Render");
     }
 
