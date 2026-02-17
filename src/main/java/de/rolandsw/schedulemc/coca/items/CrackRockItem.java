@@ -74,13 +74,11 @@ public class CrackRockItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        CocaType type = getType(stack);
         CrackQuality quality = getQuality(stack);
 
         String icon = quality == CrackQuality.LEGENDAER ? "§b💎" : "§f🪨";
         return Component.literal(icon + " ")
-            .append(Component.literal(quality.getColorCode()))
-            .append(Component.translatable("item.crack_rock.name", type.getDisplayName()));
+            .append(Component.translatable("item.crack_rock.name"));
     }
 
     @Override

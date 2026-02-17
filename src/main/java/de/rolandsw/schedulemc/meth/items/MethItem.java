@@ -89,6 +89,6 @@ public class MethItem extends Item {
             case SEHR_GUT -> "item.schedulemc.meth.gut_name";
             case LEGENDAER -> "item.schedulemc.meth.blue_sky_name";
         };
-        return Component.literal(quality.getColorCode() + Component.translatable(key).getString());
+        return Component.translatable(key);
     }
 }

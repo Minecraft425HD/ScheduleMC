@@ -211,12 +211,9 @@ public class ChocolateBarItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        ChocolateType type = getChocolateType(stack);
-        ChocolateQuality quality = getQuality(stack);
         double weight = getWeightKg(stack);
         int weightGrams = (int) (weight * 1000);
 
-        return Component.translatable("item.schedulemc.chocolate_bar.display",
-                quality.getColorCode(), type.getDisplayName(), weightGrams);
+        return Component.translatable("item.schedulemc.chocolate_bar.display", weightGrams);
     }
 }

@@ -80,7 +80,6 @@ public class FreshTobaccoLeafItem extends Item {
     
     @Override
     public Component getName(ItemStack stack) {
-        TobaccoType type = getType(stack);
-        return Component.translatable("item.fresh_tobacco_leaf.name", type.getDisplayName());
+        return Component.translatable("item.fresh_tobacco_leaf.name");
     }
 }

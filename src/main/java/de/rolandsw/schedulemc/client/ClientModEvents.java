@@ -91,9 +91,6 @@ public class ClientModEvents {
                 MenuScreens.register(TowingMenuTypes.TOWING_INVOICE.get(), TowingInvoiceScreen::new);
 
                 // Coffee-System
-                MenuScreens.register(CoffeeMenuTypes.SMALL_DRYING_TRAY_MENU.get(), SmallDryingTrayScreen::new);
-                MenuScreens.register(CoffeeMenuTypes.MEDIUM_DRYING_TRAY_MENU.get(), MediumDryingTrayScreen::new);
-                MenuScreens.register(CoffeeMenuTypes.LARGE_DRYING_TRAY_MENU.get(), LargeDryingTrayScreen::new);
                 MenuScreens.register(CoffeeMenuTypes.WET_PROCESSING_STATION_MENU.get(), WetProcessingStationScreen::new);
                 MenuScreens.register(CoffeeMenuTypes.SMALL_COFFEE_ROASTER_MENU.get(), SmallCoffeeRoasterScreen::new);
                 MenuScreens.register(CoffeeMenuTypes.MEDIUM_COFFEE_ROASTER_MENU.get(), MediumCoffeeRoasterScreen::new);

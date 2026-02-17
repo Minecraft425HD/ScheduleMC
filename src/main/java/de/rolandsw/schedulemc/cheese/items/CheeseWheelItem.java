@@ -114,8 +114,6 @@ public class CheeseWheelItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        CheeseType type = getCheeseType(stack);
-        CheeseQuality quality = getQuality(stack);
-        return Component.translatable("item.schedulemc.cheese_wheel.display", quality.getColorCode(), type.getDisplayName());
+        return Component.translatable("item.schedulemc.cheese_wheel.display");
     }
 }

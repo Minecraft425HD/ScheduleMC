@@ -15,18 +15,7 @@ public class CoffeeMenuTypes {
     public static final DeferredRegister<MenuType<?>> MENUS =
         DeferredRegister.create(ForgeRegistries.MENU_TYPES, ScheduleMC.MOD_ID);
 
-    // Drying Trays
-    public static final RegistryObject<MenuType<SmallDryingTrayMenu>> SMALL_DRYING_TRAY_MENU =
-        MENUS.register("small_coffee_drying_tray_menu", () ->
-            IForgeMenuType.create(SmallDryingTrayMenu::new));
-
-    public static final RegistryObject<MenuType<MediumDryingTrayMenu>> MEDIUM_DRYING_TRAY_MENU =
-        MENUS.register("medium_coffee_drying_tray_menu", () ->
-            IForgeMenuType.create(MediumDryingTrayMenu::new));
-
-    public static final RegistryObject<MenuType<LargeDryingTrayMenu>> LARGE_DRYING_TRAY_MENU =
-        MENUS.register("large_coffee_drying_tray_menu", () ->
-            IForgeMenuType.create(LargeDryingTrayMenu::new));
+    // Drying Trays - ENTFERNT (verwende TobaccoMenuTypes stattdessen)
 
     // Wet Processing Station
     public static final RegistryObject<MenuType<WetProcessingStationMenu>> WET_PROCESSING_STATION_MENU =
