@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.beer.items.BeerItems;
 import de.rolandsw.schedulemc.cannabis.items.*;
 import de.rolandsw.schedulemc.cheese.items.CheeseCurdItem;
 import de.rolandsw.schedulemc.cheese.items.CheeseItems;
-import de.rolandsw.schedulemc.cheese.items.CheeseWedgeItem;
 import de.rolandsw.schedulemc.cheese.items.CheeseWheelItem;
 import de.rolandsw.schedulemc.chocolate.items.ChocolateBarItem;
 import de.rolandsw.schedulemc.chocolate.items.ChocolateItems;
@@ -170,21 +169,10 @@ public class QualityItemColors {
                 WineItems.MERLOT_GRAPES.get()
         );
 
-        // Cheese Items (13)
+        // Cheese Items (2)
         event.register(QualityItemColors::getQualityColor,
                 CheeseItems.CHEESE_CURD.get(),
-                CheeseItems.CHEESE_WHEEL.get(),
-                CheeseItems.GOUDA_WHEEL.get(),
-                CheeseItems.EMMENTAL_WHEEL.get(),
-                CheeseItems.CAMEMBERT_WHEEL.get(),
-                CheeseItems.PARMESAN_WHEEL.get(),
-                CheeseItems.CHEESE_WEDGE.get(),
-                CheeseItems.GOUDA_WEDGE.get(),
-                CheeseItems.EMMENTAL_WEDGE.get(),
-                CheeseItems.CAMEMBERT_WEDGE.get(),
-                CheeseItems.PARMESAN_WEDGE.get(),
-                CheeseItems.SMOKED_CHEESE.get(),
-                CheeseItems.HERB_CHEESE.get()
+                CheeseItems.CHEESE_WHEEL.get()
         );
 
         // Honey Items (1)
@@ -338,9 +326,6 @@ public class QualityItemColors {
         // === CHEESE ITEMS ===
         if (item instanceof CheeseCurdItem) {
             return CheeseCurdItem.getQuality(stack).ordinal();
-        }
-        if (item instanceof CheeseWedgeItem) {
-            return CheeseWedgeItem.getQuality(stack).ordinal();
         }
         if (item instanceof CheeseWheelItem) {
             return CheeseWheelItem.getQuality(stack).ordinal();

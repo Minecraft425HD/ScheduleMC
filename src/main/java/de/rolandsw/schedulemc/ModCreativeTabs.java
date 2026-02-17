@@ -537,17 +537,6 @@ public class ModCreativeTabs {
                 output.accept(CheeseItems.CHEESE_CURD.get());
                 output.accept(CheeseItems.WHEY.get());
                 output.accept(CheeseItems.CHEESE_WHEEL.get());
-                output.accept(CheeseItems.GOUDA_WHEEL.get());
-                output.accept(CheeseItems.EMMENTAL_WHEEL.get());
-                output.accept(CheeseItems.CAMEMBERT_WHEEL.get());
-                output.accept(CheeseItems.PARMESAN_WHEEL.get());
-                output.accept(CheeseItems.CHEESE_WEDGE.get());
-                output.accept(CheeseItems.GOUDA_WEDGE.get());
-                output.accept(CheeseItems.EMMENTAL_WEDGE.get());
-                output.accept(CheeseItems.CAMEMBERT_WEDGE.get());
-                output.accept(CheeseItems.PARMESAN_WEDGE.get());
-                output.accept(CheeseItems.SMOKED_CHEESE.get());
-                output.accept(CheeseItems.HERB_CHEESE.get());
                 output.accept(CheeseItems.CHEESE_CLOTH.get());
                 output.accept(CheeseItems.WAX_COATING.get());
                 output.accept(CheeseItems.CHEESE_PAPER.get());
