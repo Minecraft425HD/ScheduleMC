@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiLayers;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -67,7 +67,7 @@ public class HotbarTooltipOverlay {
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
         EventHelper.handleEvent(() -> {
             // Nur nach dem Hotbar-Layer rendern (verhindert Mehrfach-Rendering pro Frame)
-            if (!event.getOverlay().id().equals(VanillaGuiLayers.HOTBAR)) return;
+            if (!event.getOverlay().id().equals(VanillaGuiOverlay.HOTBAR.id())) return;
 
             Minecraft mc = Minecraft.getInstance();
             if (mc.player == null || mc.level == null) return;
