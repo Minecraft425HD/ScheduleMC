@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.cheese.blockentity;
 
 import de.rolandsw.schedulemc.cheese.CheeseAgeLevel;
-import de.rolandsw.schedulemc.cheese.CheeseProcessingMethod;
 import de.rolandsw.schedulemc.cheese.CheeseQuality;
 import de.rolandsw.schedulemc.cheese.CheeseType;
 import de.rolandsw.schedulemc.cheese.items.CheeseItems;
@@ -47,7 +46,6 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
     private CheeseType cheeseType;
     private CheeseQuality quality;
     private CheeseAgeLevel ageLevel;
-    private CheeseProcessingMethod processingMethod = CheeseProcessingMethod.NATURAL;
     private double wheelWeight = 0;
 
     protected ItemStackHandler itemHandler;
@@ -133,18 +131,6 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
         return packagingProgress;
     }
 
-    public CheeseProcessingMethod getProcessingMethod() {
-        return processingMethod;
-    }
-
-    public void setProcessingMethod(CheeseProcessingMethod method) {
-        this.processingMethod = method;
-        setChanged();
-        if (level != null && !level.isClientSide) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
-    }
-
     public void tick() {
         if (level == null || level.isClientSide) return;
 
@@ -153,30 +139,9 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
             int packagingTime = 300; // 15 seconds per wheel
 
             if (packagingProgress >= packagingTime) {
-                // Calculate number of wedges based on weight
-                // 1kg = 4 wedges, so we get wedgeCount = weight * 4
-                int wedgeCount = (int) Math.ceil(wheelWeight * 4);
-                wedgeCount = Math.max(1, wedgeCount);
-
-                // Create wedges based on processing method and type
-                ItemStack wedges;
-                if (processingMethod == CheeseProcessingMethod.SMOKED) {
-                    wedges = new ItemStack(CheeseItems.SMOKED_CHEESE.get(), wedgeCount);
-                } else if (processingMethod == CheeseProcessingMethod.HERB) {
-                    wedges = new ItemStack(CheeseItems.HERB_CHEESE.get(), wedgeCount);
-                } else {
-                    // Natural - use specific cheese type wedge
-                    wedges = new ItemStack(CheeseItems.CHEESE_WEDGE.get(), wedgeCount);
-                }
-
-                // Store metadata in wedge NBT
-                CompoundTag wedgeTag = wedges.getOrCreateTag();
-                if (cheeseType != null) wedgeTag.putString("CheeseType", cheeseType.name());
-                if (quality != null) wedgeTag.putString("Quality", quality.name());
-                if (ageLevel != null) wedgeTag.putString("AgeLevel", ageLevel.name());
-                wedgeTag.putString("ProcessingMethod", processingMethod.name());
-
-                output = wedges;
+                // Output the packaged cheese wheel
+                output = wheelInput.copy();
+                output.setCount(1);
                 itemHandler.setStackInSlot(2, output.copy());
 
                 wheelInput.shrink(1);
@@ -253,7 +218,6 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
         if (cheeseType != null) tag.putString("CheeseType", cheeseType.name());
         if (quality != null) tag.putString("Quality", quality.name());
         if (ageLevel != null) tag.putString("AgeLevel", ageLevel.name());
-        tag.putString("ProcessingMethod", processingMethod.name());
         tag.putDouble("WheelWeight", wheelWeight);
     }
 
@@ -278,12 +242,6 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
         if (tag.contains("AgeLevel")) {
             try { ageLevel = CheeseAgeLevel.valueOf(tag.getString("AgeLevel")); }
             catch (IllegalArgumentException ignored) {}
-        }
-        if (tag.contains("ProcessingMethod")) {
-            try { processingMethod = CheeseProcessingMethod.valueOf(tag.getString("ProcessingMethod")); }
-            catch (IllegalArgumentException ignored) {}
-        } else {
-            processingMethod = CheeseProcessingMethod.NATURAL;
         }
         wheelWeight = tag.contains("WheelWeight") ? tag.getDouble("WheelWeight") : 0;
     }

@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.beer.items.BeerItems;
 import de.rolandsw.schedulemc.cannabis.items.*;
 import de.rolandsw.schedulemc.cheese.items.CheeseCurdItem;
 import de.rolandsw.schedulemc.cheese.items.CheeseItems;
-import de.rolandsw.schedulemc.cheese.items.CheeseWedgeItem;
 import de.rolandsw.schedulemc.cheese.items.CheeseWheelItem;
 import de.rolandsw.schedulemc.chocolate.items.ChocolateBarItem;
 import de.rolandsw.schedulemc.chocolate.items.ChocolateItems;
@@ -161,46 +160,29 @@ public class QualityItemColors {
                 CoffeeItems.GROUND_COFFEE.get()
         );
 
-        // Wine Items (7 - Bottles und Grapes haben Quality, nicht Glass)
+        // Wine Items (5 - Bottle und Grapes haben Quality, nicht Glass)
         event.register(QualityItemColors::getQualityColor,
-                WineItems.WINE_BOTTLE_375ML.get(),
-                WineItems.WINE_BOTTLE_750ML.get(),
-                WineItems.WINE_BOTTLE_1500ML.get(),
+                WineItems.WINE_BOTTLE.get(),
                 WineItems.RIESLING_GRAPES.get(),
                 WineItems.SPAETBURGUNDER_GRAPES.get(),
                 WineItems.CHARDONNAY_GRAPES.get(),
                 WineItems.MERLOT_GRAPES.get()
         );
 
-        // Cheese Items (13)
+        // Cheese Items (2)
         event.register(QualityItemColors::getQualityColor,
                 CheeseItems.CHEESE_CURD.get(),
-                CheeseItems.CHEESE_WHEEL.get(),
-                CheeseItems.GOUDA_WHEEL.get(),
-                CheeseItems.EMMENTAL_WHEEL.get(),
-                CheeseItems.CAMEMBERT_WHEEL.get(),
-                CheeseItems.PARMESAN_WHEEL.get(),
-                CheeseItems.CHEESE_WEDGE.get(),
-                CheeseItems.GOUDA_WEDGE.get(),
-                CheeseItems.EMMENTAL_WEDGE.get(),
-                CheeseItems.CAMEMBERT_WEDGE.get(),
-                CheeseItems.PARMESAN_WEDGE.get(),
-                CheeseItems.SMOKED_CHEESE.get(),
-                CheeseItems.HERB_CHEESE.get()
+                CheeseItems.CHEESE_WHEEL.get()
         );
 
-        // Honey Items (3)
+        // Honey Items (1)
         event.register(QualityItemColors::getQualityColor,
-                HoneyItems.HONEY_JAR_250G.get(),
-                HoneyItems.HONEY_JAR_500G.get(),
-                HoneyItems.HONEY_JAR_1KG.get()
+                HoneyItems.HONEY_JAR.get()
         );
 
-        // Chocolate Items (3)
+        // Chocolate Items (1)
         event.register(QualityItemColors::getQualityColor,
-                ChocolateItems.CHOCOLATE_BAR_100G.get(),
-                ChocolateItems.CHOCOLATE_BAR_200G.get(),
-                ChocolateItems.CHOCOLATE_BAR_500G.get()
+                ChocolateItems.CHOCOLATE_BAR.get()
         );
 
         // Beer Items (1)
@@ -344,9 +326,6 @@ public class QualityItemColors {
         // === CHEESE ITEMS ===
         if (item instanceof CheeseCurdItem) {
             return CheeseCurdItem.getQuality(stack).ordinal();
-        }
-        if (item instanceof CheeseWedgeItem) {
-            return CheeseWedgeItem.getQuality(stack).ordinal();
         }
         if (item instanceof CheeseWheelItem) {
             return CheeseWheelItem.getQuality(stack).ordinal();

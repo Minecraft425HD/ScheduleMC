@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/cheese_wedge",
+    "layer0": "schedulemc:item/honey_jar",
     "layer1": "schedulemc:item/quality_frame"
   }
 }

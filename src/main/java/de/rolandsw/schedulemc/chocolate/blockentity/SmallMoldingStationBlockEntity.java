@@ -35,7 +35,7 @@ public class SmallMoldingStationBlockEntity extends AbstractMoldingStationBlockE
 
     @Override
     protected Item getChocolateBarItem() {
-        return ChocolateItems.CHOCOLATE_BAR_100G.get();
+        return ChocolateItems.CHOCOLATE_BAR.get();
     }
 
     @Override

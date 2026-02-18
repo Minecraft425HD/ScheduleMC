@@ -41,16 +41,7 @@ public class WineBottleItem extends Item {
      */
     public static ItemStack create(WineType type, WineQuality quality, WineAgeLevel ageLevel,
                                    WineProcessingMethod method, double volumeLiters, int count) {
-        Item bottleItem;
-        if (volumeLiters <= 0.375) {
-            bottleItem = WineItems.WINE_BOTTLE_375ML.get();
-        } else if (volumeLiters <= 0.75) {
-            bottleItem = WineItems.WINE_BOTTLE_750ML.get();
-        } else {
-            bottleItem = WineItems.WINE_BOTTLE_1500ML.get();
-        }
-
-        ItemStack stack = new ItemStack(bottleItem, count);
+        ItemStack stack = new ItemStack(WineItems.WINE_BOTTLE.get(), count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("WineType", type.name());
         tag.putString("Quality", quality.name());
@@ -158,6 +149,7 @@ public class WineBottleItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        return Component.translatable("tooltip.wine.name", volumeLiters);
+        WineType type = getWineType(stack);
+        return Component.translatable("tooltip.wine.name", type.getDisplayName());
     }
 }

@@ -453,12 +453,8 @@ public class ModCreativeTabs {
                 output.accept(WineItems.MERLOT_JUICE.get());
                 output.accept(WineItems.FERMENTING_WINE.get());
                 output.accept(WineItems.YOUNG_WINE.get());
-                output.accept(WineItems.WINE_BOTTLE_375ML.get());
-                output.accept(WineItems.WINE_BOTTLE_750ML.get());
-                output.accept(WineItems.WINE_BOTTLE_1500ML.get());
-                output.accept(WineItems.EMPTY_WINE_BOTTLE_375ML.get());
-                output.accept(WineItems.EMPTY_WINE_BOTTLE_750ML.get());
-                output.accept(WineItems.EMPTY_WINE_BOTTLE_1500ML.get());
+                output.accept(WineItems.WINE_BOTTLE.get());
+                output.accept(WineItems.EMPTY_WINE_BOTTLE.get());
                 output.accept(WineItems.GLASS_OF_WINE.get());
 
                 // WEIN - BLÖCKE
@@ -511,9 +507,7 @@ public class ModCreativeTabs {
                 output.accept(ChocolateItems.WRAPPER_GOLD.get());
                 output.accept(ChocolateItems.BOX.get());
                 output.accept(ChocolateItems.BOX_PREMIUM.get());
-                output.accept(ChocolateItems.CHOCOLATE_BAR_100G.get());
-                output.accept(ChocolateItems.CHOCOLATE_BAR_200G.get());
-                output.accept(ChocolateItems.CHOCOLATE_BAR_500G.get());
+                output.accept(ChocolateItems.CHOCOLATE_BAR.get());
                 output.accept(ChocolateItems.CHOCOLATE_TRUFFLE.get());
                 output.accept(ChocolateItems.CHOCOLATE_PRALINE.get());
                 output.accept(ChocolateItems.HOT_CHOCOLATE_MIX.get());
@@ -543,17 +537,6 @@ public class ModCreativeTabs {
                 output.accept(CheeseItems.CHEESE_CURD.get());
                 output.accept(CheeseItems.WHEY.get());
                 output.accept(CheeseItems.CHEESE_WHEEL.get());
-                output.accept(CheeseItems.GOUDA_WHEEL.get());
-                output.accept(CheeseItems.EMMENTAL_WHEEL.get());
-                output.accept(CheeseItems.CAMEMBERT_WHEEL.get());
-                output.accept(CheeseItems.PARMESAN_WHEEL.get());
-                output.accept(CheeseItems.CHEESE_WEDGE.get());
-                output.accept(CheeseItems.GOUDA_WEDGE.get());
-                output.accept(CheeseItems.EMMENTAL_WEDGE.get());
-                output.accept(CheeseItems.CAMEMBERT_WEDGE.get());
-                output.accept(CheeseItems.PARMESAN_WEDGE.get());
-                output.accept(CheeseItems.SMOKED_CHEESE.get());
-                output.accept(CheeseItems.HERB_CHEESE.get());
                 output.accept(CheeseItems.CHEESE_CLOTH.get());
                 output.accept(CheeseItems.WAX_COATING.get());
                 output.accept(CheeseItems.CHEESE_PAPER.get());
@@ -586,9 +569,7 @@ public class ModCreativeTabs {
                 output.accept(CoffeeItems.GREEN_EXCELSA_BEANS.get());
                 output.accept(CoffeeItems.ROASTED_COFFEE_BEANS.get());
                 output.accept(CoffeeItems.GROUND_COFFEE.get());
-                output.accept(CoffeeItems.COFFEE_PACKAGE_250G.get());
-                output.accept(CoffeeItems.COFFEE_PACKAGE_500G.get());
-                output.accept(CoffeeItems.COFFEE_PACKAGE_1KG.get());
+                output.accept(CoffeeItems.COFFEE_PACKAGE.get());
                 output.accept(TobaccoItems.WATERING_CAN.get()); // Verwende Tobacco's Watering Can
                 output.accept(CoffeeItems.PULPING_TOOL.get());
                 output.accept(CoffeeItems.ROASTING_TRAY.get());
@@ -596,9 +577,7 @@ public class ModCreativeTabs {
                 output.accept(TobaccoItems.FERTILIZER_BOTTLE.get()); // Yield Booster
                 output.accept(TobaccoItems.GROWTH_BOOSTER_BOTTLE.get()); // Growth Booster
                 output.accept(TobaccoItems.QUALITY_BOOSTER_BOTTLE.get()); // Quality Booster
-                output.accept(CoffeeItems.COFFEE_BAG_SMALL.get());
-                output.accept(CoffeeItems.COFFEE_BAG_MEDIUM.get());
-                output.accept(CoffeeItems.COFFEE_BAG_LARGE.get());
+                output.accept(CoffeeItems.COFFEE_BAG.get());
                 output.accept(CoffeeItems.VACUUM_SEAL.get());
                 output.accept(CoffeeItems.BREWED_COFFEE.get());
                 output.accept(CoffeeItems.ESPRESSO.get());
@@ -629,17 +608,13 @@ public class ModCreativeTabs {
                 output.accept(HoneyItems.RAW_HONEY_BUCKET.get());
                 output.accept(HoneyItems.FILTERED_HONEY_BUCKET.get());
                 output.accept(HoneyItems.LIQUID_HONEY_BOTTLE.get());
-                output.accept(HoneyItems.HONEY_JAR_250G.get());
-                output.accept(HoneyItems.HONEY_JAR_500G.get());
-                output.accept(HoneyItems.HONEY_JAR_1KG.get());
+                output.accept(HoneyItems.HONEY_JAR.get());
                 output.accept(HoneyItems.BEESWAX.get());
                 output.accept(HoneyItems.BEESWAX_BLOCK.get());
                 output.accept(HoneyItems.PROPOLIS.get());
                 output.accept(HoneyItems.POLLEN.get());
                 output.accept(HoneyItems.ROYAL_JELLY.get());
                 output.accept(HoneyItems.GLASS_JAR.get());
-                output.accept(HoneyItems.GLASS_JAR_SMALL.get());
-                output.accept(HoneyItems.GLASS_JAR_LARGE.get());
                 output.accept(HoneyItems.JAR_LID.get());
                 output.accept(HoneyItems.JAR_LID_GOLD.get());
                 output.accept(HoneyItems.CREAMED_HONEY.get());

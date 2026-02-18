@@ -26,15 +26,10 @@ import java.util.List;
  * - Produktionsdatum (Ticks)
  */
 public class ChocolateBarItem extends Item {
-    private final double weightKg;
+    private static final double WEIGHT_KG = 0.1;
 
-    public ChocolateBarItem(double weightKg, Properties properties) {
+    public ChocolateBarItem(Properties properties) {
         super(properties);
-        this.weightKg = weightKg;
-    }
-
-    public double getWeightKg() {
-        return weightKg;
     }
 
     /**
@@ -42,16 +37,7 @@ public class ChocolateBarItem extends Item {
      */
     public static ItemStack create(ChocolateType type, ChocolateQuality quality, ChocolateAgeLevel ageLevel,
                                    ChocolateProcessingMethod method, double weightKg, long productionDate, int count) {
-        Item barItem;
-        if (weightKg <= 0.1) {
-            barItem = ChocolateItems.CHOCOLATE_BAR_100G.get();
-        } else if (weightKg <= 0.2) {
-            barItem = ChocolateItems.CHOCOLATE_BAR_200G.get();
-        } else {
-            barItem = ChocolateItems.CHOCOLATE_BAR_500G.get();
-        }
-
-        ItemStack stack = new ItemStack(barItem, count);
+        ItemStack stack = new ItemStack(ChocolateItems.CHOCOLATE_BAR.get(), count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("ChocolateType", type.name());
         tag.putString("Quality", quality.name());
@@ -121,14 +107,7 @@ public class ChocolateBarItem extends Item {
     }
 
     public static double getWeightKg(ItemStack stack) {
-        if (stack.getItem() instanceof ChocolateBarItem barItem) {
-            CompoundTag tag = stack.getTag();
-            if (tag != null && tag.contains("WeightKg")) {
-                return tag.getDouble("WeightKg");
-            }
-            return barItem.getWeightKg();
-        }
-        return 0.1; // Default 100g
+        return WEIGHT_KG;
     }
 
     /**
@@ -184,13 +163,11 @@ public class ChocolateBarItem extends Item {
         ChocolateQuality quality = getQuality(stack);
         ChocolateAgeLevel ageLevel = getAgeLevel(stack);
         ChocolateProcessingMethod method = getProcessingMethod(stack);
-        double weight = getWeightKg(stack);
 
         tooltip.add(Component.translatable("tooltip.chocolate.type", type.getColorCode(), type.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.chocolate.quality", quality.getColoredName()));
         tooltip.add(Component.translatable("tooltip.chocolate.age", ageLevel.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.chocolate.method", method.getDisplayName()));
-        tooltip.add(Component.translatable("tooltip.chocolate.weight", (int)(weight * 1000)));
         tooltip.add(Component.translatable("tooltip.chocolate.cocoa", type.getCocoaPercentage()));
 
         // Show age in days if available
@@ -211,9 +188,9 @@ public class ChocolateBarItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        double weight = getWeightKg(stack);
-        int weightGrams = (int) (weight * 1000);
-
-        return Component.translatable("item.schedulemc.chocolate_bar.display", weightGrams);
+        ChocolateQuality quality = getQuality(stack);
+        ChocolateType type = getChocolateType(stack);
+        return Component.translatable("item.schedulemc.chocolate_bar.display",
+                quality.getColorCode(), type.getDisplayName());
     }
 }

@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/chocolate_bar_500g",
+    "layer0": "schedulemc:item/wine_bottle",
     "layer1": "schedulemc:item/quality_frame"
   }
 }

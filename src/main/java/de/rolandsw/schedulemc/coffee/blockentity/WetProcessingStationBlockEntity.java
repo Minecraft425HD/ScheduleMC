@@ -213,7 +213,7 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
     }
 
     @Override public @NotNull Component getDisplayName() {
-        return Component.translatable("block.wet_processing_station.name");
+        return Component.translatable("block.schedulemc.wet_processing_station");
     }
 
     @Nullable @Override public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {

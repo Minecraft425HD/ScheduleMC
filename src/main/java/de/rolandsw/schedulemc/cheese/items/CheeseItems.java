@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.cheese.items;
 
 import de.rolandsw.schedulemc.ScheduleMC;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -11,12 +10,10 @@ import net.minecraftforge.registries.RegistryObject;
  * Zentrale Registrierung aller Kase-Items
  *
  * Struktur:
- * - Milch-Eimer (Rohstoff)
  * - Lab/Rennet (fur Gerinnung)
  * - Kasebruch/Curd (mit Quality)
  * - Molke/Whey
- * - Kaselaib/Wheel (4 Sorten, gereift)
- * - Kasestucke/Wedges (konsumierbar, verarbeitet)
+ * - Kaselaib/Wheel (universal, Sorte per NBT)
  * - Verpackungsmaterialien
  */
 public class CheeseItems {
@@ -48,79 +45,11 @@ public class CheeseItems {
     );
 
     // ═══════════════════════════════════════════════════════════
-    // KASELAIBE (Wheel) - 4 Sorten
+    // KASELAIB (Wheel) - Universal, Sorte per NBT
     // ═══════════════════════════════════════════════════════════
     public static final RegistryObject<Item> CHEESE_WHEEL = ITEMS.register(
         "cheese_wheel",
         () -> new CheeseWheelItem(new Item.Properties().stacksTo(1))
-    );
-
-    public static final RegistryObject<Item> GOUDA_WHEEL = ITEMS.register(
-        "gouda_wheel",
-        () -> new CheeseWheelItem(new Item.Properties().stacksTo(1))
-    );
-
-    public static final RegistryObject<Item> EMMENTAL_WHEEL = ITEMS.register(
-        "emmental_wheel",
-        () -> new CheeseWheelItem(new Item.Properties().stacksTo(1))
-    );
-
-    public static final RegistryObject<Item> CAMEMBERT_WHEEL = ITEMS.register(
-        "camembert_wheel",
-        () -> new CheeseWheelItem(new Item.Properties().stacksTo(1))
-    );
-
-    public static final RegistryObject<Item> PARMESAN_WHEEL = ITEMS.register(
-        "parmesan_wheel",
-        () -> new CheeseWheelItem(new Item.Properties().stacksTo(1))
-    );
-
-    // ═══════════════════════════════════════════════════════════
-    // KASESTUCKE (Wedge) - Konsumierbar
-    // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> CHEESE_WEDGE = ITEMS.register(
-        "cheese_wedge",
-        () -> new CheeseWedgeItem(new Item.Properties()
-            .food(new FoodProperties.Builder().nutrition(4).saturationMod(0.6f).build()))
-    );
-
-    public static final RegistryObject<Item> GOUDA_WEDGE = ITEMS.register(
-        "gouda_wedge",
-        () -> new CheeseWedgeItem(new Item.Properties()
-            .food(new FoodProperties.Builder().nutrition(4).saturationMod(0.6f).build()))
-    );
-
-    public static final RegistryObject<Item> EMMENTAL_WEDGE = ITEMS.register(
-        "emmental_wedge",
-        () -> new CheeseWedgeItem(new Item.Properties()
-            .food(new FoodProperties.Builder().nutrition(5).saturationMod(0.7f).build()))
-    );
-
-    public static final RegistryObject<Item> CAMEMBERT_WEDGE = ITEMS.register(
-        "camembert_wedge",
-        () -> new CheeseWedgeItem(new Item.Properties()
-            .food(new FoodProperties.Builder().nutrition(4).saturationMod(0.8f).build()))
-    );
-
-    public static final RegistryObject<Item> PARMESAN_WEDGE = ITEMS.register(
-        "parmesan_wedge",
-        () -> new CheeseWedgeItem(new Item.Properties()
-            .food(new FoodProperties.Builder().nutrition(6).saturationMod(0.8f).build()))
-    );
-
-    // ═══════════════════════════════════════════════════════════
-    // VERARBEITETE KASESORTEN
-    // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> SMOKED_CHEESE = ITEMS.register(
-        "smoked_cheese",
-        () -> new CheeseWedgeItem(new Item.Properties()
-            .food(new FoodProperties.Builder().nutrition(5).saturationMod(0.7f).build()))
-    );
-
-    public static final RegistryObject<Item> HERB_CHEESE = ITEMS.register(
-        "herb_cheese",
-        () -> new CheeseWedgeItem(new Item.Properties()
-            .food(new FoodProperties.Builder().nutrition(5).saturationMod(0.8f).build()))
     );
 
     // ═══════════════════════════════════════════════════════════

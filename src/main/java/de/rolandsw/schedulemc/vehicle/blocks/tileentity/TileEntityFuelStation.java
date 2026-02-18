@@ -185,7 +185,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
 
     @Override
     public Component getTranslatedName() {
-        return Component.translatable("block.vehicle.fuel_station");
+        return Component.translatable("block.schedulemc.fuel_station");
     }
 
     private void fixTop() {

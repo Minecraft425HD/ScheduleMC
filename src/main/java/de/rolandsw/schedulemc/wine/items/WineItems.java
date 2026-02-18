@@ -17,7 +17,7 @@ import net.minecraftforge.registries.RegistryObject;
  * - 4 Maische-Typen (zerdrückt)
  * - 4 Traubensaft-Typen (gepresst)
  * - Junger Wein (ungereift)
- * - Weinflaschen (3 Größen)
+ * - Weinflasche (0.75L)
  * - Leere Flaschen (zum Abfüllen)
  * - Wein-Konsum (mit Buffs)
  */
@@ -136,38 +136,18 @@ public class WineItems {
     );
 
     // ═══════════════════════════════════════════════════════════
-    // WEINFLASCHEN (Fertigprodukt mit NBT-Daten)
+    // WEINFLASCHE (Fertigprodukt mit NBT-Daten)
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> WINE_BOTTLE_375ML = ITEMS.register(
-        "wine_bottle_375ml",
-        () -> new WineBottleItem(0.375, new Item.Properties().stacksTo(16))
-    );
-
-    public static final RegistryObject<Item> WINE_BOTTLE_750ML = ITEMS.register(
-        "wine_bottle_750ml",
+    public static final RegistryObject<Item> WINE_BOTTLE = ITEMS.register(
+        "wine_bottle",
         () -> new WineBottleItem(0.75, new Item.Properties().stacksTo(16))
     );
 
-    public static final RegistryObject<Item> WINE_BOTTLE_1500ML = ITEMS.register(
-        "wine_bottle_1500ml",
-        () -> new WineBottleItem(1.5, new Item.Properties().stacksTo(8))
-    );
-
     // ═══════════════════════════════════════════════════════════
-    // LEERE WEINFLASCHEN (zum Abfüllen)
+    // LEERE WEINFLASCHE (zum Abfüllen)
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> EMPTY_WINE_BOTTLE_375ML = ITEMS.register(
-        "empty_wine_bottle_375ml",
-        () -> new Item(new Item.Properties())
-    );
-
-    public static final RegistryObject<Item> EMPTY_WINE_BOTTLE_750ML = ITEMS.register(
-        "empty_wine_bottle_750ml",
-        () -> new Item(new Item.Properties())
-    );
-
-    public static final RegistryObject<Item> EMPTY_WINE_BOTTLE_1500ML = ITEMS.register(
-        "empty_wine_bottle_1500ml",
+    public static final RegistryObject<Item> EMPTY_WINE_BOTTLE = ITEMS.register(
+        "empty_wine_bottle",
         () -> new Item(new Item.Properties())
     );
 

@@ -102,18 +102,12 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
 
         public ItemStack getPackagingMaterial() {
             return switch (this) {
-                case SMALL -> new ItemStack(CoffeeItems.COFFEE_BAG_SMALL.get());
-                case MEDIUM -> new ItemStack(CoffeeItems.COFFEE_BAG_MEDIUM.get());
-                case LARGE -> new ItemStack(CoffeeItems.COFFEE_BAG_LARGE.get());
+                default -> new ItemStack(CoffeeItems.COFFEE_BAG.get());
             };
         }
 
         public ItemStack getOutputItem() {
-            return switch (this) {
-                case SMALL -> new ItemStack(CoffeeItems.COFFEE_PACKAGE_250G.get());
-                case MEDIUM -> new ItemStack(CoffeeItems.COFFEE_PACKAGE_500G.get());
-                case LARGE -> new ItemStack(CoffeeItems.COFFEE_PACKAGE_1KG.get());
-            };
+            return new ItemStack(CoffeeItems.COFFEE_PACKAGE.get());
         }
     }
 
@@ -141,10 +135,7 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
                     return stack.getItem() instanceof GroundCoffeeItem;
                 }
                 if (slot == 1) {
-                    // Akzeptiere alle Coffee Bag Typen
-                    return stack.is(CoffeeItems.COFFEE_BAG_SMALL.get()) ||
-                           stack.is(CoffeeItems.COFFEE_BAG_MEDIUM.get()) ||
-                           stack.is(CoffeeItems.COFFEE_BAG_LARGE.get());
+                    return stack.is(CoffeeItems.COFFEE_BAG.get());
                 }
                 return false; // Slot 2 ist Output
             }

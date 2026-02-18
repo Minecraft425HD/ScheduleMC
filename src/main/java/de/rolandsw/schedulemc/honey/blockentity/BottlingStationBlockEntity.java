@@ -84,9 +84,7 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
                             || stack.getItem() == HoneyItems.FILTERED_HONEY_BUCKET.get();
                 }
                 if (slot == 1) {
-                    return stack.getItem() == HoneyItems.GLASS_JAR.get()
-                            || stack.getItem() == HoneyItems.GLASS_JAR_SMALL.get()
-                            || stack.getItem() == HoneyItems.GLASS_JAR_LARGE.get();
+                    return stack.getItem() == HoneyItems.GLASS_JAR.get();
                 }
                 if (slot == 2) {
                     return stack.getItem() == HoneyItems.JAR_LID.get()
@@ -196,15 +194,7 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
             processingProgress++;
 
             if (processingProgress >= PROCESSING_TIME) {
-                // Determine jar size based on input jar
-                ItemStack honeyJar;
-                if (jarInput.getItem() == HoneyItems.GLASS_JAR_SMALL.get()) {
-                    honeyJar = new ItemStack(HoneyItems.HONEY_JAR_250G.get(), 1);
-                } else if (jarInput.getItem() == HoneyItems.GLASS_JAR_LARGE.get()) {
-                    honeyJar = new ItemStack(HoneyItems.HONEY_JAR_1KG.get(), 1);
-                } else {
-                    honeyJar = new ItemStack(HoneyItems.HONEY_JAR_500G.get(), 1);
-                }
+                ItemStack honeyJar = new ItemStack(HoneyItems.HONEY_JAR.get(), 1);
 
                 // Assemble final NBT data
                 CompoundTag tag = honeyJar.getOrCreateTag();

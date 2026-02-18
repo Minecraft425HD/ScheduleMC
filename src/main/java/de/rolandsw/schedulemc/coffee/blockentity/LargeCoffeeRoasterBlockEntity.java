@@ -16,7 +16,7 @@ public class LargeCoffeeRoasterBlockEntity extends AbstractCoffeeRoasterBlockEnt
     @Override protected int getCapacity() { return 64; }
     @Override protected int getRoastingTimePerBean() { return 200; }
     @Override public @NotNull Component getDisplayName() {
-        return Component.translatable("block.large_coffee_roaster.name");
+        return Component.translatable("block.schedulemc.large_coffee_roaster");
     }
     @Nullable @Override public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player p) {
         return new LargeCoffeeRoasterMenu(id, inv, this);

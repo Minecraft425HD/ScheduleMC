@@ -11,7 +11,7 @@ import net.minecraftforge.registries.RegistryObject;
  * Zentrale Registrierung aller Honig-Items
  *
  * Struktur:
- * - Honiggläser (3 Größen mit NBT-Daten)
+ * - Honigglas (1kg, mit NBT-Daten)
  * - Rohmaterial (Waben, Pollen, etc.)
  * - Zwischenprodukte (gefiltert, verarbeitet)
  * - Nebenprodukte (Bienenwachs, Propolis)
@@ -23,21 +23,11 @@ public class HoneyItems {
     );
 
     // ═══════════════════════════════════════════════════════════
-    // HONIGGLÄSER (Fertigprodukt mit NBT-Daten)
+    // HONIGGLAS (Fertigprodukt mit NBT-Daten)
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> HONEY_JAR_250G = ITEMS.register(
-        "honey_jar_250g",
-        () -> new HoneyJarItem(0.25, new Item.Properties().stacksTo(16))
-    );
-
-    public static final RegistryObject<Item> HONEY_JAR_500G = ITEMS.register(
-        "honey_jar_500g",
-        () -> new HoneyJarItem(0.5, new Item.Properties().stacksTo(16))
-    );
-
-    public static final RegistryObject<Item> HONEY_JAR_1KG = ITEMS.register(
-        "honey_jar_1kg",
-        () -> new HoneyJarItem(1.0, new Item.Properties().stacksTo(12))
+    public static final RegistryObject<Item> HONEY_JAR = ITEMS.register(
+        "honey_jar",
+        () -> new HoneyJarItem(1.0, new Item.Properties().stacksTo(16))
     );
 
     // ═══════════════════════════════════════════════════════════
@@ -112,16 +102,6 @@ public class HoneyItems {
     // ═══════════════════════════════════════════════════════════
     public static final RegistryObject<Item> GLASS_JAR = ITEMS.register(
         "glass_jar",
-        () -> new Item(new Item.Properties())
-    );
-
-    public static final RegistryObject<Item> GLASS_JAR_SMALL = ITEMS.register(
-        "glass_jar_small",
-        () -> new Item(new Item.Properties())
-    );
-
-    public static final RegistryObject<Item> GLASS_JAR_LARGE = ITEMS.register(
-        "glass_jar_large",
         () -> new Item(new Item.Properties())
     );
 
