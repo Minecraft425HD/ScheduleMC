@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-3.6.0--beta-blue?style=for-the-badge" />
+  <img alt="Version" src="https://img.shields.io/badge/version-3.6.4--beta-blue?style=for-the-badge" />
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-1.20.1-green?style=for-the-badge&logo=mojangstudios" />
   <img alt="Forge" src="https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge" />
   <img alt="Java" src="https://img.shields.io/badge/Java-17-red?style=for-the-badge&logo=openjdk" />
@@ -4790,7 +4790,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <p align="center">
   Built for the Minecraft roleplay community.
   <br />
-  <strong>ScheduleMC v3.6.0-beta</strong> -- Minecraft 1.20.1 -- Forge 47.4.0
+  <strong>ScheduleMC v3.6.4-beta</strong> -- Minecraft 1.20.1 -- Forge 47.4.0
   <br />
   <br />
   <a href="https://github.com/Minecraft425HD/ScheduleMC">GitHub</a>
