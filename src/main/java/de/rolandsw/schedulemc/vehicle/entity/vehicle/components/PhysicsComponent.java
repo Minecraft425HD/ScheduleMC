@@ -51,8 +51,13 @@ public class PhysicsComponent extends VehicleComponent {
     private static final EntityDataAccessor<Boolean> LEFT = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> RIGHT = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> ODOMETER_SYNCED = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> STEERING_ANGLE = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.FLOAT);
+
+    private static final float MAX_STEERING_ANGLE = 32.0F;
+    private static final float STEERING_SPEED = 5.0F;
 
     private float wheelRotation;
+    private float prevSteeringAngle;
 
     // Odometer: Gesamte gefahrene Distanz in Blöcken (1 Block ≈ 1 Meter)
     private long odometer;
@@ -93,6 +98,7 @@ public class PhysicsComponent extends VehicleComponent {
         entityData.define(LEFT, false);
         entityData.define(RIGHT, false);
         entityData.define(ODOMETER_SYNCED, 0);
+        entityData.define(STEERING_ANGLE, 0F);
     }
 
     @Override
@@ -102,6 +108,8 @@ public class PhysicsComponent extends VehicleComponent {
 
     @Override
     public void tick() {
+        prevSteeringAngle = getSteeringAngle();
+
         Runnable task;
         while ((task = tasks.poll()) != null) {
             task.run();
@@ -302,6 +310,32 @@ public class PhysicsComponent extends VehicleComponent {
                 collidedLastTick = false;
             }
         }
+
+        updateSteeringAngle();
+    }
+
+    private void updateSteeringAngle() {
+        float target = 0F;
+        if (Math.abs(getSpeed()) > VehicleConstants.MIN_ROTATION_THRESHOLD) {
+            if (isLeft()) target = -MAX_STEERING_ANGLE;
+            if (isRight()) target = MAX_STEERING_ANGLE;
+        }
+        float current = getSteeringAngle();
+        float delta = target - current;
+        float step = Math.signum(delta) * Math.min(Math.abs(delta), STEERING_SPEED);
+        setSteeringAngle(current + step);
+    }
+
+    public void setSteeringAngle(float angle) {
+        vehicle.getEntityData().set(STEERING_ANGLE, angle);
+    }
+
+    public float getSteeringAngle() {
+        return vehicle.getEntityData().get(STEERING_ANGLE);
+    }
+
+    public float getSteeringAngle(float partialTicks) {
+        return prevSteeringAngle + (getSteeringAngle() - prevSteeringAngle) * partialTicks;
     }
 
     private float subtractToZero(float value, float subtract) {

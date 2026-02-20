@@ -1077,6 +1077,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return physicsComponent.getWheelRotation(partialTicks);
     }
 
+    public float getSteeringAngle(float partialTicks) {
+        return physicsComponent.getSteeringAngle(partialTicks);
+    }
+
     public void updateControls(boolean forward, boolean backward, boolean left, boolean right, Player player) {
         physicsComponent.updateControls(forward, backward, left, right);
     }
