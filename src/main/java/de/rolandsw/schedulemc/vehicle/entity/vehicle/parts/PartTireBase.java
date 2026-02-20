@@ -82,9 +82,9 @@ public class PartTireBase extends PartModel {
             trackWidth = 1.0F;
         }
 
-        // Front wheels = those at the maximum Z offset (furthest forward)
+        // Front wheels = those at the minimum Z offset (vehicles face -Z in model space)
         final double frontZ = wheelOffsets.length > 0
-                ? Arrays.stream(wheelOffsets).mapToDouble(v -> v.z).max().orElse(0)
+                ? Arrays.stream(wheelOffsets).mapToDouble(v -> v.z).min().orElse(0)
                 : 0;
 
         List<PartTireBase> wheels = new ArrayList<>();
@@ -97,8 +97,9 @@ public class PartTireBase extends PartModel {
 
         for (int i = 0; i < wheelOffsets.length && i < wheels.size(); i++) {
             final Vector3d offset = wheelOffsets[i];
-            final boolean isFrontWheel = offset.z >= frontZ - 0.001;
-            final boolean isRightWheel = offset.x > 0;
+            final boolean isFrontWheel = offset.z <= frontZ + 0.001;
+            // Vehicle faces -Z in model space → X- is the right side, X+ is the left side
+            final boolean isRightWheel = offset.x < 0;
 
             list.add(new OBJModelInstance<>(wheels.get(i).model, new OBJModelOptions<>(wheels.get(i).texture, offset, null, (c, matrixStack, partialTicks) -> {
                 if (isFrontWheel) {
