@@ -6,6 +6,10 @@ import java.util.List;
 
 public abstract class Part {
 
+    public String getId() {
+        return PartRegistry.getIdFor(this);
+    }
+
     public boolean validate(List<Part> parts, List<Component> messages) {
         return true;
     }
