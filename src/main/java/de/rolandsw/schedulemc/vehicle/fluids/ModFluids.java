@@ -67,18 +67,19 @@ public class ModFluids {
     );
 
     public static final RegistryObject<ForgeFlowingFluid.Source> DIESEL = FLUID_REGISTER.register("diesel",
-            () -> new ForgeFlowingFluid.Source(new ForgeFlowingFluid.Properties(
-                    () -> DIESEL_TYPE.get(),
-                    () -> DIESEL.get(),
-                    () -> DIESEL_FLOWING.get()))
+            () -> new ForgeFlowingFluid.Source(dieselProperties())
     );
 
     public static final RegistryObject<ForgeFlowingFluid.Flowing> DIESEL_FLOWING = FLUID_REGISTER.register("diesel_flowing",
-            () -> new ForgeFlowingFluid.Flowing(new ForgeFlowingFluid.Properties(
-                    () -> DIESEL_TYPE.get(),
-                    () -> DIESEL.get(),
-                    () -> DIESEL_FLOWING.get()))
+            () -> new ForgeFlowingFluid.Flowing(dieselProperties())
     );
+
+    private static ForgeFlowingFluid.Properties dieselProperties() {
+        return new ForgeFlowingFluid.Properties(
+                () -> DIESEL_TYPE.get(),
+                () -> DIESEL.get(),
+                () -> DIESEL_FLOWING.get());
+    }
 
     public static void init(IEventBus modEventBus) {
         FLUID_REGISTER.register(modEventBus);
