@@ -117,20 +117,12 @@ public class ModCreativeTabs {
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.SPAWN_VEHICLE_WHITE_SUV.get()));
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.SPAWN_VEHICLE_WHITE_SPORT.get()));
 
-                // Fahrzeug-Items
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.CANISTER.get()));
+                // Fahrzeug-Items (nur spieler-relevante Items)
                 output.accept(ItemBioDieselCanister.createPreFilledStack());
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.REPAIR_KIT.get()));
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.KEY.get()));
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.BATTERY.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.LICENSE_PLATE.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.LICENSE_PLATE_HOLDER.get()));
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.VEHICLE_SPAWN_TOOL.get()));
-
-                // Motoren
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.NORMAL_MOTOR.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PERFORMANCE_MOTOR.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PERFORMANCE_2_MOTOR.get()));
 
                 // Reifen
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.STANDARD_TIRE.get()));
@@ -139,27 +131,6 @@ public class ModCreativeTabs {
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.OFFROAD_TIRE.get()));
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.ALLTERRAIN_TIRE.get()));
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.HEAVY_DUTY_TIRE.get()));
-
-                // Karosserien
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.LIMOUSINE_CHASSIS.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.VAN_CHASSIS.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TRUCK_CHASSIS.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.OFFROAD_CHASSIS.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.LUXUS_CHASSIS.get()));
-
-                // Tanks
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_15L.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_30L.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_50L.get()));
-
-                // Fender
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_BASIC.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_CHROME.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_SPORT.get()));
-
-                // Container-Module
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.CARGO_MODULE.get()));
-                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FLUID_MODULE.get()));
 
                 // ═══════════════════════════════════════════════════════════
                 // TABAK - SAMEN
@@ -222,8 +193,7 @@ public class ModCreativeTabs {
                 output.accept(TobaccoItems.SOIL_BAG_MEDIUM.get());
                 output.accept(TobaccoItems.SOIL_BAG_LARGE.get());
 
-                // TABAK - VERPACKUNG
-                output.accept(TobaccoItems.PACKAGING_BAG.get());
+                // TABAK - VERPACKUNG (PACKAGING_BAG wird intern durch Verpackungsmaschinen vergeben)
                 output.accept(TobaccoItems.PACKAGING_JAR.get());
                 output.accept(TobaccoItems.PACKAGING_BOX.get());
 

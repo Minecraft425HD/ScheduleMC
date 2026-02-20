@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
+import de.rolandsw.schedulemc.vehicle.items.InternalVehiclePartItem;
 import de.rolandsw.schedulemc.vehicle.items.IVehiclePart;
 import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import net.minecraft.ChatFormatting;
@@ -103,7 +104,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         }
 
         // Add container to vehicle
-        ItemStack containerItem = new ItemStack(ModItems.CARGO_MODULE.get());
+        ItemStack containerItem = InternalVehiclePartItem.create(PartRegistry.CARGO_MODULE);
         Container partInventory = vehicle.getInventoryComponent().getPartInventory();
 
         // Find empty slot
@@ -205,7 +206,7 @@ public class MessageContainerOperation implements Message<MessageContainerOperat
         }
 
         // Add container to vehicle
-        ItemStack containerItem = new ItemStack(ModItems.FLUID_MODULE.get());
+        ItemStack containerItem = InternalVehiclePartItem.create(PartRegistry.FLUID_MODULE);
         Container partInventory = vehicle.getInventoryComponent().getPartInventory();
 
         // Find empty slot

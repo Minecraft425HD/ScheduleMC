@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
+import de.rolandsw.schedulemc.vehicle.items.InternalVehiclePartItem;
 import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import de.maxhenkel.corelib.net.Message;
 import net.minecraft.ChatFormatting;
@@ -162,7 +163,7 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
                 }
                 case CONTAINER_ITEM -> {
                     if (vehicle.getPartByClass(PartContainer.class) == null) {
-                        ItemStack containerItem = new ItemStack(ModItems.CARGO_MODULE.get());
+                        ItemStack containerItem = InternalVehiclePartItem.create(PartRegistry.CARGO_MODULE);
                         Container partInv = vehicle.getInventoryComponent().getPartInventory();
                         for (int i = 0; i < partInv.getContainerSize(); i++) {
                             if (partInv.getItem(i).isEmpty()) {
@@ -176,7 +177,7 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
                 }
                 case CONTAINER_FLUID -> {
                     if (vehicle.getPartByClass(PartTankContainer.class) == null) {
-                        ItemStack containerItem = new ItemStack(ModItems.FLUID_MODULE.get());
+                        ItemStack containerItem = InternalVehiclePartItem.create(PartRegistry.FLUID_MODULE);
                         Container partInv = vehicle.getInventoryComponent().getPartInventory();
                         for (int i = 0; i < partInv.getContainerSize(); i++) {
                             if (partInv.getItem(i).isEmpty()) {
@@ -253,21 +254,19 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
     }
 
     private ItemStack getItemStackForPart(Part part) {
-        if (part == PartRegistry.NORMAL_MOTOR) return new ItemStack(ModItems.NORMAL_MOTOR.get());
-        if (part == PartRegistry.PERFORMANCE_MOTOR) return new ItemStack(ModItems.PERFORMANCE_MOTOR.get());
-        if (part == PartRegistry.PERFORMANCE_2_MOTOR) return new ItemStack(ModItems.PERFORMANCE_2_MOTOR.get());
-        if (part == PartRegistry.TANK_15L) return new ItemStack(ModItems.TANK_15L.get());
-        if (part == PartRegistry.TANK_30L) return new ItemStack(ModItems.TANK_30L.get());
-        if (part == PartRegistry.TANK_50L) return new ItemStack(ModItems.TANK_50L.get());
+        // Tires remain as dedicated items
         if (part == PartRegistry.STANDARD_TIRE) return new ItemStack(ModItems.STANDARD_TIRE.get());
         if (part == PartRegistry.SPORT_TIRE) return new ItemStack(ModItems.SPORT_TIRE.get());
         if (part == PartRegistry.PREMIUM_TIRE) return new ItemStack(ModItems.PREMIUM_TIRE.get());
         if (part == PartRegistry.OFFROAD_TIRE) return new ItemStack(ModItems.OFFROAD_TIRE.get());
         if (part == PartRegistry.ALLTERRAIN_TIRE) return new ItemStack(ModItems.ALLTERRAIN_TIRE.get());
         if (part == PartRegistry.HEAVY_DUTY_TIRE) return new ItemStack(ModItems.HEAVY_DUTY_TIRE.get());
-        if (part == PartRegistry.FENDER_BASIC) return new ItemStack(ModItems.FENDER_BASIC.get());
-        if (part == PartRegistry.FENDER_CHROME) return new ItemStack(ModItems.FENDER_CHROME.get());
-        if (part == PartRegistry.FENDER_SPORT) return new ItemStack(ModItems.FENDER_SPORT.get());
+
+        // All other parts use the internal part item
+        if (part != null && part.getId() != null) {
+            return InternalVehiclePartItem.create(part);
+        }
+
         return ItemStack.EMPTY;
     }
 

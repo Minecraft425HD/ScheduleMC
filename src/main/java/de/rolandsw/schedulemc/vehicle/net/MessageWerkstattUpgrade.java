@@ -237,18 +237,11 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
     }
 
     /**
-     * Get the ItemStack for a given Part
+     * Get the ItemStack for a given Part.
+     * Tires use their dedicated ItemVehiclePart; all other parts use InternalVehiclePartItem.
      */
     private ItemStack getItemStackForPart(Part part) {
-        // Map parts to their items
-        if (part == PartRegistry.NORMAL_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.NORMAL_MOTOR.get());
-        if (part == PartRegistry.PERFORMANCE_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PERFORMANCE_MOTOR.get());
-        if (part == PartRegistry.PERFORMANCE_2_MOTOR) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PERFORMANCE_2_MOTOR.get());
-
-        if (part == PartRegistry.TANK_15L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_15L.get());
-        if (part == PartRegistry.TANK_30L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_30L.get());
-        if (part == PartRegistry.TANK_50L) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.TANK_50L.get());
-
+        // Tires remain as dedicated items
         if (part == PartRegistry.STANDARD_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.STANDARD_TIRE.get());
         if (part == PartRegistry.SPORT_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.SPORT_TIRE.get());
         if (part == PartRegistry.PREMIUM_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.PREMIUM_TIRE.get());
@@ -256,9 +249,10 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
         if (part == PartRegistry.ALLTERRAIN_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.ALLTERRAIN_TIRE.get());
         if (part == PartRegistry.HEAVY_DUTY_TIRE) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.HEAVY_DUTY_TIRE.get());
 
-        if (part == PartRegistry.FENDER_BASIC) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_BASIC.get());
-        if (part == PartRegistry.FENDER_CHROME) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_CHROME.get());
-        if (part == PartRegistry.FENDER_SPORT) return new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.FENDER_SPORT.get());
+        // All other parts use the internal part item
+        if (part != null && part.getId() != null) {
+            return de.rolandsw.schedulemc.vehicle.items.InternalVehiclePartItem.create(part);
+        }
 
         return ItemStack.EMPTY;
     }

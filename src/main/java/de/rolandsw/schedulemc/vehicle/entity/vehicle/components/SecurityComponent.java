@@ -3,8 +3,8 @@ package de.rolandsw.schedulemc.vehicle.entity.vehicle.components;
 import de.maxhenkel.corelib.item.ItemUtils;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartLicensePlateHolder;
+import de.rolandsw.schedulemc.vehicle.items.InternalVehiclePartItem;
 import de.rolandsw.schedulemc.vehicle.items.ItemKey;
-import de.rolandsw.schedulemc.vehicle.items.ItemLicensePlate;
 import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.nbt.CompoundTag;
@@ -46,11 +46,11 @@ public class SecurityComponent extends VehicleComponent {
     public boolean onInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        // License plate installation
+        // License plate installation via InternalVehiclePartItem
         if (player.isShiftKeyDown() && !isLocked()) {
             if (hasLicensePlateHolder()) {
-                if (stack.getItem() instanceof ItemLicensePlate) {
-                    String text = ItemLicensePlate.getText(stack);
+                if (InternalVehiclePartItem.isLicensePlate(stack)) {
+                    String text = InternalVehiclePartItem.getPlateText(stack);
                     if (!text.isEmpty()) {
                         ItemUtils.decrItemStack(stack, player);
                         player.setItemInHand(hand, stack);

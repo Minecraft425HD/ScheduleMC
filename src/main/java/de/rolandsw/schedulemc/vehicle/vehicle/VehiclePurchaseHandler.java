@@ -4,7 +4,7 @@ import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.VehicleFactory;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartRegistry;
-import de.rolandsw.schedulemc.vehicle.items.ItemLicensePlate;
+import de.rolandsw.schedulemc.vehicle.items.InternalVehiclePartItem;
 import de.rolandsw.schedulemc.vehicle.items.ItemSpawnVehicle;
 import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import de.rolandsw.schedulemc.economy.EconomyManager;
@@ -163,24 +163,24 @@ public class VehiclePurchaseHandler {
 
         // Bestimme Body basierend auf dem SPAWN_VEHICLE Item
         if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_OAK.get()) {
-            parts.add(new ItemStack(ModItems.LIMOUSINE_CHASSIS.get()));
-            parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.LIMOUSINE_CHASSIS));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.FENDER_BASIC));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_BIG_OAK.get()) {
-            parts.add(new ItemStack(ModItems.VAN_CHASSIS.get()));
-            parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.VAN_CHASSIS));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.FENDER_BASIC));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_TRANSPORTER.get()) {
-            parts.add(new ItemStack(ModItems.TRUCK_CHASSIS.get()));
-            parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.TRUCK_CHASSIS));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
@@ -188,16 +188,16 @@ public class VehiclePurchaseHandler {
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_SUV.get()) {
-            parts.add(new ItemStack(ModItems.OFFROAD_CHASSIS.get()));
-            parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.OFFROAD_CHASSIS));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));
             parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
             parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
             parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
             parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
-            parts.add(new ItemStack(ModItems.FENDER_BASIC.get()));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.FENDER_BASIC));
         } else if (spawnVehicleItem == ModItems.SPAWN_VEHICLE_WHITE_SPORT.get()) {
-            parts.add(new ItemStack(ModItems.LUXUS_CHASSIS.get()));
-            parts.add(new ItemStack(ModItems.NORMAL_MOTOR.get()));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.LUXUS_CHASSIS));
+            parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
             parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
@@ -207,15 +207,13 @@ public class VehiclePurchaseHandler {
         }
 
         // Füge Tank und Lizenzplatte hinzu
-        parts.add(new ItemStack(ModItems.TANK_15L.get()));
+        parts.add(InternalVehiclePartItem.create(PartRegistry.TANK_15L));
 
         // Generiere Auto-Kennzeichen
-        ItemStack licensePlate = new ItemStack(ModItems.LICENSE_PLATE.get());
         String plateText = generateLicensePlateText(player, (ServerLevel) level);
-        ItemLicensePlate.setText(licensePlate, plateText);
-        parts.add(licensePlate);
+        parts.add(InternalVehiclePartItem.createLicensePlate(plateText));
 
-        parts.add(new ItemStack(ModItems.LICENSE_PLATE_HOLDER.get()));
+        parts.add(InternalVehiclePartItem.create(PartRegistry.LICENSE_PLATE_HOLDER));
 
         // Erstelle Auto mit VehicleFactory (wie in ItemSpawnVehicle)
         EntityGenericVehicle vehicle = VehicleFactory.createVehicle(level, parts);

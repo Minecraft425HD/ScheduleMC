@@ -13,7 +13,6 @@ import de.rolandsw.schedulemc.vehicle.entity.model.GenericVehicleModel;
 import de.rolandsw.schedulemc.vehicle.events.*;
 import de.rolandsw.schedulemc.vehicle.fluids.ModFluids;
 import de.rolandsw.schedulemc.vehicle.gui.*;
-import de.rolandsw.schedulemc.vehicle.items.ItemLicensePlate;
 import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import de.rolandsw.schedulemc.vehicle.net.*;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
