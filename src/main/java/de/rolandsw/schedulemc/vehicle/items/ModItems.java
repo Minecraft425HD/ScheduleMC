@@ -16,7 +16,7 @@ public class ModItems {
 
     // Player-facing items (remain in item system)
     public static final RegistryObject<ItemCanister> CANISTER = ITEM_REGISTER.register("empty_diesel_can", () -> new ItemCanister());
-    public static final RegistryObject<ItemBioDieselCanister> BIO_DIESEL_CANISTER = ITEM_REGISTER.register("full_diesel_can", () -> new ItemBioDieselCanister());
+    public static final RegistryObject<ItemDieselCanister> DIESEL_CANISTER = ITEM_REGISTER.register("full_diesel_can", () -> new ItemDieselCanister());
     public static final RegistryObject<ItemRepairKit> REPAIR_KIT = ITEM_REGISTER.register("maintenance_kit", () -> new ItemRepairKit());
     public static final RegistryObject<ItemKey> KEY = ITEM_REGISTER.register("key", () -> new ItemKey());
     public static final RegistryObject<ItemBattery> BATTERY = ITEM_REGISTER.register("starter_battery", () -> new ItemBattery());

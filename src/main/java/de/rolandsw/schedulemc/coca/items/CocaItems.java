@@ -62,7 +62,7 @@ public class CocaItems {
             ITEMS.register("cocaine", CocaineItem::new);
 
     // ═══════════════════════════════════════════════════════════
-    // DIESEL-KANISTER: Nutzt jetzt Vehicle-System ItemBioDieselCanister
+    // DIESEL-KANISTER: Nutzt jetzt Vehicle-System ItemDieselCanister
     // ═══════════════════════════════════════════════════════════
 
     // ═══════════════════════════════════════════════════════════

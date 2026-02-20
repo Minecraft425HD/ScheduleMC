@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.vehicle.gui;
 
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
-import de.rolandsw.schedulemc.vehicle.items.ItemBioDieselCanister;
+import de.rolandsw.schedulemc.vehicle.items.ItemDieselCanister;
 import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.sounds.SoundEvents;
@@ -25,11 +25,11 @@ public class SlotFuel extends Slot {
 
     @Override
     public void set(ItemStack stack) {
-        if (!stack.getItem().equals(ModItems.BIO_DIESEL_CANISTER.get())) {
+        if (!stack.getItem().equals(ModItems.DIESEL_CANISTER.get())) {
             return;
         }
 
-        boolean success = ItemBioDieselCanister.fuelFluidHandler(stack, vehicle);
+        boolean success = ItemDieselCanister.fuelFluidHandler(stack, vehicle);
 
         if (success) {
             ModSounds.playSound(SoundEvents.BREWING_STAND_BREW, vehicle.level(), vehicle.blockPosition(), null, SoundSource.MASTER);
@@ -42,7 +42,7 @@ public class SlotFuel extends Slot {
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        return stack.getItem().equals(ModItems.BIO_DIESEL_CANISTER.get());
+        return stack.getItem().equals(ModItems.DIESEL_CANISTER.get());
     }
 
 }

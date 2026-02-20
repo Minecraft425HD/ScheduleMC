@@ -24,11 +24,11 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class ItemBioDieselCanister extends Item {
+public class ItemDieselCanister extends Item {
 
     private static final int MAX_FUEL = 1000;
 
-    public ItemBioDieselCanister() {
+    public ItemDieselCanister() {
         super(new Item.Properties().stacksTo(1));
     }
 
@@ -36,9 +36,9 @@ public class ItemBioDieselCanister extends Item {
      * Creates a pre-filled ItemStack with 1000 mB of Diesel
      */
     public static ItemStack createPreFilledStack() {
-        ItemStack stack = new ItemStack(ModItems.BIO_DIESEL_CANISTER.get());
+        ItemStack stack = new ItemStack(ModItems.DIESEL_CANISTER.get());
         CompoundTag comp = stack.getOrCreateTag();
-        FluidStack bioDiesel = new FluidStack(ModFluids.BIO_DIESEL.get(), MAX_FUEL);
+        FluidStack bioDiesel = new FluidStack(ModFluids.DIESEL.get(), MAX_FUEL);
         comp.put("fuel", bioDiesel.writeToNBT(new CompoundTag()));
         return stack;
     }

@@ -160,8 +160,8 @@ public class Main {
 
             EntityRenderers.register(VEHICLE_ENTITY_TYPE.get(), GenericVehicleModel::new);
 
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.BIO_DIESEL.get(), RenderType.translucent());
-            ItemBlockRenderTypes.setRenderLayer(ModFluids.BIO_DIESEL_FLOWING.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(ModFluids.DIESEL.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(ModFluids.DIESEL_FLOWING.get(), RenderType.translucent());
         }, "clientSetup");
     }
 

@@ -227,7 +227,7 @@ public class FuelComponent extends VehicleComponent implements IFluidHandler {
     public FluidStack getFluidInTank(int tank) {
         Fluid f = getFluid();
         if (f == null) {
-            return new FluidStack(ModFluids.BIO_DIESEL.get(), getFuelAmount());
+            return new FluidStack(ModFluids.DIESEL.get(), getFuelAmount());
         } else {
             return new FluidStack(f, getFuelAmount());
         }

@@ -21,7 +21,7 @@ public class FuelConfig extends DynamicConfig {
     @Override
     protected void setDefaults() {
         super.setDefaults();
-        addFuel(ModFluids.BIO_DIESEL.get(), 100);
+        addFuel(ModFluids.DIESEL.get(), 100);
     }
 
     @Override
