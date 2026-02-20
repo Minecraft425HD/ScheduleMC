@@ -106,7 +106,7 @@ public class PartTireBase extends PartModel {
                     float steering = c.getSteeringAngle(partialTicks);
                     if (Math.abs(steering) > 0.01F) {
                         float angle = ackermannAngle(steering, isRightWheel, wheelbase, trackWidth);
-                        matrixStack.mulPose(Axis.YP.rotationDegrees(angle));
+                        matrixStack.mulPose(Axis.YP.rotationDegrees(-angle));
                     }
                 }
                 matrixStack.mulPose(Axis.XP.rotationDegrees(-c.getWheelRotation(partialTicks)));
