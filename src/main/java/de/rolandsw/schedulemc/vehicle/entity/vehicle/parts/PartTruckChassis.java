@@ -29,7 +29,6 @@ public class PartTruckChassis extends PartChassisBase {
         this.numberPlateOffset = new Vector3d(0D, 7D / 16D, 17.5D / 16D);
         this.width = 2F;
         this.height = 1.51F;
-        this.minRotationSpeed = 2.0F;
         this.maxRotationSpeed = 5F;
         this.fuelEfficiency = () -> ModConfigHandler.VEHICLE_SERVER.truckChassisFuelEfficiency.get().floatValue();
         this.acceleration = () -> ModConfigHandler.VEHICLE_SERVER.truckChassisAcceleration.get().floatValue();

@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.joml.Vector3d;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PartTireBase extends PartModel {
@@ -61,12 +62,30 @@ public class PartTireBase extends PartModel {
         List<OBJModelInstance<EntityGenericVehicle>> list = new ArrayList<>();
 
         Vector3d[] wheelOffsets = new Vector3d[0];
+        PartBody body = null;
 
         for (Part part : vehicle.getModelParts()) {
             if (part instanceof PartBody) {
-                wheelOffsets = ((PartBody) part).getWheelOffsets();
+                body = (PartBody) part;
+                wheelOffsets = body.getWheelOffsets();
             }
         }
+
+        // Compute Ackermann geometry from wheel layout
+        final float wheelbase;
+        final float trackWidth;
+        if (body != null) {
+            wheelbase = body.getWheelbase();
+            trackWidth = body.getTrackWidth();
+        } else {
+            wheelbase = 1.0F;
+            trackWidth = 1.0F;
+        }
+
+        // Front wheels = those at the maximum Z offset (furthest forward)
+        final double frontZ = wheelOffsets.length > 0
+                ? Arrays.stream(wheelOffsets).mapToDouble(v -> v.z).max().orElse(0)
+                : 0;
 
         List<PartTireBase> wheels = new ArrayList<>();
 
@@ -77,12 +96,58 @@ public class PartTireBase extends PartModel {
         }
 
         for (int i = 0; i < wheelOffsets.length && i < wheels.size(); i++) {
-            list.add(new OBJModelInstance<>(wheels.get(i).model, new OBJModelOptions<>(wheels.get(i).texture, wheelOffsets[i], null, (c, matrixStack, partialTicks) -> {
-                matrixStack.mulPose(Axis.XP.rotationDegrees(-vehicle.getWheelRotation(partialTicks)));
+            final Vector3d offset = wheelOffsets[i];
+            final boolean isFrontWheel = offset.z >= frontZ - 0.001;
+            final boolean isRightWheel = offset.x > 0;
+
+            list.add(new OBJModelInstance<>(wheels.get(i).model, new OBJModelOptions<>(wheels.get(i).texture, offset, null, (c, matrixStack, partialTicks) -> {
+                if (isFrontWheel) {
+                    float steering = c.getSteeringAngle(partialTicks);
+                    if (Math.abs(steering) > 0.01F) {
+                        float angle = ackermannAngle(steering, isRightWheel, wheelbase, trackWidth);
+                        matrixStack.mulPose(Axis.YP.rotationDegrees(angle));
+                    }
+                }
+                matrixStack.mulPose(Axis.XP.rotationDegrees(-c.getWheelRotation(partialTicks)));
             })));
         }
 
         return list;
+    }
+
+    /**
+     * Returns the Ackermann-corrected steering angle for one front wheel.
+     * Inner wheel (same side as turn) gets a larger angle, outer wheel a smaller one.
+     *
+     * @param steeringAngle center steering angle in degrees (positive = right turn)
+     * @param isRightWheel  true for the right-side wheel (X > 0)
+     * @param wheelbase     distance between front and rear axle in blocks
+     * @param trackWidth    distance between left and right wheels in blocks
+     */
+    private static float ackermannAngle(float steeringAngle, boolean isRightWheel, float wheelbase, float trackWidth) {
+        double absAngle = Math.abs(steeringAngle);
+        double steeringRad = Math.toRadians(absAngle);
+
+        // Turning radius at vehicle center from rear axle
+        double R = wheelbase / Math.tan(steeringRad);
+        double halfW = trackWidth / 2.0;
+
+        // Inner wheel is on the same side as the turn direction
+        boolean turningRight = steeringAngle > 0;
+        boolean isInner = (turningRight && isRightWheel) || (!turningRight && !isRightWheel);
+
+        double innerR = R - halfW;
+        double outerR = R + halfW;
+
+        double angle;
+        if (isInner) {
+            // Guard against degenerate geometry
+            angle = innerR > 0.001 ? Math.toDegrees(Math.atan(wheelbase / innerR)) : absAngle;
+        } else {
+            angle = Math.toDegrees(Math.atan(wheelbase / outerR));
+        }
+
+        return (float) Math.copySign(angle, steeringAngle);
     }
 
 }

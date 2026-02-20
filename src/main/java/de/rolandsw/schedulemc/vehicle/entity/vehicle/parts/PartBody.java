@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.joml.Vector3d;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -70,7 +71,31 @@ public abstract class PartBody extends PartModel {
     }
 
     public float getMinRotationSpeed() {
-        return minRotationSpeed;
+        if (minRotationSpeed > 0F) {
+            return minRotationSpeed;
+        }
+        // Auto-compute from wheelbase: shorter wheelbase = more agile (higher min rotation)
+        return 2.0F / getWheelbase();
+    }
+
+    /**
+     * Distance between front and rear axle, derived from wheelOffsets (Z-axis).
+     */
+    public float getWheelbase() {
+        if (wheelOffsets == null || wheelOffsets.length < 2) return 1.0F;
+        double maxZ = Arrays.stream(wheelOffsets).mapToDouble(v -> v.z).max().orElse(0.5);
+        double minZ = Arrays.stream(wheelOffsets).mapToDouble(v -> v.z).min().orElse(-0.5);
+        return (float) Math.max(0.01, maxZ - minZ);
+    }
+
+    /**
+     * Distance between left and right wheels on the same axle, derived from wheelOffsets (X-axis).
+     */
+    public float getTrackWidth() {
+        if (wheelOffsets == null || wheelOffsets.length < 2) return 1.0F;
+        double maxX = Arrays.stream(wheelOffsets).mapToDouble(v -> v.x).max().orElse(0.5);
+        double minX = Arrays.stream(wheelOffsets).mapToDouble(v -> v.x).min().orElse(-0.5);
+        return (float) Math.max(0.01, maxX - minX);
     }
 
     public float getMaxRotationSpeed() {
