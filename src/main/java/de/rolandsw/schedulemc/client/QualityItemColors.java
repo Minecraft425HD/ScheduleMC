@@ -84,14 +84,15 @@ public class QualityItemColors {
                 TobaccoItems.FERMENTED_HAVANA_LEAF.get()
         );
 
-        // Cannabis Items (6)
+        // Cannabis Items (7)
         event.register(QualityItemColors::getQualityColor,
                 CannabisItems.FRESH_BUD.get(),
                 CannabisItems.DRIED_BUD.get(),
                 CannabisItems.TRIMMED_BUD.get(),
                 CannabisItems.CURED_BUD.get(),
                 CannabisItems.HASH.get(),
-                CannabisItems.CANNABIS_OIL.get()
+                CannabisItems.CANNABIS_OIL.get(),
+                CannabisItems.TRIM.get()
         );
 
         // Coca Items (8 - Fresh Leaves, Paste (3 types), Cocaine, Crack)
@@ -269,6 +270,9 @@ public class QualityItemColors {
         }
         if (item instanceof CannabisOilItem) {
             return CannabisOilItem.getQuality(stack).ordinal();
+        }
+        if (item instanceof TrimItem) {
+            return TrimItem.getQuality(stack).ordinal();
         }
 
         // === TOBACCO ITEMS ===

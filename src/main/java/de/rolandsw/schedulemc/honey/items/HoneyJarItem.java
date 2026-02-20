@@ -214,7 +214,6 @@ public class HoneyJarItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        HoneyType type = getHoneyType(stack);
-        return Component.translatable("tooltip.honey.name", type.getDisplayName());
+        return Component.translatable("item.schedulemc.honey_jar.name");
     }
 }

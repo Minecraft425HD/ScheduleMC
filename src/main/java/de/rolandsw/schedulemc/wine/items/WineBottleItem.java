@@ -141,7 +141,6 @@ public class WineBottleItem extends Item {
         tooltip.add(Component.translatable("tooltip.wine.quality", quality.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.wine.age_level", ageLevel.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.wine.style", method.getDisplayName()));
-        tooltip.add(Component.translatable("tooltip.wine.volume", volumeLiters));
 
         double price = calculatePrice(stack);
         tooltip.add(Component.translatable("tooltip.wine.value", price));
@@ -149,7 +148,6 @@ public class WineBottleItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        WineType type = getWineType(stack);
-        return Component.translatable("tooltip.wine.name", type.getDisplayName());
+        return Component.translatable("item.schedulemc.wine_bottle.name");
     }
 }

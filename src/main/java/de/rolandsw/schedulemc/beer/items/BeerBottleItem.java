@@ -181,7 +181,6 @@ public class BeerBottleItem extends Item {
         tooltip.add(Component.translatable("tooltip.beer.quality", quality.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.beer.age", ageLevel.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.beer.method", method.getDisplayName()));
-        tooltip.add(Component.translatable("tooltip.beer.volume", VOLUME_LITERS));
         tooltip.add(Component.translatable("tooltip.beer.abv", abv));
 
         if (daysSinceProduction > 0) {
@@ -194,9 +193,6 @@ public class BeerBottleItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        BeerType type = getBeerType(stack);
-        BeerQuality quality = getQuality(stack);
-        return Component.translatable("item.schedulemc.beer_bottle.display",
-                quality.getColorCode(), quality.getDisplayName(), type.getDisplayName());
+        return Component.translatable("item.schedulemc.beer_bottle.name");
     }
 }
