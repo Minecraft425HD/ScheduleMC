@@ -129,18 +129,6 @@ public class GroundCoffeeItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        CoffeeType type = getType(stack);
-        CoffeeQuality quality = getQuality(stack);
-        CoffeeRoastLevel roastLevel = getRoastLevel(stack);
-        CoffeeGrindSize grindSize = getGrindSize(stack);
-
-        return Component.empty()
-            .append(quality.getColoredName())
-            .append(" ")
-            .append(grindSize.getColoredName())
-            .append(" ")
-            .append(roastLevel.getColoredName())
-            .append(" ")
-            .append(Component.translatable("item.ground_coffee.name", type.getDisplayName()));
+        return Component.translatable("item.schedulemc.ground_coffee");
     }
 }

@@ -22,8 +22,6 @@ public class JodItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.jod.catalyst"));
-        tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.jod.dark_violet"));
         tooltip.add(Component.translatable("tooltip.jod.use_mixer"));
     }
 }

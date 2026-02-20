@@ -1,6 +1,12 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/cannabis_seed"
-  }
+    "layer0": "schedulemc:item/cannabis_seed_indica"
+  },
+  "overrides": [
+    {"predicate": {"schedulemc:strain": 0}, "model": "schedulemc:item/cannabis_seed_indica"},
+    {"predicate": {"schedulemc:strain": 1}, "model": "schedulemc:item/cannabis_seed_sativa"},
+    {"predicate": {"schedulemc:strain": 2}, "model": "schedulemc:item/cannabis_seed_hybrid"},
+    {"predicate": {"schedulemc:strain": 3}, "model": "schedulemc:item/cannabis_seed_autoflower"}
+  ]
 }

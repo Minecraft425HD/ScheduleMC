@@ -57,6 +57,11 @@ public class GrapeItem extends Item {
     }
 
     @Override
+    public @NotNull Component getName(@NotNull ItemStack stack) {
+        return Component.translatable("item.schedulemc.grapes.name");
+    }
+
+    @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level,
                                 @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.grape.type", wineType.getDisplayName()));
