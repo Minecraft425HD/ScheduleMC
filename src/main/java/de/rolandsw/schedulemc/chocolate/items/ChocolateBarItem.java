@@ -188,9 +188,6 @@ public class ChocolateBarItem extends Item {
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        ChocolateQuality quality = getQuality(stack);
-        ChocolateType type = getChocolateType(stack);
-        return Component.translatable("item.schedulemc.chocolate_bar.display",
-                quality.getColorCode(), type.getDisplayName());
+        return Component.translatable("item.schedulemc.chocolate_bar.name");
     }
 }

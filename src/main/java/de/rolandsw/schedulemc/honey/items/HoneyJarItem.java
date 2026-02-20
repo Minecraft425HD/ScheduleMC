@@ -188,13 +188,11 @@ public class HoneyJarItem extends Item {
         HoneyQuality quality = getQuality(stack);
         HoneyAgeLevel ageLevel = getAgeLevel(stack);
         HoneyProcessingMethod method = getProcessingMethod(stack);
-        double weight = getWeightKg(stack);
 
         tooltip.add(Component.translatable("tooltip.honey.type", type.getColorCode() + type.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.honey.quality", quality.getColorCode() + quality.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.honey.age_level", ageLevel.getColorCode() + ageLevel.getDisplayName()));
         tooltip.add(Component.translatable("tooltip.honey.processing", method.getColorCode() + method.getDisplayName()));
-        tooltip.add(Component.translatable("tooltip.honey.weight", weight));
 
         // Zeige Alter wenn Produktionsdatum gesetzt ist
         if (level != null && getProductionDate(stack) != 0L) {
