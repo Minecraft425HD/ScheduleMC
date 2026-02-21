@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.api.impl;
 
 import de.rolandsw.schedulemc.api.economy.IEconomyAPI;
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.Transaction;
+import de.rolandsw.schedulemc.economy.TransactionHistory;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import com.mojang.logging.LogUtils;
@@ -275,7 +277,12 @@ public class EconomyAPIImpl implements IEconomyAPI {
         if (limit < 1) {
             throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
         }
-        LOGGER.debug("Stub: getTransactionHistory not fully implemented - transaction history not directly accessible");
-        return Collections.emptyList();
+        TransactionHistory history = TransactionHistory.getInstance();
+        if (history == null) {
+            return Collections.emptyList();
+        }
+        return history.getRecentTransactions(playerUUID, limit).stream()
+            .map(Transaction::getFormattedDescription)
+            .collect(Collectors.toList());
     }
 }

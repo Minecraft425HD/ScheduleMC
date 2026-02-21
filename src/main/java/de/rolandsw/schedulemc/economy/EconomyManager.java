@@ -260,8 +260,8 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * SICHERHEIT: Atomare Operation für Thread-Sicherheit + Rate Limiting
      */
     public static void deposit(UUID uuid, double amount, TransactionType type, @Nullable String description) {
-        if (amount < 0) {
-            LOGGER.warn("Attempt to deposit negative amount: {}", amount);
+        if (!Double.isFinite(amount) || amount < 0) {
+            LOGGER.warn("Attempt to deposit invalid amount: {}", amount);
             return;
         }
 
@@ -301,8 +301,8 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben (oder Dispo-Limit erreicht)
      */
     public static boolean withdraw(UUID uuid, double amount, TransactionType type, @Nullable String description) {
-        if (amount < 0) {
-            LOGGER.warn("Attempt to withdraw negative amount: {}", amount);
+        if (!Double.isFinite(amount) || amount < 0) {
+            LOGGER.warn("Attempt to withdraw invalid amount: {}", amount);
             return false;
         }
 
@@ -400,8 +400,8 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * SICHERHEIT: Rate Limiting gegen Spam
      */
     public static boolean transfer(UUID from, UUID to, double amount, @Nullable String description) {
-        if (amount < 0) {
-            LOGGER.warn("Attempt to transfer negative amount: {}", amount);
+        if (!Double.isFinite(amount) || amount < 0) {
+            LOGGER.warn("Attempt to transfer invalid amount: {}", amount);
             return false;
         }
 

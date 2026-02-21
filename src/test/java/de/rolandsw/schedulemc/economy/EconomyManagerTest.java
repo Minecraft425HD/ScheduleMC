@@ -550,4 +550,115 @@ class EconomyManagerTest {
         double expected = EconomyManager.getStartBalance() + 10000.0 + (100 * 10.0) - (50 * 10.0);
         assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(expected);
     }
+
+    // ==================== NaN / Infinity Validation Tests ====================
+
+    @Test
+    @DisplayName("Should ignore NaN deposit")
+    void testDepositNaN_ShouldBeIgnored() throws Exception {
+        // Arrange
+        createAccountDirectly(testPlayer1, 1000.0);
+        double balanceBefore = EconomyManager.getBalance(testPlayer1);
+
+        // Act
+        EconomyManager.deposit(testPlayer1, Double.NaN);
+
+        // Assert - balance must not change
+        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(balanceBefore);
+    }
+
+    @Test
+    @DisplayName("Should ignore positive-Infinity deposit")
+    void testDepositPositiveInfinity_ShouldBeIgnored() throws Exception {
+        // Arrange
+        createAccountDirectly(testPlayer1, 1000.0);
+        double balanceBefore = EconomyManager.getBalance(testPlayer1);
+
+        // Act
+        EconomyManager.deposit(testPlayer1, Double.POSITIVE_INFINITY);
+
+        // Assert
+        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(balanceBefore);
+    }
+
+    @Test
+    @DisplayName("Should ignore negative-Infinity deposit")
+    void testDepositNegativeInfinity_ShouldBeIgnored() throws Exception {
+        // Arrange
+        createAccountDirectly(testPlayer1, 1000.0);
+        double balanceBefore = EconomyManager.getBalance(testPlayer1);
+
+        // Act
+        EconomyManager.deposit(testPlayer1, Double.NEGATIVE_INFINITY);
+
+        // Assert
+        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(balanceBefore);
+    }
+
+    @Test
+    @DisplayName("Should reject NaN withdrawal and return false")
+    void testWithdrawNaN_ShouldReturnFalse() throws Exception {
+        // Arrange
+        createAccountDirectly(testPlayer1, 1000.0);
+        EconomyManager.deposit(testPlayer1, 500.0);
+        double balanceBefore = EconomyManager.getBalance(testPlayer1);
+
+        // Act
+        boolean result = EconomyManager.withdraw(testPlayer1, Double.NaN);
+
+        // Assert
+        assertThat(result).isFalse();
+        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(balanceBefore);
+    }
+
+    @Test
+    @DisplayName("Should reject Infinity withdrawal and return false")
+    void testWithdrawInfinity_ShouldReturnFalse() throws Exception {
+        // Arrange
+        createAccountDirectly(testPlayer1, 1000.0);
+        double balanceBefore = EconomyManager.getBalance(testPlayer1);
+
+        // Act
+        boolean result = EconomyManager.withdraw(testPlayer1, Double.POSITIVE_INFINITY);
+
+        // Assert
+        assertThat(result).isFalse();
+        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(balanceBefore);
+    }
+
+    @Test
+    @DisplayName("Should reject NaN transfer and return false")
+    void testTransferNaN_ShouldReturnFalse() throws Exception {
+        // Arrange
+        createAccountDirectly(testPlayer1, 5000.0);
+        createAccountDirectly(testPlayer2, 1000.0);
+        double balance1Before = EconomyManager.getBalance(testPlayer1);
+        double balance2Before = EconomyManager.getBalance(testPlayer2);
+
+        // Act
+        boolean result = EconomyManager.transfer(testPlayer1, testPlayer2, Double.NaN, "NaN transfer");
+
+        // Assert
+        assertThat(result).isFalse();
+        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(balance1Before);
+        assertThat(EconomyManager.getBalance(testPlayer2)).isEqualTo(balance2Before);
+    }
+
+    @Test
+    @DisplayName("Should reject Infinity transfer and return false")
+    void testTransferInfinity_ShouldReturnFalse() throws Exception {
+        // Arrange
+        createAccountDirectly(testPlayer1, 5000.0);
+        createAccountDirectly(testPlayer2, 1000.0);
+        double balance1Before = EconomyManager.getBalance(testPlayer1);
+        double balance2Before = EconomyManager.getBalance(testPlayer2);
+
+        // Act
+        boolean result = EconomyManager.transfer(testPlayer1, testPlayer2, Double.POSITIVE_INFINITY, "Inf transfer");
+
+        // Assert
+        assertThat(result).isFalse();
+        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(balance1Before);
+        assertThat(EconomyManager.getBalance(testPlayer2)).isEqualTo(balance2Before);
+    }
 }

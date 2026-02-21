@@ -74,6 +74,9 @@ public class WalletManager {
      * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
     public static void addMoney(UUID playerUUID, double amount) {
+        if (!Double.isFinite(amount) || amount < 0) {
+            return;
+        }
         wallets.compute(playerUUID, (key, current) -> {
             if (current == null) current = 0.0;
             return current + amount;
@@ -86,6 +89,9 @@ public class WalletManager {
      * SICHERHEIT: Atomare Operation für Thread-Sicherheit
      */
     public static boolean removeMoney(UUID playerUUID, double amount) {
+        if (!Double.isFinite(amount) || amount < 0) {
+            return false;
+        }
         final boolean[] success = {false};
         wallets.compute(playerUUID, (key, current) -> {
             if (current == null) current = 0.0;

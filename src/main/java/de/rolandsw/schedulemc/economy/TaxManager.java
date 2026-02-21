@@ -72,31 +72,19 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
 
         // Load lastTaxDay
         Object lastTaxObj = data.get("lastTaxDay");
-        if (lastTaxObj instanceof Map) {
-            ((Map<String, Number>) lastTaxObj).forEach((k, v) -> {
+        if (lastTaxObj instanceof Map<?, ?> rawLastTaxMap) {
+            rawLastTaxMap.forEach((k, v) -> {
+                if (!(k instanceof String key) || key.isEmpty()) {
+                    LOGGER.warn("Null/empty UUID string in lastTaxDay, skipping");
+                    return;
+                }
+                if (!(v instanceof Number num)) {
+                    LOGGER.warn("Non-numeric value in lastTaxDay for key {}, skipping", key);
+                    return;
+                }
                 try {
-                    // VALIDATE UUID STRING
-                    if (k == null || k.isEmpty()) {
-                        LOGGER.warn("Null/empty UUID string in lastTaxDay, skipping");
-                        return;
-                    }
-
-                    UUID playerUUID;
-                    try {
-                        playerUUID = UUID.fromString(k);
-                    } catch (IllegalArgumentException e) {
-                        LOGGER.error("Invalid UUID in lastTaxDay: {}", k, e);
-                        return;
-                    }
-
-                    // NULL CHECK
-                    if (v == null) {
-                        LOGGER.warn("Null last tax day for player {}, skipping", playerUUID);
-                        return;
-                    }
-
-                    // VALIDATE DAY (>= 0)
-                    long day = v.longValue();
+                    UUID playerUUID = UUID.fromString(key);
+                    long day = num.longValue();
                     if (day < 0) {
                         LOGGER.warn("Player {} has negative last tax day {}, resetting to 0",
                             playerUUID, day);
@@ -104,40 +92,29 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
                     } else {
                         lastTaxDay.put(playerUUID, day);
                     }
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in lastTaxDay: {}", key, e);
                 } catch (Exception e) {
-                    LOGGER.error("Error loading lastTaxDay for {}", k, e);
+                    LOGGER.error("Error loading lastTaxDay for {}", key, e);
                 }
             });
         }
 
         // Load taxDebt
         Object debtObj = data.get("taxDebt");
-        if (debtObj instanceof Map) {
-            ((Map<String, Number>) debtObj).forEach((k, v) -> {
+        if (debtObj instanceof Map<?, ?> rawDebtMap) {
+            rawDebtMap.forEach((k, v) -> {
+                if (!(k instanceof String key) || key.isEmpty()) {
+                    LOGGER.warn("Null/empty UUID string in taxDebt, skipping");
+                    return;
+                }
+                if (!(v instanceof Number num)) {
+                    LOGGER.warn("Non-numeric value in taxDebt for key {}, setting to 0", key);
+                    return;
+                }
                 try {
-                    // VALIDATE UUID STRING
-                    if (k == null || k.isEmpty()) {
-                        LOGGER.warn("Null/empty UUID string in taxDebt, skipping");
-                        return;
-                    }
-
-                    UUID playerUUID;
-                    try {
-                        playerUUID = UUID.fromString(k);
-                    } catch (IllegalArgumentException e) {
-                        LOGGER.error("Invalid UUID in taxDebt: {}", k, e);
-                        return;
-                    }
-
-                    // NULL CHECK
-                    if (v == null) {
-                        LOGGER.warn("Null tax debt for player {}, setting to 0", playerUUID);
-                        taxDebt.put(playerUUID, 0.0);
-                        return;
-                    }
-
-                    // VALIDATE DEBT (>= 0)
-                    double debt = v.doubleValue();
+                    UUID playerUUID = UUID.fromString(key);
+                    double debt = num.doubleValue();
                     if (debt < 0) {
                         LOGGER.warn("Player {} has negative tax debt {}, resetting to 0",
                             playerUUID, debt);
@@ -145,8 +122,10 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
                     } else {
                         taxDebt.put(playerUUID, debt);
                     }
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in taxDebt: {}", key, e);
                 } catch (Exception e) {
-                    LOGGER.error("Error loading taxDebt for {}", k, e);
+                    LOGGER.error("Error loading taxDebt for {}", key, e);
                 }
             });
         }
