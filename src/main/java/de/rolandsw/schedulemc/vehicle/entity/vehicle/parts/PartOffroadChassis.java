@@ -37,7 +37,7 @@ public class PartOffroadChassis extends PartChassisBase {
 
     @Override
     public boolean canFitWheel(PartTireBase wheel) {
-        return wheel instanceof PartOffroadTire;
+        return wheel.getTireType().isLargeWheel();
     }
 
 }

@@ -135,7 +135,7 @@ public abstract class PartBody extends PartModel {
     }
 
     public boolean canFitWheel(PartTireBase wheel) {
-        return wheel instanceof PartStandardTire;
+        return !wheel.getTireType().isLargeWheel();
     }
 
     /**

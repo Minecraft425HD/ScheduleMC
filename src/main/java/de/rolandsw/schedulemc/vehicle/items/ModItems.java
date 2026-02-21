@@ -30,6 +30,7 @@ public class ModItems {
     public static final RegistryObject<ItemVehiclePart> OFFROAD_TIRE = ITEM_REGISTER.register("offroad_tire", () -> new ItemVehiclePart(PartRegistry.OFFROAD_TIRE));
     public static final RegistryObject<ItemVehiclePart> ALLTERRAIN_TIRE = ITEM_REGISTER.register("allterrain_tire", () -> new ItemVehiclePart(PartRegistry.ALLTERRAIN_TIRE));
     public static final RegistryObject<ItemVehiclePart> HEAVY_DUTY_TIRE = ITEM_REGISTER.register("heavyduty_tire", () -> new ItemVehiclePart(PartRegistry.HEAVY_DUTY_TIRE));
+    public static final RegistryObject<ItemVehiclePart> WINTER_TIRE = ITEM_REGISTER.register("winter_tire", () -> new ItemVehiclePart(PartRegistry.WINTER_TIRE));
 
     // Internal vehicle part item (replaces all non-tire part items)
     // Not shown in creative tab, no player-facing texture required
