@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.entity.vehicle.components;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
-import de.rolandsw.schedulemc.vehicle.DamageSourceVehicle;
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.VehicleConstants;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
@@ -16,6 +15,8 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -54,6 +55,7 @@ public class PhysicsComponent extends VehicleComponent {
     private static final EntityDataAccessor<Float> STEERING_ANGLE = SynchedEntityData.defineId(EntityGenericVehicle.class, EntityDataSerializers.FLOAT);
 
     private static final float MAX_STEERING_ANGLE = 32.0F;
+    private static final ResourceKey<DamageType> DAMAGE_VEHICLE_TYPE = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(Main.MODID, "hit_vehicle"));
     private static final float STEERING_SPEED = 5.0F;
 
     private float wheelRotation;
@@ -151,7 +153,7 @@ public class PhysicsComponent extends VehicleComponent {
                     float damage = speed * VehicleConstants.DAMAGE_MULTIPLIER;
                     tasks.add(() -> {
                         ServerLevel serverLevel = (ServerLevel) vehicle.level();
-                        Optional<Holder.Reference<DamageType>> holder = serverLevel.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(DamageSourceVehicle.DAMAGE_VEHICLE_TYPE);
+                        Optional<Holder.Reference<DamageType>> holder = serverLevel.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(DAMAGE_VEHICLE_TYPE);
                         holder.ifPresent(damageTypeReference -> entityIn.hurt(new DamageSource(damageTypeReference, vehicle), damage));
                     });
                 }
