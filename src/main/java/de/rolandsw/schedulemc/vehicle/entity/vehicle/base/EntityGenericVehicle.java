@@ -82,6 +82,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     // Container installation tracking is via synched data (HAS_HAD_ITEM_CONTAINER / HAS_HAD_FLUID_CONTAINER)
     // First installation is free, reinstallation after removal costs money
 
+    // Reifenwechsel-Abnutzungs-Tracking
+    private int summerTireSwapCount = 0;   // Wie oft Sommerreifen ausgebaut wurden
+    private int winterTireSwapCount = 0;   // Wie oft Winterreifen ausgebaut wurden
+    private int storedSummerTireIndex = 0; // Letzte Sommer-Reifenstufe (0=Standard,1=Sport,2=Premium)
+
     private boolean isSpawned = true;
 
     public EntityGenericVehicle(EntityType type, Level worldIn) {
@@ -126,6 +131,17 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     public SecurityComponent getSecurityComponent() {
         return securityComponent;
     }
+
+    // === Reifenwechsel-Abnutzungs-Methoden ===
+
+    public int getSummerTireSwapCount() { return summerTireSwapCount; }
+    public void incrementSummerTireSwapCount() { summerTireSwapCount++; }
+
+    public int getWinterTireSwapCount() { return winterTireSwapCount; }
+    public void incrementWinterTireSwapCount() { winterTireSwapCount++; }
+
+    public int getStoredSummerTireIndex() { return storedSummerTireIndex; }
+    public void setStoredSummerTireIndex(int idx) { this.storedSummerTireIndex = idx; }
 
     @Override
     protected void defineSynchedData() {
@@ -233,6 +249,28 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         // Inventory interaction
         if (inventoryComponent.onInteract(player, hand)) {
             return InteractionResult.SUCCESS;
+        }
+
+        // Wagenheber: Reifenwechsel-GUI öffnen
+        if (hand == InteractionHand.MAIN_HAND
+                && player.getMainHandItem().getItem() instanceof de.rolandsw.schedulemc.vehicle.items.ItemCarJack) {
+            if (!level().isClientSide) {
+                de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTireBase tire =
+                    getPartByClass(de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTireBase.class);
+                de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.TireSeasonType seasonType =
+                    tire != null ? tire.getSeasonType()
+                                 : de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.TireSeasonType.SUMMER;
+                de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartBody body =
+                    getPartByClass(de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartBody.class);
+                boolean isTruck = body instanceof de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTruckChassis;
+                Main.SIMPLE_CHANNEL.send(
+                    net.minecraftforge.network.PacketDistributor.PLAYER.with(
+                        () -> (net.minecraft.server.level.ServerPlayer) player),
+                    new de.rolandsw.schedulemc.vehicle.net.MessageOpenTireChange(
+                        this.getUUID(), seasonType, summerTireSwapCount, winterTireSwapCount, isTruck)
+                );
+            }
+            return InteractionResult.CONSUME;
         }
 
         // Default vehicle interaction (entering)
@@ -831,6 +869,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             setHasHadFluidContainer(compound.getBoolean("HasHadFluidContainer"));
         }
 
+        // Load tire swap counts
+        if (compound.contains("SummerTireSwapCount")) this.summerTireSwapCount = compound.getInt("SummerTireSwapCount");
+        if (compound.contains("WinterTireSwapCount")) this.winterTireSwapCount = compound.getInt("WinterTireSwapCount");
+        if (compound.contains("StoredSummerTireIdx")) this.storedSummerTireIndex = compound.getInt("StoredSummerTireIdx");
+
         // Load all component data
         physicsComponent.readAdditionalData(compound);
         fuelComponent.readAdditionalData(compound);
@@ -890,6 +933,11 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         // Save container installation tracking
         compound.putBoolean("HasHadItemContainer", hasHadItemContainer());
         compound.putBoolean("HasHadFluidContainer", hasHadFluidContainer());
+
+        // Save tire swap counts
+        compound.putInt("SummerTireSwapCount", this.summerTireSwapCount);
+        compound.putInt("WinterTireSwapCount", this.winterTireSwapCount);
+        compound.putInt("StoredSummerTireIdx", this.storedSummerTireIndex);
 
         // Save all component data
         physicsComponent.saveAdditionalData(compound);

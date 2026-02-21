@@ -21,7 +21,8 @@ public class WerkstattCartItem {
         UPGRADE_FENDER,
         PAINT_CHANGE,
         CONTAINER_ITEM,
-        CONTAINER_FLUID
+        CONTAINER_FLUID,
+        TIRE_SEASON_SWITCH
     }
 
     private final Type type;
@@ -82,6 +83,7 @@ public class WerkstattCartItem {
                     ? ModConfigHandler.VEHICLE_SERVER.containerReinstallationCost.get() : 0.0;
             case CONTAINER_FLUID -> vehicle.hasHadFluidContainer()
                     ? ModConfigHandler.VEHICLE_SERVER.containerReinstallationCost.get() : 0.0;
+            case TIRE_SEASON_SWITCH -> ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get();
         };
     }
 
@@ -100,6 +102,7 @@ public class WerkstattCartItem {
             case PAINT_CHANGE -> "werkstatt.cart.paint_change";
             case CONTAINER_ITEM -> "werkstatt.cart.container_item";
             case CONTAINER_FLUID -> "werkstatt.cart.container_fluid";
+            case TIRE_SEASON_SWITCH -> "werkstatt.cart.tire_season_switch";
         };
     }
 
