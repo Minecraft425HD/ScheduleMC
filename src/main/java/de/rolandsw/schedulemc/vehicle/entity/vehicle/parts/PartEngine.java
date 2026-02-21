@@ -14,25 +14,27 @@ public abstract class PartEngine extends Part {
     protected Supplier<Float> fuelEfficiency;
     protected Supplier<Double> fuelConsumptionPer10km;
 
+    protected Supplier<SoundEvent> stopSound;
+    protected Supplier<SoundEvent> failSound;
+    protected Supplier<SoundEvent> crashSound;
+    protected Supplier<SoundEvent> startSound;
+    protected Supplier<SoundEvent> startingSound;
+    protected Supplier<SoundEvent> idleSound;
+    protected Supplier<SoundEvent> highSound;
+    protected Supplier<SoundEvent> hornSound;
+
     public PartEngine() {
 
     }
 
-    public abstract SoundEvent getStopSound();
-
-    public abstract SoundEvent getFailSound();
-
-    public abstract SoundEvent getCrashSound();
-
-    public abstract SoundEvent getStartSound();
-
-    public abstract SoundEvent getStartingSound();
-
-    public abstract SoundEvent getIdleSound();
-
-    public abstract SoundEvent getHighSound();
-
-    public abstract SoundEvent getHornSound();
+    public SoundEvent getStopSound()    { return stopSound.get(); }
+    public SoundEvent getFailSound()    { return failSound.get(); }
+    public SoundEvent getCrashSound()   { return crashSound.get(); }
+    public SoundEvent getStartSound()   { return startSound.get(); }
+    public SoundEvent getStartingSound(){ return startingSound.get(); }
+    public SoundEvent getIdleSound()    { return idleSound.get(); }
+    public SoundEvent getHighSound()    { return highSound.get(); }
+    public SoundEvent getHornSound()    { return hornSound.get(); }
 
     public float getMaxSpeed() {
         return maxSpeed.get();

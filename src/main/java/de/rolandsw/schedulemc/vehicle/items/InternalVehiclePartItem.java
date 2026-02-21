@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.vehicle.items;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.Part;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartRegistry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -10,13 +11,13 @@ import net.minecraft.world.item.ItemStack;
  * Parts are identified by their string ID stored in NBT ("part_id").
  * This item is never shown in the creative tab and has no player-facing texture.
  */
-public class InternalVehiclePartItem extends AbstractItemVehiclePart {
+public class InternalVehiclePartItem extends Item implements IVehiclePart {
 
     private static final String TAG_PART_ID = "part_id";
     private static final String TAG_PLATE_TEXT = "plate_text";
 
     public InternalVehiclePartItem() {
-        super();
+        super(new Item.Properties());
     }
 
     @Override
