@@ -3,6 +3,9 @@ package de.rolandsw.schedulemc.vehicle.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartTireBase;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.TireSeasonType;
+import de.rolandsw.schedulemc.vehicle.util.SereneSeasonsCompat;
 import de.maxhenkel.corelib.inventory.ScreenBase;
 import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.client.gui.GuiGraphics;
@@ -80,8 +83,8 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         // === Main GUI frame (3D beveled) ===
         drawFrame(g, x, y, w, h);
 
-        // === STATUS CARD (Y=4 to Y=70, height=66 - extra bottom padding) ===
-        drawInsetPanel(g, x + 5, y + 4, w - 10, 66, COL_CARD_BG);
+        // === STATUS CARD (Y=4 to Y=94, height=90 — mit Reifen- und Saison-Anzeige) ===
+        drawInsetPanel(g, x + 5, y + 4, w - 10, 90, COL_CARD_BG);
         g.fill(x + 6, y + 5, x + w - 6, y + 17, COL_CARD_HEADER);
 
         // Status progress bars (12px line spacing, bars at text+2)
@@ -92,22 +95,22 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         drawBar(g, barX, y + 45, barW, 5, getDamagePercent(), true);
         drawBar(g, barX, y + 57, barW, 5, getTemperaturePercent(), true);
 
-        // === WARTUNG SECTION (Y=71 to Y=93, height=22) ===
-        drawInsetPanel(g, x + 5, y + 71, w - 10, 22, COL_CARD_BG);
-        // Single maintenance slot background (Y=73 fixed by container)
-        drawSlotBg(g, x + 150, y + 73);
+        // === WARTUNG SECTION (Y=95 to Y=117, height=22) ===
+        drawInsetPanel(g, x + 5, y + 95, w - 10, 22, COL_CARD_BG);
+        // Single maintenance slot background (Y=97 fixed by container)
+        drawSlotBg(g, x + 150, y + 97);
 
-        // === VEHICLE NAME + INVENTORY CARD (Y=94 to ...) ===
+        // === VEHICLE NAME + INVENTORY CARD (Y=118 to ...) ===
         int invHeight = internalRows * 18;
         if (internalRows > 0 && externalRows > 0) invHeight += 2;
         invHeight += externalRows * 18;
 
         if (invHeight > 0) {
-            drawInsetPanel(g, x + 5, y + 94, w - 10, invHeight + 13, COL_BG);
-            g.fill(x + 6, y + 95, x + w - 6, y + 105, COL_CARD_HEADER);
+            drawInsetPanel(g, x + 5, y + 118, w - 10, invHeight + 13, COL_BG);
+            g.fill(x + 6, y + 119, x + w - 6, y + 129, COL_CARD_HEADER);
 
-            // Vehicle inventory slot backgrounds (Y=105 fixed by container)
-            int slotY = y + 105;
+            // Vehicle inventory slot backgrounds (Y=129 fixed by container)
+            int slotY = y + 129;
             for (int row = 0; row < internalRows; row++) {
                 for (int col = 0; col < 9 && (row * 9 + col) < internalSlots; col++) {
                     drawSlotBg(g, x + 8 + col * 18, slotY + row * 18);
@@ -156,16 +159,25 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
         g.drawString(font, Component.translatable("gui.vehicle.status.temperature"), 9, ly, TEXT_DARK, false);
         drawRightAligned(g, getTempValueString(), 168, ly, TEXT_DARK);
 
+        // === Reifentyp + Saison (2 neue Zeilen im Status-Karte) ===
+        ly += 12;
+        g.drawString(font, Component.translatable("gui.vehicle.status.tire"), 9, ly, TEXT_DARK, false);
+        drawRightAligned(g, getTireTypeName(), 168, ly, TEXT_DARK);
+
+        ly += 12;
+        g.drawString(font, Component.translatable("gui.vehicle.status.season"), 9, ly, TEXT_DARK, false);
+        drawRightAligned(g, getSeasonName(), 168, ly, TEXT_DARK);
+
         // === Wartung label ===
-        g.drawString(font, Component.translatable("gui.vehicle.wartung"), 8, 74, TEXT_DARK, false);
+        g.drawString(font, Component.translatable("gui.vehicle.wartung"), 8, 98, TEXT_DARK, false);
 
         // === Vehicle name + Odometer ===
         if (internalSlots > 0 || externalSlots > 0) {
-            g.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 96, TEXT_WHITE, false);
-            drawRightAligned(g, getOdometerValueString(), 170, 96, TEXT_LIGHT);
+            g.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 120, TEXT_WHITE, false);
+            drawRightAligned(g, getOdometerValueString(), 170, 120, TEXT_LIGHT);
         } else {
-            g.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 96, TEXT_DARK, false);
-            drawRightAligned(g, getOdometerValueString(), 170, 96, TEXT_DARK);
+            g.drawString(font, vehicle.getDisplayName().getVisualOrderText(), 8, 120, TEXT_DARK, false);
+            drawRightAligned(g, getOdometerValueString(), 170, 120, TEXT_DARK);
         }
 
         // === Hotbar label (inside dark header) ===
@@ -274,5 +286,31 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
     public String getOdometerValueString() {
         long odo = vehicle.getOdometer();
         return String.format("%,d Bl.", odo).replace(',', '.');
+    }
+
+    public String getTireTypeName() {
+        PartTireBase tire = vehicle.getPartByClass(PartTireBase.class);
+        if (tire == null) return "-";
+        return switch (tire.getSeasonType()) {
+            case SUMMER    -> Component.translatable("gui.vehicle.tire.summer").getString();
+            case WINTER    -> Component.translatable("gui.vehicle.tire.winter").getString();
+            case ALL_SEASON -> Component.translatable("gui.vehicle.tire.allseason").getString();
+        };
+    }
+
+    public String getSeasonName() {
+        net.minecraft.world.level.Level level = vehicle.level();
+        if (SereneSeasonsCompat.isSereneSeasonsLoaded()) {
+            if (SereneSeasonsCompat.isWinterConditions(level))
+                return Component.translatable("gui.vehicle.season.winter").getString();
+            if (SereneSeasonsCompat.isSummerConditions(level))
+                return Component.translatable("gui.vehicle.season.summer").getString();
+            return Component.translatable("gui.vehicle.season.other").getString();
+        }
+        // Biom-Fallback: Temperatur des Biomens am Fahrzeugstandort
+        float temp = level.getBiome(vehicle.blockPosition()).value().getBaseTemperature();
+        if (temp < 0.15f)
+            return Component.translatable("gui.vehicle.season.cold").getString();
+        return Component.translatable("gui.vehicle.season.warm").getString();
     }
 }

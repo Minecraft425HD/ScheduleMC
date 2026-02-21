@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
 import de.rolandsw.schedulemc.vehicle.items.IVehiclePart;
+import de.rolandsw.schedulemc.vehicle.util.SereneSeasonsCompat;
 import de.rolandsw.schedulemc.vehicle.net.*;
 import de.rolandsw.schedulemc.vehicle.util.VehicleUtils;
 import de.maxhenkel.corelib.inventory.ScreenBase;
@@ -66,7 +67,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private Button btnAddRepair, btnAddBattery, btnAddOil;
 
     // Upgrade buttons (add to cart)
-    private Button btnAddMotor, btnAddTank, btnAddTire, btnAddFender;
+    private Button btnAddMotor, btnAddTank, btnAddTire, btnAddFender, btnTireSeasonSwitch;
 
     // Paint buttons
     private final List<Button> paintButtons = new ArrayList<>();
@@ -221,6 +222,12 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 Component.translatable("werkstatt.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.UPGRADE_FENDER, fenderLevel + 1)))
                 .bounds(btnX, topPos + 68 + spacing * 3, btnW, btnH).build());
+
+        // Sommer/Winter-Tausch-Button (unter Fender-Karte)
+        btnTireSeasonSwitch = addRenderableWidget(Button.builder(
+                Component.translatable("werkstatt.btn.add_to_cart"),
+                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.TIRE_SEASON_SWITCH)))
+                .bounds(btnX, topPos + 68 + spacing * 4, btnW, btnH).build());
     }
 
     private void initPaintButtons() {
@@ -375,6 +382,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         if (btnAddTire != null) btnAddTire.visible = isUpgrade && getCurrentTireIndex() < 2 && !isInCart(WerkstattCartItem.Type.UPGRADE_TIRE);
         boolean canHaveFender = !isTruckVehicle() && !isSportVehicle();
         if (btnAddFender != null) btnAddFender.visible = isUpgrade && canHaveFender && getCurrentFenderLevel() < 3 && !isInCart(WerkstattCartItem.Type.UPGRADE_FENDER);
+        if (btnTireSeasonSwitch != null) btnTireSeasonSwitch.visible = isUpgrade && !isTruckVehicle() && isSeasonSwitchApplicable() && !isInCart(WerkstattCartItem.Type.TIRE_SEASON_SWITCH);
 
         // Paint buttons
         for (Button pb : paintButtons) pb.visible = isPaint;
@@ -407,6 +415,18 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         if (vehicle == null) return false;
         PartBody body = vehicle.getPartByClass(PartBody.class);
         return body instanceof PartLuxusChassis;
+    }
+
+    private boolean isSeasonSwitchApplicable() {
+        if (vehicle == null) return false;
+        PartTireBase tire = vehicle.getPartByClass(PartTireBase.class);
+        return tire != null && tire.getSeasonType() != TireSeasonType.ALL_SEASON;
+    }
+
+    private boolean isCurrentTireWinter() {
+        if (vehicle == null) return false;
+        PartTireBase tire = vehicle.getPartByClass(PartTireBase.class);
+        return tire != null && tire.getSeasonType() == TireSeasonType.WINTER;
     }
 
     private boolean hasInstalledItemContainer() {
@@ -728,6 +748,18 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                     fenderLevel < 3 ? getFenderUpgradeCost(fenderLevel) : -1,
                     fenderLevel >= 3,
                     isInCart(WerkstattCartItem.Type.UPGRADE_FENDER));
+            y += spacing;
+        }
+
+        // Sommer/Winter-Tausch (nur für Nicht-LKW mit Sommer/Winterreifen)
+        if (!isTruckVehicle() && isSeasonSwitchApplicable()) {
+            boolean isWinter = isCurrentTireWinter();
+            String currentLabel = isWinter ? tr("werkstatt.gui.tire.current_winter") : tr("werkstatt.gui.tire.current_summer");
+            String nextLabel    = isWinter ? tr("werkstatt.gui.tire.switch_to_summer") : tr("werkstatt.gui.tire.switch_to_winter");
+            double cost = ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get();
+            drawUpgradeCard(g, x, y, tr("werkstatt.gui.tire.season_switch"),
+                    currentLabel, nextLabel, cost, false,
+                    isInCart(WerkstattCartItem.Type.TIRE_SEASON_SWITCH));
         }
     }
 
@@ -945,6 +977,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             case PAINT_CHANGE -> tr("werkstatt.gui.cart.item.paint");
             case CONTAINER_ITEM -> tr("werkstatt.cart.container_item");
             case CONTAINER_FLUID -> tr("werkstatt.cart.container_fluid");
+            case TIRE_SEASON_SWITCH -> tr("werkstatt.cart.tire_season_switch");
         };
     }
 

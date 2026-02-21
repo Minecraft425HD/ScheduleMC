@@ -21,7 +21,7 @@ public class ContainerVehicle extends ContainerBase {
         vehicle.getInventoryComponent().setInternalInventorySize(internalSlots);
         vehicle.getInventoryComponent().setExternalInventorySize(externalSlots);
 
-        int slotY = 105; // Start Y position for inventory slots (shifted down for more status padding)
+        int slotY = 129; // Start Y position for inventory slots (shifted down for tire/season info in status card)
 
         // Add INTERNAL inventory slots (chassis-specific: 0-6 slots)
         int internalRows = 0;
@@ -55,13 +55,13 @@ public class ContainerVehicle extends ContainerBase {
         }
 
         // Add single maintenance slot (accepts fuel, battery, repair kit)
-        addSlot(new SlotMaintenance(vehicle, 0, 150, 73, playerInv.player));
+        addSlot(new SlotMaintenance(vehicle, 0, 150, 97, playerInv.player));
 
         // Calculate hotbar position below vehicle content
         int invHeight = internalRows * 18;
         if (internalRows > 0 && externalRows > 0) invHeight += 2;
         invHeight += externalRows * 18;
-        this.hotbarY = 105 + invHeight + 16;
+        this.hotbarY = 129 + invHeight + 16;
 
         // Add ONLY hotbar slots (player inventory slots 0-8)
         for (int col = 0; col < 9; col++) {

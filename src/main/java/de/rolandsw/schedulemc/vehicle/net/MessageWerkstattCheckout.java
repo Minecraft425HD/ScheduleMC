@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.TireSeasonType;
 import de.rolandsw.schedulemc.vehicle.items.InternalVehiclePartItem;
 import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import de.maxhenkel.corelib.net.Message;
@@ -189,6 +190,26 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
                         }
                     }
                 }
+                case TIRE_SEASON_SWITCH -> {
+                    PartTireBase currentTire = vehicle.getPartByClass(PartTireBase.class);
+                    if (currentTire == null || currentTire.getSeasonType() == TireSeasonType.ALL_SEASON) break;
+
+                    Part newTire;
+                    if (currentTire.getSeasonType() == TireSeasonType.SUMMER) {
+                        // Sommer → Winter: aktuelle Sommer-Stufe merken, Abnutzung erhöhen
+                        vehicle.setStoredSummerTireIndex(getCurrentSummerTireIndex(vehicle));
+                        vehicle.incrementSummerTireSwapCount();
+                        newTire = PartRegistry.WINTER_TIRE;
+                    } else {
+                        // Winter → Sommer: gespeicherte Sommer-Stufe wiederherstellen
+                        vehicle.incrementWinterTireSwapCount();
+                        newTire = getSummerTireByIndex(vehicle.getStoredSummerTireIndex());
+                    }
+                    // Alte Reifen werden direkt entfernt (keine Rückgabe)
+                    if (newTire != null && replacePartInInventory(vehicle, PartTireBase.class, newTire)) {
+                        partsChanged = true;
+                    }
+                }
             }
         }
 
@@ -315,6 +336,30 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
             case 2 -> PartRegistry.FENDER_CHROME;
             case 3 -> PartRegistry.FENDER_SPORT;
             default -> null;
+        };
+    }
+
+    private int getCurrentSummerTireIndex(EntityGenericVehicle vehicle) {
+        Container partInv = vehicle.getInventoryComponent().getPartInventory();
+        for (int i = 0; i < partInv.getContainerSize(); i++) {
+            ItemStack stack = partInv.getItem(i);
+            if (!stack.isEmpty() && stack.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.IVehiclePart vp) {
+                Part part = vp.getPart(stack);
+                if (part instanceof PartTireBase) {
+                    if (part == PartRegistry.PREMIUM_TIRE) return 2;
+                    if (part == PartRegistry.SPORT_TIRE)   return 1;
+                    return 0;
+                }
+            }
+        }
+        return 0;
+    }
+
+    private Part getSummerTireByIndex(int index) {
+        return switch (index) {
+            case 2  -> PartRegistry.PREMIUM_TIRE;
+            case 1  -> PartRegistry.SPORT_TIRE;
+            default -> PartRegistry.STANDARD_TIRE;
         };
     }
 
