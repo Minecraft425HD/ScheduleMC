@@ -17,6 +17,9 @@ import java.util.function.Supplier;
  */
 public class ATMTransactionPacket {
 
+    /** Maximale Reichweite zum ATM in Blöcken (quadriert für distanceToSqr-Vergleich). */
+    private static final double MAX_ATM_DISTANCE_SQUARED = 36.0; // 6 Blöcke = 6² = 36
+
     private final BlockPos pos;
     private final double amount;
     private final boolean isDeposit; // true = Einzahlung, false = Auszahlung
@@ -55,7 +58,7 @@ public class ATMTransactionPacket {
             if (msg.amount <= 0 || Double.isInfinite(msg.amount) || Double.isNaN(msg.amount) || msg.amount > 1_000_000_000) return;
 
             // Entfernungs-Check (max 6 Bloecke zum ATM)
-            if (player.distanceToSqr(msg.pos.getX() + 0.5, msg.pos.getY() + 0.5, msg.pos.getZ() + 0.5) > 36.0) return;
+            if (player.distanceToSqr(msg.pos.getX() + 0.5, msg.pos.getY() + 0.5, msg.pos.getZ() + 0.5) > MAX_ATM_DISTANCE_SQUARED) return;
 
             BlockEntity be = player.level().getBlockEntity(msg.pos);
             if (!(be instanceof ATMBlockEntity atmBE)) return;

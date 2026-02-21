@@ -9,6 +9,9 @@ import java.util.UUID;
  * Repräsentiert einen Kredit
  */
 public class Loan {
+    /** Toleranz für Float-Vergleich beim Abbezahlen (vermeidet 0.00000001-Restbeträge). */
+    private static final double REPAYMENT_TOLERANCE = 0.01;
+
     @SerializedName("id")
     private final String loanId;
 
@@ -88,7 +91,7 @@ public class Loan {
      * Ist Kredit abbezahlt?
      */
     public boolean isRepaid() {
-        return remaining <= 0.01; // Float precision
+        return remaining <= REPAYMENT_TOLERANCE;
     }
 
     /**

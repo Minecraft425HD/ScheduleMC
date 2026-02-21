@@ -220,12 +220,21 @@ public interface IEconomyAPI {
     boolean batchTransfer(UUID fromUUID, java.util.Map<UUID, Double> recipients, @Nullable String description);
 
     /**
-     * Returns the transaction history for a player.
+     * Returns the transaction history for a player (newest first).
+     *
+     * <p>Each entry is formatted as:
+     * <pre>
+     * §7[dd.MM.yyyy HH:mm:ss] §a+amount€ §7- §eType §7(description)
+     *   §7Neuer Kontostand: §6balance€
+     * </pre>
+     * Withdrawals use §c- prefix instead of §a+.
+     * Returns an empty list if the transaction history is not yet initialized
+     * or if the player has no recorded transactions.
      *
      * @param playerUUID The player's UUID
-     * @param limit Maximum number of entries
-     * @return List of transaction descriptions (newest first)
-     * @throws IllegalArgumentException if playerUUID is null or limit < 1
+     * @param limit Maximum number of entries (must be &gt;= 1)
+     * @return List of formatted transaction strings (newest first), never null
+     * @throws IllegalArgumentException if playerUUID is null or limit &lt; 1
      * @since 3.2.0
      */
     java.util.List<String> getTransactionHistory(UUID playerUUID, int limit);
