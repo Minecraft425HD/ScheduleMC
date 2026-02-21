@@ -64,10 +64,10 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private Button tabOverview, tabService, tabUpgrade, tabPaint, tabContainer;
 
     // Service buttons (add to cart)
-    private Button btnAddRepair, btnAddBattery, btnAddOil;
+    private Button btnAddRepair, btnAddBattery, btnAddOil, btnTireSeasonSwitch;
 
     // Upgrade buttons (add to cart)
-    private Button btnAddMotor, btnAddTank, btnAddTire, btnAddFender, btnTireSeasonSwitch;
+    private Button btnAddMotor, btnAddTank, btnAddTire, btnAddFender;
 
     // Paint buttons
     private final List<Button> paintButtons = new ArrayList<>();
@@ -191,6 +191,12 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 Component.translatable("werkstatt.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.SERVICE_OIL)))
                 .bounds(btnX, topPos + 160, btnW, btnH).build());
+
+        // Sommer/Winter-Tausch
+        btnTireSeasonSwitch = addRenderableWidget(Button.builder(
+                Component.translatable("werkstatt.btn.add_to_cart"),
+                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.TIRE_SEASON_SWITCH)))
+                .bounds(btnX, topPos + 206, btnW, btnH).build());
     }
 
     private void initUpgradeButtons() {
@@ -223,11 +229,6 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.UPGRADE_FENDER, fenderLevel + 1)))
                 .bounds(btnX, topPos + 68 + spacing * 3, btnW, btnH).build());
 
-        // Sommer/Winter-Tausch-Button (unter Fender-Karte)
-        btnTireSeasonSwitch = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.TIRE_SEASON_SWITCH)))
-                .bounds(btnX, topPos + 68 + spacing * 4, btnW, btnH).build());
     }
 
     private void initPaintButtons() {
@@ -382,7 +383,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         if (btnAddTire != null) btnAddTire.visible = isUpgrade && getCurrentTireIndex() < 2 && !isInCart(WerkstattCartItem.Type.UPGRADE_TIRE);
         boolean canHaveFender = !isTruckVehicle() && !isSportVehicle();
         if (btnAddFender != null) btnAddFender.visible = isUpgrade && canHaveFender && getCurrentFenderLevel() < 3 && !isInCart(WerkstattCartItem.Type.UPGRADE_FENDER);
-        if (btnTireSeasonSwitch != null) btnTireSeasonSwitch.visible = isUpgrade && !isTruckVehicle() && isSeasonSwitchApplicable() && !isInCart(WerkstattCartItem.Type.TIRE_SEASON_SWITCH);
+        if (btnTireSeasonSwitch != null) btnTireSeasonSwitch.visible = isService && !isTruckVehicle() && isSeasonSwitchApplicable() && !isInCart(WerkstattCartItem.Type.TIRE_SEASON_SWITCH);
 
         // Paint buttons
         for (Button pb : paintButtons) pb.visible = isPaint;
@@ -682,6 +683,18 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 tr("werkstatt.gui.service.oil_hint"),
                 ModConfigHandler.COMMON.WERKSTATT_OIL_CHANGE_COST.get(),
                 isInCart(WerkstattCartItem.Type.SERVICE_OIL));
+        y += 46;
+
+        // Sommer/Winter-Tausch (nur für Nicht-LKW mit Sommer/Winterreifen)
+        if (!isTruckVehicle() && isSeasonSwitchApplicable()) {
+            boolean isWinter = isCurrentTireWinter();
+            String currentLabel = isWinter ? tr("werkstatt.gui.tire.current_winter") : tr("werkstatt.gui.tire.current_summer");
+            String nextLabel    = isWinter ? tr("werkstatt.gui.tire.switch_to_summer") : tr("werkstatt.gui.tire.switch_to_winter");
+            double cost = ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get();
+            drawUpgradeCard(g, x, y, tr("werkstatt.gui.tire.season_switch"),
+                    currentLabel, nextLabel, cost, false,
+                    isInCart(WerkstattCartItem.Type.TIRE_SEASON_SWITCH));
+        }
     }
 
     private void drawServiceCard(GuiGraphics g, int x, int y, String title, String subtitle, double cost, boolean inCart) {
@@ -751,16 +764,6 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             y += spacing;
         }
 
-        // Sommer/Winter-Tausch (nur für Nicht-LKW mit Sommer/Winterreifen)
-        if (!isTruckVehicle() && isSeasonSwitchApplicable()) {
-            boolean isWinter = isCurrentTireWinter();
-            String currentLabel = isWinter ? tr("werkstatt.gui.tire.current_winter") : tr("werkstatt.gui.tire.current_summer");
-            String nextLabel    = isWinter ? tr("werkstatt.gui.tire.switch_to_summer") : tr("werkstatt.gui.tire.switch_to_winter");
-            double cost = ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get();
-            drawUpgradeCard(g, x, y, tr("werkstatt.gui.tire.season_switch"),
-                    currentLabel, nextLabel, cost, false,
-                    isInCart(WerkstattCartItem.Type.TIRE_SEASON_SWITCH));
-        }
     }
 
     private void drawUpgradeCard(GuiGraphics g, int x, int y, String title, String current, String next, double cost, boolean isMax, boolean inCart) {
