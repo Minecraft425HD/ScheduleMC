@@ -870,15 +870,15 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     @Nonnull
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
-        // Only provide Bio-Diesel, capped at transfer rate to prevent abuse
-        if (resource.getFluid().equals(ModFluids.BIO_DIESEL.get())) {
+        // Only provide Diesel, capped at transfer rate to prevent abuse
+        if (resource.getFluid().equals(ModFluids.DIESEL.get())) {
             int amount = Math.min(resource.getAmount(), transferRate);
 
             if (action.execute()) {
                 setChanged();
             }
 
-            return new FluidStack(ModFluids.BIO_DIESEL.get(), amount);
+            return new FluidStack(ModFluids.DIESEL.get(), amount);
         }
 
         return FluidStack.EMPTY;
@@ -894,6 +894,6 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             setChanged();
         }
 
-        return new FluidStack(ModFluids.BIO_DIESEL.get(), amount);
+        return new FluidStack(ModFluids.DIESEL.get(), amount);
     }
 }

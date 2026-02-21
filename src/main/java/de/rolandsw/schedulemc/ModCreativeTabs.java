@@ -35,7 +35,7 @@ import de.rolandsw.schedulemc.honey.items.HoneyItems;
 import de.rolandsw.schedulemc.honey.blocks.HoneyBlocks;
 import de.rolandsw.schedulemc.wine.items.WineItems;
 import de.rolandsw.schedulemc.wine.blocks.WineBlocks;
-import de.rolandsw.schedulemc.vehicle.items.ItemBioDieselCanister;
+import de.rolandsw.schedulemc.vehicle.items.ItemDieselCanister;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
@@ -118,7 +118,7 @@ public class ModCreativeTabs {
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.SPAWN_VEHICLE_WHITE_SPORT.get()));
 
                 // Fahrzeug-Items (nur spieler-relevante Items)
-                output.accept(ItemBioDieselCanister.createPreFilledStack());
+                output.accept(ItemDieselCanister.createPreFilledStack());
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.REPAIR_KIT.get()));
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.KEY.get()));
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.BATTERY.get()));
