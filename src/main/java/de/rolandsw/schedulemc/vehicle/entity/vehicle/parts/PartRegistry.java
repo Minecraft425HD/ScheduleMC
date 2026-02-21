@@ -44,48 +44,48 @@ public class PartRegistry {
     public static final Part TRUCK_CHASSIS = register("truck_chassis", new PartTruckChassis(ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/vehicle_transporter_white.png"), "white"));
     public static final Part OFFROAD_CHASSIS = register("offroad_chassis", new PartOffroadChassis(ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/vehicle_suv_white.png"), "white"));
 
-    // Wheels (Tires) - Normal Vehicles
-    public static final Part STANDARD_TIRE = register("standard_tire", new PartStandardTire(
+    // Wheels (Tires) - Normal Vehicles (small wheel.obj)
+    public static final Part STANDARD_TIRE = register("standard_tire", new PartTireBase(
             new OBJModel(ResourceLocation.fromNamespaceAndPath(Main.MODID, "models/entity/wheel.obj")),
             ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/wheel.png"),
-            120F,
-            0.5F
+            120F, 0.5F, TireType.STANDARD
     ));
 
-    public static final Part SPORT_TIRE = register("sport_tire", new PartSportTire(
+    public static final Part SPORT_TIRE = register("sport_tire", new PartTireBase(
             new OBJModel(ResourceLocation.fromNamespaceAndPath(Main.MODID, "models/entity/wheel.obj")),
             ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/sport_wheel.png"),
-            130F,
-            0.6F
+            130F, 0.6F, TireType.SPORT
     ));
 
-    public static final Part PREMIUM_TIRE = register("premium_tire", new PartPremiumTire(
+    public static final Part PREMIUM_TIRE = register("premium_tire", new PartTireBase(
             new OBJModel(ResourceLocation.fromNamespaceAndPath(Main.MODID, "models/entity/wheel.obj")),
             ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/premium_wheel.png"),
-            140F,
-            0.7F
+            140F, 0.7F, TireType.PREMIUM
     ));
 
-    // Wheels (Tires) - Trucks
-    public static final Part OFFROAD_TIRE = register("offroad_tire", new PartOffroadTire(
+    public static final Part WINTER_TIRE = register("winter_tire", new PartTireBase(
+            new OBJModel(ResourceLocation.fromNamespaceAndPath(Main.MODID, "models/entity/wheel.obj")),
+            ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/winter_wheel.png"),
+            115F, 0.5F, TireType.WINTER
+    ));
+
+    // Wheels (Tires) - Offroad/Large Vehicles (big_wheel.obj)
+    public static final Part OFFROAD_TIRE = register("offroad_tire", new PartTireBase(
             new OBJModel(ResourceLocation.fromNamespaceAndPath(Main.MODID, "models/entity/big_wheel.obj")),
             ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/big_wheel.png"),
-            105F,
-            1F
+            105F, 1F, TireType.OFFROAD
     ));
 
-    public static final Part ALLTERRAIN_TIRE = register("allterrain_tire", new PartAllterrainTire(
+    public static final Part ALLTERRAIN_TIRE = register("allterrain_tire", new PartTireBase(
             new OBJModel(ResourceLocation.fromNamespaceAndPath(Main.MODID, "models/entity/big_wheel.obj")),
             ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/allterrain_wheel.png"),
-            115F,
-            1.2F
+            115F, 1.2F, TireType.ALLTERRAIN
     ));
 
-    public static final Part HEAVY_DUTY_TIRE = register("heavyduty_tire", new PartHeavyDutyTire(
+    public static final Part HEAVY_DUTY_TIRE = register("heavyduty_tire", new PartTireBase(
             new OBJModel(ResourceLocation.fromNamespaceAndPath(Main.MODID, "models/entity/big_wheel.obj")),
             ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/entity/heavyduty_wheel.png"),
-            125F,
-            1.4F
+            125F, 1.4F, TireType.HEAVYDUTY
     ));
 
     // Fuel Tanks

@@ -17,17 +17,13 @@ public class PartTireBase extends PartModel {
 
     protected float rotationModifier;
     protected float stepHeight;
-    protected TireSeasonType seasonType;
+    protected TireType tireType;
 
-    public PartTireBase(OBJModel model, ResourceLocation texture, float rotationModifier, float stepHeight) {
-        this(model, texture, rotationModifier, stepHeight, TireSeasonType.ALL_SEASON);
-    }
-
-    public PartTireBase(OBJModel model, ResourceLocation texture, float rotationModifier, float stepHeight, TireSeasonType seasonType) {
+    public PartTireBase(OBJModel model, ResourceLocation texture, float rotationModifier, float stepHeight, TireType tireType) {
         super(model, texture);
         this.rotationModifier = rotationModifier;
         this.stepHeight = stepHeight;
-        this.seasonType = seasonType;
+        this.tireType = tireType;
     }
 
     public float getStepHeight() {
@@ -38,8 +34,12 @@ public class PartTireBase extends PartModel {
         return rotationModifier;
     }
 
+    public TireType getTireType() {
+        return tireType;
+    }
+
     public TireSeasonType getSeasonType() {
-        return seasonType;
+        return tireType.getSeasonType();
     }
 
     @Override
