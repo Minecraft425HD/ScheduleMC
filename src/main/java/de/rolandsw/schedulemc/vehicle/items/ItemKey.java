@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.items;
 
-import de.rolandsw.schedulemc.vehicle.PredicateUUID;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -36,7 +35,7 @@ public class ItemKey extends Item {
             return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
         }
 
-        List<EntityGenericVehicle> vehicles = worldIn.getEntitiesOfClass(EntityGenericVehicle.class, new AABB(playerIn.getX() - 25D, playerIn.getY() - 25D, playerIn.getZ() - 25D, playerIn.getX() + 25D, playerIn.getY() + 25D, playerIn.getZ() + 25D), new PredicateUUID(vehicleUUID));
+        List<EntityGenericVehicle> vehicles = worldIn.getEntitiesOfClass(EntityGenericVehicle.class, new AABB(playerIn.getX() - 25D, playerIn.getY() - 25D, playerIn.getZ() - 25D, playerIn.getX() + 25D, playerIn.getY() + 25D, playerIn.getZ() + 25D), entity -> entity.getUUID().equals(vehicleUUID));
 
         if (vehicles.isEmpty()) {
             playerIn.displayClientMessage(Component.translatable("message.vehicle_out_of_range"), true);
