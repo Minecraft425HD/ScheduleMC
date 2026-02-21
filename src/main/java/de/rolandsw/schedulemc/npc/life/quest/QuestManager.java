@@ -1,13 +1,16 @@
 package de.rolandsw.schedulemc.npc.life.quest;
 
 import com.google.gson.reflect.TypeToken;
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.life.NPCLifeConstants;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.core.MemoryType;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.social.Faction;
 import de.rolandsw.schedulemc.npc.life.social.FactionManager;
+import org.slf4j.Logger;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.core.BlockPos;
@@ -36,6 +39,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * - Quest-Belohnungen verteilen
  */
 public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestManagerData> {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -427,7 +432,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         // Bei wiederholbarer Quest: Cooldown setzen
         if (quest.isRepeatable()) {
             long currentDay = level.getDayTime() / 24000;
-            progress.setCooldown(questId, currentDay + 3); // 3 Tage Cooldown
+            progress.setCooldown(questId, currentDay + NPCLifeConstants.Timing.QUEST_REPEAT_COOLDOWN_DAYS);
         }
 
         markDirty();
@@ -457,9 +462,10 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
 
         // Generiere 1-3 Quest-Angebote
         int numQuests = 1 + ThreadLocalRandom.current().nextInt(3);
-        for (int i = 0; i < numQuests; i++) {
-            // Hier würden wir Quests generieren und speichern
-        }
+        // TODO: Quest-Generierungslogik ist noch nicht implementiert.
+        // Verwende stattdessen getQuestOffers(), die dynamisch via generateRandomQuest() arbeitet.
+        LOGGER.debug("refreshNPCQuests called for NPC {} — generation not yet implemented (numQuests={})",
+            npcUUID, numQuests);
 
         npcQuestOffers.put(npcUUID, offers);
         markDirty();

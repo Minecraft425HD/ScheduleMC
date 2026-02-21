@@ -72,6 +72,12 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     /** Basis-Chance für Marktveränderungen */
     public static final float MARKET_CHANGE_CHANCE = 0.3f;
 
+    /** Untere Grenze der zufälligen Preisschwankung (ergibt ±5%-Bereich: 0.95–1.05) */
+    static final float PRICE_VARIANCE_MIN = 0.95f;
+
+    /** Bandbreite der zufälligen Preisschwankung (10%) */
+    static final float PRICE_VARIANCE_RANGE = 0.1f;
+
     // ═══════════════════════════════════════════════════════════
     // DATA
     // ═══════════════════════════════════════════════════════════
@@ -296,7 +302,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         modifier *= getCombinedTemporaryModifier();
 
         // Zufällige kleine Schwankung (±5%)
-        modifier *= 0.95f + (float) ThreadLocalRandom.current().nextDouble() * 0.1f;
+        modifier *= PRICE_VARIANCE_MIN + (float) ThreadLocalRandom.current().nextDouble() * PRICE_VARIANCE_RANGE;
 
         return Math.max(1, Math.round(basePrice * modifier));
     }
