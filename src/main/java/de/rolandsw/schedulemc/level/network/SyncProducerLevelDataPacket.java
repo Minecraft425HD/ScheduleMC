@@ -79,7 +79,13 @@ public class SyncProducerLevelDataPacket {
         int totalUnlocked = buf.readInt();
         int totalUnlockables = buf.readInt();
 
-        int size = Math.min(buf.readInt(), 200);
+        int size = buf.readInt();
+        // SICHERHEIT: Ablehnen statt truncaten um Buffer-Korruption zu vermeiden
+        if (size < 0 || size > 200) {
+            return new SyncProducerLevelDataPacket(currentLevel, totalXP, xpToNextLevel,
+                    progress, totalUnlocked, totalUnlockables, new ArrayList<>(),
+                    0, 0, 0, 0.0);
+        }
         List<UnlockableData> unlockables = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             unlockables.add(UnlockableData.decode(buf));
