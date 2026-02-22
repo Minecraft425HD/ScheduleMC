@@ -463,9 +463,10 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         // Achievement freischalten?
         if (currentProgress >= achievement.getRequirement()) {
             unlockAchievement(playerUUID, achievementId);
+        } else {
+            // Kein sofortiger Disk-Write pro Call — scheduled save reicht
+            markDirty();
         }
-
-        save();
     }
 
     /**
@@ -491,9 +492,10 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         // Achievement freischalten?
         if (value >= achievement.getRequirement()) {
             unlockAchievement(playerUUID, achievementId);
+        } else {
+            // Kein sofortiger Disk-Write pro Call — scheduled save reicht
+            markDirty();
         }
-
-        save();
     }
 
     /**
@@ -592,7 +594,7 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         if (data.size() > 10000) {
             LOGGER.warn("Achievement data map size ({}) exceeds limit, potential corruption",
                 data.size());
-            correctedCount++;
+            // Nur warnen, nicht als "corrected" markieren (nichts wurde geändert)
         }
 
         for (Map.Entry<UUID, PlayerAchievements> entry : data.entrySet()) {
