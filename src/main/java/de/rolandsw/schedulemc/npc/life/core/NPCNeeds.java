@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.life.core;
 
+import de.rolandsw.schedulemc.npc.life.NPCLifeConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -91,8 +92,8 @@ public class NPCNeeds {
 
         float baseSafety = 50.0f; // Basis-Sicherheit
 
-        // Zu Hause Bonus
-        if (homePos != null && npcPos.distSqr(homePos) < 25) { // 5 Blöcke Radius
+        // Zu Hause Bonus (5 Blöcke Radius, quadriert)
+        if (homePos != null && npcPos.distSqr(homePos) < NPCLifeConstants.Needs.HOME_SAFETY_CHECK_RADIUS_SQR) {
             baseSafety += SAFETY_HOME_BONUS;
         }
 
@@ -106,8 +107,8 @@ public class NPCNeeds {
             baseSafety += SAFETY_FRIEND_NEARBY_BONUS;
         }
 
-        // Nacht und draußen
-        if (isNight && (homePos == null || npcPos.distSqr(homePos) > 25)) {
+        // Nacht und draußen (mehr als 5 Blöcke vom Heim entfernt)
+        if (isNight && (homePos == null || npcPos.distSqr(homePos) > NPCLifeConstants.Needs.NIGHT_OUTDOOR_CHECK_RADIUS_SQR)) {
             baseSafety += SAFETY_NIGHT_OUTDOOR_PENALTY;
         }
 

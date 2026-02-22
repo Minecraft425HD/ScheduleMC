@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.behavior;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.life.NPCLifeConstants;
 import de.rolandsw.schedulemc.npc.life.core.*;
 import net.minecraft.world.entity.player.Player;
 
@@ -204,7 +205,8 @@ public class NPCBehaviorEngine {
         }
 
         // Trait-basierte Entscheidung: Mutige NPCs untersuchen eher
-        if (lifeData.getTraits().wouldInvestigate() && ThreadLocalRandom.current().nextDouble() < 0.3) {
+        if (lifeData.getTraits().wouldInvestigate()
+                && ThreadLocalRandom.current().nextDouble() < NPCLifeConstants.Behavior.INVESTIGATE_BASE_PROBABILITY) {
             BehaviorAction investigate = findExecutableByState(BehaviorState.INVESTIGATING);
             if (investigate != null) return investigate;
         }

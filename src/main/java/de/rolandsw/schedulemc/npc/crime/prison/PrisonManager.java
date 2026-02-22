@@ -64,6 +64,8 @@ public class PrisonManager {
         public double bailAmount;
         public boolean bailPaid = false;
         public long lastOnlineTime;
+        /** Remaining ticks at last logout — persisted for correct server-restart recovery. */
+        public long persistedRemainingTicks = -1;
 
         public BlockPos getCellSpawn() {
             return new BlockPos(cellSpawnX, cellSpawnY, cellSpawnZ);
@@ -396,6 +398,8 @@ public class PrisonManager {
         long remainingTicks = Math.max(0, data.releaseTime - currentTick);
         offlineRemainingTime.put(playerId, remainingTicks);
         data.lastOnlineTime = System.currentTimeMillis();
+        // Persist remaining ticks so a server restart can restore the correct sentence
+        data.persistedRemainingTicks = remainingTicks;
 
         LOGGER.info("Prisoner {} offline. Remaining: {} ticks", data.playerName, remainingTicks);
         savePrisonerData();
@@ -534,8 +538,14 @@ public class PrisonManager {
                 for (var entry : loadedData.entrySet()) {
                     UUID uuid = UUID.fromString(entry.getKey());
                     prisoners.put(uuid, entry.getValue());
-                    offlineRemainingTime.put(uuid,
-                        Math.max(0, entry.getValue().releaseTime - System.currentTimeMillis() / 50));
+                    // Use persisted remaining ticks if available (set at logout).
+                    // Fallback to totalSentenceTicks avoids the incorrect approximation
+                    // System.currentTimeMillis()/50 that previously mixed wall-clock ms
+                    // with game ticks (which caused sentences to reset after server restart).
+                    long remaining = entry.getValue().persistedRemainingTicks >= 0
+                        ? entry.getValue().persistedRemainingTicks
+                        : entry.getValue().totalSentenceTicks;
+                    offlineRemainingTime.put(uuid, Math.max(0, remaining));
                 }
                 LOGGER.info("Prisoners loaded: {}", prisoners.size());
             }
