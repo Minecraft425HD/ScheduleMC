@@ -20,6 +20,8 @@ public class Gang {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    public static final int MAX_WEEKLY_FEE = 10_000;
+
     private final UUID gangId;
     private volatile String name;
     private volatile String tag; // 3-4 Buchstaben
@@ -73,7 +75,7 @@ public class Gang {
         this.gangBalance = new AtomicInteger(gangBalance);
         this.color = color;
         this.foundedTimestamp = foundedTimestamp;
-        this.weeklyFee = Math.max(0, Math.min(10000, weeklyFee));
+        this.weeklyFee = Math.max(0, Math.min(MAX_WEEKLY_FEE, weeklyFee));
     }
 
     // ═══════════════════════════════════════════════════════════

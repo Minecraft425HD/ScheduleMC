@@ -7,6 +7,8 @@ import java.util.UUID;
  */
 public class GangMemberData {
 
+    private static final long FEE_INTERVAL_MS = 7L * 24 * 60 * 60 * 1000; // 7 Tage
+
     private final UUID playerUUID;
     private GangRank rank;
     private int contributedXP;
@@ -72,6 +74,6 @@ public class GangMemberData {
      * Prueft ob der Wochenbeitrag faellig ist (7 Tage seit letzter Zahlung).
      */
     public boolean isFeeDue() {
-        return System.currentTimeMillis() - lastFeePaid >= 7L * 24 * 60 * 60 * 1000;
+        return System.currentTimeMillis() - lastFeePaid >= FEE_INTERVAL_MS;
     }
 }

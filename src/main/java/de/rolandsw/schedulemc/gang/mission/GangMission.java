@@ -16,9 +16,9 @@ public class GangMission {
     private final int moneyReward;
     private final long createdAt;
 
-    private int currentProgress;
-    private boolean completed;
-    private boolean claimed;
+    private volatile int currentProgress;
+    private volatile boolean completed;
+    private volatile boolean claimed;
 
     public GangMission(String missionId, MissionTemplate template,
                        String description, int targetAmount,
@@ -58,7 +58,7 @@ public class GangMission {
      * Addiert Fortschritt (fuer INCREMENTAL Tracking).
      * @return true wenn die Mission durch diesen Aufruf abgeschlossen wurde
      */
-    public boolean addProgress(int amount) {
+    public synchronized boolean addProgress(int amount) {
         if (completed) return false;
         currentProgress = Math.min(currentProgress + amount, targetAmount);
         if (currentProgress >= targetAmount) {
@@ -72,7 +72,7 @@ public class GangMission {
      * Setzt den Fortschritt auf einen absoluten Wert (fuer THRESHOLD Tracking).
      * @return true wenn die Mission durch diesen Aufruf abgeschlossen wurde
      */
-    public boolean setProgress(int value) {
+    public synchronized boolean setProgress(int value) {
         if (completed) return false;
         currentProgress = Math.min(value, targetAmount);
         if (currentProgress >= targetAmount) {
@@ -86,7 +86,7 @@ public class GangMission {
      * Markiert die Belohnung als abgeholt.
      * @return true wenn erfolgreich (war completed und noch nicht claimed)
      */
-    public boolean claim() {
+    public synchronized boolean claim() {
         if (completed && !claimed) {
             claimed = true;
             return true;
