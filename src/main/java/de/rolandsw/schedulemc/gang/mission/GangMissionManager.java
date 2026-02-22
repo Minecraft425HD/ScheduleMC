@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Verwaltet alle Gang-Missionen (Auftraege).
@@ -43,7 +44,7 @@ public class GangMissionManager {
     private final Map<UUID, WeeklyStats> weeklyStats = new ConcurrentHashMap<>();
 
     private final Path saveFile;
-    private int missionIdCounter = 0;
+    private final AtomicInteger missionIdCounter = new AtomicInteger(0);
 
     private GangMissionManager(Path saveDir) {
         this.saveFile = saveDir.resolve("schedulemc_gang_missions.json");
@@ -139,7 +140,7 @@ public class GangMissionManager {
 
         int count = Math.min(type.getMissionCount(), shuffled.size());
         for (int i = 0; i < count; i++) {
-            String id = "m_" + (++missionIdCounter);
+            String id = "m_" + missionIdCounter.incrementAndGet();
             missions.add(shuffled.get(i).generate(id));
         }
     }
@@ -426,7 +427,7 @@ public class GangMissionManager {
             Map<String, SavedGangMissions> saveData = new HashMap<>();
             for (Map.Entry<UUID, List<GangMission>> entry : gangMissions.entrySet()) {
                 SavedGangMissions saved = new SavedGangMissions();
-                saved.missionIdCounter = missionIdCounter;
+                saved.missionIdCounter = missionIdCounter.get();
 
                 // Resets
                 Map<MissionType, Long> resets = lastResets.get(entry.getKey());
@@ -485,9 +486,7 @@ public class GangMissionManager {
                 UUID gangId = UUID.fromString(entry.getKey());
                 SavedGangMissions saved = entry.getValue();
 
-                if (saved.missionIdCounter > missionIdCounter) {
-                    missionIdCounter = saved.missionIdCounter;
-                }
+                missionIdCounter.accumulateAndGet(saved.missionIdCounter, Math::max);
 
                 // Resets
                 Map<MissionType, Long> resets = new EnumMap<>(MissionType.class);

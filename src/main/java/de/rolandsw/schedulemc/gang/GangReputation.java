@@ -12,6 +12,8 @@ public enum GangReputation {
     GEFUERCHTET("Gefuerchtet", "\u00A7c", 20, 3),
     LEGENDAER("Legendaer", "\u00A74", 27, 4);
 
+    private static final int LEVELS_PER_STAR = 6;
+
     private final String displayName;
     private final String colorCode;
     private final int requiredLevel;
@@ -60,7 +62,7 @@ public enum GangReputation {
      * Gibt 1-5 Sterne basierend auf Gang-Level (je 6 Level = 1 Stern).
      */
     public static String getLevelStars(int gangLevel) {
-        int stars = Math.min(5, Math.max(0, (gangLevel - 1) / 6 + 1));
+        int stars = Math.min(5, Math.max(0, (gangLevel - 1) / LEVELS_PER_STAR + 1));
         if (stars == 0) return "";
         StringBuilder sb = new StringBuilder("\u00A74");
         for (int i = 0; i < stars; i++) {
