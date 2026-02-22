@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.vehicle.entity.vehicle.base;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.Main;
+import de.rolandsw.schedulemc.vehicle.VehicleConstants;
 import de.rolandsw.schedulemc.config.Fuel;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.components.*;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
