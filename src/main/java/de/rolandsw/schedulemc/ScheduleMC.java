@@ -480,8 +480,11 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance(server);
             de.rolandsw.schedulemc.territory.TerritoryManager.getInstance(server);
 
-            // Market System - Load market data
-            de.rolandsw.schedulemc.market.DynamicMarketManager.getInstance().load();
+            // Market System - Load market data and enable simulation
+            de.rolandsw.schedulemc.market.DynamicMarketManager market =
+                de.rolandsw.schedulemc.market.DynamicMarketManager.getInstance();
+            market.load();
+            market.setEnabled(true);
             LOGGER.info("Crime, Territory, and Market Systems initialized");
 
             // Economy System - Advanced Features
