@@ -166,9 +166,19 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
         int removed = 0;
         Iterator<Map.Entry<Long, Territory>> it = territories.entrySet().iterator();
         while (it.hasNext()) {
-            if (it.next().getValue().getType() == type) {
+            Map.Entry<Long, Territory> entry = it.next();
+            if (entry.getValue().getType() == type) {
+                Territory t = entry.getValue();
                 it.remove();
                 removed++;
+                // Delta-Update an alle Clients senden
+                if (server != null) {
+                    de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.broadcastDeltaUpdate(
+                        de.rolandsw.schedulemc.territory.network.SyncTerritoryDeltaPacket.remove(
+                            t.getChunkX(), t.getChunkZ()
+                        )
+                    );
+                }
             }
         }
         if (removed > 0) {
@@ -234,7 +244,7 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
         if (data.size() > 100000) {
             LOGGER.warn("Territories map size ({}) exceeds limit, potential corruption",
                 data.size());
-            correctedCount++;
+            // Nur warnen, nicht als "corrected" markieren (nichts wurde tatsächlich geändert)
         }
 
         for (Map.Entry<Long, Territory> entry : data.entrySet()) {
