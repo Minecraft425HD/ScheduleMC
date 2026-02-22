@@ -149,10 +149,9 @@ public class PlayerMissionManager {
                 player.giveExperiencePoints(def.getXpReward());
                 // Geld via EconomyManager auszahlen (falls verfügbar)
                 try {
-                    de.rolandsw.schedulemc.economy.EconomyManager em = de.rolandsw.schedulemc.economy.EconomyManager.getInstance();
-                    if (em != null) {
-                        em.addMoney(uuid, def.getMoneyReward(), "Mission: " + def.getTitle());
-                    }
+                    de.rolandsw.schedulemc.economy.EconomyManager.deposit(
+                        uuid, (double) def.getMoneyReward()
+                    );
                 } catch (Exception e) {
                     LOGGER.error("Fehler beim Auszahlen der Mission-Belohnung für {}", uuid, e);
                 }
