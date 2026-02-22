@@ -142,4 +142,27 @@ public final class VehicleConstants {
     public static final int PARTICLE_CHANCE_LOW = 10;
     public static final int PARTICLE_CHANCE_MEDIUM = 5;
 
+    // ═══════════════════════════════════════════════════════════
+    // FUEL & TANK
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Fallback-Tankgröße wenn kein PartTank installiert (in mB)
+     */
+    public static final int DEFAULT_TANK_SIZE_MB = 11000;
+
+    // ═══════════════════════════════════════════════════════════
+    // VEHICLE DEFAULTS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Standard-Rotationsmodifikator für Lenkung
+     */
+    public static final float DEFAULT_ROTATION_MODIFIER = 0.5F;
+
+    /**
+     * Standard-Y-Offset für Spieler-Position im Fahrzeug (in Blöcken)
+     */
+    public static final double DEFAULT_PLAYER_Y_OFFSET = 0.2D;
+
 }

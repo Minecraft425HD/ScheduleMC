@@ -62,7 +62,9 @@ public class DamageComponent extends VehicleComponent {
             return;
         }
 
-        float speedPerc = physics.getSpeed() / vehicle.getMaxSpeed();
+        float maxSpeed = vehicle.getMaxSpeed();
+        if (maxSpeed <= 0F) return; // Kein Motor/Body → kein Speed-basierter Temperaturanstieg
+        float speedPerc = physics.getSpeed() / maxSpeed;
         int tempRate = (int) (speedPerc * 10F) + 1;
 
         if (tempRate > VehicleConstants.TEMP_RATE_MAX) {
@@ -153,7 +155,9 @@ public class DamageComponent extends VehicleComponent {
             return;
         }
 
-        float percSpeed = speed / vehicle.getMaxSpeed();
+        float maxSpeed = vehicle.getMaxSpeed();
+        if (maxSpeed <= 0F) return; // Kein Motor → kein Kollisions-Schwellwert prüfbar
+        float percSpeed = speed / maxSpeed;
 
         if (percSpeed > VehicleConstants.COLLISION_DAMAGE_THRESHOLD) {
             addDamage(percSpeed * VehicleConstants.COLLISION_DAMAGE_MULTIPLIER);
