@@ -172,7 +172,8 @@ public class SeasonalPriceModifier {
      * Gibt den Fortschritt innerhalb der aktuellen Saison zurueck (0.0 - 1.0).
      */
     public float getSeasonProgress() {
-        int dayInYear = (int) (currentDay % DAYS_PER_YEAR);
+        // Math.abs() konsistent mit getSeasonForDay() — verhindert negative Progress-Werte
+        int dayInYear = (int) (Math.abs(currentDay) % DAYS_PER_YEAR);
         int dayInSeason = dayInYear % DAYS_PER_SEASON;
         return (float) dayInSeason / DAYS_PER_SEASON;
     }

@@ -139,14 +139,16 @@ public class DynamicMarketManager {
         try {
             de.rolandsw.schedulemc.economy.EconomyController ec =
                     de.rolandsw.schedulemc.economy.EconomyController.getInstance();
-            // Versuche productId aus Registry-Name abzuleiten
-            net.minecraft.resources.ResourceLocation itemId =
-                    net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item);
-            if (itemId != null) {
-                String productId = itemId.getPath().toUpperCase().replace("schedulemc:", "");
-                MarketData ecMarketData = ec.getMarketData(productId);
-                if (ecMarketData != null) {
-                    ecMarketData.onItemSold(amount);
+            if (ec != null) {
+                // productId aus Registry-Pfad ableiten (getPath() enthält bereits nur den Pfad ohne Namespace)
+                net.minecraft.resources.ResourceLocation itemId =
+                        net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item);
+                if (itemId != null) {
+                    String productId = itemId.getPath().toUpperCase();
+                    MarketData ecMarketData = ec.getMarketData(productId);
+                    if (ecMarketData != null) {
+                        ecMarketData.onItemSold(amount);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -171,13 +173,15 @@ public class DynamicMarketManager {
         try {
             de.rolandsw.schedulemc.economy.EconomyController ec =
                     de.rolandsw.schedulemc.economy.EconomyController.getInstance();
-            net.minecraft.resources.ResourceLocation itemId =
-                    net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item);
-            if (itemId != null) {
-                String productId = itemId.getPath().toUpperCase().replace("schedulemc:", "");
-                MarketData ecMarketData = ec.getMarketData(productId);
-                if (ecMarketData != null) {
-                    ecMarketData.onItemBought(amount);
+            if (ec != null) {
+                net.minecraft.resources.ResourceLocation itemId =
+                        net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item);
+                if (itemId != null) {
+                    String productId = itemId.getPath().toUpperCase();
+                    MarketData ecMarketData = ec.getMarketData(productId);
+                    if (ecMarketData != null) {
+                        ecMarketData.onItemBought(amount);
+                    }
                 }
             }
         } catch (Exception e) {
