@@ -33,7 +33,7 @@ public class SmartphoneScreen extends Screen {
     private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
     private static final int SCROLLBAR_MARGIN = 10; // Abstand zwischen Apps und Scrollbar
     private static final int VISIBLE_ROWS = 3; // Nur 3 Reihen sichtbar (6 Apps)
-    private static final int TOTAL_ROWS = 7; // Insgesamt 7 Reihen (13 Apps)
+    private static final int TOTAL_ROWS = 8; // Insgesamt 8 Reihen (15 Apps)
 
     // App-Icons (konfigurierbar über Ressourcen)
     private static final ResourceLocation APP_MAP = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_map.png");
@@ -50,10 +50,11 @@ public class SmartphoneScreen extends Screen {
     private static final ResourceLocation APP_TOWING = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_towing.png");
     private static final ResourceLocation APP_LEVEL = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_level.png");
     private static final ResourceLocation APP_GANG = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_gang.png");
+    private static final ResourceLocation APP_MISSIONS = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_missions.png");
     private static final ResourceLocation CLOSE_ICON = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
 
     // PERFORMANCE: Statisches Icon-Array statt Neuallokation pro Frame
-    private static final ResourceLocation[] APP_ICONS = {APP_MAP, APP_DEALER, APP_PRODUCTS, APP_ORDER, APP_CONTACTS, APP_MESSAGES, APP_PLOT, APP_SETTINGS, APP_BANK, APP_CRIME, APP_ACHIEVEMENT, APP_TOWING, APP_LEVEL, APP_GANG};
+    private static final ResourceLocation[] APP_ICONS = {APP_MAP, APP_DEALER, APP_PRODUCTS, APP_ORDER, APP_CONTACTS, APP_MESSAGES, APP_PLOT, APP_SETTINGS, APP_BANK, APP_CRIME, APP_ACHIEVEMENT, APP_TOWING, APP_LEVEL, APP_GANG, APP_MISSIONS};
 
     private int leftPos;
     private int topPos;
@@ -96,7 +97,8 @@ public class SmartphoneScreen extends Screen {
             Component.translatable("gui.smartphone.app_achievements").getString(),
             Component.translatable("gui.smartphone.app_towing").getString(),
             Component.translatable("gui.smartphone.app_level").getString(),
-            Component.translatable("gui.smartphone.app_gang").getString()
+            Component.translatable("gui.smartphone.app_gang").getString(),
+            Component.translatable("gui.smartphone.app_missions").getString()
         };
 
         // OPTIMIERT: Truncated Labels und Initialen einmalig vorberechnen
@@ -247,6 +249,7 @@ public class SmartphoneScreen extends Screen {
                             case 11: openApp(new TowingServiceAppScreen(this)); return true;
                             case 12: openApp(new ProducerLevelAppScreen(this)); return true;
                             case 13: openApp(new GangAppScreen(this)); return true;
+                            case 14: openApp(new MissionsAppScreen(this)); return true;
                         }
                     }
                 }

@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.events;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.items.PlotSelectionTool;
 import de.rolandsw.schedulemc.npc.events.PoliceAIHandler;
+import de.rolandsw.schedulemc.territory.TerritoryTracker;
 import de.rolandsw.schedulemc.npc.events.PoliceBackupSystem;
 import de.rolandsw.schedulemc.npc.events.PoliceRoadblock;
 import de.rolandsw.schedulemc.npc.events.PoliceSearchBehavior;
@@ -28,6 +29,7 @@ import java.util.UUID;
  * - NPCLocationTool (1 Map)
  * - NPCLeisureTool (1 Map)
  * - NPCPatrolTool (1 Map)
+ * - TerritoryTracker (2 Maps: lastTerritory, lastNotificationTime)
  *
  * SICHERHEIT: Thread-safe da alle cleanup() Methoden ConcurrentHashMap verwenden
  */
@@ -68,6 +70,9 @@ public class PlayerDisconnectHandler {
             NPCLocationTool.cleanup(playerUUID);
             NPCLeisureTool.cleanup(playerUUID);
             NPCPatrolTool.cleanup(playerUUID);
+
+            // Cleanup Territory Tracker
+            TerritoryTracker.cleanupPlayer(playerUUID);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("[CLEANUP] Successfully cleaned up all data for player {}", playerName);

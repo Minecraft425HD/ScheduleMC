@@ -40,7 +40,7 @@ public class SyncTerritoriesPacket {
             buf.writeInt(data.chunkX);
             buf.writeInt(data.chunkZ);
             buf.writeEnum(data.type);
-            buf.writeUtf(data.name);
+            buf.writeUtf(data.name != null ? data.name : "");
         }
     }
 
@@ -52,7 +52,10 @@ public class SyncTerritoriesPacket {
         int size = buf.readInt();
 
         // SICHERHEIT: Max 10000 Territories pro Sync (DoS-Prävention)
-        if (size > 10000) size = 10000;
+        // Bei Überschreitung: leeres Packet zurückgeben statt Buffer zu beschädigen
+        if (size < 0 || size > 10000) {
+            return packet;
+        }
 
         for (int i = 0; i < size; i++) {
             long key = buf.readLong();

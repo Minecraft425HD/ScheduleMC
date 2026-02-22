@@ -362,6 +362,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.init();
             de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler.register();
             de.rolandsw.schedulemc.gang.network.GangNetworkHandler.register();
+            de.rolandsw.schedulemc.mission.network.MissionNetworkHandler.register();
             de.rolandsw.schedulemc.lock.network.LockNetworkHandler.register();
 
             // MapView (LightMap) network packets - must be registered on both client and server
@@ -479,8 +480,11 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance(server);
             de.rolandsw.schedulemc.territory.TerritoryManager.getInstance(server);
 
-            // Market System - Load market data
-            de.rolandsw.schedulemc.market.DynamicMarketManager.getInstance().load();
+            // Market System - Load market data and enable simulation
+            de.rolandsw.schedulemc.market.DynamicMarketManager market =
+                de.rolandsw.schedulemc.market.DynamicMarketManager.getInstance();
+            market.load();
+            market.setEnabled(true);
             LOGGER.info("Crime, Territory, and Market Systems initialized");
 
             // Economy System - Advanced Features
@@ -514,6 +518,10 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance(configDir);
             de.rolandsw.schedulemc.gang.scenario.ScenarioManager.getInstance(configDir);
             LOGGER.info("Gang System initialized (incl. Mission Manager + Scenario Manager)");
+
+            // Player Mission System
+            de.rolandsw.schedulemc.mission.PlayerMissionManager.getInstance(configDir);
+            LOGGER.info("Player Mission System initialized");
 
             // Lock System - Door locks with keys, combination codes, and lock picks
             LockManager.getInstance(configDir);
@@ -669,6 +677,16 @@ public class ScheduleMC {
                 () -> {
                     de.rolandsw.schedulemc.gang.mission.GangMissionManager mmSave = de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
                     if (mmSave != null) mmSave.save();
+                },
+                4
+            ));
+
+            // Player Mission System (Priority 4)
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "PlayerMissionManager",
+                () -> {
+                    de.rolandsw.schedulemc.mission.PlayerMissionManager pmm = de.rolandsw.schedulemc.mission.PlayerMissionManager.getInstance();
+                    if (pmm != null) pmm.save();
                 },
                 4
             ));

@@ -93,9 +93,8 @@ public class SetTerritoryPacket {
                 } else {
                     manager.setTerritory(msg.chunkX, msg.chunkZ, msg.type, validatedName, null);
                 }
-
-                // Sync territories back to client
-                TerritoryNetworkHandler.sendToPlayer(new SyncTerritoriesPacket(manager.getTerritoriesMap()), player);
+                // setTerritory/removeTerritory senden bereits SyncTerritoryDeltaPacket
+                // an ALLE Spieler via broadcastDeltaUpdate() — kein redundanter Full-Sync nötig
             }
         });
         ctx.get().setPacketHandled(true);

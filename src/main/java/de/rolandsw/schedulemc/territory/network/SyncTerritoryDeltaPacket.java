@@ -74,7 +74,7 @@ public class SyncTerritoryDeltaPacket {
             buf.writeInt(chunkX);
             buf.writeInt(chunkZ);
             buf.writeEnum(type);
-            buf.writeUtf(name);
+            buf.writeUtf(name != null ? name : "");
         }
         // Bei REMOVE: nur chunkKey nötig (bereits geschrieben)
     }

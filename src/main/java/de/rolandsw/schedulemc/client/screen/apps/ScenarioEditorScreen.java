@@ -75,6 +75,12 @@ public class ScenarioEditorScreen extends Screen {
     private static final String[] MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
     private static final String[] MISSION_TYPE_LABELS = {"Stuendlich", "Taeglich", "Woechentlich"};
 
+    // Separierte Gang- und Story-Typen fuer den zweigeteilten Selektor
+    private static final String[] GANG_MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
+    private static final String[] GANG_MISSION_TYPE_LABELS = {"Stuendlich", "Taeglich", "Woechentlich"};
+    private static final String[] STORY_MISSION_TYPES = {"STORY_MAIN", "STORY_SIDE"};
+    private static final String[] STORY_MISSION_TYPE_LABELS = {"Hauptmission", "Nebenmission"};
+
     // ═══════════════════════════════════════════════════════════
     // ZUSTAND
     // ═══════════════════════════════════════════════════════════
@@ -526,16 +532,36 @@ public class ScenarioEditorScreen extends Screen {
         g.drawCenteredString(this.font, "+", diffEndX + 15, y + 3, 0xFFFFFF);
         infoX = diffEndX + 24;
 
-        // MissionType (klickbar)
+        // Missionsart: Scope-Badge (Gang / Story) + Sub-Typ
         g.drawString(this.font, "\u00A78|", infoX, y + 4, 0x444444);
         infoX += 6;
-        int mtIdx = getMissionTypeIndex();
-        String mtLabel = MISSION_TYPE_LABELS[mtIdx];
-        int mtColor = mtIdx == 0 ? 0xFFFFEE00 : mtIdx == 1 ? 0xFF55FF55 : 0xFFFFAA00;
-        boolean mtHover = mx >= infoX && mx < infoX + this.font.width(mtLabel) + 4 && my >= y + 1 && my < y + 14;
-        if (mtHover) g.fill(infoX - 1, y + 1, infoX + this.font.width(mtLabel) + 3, y + 14, 0x22FFFFFF);
-        g.drawString(this.font, "\u00A7f" + mtLabel, infoX, y + 4, mtColor);
-        infoX += this.font.width(mtLabel) + 8;
+        boolean isStory = isStoryMission();
+        // Scope-Badge
+        String scopeLabel = isStory ? "Story" : "Gang";
+        int scopeColor = isStory ? 0xFFFFAA00 : 0xFF5588FF;
+        int scopeW = this.font.width(scopeLabel) + 8;
+        boolean scopeHov = mx >= infoX && mx < infoX + scopeW && my >= y + 1 && my < y + 14;
+        g.fill(infoX, y + 2, infoX + scopeW, y + 13,
+            scopeHov ? (scopeColor & 0x55FFFFFF | 0x55000000) : (scopeColor & 0x33FFFFFF | 0x22000000));
+        g.drawString(this.font, scopeLabel, infoX + 2, y + 4, scopeColor);
+        g.drawString(this.font, "\u00A77\u25BE", infoX + scopeW - 8, y + 4, 0x888888);
+        infoX += scopeW + 4;
+        // Sub-Typ-Label (innerhalb des Scopes)
+        String subLabel;
+        int subColor;
+        if (isStory) {
+            int si = getStoryTypeIndex();
+            subLabel = STORY_MISSION_TYPE_LABELS[si];
+            subColor = 0xFFFFCC55;
+        } else {
+            int gi = getGangTypeIndex();
+            subLabel = GANG_MISSION_TYPE_LABELS[gi];
+            subColor = gi == 0 ? 0xFFFFEE00 : gi == 1 ? 0xFF55FF55 : 0xFFFFAA00;
+        }
+        boolean subHov = mx >= infoX && mx < infoX + this.font.width(subLabel) + 4 && my >= y + 1 && my < y + 14;
+        if (subHov) g.fill(infoX - 1, y + 1, infoX + this.font.width(subLabel) + 3, y + 14, 0x22FFFFFF);
+        g.drawString(this.font, "\u00A7f" + subLabel, infoX, y + 4, subColor);
+        infoX += this.font.width(subLabel) + 8;
 
         // Min-Gang-Level
         g.drawString(this.font, "\u00A78|", infoX, y + 4, 0x444444);
@@ -554,6 +580,23 @@ public class ScenarioEditorScreen extends Screen {
         String t = currentScenario.getMissionType();
         for (int i = 0; i < MISSION_TYPES.length; i++) if (MISSION_TYPES[i].equals(t)) return i;
         return 1;
+    }
+
+    private boolean isStoryMission() {
+        String t = currentScenario.getMissionType();
+        return t != null && t.startsWith("STORY_");
+    }
+
+    private int getGangTypeIndex() {
+        String t = currentScenario.getMissionType();
+        for (int i = 0; i < GANG_MISSION_TYPES.length; i++) {
+            if (GANG_MISSION_TYPES[i].equals(t)) return i;
+        }
+        return 1; // default: DAILY
+    }
+
+    private int getStoryTypeIndex() {
+        return "STORY_SIDE".equals(currentScenario.getMissionType()) ? 1 : 0;
     }
 
     // ─── TOOLBAR DROPDOWNS (im Vordergrund) ───
@@ -779,8 +822,15 @@ public class ScenarioEditorScreen extends Screen {
         // Toolbar
         if (my < TOOLBAR_H) { handleToolbar(mx); return true; }
 
-        // Status Bar
-        if (my >= this.height - STATUS_H) { handleStatusBar(mx, my); return true; }
+        // Status Bar — nameField bei Klick auf EditBox-Bereich Fokus geben
+        if (my >= this.height - STATUS_H) {
+            int nfy = this.height - STATUS_H + 3;
+            if (mx >= 44 && mx < 134 && my >= nfy && my < nfy + 10) {
+                return super.mouseClicked(mouseX, mouseY, button); // EditBox bekommt Fokus
+            }
+            handleStatusBar(mx, my);
+            return true;
+        }
 
         // Properties Panel
         if (mx >= propsLeft() && my >= TOOLBAR_H && my < this.height - STATUS_H) {
@@ -835,15 +885,34 @@ public class ScenarioEditorScreen extends Screen {
         if (mx >= diffEndX + 11 && mx < diffEndX + 19 && my >= y + 2)
             currentScenario.setDifficulty(currentScenario.getDifficulty() + 1);
 
-        // MissionType klick
+        // Scope-Badge klick (Gang ↔ Story)
         infoX = diffEndX + 24 + 6;
-        int mtIdx = getMissionTypeIndex();
-        int mtW = this.font.width(MISSION_TYPE_LABELS[mtIdx]) + 4;
-        if (mx >= infoX && mx < infoX + mtW && my >= y + 1)
-            currentScenario.setMissionType(MISSION_TYPES[(mtIdx + 1) % MISSION_TYPES.length]);
+        boolean isStory = isStoryMission();
+        int scopeW = this.font.width(isStory ? "Story" : "Gang") + 8;
+        if (mx >= infoX && mx < infoX + scopeW && my >= y + 1) {
+            currentScenario.setMissionType(isStory ? "DAILY" : "STORY_MAIN");
+            return;
+        }
+        infoX += scopeW + 4;
+
+        // Sub-Typ klick (innerhalb Scope)
+        String subLabel = isStory
+            ? STORY_MISSION_TYPE_LABELS[getStoryTypeIndex()]
+            : GANG_MISSION_TYPE_LABELS[getGangTypeIndex()];
+        int subW = this.font.width(subLabel) + 4;
+        if (mx >= infoX && mx < infoX + subW && my >= y + 1) {
+            if (isStory) {
+                currentScenario.setMissionType(
+                    STORY_MISSION_TYPES[(getStoryTypeIndex() + 1) % STORY_MISSION_TYPES.length]);
+            } else {
+                currentScenario.setMissionType(
+                    GANG_MISSION_TYPES[(getGangTypeIndex() + 1) % GANG_MISSION_TYPES.length]);
+            }
+            return;
+        }
+        infoX += subW + 8 + 6; // +8 gap + +6 | separator
 
         // Min-Level +/-
-        infoX += mtW + 4 + 6;
         int lvlX = infoX + this.font.width("Lvl:" + currentScenario.getMinGangLevel());
         if (mx >= lvlX + 2 && mx < lvlX + 10 && my >= y + 2)
             currentScenario.setMinGangLevel(currentScenario.getMinGangLevel() - 1);

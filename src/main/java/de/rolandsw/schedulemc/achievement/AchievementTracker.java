@@ -47,12 +47,7 @@ public class AchievementTracker {
             achievementManager = AchievementManager.getInstance(player.getServer());
         }
 
-        // Checke sofort beim Join
-        LOGGER.info("AchievementTracker: About to check player achievements for {}",
-            player.getName().getString());
         checkPlayerAchievements(player);
-        LOGGER.info("AchievementTracker: Achievement check complete for {}",
-            player.getName().getString());
     }
 
     @SubscribeEvent
@@ -83,10 +78,10 @@ public class AchievementTracker {
 
         // ========== ECONOMY ACHIEVEMENTS ==========
         double balance = EconomyManager.getBalance(uuid);
-        LOGGER.info("AchievementTracker: Reading balance for {}: {} €", player.getName().getString(), balance);
+        LOGGER.debug("AchievementTracker: balance for {}: {} €", player.getName().getString(), balance);
 
         // Balance-basierte Achievements
-        achievementManager.setProgress(uuid, "FIRST_EURO", Math.max(1, balance));
+        achievementManager.setProgress(uuid, "FIRST_EURO", balance);
         achievementManager.setProgress(uuid, "RICH", balance);
         achievementManager.setProgress(uuid, "WEALTHY", balance);
         achievementManager.setProgress(uuid, "MILLIONAIRE", balance);

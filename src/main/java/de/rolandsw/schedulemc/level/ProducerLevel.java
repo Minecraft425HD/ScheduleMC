@@ -236,19 +236,20 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
         // XP auf das Minimum des Ziel-Levels setzen
         int requiredXP = LevelRequirements.getRequiredXP(level);
 
-        // Neue Daten erstellen mit dem gesetzten Level
+        // Unlocks für das neue Level zusammenstellen (VORHER, nicht über getUnlockedItems()-Kopie)
+        Set<String> updatedUnlocks = new HashSet<>();
+        for (Unlockable unlock : Unlockable.values()) {
+            if (unlock.isUnlockedAt(level)) {
+                updatedUnlocks.add(unlock.name());
+            }
+        }
+
+        // Neue Daten erstellen mit korrekten Unlocks
         ProducerLevelData newData = new ProducerLevelData(
-                playerUUID, level, requiredXP, data.getUnlockedItems(),
+                playerUUID, level, requiredXP, updatedUnlocks,
                 data.getTotalItemsSold(), data.getTotalIllegalSold(),
                 data.getTotalLegalSold(), data.getTotalRevenue()
         );
-
-        // Unlocks aktualisieren
-        for (Unlockable unlock : Unlockable.values()) {
-            if (unlock.isUnlockedAt(level)) {
-                newData.getUnlockedItems().add(unlock.name());
-            }
-        }
 
         playerData.put(playerUUID, newData);
         needsSave = true;

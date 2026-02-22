@@ -44,8 +44,12 @@ public class SyncAchievementDataPacket {
     }
 
     public static SyncAchievementDataPacket decode(FriendlyByteBuf buf) {
-        int size = Math.min(buf.readInt(), 1000);
-        List<AchievementData> achievements = new ArrayList<>(Math.min(size, 64));
+        int size = buf.readInt();
+        // SICHERHEIT: Ablehnen statt truncaten um Buffer-Korruption zu vermeiden
+        if (size < 0 || size > 1000) {
+            return new SyncAchievementDataPacket(new ArrayList<>(), buf.readInt(), buf.readInt(), buf.readDouble());
+        }
+        List<AchievementData> achievements = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             achievements.add(AchievementData.decode(buf));
         }
@@ -58,7 +62,7 @@ public class SyncAchievementDataPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            LOGGER.info("SyncAchievementDataPacket received: {} achievements", totalAchievements);
+            LOGGER.debug("SyncAchievementDataPacket received: {} achievements", totalAchievements);
             // Use DistExecutor to ensure client-only code is only run on client
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> handleClient());
         });
@@ -67,7 +71,7 @@ public class SyncAchievementDataPacket {
 
     @OnlyIn(Dist.CLIENT)
     private void handleClient() {
-        LOGGER.info("SyncAchievementDataPacket: Updating client cache with {} achievements", achievements.size());
+        LOGGER.debug("SyncAchievementDataPacket: Updating client cache with {} achievements", achievements.size());
         ClientAchievementCache.updateCache(achievements, totalAchievements, unlockedCount, totalEarned);
     }
 }

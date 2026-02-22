@@ -40,7 +40,11 @@ public class LevelUpNotificationPacket {
 
     public static LevelUpNotificationPacket decode(FriendlyByteBuf buf) {
         int newLevel = buf.readInt();
-        int size = Math.min(buf.readInt(), 50); // Max 50 Unlocks pro Level-Up
+        int size = buf.readInt();
+        // SICHERHEIT: Ablehnen statt truncaten um Buffer-Korruption zu vermeiden
+        if (size < 0 || size > 50) {
+            return new LevelUpNotificationPacket(newLevel, new ArrayList<>());
+        }
         List<String> names = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             names.add(buf.readUtf(256));
