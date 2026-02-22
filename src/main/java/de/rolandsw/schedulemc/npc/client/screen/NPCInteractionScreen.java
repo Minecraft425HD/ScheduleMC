@@ -16,6 +16,7 @@ import de.rolandsw.schedulemc.npc.network.OpenMerchantShopPacket;
 import de.rolandsw.schedulemc.npc.network.OpenBankerMenuPacket;
 import de.rolandsw.schedulemc.npc.network.OpenBoerseMenuPacket;
 import de.rolandsw.schedulemc.npc.network.OpenCreditAdvisorMenuPacket;
+import de.rolandsw.schedulemc.client.screen.apps.MissionsAppScreen;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
 import de.rolandsw.schedulemc.tobacco.network.OpenTobaccoNegotiationPacket;
 import net.minecraft.client.gui.GuiGraphics;
@@ -44,6 +45,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
     private Button bankerButton;
     private Button boerseButton;
     private Button creditAdvisorButton;
+    private Button missionButton;
 
     public NPCInteractionScreen(NPCInteractionMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -107,6 +109,22 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         if (npc != null && minecraft != null && minecraft.level != null) {
             boolean withinWorkingHours = npc.getNpcData().isWithinWorkingHours(minecraft.level);
             shopBuyButton.active = withinWorkingHours;
+        }
+
+        // Missionen-Button (sichtbar wenn NPC Missionen vergeben kann)
+        boolean hasMissions = npc != null && !npc.getNpcData().getMissionIds().isEmpty();
+        missionButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.npc.missions"), button -> openNpcMissions()
+        ).bounds(x + 8, y + 78, 160, 20).build());
+        missionButton.visible = hasMissions;
+    }
+
+    /**
+     * Öffnet die Missions-App für diesen NPC
+     */
+    private void openNpcMissions() {
+        if (minecraft != null) {
+            minecraft.setScreen(new MissionsAppScreen(this));
         }
     }
 

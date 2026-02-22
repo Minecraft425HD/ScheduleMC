@@ -69,6 +69,9 @@ public class NPCData {
     private int wallet; // Geldbörse in Bargeld
     private long lastDailyIncome; // Letzter Tag, an dem Einkommen ausgezahlt wurde
 
+    // Missions-System: IDs der Missionen, die dieser NPC vergeben kann
+    private List<String> missionIds = new ArrayList<>();
+
     public NPCData() {
         this.npcName = "NPC";
         this.skinFileName = "default.png";
@@ -97,6 +100,7 @@ public class NPCData {
         this.inventory = NonNullList.withSize(9, ItemStack.EMPTY); // 9 Slots wie Hotbar
         this.wallet = 0;
         this.lastDailyIncome = -1; // Noch kein Einkommen erhalten
+        this.missionIds = new ArrayList<>();
     }
 
     public NPCData(String name, String skinFile) {
@@ -139,6 +143,11 @@ public class NPCData {
         tag.putInt("CurrentDialogIndex", currentDialogIndex);
         tag.put("CustomData", customData);
         tag.put("Behavior", behavior.save(new CompoundTag()));
+        ListTag missionIdList = new ListTag();
+        for (String id : missionIds) {
+            missionIdList.add(net.minecraft.nbt.StringTag.valueOf(id));
+        }
+        tag.put("MissionIds", missionIdList);
     }
 
     private void saveDialogData(CompoundTag tag) {
@@ -234,6 +243,13 @@ public class NPCData {
         customData = tag.getCompound("CustomData");
         behavior = new NPCBehavior();
         behavior.load(tag.getCompound("Behavior"));
+        missionIds = new ArrayList<>();
+        if (tag.contains("MissionIds")) {
+            ListTag missionIdList = tag.getList("MissionIds", Tag.TAG_STRING);
+            for (int i = 0; i < missionIdList.size(); i++) {
+                missionIds.add(missionIdList.getString(i));
+            }
+        }
     }
 
     private void loadDialogData(CompoundTag tag) {
@@ -382,6 +398,14 @@ public class NPCData {
 
     public UUID getNpcUUID() {
         return npcUUID;
+    }
+
+    public List<String> getMissionIds() {
+        return missionIds;
+    }
+
+    public void setMissionIds(List<String> missionIds) {
+        this.missionIds = missionIds != null ? missionIds : new ArrayList<>();
     }
 
     public List<DialogEntry> getDialogEntries() {
