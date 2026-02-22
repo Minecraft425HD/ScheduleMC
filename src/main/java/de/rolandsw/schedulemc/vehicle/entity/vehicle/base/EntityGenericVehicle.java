@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.vehicle.entity.vehicle.base;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import de.rolandsw.schedulemc.vehicle.Main;
+import de.rolandsw.schedulemc.vehicle.VehicleConstants;
 import de.rolandsw.schedulemc.config.Fuel;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.components.*;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
@@ -641,7 +642,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     public int getMaxFuel() {
         PartTank tank = getPartByClass(PartTank.class);
-        return tank != null ? tank.getSize() : 11000;
+        return tank != null ? tank.getSize() : VehicleConstants.DEFAULT_TANK_SIZE_MB;
     }
 
     public float getVehicleFuelEfficiency() {
@@ -654,7 +655,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public float getRotationModifier() {
-        return 0.5F;
+        return VehicleConstants.DEFAULT_ROTATION_MODIFIER;
     }
 
     public float getPitch() {
@@ -667,7 +668,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public double getPlayerYOffset() {
-        return 0.2D;
+        return VehicleConstants.DEFAULT_PLAYER_Y_OFFSET;
     }
 
     @Override
