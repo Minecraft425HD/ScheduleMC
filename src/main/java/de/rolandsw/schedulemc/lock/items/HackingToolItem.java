@@ -109,7 +109,21 @@ public abstract class HackingToolItem extends Item {
             player.sendSystemMessage(Component.literal("\u00A7a\u2714 Code geknackt! Tuer entriegelt."));
             var state = level.getBlockState(pos);
             if (state.getBlock() instanceof DoorBlock door) {
-                door.setOpen(null, level, state, pos, !state.getValue(DoorBlock.OPEN));
+                door.setOpen(null, level, state, pos, true);
+                // Automatisch schliessen nach 3 Sekunden (60 Ticks)
+                if (level instanceof ServerLevel serverLevel) {
+                    final BlockPos finalPos = pos;
+                    serverLevel.getServer().tell(new net.minecraft.server.TickTask(
+                            serverLevel.getServer().getTickCount() + 60,
+                            () -> {
+                                var s = serverLevel.getBlockState(finalPos);
+                                if (s.getBlock() instanceof DoorBlock && s.getValue(DoorBlock.OPEN)) {
+                                    serverLevel.setBlock(finalPos, s.setValue(DoorBlock.OPEN, false), 10);
+                                    serverLevel.levelEvent(null, 1006, finalPos, 0);
+                                }
+                            }
+                    ));
+                }
             }
         } else {
             // Fehlschlag

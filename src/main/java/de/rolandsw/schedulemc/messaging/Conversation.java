@@ -13,7 +13,7 @@ public class Conversation {
     private final boolean isPlayerParticipant;
     private final List<Message> messages;
     private volatile long lastMessageTime;
-    private int reputation; // 0-100, nur für NPC-Konversationen relevant
+    private int reputation; // -100 bis 100, nur für NPC-Konversationen relevant
 
     public Conversation(UUID participantUUID, String participantName, boolean isPlayerParticipant) {
         this.participantUUID = participantUUID;
@@ -71,6 +71,6 @@ public class Conversation {
     }
 
     public void setReputation(int reputation) {
-        this.reputation = Math.max(0, Math.min(100, reputation));
+        this.reputation = Math.max(-100, Math.min(100, reputation));
     }
 }

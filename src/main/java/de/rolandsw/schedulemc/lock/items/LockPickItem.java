@@ -99,9 +99,8 @@ public class LockPickItem extends Item {
     private void triggerAlarm(ServerPlayer player) {
         // CrimeManager-Integration: Fahndungslevel erhoehen
         try {
-            Class<?> crimeClass = Class.forName("de.rolandsw.schedulemc.npc.crime.CrimeManager");
-            var method = crimeClass.getMethod("increaseWantedLevel", java.util.UUID.class, int.class);
-            method.invoke(null, player.getUUID(), 1);
+            long currentDay = player.level().getDayTime() / 24000;
+            de.rolandsw.schedulemc.npc.crime.CrimeManager.addWantedLevel(player.getUUID(), 1, currentDay);
         } catch (Exception ignored) {
             // CrimeManager nicht verfuegbar — kein Problem
         }
