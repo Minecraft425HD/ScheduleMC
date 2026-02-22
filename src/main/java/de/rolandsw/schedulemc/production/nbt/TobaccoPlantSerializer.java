@@ -53,11 +53,7 @@ public class TobaccoPlantSerializer implements PlantSerializer {
                 // Ungueltige Qualitaet - Standard beibehalten
             }
             plant.setGrowthStage(plantTag.getInt("GrowthStage"));
-
-            int ticksGrown = plantTag.getInt("TicksGrown");
-            while (plant.getTicksGrown() < ticksGrown) {
-                plant.incrementTicks();
-            }
+            plant.setTicksGrown(plantTag.getInt("TicksGrown"));
 
             if (plantTag.getBoolean("HasFertilizer")) plant.applyFertilizer();
             if (plantTag.getBoolean("HasGrowthBooster")) plant.applyGrowthBooster();
