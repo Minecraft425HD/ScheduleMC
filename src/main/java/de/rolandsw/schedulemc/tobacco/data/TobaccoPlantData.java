@@ -50,6 +50,10 @@ public class TobaccoPlantData {
         return ticksGrown;
     }
     
+    public void setTicksGrown(int ticks) {
+        this.ticksGrown = Math.max(0, ticks);
+    }
+
     public void incrementTicks() {
         this.ticksGrown++;
     }
