@@ -54,10 +54,8 @@ public class SyncPlayerSettingsPacket {
      */
     public static void handle(SyncPlayerSettingsPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            // Speichere Settings client-side
-            ClientPlayerSettings.utilityWarningsEnabled = msg.utilityWarningsEnabled;
-            ClientPlayerSettings.electricityThreshold = msg.electricityThreshold;
-            ClientPlayerSettings.waterThreshold = msg.waterThreshold;
+            // Verwende atomares Update um Race Conditions bei schnell aufeinanderfolgenden Paketen zu vermeiden
+            ClientPlayerSettings.update(msg.utilityWarningsEnabled, msg.electricityThreshold, msg.waterThreshold);
         });
         ctx.get().setPacketHandled(true);
     }

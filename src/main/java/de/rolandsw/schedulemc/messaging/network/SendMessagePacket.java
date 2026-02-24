@@ -15,6 +15,9 @@ import java.util.function.Supplier;
  * OPTIMIERT: recipientName wird nur für NPCs gesendet (Player-Namen werden server-seitig aufgelöst)
  */
 public class SendMessagePacket {
+    private static final int MAX_NPC_NAME_LENGTH = 64;
+    private static final int MAX_MESSAGE_CONTENT_LENGTH = 1024;
+
     private final UUID recipientUUID;
     private final String recipientName;  // Nur für NPCs nötig
     private final boolean isRecipientPlayer;
@@ -44,8 +47,8 @@ public class SendMessagePacket {
         UUID uuid = buf.readUUID();
         boolean isPlayer = buf.readBoolean();
         // OPTIMIERT: Lese recipientName nur für NPCs
-        String name = isPlayer ? "" : buf.readUtf(64); // NPC name max 64 chars
-        String content = buf.readUtf(1024); // Message max 1024 chars
+        String name = isPlayer ? "" : buf.readUtf(MAX_NPC_NAME_LENGTH);
+        String content = buf.readUtf(MAX_MESSAGE_CONTENT_LENGTH);
         return new SendMessagePacket(uuid, name, isPlayer, content);
     }
 
