@@ -193,7 +193,8 @@ public class ModCreativeTabs {
                 output.accept(TobaccoItems.SOIL_BAG_MEDIUM.get());
                 output.accept(TobaccoItems.SOIL_BAG_LARGE.get());
 
-                // TABAK - VERPACKUNG (PACKAGING_BAG wird intern durch Verpackungsmaschinen vergeben)
+                // TABAK - VERPACKUNG
+                output.accept(TobaccoItems.PACKAGING_BAG.get());
                 output.accept(TobaccoItems.PACKAGING_JAR.get());
                 output.accept(TobaccoItems.PACKAGING_BOX.get());
 
