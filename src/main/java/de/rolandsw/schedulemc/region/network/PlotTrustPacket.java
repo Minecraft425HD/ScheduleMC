@@ -63,8 +63,8 @@ public class PlotTrustPacket {
                 return;
             }
 
-            // Prüfe ob Spieler Besitzer ist
-            if (!plot.getOwnerUUID().equals(player.getUUID().toString())) {
+            // Prüfe ob Spieler Besitzer ist (null-safe: player.getUUID() ist nie null)
+            if (!player.getUUID().toString().equals(plot.getOwnerUUID())) {
                 player.sendSystemMessage(Component.translatable("message.plot.not_owner"));
                 return;
             }
