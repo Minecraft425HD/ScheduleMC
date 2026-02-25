@@ -13,23 +13,45 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Geerntete Mohnkapseln - werden zu Rohopium verarbeitet
+ * Geerntete Mohnkapseln - werden zu Rohopium verarbeitet.
+ * Je eine Variante pro Mohnsorte (Afghanisch, Indisch, Türkisch).
  */
 public class PoppyPodItem extends Item {
 
-    public PoppyPodItem() {
+    private final PoppyType poppyType;
+
+    public PoppyPodItem(PoppyType type) {
         super(new Properties().stacksTo(64));
+        this.poppyType = type;
     }
 
+    public PoppyType getPoppyType() {
+        return poppyType;
+    }
+
+    /**
+     * Erstellt eine ItemStack der richtigen Sorten-Variante mit Qualität in NBT.
+     */
     public static ItemStack create(PoppyType type, TobaccoQuality quality, int count) {
-        ItemStack stack = new ItemStack(PoppyItems.POPPY_POD.get(), count);
+        Item pod = switch (type) {
+            case AFGHANISCH -> PoppyItems.AFGHANISCH_POPPY_POD.get();
+            case TUERKISCH  -> PoppyItems.TUERKISCH_POPPY_POD.get();
+            case INDISCH    -> PoppyItems.INDISCH_POPPY_POD.get();
+        };
+        ItemStack stack = new ItemStack(pod, count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("PoppyType", type.name());
         tag.putString("Quality", quality.name());
         return stack;
     }
 
+    /**
+     * Liest den PoppyType aus dem Item selbst (über die Instanz) oder aus NBT als Fallback.
+     */
     public static PoppyType getType(ItemStack stack) {
+        if (stack.getItem() instanceof PoppyPodItem pod) {
+            return pod.poppyType;
+        }
         if (stack.hasTag() && stack.getTag().contains("PoppyType")) {
             try {
                 return PoppyType.valueOf(stack.getTag().getString("PoppyType"));
@@ -53,10 +75,9 @@ public class PoppyPodItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        PoppyType type = getType(stack);
         TobaccoQuality quality = getQuality(stack);
 
-        tooltip.add(Component.translatable("tooltip.poppy.type_label").append(type.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.poppy.type_label").append(poppyType.getColoredName()));
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
         tooltip.add(Component.translatable("tooltip.poppy_pod.craft_knife"));
@@ -65,8 +86,7 @@ public class PoppyPodItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        PoppyType type = getType(stack);
-        return Component.literal(type.getColorCode())
+        return Component.literal(poppyType.getColorCode())
             .append(Component.translatable("item.poppy_pod.name"));
     }
 }
