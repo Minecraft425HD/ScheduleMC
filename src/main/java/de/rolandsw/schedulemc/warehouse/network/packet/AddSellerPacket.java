@@ -97,10 +97,14 @@ public class AddSellerPacket {
      * @return Anzahl der hinzugefügten Items
      */
     private static int syncNPCShopToWarehouse(CustomNPCEntity npc, WarehouseBlockEntity warehouse) {
-        // Hole Shop-Items des NPCs
+        // Null-Checks: NPCData oder Shop könnten nicht initialisiert sein
+        if (npc.getNpcData() == null) return 0;
         NPCData.ShopInventory shop = npc.getNpcData().getBuyShop();
+        if (shop == null) return 0;
+
+        // Hole Shop-Items des NPCs
         List<NPCData.ShopEntry> originalEntries = shop.getEntries();
-        if (originalEntries.isEmpty()) {
+        if (originalEntries == null || originalEntries.isEmpty()) {
             return 0;
         }
 

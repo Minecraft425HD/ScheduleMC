@@ -112,6 +112,14 @@ public class PlotPurchasePacket {
                             return;
                         }
 
+                        // Sicherheitscheck: Besitzer muss existieren (verhindert Geldverlust bei
+                        // korrupten Daten, wo ownerUUID leer/null ist aber forRent=true gesetzt ist)
+                        UUID ownerUUID = plot.getOwnerUUIDAsUUID();
+                        if (ownerUUID == null) {
+                            player.sendSystemMessage(Component.translatable("message.plot.not_for_rent"));
+                            return;
+                        }
+
                         double rentPrice = plot.getRentPricePerDay();
 
                         // SICHERHEIT: Atomare Transaktion
@@ -123,8 +131,7 @@ public class PlotPurchasePacket {
                             return;
                         }
 
-                        // Zahle Miete an Besitzer
-                        UUID ownerUUID = UUID.fromString(plot.getOwnerUUID());
+                        // Zahle Miete an Besitzer (ownerUUID bereits oben validiert)
                         EconomyManager.deposit(ownerUUID, rentPrice, TransactionType.PLOT_RENT,
                             "Mieteinnahme: " + plot.getPlotName());
 

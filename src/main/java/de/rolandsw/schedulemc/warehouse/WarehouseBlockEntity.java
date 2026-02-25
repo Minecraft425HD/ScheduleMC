@@ -231,7 +231,7 @@ public class WarehouseBlockEntity extends BlockEntity {
                 double dynamicCost = DeliveryPriceConfig.getDynamicPrice(item, restockAmount);
                 totalCostDynamic += dynamicCost;
                 toDeliver.put(item, restockAmount);
-                LOGGER.debug("  Slot needs restock: item={}, amount={}, dynamicCost={:.2f}€ (base={}€/stk)",
+                LOGGER.debug("  Slot needs restock: item={}, amount={}, dynamicCost={}€ (base={}€/stk)",
                     item.getDescription().getString(), restockAmount, dynamicCost,
                     DeliveryPriceConfig.getBasePrice(item));
             }

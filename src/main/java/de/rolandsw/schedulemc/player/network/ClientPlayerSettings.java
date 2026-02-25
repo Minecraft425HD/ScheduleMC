@@ -10,16 +10,24 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ClientPlayerSettings {
 
-    public static boolean utilityWarningsEnabled = true;
-    public static double electricityThreshold = 100.0;
-    public static double waterThreshold = 500.0;
+    // volatile für korrekte Memory Visibility zwischen Packet-Thread und Render-Thread
+    public static volatile boolean utilityWarningsEnabled = true;
+    public static volatile double electricityThreshold = 100.0;
+    public static volatile double waterThreshold = 500.0;
+
+    /**
+     * Aktualisiert alle Settings atomar (verhindert teilweise Updates durch Race Conditions)
+     */
+    public static synchronized void update(boolean warnings, double electricity, double water) {
+        utilityWarningsEnabled = warnings;
+        electricityThreshold = electricity;
+        waterThreshold = water;
+    }
 
     /**
      * Setzt alle Settings auf Standardwerte zurück
      */
     public static void reset() {
-        utilityWarningsEnabled = true;
-        electricityThreshold = 100.0;
-        waterThreshold = 500.0;
+        update(true, 100.0, 500.0);
     }
 }

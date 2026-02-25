@@ -59,8 +59,8 @@ public class PlotRatingPacket {
                 return;
             }
 
-            // Spieler darf eigene Plots nicht bewerten
-            if (plot.getOwnerUUID().equals(player.getUUID().toString())) {
+            // Spieler darf eigene Plots nicht bewerten (null-safe: player.getUUID() ist nie null)
+            if (player.getUUID().toString().equals(plot.getOwnerUUID())) {
                 player.sendSystemMessage(Component.translatable("message.plot.cannot_rate_own"));
                 return;
             }

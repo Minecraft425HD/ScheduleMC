@@ -65,9 +65,10 @@ public class PlayerTracker {
         } else {
             // Update name if changed
             if (!contact.getName().equals(name)) {
+                String oldName = contact.getName();
                 contact.setName(name);
                 markDirty();
-                LOGGER.info("Updated player name: {} -> {} ({})", contact.getName(), name, uuid);
+                LOGGER.info("Updated player name: {} -> {} ({})", oldName, name, uuid);
             }
         }
 

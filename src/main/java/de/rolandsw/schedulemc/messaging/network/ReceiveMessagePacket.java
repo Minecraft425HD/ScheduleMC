@@ -14,6 +14,9 @@ import java.util.function.Supplier;
  * Packet sent from server to client when receiving a message
  */
 public class ReceiveMessagePacket {
+    private static final int MAX_SENDER_NAME_LENGTH = 64;
+    private static final int MAX_MESSAGE_CONTENT_LENGTH = 1024;
+
     private final UUID senderUUID;
     private final String senderName;
     private final boolean isSenderPlayer;
@@ -39,9 +42,9 @@ public class ReceiveMessagePacket {
     public static ReceiveMessagePacket decode(FriendlyByteBuf buf) {
         return new ReceiveMessagePacket(
             buf.readUUID(),
-            buf.readUtf(64),   // Sender name max 64 chars
+            buf.readUtf(MAX_SENDER_NAME_LENGTH),
             buf.readBoolean(),
-            buf.readUtf(1024)  // Message max 1024 chars
+            buf.readUtf(MAX_MESSAGE_CONTENT_LENGTH)
         );
     }
 

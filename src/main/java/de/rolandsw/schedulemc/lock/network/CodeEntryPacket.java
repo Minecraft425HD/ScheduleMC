@@ -2,7 +2,10 @@ package de.rolandsw.schedulemc.lock.network;
 
 import de.rolandsw.schedulemc.lock.LockData;
 import de.rolandsw.schedulemc.lock.LockManager;
+import de.rolandsw.schedulemc.lock.LockType;
+import de.rolandsw.schedulemc.lock.items.KeyItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -91,6 +94,18 @@ public class CodeEntryPacket {
                 // Code korrekt! Tuer oeffnen
                 player.sendSystemMessage(Component.literal("\u00A7a\u2714 Code korrekt!"));
 
+                // DUAL-Lock: Schluessel-Nutzung abziehen (Schluessel wurde zuvor in KeyItem validiert)
+                if (lockData.getType() == LockType.DUAL) {
+                    ItemStack held = player.getMainHandItem();
+                    if (held.getItem() instanceof KeyItem) {
+                        boolean depleted = KeyItem.consumeUse(held);
+                        if (depleted) {
+                            player.getInventory().setItem(player.getInventory().selected, ItemStack.EMPTY);
+                            player.sendSystemMessage(Component.literal("\u00A77(Schluessel verbraucht)"));
+                        }
+                    }
+                }
+
                 // Tuer oeffnen
                 Level level = player.level();
                 BlockState state = level.getBlockState(doorPos);
@@ -119,8 +134,6 @@ public class CodeEntryPacket {
      * Plant das automatische Schliessen der Tuer nach AUTO_CLOSE_TICKS.
      */
     private void scheduleAutoClose(ServerLevel level, BlockPos pos) {
-        final long closeTime = level.getGameTime() + AUTO_CLOSE_TICKS;
-
         // Einfacher Delayed-Task via Server
         level.getServer().tell(new net.minecraft.server.TickTask(
                 level.getServer().getTickCount() + AUTO_CLOSE_TICKS,
