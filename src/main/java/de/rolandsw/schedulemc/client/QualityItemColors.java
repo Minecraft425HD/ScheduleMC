@@ -107,9 +107,11 @@ public class QualityItemColors {
                 CocaItems.CRACK_ROCK.get()
         );
 
-        // Poppy Items (4)
+        // Poppy Items (6)
         event.register(QualityItemColors::getQualityColor,
-                PoppyItems.POPPY_POD.get(),
+                PoppyItems.AFGHANISCH_POPPY_POD.get(),
+                PoppyItems.INDISCH_POPPY_POD.get(),
+                PoppyItems.TUERKISCH_POPPY_POD.get(),
                 PoppyItems.RAW_OPIUM.get(),
                 PoppyItems.MORPHINE.get(),
                 PoppyItems.HEROIN.get()
