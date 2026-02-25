@@ -313,6 +313,9 @@ public class ProductionRegistry {
             .growthTicks(4000)
             .baseYield(3)
             .category(ProductionConfig.ProductionCategory.PLANT)
+            .addProcessingStage("scoring", new ProductionConfig.ProcessingStageConfig(
+                "Anritzen", 1200, "poppy_pod", "raw_opium", true
+            ))
             .addProcessingStage("pressing", new ProductionConfig.ProcessingStageConfig(
                 "Pressen", 1800, "raw_opium", "opium_block", true
             ))

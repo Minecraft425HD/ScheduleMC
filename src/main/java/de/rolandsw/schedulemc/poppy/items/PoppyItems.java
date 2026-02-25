@@ -23,6 +23,10 @@ public class PoppyItems {
     public static final RegistryObject<Item> INDISCH_SEEDS = ITEMS.register("indisch_poppy_seeds",
             () -> new PoppySeedItem(PoppyType.INDISCH));
 
+    // Mohnkapseln (geerntete Kapseln, sortentreu via NBT)
+    public static final RegistryObject<Item> POPPY_POD = ITEMS.register("poppy_pod",
+            PoppyPodItem::new);
+
     // Rohopium (braun)
     public static final RegistryObject<Item> RAW_OPIUM = ITEMS.register("raw_opium",
             RawOpiumItem::new);
