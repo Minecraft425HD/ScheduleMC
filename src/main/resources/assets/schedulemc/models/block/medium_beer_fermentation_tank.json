@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "schedulemc:block/medium_beer_fermentation_tank"
+  }
+}

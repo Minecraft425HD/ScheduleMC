@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "schedulemc:block/spaetburgunder_grapevine_pot"
+  }
+}
