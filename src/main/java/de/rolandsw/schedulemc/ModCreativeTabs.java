@@ -60,7 +60,6 @@ public class ModCreativeTabs {
                 // ═══════════════════════════════════════════════════════════
                 output.accept(ModItems.PLOT_SELECTION_TOOL.get());
                 output.accept(ModItems.CASH.get());
-                output.accept(ModItems.PACKAGED_DRUG.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // PLOT BLOCKS
@@ -131,6 +130,8 @@ public class ModCreativeTabs {
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.OFFROAD_TIRE.get()));
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.ALLTERRAIN_TIRE.get()));
                 output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.HEAVY_DUTY_TIRE.get()));
+                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.WINTER_TIRE.get()));
+                output.accept(new ItemStack(de.rolandsw.schedulemc.vehicle.items.ModItems.WAGON_JACK.get()));
 
                 // ═══════════════════════════════════════════════════════════
                 // TABAK - SAMEN
