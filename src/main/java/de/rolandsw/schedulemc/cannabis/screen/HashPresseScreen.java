@@ -149,7 +149,8 @@ public class HashPresseScreen extends AbstractContainerScreen<HashPresseMenu> {
             if (mouseX >= bx && mouseX < bx + BUTTON_WIDTH &&
                 mouseY >= by && mouseY < by + BUTTON_HEIGHT) {
                 if (menu.canStart()) {
-                    menu.startPressing();
+                    java.util.Objects.requireNonNull(this.minecraft).gameMode
+                            .handleInventoryButtonClick(this.menu.containerId, HashPresseMenu.BUTTON_START);
                     return true;
                 }
             }

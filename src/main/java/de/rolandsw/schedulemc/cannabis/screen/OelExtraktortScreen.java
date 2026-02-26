@@ -163,7 +163,8 @@ public class OelExtraktortScreen extends AbstractContainerScreen<OelExtraktortMe
             if (mouseX >= bx && mouseX < bx + BUTTON_WIDTH &&
                 mouseY >= by && mouseY < by + BUTTON_HEIGHT) {
                 if (menu.canStart()) {
-                    menu.startExtraction();
+                    java.util.Objects.requireNonNull(this.minecraft).gameMode
+                            .handleInventoryButtonClick(this.menu.containerId, OelExtraktortMenu.BUTTON_START);
                     return true;
                 }
             }

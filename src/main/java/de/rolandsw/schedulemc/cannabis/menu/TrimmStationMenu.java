@@ -87,24 +87,15 @@ public class TrimmStationMenu extends AbstractContainerMenu {
         addDataSlots(this.data);
     }
 
-    /**
-     * Startet das Minigame
-     */
-    public boolean startMinigame(Player player) {
-        if (blockEntity != null) {
-            return blockEntity.startMinigame(player.getUUID());
-        }
-        return false;
-    }
+    public static final int BUTTON_START = 0;
+    public static final int BUTTON_TRIM  = 1;
 
-    /**
-     * Spieler klickt zum Trimmen
-     */
-    public int trimClick() {
-        if (blockEntity != null) {
-            return blockEntity.trimClick();
-        }
-        return -1;
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (blockEntity == null || blockEntity.isRemoved()) return false;
+        if (id == BUTTON_START) return blockEntity.startMinigame(player.getUUID());
+        if (id == BUTTON_TRIM)  { blockEntity.trimClick(); return true; }
+        return false;
     }
 
     // Getter

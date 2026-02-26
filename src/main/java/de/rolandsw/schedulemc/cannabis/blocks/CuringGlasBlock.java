@@ -87,8 +87,8 @@ public class CuringGlasBlock extends BaseEntityBlock {
             }
         }
 
-        // GUI öffnen (leere Hand, normaler Rechtsklick, Glas hat Inhalt)
-        if (glas.hasContent() && heldItem.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+        // GUI öffnen (leere Hand, normaler Rechtsklick)
+        if (heldItem.isEmpty() && player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openScreen(serverPlayer, new CuringGlasMenu.Provider(glas), glas.getBlockPos());
             return InteractionResult.CONSUME;
         }

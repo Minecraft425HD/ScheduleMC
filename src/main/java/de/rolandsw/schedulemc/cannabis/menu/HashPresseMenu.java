@@ -72,8 +72,11 @@ public class HashPresseMenu extends AbstractContainerMenu {
         addDataSlots(this.data);
     }
 
-    public boolean startPressing() {
-        if (blockEntity != null) {
+    public static final int BUTTON_START = 0;
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id == BUTTON_START && blockEntity != null && !blockEntity.isRemoved()) {
             return blockEntity.startPressing();
         }
         return false;

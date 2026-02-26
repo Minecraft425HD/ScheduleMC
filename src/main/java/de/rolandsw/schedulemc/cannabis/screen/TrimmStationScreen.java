@@ -36,6 +36,7 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
     private boolean gameStarted = false;
     private int lastTrimResult = -1;
     private int resultShowTicks = 0;
+    private int lastPerfect = 0, lastGood = 0, lastBad = 0;
 
     public TrimmStationScreen(TrimmStationMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -230,6 +231,13 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
             graphics.drawString(this.font, hint, x + GUI_WIDTH/2 - hintWidth/2, y + 143, 0xFFFFFF, true);
         }
 
+        // Detect trim result from ContainerData counter changes (server-synced)
+        int curPerfect = menu.getPerfectTrims(), curGood = menu.getGoodTrims(), curBad = menu.getBadTrims();
+        if (curPerfect > lastPerfect)     { lastTrimResult = 2; resultShowTicks = 20; }
+        else if (curGood > lastGood)      { lastTrimResult = 1; resultShowTicks = 20; }
+        else if (curBad > lastBad)        { lastTrimResult = 0; resultShowTicks = 20; }
+        lastPerfect = curPerfect; lastGood = curGood; lastBad = curBad;
+
         // Result-Timer
         if (resultShowTicks > 0) {
             resultShowTicks--;
@@ -262,15 +270,15 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
                 mouseY >= buttonY && mouseY < buttonY + BUTTON_HEIGHT) {
 
                 if (!gameStarted && !menu.isMinigameActive()) {
-                    // Start
-                    if (menu.startMinigame(minecraft.player)) {
-                        gameStarted = true;
-                    }
+                    // Start — sends ServerboundContainerButtonClickPacket to server
+                    java.util.Objects.requireNonNull(minecraft).gameMode
+                            .handleInventoryButtonClick(this.menu.containerId, TrimmStationMenu.BUTTON_START);
+                    gameStarted = true;
                     return true;
                 } else if (menu.isMinigameActive()) {
-                    // Trim
-                    lastTrimResult = menu.trimClick();
-                    resultShowTicks = 20;
+                    // Trim — result detected via ContainerData sync in render()
+                    java.util.Objects.requireNonNull(minecraft).gameMode
+                            .handleInventoryButtonClick(this.menu.containerId, TrimmStationMenu.BUTTON_TRIM);
                     return true;
                 }
             }
@@ -282,8 +290,8 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Leertaste zum Trimmen
         if (keyCode == 32 && menu.isMinigameActive()) {
-            lastTrimResult = menu.trimClick();
-            resultShowTicks = 20;
+            java.util.Objects.requireNonNull(minecraft).gameMode
+                    .handleInventoryButtonClick(this.menu.containerId, TrimmStationMenu.BUTTON_TRIM);
             return true;
         }
         
