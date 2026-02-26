@@ -5936,5 +5936,20 @@
   "block.schedulemc.arabica_plant": "Arabica Plant",
   "block.schedulemc.robusta_plant": "Robusta Plant",
   "block.schedulemc.liberica_plant": "Liberica Plant",
-  "block.schedulemc.excelsa_plant": "Excelsa Plant"
+  "block.schedulemc.excelsa_plant": "Excelsa Plant",
+  "gui.curing_glas.menu_title": "Curing Jar",
+  "gui.curing_glas.title": "§a CURING JAR",
+  "gui.curing_glas.empty": "§7Empty — Place Trimmed Buds inside",
+  "gui.hash_presse.menu_title": "Hash Press",
+  "gui.hash_presse.title": "§a HASH PRESS",
+  "gui.hash_presse.button_start": "§f Press",
+  "gui.hash_presse.pressing": "§7Pressing...",
+  "gui.hash_presse.hash_ready": "§a Hash Ready!",
+  "gui.oel_extraktor.menu_title": "Oil Extractor",
+  "gui.oel_extraktor.title": "§a OIL EXTRACTOR",
+  "gui.oel_extraktor.button_start": "§f Extract",
+  "gui.oel_extraktor.extracting": "§7Extracting...",
+  "gui.oel_extraktor.oil_ready": "§a Oil Ready!",
+  "gui.oel_extraktor.buds": "Buds",
+  "gui.oel_extraktor.trim": "Trim"
 }

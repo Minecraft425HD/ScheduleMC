@@ -3,8 +3,10 @@ package de.rolandsw.schedulemc.cannabis.blocks;
 import de.rolandsw.schedulemc.cannabis.blockentity.CuringGlasBlockEntity;
 import de.rolandsw.schedulemc.cannabis.blockentity.CannabisBlockEntities;
 import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
+import de.rolandsw.schedulemc.cannabis.menu.CuringGlasMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -68,52 +71,26 @@ public class CuringGlasBlock extends BaseEntityBlock {
             }
         }
 
-        // Gecurte Buds entnehmen (Shift+Click für vorzeitige Entnahme)
-        if (glas.hasContent() && heldItem.isEmpty()) {
-            if (player.isShiftKeyDown() || glas.isReadyForExtraction()) {
-                ItemStack cured = glas.extractCuredBud();
-                if (!cured.isEmpty()) {
-                    player.addItem(cured);
-                    if (glas.isOptimallyCured()) {
-                        player.displayClientMessage(Component.translatable("block.curing_glas.perfect_buds"), true);
-                    } else if (glas.isReadyForExtraction()) {
-                        player.displayClientMessage(Component.translatable("block.curing_glas.cured_buds"), true);
-                    } else {
-                        player.displayClientMessage(Component.translatable("block.curing_glas.early_removal"), true);
-                    }
-                    return InteractionResult.CONSUME;
+        // Gecurte Buds entnehmen (Shift+Click)
+        if (glas.hasContent() && heldItem.isEmpty() && player.isShiftKeyDown()) {
+            ItemStack cured = glas.extractCuredBud();
+            if (!cured.isEmpty()) {
+                player.addItem(cured);
+                if (glas.isOptimallyCured()) {
+                    player.displayClientMessage(Component.translatable("block.curing_glas.perfect_buds"), true);
+                } else if (glas.isReadyForExtraction()) {
+                    player.displayClientMessage(Component.translatable("block.curing_glas.cured_buds"), true);
+                } else {
+                    player.displayClientMessage(Component.translatable("block.curing_glas.early_removal"), true);
                 }
+                return InteractionResult.CONSUME;
             }
         }
 
-        // Status anzeigen
-        if (glas.hasContent()) {
-            int days = glas.getCuringDays();
-            String qualityStr = glas.getExpectedQuality().getColoredName();
-
-            String statusIcon;
-            if (glas.isOptimallyCured()) {
-                statusIcon = "§6★";
-            } else if (glas.isReadyForExtraction()) {
-                statusIcon = "§a✓";
-            } else {
-                statusIcon = "§e⏳";
-            }
-
-            player.displayClientMessage(Component.literal(statusIcon)
-                    .append(Component.translatable("block.curing_glas.status_curing"))
-                    .append(Component.literal(days + ""))
-                    .append(Component.translatable("block.curing_glas.status_days"))
-                    .append(Component.literal(qualityStr)), true);
-
-            if (!glas.isReadyForExtraction()) {
-                int daysLeft = 14 - days;
-                player.displayClientMessage(Component.translatable("block.curing_glas.days_left")
-                        .append(Component.literal(daysLeft + ""))
-                        .append(Component.translatable("block.curing_glas.days_until_min")), false);
-            }
-        } else {
-            player.displayClientMessage(Component.translatable("block.curing_glas.empty"), true);
+        // GUI öffnen (leere Hand, normaler Rechtsklick, Glas hat Inhalt)
+        if (glas.hasContent() && heldItem.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+            NetworkHooks.openScreen(serverPlayer, new CuringGlasMenu.Provider(glas), glas.getBlockPos());
+            return InteractionResult.CONSUME;
         }
 
         return InteractionResult.SUCCESS;

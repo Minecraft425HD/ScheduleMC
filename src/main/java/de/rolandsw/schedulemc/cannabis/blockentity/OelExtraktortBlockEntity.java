@@ -171,6 +171,7 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
         return Math.max(1, (int) (materialWeight * rate));
     }
     public CannabisStrain getStrain() { return strain; }
+    public CannabisQuality getBaseQuality() { return baseQuality; }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
