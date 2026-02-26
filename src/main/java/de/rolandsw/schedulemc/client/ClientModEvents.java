@@ -28,6 +28,9 @@ import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
 import de.rolandsw.schedulemc.cannabis.items.CannabisSeedItem;
 import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;
 import de.rolandsw.schedulemc.cannabis.screen.TrimmStationScreen;
+import de.rolandsw.schedulemc.cannabis.screen.CuringGlasScreen;
+import de.rolandsw.schedulemc.cannabis.screen.HashPresseScreen;
+import de.rolandsw.schedulemc.cannabis.screen.OelExtraktortScreen;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import de.rolandsw.schedulemc.towing.menu.TowingMenuTypes;
@@ -91,6 +94,9 @@ public class ClientModEvents {
 
                 // Cannabis-System
                 MenuScreens.register(CannabisMenuTypes.TRIMM_STATION_MENU.get(), TrimmStationScreen::new);
+                MenuScreens.register(CannabisMenuTypes.CURING_GLAS_MENU.get(),   CuringGlasScreen::new);
+                MenuScreens.register(CannabisMenuTypes.HASH_PRESSE_MENU.get(),   HashPresseScreen::new);
+                MenuScreens.register(CannabisMenuTypes.OEL_EXTRAKTOR_MENU.get(), OelExtraktortScreen::new);
                 ItemProperties.register(CannabisItems.CANNABIS_SEED.get(),
                         new ResourceLocation(ScheduleMC.MOD_ID, "strain"),
                         (stack, level, entity, seed) -> CannabisSeedItem.getStrain(stack).ordinal());

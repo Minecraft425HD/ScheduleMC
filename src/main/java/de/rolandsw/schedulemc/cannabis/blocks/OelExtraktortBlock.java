@@ -5,8 +5,10 @@ import de.rolandsw.schedulemc.cannabis.blockentity.CannabisBlockEntities;
 import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
 import de.rolandsw.schedulemc.cannabis.items.TrimItem;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
+import de.rolandsw.schedulemc.cannabis.menu.OelExtraktortMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -97,40 +100,10 @@ public class OelExtraktortBlock extends BaseEntityBlock {
             }
         }
 
-        // Extraktion starten (leere Hand + Shift)
-        if (heldItem.isEmpty() && player.isShiftKeyDown() && extraktor.canStart()) {
-            if (extraktor.startExtraction()) {
-                player.displayClientMessage(Component.translatable("block.oil_extractor.extraction_started"), true);
-                return InteractionResult.CONSUME;
-            }
-        }
-
-        // Status anzeigen
-        if (extraktor.isExtracting()) {
-            int progress = (int) (extraktor.getExtractionProgress() * 100);
-            player.displayClientMessage(Component.translatable("block.oil_extractor.extracting").append(
-                    Component.translatable("block.oil_extractor.extracting_percent", progress)
-            ), true);
-        } else if (extraktor.getMaterialWeight() > 0) {
-            String typeKey = extraktor.isFromBuds() ? "block.oil_extractor.buds_label" : "block.oil_extractor.trim_label";
-            player.displayClientMessage(Component.translatable("block.oil_extractor.status")
-                    .append(Component.translatable(typeKey))
-                    .append(Component.translatable("block.oil_extractor.status_separator"))
-                    .append(Component.literal(extraktor.getMaterialWeight() + ""))
-                    .append(Component.translatable("block.oil_extractor.status_grams"))
-                    .append(Component.literal(extraktor.getSolventCount() + "")), true);
-            player.displayClientMessage(Component.translatable("block.oil_extractor.expected_oil")
-                    .append(Component.literal(extraktor.getExpectedOilAmount() + ""))
-                    .append(Component.translatable("block.oil_extractor.expected_ml")), false);
-            if (extraktor.canStart()) {
-                player.displayClientMessage(Component.translatable("block.oil_extractor.shift_to_start"), false);
-            } else if (extraktor.getSolventCount() < 1) {
-                player.displayClientMessage(Component.translatable("block.oil_extractor.solvent_needed"), false);
-            } else {
-                player.displayClientMessage(Component.translatable("block.oil_extractor.min_material"), false);
-            }
-        } else {
-            player.displayClientMessage(Component.translatable("block.oil_extractor.empty"), true);
+        // GUI öffnen (leere Hand)
+        if (heldItem.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+            NetworkHooks.openScreen(serverPlayer, new OelExtraktortMenu.Provider(extraktor), extraktor.getBlockPos());
+            return InteractionResult.CONSUME;
         }
 
         return InteractionResult.SUCCESS;

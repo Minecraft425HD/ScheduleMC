@@ -3,8 +3,10 @@ package de.rolandsw.schedulemc.cannabis.blocks;
 import de.rolandsw.schedulemc.cannabis.blockentity.HashPresseBlockEntity;
 import de.rolandsw.schedulemc.cannabis.blockentity.CannabisBlockEntities;
 import de.rolandsw.schedulemc.cannabis.items.TrimItem;
+import de.rolandsw.schedulemc.cannabis.menu.HashPresseMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -80,31 +83,10 @@ public class HashPresseBlock extends BaseEntityBlock {
             }
         }
 
-        // Pressen starten (leere Hand + Shift)
-        if (heldItem.isEmpty() && player.isShiftKeyDown() && presse.canStart()) {
-            if (presse.startPressing()) {
-                player.displayClientMessage(Component.translatable("block.hash_press.pressing_started"), true);
-                return InteractionResult.CONSUME;
-            }
-        }
-
-        // Status anzeigen
-        if (presse.isPressing()) {
-            int progress = (int) (presse.getPressProgress() * 100);
-            player.displayClientMessage(Component.translatable("block.hash_press.pressing").append(
-                    Component.translatable("block.hash_press.pressing_percent", progress)
-            ), true);
-        } else if (presse.getTrimWeight() > 0) {
-            player.displayClientMessage(Component.translatable("block.hash_press.status_trim", presse.getTrimWeight()).append(
-                    Component.translatable("block.hash_press.status_expected", presse.getExpectedHashWeight())
-            ), true);
-            if (presse.canStart()) {
-                player.displayClientMessage(Component.translatable("block.hash_press.shift_to_start"), false);
-            } else {
-                player.displayClientMessage(Component.translatable("block.hash_press.min_trim"), false);
-            }
-        } else {
-            player.displayClientMessage(Component.translatable("block.hash_press.empty"), true);
+        // GUI öffnen (leere Hand)
+        if (heldItem.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+            NetworkHooks.openScreen(serverPlayer, new HashPresseMenu.Provider(presse), presse.getBlockPos());
+            return InteractionResult.CONSUME;
         }
 
         return InteractionResult.SUCCESS;
