@@ -31,13 +31,20 @@ import de.rolandsw.schedulemc.tobacco.items.*;
 import de.rolandsw.schedulemc.wine.items.GrapeItem;
 import de.rolandsw.schedulemc.wine.items.WineBottleItem;
 import de.rolandsw.schedulemc.wine.items.WineItems;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.Map;
 
 /**
  * Registriert Item Colors für das Qualitäts-Rahmen-System.
@@ -61,6 +68,13 @@ public class QualityItemColors {
     private static final int COLOR_QUALITY_2 = 0xFF55FF55; // Grün - SEHR_GUT (§a)
     private static final int COLOR_QUALITY_3 = 0xFFFFAA00; // Gold - LEGENDAER (§6)
     private static final int COLOR_DEFAULT = 0xFFFFFFFF;   // Weiß - Keine Qualität/Fallback
+
+    /**
+     * Wird auf true gesetzt, während das Item in der First-Person-Hand gerendert wird.
+     * QualityFrameHidingModel und QualityHandRenderHandler nutzen diesen Flag,
+     * um den Qualitätsrahmen beim Halten zu unterdrücken.
+     */
+    public static volatile boolean isRenderingHeld = false;
 
     @SubscribeEvent
     public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
@@ -390,5 +404,104 @@ public class QualityItemColors {
             case 3 -> COLOR_QUALITY_3; // Gold (§6) - LEGENDAER
             default -> COLOR_DEFAULT;
         };
+    }
+
+    /**
+     * Wraps alle Quality-Item-Modelle mit QualityFrameHidingModel,
+     * damit der Qualitätsrahmen beim Halten in der Hand unterdrückt werden kann.
+     * Wird nach dem Backen aller Modelle aufgerufen (auch bei F3+T Reload).
+     */
+    @SubscribeEvent
+    public static void onBakingCompleted(ModelEvent.BakingCompleted event) {
+        Map<ResourceLocation, BakedModel> models = event.getModels();
+
+        Item[] qualityItems = {
+                // Tobacco (12)
+                TobaccoItems.FRESH_VIRGINIA_LEAF.get(),
+                TobaccoItems.FRESH_BURLEY_LEAF.get(),
+                TobaccoItems.FRESH_ORIENTAL_LEAF.get(),
+                TobaccoItems.FRESH_HAVANA_LEAF.get(),
+                TobaccoItems.DRIED_VIRGINIA_LEAF.get(),
+                TobaccoItems.DRIED_BURLEY_LEAF.get(),
+                TobaccoItems.DRIED_ORIENTAL_LEAF.get(),
+                TobaccoItems.DRIED_HAVANA_LEAF.get(),
+                TobaccoItems.FERMENTED_VIRGINIA_LEAF.get(),
+                TobaccoItems.FERMENTED_BURLEY_LEAF.get(),
+                TobaccoItems.FERMENTED_ORIENTAL_LEAF.get(),
+                TobaccoItems.FERMENTED_HAVANA_LEAF.get(),
+                // Cannabis (7)
+                CannabisItems.FRESH_BUD.get(),
+                CannabisItems.DRIED_BUD.get(),
+                CannabisItems.TRIMMED_BUD.get(),
+                CannabisItems.CURED_BUD.get(),
+                CannabisItems.HASH.get(),
+                CannabisItems.CANNABIS_OIL.get(),
+                CannabisItems.TRIM.get(),
+                // Coca (8)
+                CocaItems.FRESH_BOLIVIANISCH_LEAF.get(),
+                CocaItems.FRESH_KOLUMBIANISCH_LEAF.get(),
+                CocaItems.FRESH_PERUANISCH_LEAF.get(),
+                CocaItems.COCA_PASTE_BOLIVIANISCH.get(),
+                CocaItems.COCA_PASTE_KOLUMBIANISCH.get(),
+                CocaItems.COCA_PASTE_PERUANISCH.get(),
+                CocaItems.COCAINE.get(),
+                CocaItems.CRACK_ROCK.get(),
+                // Poppy (6)
+                PoppyItems.AFGHANISCH_POPPY_POD.get(),
+                PoppyItems.INDISCH_POPPY_POD.get(),
+                PoppyItems.TUERKISCH_POPPY_POD.get(),
+                PoppyItems.RAW_OPIUM.get(),
+                PoppyItems.MORPHINE.get(),
+                PoppyItems.HEROIN.get(),
+                // Meth (4)
+                MethItems.ROH_METH.get(),
+                MethItems.METH_PASTE.get(),
+                MethItems.KRISTALL_METH.get(),
+                MethItems.METH.get(),
+                // MDMA (3)
+                MDMAItems.MDMA_BASE.get(),
+                MDMAItems.MDMA_KRISTALL.get(),
+                MDMAItems.ECSTASY_PILL.get(),
+                // LSD (2)
+                LSDItems.BLOTTER.get(),
+                LSDItems.LSD_LOESUNG.get(),
+                // Mushroom (6)
+                MushroomItems.FRESH_CUBENSIS.get(),
+                MushroomItems.FRESH_AZURESCENS.get(),
+                MushroomItems.FRESH_MEXICANA.get(),
+                MushroomItems.DRIED_CUBENSIS.get(),
+                MushroomItems.DRIED_AZURESCENS.get(),
+                MushroomItems.DRIED_MEXICANA.get(),
+                // Packaged Drug (1)
+                ModItems.PACKAGED_DRUG.get(),
+                // Coffee (2)
+                CoffeeItems.ROASTED_COFFEE_BEANS.get(),
+                CoffeeItems.GROUND_COFFEE.get(),
+                // Wine (5)
+                WineItems.WINE_BOTTLE.get(),
+                WineItems.RIESLING_GRAPES.get(),
+                WineItems.SPAETBURGUNDER_GRAPES.get(),
+                WineItems.CHARDONNAY_GRAPES.get(),
+                WineItems.MERLOT_GRAPES.get(),
+                // Cheese (2)
+                CheeseItems.CHEESE_CURD.get(),
+                CheeseItems.CHEESE_WHEEL.get(),
+                // Honey (1)
+                HoneyItems.HONEY_JAR.get(),
+                // Chocolate (1)
+                ChocolateItems.CHOCOLATE_BAR.get(),
+                // Beer (1)
+                BeerItems.BEER_BOTTLE.get()
+        };
+
+        for (Item item : qualityItems) {
+            ResourceLocation id = ForgeRegistries.ITEMS.getKey(item);
+            if (id == null) continue;
+            ModelResourceLocation modelLoc = new ModelResourceLocation(id, "inventory");
+            BakedModel original = models.get(modelLoc);
+            if (original != null) {
+                models.put(modelLoc, new QualityFrameHidingModel(original));
+            }
+        }
     }
 }
