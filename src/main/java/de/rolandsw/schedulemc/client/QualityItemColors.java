@@ -33,7 +33,6 @@ import de.rolandsw.schedulemc.wine.items.WineBottleItem;
 import de.rolandsw.schedulemc.wine.items.WineItems;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -413,7 +412,7 @@ public class QualityItemColors {
      */
     @SubscribeEvent
     public static void onBakingCompleted(ModelEvent.BakingCompleted event) {
-        Map<ResourceLocation, BakedModel> models = event.getModels();
+        Map<ResourceLocation, BakedModel> models = event.getModelBakery().getBakedTopLevelModels();
 
         Item[] qualityItems = {
                 // Tobacco (12)
