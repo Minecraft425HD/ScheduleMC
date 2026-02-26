@@ -60,8 +60,8 @@ public class CuringGlasBlock extends BaseEntityBlock {
 
         ItemStack heldItem = player.getItemInHand(hand);
 
-        // Getrimmte Buds hinzufügen
-        if (heldItem.getItem() instanceof TrimmedBudItem && !glas.hasContent()) {
+        // Getrimmte Buds hinzufügen (bis zu MAX_WEIGHT g, gleiche Sorte/Qualität)
+        if (heldItem.getItem() instanceof TrimmedBudItem) {
             if (glas.addTrimmedBud(heldItem)) {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);

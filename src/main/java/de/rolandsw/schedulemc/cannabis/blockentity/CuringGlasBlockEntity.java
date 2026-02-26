@@ -26,8 +26,7 @@ public class CuringGlasBlockEntity extends BlockEntity implements IUtilityConsum
     private boolean lastActiveState = false;
 
     public static final int TICKS_PER_DAY = 24000;
-    public static final int MIN_CURING_DAYS = 14;
-    public static final int OPTIMAL_CURING_DAYS = 28;
+    public static final int MAX_WEIGHT    = 10;  // Glas fasst bis zu 10g
 
     private ItemStack storedItem = ItemStack.EMPTY;
     private CannabisStrain strain = CannabisStrain.HYBRID;
@@ -41,13 +40,24 @@ public class CuringGlasBlockEntity extends BlockEntity implements IUtilityConsum
 
     public boolean addTrimmedBud(ItemStack stack) {
         if (!(stack.getItem() instanceof TrimmedBudItem)) return false;
-        if (!storedItem.isEmpty()) return false;
 
-        strain = TrimmedBudItem.getStrain(stack);
-        baseQuality = TrimmedBudItem.getQuality(stack);
-        weight = TrimmedBudItem.getWeight(stack);
-        storedItem = stack.copy();
-        curingTicks = 0;
+        CannabisStrain  addStrain  = TrimmedBudItem.getStrain(stack);
+        CannabisQuality addQuality = TrimmedBudItem.getQuality(stack);
+
+        if (storedItem.isEmpty()) {
+            strain      = addStrain;
+            baseQuality = addQuality;
+            storedItem  = stack.copy();
+            storedItem.setCount(1);
+            weight      = 1;
+            curingTicks = 0;
+        } else {
+            // Nur gleiche Sorte & Qualität, und noch Platz
+            if (strain != addStrain || baseQuality != addQuality) return false;
+            if (storedItem.getCount() >= MAX_WEIGHT) return false;
+            storedItem.grow(1);
+            weight = storedItem.getCount();
+        }
 
         setChanged();
         if (level != null) {
@@ -104,20 +114,30 @@ public class CuringGlasBlockEntity extends BlockEntity implements IUtilityConsum
 
     // Getter
     public boolean hasContent() { return !storedItem.isEmpty(); }
-    public int getCuringDays() { return curingTicks / TICKS_PER_DAY; }
+    public int getCuringDays()  { return curingTicks / TICKS_PER_DAY; }
     public int getCuringTicks() { return curingTicks; }
-    public boolean isReadyForExtraction() { return getCuringDays() >= MIN_CURING_DAYS; }
-    public boolean isOptimallyCured() { return getCuringDays() >= OPTIMAL_CURING_DAYS; }
-    public CannabisStrain getStrain() { return strain; }
+    public CannabisStrain  getStrain()      { return strain; }
     public CannabisQuality getBaseQuality() { return baseQuality; }
-    public int getWeight() { return weight; }
+    public int getWeight() { return storedItem.isEmpty() ? 0 : storedItem.getCount(); }
+
+    /** Qualität hat sich mindestens 1 Stufe verbessert */
+    public boolean isReadyForExtraction() { return getCuringDays() >= 1; }
+
+    /** Maximale Qualität (LEGENDAER) erreicht */
+    public boolean isOptimallyCured() {
+        int daysNeeded = CannabisQuality.LEGENDAER.getLevel() - baseQuality.getLevel();
+        return getCuringDays() >= daysNeeded;
+    }
 
     public CannabisQuality getExpectedQuality() {
         return CannabisQuality.fromCuringTime(getCuringDays(), baseQuality);
     }
 
+    /** Fortschritt 0.0–1.0 bis zur maximalen Qualitätsstufe */
     public float getCuringProgress() {
-        return Math.min(1.0f, (float) getCuringDays() / OPTIMAL_CURING_DAYS);
+        int daysNeeded = CannabisQuality.LEGENDAER.getLevel() - baseQuality.getLevel();
+        if (daysNeeded <= 0) return 1.0f;
+        return Math.min(1.0f, (float) getCuringDays() / daysNeeded);
     }
 
     @Override

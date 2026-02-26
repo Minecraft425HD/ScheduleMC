@@ -5,261 +5,92 @@ import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.items.DriedBudItem;
 import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
 import de.rolandsw.schedulemc.cannabis.items.TrimItem;
-import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
-import de.rolandsw.schedulemc.utility.IUtilityConsumer;
-import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 /**
- * Trimm-Station mit Minigame
- * Spieler muss Blätter entfernen - je besser, desto höhere Qualität
+ * Trimm-Station – einfaches Klick-System.
+ * Spieler klickt CLICKS_NEEDED Mal auf den Button.
+ * Buds werden direkt aus dem Spieler-Inventar genommen.
+ * Output: 1× TrimmedBud (gleiche Sorte/Qualität) + 2× Trim. Qualität bleibt gleich.
  */
-public class TrimmStationBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class TrimmStationBlockEntity extends BlockEntity {
 
-    private boolean lastActiveState = false;
+    public static final int CLICKS_NEEDED = 5;
 
-    // Minigame Konstanten
-    public static final int TRIM_CYCLE_TICKS = 100; // 5 Sekunden pro Zyklus
-    public static final int LEAVES_TO_TRIM = 10;    // Anzahl der zu entfernenden Blätter
-    public static final int PERFECT_WINDOW = 5;     // Ticks für perfektes Timing
-
-    private ItemStack inputItem = ItemStack.EMPTY;
-    private CannabisStrain strain = CannabisStrain.HYBRID;
-    private CannabisQuality baseQuality = CannabisQuality.GUT;
-    private int weight = 0;
-
-    private boolean isMinigameActive = false;
-    private int minigameTick = 0;
-    private int leavesRemoved = 0;
-    private int perfectTrims = 0;
-    private int goodTrims = 0;
-    private int badTrims = 0;
-
-    private UUID activePlayer = null;
-    private ItemStack outputBud = ItemStack.EMPTY;
-    private ItemStack outputTrim = ItemStack.EMPTY;
+    private int clickCount = 0;
+    private CannabisStrain  lastStrain  = CannabisStrain.HYBRID;
+    private CannabisQuality lastQuality = CannabisQuality.GUT;
 
     public TrimmStationBlockEntity(BlockPos pos, BlockState state) {
         super(CannabisBlockEntities.TRIMM_STATION.get(), pos, state);
     }
 
-    public boolean addDriedBud(ItemStack stack) {
-        if (!(stack.getItem() instanceof DriedBudItem)) return false;
-        if (!inputItem.isEmpty() || isMinigameActive) return false;
-
-        strain = DriedBudItem.getStrain(stack);
-        baseQuality = DriedBudItem.getQuality(stack);
-        weight = stack.getCount(); // Anzahl Items = Gramm (jedes Item = 1g)
-        inputItem = stack.copy();
-
-        setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
-        return true;
-    }
-
-    public boolean startMinigame(UUID playerUUID) {
-        if (inputItem.isEmpty() || isMinigameActive || !outputBud.isEmpty()) {
-            return false;
-        }
-
-        activePlayer = playerUUID;
-        isMinigameActive = true;
-        minigameTick = 0;
-        leavesRemoved = 0;
-        perfectTrims = 0;
-        goodTrims = 0;
-        badTrims = 0;
-
-        setChanged();
-        return true;
-    }
-
     /**
-     * Spieler klickt zum Trimmen
-     * Gibt Timing-Qualität zurück: 0 = schlecht, 1 = gut, 2 = perfekt
+     * Spieler klickt Trim-Button. Sucht ersten DriedBud im Inventar.
+     * Nach CLICKS_NEEDED Klicks: 1 DriedBud entnehmen,
+     * 1 TrimmedBud (gleiche Qualität) + 2 Trim ins Inventar geben.
      */
-    public int trimClick() {
-        if (!isMinigameActive) return -1;
+    public boolean doTrimClick(Player player) {
+        ItemStack bud = findDriedBud(player);
+        if (bud.isEmpty()) return false;
 
-        int cyclePosition = minigameTick % TRIM_CYCLE_TICKS;
-        int perfectCenter = TRIM_CYCLE_TICKS / 2;
+        lastStrain  = DriedBudItem.getStrain(bud);
+        lastQuality = DriedBudItem.getQuality(bud);
+        clickCount++;
 
-        int result;
-        if (Math.abs(cyclePosition - perfectCenter) <= PERFECT_WINDOW) {
-            // Perfekt!
-            perfectTrims++;
-            result = 2;
-        } else if (Math.abs(cyclePosition - perfectCenter) <= PERFECT_WINDOW * 3) {
-            // Gut
-            goodTrims++;
-            result = 1;
-        } else {
-            // Schlecht
-            badTrims++;
-            result = 0;
-        }
-
-        leavesRemoved++;
-
-        // Prüfe ob fertig
-        if (leavesRemoved >= LEAVES_TO_TRIM) {
-            finishTrimming();
+        if (clickCount >= CLICKS_NEEDED) {
+            bud.shrink(1);
+            player.addItem(TrimmedBudItem.create(lastStrain, lastQuality, 1));
+            player.addItem(TrimItem.create(lastStrain, lastQuality, 2));
+            clickCount = 0;
         }
 
         setChanged();
-        return result;
-    }
-
-    private void finishTrimming() {
-        // Berechne Gesamtqualität basierend auf Trim-Performance
-        double score = (perfectTrims * 1.0 + goodTrims * 0.6 + badTrims * 0.2) / LEAVES_TO_TRIM;
-        CannabisQuality finalQuality = CannabisQuality.fromTrimScore(score);
-
-        // Wenn Base-Qualität besser, behalte sie
-        if (baseQuality.getLevel() > finalQuality.getLevel()) {
-            finalQuality = baseQuality;
-        }
-
-        // Erstelle Output
-        // Jedes Item = 1g: X Items Input → X Items Trimmed + X/2 Items Trim
-        int trimmedCount = weight; // Gleiche Anzahl wie Input
-        int trimCount = weight / 2; // 0,5g Trim pro 1g Input
-
-        outputBud = TrimmedBudItem.create(strain, finalQuality, trimmedCount);
-        outputTrim = TrimItem.create(strain, finalQuality, trimCount);
-
-        inputItem = ItemStack.EMPTY;
-        isMinigameActive = false;
-        activePlayer = null;
-
         if (level != null) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+        return true;
     }
 
-    public ItemStack extractTrimmedBud() {
-        if (outputBud.isEmpty()) return ItemStack.EMPTY;
-        ItemStack result = outputBud.copy();
-        outputBud = ItemStack.EMPTY;
-        setChanged();
-        return result;
-    }
-
-    public ItemStack extractTrim() {
-        if (outputTrim.isEmpty()) return ItemStack.EMPTY;
-        ItemStack result = outputTrim.copy();
-        outputTrim = ItemStack.EMPTY;
-        setChanged();
-        return result;
-    }
-
-    public void tick() {
-        if (level == null || level.isClientSide) return;
-
-        if (isMinigameActive) {
-            minigameTick++;
-
-            // Update für GUI
-            if (minigameTick % 2 == 0) {
-                setChanged();
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    private ItemStack findDriedBud(Player player) {
+        for (ItemStack stack : player.getInventory().items) {
+            if (!stack.isEmpty() && stack.getItem() instanceof DriedBudItem) {
+                return stack;
             }
         }
-
-        // Utility-Status nur bei Änderung melden
-        boolean currentActive = isActivelyConsuming();
-        if (currentActive != lastActiveState) {
-            lastActiveState = currentActive;
-            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
-        }
-    }
-
-    @Override
-    public boolean isActivelyConsuming() {
-        return isMinigameActive;
-    }
-
-    public void cancelMinigame() {
-        isMinigameActive = false;
-        activePlayer = null;
-        minigameTick = 0;
-        leavesRemoved = 0;
-        setChanged();
+        return ItemStack.EMPTY;
     }
 
     // Getter
-    public boolean hasInput() { return !inputItem.isEmpty(); }
-    public boolean isMinigameActive() { return isMinigameActive; }
-    public boolean hasOutput() { return !outputBud.isEmpty(); }
-    public int getMinigameTick() { return minigameTick; }
-    public int getCycleTicks() { return TRIM_CYCLE_TICKS; }
-    public float getCycleProgress() { return (float) (minigameTick % TRIM_CYCLE_TICKS) / TRIM_CYCLE_TICKS; }
-    public int getLeavesRemoved() { return leavesRemoved; }
-    public int getTotalLeaves() { return LEAVES_TO_TRIM; }
-    public int getPerfectTrims() { return perfectTrims; }
-    public int getGoodTrims() { return goodTrims; }
-    public int getBadTrims() { return badTrims; }
-    public CannabisStrain getStrain() { return strain; }
-    public UUID getActivePlayer() { return activePlayer; }
+    public int getClickCount()           { return clickCount; }
+    public CannabisStrain  getLastStrain()  { return lastStrain; }
+    public CannabisQuality getLastQuality() { return lastQuality; }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        if (!inputItem.isEmpty()) {
-            CompoundTag inputTag = new CompoundTag();
-            inputItem.save(inputTag);
-            tag.put("Input", inputTag);
-        }
-        tag.putString("Strain", strain.name());
-        tag.putString("Quality", baseQuality.name());
-        tag.putInt("Weight", weight);
-        tag.putBoolean("MinigameActive", isMinigameActive);
-        tag.putInt("MinigameTick", minigameTick);
-        tag.putInt("LeavesRemoved", leavesRemoved);
-        tag.putInt("PerfectTrims", perfectTrims);
-        tag.putInt("GoodTrims", goodTrims);
-        tag.putInt("BadTrims", badTrims);
-        if (!outputBud.isEmpty()) {
-            CompoundTag outputTag = new CompoundTag();
-            outputBud.save(outputTag);
-            tag.put("OutputBud", outputTag);
-        }
-        if (!outputTrim.isEmpty()) {
-            CompoundTag trimTag = new CompoundTag();
-            outputTrim.save(trimTag);
-            tag.put("OutputTrim", trimTag);
-        }
+        tag.putInt("ClickCount",   clickCount);
+        tag.putString("LastStrain",  lastStrain.name());
+        tag.putString("LastQuality", lastQuality.name());
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        inputItem = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
-        try { strain = CannabisStrain.valueOf(tag.getString("Strain")); }
-        catch (IllegalArgumentException e) { strain = CannabisStrain.HYBRID; }
-        try { baseQuality = CannabisQuality.valueOf(tag.getString("Quality")); }
-        catch (IllegalArgumentException e) { baseQuality = CannabisQuality.GUT; }
-        weight = tag.getInt("Weight");
-        isMinigameActive = tag.getBoolean("MinigameActive");
-        minigameTick = tag.getInt("MinigameTick");
-        leavesRemoved = tag.getInt("LeavesRemoved");
-        perfectTrims = tag.getInt("PerfectTrims");
-        goodTrims = tag.getInt("GoodTrims");
-        badTrims = tag.getInt("BadTrims");
-        outputBud = tag.contains("OutputBud") ? ItemStack.of(tag.getCompound("OutputBud")) : ItemStack.EMPTY;
-        outputTrim = tag.contains("OutputTrim") ? ItemStack.of(tag.getCompound("OutputTrim")) : ItemStack.EMPTY;
+        clickCount = tag.getInt("ClickCount");
+        try { lastStrain  = CannabisStrain.valueOf(tag.getString("LastStrain")); }
+        catch (IllegalArgumentException e) { lastStrain = CannabisStrain.HYBRID; }
+        try { lastQuality = CannabisQuality.valueOf(tag.getString("LastQuality")); }
+        catch (IllegalArgumentException e) { lastQuality = CannabisQuality.GUT; }
     }
 
     @Nullable
