@@ -72,8 +72,8 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
         if (!playerBud.isEmpty()) {
             String strain  = DriedBudItem.getStrain(playerBud).getColoredName();
             String quality = DriedBudItem.getQuality(playerBud).getColoredName();
-            graphics.drawString(this.font, "§7Sorte: " + strain,     x + 10, y + ROW1_Y, 0xFFFFFF, false);
-            graphics.drawString(this.font, "§7Qualität: " + quality,  x + 10, y + ROW2_Y, 0xFFFFFF, false);
+            graphics.drawString(this.font, Component.translatable("gui.trimm_station.info_strain").getString() + strain,   x + 10, y + ROW1_Y, 0xFFFFFF, false);
+            graphics.drawString(this.font, Component.translatable("gui.trimm_station.info_quality").getString() + quality, x + 10, y + ROW2_Y, 0xFFFFFF, false);
         }
 
         // Progress bar
@@ -144,7 +144,7 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
             graphics.drawString(this.font, msg, x + GUI_WIDTH / 2 - w / 2, y + STATUS_Y, 0xFF888888, false);
         } else {
             // Show output preview
-            String out = "→ 1× §aTrimmedBud §7+ 2× §7Trim";
+            String out = Component.translatable("gui.trimm_station.output_preview").getString();
             graphics.drawString(this.font, out, x + 10, y + STATUS_Y, 0xFFFFFF, false);
         }
     }

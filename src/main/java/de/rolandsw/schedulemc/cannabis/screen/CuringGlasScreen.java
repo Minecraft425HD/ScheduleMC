@@ -56,18 +56,24 @@ public class CuringGlasScreen extends AbstractContainerScreen<CuringGlasMenu> {
         int maxDays = 3 - menu.getBaseQuality().getLevel(); // Tage bis LEGENDAER
 
         // Row 1: strain + weight
-        String row1 = "§7Sorte: " + menu.getStrain().getColoredName()
-                    + " §7| §fGewicht: " + menu.getWeight() + "g";
+        String row1 = Component.translatable("gui.curing_glas.info_strain").getString()
+                    + menu.getStrain().getColoredName()
+                    + Component.translatable("gui.curing_glas.info_weight_sep").getString()
+                    + menu.getWeight() + "g";
         graphics.drawString(this.font, row1, x + 10, y + ROW1_Y, 0xFFFFFF, false);
 
         // Row 2: base quality
-        String row2 = "§7Basis-Qualität: " + menu.getBaseQuality().getColoredName();
+        String row2 = Component.translatable("gui.curing_glas.info_base_quality").getString()
+                    + menu.getBaseQuality().getColoredName();
         graphics.drawString(this.font, row2, x + 10, y + ROW2_Y, 0xFFFFFF, false);
 
         // Row 3: curing days
         String row3 = maxDays <= 0
-                ? "§7Curing-Tage: §f" + menu.getCuringDays() + " §7(bereits max. Qualität)"
-                : "§7Curing-Tage: §f" + menu.getCuringDays() + " §7/ " + maxDays;
+                ? Component.translatable("gui.curing_glas.info_curing_days").getString()
+                    + menu.getCuringDays()
+                    + Component.translatable("gui.curing_glas.info_max_reached").getString()
+                : Component.translatable("gui.curing_glas.info_curing_days").getString()
+                    + menu.getCuringDays() + " §7/ " + maxDays;
         graphics.drawString(this.font, row3, x + 10, y + ROW3_Y, 0xFFFFFF, false);
     }
 
@@ -129,7 +135,8 @@ public class CuringGlasScreen extends AbstractContainerScreen<CuringGlasMenu> {
         }
 
         // Row 4: expected quality (below bar)
-        String expectedText = "§7Erwartete Qualität: " + menu.getExpectedQuality().getColoredName();
+        String expectedText = Component.translatable("gui.curing_glas.info_expected_quality").getString()
+                            + menu.getExpectedQuality().getColoredName();
         graphics.drawString(this.font, expectedText, x + 10, y + ROW4_Y, 0xFFFFFF, false);
     }
 

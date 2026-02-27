@@ -64,14 +64,19 @@ public class OelExtraktortScreen extends AbstractContainerScreen<OelExtraktortMe
                 ? Component.translatable("gui.oel_extraktor.buds").getString()
                 : Component.translatable("gui.oel_extraktor.trim").getString();
 
-        String row1 = "§7Material: §f" + menu.getMaterialWeight() + "g " + typeLabel
+        String row1 = Component.translatable("gui.oel_extraktor.info_material").getString()
+                    + menu.getMaterialWeight() + "g " + typeLabel
                     + " §7| " + menu.getStrain().getColoredName();
         graphics.drawString(this.font, row1, x + 10, y + ROW1_Y, 0xFFFFFF, false);
 
-        String row2 = "§7Lösungsmittel: §f" + menu.getSolventCount();
+        String row2 = Component.translatable("gui.oel_extraktor.info_solvent").getString()
+                    + menu.getSolventCount();
         graphics.drawString(this.font, row2, x + 10, y + ROW2_Y, 0xFFFFFF, false);
 
-        String row3 = "§7Öl: §f" + menu.getExpectedOilAmount() + "ml §7| Qualität: " + menu.getBaseQuality().getColoredName();
+        String row3 = Component.translatable("gui.oel_extraktor.info_oil").getString()
+                    + menu.getExpectedOilAmount()
+                    + Component.translatable("gui.oel_extraktor.info_quality_sep").getString()
+                    + menu.getBaseQuality().getColoredName();
         graphics.drawString(this.font, row3, x + 10, y + ROW3_Y, 0xFFFFFF, false);
     }
 
@@ -142,9 +147,10 @@ public class OelExtraktortScreen extends AbstractContainerScreen<OelExtraktortMe
 
         if (!menu.isExtracting() && !menu.hasOutput()) {
             if (menu.getSolventCount() < 1) {
-                graphics.drawString(this.font, "§7(Lösungsmittel benötigt)", x + 10, y + STATUS_Y, 0xAAAAAA, false);
+                graphics.drawString(this.font, Component.translatable("gui.oel_extraktor.hint_solvent_needed").getString(), x + 10, y + STATUS_Y, 0xAAAAAA, false);
             } else if (menu.getMaterialWeight() < OelExtraktortBlockEntity.MIN_MATERIAL_WEIGHT) {
-                String warn = "§7(Mindestens " + OelExtraktortBlockEntity.MIN_MATERIAL_WEIGHT + "g Material benötigt)";
+                String warn = String.format(Component.translatable("gui.oel_extraktor.hint_min_material").getString(),
+                        OelExtraktortBlockEntity.MIN_MATERIAL_WEIGHT);
                 graphics.drawString(this.font, warn, x + 10, y + STATUS_Y, 0xAAAAAA, false);
             }
         }

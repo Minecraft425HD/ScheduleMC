@@ -58,10 +58,16 @@ public class HashPresseScreen extends AbstractContainerScreen<HashPresseMenu> {
     }
 
     private void renderInfoRows(GuiGraphics graphics, int x, int y) {
-        String row1 = "§7Trim: §f" + menu.getTrimWeight() + "g §7| Sorte: " + menu.getStrain().getColoredName();
+        String row1 = Component.translatable("gui.hash_presse.info_trim").getString()
+                    + menu.getTrimWeight()
+                    + Component.translatable("gui.hash_presse.info_strain_sep").getString()
+                    + menu.getStrain().getColoredName();
         graphics.drawString(this.font, row1, x + 10, y + ROW1_Y, 0xFFFFFF, false);
 
-        String row2 = "§7Hash: §f" + menu.getExpectedHashWeight() + "g §7| Qualität: " + menu.getBaseQuality().getColoredName();
+        String row2 = Component.translatable("gui.hash_presse.info_hash").getString()
+                    + menu.getExpectedHashWeight()
+                    + Component.translatable("gui.hash_presse.info_quality_sep").getString()
+                    + menu.getBaseQuality().getColoredName();
         graphics.drawString(this.font, row2, x + 10, y + ROW2_Y, 0xFFFFFF, false);
     }
 
@@ -131,7 +137,8 @@ public class HashPresseScreen extends AbstractContainerScreen<HashPresseMenu> {
         }
 
         if (!menu.isPressing() && !menu.hasOutput() && menu.getTrimWeight() < de.rolandsw.schedulemc.cannabis.blockentity.HashPresseBlockEntity.MIN_TRIM_WEIGHT) {
-            String warn = "§7(Mindestens " + de.rolandsw.schedulemc.cannabis.blockentity.HashPresseBlockEntity.MIN_TRIM_WEIGHT + "g Trim benötigt)";
+            String warn = String.format(Component.translatable("gui.hash_presse.hint_min_trim").getString(),
+                    de.rolandsw.schedulemc.cannabis.blockentity.HashPresseBlockEntity.MIN_TRIM_WEIGHT);
             graphics.drawString(this.font, warn, x + 10, y + STATUS_Y, 0xAAAAAA, false);
         }
     }
