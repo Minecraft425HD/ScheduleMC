@@ -20,7 +20,7 @@ public class CuringGlasScreen extends AbstractContainerScreen<CuringGlasMenu> {
     private static final int ROW1_Y = 35;
     private static final int ROW2_Y = 50;
     private static final int ROW3_Y = 65;
-    private static final int ROW4_Y = 102;
+    private static final int ROW4_Y = 114;
 
     public CuringGlasScreen(CuringGlasMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -53,17 +53,27 @@ public class CuringGlasScreen extends AbstractContainerScreen<CuringGlasMenu> {
     }
 
     private void renderInfoRows(GuiGraphics graphics, int x, int y) {
+        int maxDays = 3 - menu.getBaseQuality().getLevel(); // Tage bis LEGENDAER
+
         // Row 1: strain + weight
-        String row1 = "§7Sorte: " + menu.getStrain().getColoredName()
-                    + " §7| §fGewicht: " + menu.getWeight() + "g";
+        String row1 = Component.translatable("gui.curing_glas.info_strain").getString()
+                    + menu.getStrain().getColoredName()
+                    + Component.translatable("gui.curing_glas.info_weight_sep").getString()
+                    + menu.getWeight() + "g";
         graphics.drawString(this.font, row1, x + 10, y + ROW1_Y, 0xFFFFFF, false);
 
         // Row 2: base quality
-        String row2 = "§7Basis-Qualität: " + menu.getBaseQuality().getColoredName();
+        String row2 = Component.translatable("gui.curing_glas.info_base_quality").getString()
+                    + menu.getBaseQuality().getColoredName();
         graphics.drawString(this.font, row2, x + 10, y + ROW2_Y, 0xFFFFFF, false);
 
         // Row 3: curing days
-        String row3 = "§7Curing-Tage: §f" + menu.getCuringDays() + " §7/ 28";
+        String row3 = maxDays <= 0
+                ? Component.translatable("gui.curing_glas.info_curing_days").getString()
+                    + menu.getCuringDays()
+                    + Component.translatable("gui.curing_glas.info_max_reached").getString()
+                : Component.translatable("gui.curing_glas.info_curing_days").getString()
+                    + menu.getCuringDays() + " §7/ " + maxDays;
         graphics.drawString(this.font, row3, x + 10, y + ROW3_Y, 0xFFFFFF, false);
     }
 
@@ -74,31 +84,34 @@ public class CuringGlasScreen extends AbstractContainerScreen<CuringGlasMenu> {
 
         if (!menu.hasContent()) return;
 
-        int days = menu.getCuringDays();
-        int midPoint = BAR_WIDTH / 2; // 14-day mark
-        int filledPixels = Math.min(BAR_WIDTH, (int)((days / 28.0f) * BAR_WIDTH));
+        int days    = menu.getCuringDays();
+        int maxDays = Math.max(1, 3 - menu.getBaseQuality().getLevel()); // 1-3 Tage je nach Basis
+        int filledPixels = Math.min(BAR_WIDTH, (int)((days / (float) maxDays) * BAR_WIDTH));
 
+        // Farbzonen: grün → gelbgrün → gold
+        int zone1 = BAR_WIDTH / 3;
+        int zone2 = BAR_WIDTH * 2 / 3;
         if (filledPixels > 0) {
-            int greenEnd = Math.min(filledPixels, midPoint);
-            graphics.fill(x, y, x + greenEnd, y + BAR_HEIGHT, 0xFF2D6B2D);
-
-            if (filledPixels > midPoint) {
-                graphics.fill(x + midPoint, y, x + filledPixels, y + BAR_HEIGHT, 0xFF8B8B22);
+            int end1 = Math.min(filledPixels, zone1);
+            graphics.fill(x, y, x + end1, y + BAR_HEIGHT, 0xFF2D6B2D);
+            if (filledPixels > zone1) {
+                int end2 = Math.min(filledPixels, zone2);
+                graphics.fill(x + zone1, y, x + end2, y + BAR_HEIGHT, 0xFF8B8B22);
+            }
+            if (filledPixels > zone2) {
+                graphics.fill(x + zone2, y, x + filledPixels, y + BAR_HEIGHT, 0xFFAA7700);
             }
         }
 
-        // 14-day divider line (yellow)
-        graphics.fill(x + midPoint - 1, y - 2, x + midPoint + 1, y + BAR_HEIGHT + 2, 0xFFFFFF55);
-
-        // Star at 28 days
-        if (days >= 28) {
+        // Stern bei max Qualität
+        if (days >= maxDays) {
             graphics.drawString(this.font, "§6★", x + BAR_WIDTH - 8, y + BAR_HEIGHT / 2 - 4, 0xFFFFFF, true);
         }
 
-        // Bar labels
-        graphics.drawString(this.font, "§70",       x,                              y + BAR_HEIGHT + 3, 0xAAAAAA, false);
-        graphics.drawString(this.font, "§714 Tage", x + midPoint - 15,              y + BAR_HEIGHT + 3, 0xFFFF55, false);
-        graphics.drawString(this.font, "§628 Tage", x + BAR_WIDTH - 30,             y + BAR_HEIGHT + 3, 0xFFAA00, false);
+        // Labels
+        graphics.drawString(this.font, "§70",                         x,                  y + BAR_HEIGHT + 3, 0xAAAAAA, false);
+        graphics.drawString(this.font, "§7" + (maxDays / 2) + "d",   x + zone1 - 5,      y + BAR_HEIGHT + 3, 0xFFFF55, false);
+        graphics.drawString(this.font, "§6" + maxDays + "d",          x + BAR_WIDTH - 15, y + BAR_HEIGHT + 3, 0xFFAA00, false);
     }
 
     @Override
@@ -122,7 +135,8 @@ public class CuringGlasScreen extends AbstractContainerScreen<CuringGlasMenu> {
         }
 
         // Row 4: expected quality (below bar)
-        String expectedText = "§7Erwartete Qualität: " + menu.getExpectedQuality().getColoredName();
+        String expectedText = Component.translatable("gui.curing_glas.info_expected_quality").getString()
+                            + menu.getExpectedQuality().getColoredName();
         graphics.drawString(this.font, expectedText, x + 10, y + ROW4_Y, 0xFFFFFF, false);
     }
 

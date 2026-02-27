@@ -62,11 +62,14 @@ public class OelExtraktortBlock extends BaseEntityBlock {
 
         ItemStack heldItem = player.getItemInHand(hand);
 
-        // Öl entnehmen
+        // Öl entnehmen (jedes ml als eigenes Item)
         if (extraktor.hasOutput()) {
             ItemStack oil = extraktor.extractOil();
             if (!oil.isEmpty()) {
-                player.addItem(oil);
+                while (!oil.isEmpty()) {
+                    ItemStack ml = oil.split(1);
+                    if (!player.addItem(ml)) Block.popResource(level, extraktor.getBlockPos(), ml);
+                }
                 player.displayClientMessage(Component.translatable("block.oil_extractor.oil_removed"), true);
                 return InteractionResult.CONSUME;
             }

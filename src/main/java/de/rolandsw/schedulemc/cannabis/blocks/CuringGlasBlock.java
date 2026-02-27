@@ -60,8 +60,8 @@ public class CuringGlasBlock extends BaseEntityBlock {
 
         ItemStack heldItem = player.getItemInHand(hand);
 
-        // Getrimmte Buds hinzufügen
-        if (heldItem.getItem() instanceof TrimmedBudItem && !glas.hasContent()) {
+        // Getrimmte Buds hinzufügen (bis zu MAX_WEIGHT g, gleiche Sorte/Qualität)
+        if (heldItem.getItem() instanceof TrimmedBudItem) {
             if (glas.addTrimmedBud(heldItem)) {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
@@ -71,11 +71,14 @@ public class CuringGlasBlock extends BaseEntityBlock {
             }
         }
 
-        // Gecurte Buds entnehmen (Shift+Click)
+        // Gecurte Buds entnehmen (Shift+Click), jedes Gramm als eigenes Item
         if (glas.hasContent() && heldItem.isEmpty() && player.isShiftKeyDown()) {
             ItemStack cured = glas.extractCuredBud();
             if (!cured.isEmpty()) {
-                player.addItem(cured);
+                while (!cured.isEmpty()) {
+                    ItemStack gram = cured.split(1);
+                    if (!player.addItem(gram)) Block.popResource(level, glas.getBlockPos(), gram);
+                }
                 if (glas.isOptimallyCured()) {
                     player.displayClientMessage(Component.translatable("block.curing_glas.perfect_buds"), true);
                 } else if (glas.isReadyForExtraction()) {
@@ -87,8 +90,8 @@ public class CuringGlasBlock extends BaseEntityBlock {
             }
         }
 
-        // GUI öffnen (leere Hand, normaler Rechtsklick, Glas hat Inhalt)
-        if (glas.hasContent() && heldItem.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+        // GUI öffnen (leere Hand, normaler Rechtsklick)
+        if (heldItem.isEmpty() && player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openScreen(serverPlayer, new CuringGlasMenu.Provider(glas), glas.getBlockPos());
             return InteractionResult.CONSUME;
         }

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.cannabis.menu;
 
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
+import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.blockentity.TrimmStationBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -17,23 +18,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Menu für die Trimm-Station mit Minigame
+ * Menu für die Trimm-Station.
+ * Kein Minigame – Spieler klickt 5× auf "Trimmen".
  */
 public class TrimmStationMenu extends AbstractContainerMenu {
 
     public final TrimmStationBlockEntity blockEntity;
     private final ContainerData data;
 
-    private static final int DATA_CYCLE_TICK = 0;
-    private static final int DATA_CYCLE_TOTAL = 1;
-    private static final int DATA_LEAVES_REMOVED = 2;
-    private static final int DATA_TOTAL_LEAVES = 3;
-    private static final int DATA_PERFECT_TRIMS = 4;
-    private static final int DATA_GOOD_TRIMS = 5;
-    private static final int DATA_BAD_TRIMS = 6;
-    private static final int DATA_IS_ACTIVE = 7;
-    private static final int DATA_STRAIN = 8;
-    private static final int DATA_SIZE = 9;
+    private static final int DATA_CLICK_COUNT = 0;
+    private static final int DATA_STRAIN      = 1;
+    private static final int DATA_QUALITY     = 2;
+    private static final int DATA_SIZE        = 3;
+
+    public static final int BUTTON_TRIM = 0;
 
     // Server-side constructor
     public TrimmStationMenu(int containerId, Inventory playerInventory, TrimmStationBlockEntity blockEntity) {
@@ -44,28 +42,14 @@ public class TrimmStationMenu extends AbstractContainerMenu {
             @Override
             public int get(int index) {
                 return switch (index) {
-                    case DATA_CYCLE_TICK -> blockEntity.getMinigameTick() % blockEntity.getCycleTicks();
-                    case DATA_CYCLE_TOTAL -> blockEntity.getCycleTicks();
-                    case DATA_LEAVES_REMOVED -> blockEntity.getLeavesRemoved();
-                    case DATA_TOTAL_LEAVES -> blockEntity.getTotalLeaves();
-                    case DATA_PERFECT_TRIMS -> blockEntity.getPerfectTrims();
-                    case DATA_GOOD_TRIMS -> blockEntity.getGoodTrims();
-                    case DATA_BAD_TRIMS -> blockEntity.getBadTrims();
-                    case DATA_IS_ACTIVE -> blockEntity.isMinigameActive() ? 1 : 0;
-                    case DATA_STRAIN -> blockEntity.getStrain().ordinal();
+                    case DATA_CLICK_COUNT -> blockEntity.getClickCount();
+                    case DATA_STRAIN      -> blockEntity.getLastStrain().ordinal();
+                    case DATA_QUALITY     -> blockEntity.getLastQuality().ordinal();
                     default -> 0;
                 };
             }
-
-            @Override
-            public void set(int index, int value) {
-                // Read-only
-            }
-
-            @Override
-            public int getCount() {
-                return DATA_SIZE;
-            }
+            @Override public void set(int index, int value) { }
+            @Override public int getCount() { return DATA_SIZE; }
         };
 
         addDataSlots(this.data);
@@ -77,57 +61,33 @@ public class TrimmStationMenu extends AbstractContainerMenu {
 
         BlockPos pos = extraData.readBlockPos();
         BlockEntity be = playerInventory.player.level().getBlockEntity(pos);
-        if (be instanceof TrimmStationBlockEntity station) {
-            this.blockEntity = station;
-        } else {
-            this.blockEntity = null;
-        }
+        this.blockEntity = be instanceof TrimmStationBlockEntity station ? station : null;
 
         this.data = new SimpleContainerData(DATA_SIZE);
         addDataSlots(this.data);
     }
 
-    /**
-     * Startet das Minigame
-     */
-    public boolean startMinigame(Player player) {
-        if (blockEntity != null) {
-            return blockEntity.startMinigame(player.getUUID());
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id == BUTTON_TRIM && blockEntity != null && !blockEntity.isRemoved()) {
+            return blockEntity.doTrimClick(player);
         }
         return false;
     }
 
-    /**
-     * Spieler klickt zum Trimmen
-     */
-    public int trimClick() {
-        if (blockEntity != null) {
-            return blockEntity.trimClick();
-        }
-        return -1;
-    }
-
     // Getter
-    public int getCycleTick() { return this.data.get(DATA_CYCLE_TICK); }
-    public int getCycleTotal() { return this.data.get(DATA_CYCLE_TOTAL); }
-    public float getCycleProgress() {
-        int total = getCycleTotal();
-        if (total == 0) return 0;
-        return (float) getCycleTick() / total;
-    }
-    public int getLeavesRemoved() { return this.data.get(DATA_LEAVES_REMOVED); }
-    public int getTotalLeaves() { return this.data.get(DATA_TOTAL_LEAVES); }
-    public int getPerfectTrims() { return this.data.get(DATA_PERFECT_TRIMS); }
-    public int getGoodTrims() { return this.data.get(DATA_GOOD_TRIMS); }
-    public int getBadTrims() { return this.data.get(DATA_BAD_TRIMS); }
-    public boolean isMinigameActive() { return this.data.get(DATA_IS_ACTIVE) == 1; }
-    public CannabisStrain getStrain() {
+    public int getClickCount() { return this.data.get(DATA_CLICK_COUNT); }
+
+    public CannabisStrain getLastStrain() {
         int ordinal = this.data.get(DATA_STRAIN);
         CannabisStrain[] values = CannabisStrain.values();
-        if (ordinal >= 0 && ordinal < values.length) {
-            return values[ordinal];
-        }
-        return CannabisStrain.HYBRID;
+        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisStrain.HYBRID;
+    }
+
+    public CannabisQuality getLastQuality() {
+        int ordinal = this.data.get(DATA_QUALITY);
+        CannabisQuality[] values = CannabisQuality.values();
+        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisQuality.GUT;
     }
 
     @Override
@@ -143,9 +103,6 @@ public class TrimmStationMenu extends AbstractContainerMenu {
                         blockEntity.getBlockPos().getZ() + 0.5) <= 64.0;
     }
 
-    /**
-     * MenuProvider für NetworkHooks.openScreen
-     */
     public static class Provider implements MenuProvider {
         private final TrimmStationBlockEntity blockEntity;
 

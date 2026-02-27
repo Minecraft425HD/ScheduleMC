@@ -78,14 +78,10 @@ public enum CannabisQuality implements ProductionQuality {
     }
 
     /**
-     * Berechnet Qualität basierend auf Curing-Zeit
+     * Berechnet Qualität basierend auf Curing-Zeit: 1 Tag = +1 Qualitätsstufe.
      */
     public static CannabisQuality fromCuringTime(int days, CannabisQuality baseQuality) {
-        if (days >= 28 && baseQuality.level < LEGENDAER.level) {
-            return baseQuality.upgrade().upgrade();
-        } else if (days >= 14 && baseQuality.level < LEGENDAER.level) {
-            return baseQuality.upgrade();
-        }
-        return baseQuality;
+        int newLevel = Math.min(LEGENDAER.level, baseQuality.level + days);
+        return fromLevel(newLevel);
     }
 }

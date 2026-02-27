@@ -27,9 +27,11 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
 
     public static final int PRESS_TICKS = 6000;  // 5 Minuten
     public static final int MIN_TRIM_WEIGHT = 20; // Minimum 20g Trim
+    public static final int MAX_TRIM_WEIGHT = 20; // Maximum 20g Trim
     public static final float CONVERSION_RATE = 0.25f; // 20g Trim -> 5g Hash
 
     private int trimWeight = 0;
+    private CannabisQuality trimQuality = CannabisQuality.GUT;
     private CannabisStrain strain = CannabisStrain.HYBRID;
     private int pressProgress = 0;
     private boolean isPressing = false;
@@ -42,8 +44,10 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
     public boolean addTrim(ItemStack stack) {
         if (!(stack.getItem() instanceof TrimItem)) return false;
         if (isPressing || !outputItem.isEmpty()) return false;
+        if (trimWeight >= MAX_TRIM_WEIGHT) return false;
 
-        CannabisStrain trimStrain = TrimItem.getStrain(stack);
+        CannabisStrain  trimStrain  = TrimItem.getStrain(stack);
+        CannabisQuality addQuality  = TrimItem.getQuality(stack);
         int addWeight = TrimItem.getWeight(stack);
 
         // Nur gleiche Sorte erlauben
@@ -52,6 +56,7 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
         }
 
         strain = trimStrain;
+        if (trimWeight == 0) { trimQuality = addQuality; }
         trimWeight += addWeight;
 
         setChanged();
@@ -100,22 +105,11 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
     }
 
     private void finishPressing() {
-        // Berechne Hash-Gewicht
-        int hashWeight = (int) (trimWeight * CONVERSION_RATE);
+        int hashWeight = Math.max(1, (int) (trimWeight * CONVERSION_RATE));
 
-        // Qualität basierend auf Menge (mehr Trim = bessere Verdichtung)
-        CannabisQuality quality;
-        if (trimWeight >= 80) {
-            quality = CannabisQuality.LEGENDAER;
-        } else if (trimWeight >= 50) {
-            quality = CannabisQuality.SEHR_GUT;
-        } else if (trimWeight >= 30) {
-            quality = CannabisQuality.GUT;
-        } else {
-            quality = CannabisQuality.SCHLECHT;
-        }
-
-        outputItem = HashItem.create(strain, quality, hashWeight);
+        // Jedes Gramm = 1 Item (Weight=1 in NBT), count = hashWeight
+        outputItem = HashItem.create(strain, trimQuality, 1);
+        outputItem.setCount(hashWeight);
 
         trimWeight = 0;
         isPressing = false;
@@ -145,14 +139,16 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
     public boolean isPressing() { return isPressing; }
     public boolean hasOutput() { return !outputItem.isEmpty(); }
     public float getPressProgress() { return (float) pressProgress / PRESS_TICKS; }
-    public int getExpectedHashWeight() { return (int) (trimWeight * CONVERSION_RATE); }
+    public int getExpectedHashWeight() { return Math.max(1, (int) (trimWeight * CONVERSION_RATE)); }
     public CannabisStrain getStrain() { return strain; }
+    public CannabisQuality getTrimQuality() { return trimQuality; }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("TrimWeight", trimWeight);
         tag.putString("Strain", strain.name());
+        tag.putString("TrimQuality", trimQuality.name());
         tag.putInt("PressProgress", pressProgress);
         tag.putBoolean("IsPressing", isPressing);
         if (!outputItem.isEmpty()) {
@@ -168,6 +164,8 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
         trimWeight = tag.getInt("TrimWeight");
         try { strain = CannabisStrain.valueOf(tag.getString("Strain")); }
         catch (IllegalArgumentException e) { strain = CannabisStrain.HYBRID; }
+        try { trimQuality = CannabisQuality.valueOf(tag.getString("TrimQuality")); }
+        catch (IllegalArgumentException e) { trimQuality = CannabisQuality.GUT; }
         pressProgress = tag.getInt("PressProgress");
         isPressing = tag.getBoolean("IsPressing");
         outputItem = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
