@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.cannabis.menu;
 
+import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.blockentity.HashPresseBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -26,7 +27,8 @@ public class HashPresseMenu extends AbstractContainerMenu {
     private static final int DATA_PRESS_PROGRESS = 2;
     private static final int DATA_IS_PRESSING    = 3;
     private static final int DATA_HAS_OUTPUT     = 4;
-    private static final int DATA_SIZE           = 5;
+    private static final int DATA_QUALITY        = 5;
+    private static final int DATA_SIZE           = 6;
 
     // Server-side constructor
     public HashPresseMenu(int containerId, Inventory playerInventory, HashPresseBlockEntity blockEntity) {
@@ -42,6 +44,7 @@ public class HashPresseMenu extends AbstractContainerMenu {
                     case DATA_PRESS_PROGRESS -> (int)(blockEntity.getPressProgress() * HashPresseBlockEntity.PRESS_TICKS);
                     case DATA_IS_PRESSING    -> blockEntity.isPressing() ? 1 : 0;
                     case DATA_HAS_OUTPUT     -> blockEntity.hasOutput() ? 1 : 0;
+                    case DATA_QUALITY        -> blockEntity.getTrimQuality().ordinal();
                     default -> 0;
                 };
             }
@@ -95,6 +98,12 @@ public class HashPresseMenu extends AbstractContainerMenu {
         int ordinal = this.data.get(DATA_STRAIN);
         CannabisStrain[] values = CannabisStrain.values();
         return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisStrain.HYBRID;
+    }
+
+    public CannabisQuality getBaseQuality() {
+        int ordinal = this.data.get(DATA_QUALITY);
+        CannabisQuality[] values = CannabisQuality.values();
+        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisQuality.GUT;
     }
 
     @Override

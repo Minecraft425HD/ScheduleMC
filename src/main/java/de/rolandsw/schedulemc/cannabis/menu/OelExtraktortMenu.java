@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.cannabis.menu;
 
+import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.blockentity.OelExtraktortBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -113,6 +114,12 @@ public class OelExtraktortMenu extends AbstractContainerMenu {
         int ordinal = this.data.get(DATA_STRAIN);
         CannabisStrain[] values = CannabisStrain.values();
         return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisStrain.HYBRID;
+    }
+
+    public CannabisQuality getBaseQuality() {
+        int ordinal = this.data.get(DATA_QUALITY);
+        CannabisQuality[] values = CannabisQuality.values();
+        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisQuality.GUT;
     }
 
     @Override

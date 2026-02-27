@@ -12,6 +12,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -49,8 +50,16 @@ public class TrimmStationBlockEntity extends BlockEntity {
 
         if (clickCount >= CLICKS_NEEDED) {
             bud.shrink(1);
-            player.addItem(TrimmedBudItem.create(lastStrain, lastQuality, 1));
-            player.addItem(TrimItem.create(lastStrain, lastQuality, 2));
+
+            ItemStack tb = TrimmedBudItem.create(lastStrain, lastQuality, 1);
+            if (!player.addItem(tb)) Block.popResource(level, worldPosition, tb);
+
+            ItemStack tr = TrimItem.create(lastStrain, lastQuality, 2);
+            while (!tr.isEmpty()) {
+                ItemStack one = tr.split(1);
+                if (!player.addItem(one)) Block.popResource(level, worldPosition, one);
+            }
+
             clickCount = 0;
         }
 

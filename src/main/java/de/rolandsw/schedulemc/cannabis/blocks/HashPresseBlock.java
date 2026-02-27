@@ -60,11 +60,14 @@ public class HashPresseBlock extends BaseEntityBlock {
 
         ItemStack heldItem = player.getItemInHand(hand);
 
-        // Hash entnehmen
+        // Hash entnehmen (jedes Gramm als eigenes Item)
         if (presse.hasOutput()) {
             ItemStack hash = presse.extractHash();
             if (!hash.isEmpty()) {
-                player.addItem(hash);
+                while (!hash.isEmpty()) {
+                    ItemStack gram = hash.split(1);
+                    if (!player.addItem(gram)) Block.popResource(level, presse.getBlockPos(), gram);
+                }
                 player.displayClientMessage(Component.translatable("block.hash_press.hash_removed"), true);
                 return InteractionResult.CONSUME;
             }

@@ -2875,6 +2875,8 @@
   "gui.trimm_station.menu_title": "Trim Station",
   "gui.trimm_station.stats": "§aPerfect: %d §7| §eGood: %d §7| §cPoor: %d",
   "gui.trimm_station.title": "§a✂ §lTRIM STATION §a✂",
+  "gui.trimm_station.button_trim": "Trim",
+  "gui.trimm_station.no_bud": "No dried bud in inventory",
   "gui.trimming_station.button_cut": "§f✂ CUT!",
   "gui.trimming_station.button_done": "§7Done!",
   "gui.trimming_station.button_start": "§f▶ START",

@@ -32,6 +32,9 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
     private static final int ROW2_Y   = 50;
     private static final int STATUS_Y = 138;
 
+    private boolean mouseButtonHeld = false;
+    private int     holdTick        = 0;
+
     public TrimmStationScreen(TrimmStationMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth  = GUI_WIDTH;
@@ -111,6 +114,19 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // Auto-click when holding mouse button over trim button
+        if (mouseButtonHeld && !getPlayerDriedBud().isEmpty()) {
+            int bx = this.leftPos + BUTTON_X;
+            int by = this.topPos  + BUTTON_Y;
+            if (mouseX >= bx && mouseX < bx + BUTTON_WIDTH && mouseY >= by && mouseY < by + BUTTON_HEIGHT) {
+                holdTick++;
+                if (holdTick % 5 == 0) {
+                    java.util.Objects.requireNonNull(this.minecraft).gameMode
+                            .handleInventoryButtonClick(this.menu.containerId, TrimmStationMenu.BUTTON_TRIM);
+                }
+            }
+        }
+
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
 
@@ -146,6 +162,8 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
             if (mouseX >= bx && mouseX < bx + BUTTON_WIDTH &&
                 mouseY >= by && mouseY < by + BUTTON_HEIGHT) {
                 if (!getPlayerDriedBud().isEmpty()) {
+                    mouseButtonHeld = true;
+                    holdTick = 0;
                     java.util.Objects.requireNonNull(this.minecraft).gameMode
                             .handleInventoryButtonClick(this.menu.containerId, TrimmStationMenu.BUTTON_TRIM);
                     return true;
@@ -153,6 +171,15 @@ public class TrimmStationScreen extends AbstractContainerScreen<TrimmStationMenu
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0) {
+            mouseButtonHeld = false;
+            holdTick = 0;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override

@@ -71,11 +71,14 @@ public class CuringGlasBlock extends BaseEntityBlock {
             }
         }
 
-        // Gecurte Buds entnehmen (Shift+Click)
+        // Gecurte Buds entnehmen (Shift+Click), jedes Gramm als eigenes Item
         if (glas.hasContent() && heldItem.isEmpty() && player.isShiftKeyDown()) {
             ItemStack cured = glas.extractCuredBud();
             if (!cured.isEmpty()) {
-                player.addItem(cured);
+                while (!cured.isEmpty()) {
+                    ItemStack gram = cured.split(1);
+                    if (!player.addItem(gram)) Block.popResource(level, glas.getBlockPos(), gram);
+                }
                 if (glas.isOptimallyCured()) {
                     player.displayClientMessage(Component.translatable("block.curing_glas.perfect_buds"), true);
                 } else if (glas.isReadyForExtraction()) {

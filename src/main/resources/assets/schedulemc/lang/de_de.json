@@ -2839,6 +2839,8 @@
   "gui.trimm_station.menu_title": "Trimm-Station",
   "gui.trimm_station.stats": "§aPerfekt: %d §7| §eGut: %d §7| §cSchlecht: %d",
   "gui.trimm_station.title": "§a✂ §lTRIMM-STATION §a✂",
+  "gui.trimm_station.button_trim": "Trimmen",
+  "gui.trimm_station.no_bud": "Kein getrockneter Bud im Inventar",
   "gui.trimming_station.button_cut": "§f✂ SCHNEIDEN!",
   "gui.trimming_station.button_done": "§7Fertig!",
   "gui.trimming_station.button_start": "§f▶ STARTEN",

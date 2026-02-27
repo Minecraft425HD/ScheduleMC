@@ -20,7 +20,7 @@ public class CuringGlasScreen extends AbstractContainerScreen<CuringGlasMenu> {
     private static final int ROW1_Y = 35;
     private static final int ROW2_Y = 50;
     private static final int ROW3_Y = 65;
-    private static final int ROW4_Y = 102;
+    private static final int ROW4_Y = 114;
 
     public CuringGlasScreen(CuringGlasMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

@@ -71,7 +71,7 @@ public class OelExtraktortScreen extends AbstractContainerScreen<OelExtraktortMe
         String row2 = "§7Lösungsmittel: §f" + menu.getSolventCount();
         graphics.drawString(this.font, row2, x + 10, y + ROW2_Y, 0xFFFFFF, false);
 
-        String row3 = "§7Erwartetes Öl: §f" + menu.getExpectedOilAmount() + "ml";
+        String row3 = "§7Öl: §f" + menu.getExpectedOilAmount() + "ml §7| Qualität: " + menu.getBaseQuality().getColoredName();
         graphics.drawString(this.font, row3, x + 10, y + ROW3_Y, 0xFFFFFF, false);
     }
 

@@ -61,7 +61,7 @@ public class HashPresseScreen extends AbstractContainerScreen<HashPresseMenu> {
         String row1 = "§7Trim: §f" + menu.getTrimWeight() + "g §7| Sorte: " + menu.getStrain().getColoredName();
         graphics.drawString(this.font, row1, x + 10, y + ROW1_Y, 0xFFFFFF, false);
 
-        String row2 = "§7Erwarteter Hash: §f" + menu.getExpectedHashWeight() + "g";
+        String row2 = "§7Hash: §f" + menu.getExpectedHashWeight() + "g §7| Qualität: " + menu.getBaseQuality().getColoredName();
         graphics.drawString(this.font, row2, x + 10, y + ROW2_Y, 0xFFFFFF, false);
     }
 

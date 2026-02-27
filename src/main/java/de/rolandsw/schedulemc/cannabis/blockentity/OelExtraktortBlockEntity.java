@@ -28,6 +28,7 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
 
     public static final int EXTRACTION_TICKS = 12000;  // 10 Minuten
     public static final int MIN_MATERIAL_WEIGHT = 10;
+    public static final int MAX_MATERIAL_WEIGHT = 10;
     public static final float BUD_CONVERSION_RATE = 0.15f;  // 10g Bud -> 1.5ml Öl
     public static final float TRIM_CONVERSION_RATE = 0.08f; // 10g Trim -> 0.8ml Öl
 
@@ -47,6 +48,7 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
 
     public boolean addMaterial(ItemStack stack) {
         if (isExtracting || !outputItem.isEmpty()) return false;
+        if (materialWeight >= MAX_MATERIAL_WEIGHT) return false;
 
         if (stack.getItem() instanceof TrimmedBudItem) {
             CannabisStrain budStrain = TrimmedBudItem.getStrain(stack);
@@ -134,7 +136,9 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
         // Qualität: Buds geben bessere Qualität
         CannabisQuality quality = isFromBuds ? baseQuality.upgrade() : baseQuality;
 
-        outputItem = CannabisOilItem.create(strain, quality, oilMilliliters);
+        // Jedes ml = 1 Item (Milliliters=1 in NBT), count = oilMilliliters
+        outputItem = CannabisOilItem.create(strain, quality, 1);
+        outputItem.setCount(oilMilliliters);
 
         materialWeight = 0;
         isExtracting = false;
