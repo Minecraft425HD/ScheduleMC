@@ -44,7 +44,11 @@ public class CircuitBreaker {
     private final long resetTimeoutMs;
     private final int halfOpenMaxAttempts;
 
-    private volatile State state = State.CLOSED;
+    // BUG FIX: AtomicReference statt volatile State, um den OPEN→HALF_OPEN-Übergang
+    // in allowRequest() atomar (via compareAndSet) durchführen zu können und so
+    // Race Conditions bei gleichzeitigem Zugriff mehrerer Threads zu verhindern.
+    private final java.util.concurrent.atomic.AtomicReference<State> stateRef =
+        new java.util.concurrent.atomic.AtomicReference<>(State.CLOSED);
     private final AtomicInteger failureCount = new AtomicInteger(0);
     private final AtomicInteger successCount = new AtomicInteger(0);
     private final AtomicLong lastFailureTime = new AtomicLong(0);
@@ -147,16 +151,23 @@ public class CircuitBreaker {
     // ═══════════════════════════════════════════════════════════
 
     private boolean allowRequest() {
-        switch (state) {
+        switch (stateRef.get()) {
             case CLOSED:
                 return true;
 
             case OPEN:
-                // Pruefe ob Reset-Timeout abgelaufen
+                // BUG FIX: Atomarer OPEN→HALF_OPEN-Übergang via compareAndSet.
+                // Ohne CAS könnten mehrere Threads gleichzeitig das Timeout erkennen
+                // und alle in HALF_OPEN wechseln (Race Condition).
                 if (System.currentTimeMillis() - lastFailureTime.get() > resetTimeoutMs) {
-                    transitionTo(State.HALF_OPEN);
-                    halfOpenAttempts.set(0);
-                    return true;
+                    if (stateRef.compareAndSet(State.OPEN, State.HALF_OPEN)) {
+                        halfOpenAttempts.set(0);
+                        successCount.set(0);
+                        LOGGER.info("CircuitBreaker '{}': OPEN -> HALF_OPEN", name);
+                    }
+                    // Auch wenn ein anderer Thread gewonnen hat, darf dieser Thread
+                    // eine Anfrage durchlassen (HALF_OPEN erlaubt begrenzte Anfragen).
+                    return halfOpenAttempts.incrementAndGet() <= halfOpenMaxAttempts;
                 }
                 return false;
 
@@ -170,11 +181,11 @@ public class CircuitBreaker {
     }
 
     private void onSuccess() {
-        switch (state) {
+        switch (stateRef.get()) {
             case HALF_OPEN:
                 successCount.incrementAndGet();
                 if (successCount.get() >= halfOpenMaxAttempts) {
-                    transitionTo(State.CLOSED);
+                    transitionTo(State.HALF_OPEN, State.CLOSED);
                 }
                 break;
             case CLOSED:
@@ -188,24 +199,29 @@ public class CircuitBreaker {
         totalFailures.incrementAndGet();
         lastFailureTime.set(System.currentTimeMillis());
 
-        switch (state) {
+        State current = stateRef.get();
+        switch (current) {
             case CLOSED:
                 if (failureCount.incrementAndGet() >= failureThreshold) {
-                    transitionTo(State.OPEN);
+                    transitionTo(State.CLOSED, State.OPEN);
                 }
                 break;
             case HALF_OPEN:
                 // Sofort zurueck zu OPEN
-                transitionTo(State.OPEN);
+                transitionTo(State.HALF_OPEN, State.OPEN);
                 break;
         }
 
-        LOGGER.warn("CircuitBreaker '{}' Fehler ({}): {}", name, state, e.getMessage());
+        LOGGER.warn("CircuitBreaker '{}' Fehler ({}): {}", name, stateRef.get(), e.getMessage());
     }
 
-    private void transitionTo(State newState) {
-        State old = this.state;
-        this.state = newState;
+    /**
+     * Atomarer Zustandsübergang. Gibt true zurück wenn der Übergang stattgefunden hat.
+     */
+    private boolean transitionTo(State expectedState, State newState) {
+        if (!stateRef.compareAndSet(expectedState, newState)) {
+            return false; // Ein anderer Thread hat den Zustand bereits geaendert
+        }
 
         if (newState == State.CLOSED) {
             failureCount.set(0);
@@ -216,7 +232,27 @@ public class CircuitBreaker {
             halfOpenAttempts.set(0);
         }
 
-        LOGGER.info("CircuitBreaker '{}': {} -> {}", name, old, newState);
+        LOGGER.info("CircuitBreaker '{}': {} -> {}", name, expectedState, newState);
+        return true;
+    }
+
+    /**
+     * Erzwungener Zustandsübergang (fuer reset/forceOpen).
+     */
+    private void transitionTo(State newState) {
+        State old = stateRef.getAndSet(newState);
+
+        if (newState == State.CLOSED) {
+            failureCount.set(0);
+            successCount.set(0);
+        } else if (newState == State.OPEN) {
+            successCount.set(0);
+            halfOpenAttempts.set(0);
+        }
+
+        if (old != newState) {
+            LOGGER.info("CircuitBreaker '{}': {} -> {}", name, old, newState);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -245,7 +281,7 @@ public class CircuitBreaker {
     // QUERIES
     // ═══════════════════════════════════════════════════════════
 
-    public State getState() { return state; }
+    public State getState() { return stateRef.get(); }
     public String getName() { return name; }
     public int getFailureCount() { return failureCount.get(); }
     public long getTotalCalls() { return totalCalls.get(); }
@@ -270,7 +306,7 @@ public class CircuitBreaker {
 
         for (CircuitBreaker cb : registry.values()) {
             String stateIcon;
-            switch (cb.state) {
+            switch (cb.stateRef.get()) {
                 case CLOSED -> stateIcon = "\u00A7a\u2714 CLOSED";
                 case OPEN -> stateIcon = "\u00A7c\u2718 OPEN";
                 case HALF_OPEN -> stateIcon = "\u00A7e\u25CB HALF_OPEN";

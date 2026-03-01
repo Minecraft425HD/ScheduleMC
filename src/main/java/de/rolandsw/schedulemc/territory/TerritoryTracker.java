@@ -52,7 +52,16 @@ public class TerritoryTracker {
 
         // Hat sich Territory geändert?
         if (hasChanged(currentTerritory, lastPlayerTerritory)) {
-            // Cooldown prüfen
+            // Territory IMMER aktualisieren, unabhängig vom Cooldown.
+            // Andernfalls wird das letzte Territory nie gesetzt wenn der Cooldown
+            // die Benachrichtigung unterdrückt, was zu wiederholtem Triggern führt.
+            if (currentTerritory != null) {
+                lastTerritory.put(player.getUUID(), currentTerritory);
+            } else {
+                lastTerritory.remove(player.getUUID());
+            }
+
+            // Cooldown prüfen (nur für die Benachrichtigung, nicht für den State-Update)
             long now = System.currentTimeMillis();
             Long lastNotification = lastNotificationTime.get(player.getUUID());
 
@@ -62,13 +71,6 @@ public class TerritoryTracker {
 
                 // Update
                 lastNotificationTime.put(player.getUUID(), now);
-            }
-
-            // Territory aktualisieren
-            if (currentTerritory != null) {
-                lastTerritory.put(player.getUUID(), currentTerritory);
-            } else {
-                lastTerritory.remove(player.getUUID());
             }
         }
     }

@@ -197,6 +197,9 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
                         // Fermentierung abgeschlossen - mit 30% Chance auf Qualitätsverbesserung
                         TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
                         outputs[i] = FermentedTobaccoLeafItem.create(tobaccoTypes[i], finalQuality, 1);
+                        // BUG FIX: Input-Stack leeren, damit der Slot nicht im Mischzustand
+                        // (inputs[i] != EMPTY && outputs[i] != EMPTY) verbleibt.
+                        inputs[i] = ItemStack.EMPTY;
                         changed = true;
                         needsSync = true;
                     }

@@ -242,17 +242,18 @@ public class MembershipManager {
 
         @Override
         protected void onDataLoaded(Map<String, MembershipSaveData> data) {
-            memberships.clear();
-
             int invalidCount = 0;
             int correctedCount = 0;
 
-            // NULL CHECK
+            // BUG FIX: NULL CHECK vor clear(), damit bei null-Daten die vorhandenen
+            // Mitgliedschaften im Speicher erhalten bleiben statt gelöscht zu werden.
             if (data == null) {
                 LOGGER.warn("Null data loaded for memberships");
                 invalidCount++;
                 return;
             }
+
+            memberships.clear();
 
             // Check collection size
             if (data.size() > 10000) {
