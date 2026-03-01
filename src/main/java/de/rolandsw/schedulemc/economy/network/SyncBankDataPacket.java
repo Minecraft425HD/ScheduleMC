@@ -70,7 +70,7 @@ public class SyncBankDataPacket {
 
     public static SyncBankDataPacket decode(FriendlyByteBuf buf) {
         double balance = buf.readDouble();
-        int size = Math.min(buf.readInt(), 500);
+        int size = Math.max(0, Math.min(buf.readInt(), 500));
         List<TransactionData> transactionDataList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             String transactionId = buf.readUtf(256);
