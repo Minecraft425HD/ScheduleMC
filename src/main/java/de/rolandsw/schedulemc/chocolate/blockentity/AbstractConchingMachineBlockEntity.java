@@ -212,6 +212,10 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
                 tag.putBoolean("HasVanilla", hasIngredient(ChocolateItems.VANILLA_EXTRACT.get()));
 
                 outputStack = conchedChocolate;
+                cocoaMassInput = ItemStack.EMPTY;
+                for (int i = 0; i < ingredientInputs.length; i++) {
+                    ingredientInputs[i] = ItemStack.EMPTY;
+                }
                 conchingProgress = 0;
                 changed = true;
             }

@@ -145,6 +145,7 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
                 );
 
                 outputStack = cheeseWheel;
+                inputStack = ItemStack.EMPTY;
                 pressingProgress = 0;
                 changed = true;
             }

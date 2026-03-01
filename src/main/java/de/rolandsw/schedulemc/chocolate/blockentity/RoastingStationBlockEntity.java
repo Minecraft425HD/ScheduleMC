@@ -140,6 +140,7 @@ public class RoastingStationBlockEntity extends BlockEntity implements IUtilityC
                 }
 
                 outputStack = roastedBeans;
+                inputStack = ItemStack.EMPTY;
                 roastingProgress = 0;
                 changed = true;
             }

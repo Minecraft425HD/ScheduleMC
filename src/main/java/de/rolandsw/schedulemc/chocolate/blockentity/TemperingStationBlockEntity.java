@@ -157,6 +157,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
                 }
 
                 outputStack = temperedChocolate;
+                inputStack = ItemStack.EMPTY;
                 temperingProgress = 0;
                 changed = true;
             }

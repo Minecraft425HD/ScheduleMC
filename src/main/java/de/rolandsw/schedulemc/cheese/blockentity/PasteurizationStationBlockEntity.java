@@ -121,6 +121,7 @@ public class PasteurizationStationBlockEntity extends BlockEntity implements IUt
                 ItemStack pasteurizedMilk = new ItemStack(Items.MILK_BUCKET, inputStack.getCount());
 
                 outputStack = pasteurizedMilk;
+                inputStack = ItemStack.EMPTY;
                 pasteurizationProgress = 0;
                 changed = true;
             }

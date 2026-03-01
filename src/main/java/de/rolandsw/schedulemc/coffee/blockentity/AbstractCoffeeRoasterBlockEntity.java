@@ -166,6 +166,8 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
                     selectedRoastLevel,
                     inputStack.getCount()
                 );
+                inputStack = ItemStack.EMPTY;
+                roastingProgress = 0;
                 changed = true;
             }
 

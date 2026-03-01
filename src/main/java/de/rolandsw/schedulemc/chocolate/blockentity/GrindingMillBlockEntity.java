@@ -146,6 +146,7 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
                 tag.putString("Quality", upgradedQuality.name());
 
                 outputStack = cocoaMass;
+                inputStack = ItemStack.EMPTY;
                 grindingProgress = 0;
                 changed = true;
             }

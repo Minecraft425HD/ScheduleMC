@@ -284,6 +284,10 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
     }
 
     private TobaccoQuality calculateFinalQuality(TobaccoQuality quality) {
+        if (quality == null) {
+            quality = TobaccoQuality.SCHLECHT;
+        }
+
         if (quality == TobaccoQuality.LEGENDAER) {
             return quality;
         }
