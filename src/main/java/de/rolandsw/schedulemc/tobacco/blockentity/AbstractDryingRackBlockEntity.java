@@ -240,6 +240,7 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
     public float getAverageDryingPercentage() {
         if (inputStack.isEmpty()) return 0;
         int totalTime = getDryingTime() * inputStack.getCount();
+        if (totalTime <= 0) return 0;
         return (float) dryingProgress / totalTime;
     }
 

@@ -104,6 +104,13 @@ public class PlotUtilityData {
         return consumers.containsKey(pos);
     }
 
+    /**
+     * Gibt alle registrierten Verbraucher-Positionen zurück
+     */
+    public Set<BlockPos> getConsumerPositions() {
+        return consumers.keySet();
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // VERBRAUCHSBERECHNUNG
     // ═══════════════════════════════════════════════════════════════════════════

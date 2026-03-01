@@ -257,9 +257,12 @@ public class PlotUtilityManager {
      * Aktualisiert den Status aller Verbraucher in einem Plot
      */
     private static void updateConsumerStatus(ServerLevel level, PlotUtilityData data) {
-        // Iteriere über alle registrierten Positionen im Plot
-        // und prüfe den aktuellen Status der BlockEntities
-        // (Implementierung nutzt das IUtilityConsumer Interface)
+        for (BlockPos pos : data.getConsumerPositions()) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof IUtilityConsumer consumer) {
+                data.setActiveStatus(pos, consumer.isActivelyConsuming());
+            }
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

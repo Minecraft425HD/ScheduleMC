@@ -86,8 +86,8 @@ public class NegotiationScoreCalculator {
         NPCRelationship relationship = NPCRelationshipManager.getInstance()
             .getOrCreateRelationship(npcUUID, playerUUID);
         npcRelationLevel = relationship.getRelationshipLevel();
-        // Normalisieren von -100..+100 auf 0..100
-        float normalizedRelation = (npcRelationLevel + 100) / 200.0f;
+        // Normalisieren von -100..+100 auf 0..1 (clamped, falls Wert außerhalb des Bereichs)
+        float normalizedRelation = Math.max(0f, Math.min(1f, (npcRelationLevel + 100) / 200.0f));
         npcRelationScore = (int) (normalizedRelation * (MAX_SCORE * WEIGHT_NPC_RELATION));
 
         // 3. Personality Bonus (NPC-Persönlichkeit)
