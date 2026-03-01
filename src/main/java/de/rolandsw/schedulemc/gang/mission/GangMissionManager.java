@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -67,9 +68,11 @@ public class GangMissionManager {
     }
 
     public static void resetInstance() {
-        if (instance != null) {
-            instance.save();
-            instance = null;
+        synchronized (GangMissionManager.class) {
+            if (instance != null) {
+                instance.save();
+                instance = null;
+            }
         }
     }
 
@@ -91,7 +94,7 @@ public class GangMissionManager {
             UUID gangId = gang.getGangId();
 
             // Sicherstellen dass die Gang Eintraege hat
-            gangMissions.computeIfAbsent(gangId, k -> new ArrayList<>());
+            gangMissions.computeIfAbsent(gangId, k -> new CopyOnWriteArrayList<>());
             lastResets.computeIfAbsent(gangId, k -> new EnumMap<>(MissionType.class));
 
             for (MissionType type : MissionType.values()) {
@@ -115,7 +118,7 @@ public class GangMissionManager {
      * Wird direkt nach Gang-Erstellung aufgerufen.
      */
     public void generateInitialMissions(UUID gangId) {
-        gangMissions.computeIfAbsent(gangId, k -> new ArrayList<>());
+        gangMissions.computeIfAbsent(gangId, k -> new CopyOnWriteArrayList<>());
         Map<MissionType, Long> resets = lastResets.computeIfAbsent(gangId, k -> new EnumMap<>(MissionType.class));
 
         long now = System.currentTimeMillis();
@@ -496,7 +499,7 @@ public class GangMissionManager {
                 lastResets.put(gangId, resets);
 
                 // Missionen
-                List<GangMission> missions = new ArrayList<>();
+                List<GangMission> missions = new CopyOnWriteArrayList<>();
                 for (SavedMission sm : saved.missions) {
                     try {
                         MissionTemplate tpl = MissionTemplate.valueOf(sm.templateName);

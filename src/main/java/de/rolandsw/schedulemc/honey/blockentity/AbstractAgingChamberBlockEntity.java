@@ -81,6 +81,9 @@ public abstract class AbstractAgingChamberBlockEntity extends BlockEntity implem
     }
 
     public HoneyAgeLevel getCurrentAgeLevel(int slot) {
+        if (slot < 0 || slot >= agingTicks.length) {
+            return HoneyAgeLevel.determineAgeLevel(0);
+        }
         return HoneyAgeLevel.determineAgeLevel(agingTicks[slot]);
     }
 
@@ -92,7 +95,7 @@ public abstract class AbstractAgingChamberBlockEntity extends BlockEntity implem
         for (int i = 0; i < getCapacity(); i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
             if (!stack.isEmpty()) {
-                agingTicks[i] += (int) getSpeedMultiplier();
+                agingTicks[i] += Math.round(getSpeedMultiplier());
 
                 // Update NBT every 100 ticks
                 if (agingTicks[i] % 100 == 0) {

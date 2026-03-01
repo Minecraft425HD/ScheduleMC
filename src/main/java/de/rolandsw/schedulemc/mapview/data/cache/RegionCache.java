@@ -474,65 +474,59 @@ public class RegionCache {
             cachedRegionFileDir.mkdirs();
             File cachedRegionFile = new File(cachedRegionFileDir, "/" + this.key + ".zip");
             if (cachedRegionFile.exists()) {
-                ZipFile zFile = new ZipFile(cachedRegionFile);
-                ZipEntry ze = zFile.getEntry("data");
-                InputStream is = zFile.getInputStream(ze);
-                byte[] decompressedByteData = is.readAllBytes();
-                is.close();
-                ze = zFile.getEntry("key");
-                is = zFile.getInputStream(ze);
-                BiMap<BlockState, Integer> blockstateMap = HashBiMap.create();
-                Scanner sc = new Scanner(is);
-
-                while (sc.hasNextLine()) {
-                    BlockStateAnalyzer.parseLine(sc.nextLine(), blockstateMap);
-                }
-                sc.close();
-                is.close();
-
-                BiMap<Biome, Integer> biomeMap = HashBiMap.create();
-                ze = zFile.getEntry("biomes");
-                if (ze != null) {
-                    is = zFile.getInputStream(ze);
-                    sc = new Scanner(is);
-
-                    while (sc.hasNextLine()) {
-                        BiomeScanner.parseLine(world, sc.nextLine(), biomeMap);
+                try (ZipFile zFile = new ZipFile(cachedRegionFile)) {
+                    ZipEntry ze = zFile.getEntry("data");
+                    byte[] decompressedByteData;
+                    try (InputStream is = zFile.getInputStream(ze)) {
+                        decompressedByteData = is.readAllBytes();
                     }
-                } else {
-                    BiomeScanner.populateLegacyBiomeMap(world, biomeMap);
-                }
-
-                sc.close();
-                is.close();
-                int version = 1;
-                ze = zFile.getEntry("control");
-                if (ze != null) {
-                    is = zFile.getInputStream(ze);
-                    if (is != null) {
-                        Properties properties = new Properties();
-                        properties.load(is);
-                        String versionString = properties.getProperty("version", "1");
-
-                        try {
-                            version = Integer.parseInt(versionString);
-                        } catch (NumberFormatException ignored) {}
-
-                        is.close();
+                    ze = zFile.getEntry("key");
+                    BiMap<BlockState, Integer> blockstateMap = HashBiMap.create();
+                    try (InputStream is = zFile.getInputStream(ze);
+                         Scanner sc = new Scanner(is)) {
+                        while (sc.hasNextLine()) {
+                            BlockStateAnalyzer.parseLine(sc.nextLine(), blockstateMap);
+                        }
                     }
-                }
 
-                zFile.close();
-                if (decompressedByteData.length == this.data.getExpectedDataLength(version)) {
-                    this.data.setData(decompressedByteData, blockstateMap, biomeMap, version);
-                    this.empty = false;
-                    this.dataUpdated = true;
-                } else {
-                    MapViewConstants.getLogger().warn("failed to load data from " + cachedRegionFile.getPath());
-                }
+                    BiMap<Biome, Integer> biomeMap = HashBiMap.create();
+                    ze = zFile.getEntry("biomes");
+                    if (ze != null) {
+                        try (InputStream is = zFile.getInputStream(ze);
+                             Scanner sc = new Scanner(is)) {
+                            while (sc.hasNextLine()) {
+                                BiomeScanner.parseLine(world, sc.nextLine(), biomeMap);
+                            }
+                        }
+                    } else {
+                        BiomeScanner.populateLegacyBiomeMap(world, biomeMap);
+                    }
 
-                if (version < 2) {
-                    this.liveChunksUpdated = true;
+                    int version = 1;
+                    ze = zFile.getEntry("control");
+                    if (ze != null) {
+                        try (InputStream is = zFile.getInputStream(ze)) {
+                            Properties properties = new Properties();
+                            properties.load(is);
+                            String versionString = properties.getProperty("version", "1");
+
+                            try {
+                                version = Integer.parseInt(versionString);
+                            } catch (NumberFormatException ignored) {}
+                        }
+                    }
+
+                    if (decompressedByteData.length == this.data.getExpectedDataLength(version)) {
+                        this.data.setData(decompressedByteData, blockstateMap, biomeMap, version);
+                        this.empty = false;
+                        this.dataUpdated = true;
+                    } else {
+                        MapViewConstants.getLogger().warn("failed to load data from " + cachedRegionFile.getPath());
+                    }
+
+                    if (version < 2) {
+                        this.liveChunksUpdated = true;
+                    }
                 }
             }
         } catch (Exception ex) {

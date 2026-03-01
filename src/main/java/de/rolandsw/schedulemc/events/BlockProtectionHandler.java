@@ -339,6 +339,7 @@ public class BlockProtectionHandler {
 
         // Befülle Cache
         for (CustomNPCEntity npc : npcs) {
+            if (npc.getNpcData() == null) continue;
             BlockPos workLocation = npc.getNpcData().getWorkLocation();
             if (workLocation != null) {
                 npcWorkLocationCache.put(workLocation, npc);

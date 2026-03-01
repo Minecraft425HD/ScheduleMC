@@ -48,9 +48,11 @@ public class ScenarioManager {
     }
 
     public static void resetInstance() {
-        if (instance != null) {
-            instance.save();
-            instance = null;
+        synchronized (ScenarioManager.class) {
+            if (instance != null) {
+                instance.save();
+                instance = null;
+            }
         }
     }
 
