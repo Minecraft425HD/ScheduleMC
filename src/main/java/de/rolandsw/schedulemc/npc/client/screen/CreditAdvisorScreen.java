@@ -225,7 +225,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
                                   int progress, int remainingDays) {
         this.creditScore = score;
         this.creditRating = CreditScore.CreditRating.values()[
-            Math.min(ratingOrdinal, CreditScore.CreditRating.values().length - 1)
+            Math.max(0, Math.min(ratingOrdinal, CreditScore.CreditRating.values().length - 1))
         ];
         this.hasActiveLoan = hasLoan;
         this.activeLoanType = loanType;

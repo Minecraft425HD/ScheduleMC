@@ -123,6 +123,7 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
                     ProcessingStage nextStage = currentStage.next();
 
                     if (nextStage == ProcessingStage.IDLE) {
+                        if (quality == null) quality = CoffeeQuality.SEHR_GUT;
                         CoffeeQuality finalQuality = quality.upgrade();
                         int beanCount = inputStack.getCount() * 2;
                         outputStack = new ItemStack(de.rolandsw.schedulemc.coffee.items.CoffeeItems.GREEN_ARABICA_BEANS.get(), beanCount);

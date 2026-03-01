@@ -133,7 +133,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
      */
     private void openDialog() {
         CustomNPCEntity npc = menu.getNpc();
-        if (npc != null) {
+        if (npc != null && npc.getNpcData() != null) {
             // Sende Packet an Server: Nächster Dialog
             NPCNetworkHandler.sendToServer(new NPCActionPacket(
                 menu.getEntityId(),

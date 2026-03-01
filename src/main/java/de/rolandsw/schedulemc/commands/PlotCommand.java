@@ -812,7 +812,7 @@ public class PlotCommand {
                     return;
                 }
 
-                if (!plot.getRenterUUID().equals(player.getUUID().toString())) {
+                if (plot.getRenterUUID() == null || !plot.getRenterUUID().equals(player.getUUID().toString())) {
                     CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.rentextend.not_renting").getString());
                     return;
                 }
@@ -1325,7 +1325,7 @@ public class PlotCommand {
         if (apartment == null) {
             // Versuche nach Name zu suchen
             for (de.rolandsw.schedulemc.region.PlotArea apt : plot.getSubAreas()) {
-                if (apt.getName().equalsIgnoreCase(idOrName)) {
+                if (apt.getName() != null && apt.getName().equalsIgnoreCase(idOrName)) {
                     return apt;
                 }
             }
