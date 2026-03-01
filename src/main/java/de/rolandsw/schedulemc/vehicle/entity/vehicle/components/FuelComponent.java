@@ -157,7 +157,10 @@ public class FuelComponent extends VehicleComponent implements IFluidHandler {
     }
 
     public void setFuelType(Fluid fluid) {
-        setFuelType(ForgeRegistries.FLUIDS.getKey(fluid).toString());
+        net.minecraft.resources.ResourceLocation key = ForgeRegistries.FLUIDS.getKey(fluid);
+        if (key != null) {
+            setFuelType(key.toString());
+        }
     }
 
     public String getFuelType() {

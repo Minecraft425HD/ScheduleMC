@@ -199,6 +199,8 @@ public class OpiumPresseBlockEntity extends BlockEntity implements IUtilityConsu
                         case LEGENDAER -> 5;
                     };
                     outputs[i] = RawOpiumItem.create(types[i], qualities[i], yield);
+                    inputs[i] = ItemStack.EMPTY;
+                    progress[i] = 0;
                     changed = true;
                 }
 

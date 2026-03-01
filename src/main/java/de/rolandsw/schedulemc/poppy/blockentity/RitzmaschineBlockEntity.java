@@ -175,6 +175,8 @@ public class RitzmaschineBlockEntity extends BlockEntity implements IUtilityCons
                         case LEGENDAER -> 3;
                     };
                     outputs[i] = RawOpiumItem.create(types[i], qualities[i], yield);
+                    inputs[i] = ItemStack.EMPTY;
+                    progress[i] = 0;
                     changed = true;
                 }
 

@@ -48,7 +48,11 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
                 }
             }
         }
-        localRef.server = server;
+        // server-Feld innerhalb synchronized aktualisieren, damit der Write
+        // nicht mit dem Double-Checked-Locking in getInstance() in Race Conditions gerät
+        synchronized (TerritoryManager.class) {
+            localRef.server = server;
+        }
         return localRef;
     }
 
@@ -228,17 +232,17 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
 
     @Override
     protected void onDataLoaded(Map<Long, Territory> data) {
-        territories.clear();
-
         int invalidCount = 0;
         int correctedCount = 0;
 
-        // NULL CHECK
+        // NULL CHECK vor clear(), damit bei null-Daten die alten Territorien erhalten bleiben
         if (data == null) {
             LOGGER.warn("Null data loaded for territories");
             invalidCount++;
             return;
         }
+
+        territories.clear();
 
         // Check collection size
         if (data.size() > 100000) {

@@ -69,7 +69,11 @@ public class PlayerEvents {
     }
 
     private Entity getRidingEntity() {
-        return getPlayer().getVehicle();
+        LocalPlayer player = getPlayer();
+        if (player == null) {
+            return null;
+        }
+        return player.getVehicle();
     }
 
     private EntityVehicleBase getRidingVehicle() {

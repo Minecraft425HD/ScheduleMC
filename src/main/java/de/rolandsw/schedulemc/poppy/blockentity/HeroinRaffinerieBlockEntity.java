@@ -199,6 +199,8 @@ public class HeroinRaffinerieBlockEntity extends BlockEntity implements IUtility
                     // Chance auf Qualitätsverbesserung
                     TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
                     outputs[i] = HeroinItem.create(types[i], finalQuality, 1);
+                    inputs[i] = ItemStack.EMPTY;
+                    progress[i] = 0;
                     changed = true;
                 }
 

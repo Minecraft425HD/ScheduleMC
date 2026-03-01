@@ -211,6 +211,8 @@ public class KochstationBlockEntity extends BlockEntity implements IUtilityConsu
                 if (progress[i] >= COOK_TIME) {
                     // 1 Rohopium = 1 Morphin (Qualität bleibt)
                     outputs[i] = MorphineItem.create(types[i], qualities[i], 1);
+                    inputs[i] = ItemStack.EMPTY;
+                    progress[i] = 0;
                     changed = true;
                 }
 

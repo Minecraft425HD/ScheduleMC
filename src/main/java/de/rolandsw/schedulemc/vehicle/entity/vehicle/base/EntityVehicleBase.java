@@ -147,11 +147,12 @@ public abstract class EntityVehicleBase extends Entity {
                 height = offset.y;
             }
 
-        Vec3 vec3d = (new Vec3(front, height, side)).yRot(-getYRot() * 0.017453292F - ((float) Math.PI / 2F));
-        passenger.setPos(getX() + vec3d.x, getY() + vec3d.y, getZ() + vec3d.z);
-        passenger.setYRot(passenger.getYRot() + deltaRotation);
-        passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
-        applyYawToEntity(passenger);
+            Vec3 vec3d = (new Vec3(front, height, side)).yRot(-getYRot() * 0.017453292F - ((float) Math.PI / 2F));
+            passenger.setPos(getX() + vec3d.x, getY() + vec3d.y, getZ() + vec3d.z);
+            passenger.setYRot(passenger.getYRot() + deltaRotation);
+            passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
+            applyYawToEntity(passenger);
+        }
     }
 
     @Override

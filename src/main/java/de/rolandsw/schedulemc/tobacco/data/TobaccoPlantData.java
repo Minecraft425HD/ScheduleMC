@@ -129,7 +129,8 @@ public class TobaccoPlantData {
         incrementTicks();
 
         int requiredTicks = getGrowthSpeed();
-        int ticksPerStage = requiredTicks / 8; // 8 Wachstumsstufen (0-7)
+        // Mindestens 1, um Division-durch-null zu vermeiden wenn requiredTicks < 8
+        int ticksPerStage = Math.max(1, requiredTicks / 8); // 8 Wachstumsstufen (0-7)
 
         int newStage = Math.min(7, ticksGrown / ticksPerStage);
         setGrowthStage(newStage);
