@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * WarehouseManager - Globaler Manager für alle Warehouses
@@ -40,7 +41,7 @@ public class WarehouseManager {
     private static final Map<String, Set<BlockPos>> warehouses = new ConcurrentHashMap<>();
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads
     private static volatile boolean dirty = false;
-    private static volatile int tickCounter = 0;
+    private static final AtomicInteger tickCounter = new AtomicInteger(0);
     private static final int CHECK_INTERVAL = 20; // Prüfe jede Sekunde (20 ticks) für schnelle Reaktion
 
     // OPTIMIERUNG: Cache für letzte Delivery-Tage (vermeidet Block-Entity-Lookups jeden Tick)
@@ -86,9 +87,8 @@ public class WarehouseManager {
             if (server.getPlayerCount() == 0) return;
 
             // Prüfe nur jede Sekunde (20 ticks) statt jeden Tick
-            tickCounter++;
-            if (tickCounter < CHECK_INTERVAL) return;
-            tickCounter = 0;
+            if (tickCounter.incrementAndGet() < CHECK_INTERVAL) return;
+            tickCounter.set(0);
 
             // Prüfe alle registrierten Warehouses
             for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {

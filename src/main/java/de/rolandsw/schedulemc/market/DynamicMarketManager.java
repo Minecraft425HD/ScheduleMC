@@ -215,9 +215,9 @@ public class DynamicMarketManager {
     public void tick() {
         if (!enabled) return;
 
-        tickCounter.incrementAndGet();
-
-        if (tickCounter.get() >= updateInterval) {
+        // Atomares getAndIncrement verhindert, dass zwei Threads gleichzeitig
+        // das Intervall überschreiten und beide ein Update auslösen.
+        if (tickCounter.incrementAndGet() >= updateInterval) {
             tickCounter.set(0);
             performMarketUpdate();
         }

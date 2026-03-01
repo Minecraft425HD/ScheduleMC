@@ -70,14 +70,15 @@ public class TransactionHistory {
      * Fügt eine neue Transaktion hinzu
      */
     public void addTransaction(UUID playerUUID, Transaction transaction) {
-        transactions.computeIfAbsent(playerUUID, k -> new ArrayList<>()).add(transaction);
-
-        // Begrenze Anzahl pro Spieler
-        List<Transaction> playerTransactions = transactions.get(playerUUID);
-        if (playerTransactions.size() > MAX_TRANSACTIONS_PER_PLAYER) {
-            // Entferne älteste Transaktionen
-            playerTransactions.subList(0, playerTransactions.size() - MAX_TRANSACTIONS_PER_PLAYER).clear();
-        }
+        // compute() ist atomar: Hinzufügen + Trimmen geschehen ohne Race Condition
+        transactions.compute(playerUUID, (k, existing) -> {
+            if (existing == null) existing = new ArrayList<>();
+            existing.add(transaction);
+            if (existing.size() > MAX_TRANSACTIONS_PER_PLAYER) {
+                existing.subList(0, existing.size() - MAX_TRANSACTIONS_PER_PLAYER).clear();
+            }
+            return existing;
+        });
 
         needsSave = true;
     }

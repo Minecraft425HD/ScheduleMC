@@ -552,7 +552,7 @@ public class NPCData {
     }
 
     public void addMoney(int amount) {
-        this.wallet += amount;
+        this.wallet = (int) Math.min((long) this.wallet + amount, Integer.MAX_VALUE);
     }
 
     public boolean removeMoney(int amount) {

@@ -121,7 +121,12 @@ public class HotReloadableConfig<T> {
      * Startet die Datei-Ueberwachung fuer diese Config.
      */
     public void startWatching() {
-        Path dir = configFile.getParentFile().toPath();
+        File parentFile = configFile.getParentFile();
+        if (parentFile == null) {
+            LOGGER.error("Kann Config-Datei nicht überwachen – kein übergeordnetes Verzeichnis: {}", configFile.getName());
+            return;
+        }
+        Path dir = parentFile.toPath();
         watchedConfigs.put(configFile.toPath().toAbsolutePath(), this);
 
         ensureWatchServiceRunning(dir);

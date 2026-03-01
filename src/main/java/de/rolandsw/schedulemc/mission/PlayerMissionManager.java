@@ -231,6 +231,10 @@ public class PlayerMissionManager {
     }
 
     private void load() {
+        loadInternal(false);
+    }
+
+    private void loadInternal(boolean isBackupAttempt) {
         if (!Files.exists(saveFile)) return;
         try {
             String json = Files.readString(saveFile);
@@ -262,8 +266,12 @@ public class PlayerMissionManager {
             }
             LOGGER.info("Missions-Daten geladen: {} Spieler", playerMissions.size());
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Lesen der Missions-Datei, versuche Backup", e);
-            loadBackup();
+            if (isBackupAttempt) {
+                LOGGER.error("Backup-Datei konnte ebenfalls nicht gelesen werden – Missions-Daten nicht verfügbar", e);
+            } else {
+                LOGGER.error("Fehler beim Lesen der Missions-Datei, versuche Backup", e);
+                loadBackup();
+            }
         }
     }
 
@@ -271,7 +279,7 @@ public class PlayerMissionManager {
         if (!Files.exists(backupFile)) return;
         try {
             Files.copy(backupFile, saveFile, StandardCopyOption.REPLACE_EXISTING);
-            load();
+            loadInternal(true);
         } catch (IOException e) {
             LOGGER.error("Backup-Wiederherstellung fehlgeschlagen", e);
         }

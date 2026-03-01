@@ -144,11 +144,9 @@ public final class ServiceRegistry {
     public static void shutdownAll() {
         LOGGER.info("ServiceRegistry shutdown gestartet ({} Services)", initOrder.size());
 
-        // Umgekehrte Reihenfolge
-        List<Class<?>> reversed = new ArrayList<>(initOrder);
-        Collections.reverse(reversed);
-
-        for (Class<?> serviceClass : reversed) {
+        // Umgekehrte Reihenfolge – direkte Rückwärtsiteration vermeidet unnötige Listenkopie
+        for (int i = initOrder.size() - 1; i >= 0; i--) {
+            Class<?> serviceClass = initOrder.get(i);
             try {
                 Runnable hook = shutdownHooks.get(serviceClass);
                 if (hook != null) {

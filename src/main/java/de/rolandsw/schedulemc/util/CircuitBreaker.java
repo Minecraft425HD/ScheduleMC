@@ -210,6 +210,10 @@ public class CircuitBreaker {
         if (newState == State.CLOSED) {
             failureCount.set(0);
             successCount.set(0);
+        } else if (newState == State.OPEN) {
+            // Erfolgs-Zaehler zuruecksetzen, damit der naechste HALF_OPEN-Versuch sauber startet
+            successCount.set(0);
+            halfOpenAttempts.set(0);
         }
 
         LOGGER.info("CircuitBreaker '{}': {} -> {}", name, old, newState);
