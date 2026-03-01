@@ -319,7 +319,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
      * Vorschlag 2 Staffelung:
      * RECRUIT: 100%, MEMBER: 50%, UNDERBOSS: 10%, BOSS: 0%
      *
-     * Bei 3 verpassten Zahlungen: Auto-Kick.
+     * Bei 6 verpassten Zahlungen: Auto-Kick.
      */
     public void collectWeeklyFees(MinecraftServer srv) {
         if (srv == null) return;
@@ -377,7 +377,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
             for (UUID kickUUID : toKick) {
                 gang.removeMember(kickUUID);
                 playerToGang.remove(kickUUID);
-                LOGGER.info("Auto-kicked {} from gang '{}' (missed 3 fee payments)", kickUUID, gang.getName());
+                LOGGER.info("Auto-kicked {} from gang '{}' (missed 6 fee payments)", kickUUID, gang.getName());
             }
             if (!toKick.isEmpty()) {
                 markDirty();

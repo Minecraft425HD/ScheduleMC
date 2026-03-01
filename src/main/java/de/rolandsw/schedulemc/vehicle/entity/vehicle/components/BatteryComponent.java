@@ -275,7 +275,7 @@ public class BatteryComponent extends VehicleComponent {
 
         float basePitch = 1F - 0.002F * ((float) getStartingTime());
 
-        if (batteryLevel > startLevel) {
+        if (startLevel <= 0 || batteryLevel > startLevel) {
             return basePitch;
         }
 

@@ -320,6 +320,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             SavingsAccountManager savingsManager = SavingsAccountManager.getInstance(server);
             if (savingsManager != null) {
                 List<SavingsAccount> savingsAccounts = savingsManager.getAccounts(playerUUID);
+                if (savingsAccounts == null) savingsAccounts = Collections.emptyList();
 
                 // Sortiere nach Balance (größte zuerst)
                 savingsAccounts.sort((a, b) -> Double.compare(b.getBalance(), a.getBalance()));

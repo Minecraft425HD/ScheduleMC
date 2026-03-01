@@ -106,13 +106,13 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         shopBuyButton.visible = !isBank;
 
         // Deaktiviere Kaufen-Button wenn NPC außerhalb der Arbeitszeiten ist
-        if (npc != null && minecraft != null && minecraft.level != null) {
+        if (npc != null && npc.getNpcData() != null && minecraft != null && minecraft.level != null) {
             boolean withinWorkingHours = npc.getNpcData().isWithinWorkingHours(minecraft.level);
             shopBuyButton.active = withinWorkingHours;
         }
 
         // Missionen-Button (sichtbar wenn NPC Missionen vergeben kann)
-        boolean hasMissions = npc != null && !npc.getNpcData().getMissionIds().isEmpty();
+        boolean hasMissions = npc != null && npc.getNpcData() != null && !npc.getNpcData().getMissionIds().isEmpty();
         missionButton = addRenderableWidget(Button.builder(
             Component.translatable("gui.npc.missions"), button -> openNpcMissions()
         ).bounds(x + 8, y + 78, 160, 20).build());

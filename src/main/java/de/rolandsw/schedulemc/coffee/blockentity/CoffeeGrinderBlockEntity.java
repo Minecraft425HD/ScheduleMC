@@ -103,6 +103,7 @@ public class CoffeeGrinderBlockEntity extends BlockEntity implements IUtilityCon
                 CoffeeRoastLevel roastLevel = RoastedCoffeeBeanItem.getRoastLevel(inputStack);
 
                 outputStack = GroundCoffeeItem.create(type, quality, roastLevel, selectedGrindSize, inputStack.getCount());
+                inputStack = ItemStack.EMPTY;
                 grindingProgress = 0;
                 changed = true;
             }

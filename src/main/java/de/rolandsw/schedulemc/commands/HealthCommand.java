@@ -317,6 +317,7 @@ public class HealthCommand {
         if (backups.length > 0) {
             for (int i = 0; i < Math.min(3, backups.length); i++) {
                 File backup = backups[i];
+                if (backup == null) continue;
                 long age = (System.currentTimeMillis() - backup.lastModified()) / 1000 / 60;
                 long size = backup.length() / 1024; // KB
 

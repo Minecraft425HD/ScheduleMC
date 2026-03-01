@@ -285,8 +285,6 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         // NULL CHECK
         if (data == null) {
             LOGGER.warn("Null data loaded for bounties");
-            invalidCount++;
-            cleanupExpiredBounties();
             return;
         }
 

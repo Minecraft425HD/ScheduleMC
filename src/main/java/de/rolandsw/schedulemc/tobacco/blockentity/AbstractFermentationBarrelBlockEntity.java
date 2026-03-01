@@ -34,7 +34,9 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
     // Performance-Optimierung: Tick-Throttling
     private int tickCounter = 0;
     private static final int TICK_INTERVAL = 5; // Alle 5 Ticks statt jeden Tick
-    private int lastSyncTick = 0;
+    // Sync-Throttling: Netzwerk-Update nur alle 8 Verarbeitungszyklen (~40 Ticks)
+    private int syncCycleCounter = 0;
+    private static final int SYNC_EVERY_N_CYCLES = 8;
 
     protected AbstractFermentationBarrelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -179,6 +181,13 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
             boolean changed = false;
             boolean needsSync = false;
 
+            // Periodischer Sync: alle SYNC_EVERY_N_CYCLES Verarbeitungszyklen (~40 Ticks)
+            syncCycleCounter++;
+            if (syncCycleCounter >= SYNC_EVERY_N_CYCLES) {
+                syncCycleCounter = 0;
+                needsSync = true;
+            }
+
             // Nur aktive Slots verarbeiten
             for (int i = 0; i < getCapacity(); i++) {
                 if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
@@ -191,11 +200,6 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
                         changed = true;
                         needsSync = true;
                     }
-
-                    // Nur alle 40 Ticks (2 Sekunden) synchronisieren
-                    if (fermentationProgress[i] - lastSyncTick >= 40) {
-                        needsSync = true;
-                    }
                 }
             }
 
@@ -205,7 +209,6 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
 
             if (needsSync) {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                lastSyncTick = fermentationProgress[0]; // Track anhand erstem Slot
             }
 
             // Utility-Status nur bei Änderung melden
