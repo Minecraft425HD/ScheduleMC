@@ -94,7 +94,8 @@ public class RequestBankDataPacket {
                 List<RecurringPayment> payments = paymentManager.getPayments(playerUUID);
                 for (RecurringPayment payment : payments) {
                     // Get recipient name
-                    String recipientName = payment.getToPlayer().toString().substring(0, 8) + "...";
+                    UUID toPlayer = payment.getToPlayer();
+                    String recipientName = toPlayer != null ? toPlayer.toString().substring(0, 8) + "..." : "Unknown";
                     recurringPayments.add(new ClientBankDataCache.RecurringPaymentData(
                         payment.getPaymentId(),
                         recipientName,

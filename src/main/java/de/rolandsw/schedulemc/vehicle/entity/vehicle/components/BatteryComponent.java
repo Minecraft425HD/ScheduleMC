@@ -166,7 +166,7 @@ public class BatteryComponent extends VehicleComponent {
                     count = 2;
                     r = 0.3;
                 }
-                for (int i = 0; i <= count; i++) {
+                for (int i = 0; i < count; i++) {
                     spawnParticle(ParticleTypes.LARGE_SMOKE, offX, offY, offZ, speedX, speedZ, r);
                 }
             } else {

@@ -406,7 +406,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             return false;
         }
         Container partInv = inventoryComponent.getPartInventory();
-        for (int i = 0; i < stacks.size(); i++) {
+        for (int i = 0; i < stacks.size() && i < partInv.getContainerSize(); i++) {
             partInv.setItem(i, stacks.get(i));
         }
         return true;

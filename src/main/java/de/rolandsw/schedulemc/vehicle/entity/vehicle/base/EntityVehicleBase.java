@@ -140,11 +140,12 @@ public abstract class EntityVehicleBase extends Entity {
         if (passengers.size() > 0) {
             int i = passengers.indexOf(passenger);
 
-            Vector3d offset = getPlayerOffsets()[i];
-            front = offset.x;
-            side = offset.z;
-            height = offset.y;
-        }
+            if (i >= 0 && i < getPlayerOffsets().length) {
+                Vector3d offset = getPlayerOffsets()[i];
+                front = offset.x;
+                side = offset.z;
+                height = offset.y;
+            }
 
         Vec3 vec3d = (new Vec3(front, height, side)).yRot(-getYRot() * 0.017453292F - ((float) Math.PI / 2F));
         passenger.setPos(getX() + vec3d.x, getY() + vec3d.y, getZ() + vec3d.z);
