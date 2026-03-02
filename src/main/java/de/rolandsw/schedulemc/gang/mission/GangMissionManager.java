@@ -317,8 +317,8 @@ public class GangMissionManager {
         WeeklyStats stats = weeklyStats.get(gangId);
         if (stats != null) {
             stats.previousWeeks.add(0, new WeekSnapshot(stats));
-            if (stats.previousWeeks.size() > 3) {
-                stats.previousWeeks.subList(3, stats.previousWeeks.size()).clear();
+            while (stats.previousWeeks.size() > 3) {
+                stats.previousWeeks.remove(stats.previousWeeks.size() - 1);
             }
             stats.reset();
         }

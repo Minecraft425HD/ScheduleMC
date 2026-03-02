@@ -231,6 +231,12 @@ public class LockManager {
 
     private LockData deserializeLock(JsonObject obj) {
         try {
+            for (String required : new String[]{"type", "lockId", "owner", "doorX", "doorY", "doorZ", "dimension", "placedTime"}) {
+                if (!obj.has(required)) {
+                    LOGGER.error("Missing required field '{}' in lock entry: {}", required, obj);
+                    return null;
+                }
+            }
             LockType type = LockType.valueOf(obj.get("type").getAsString());
             LockData data = new LockData(
                     obj.get("lockId").getAsString(), type,

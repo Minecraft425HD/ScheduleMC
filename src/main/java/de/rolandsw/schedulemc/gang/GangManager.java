@@ -137,8 +137,9 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         GangRank rank = gang.getRank(requesterUUID);
         if (rank == null || !rank.canDisband()) return false;
 
-        // Alle Mitglieder entfernen
-        for (UUID memberUUID : gang.getMembers().keySet()) {
+        // Alle Mitglieder entfernen – Kopie der Keys, damit kein CME entsteht
+        // falls die backing-Map durch einen anderen Thread verändert wird
+        for (UUID memberUUID : new java.util.ArrayList<>(gang.getMembers().keySet())) {
             playerToGang.remove(memberUUID);
         }
 

@@ -151,7 +151,7 @@ public class MembershipManager {
 
         // Verteile Brutto-Gebühr gleichmäßig auf alle Towing Yards
         // addRevenue() zieht automatisch 19% MwSt ab und führt diese an Staatskasse ab
-        int feePerYard = (int) Math.ceil(fee / towingYards.size());
+        int feePerYard = (int) Math.round(fee / towingYards.size());
         net.minecraft.world.level.Level level = server.overworld();
 
         for (String yardPlotId : towingYards) {

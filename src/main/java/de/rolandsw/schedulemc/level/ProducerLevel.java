@@ -264,7 +264,8 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
         List<Map.Entry<UUID, Integer>> entries = new ArrayList<>();
         playerData.forEach((uuid, data) -> entries.add(Map.entry(uuid, data.getLevel())));
         entries.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
-        return entries.subList(0, Math.min(count, entries.size()));
+        int limit = Math.max(0, Math.min(count, entries.size()));
+        return new ArrayList<>(entries.subList(0, limit));
     }
 
     // ═══════════════════════════════════════════════════════════
