@@ -55,6 +55,8 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
             if (materialWeight > 0 && (budStrain != strain || !isFromBuds)) {
                 return false;
             }
+            // Überlauf verhindern
+            if (materialWeight + TrimmedBudItem.getWeight(stack) > MAX_MATERIAL_WEIGHT) return false;
             strain = budStrain;
             baseQuality = TrimmedBudItem.getQuality(stack);
             materialWeight += TrimmedBudItem.getWeight(stack);
@@ -64,6 +66,8 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
             if (materialWeight > 0 && (trimStrain != strain || isFromBuds)) {
                 return false;
             }
+            // Überlauf verhindern
+            if (materialWeight + TrimItem.getWeight(stack) > MAX_MATERIAL_WEIGHT) return false;
             strain = trimStrain;
             baseQuality = CannabisQuality.GUT;
             materialWeight += TrimItem.getWeight(stack);

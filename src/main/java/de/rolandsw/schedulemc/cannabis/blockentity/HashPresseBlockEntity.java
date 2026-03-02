@@ -55,6 +55,9 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
             return false;
         }
 
+        // Überlauf verhindern
+        if (trimWeight + addWeight > MAX_TRIM_WEIGHT) return false;
+
         strain = trimStrain;
         if (trimWeight == 0) { trimQuality = addQuality; }
         trimWeight += addWeight;

@@ -123,7 +123,7 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
                 anyActive = true;
 
                 // Increment aging with speed multiplier
-                agingTicks[slot] += (int) getSpeedMultiplier();
+                agingTicks[slot] += (int) Math.round(getSpeedMultiplier());
 
                 // Update NBT with aging information every 100 ticks
                 if (agingTicks[slot] % 100 == 0) {

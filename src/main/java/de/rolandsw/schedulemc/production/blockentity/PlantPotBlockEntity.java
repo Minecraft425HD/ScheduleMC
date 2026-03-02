@@ -76,8 +76,8 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
                 if (handler != null) {
                     // Prüfe ob Pflanze wachsen kann (Licht, spezielle Bedingungen)
                     if (!handler.canGrow(level, worldPosition, potData)) {
-                        return;  // Bedingungen nicht erfüllt
-                    }
+                        // Bedingungen nicht erfüllt – kein frühzeitiges return, damit Utility-Status gemeldet wird
+                    } else {
 
                     // Wachstumsgeschwindigkeit basierend auf Licht
                     double lightSpeedMultiplier = getLightSpeedMultiplier();
@@ -118,6 +118,7 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
                         setChanged();
                         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                     }
+                    } // end else (canGrow)
                 }
             }
         }
