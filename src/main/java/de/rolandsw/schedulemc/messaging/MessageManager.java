@@ -79,14 +79,11 @@ public class MessageManager {
     private static void addMessageToConversation(UUID ownerUUID, UUID participantUUID,
                                                  String participantName, boolean isPlayerParticipant,
                                                  Message message) {
-        playerConversations.computeIfAbsent(ownerUUID, k -> new ConcurrentHashMap<>());
-        Map<UUID, Conversation> conversations = playerConversations.get(ownerUUID);
+        Map<UUID, Conversation> conversations =
+                playerConversations.computeIfAbsent(ownerUUID, k -> new ConcurrentHashMap<>());
 
-        Conversation conv = conversations.get(participantUUID);
-        if (conv == null) {
-            conv = new Conversation(participantUUID, participantName, isPlayerParticipant);
-            conversations.put(participantUUID, conv);
-        }
+        Conversation conv = conversations.computeIfAbsent(participantUUID,
+                k -> new Conversation(participantUUID, participantName, isPlayerParticipant));
 
         conv.addMessage(message);
     }

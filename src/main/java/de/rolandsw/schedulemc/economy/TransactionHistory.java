@@ -70,14 +70,16 @@ public class TransactionHistory {
      * Fügt eine neue Transaktion hinzu
      */
     public void addTransaction(UUID playerUUID, Transaction transaction) {
-        // compute() ist atomar: Hinzufügen + Trimmen geschehen ohne Race Condition
+        // compute() ist atomar: Hinzufügen + Trimmen geschehen ohne Race Condition.
+        // Wir erstellen eine neue Liste (defensive copy), damit parallele Leser
+        // (getRecentTransactions / getAllTransactions) stets eine konsistente Snapshot-Ansicht haben.
         transactions.compute(playerUUID, (k, existing) -> {
-            if (existing == null) existing = new ArrayList<>();
-            existing.add(transaction);
-            if (existing.size() > MAX_TRANSACTIONS_PER_PLAYER) {
-                existing.subList(0, existing.size() - MAX_TRANSACTIONS_PER_PLAYER).clear();
+            List<Transaction> updated = existing == null ? new ArrayList<>() : new ArrayList<>(existing);
+            updated.add(transaction);
+            if (updated.size() > MAX_TRANSACTIONS_PER_PLAYER) {
+                updated.subList(0, updated.size() - MAX_TRANSACTIONS_PER_PLAYER).clear();
             }
-            return existing;
+            return updated;
         });
 
         needsSave = true;
