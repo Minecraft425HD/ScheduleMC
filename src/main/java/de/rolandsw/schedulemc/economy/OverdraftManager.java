@@ -176,15 +176,19 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             tryAutoRepay(playerUUID);
             // Nach Auto-Repay nochmal prüfen
             balance = EconomyManager.getBalance(playerUUID);
+            if (balance >= 0) {
+                // Schulden beglichen – kein weiteres Vorgehen nötig
+                return;
+            }
         }
 
-        // Tag 7, 14, 21: Warnungen
-        if (daysPassed == 7 || daysPassed == 14 || daysPassed == 21) {
+        // Tag 7, 14, 21: Warnungen (nur wenn noch im Minus!)
+        if (balance < 0 && (daysPassed == 7 || daysPassed == 14 || daysPassed == 21)) {
             sendCountdownWarning(playerUUID, balance);
         }
 
         // Tag 28: GEFÄNGNIS!
-        if (daysPassed >= 28) {
+        if (balance < 0 && daysPassed >= 28) {
             sendToPrison(playerUUID, Math.abs(balance));
         }
     }

@@ -561,7 +561,7 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         PlayerAchievements playerAch = getPlayerAchievements(playerUUID);
         int total = achievements.size();
         int unlocked = playerAch.getUnlockedCount();
-        double percentage = (double) unlocked / total * 100.0;
+        double percentage = total > 0 ? (double) unlocked / total * 100.0 : 0.0;
 
         return String.format("Achievements: %d/%d (%.1f%%) - %.2f€ verdient",
             unlocked, total, percentage, playerAch.getTotalPointsEarned());
