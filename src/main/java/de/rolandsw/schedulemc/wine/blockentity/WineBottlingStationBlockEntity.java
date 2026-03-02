@@ -194,7 +194,7 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
 
     @Override
     public boolean isActivelyConsuming() {
-        return !wineInput.isEmpty() && !bottleInput.isEmpty();
+        return !wineInput.isEmpty() && !bottleInput.isEmpty() && output.isEmpty();
     }
 
     @Override

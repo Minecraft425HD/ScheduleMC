@@ -176,7 +176,7 @@ public class PlotArea {
         this.renterUUID = "";
         this.rentalStartDate = 0;
         this.rentalEndDate = 0;
-        this.trustedPlayers.clear();
+        getTrustedPlayers().clear();
     }
 
     /**
@@ -253,6 +253,7 @@ public class PlotArea {
      * Prüft ob Position innerhalb dieses Bereichs liegt
      */
     public boolean contains(BlockPos pos) {
+        if (pos == null || minCorner == null || maxCorner == null) return false;
         return pos.getX() >= minCorner.getX() && pos.getX() <= maxCorner.getX() &&
                pos.getY() >= minCorner.getY() && pos.getY() <= maxCorner.getY() &&
                pos.getZ() >= minCorner.getZ() && pos.getZ() <= maxCorner.getZ();
@@ -262,6 +263,7 @@ public class PlotArea {
      * Berechnet Volumen
      */
     public long getVolume() {
+        if (minCorner == null || maxCorner == null) return 0;
         long dx = maxCorner.getX() - minCorner.getX() + 1;
         long dy = maxCorner.getY() - minCorner.getY() + 1;
         long dz = maxCorner.getZ() - minCorner.getZ() + 1;
@@ -272,6 +274,7 @@ public class PlotArea {
      * Gibt Zentrum zurück
      */
     public BlockPos getCenter() {
+        if (minCorner == null || maxCorner == null) return BlockPos.ZERO;
         return new BlockPos(
             (minCorner.getX() + maxCorner.getX()) / 2,
             (minCorner.getY() + maxCorner.getY()) / 2,
@@ -283,6 +286,8 @@ public class PlotArea {
      * Prüft ob sich dieser Bereich mit einem anderen überschneidet
      */
     public boolean overlaps(PlotArea other) {
+        if (minCorner == null || maxCorner == null || other == null ||
+            other.minCorner == null || other.maxCorner == null) return false;
         return !(maxCorner.getX() < other.minCorner.getX() ||
                  minCorner.getX() > other.maxCorner.getX() ||
                  maxCorner.getY() < other.minCorner.getY() ||
@@ -295,6 +300,7 @@ public class PlotArea {
      * Prüft ob dieser Bereich mit gegebenen Koordinaten überschneidet
      */
     public boolean overlaps(BlockPos otherMin, BlockPos otherMax) {
+        if (minCorner == null || maxCorner == null || otherMin == null || otherMax == null) return false;
         return !(maxCorner.getX() < otherMin.getX() ||
                  minCorner.getX() > otherMax.getX() ||
                  maxCorner.getY() < otherMin.getY() ||

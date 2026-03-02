@@ -96,7 +96,7 @@ public class NPCLifeSystemEvents {
     // ═══════════════════════════════════════════════════════════
 
     /** Zähler für periodisches Auto-Save */
-    private static int autoSaveCounter = 0;
+    private static volatile int autoSaveCounter = 0;
     private static final int AUTO_SAVE_INTERVAL = 6000; // Alle 5 Minuten
 
     /**

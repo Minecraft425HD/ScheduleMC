@@ -150,6 +150,14 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
             int totalTime = getTotalPressingTime();
             if (pressingProgress >= totalTime) {
                 // Pressing complete: Mash → Juice
+                if (wineType == null) {
+                    // Guard against corrupt state: reset and abort
+                    pressingProgress = 0;
+                    inputStack = ItemStack.EMPTY;
+                    syncToHandler();
+                    setChanged();
+                    return;
+                }
                 ItemStack juice = switch (wineType) {
                     case RIESLING -> new ItemStack(WineItems.RIESLING_JUICE.get(), inputStack.getCount());
                     case SPAETBURGUNDER -> new ItemStack(WineItems.SPAETBURGUNDER_JUICE.get(), inputStack.getCount());

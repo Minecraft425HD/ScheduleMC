@@ -168,19 +168,18 @@ public class RitzmaschineBlockEntity extends BlockEntity implements IUtilityCons
 
                 if (progress[i] >= PROCESS_TIME) {
                     // 1 Kapsel = 1-3 Rohopium (basierend auf Qualität)
-                    int yield = switch (qualities[i]) {
+                    TobaccoQuality quality = qualities[i] != null ? qualities[i] : TobaccoQuality.SCHLECHT;
+                    int yield = switch (quality) {
                         case SCHLECHT -> 1;
                         case GUT -> 2;
                         case SEHR_GUT -> 2;
                         case LEGENDAER -> 3;
                     };
-                    outputs[i] = RawOpiumItem.create(types[i], qualities[i], yield);
+                    outputs[i] = RawOpiumItem.create(types[i], quality, yield);
                     inputs[i] = ItemStack.EMPTY;
                     progress[i] = 0;
                     changed = true;
-                }
-
-                if (progress[i] % 20 == 0) {
+                } else if (progress[i] % 20 == 0) {
                     changed = true;
                 }
             }

@@ -168,6 +168,9 @@ public class PlotChunkCache {
         BlockPos plotMin = plot.getMin();
         BlockPos plotMax = plot.getMax();
 
+        // Null-Safety: min/max können nach GSON-Deserialisierung null sein
+        if (plotMin == null || plotMax == null) return false;
+
         // AABB Overlap Check
         boolean overlapX = plotMin.getX() <= chunkMaxX && plotMax.getX() >= chunkMinX;
         boolean overlapZ = plotMin.getZ() <= chunkMaxZ && plotMax.getZ() >= chunkMinZ;

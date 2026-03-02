@@ -515,9 +515,9 @@ public class PrisonManager {
 
             // Atomic write: temp file + move
             File tempFile = new File(file.getAbsolutePath() + ".tmp");
-            try (Writer writer = new FileWriter(tempFile)) {
+            try (FileWriter writer = new FileWriter(tempFile)) {
                 GSON.toJson(saveData, writer);
-                ((FileWriter) writer).flush();
+                writer.flush();
             }
             Files.move(tempFile.toPath(), file.toPath(),
                 StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);

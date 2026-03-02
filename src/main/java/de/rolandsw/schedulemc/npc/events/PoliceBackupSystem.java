@@ -139,7 +139,7 @@ public class PoliceBackupSystem {
             // Setze Ziel für Verstärkung (wird in PoliceAIHandler übernommen)
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("[BACKUP] Police {} assigned as backup (Distance: {:.1f} blocks)",
-                    police.getNpcName(), Math.sqrt(police.distanceToSqr(caller.getX(), caller.getY(), caller.getZ())));
+                    police.getNpcName(), String.format("%.1f", Math.sqrt(police.distanceToSqr(caller.getX(), caller.getY(), caller.getZ()))));
             }
 
             assigned++;

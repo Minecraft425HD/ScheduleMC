@@ -66,7 +66,7 @@ public class FuelBillManager {
     public static void createBill(UUID playerUUID, UUID fuelStationId, int amountFueled, double totalCost) {
         UnpaidBill bill = new UnpaidBill(fuelStationId, playerUUID, amountFueled, totalCost, System.currentTimeMillis());
 
-        List<UnpaidBill> bills = playerBills.computeIfAbsent(playerUUID, k -> new ArrayList<>());
+        List<UnpaidBill> bills = playerBills.computeIfAbsent(playerUUID, k -> new CopyOnWriteArrayList<>());
         bills.add(bill);
         markDirty();
     }
@@ -247,12 +247,12 @@ public class FuelBillManager {
                     if (bills.size() > 1000) {
                         LOGGER.warn("Player {} has too many bills ({}), truncating to 1000",
                             playerUUID, bills.size());
-                        bills = new ArrayList<>(bills.subList(0, 1000));
+                        bills = new CopyOnWriteArrayList<>(bills.subList(0, 1000));
                         correctedCount++;
                     }
 
                     // VALIDATE BILLS - check for null entries
-                    List<UnpaidBill> validBills = new ArrayList<>();
+                    List<UnpaidBill> validBills = new CopyOnWriteArrayList<>();
                     for (UnpaidBill bill : bills) {
                         if (bill == null) {
                             LOGGER.warn("Player {} has null bill, skipping", playerUUID);

@@ -454,6 +454,7 @@ public class PlotRegion {
      * Prüft ob Position innerhalb des Plots liegt
      */
     public boolean contains(BlockPos pos) {
+        if (pos == null || min == null || max == null) return false;
         return pos.getX() >= min.getX() && pos.getX() <= max.getX() &&
                pos.getY() >= min.getY() && pos.getY() <= max.getY() &&
                pos.getZ() >= min.getZ() && pos.getZ() <= max.getZ();
@@ -621,6 +622,9 @@ public class PlotRegion {
      * Prüft ob dieses Plot in einem Government-Plot liegt
      */
     public boolean isInsideGovernmentPlot() {
+        // Null-Safety: min/max können nach GSON-Deserialisierung null sein
+        if (this.min == null || this.max == null) return false;
+
         // Hole alle Plots und prüfe ob ein Government-Plot dieses Plot umschließt
         for (PlotRegion other : PlotManager.getPlots()) {
             if (other == this) continue;

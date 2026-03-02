@@ -129,6 +129,14 @@ public class CrushingStationBlockEntity extends BlockEntity implements IUtilityC
 
             int totalTime = getTotalCrushingTime();
             if (crushingProgress >= totalTime) {
+                // Guard against corrupt state: wineType must be set
+                if (wineType == null) {
+                    crushingProgress = 0;
+                    inputStack = ItemStack.EMPTY;
+                    syncToHandler();
+                    setChanged();
+                    return;
+                }
                 // Crushing complete: Grapes → Mash
                 ItemStack mash = switch (wineType) {
                     case RIESLING -> new ItemStack(WineItems.RIESLING_MASH.get(), inputStack.getCount());

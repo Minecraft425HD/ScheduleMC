@@ -210,10 +210,12 @@ public class PlayerTracker {
                     if (contactData.name == null || contactData.name.isEmpty()) {
                         LOGGER.warn("Player contact {} has null/empty name, setting default", uuid);
                         contactData.name = "Unknown Player";
+                        markDirty(); // Re-save corrected data
                     } else if (contactData.name.length() > 100) {
                         LOGGER.warn("Player contact {} name too long ({} chars), truncating",
                             uuid, contactData.name.length());
                         contactData.name = contactData.name.substring(0, 100);
+                        markDirty(); // Re-save corrected data
                     }
 
                     // VALIDATE LAST SEEN (>= 0)
@@ -221,6 +223,7 @@ public class PlayerTracker {
                         LOGGER.warn("Player contact {} has negative lastSeen {}, resetting to 0",
                             uuid, contactData.lastSeen);
                         contactData.lastSeen = 0;
+                        markDirty(); // Re-save corrected data
                     }
 
                     PlayerContact contact = new PlayerContact(uuid, contactData.name);

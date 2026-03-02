@@ -28,6 +28,7 @@ import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,36 +61,48 @@ public class PoliceAIHandler {
     private static final int MAX_CACHE_ENTRIES = 500; // Max Einträge für LRU-Caches
 
     // UUID -> Arrest Start Time (in Ticks) - mit automatischem Cleanup
-    private static final Map<UUID, Long> arrestTimers = new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
-            return size() > MAX_ARREST_TIMER_ENTRIES;
+    // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
+    private static final Map<UUID, Long> arrestTimers = Collections.synchronizedMap(
+        new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
+                return size() > MAX_ARREST_TIMER_ENTRIES;
+            }
         }
-    };
+    );
 
     // NPC UUID -> Last Pursuit Target (um zu wissen wen wir verfolgt haben) - LRU Cache
-    private static final Map<UUID, UUID> lastPursuitTarget = new LinkedHashMap<UUID, UUID>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, UUID> eldest) {
-            return size() > MAX_CACHE_ENTRIES;
+    // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
+    private static final Map<UUID, UUID> lastPursuitTarget = Collections.synchronizedMap(
+        new LinkedHashMap<UUID, UUID>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<UUID, UUID> eldest) {
+                return size() > MAX_CACHE_ENTRIES;
+            }
         }
-    };
+    );
 
     // Wanted-Level Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache
-    private static final Map<UUID, Integer> lastSyncedWantedLevel = new LinkedHashMap<UUID, Integer>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, Integer> eldest) {
-            return size() > MAX_CACHE_ENTRIES;
+    // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
+    private static final Map<UUID, Integer> lastSyncedWantedLevel = Collections.synchronizedMap(
+        new LinkedHashMap<UUID, Integer>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<UUID, Integer> eldest) {
+                return size() > MAX_CACHE_ENTRIES;
+            }
         }
-    };
+    );
 
     // Escape-Time Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache
-    private static final Map<UUID, Long> lastSyncedEscapeTime = new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
-            return size() > MAX_CACHE_ENTRIES;
+    // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
+    private static final Map<UUID, Long> lastSyncedEscapeTime = Collections.synchronizedMap(
+        new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
+                return size() > MAX_CACHE_ENTRIES;
+            }
         }
-    };
+    );
 
     // ═══════════════════════════════════════════════════════════════════════════
     // OPTIMIERUNG: Globaler Spieler-Cache (aktualisiert alle 5 Ticks = 250ms)
@@ -745,18 +758,18 @@ public class PoliceAIHandler {
                     hiddenFromAll = false;
                 }
             }
-            // Konvertiere squared distance zurück für Vergleich
-            minDistance = Math.sqrt(minDistance);
-
             // Escape-Logic
             boolean canHide = false;
 
-            if (!nearbyPolice.isEmpty()) {
+            if (nearbyPolice.isEmpty()) {
+                // Keine Polizei in der Nähe – Spieler kann sich verstecken
+                canHide = true;
+            } else {
+                // Konvertiere squared distance zurück für Vergleich
+                minDistance = Math.sqrt(minDistance);
                 if (hiddenFromAll) {
                     canHide = true;
                 }
-            } else if (minDistance > CrimeManager.ESCAPE_DISTANCE) {
-                canHide = true;
             }
 
             if (canHide) {

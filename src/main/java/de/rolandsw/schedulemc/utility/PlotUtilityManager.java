@@ -366,8 +366,12 @@ public class PlotUtilityManager {
     private static void rebuildPositionCache() {
         positionCache.clear();
 
-        // Dies würde alle registrierten Positionen aus den PlotUtilityData durchgehen
-        // und den Cache rebuilden - wird bei load() aufgerufen
+        for (Map.Entry<String, PlotUtilityData> entry : plotData.entrySet()) {
+            String plotId = entry.getKey();
+            for (BlockPos pos : entry.getValue().getConsumerPositions()) {
+                positionCache.put(pos, plotId);
+            }
+        }
     }
 
     /**

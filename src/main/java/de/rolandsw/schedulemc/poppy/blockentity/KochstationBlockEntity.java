@@ -214,9 +214,7 @@ public class KochstationBlockEntity extends BlockEntity implements IUtilityConsu
                     inputs[i] = ItemStack.EMPTY;
                     progress[i] = 0;
                     changed = true;
-                }
-
-                if (progress[i] % 20 == 0) {
+                } else if (progress[i] % 20 == 0) {
                     changed = true;
                 }
             }

@@ -421,9 +421,12 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         }
 
         public double getTaxSavings() {
-            // Grobe Schätzung: Durchschnittlicher Trade-Wert wäre ohne Steuervermeidung besteuert
-            // Hier könnte man eine genauere Berechnung machen
-            return taxFreeTrades > 0 ? totalTaxPaid / taxFreeTrades * taxFreeTrades : 0.0;
+            // Grobe Schätzung: Durchschnittliche Steuer pro besteuertem Trade * Anzahl steuerfreier Trades
+            // Entspricht der Steuer, die bei schlechterem Timing angefallen wäre
+            int taxedTrades = totalTrades - taxFreeTrades;
+            if (taxedTrades <= 0 || taxFreeTrades <= 0) return 0.0;
+            double avgTaxPerTaxedTrade = totalTaxPaid / taxedTrades;
+            return avgTaxPerTaxedTrade * taxFreeTrades;
         }
 
         /**

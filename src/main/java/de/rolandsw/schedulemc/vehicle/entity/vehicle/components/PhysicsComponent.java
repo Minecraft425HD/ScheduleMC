@@ -291,14 +291,15 @@ public class PhysicsComponent extends VehicleComponent {
         }
 
         vehicle.setYRot(vehicle.getYRot() + vehicle.getDeltaRotation());
-        float delta = Math.abs(vehicle.getYRot() - vehicle.yRotO);
+        // Preserve signed rotation delta so yRotO stays consistent after wrap
+        float signedDelta = vehicle.getYRot() - vehicle.yRotO;
         while (vehicle.getYRot() > 180F) {
             vehicle.setYRot(vehicle.getYRot() - 360F);
-            vehicle.yRotO = vehicle.getYRot() - delta;
+            vehicle.yRotO = vehicle.getYRot() - signedDelta;
         }
         while (vehicle.getYRot() <= -180F) {
             vehicle.setYRot(vehicle.getYRot() + 360F);
-            vehicle.yRotO = delta + vehicle.getYRot();
+            vehicle.yRotO = vehicle.getYRot() - signedDelta;
         }
 
         if (vehicle.horizontalCollision) {
@@ -720,7 +721,8 @@ public class PhysicsComponent extends VehicleComponent {
                 long blocks = (long) odometerAccumulator;
                 odometer += blocks;
                 odometerAccumulator -= blocks;
-                vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
+                // Clamp to Integer.MAX_VALUE to avoid overflow in synced int field
+                vehicle.getEntityData().set(ODOMETER_SYNCED, (int) Math.min(odometer, Integer.MAX_VALUE));
             }
         }
     }
@@ -734,7 +736,8 @@ public class PhysicsComponent extends VehicleComponent {
 
     public void setOdometer(long odometer) {
         this.odometer = odometer;
-        vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
+        // Clamp to Integer.MAX_VALUE to avoid overflow in synced int field
+        vehicle.getEntityData().set(ODOMETER_SYNCED, (int) Math.min(odometer, Integer.MAX_VALUE));
     }
 
     /**
@@ -771,6 +774,7 @@ public class PhysicsComponent extends VehicleComponent {
     public void readAdditionalData(CompoundTag compound) {
         setStarted(compound.getBoolean("started"), false, false);
         odometer = compound.getLong("odometer");
-        vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
+        // Clamp to Integer.MAX_VALUE to avoid overflow in synced int field
+        vehicle.getEntityData().set(ODOMETER_SYNCED, (int) Math.min(odometer, Integer.MAX_VALUE));
     }
 }

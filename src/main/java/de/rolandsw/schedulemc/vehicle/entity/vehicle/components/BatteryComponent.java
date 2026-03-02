@@ -92,7 +92,7 @@ public class BatteryComponent extends VehicleComponent {
                 timeToStart = getTimeToStart();
             }
 
-            if (time > getTimeToStart()) {
+            if (time > timeToStart) {
                 physics.startVehicleEngine();
                 timeToStart = 0;
             }

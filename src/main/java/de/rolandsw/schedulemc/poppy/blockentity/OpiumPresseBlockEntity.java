@@ -192,19 +192,18 @@ public class OpiumPresseBlockEntity extends BlockEntity implements IUtilityConsu
                 if (progress[i] >= PROCESS_TIME) {
                     // Höherer Ertrag als Ritzmaschine!
                     // 1 Kapsel = 2-5 Rohopium (basierend auf Qualität)
-                    int yield = switch (qualities[i]) {
+                    TobaccoQuality quality = qualities[i] != null ? qualities[i] : TobaccoQuality.SCHLECHT;
+                    int yield = switch (quality) {
                         case SCHLECHT -> 2;
                         case GUT -> 3;
                         case SEHR_GUT -> 4;
                         case LEGENDAER -> 5;
                     };
-                    outputs[i] = RawOpiumItem.create(types[i], qualities[i], yield);
+                    outputs[i] = RawOpiumItem.create(types[i], quality, yield);
                     inputs[i] = ItemStack.EMPTY;
                     progress[i] = 0;
                     changed = true;
-                }
-
-                if (progress[i] % 20 == 0) {
+                } else if (progress[i] % 20 == 0) {
                     changed = true;
                 }
             }

@@ -109,10 +109,18 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
      */
     public void tick() {
         // Cooldowns verringern
-        interactionCooldowns.entrySet().removeIf(e -> {
-            e.setValue(e.getValue() - 1);
-            return e.getValue() <= 0;
-        });
+        // Expliziter Iterator statt removeIf+setValue: setValue innerhalb von removeIf ist
+        // ein spezifizierter Seiteneffekt, der von ConcurrentHashMap nicht unterstützt wird.
+        Iterator<Map.Entry<String, Integer>> cooldownIter = interactionCooldowns.entrySet().iterator();
+        while (cooldownIter.hasNext()) {
+            Map.Entry<String, Integer> e = cooldownIter.next();
+            int newVal = e.getValue() - 1;
+            if (newVal <= 0) {
+                cooldownIter.remove();
+            } else {
+                e.setValue(newVal);
+            }
+        }
 
         // Aktive Interaktionen ticken
         activeInteractions.entrySet().removeIf(e -> {
