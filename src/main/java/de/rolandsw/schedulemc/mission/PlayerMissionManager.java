@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -59,9 +60,11 @@ public class PlayerMissionManager {
     }
 
     public static void resetInstance() {
-        if (instance != null) {
-            instance.save();
-            instance = null;
+        synchronized (PlayerMissionManager.class) {
+            if (instance != null) {
+                instance.save();
+                instance = null;
+            }
         }
     }
 
@@ -88,7 +91,7 @@ public class PlayerMissionManager {
             return false;
         }
 
-        List<PlayerMission> missions = playerMissions.computeIfAbsent(uuid, k -> new ArrayList<>());
+        List<PlayerMission> missions = playerMissions.computeIfAbsent(uuid, k -> new CopyOnWriteArrayList<>());
 
         // Bereits aktiv oder abgeschlossen (nicht claimed)?
         for (PlayerMission m : missions) {
@@ -245,7 +248,7 @@ public class PlayerMissionManager {
             for (Map.Entry<String, List<MissionSaveEntry>> entry : data.entrySet()) {
                 try {
                     UUID uuid = UUID.fromString(entry.getKey());
-                    List<PlayerMission> missions = new ArrayList<>();
+                    List<PlayerMission> missions = new CopyOnWriteArrayList<>();
                     for (MissionSaveEntry saved : entry.getValue()) {
                         MissionDefinition def = MissionRegistry.getById(saved.definitionId);
                         if (def == null) {

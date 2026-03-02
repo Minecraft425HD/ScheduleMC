@@ -396,8 +396,8 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     /**
      * Transfer zwischen zwei Spielern
-     * SICHERHEIT: Atomare Operation verhindert Geldverlust bei Crash/Exception
      * SICHERHEIT: Rate Limiting gegen Spam
+     * Hinweis: Debit und Credit sind separate ConcurrentHashMap-Operationen (nicht gesamtatomare Einheit).
      */
     public static boolean transfer(UUID from, UUID to, double amount, @Nullable String description) {
         if (!Double.isFinite(amount) || amount < 0) {
@@ -411,15 +411,11 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             return false;
         }
 
-        // SICHERHEIT: Atomare Transfer-Operation
-        // Beide Balance-Änderungen passieren zusammen - kein Geldverlust bei Crash
-        double fromBalance;
-        double toBalance;
-        synchronized (balances) {
-            fromBalance = balances.getOrDefault(from, 0.0) - amount;
-            balances.put(from, fromBalance);
-            toBalance = balances.merge(to, amount, Double::sum);
-        }
+        // Beide Balance-Änderungen als getrennte atomare ConcurrentHashMap-Operationen.
+        // Hinweis: deposit() und withdraw() verwenden ebenfalls merge() ohne synchronized(balances),
+        // daher sind die beiden Operationen nicht als eine atomare Einheit garantiert.
+        double fromBalance = balances.merge(from, -amount, Double::sum);
+        double toBalance = balances.merge(to, amount, Double::sum);
 
         markDirty();
         LOGGER.debug("Transfer: {} € from {} to {}", amount, from, to);
