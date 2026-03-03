@@ -357,7 +357,7 @@ public class StealingAttemptPacket {
                             }
                         } else {
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("[STEALING] Nicht entdeckt (Chance: {:.1f}%)", detectionChance * 100);
+                                LOGGER.debug("[STEALING] Nicht entdeckt (Chance: {}%)", detectionChance * 100);
                             }
                         }
                     } else {

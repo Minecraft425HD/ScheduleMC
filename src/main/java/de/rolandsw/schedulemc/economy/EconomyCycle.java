@@ -113,7 +113,7 @@ public class EconomyCycle implements IncrementalSaveManager.ISaveable {
 
         needsSave = true;
 
-        LOGGER.info("Economy Day {}: Phase={}, Remaining={} days, Multiplier={:.2f}",
+        LOGGER.info("Economy Day {}: Phase={}, Remaining={} days, Multiplier={}",
                 totalDaysElapsed, currentPhase.getDisplayName(), remainingDays, currentMultiplier);
     }
 

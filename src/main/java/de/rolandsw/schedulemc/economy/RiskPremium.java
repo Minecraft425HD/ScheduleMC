@@ -86,7 +86,7 @@ public class RiskPremium {
 
         double totalRisk = baseRisk * wantedMultiplier * raidBonus;
 
-        LOGGER.debug("Risk premium for {}: base={:.2f} × wanted={:.2f} × raid={:.2f} = {:.2f}",
+        LOGGER.debug("Risk premium for {}: base={} × wanted={} × raid={} = {}",
                 category.name(), baseRisk, wantedMultiplier, raidBonus, totalRisk);
 
         return totalRisk;

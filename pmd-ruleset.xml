@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+    PMD 7 Regelwerk für ScheduleMC
+    Verwendet die vollständigen Kategorien mit gezielten Ausschlüssen für
+    reine Stil-/Lärm-Regeln, die keine echten Bugs darstellen.
+    Fokus: Korrektheit, Thread-Safety, Null-Pointer-Risiken.
+-->
+<ruleset name="ScheduleMC Bug Detection"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
+                             https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>Bug-Detection-Regeln für ScheduleMC (PMD 7).</description>
+
+    <!-- ================================================================
+         MULTI-THREADING: alle Regeln – Thread-Safety ist kritisch
+         ================================================================ -->
+    <rule ref="category/java/multithreading.xml"/>
+
+    <!-- ================================================================
+         FEHLERANFÄLLIGE KONSTRUKTE: vollständig, ohne Stil-Rauschen
+         ================================================================ -->
+    <rule ref="category/java/errorprone.xml">
+        <!-- Stil-Regeln ausschließen, die keine echten Bugs sind -->
+        <exclude name="AvoidDuplicateLiterals"/>         <!-- zu viel Rauschen bei Minecraft-Keys -->
+        <exclude name="AvoidLiteralsInIfCondition"/>     <!-- normale Grenzwertchecks -->
+        <exclude name="MissingSerialVersionUID"/>        <!-- nicht relevant für Forge-Mods -->
+        <exclude name="NonSerializableClass"/>           <!-- nicht relevant für Forge-Mods -->
+        <exclude name="UseLocaleWithCaseConversions"/>   <!-- Minecraft-interne Strings -->
+        <exclude name="TestClassWithoutTestCases"/>      <!-- false positives bei abstract tests -->
+        <exclude name="JUnitSpelling"/>
+        <exclude name="JUnitStaticSuite"/>
+        <exclude name="SimpleDateFormatNeedsLocale"/>    <!-- keine Datums-Formatierung kritisch -->
+        <exclude name="AssignmentToNonFinalStatic"/>     <!-- viele singletons initialisieren so -->
+        <exclude name="AvoidInstanceofChecksInCatchClause"/>
+        <exclude name="CloneThrowsCloneNotSupportedException"/>
+        <exclude name="DoNotHardCodeSDCard"/>
+        <exclude name="DontImportSun"/>
+        <exclude name="DetachedTestCase"/>
+        <exclude name="MissingStaticMethodInNonInstantiatableClass"/>
+        <exclude name="AvoidDecimalLiteralsInBigDecimalConstructor"/> <!-- kein BigDecimal in Use -->
+    </rule>
+
+    <!-- ================================================================
+         BEST PRACTICES: nur Bug-relevante Regeln
+         ================================================================ -->
+    <rule ref="category/java/bestpractices.xml">
+        <!-- Stil und Architektur ausschließen – nur echte Bug-Risiken behalten -->
+        <exclude name="AbstractClassWithoutAbstractMethod"/>
+        <exclude name="AccessorClassGeneration"/>
+        <exclude name="AccessorMethodGeneration"/>
+        <exclude name="ArrayIsStoredDirectly"/>
+        <exclude name="AvoidPrintStackTrace"/>           <!-- normal in Entwicklung -->
+        <exclude name="ForLoopVariableCount"/>
+        <exclude name="GuardLogStatement"/>              <!-- SLF4J-Logging-Pattern OK -->
+        <exclude name="JUnitAssertionsShouldIncludeMessage"/>
+        <exclude name="JUnitTestContainsTooManyAsserts"/>
+        <exclude name="JUnitTestsShouldIncludeAssert"/>
+        <exclude name="JUnitUseExpected"/>
+        <exclude name="LiteralsFirstInComparisons"/>     <!-- Stil, kein Bug -->
+        <exclude name="LooseCoupling"/>                  <!-- Interface-Empfehlung, kein Bug -->
+        <exclude name="MethodReturnsInternalArray"/>
+        <exclude name="MissingOverride"/>                <!-- Compiler warnt ohnehin -->
+        <exclude name="OneDeclarationPerLine"/>          <!-- Stil -->
+        <exclude name="ReplaceEnumerationWithIterator"/>
+        <exclude name="ReplaceHashtableWithMap"/>
+        <exclude name="ReplaceVectorWithList"/>
+        <exclude name="SystemPrintln"/>                  <!-- normal in Entwicklung -->
+        <exclude name="UseVarargs"/>                     <!-- Stil -->
+        <exclude name="AvoidUsingHardCodedIP"/>          <!-- Minecraft-Localhost-Adressen -->
+    </rule>
+
+</ruleset>

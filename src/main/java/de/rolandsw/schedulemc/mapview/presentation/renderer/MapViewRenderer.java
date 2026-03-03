@@ -427,7 +427,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 if (shouldUpdate) {
                     // THREAD-SAFETY: Use dedicated lock for wait/notify coordination
                     synchronized (this.zCalcLock) {
-                        this.zCalcLock.notify();
+                        this.zCalcLock.notifyAll();
                     }
                 }
             }

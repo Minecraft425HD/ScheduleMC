@@ -46,7 +46,7 @@ public final class SereneSeasonsCompat {
 
         try {
             return SereneSeasonsHelper.isWinterSeason(level);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             // Falls die API sich ändert oder nicht verfügbar ist
             return false;
         }
@@ -63,7 +63,7 @@ public final class SereneSeasonsCompat {
 
         try {
             return SereneSeasonsHelper.isSummerSeason(level);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return false;
         }
     }

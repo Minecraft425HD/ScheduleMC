@@ -104,7 +104,7 @@ public class TextureAtlas extends AbstractTexture {
 
             try {
                 // Texture upload handled by Minecraft's texture system
-            } catch (Throwable var10) {
+            } catch (Exception var10) {
                 CrashReport crashReport = CrashReport.forThrowable(var10, "Stitching texture atlas");
                 CrashReportCategory crashReportCategory = crashReport.addCategory("Texture being stitched together");
                 crashReportCategory.setDetail("Atlas path", this.basePath);
