@@ -232,7 +232,9 @@ public class TowingYardManager {
      */
     public static double getTotalRevenue(String towingYardPlotId, long currentTime, int days) {
         List<TowingTransaction> transactions = towingTransactions.getOrDefault(towingYardPlotId, new ArrayList<>());
-        return transactions.stream()
+        List<TowingTransaction> snapshot;
+        synchronized (transactions) { snapshot = new ArrayList<>(transactions); }
+        return snapshot.stream()
             .filter(t -> !t.isOlderThan(currentTime, days))
             .mapToDouble(TowingTransaction::getYardRevenue)
             .sum();
@@ -243,7 +245,9 @@ public class TowingYardManager {
      */
     public static int getTowingCount(String towingYardPlotId, long currentTime, int days) {
         List<TowingTransaction> transactions = towingTransactions.getOrDefault(towingYardPlotId, new ArrayList<>());
-        return (int) transactions.stream()
+        List<TowingTransaction> snapshot;
+        synchronized (transactions) { snapshot = new ArrayList<>(transactions); }
+        return (int) snapshot.stream()
             .filter(t -> !t.isOlderThan(currentTime, days))
             .count();
     }
@@ -253,7 +257,9 @@ public class TowingYardManager {
      */
     public static double getAverageRevenue(String towingYardPlotId, long currentTime, int days) {
         List<TowingTransaction> transactions = towingTransactions.getOrDefault(towingYardPlotId, new ArrayList<>());
-        List<TowingTransaction> recent = transactions.stream()
+        List<TowingTransaction> snapshot;
+        synchronized (transactions) { snapshot = new ArrayList<>(transactions); }
+        List<TowingTransaction> recent = snapshot.stream()
             .filter(t -> !t.isOlderThan(currentTime, days))
             .toList();
 

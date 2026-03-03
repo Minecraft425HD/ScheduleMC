@@ -149,11 +149,9 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             }
         }
 
-        // Täglicher Reset: Alle Transaktionshistorien löschen
-        TransactionHistory history = TransactionHistory.getInstance();
-        if (history != null) {
-            history.clearAllTransactions();
-        }
+        // Hinweis: TransactionHistory.clearAllTransactions() hier NICHT aufrufen –
+        // das würde die komplette 90-Tage-Historie aller Spieler täglich löschen.
+        // TransactionHistory verwaltet TTL/Aufräumen intern.
     }
 
     /**
@@ -171,8 +169,9 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         // Wöchentliche Zinsen (jede Woche!)
         chargeOverdraftInterest(playerUUID, balance);
 
-        // Tag 7: Automatischer Ausgleich
-        if (daysPassed == 7) {
+        // Ab Tag 7: Automatischer Ausgleich täglich versuchen (>= statt == 7, damit
+        // ein Server-Neustart am Tag 7 den Auto-Repay nicht dauerhaft überspringt).
+        if (daysPassed >= 7 && daysPassed < 28) {
             tryAutoRepay(playerUUID);
             // Nach Auto-Repay nochmal prüfen
             balance = EconomyManager.getBalance(playerUUID);
@@ -182,8 +181,11 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             }
         }
 
-        // Tag 7, 14, 21: Warnungen (nur wenn noch im Minus!)
-        if (balance < 0 && (daysPassed == 7 || daysPassed == 14 || daysPassed == 21)) {
+        // Ab Tag 7 bis Tag 27: Tägliche Warnung (>= statt exakter Meilensteine, damit
+        // kein Warnungs-Meilenstein durch Server-Ausfall übersprungen wird).
+        // sendCountdownWarning() stellt per lastWarningDay sicher, dass nur 1× pro Tag
+        // gewarnt wird.
+        if (balance < 0 && daysPassed >= 7 && daysPassed < 28) {
             sendCountdownWarning(playerUUID, balance);
         }
 

@@ -67,7 +67,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     /**
      * Initialisiert den EconomyManager mit dem Server
      */
-    public static void initialize(MinecraftServer server) {
+    public static synchronized void initialize(MinecraftServer server) {
         if (instance == null) {
             instance = new EconomyManager();
         }

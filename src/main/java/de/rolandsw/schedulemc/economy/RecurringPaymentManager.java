@@ -185,7 +185,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
         for (Map.Entry<UUID, List<RecurringPayment>> entry : payments.entrySet()) {
             UUID playerUUID = entry.getKey();
 
-            for (RecurringPayment payment : entry.getValue()) {
+            for (RecurringPayment payment : new ArrayList<>(entry.getValue())) {
                 if (payment.execute(currentDay)) {
                     // Erfolgreich ausgeführt
                     ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
