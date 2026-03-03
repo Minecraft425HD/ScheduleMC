@@ -76,7 +76,8 @@ public class PlayerMissionManager {
      * Gibt alle Missionen eines Spielers zurück.
      */
     public List<PlayerMission> getPlayerMissions(UUID playerUUID) {
-        return playerMissions.getOrDefault(playerUUID, Collections.emptyList());
+        List<PlayerMission> missions = playerMissions.get(playerUUID);
+        return missions == null ? Collections.emptyList() : new ArrayList<>(missions);
     }
 
     /**
@@ -149,6 +150,10 @@ public class PlayerMissionManager {
             if (mission.getMissionId().equals(missionId) && mission.claim()) {
                 // XP und Geld auszahlen
                 MissionDefinition def = mission.getDefinition();
+                if (def == null) {
+                    LOGGER.warn("claimMission: keine MissionDefinition für '{}' ({})", missionId, uuid);
+                    return false;
+                }
                 player.giveExperiencePoints(def.getXpReward());
                 // Geld via EconomyManager auszahlen (falls verfügbar)
                 try {

@@ -76,6 +76,10 @@ public class MembershipData {
         this.towsThisPeriod++;
     }
 
+    public void setTowsThisPeriod(int count) {
+        this.towsThisPeriod = count;
+    }
+
     public void resetTows() {
         this.towsThisPeriod = 0;
     }

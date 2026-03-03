@@ -316,10 +316,8 @@ public class MembershipManager {
                     membershipData.setActive(saveData.active);
                     membershipData.setNextPaymentDate(saveData.nextPaymentDate);
 
-                    // Restore tow count
-                    for (int i = 0; i < saveData.towsThisPeriod; i++) {
-                        membershipData.incrementTows();
-                    }
+                    // Restore tow count directly (O(1) instead of an O(n) increment loop)
+                    membershipData.setTowsThisPeriod(saveData.towsThisPeriod);
 
                     memberships.put(playerId, membershipData);
                 } catch (IllegalArgumentException e) {
