@@ -48,7 +48,7 @@ public class PlayerMissionManager {
         return instance;
     }
 
-    public static PlayerMissionManager getInstance(Path saveDir) {
+    public static PlayerMissionManager initialize(Path saveDir) {
         if (instance == null) {
             synchronized (PlayerMissionManager.class) {
                 if (instance == null) {

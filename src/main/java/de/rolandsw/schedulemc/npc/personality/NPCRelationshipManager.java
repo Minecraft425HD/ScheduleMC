@@ -33,7 +33,7 @@ public class NPCRelationshipManager extends AbstractPersistenceManager<NPCRelati
         return instance;
     }
 
-    public static NPCRelationshipManager getInstance(MinecraftServer server) {
+    public static NPCRelationshipManager initialize(MinecraftServer server) {
         NPCRelationshipManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

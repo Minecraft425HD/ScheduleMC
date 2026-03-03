@@ -56,7 +56,7 @@ public class GangMissionManager {
         return instance;
     }
 
-    public static GangMissionManager getInstance(Path saveDir) {
+    public static GangMissionManager initialize(Path saveDir) {
         if (instance == null) {
             synchronized (GangMissionManager.class) {
                 if (instance == null) {
@@ -508,7 +508,7 @@ public class GangMissionManager {
                                 sm.xp, sm.money, sm.createdAt,
                                 sm.progress, sm.completed, sm.claimed
                         ));
-                    } catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException ignored) {
                         // Template wurde entfernt, Mission ueberspringen
                     }
                 }

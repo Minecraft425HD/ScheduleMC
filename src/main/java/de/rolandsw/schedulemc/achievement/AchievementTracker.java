@@ -31,7 +31,7 @@ public class AchievementTracker {
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        achievementManager = AchievementManager.getInstance(server);
+        achievementManager = AchievementManager.initialize(server);
     }
 
     @SubscribeEvent
@@ -44,7 +44,7 @@ public class AchievementTracker {
             player.getName().getString(), player.getUUID());
 
         if (achievementManager == null) {
-            achievementManager = AchievementManager.getInstance(player.getServer());
+            achievementManager = AchievementManager.initialize(player.getServer());
         }
 
         checkPlayerAchievements(player);

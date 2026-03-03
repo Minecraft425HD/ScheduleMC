@@ -39,7 +39,7 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static AchievementManager getInstance(MinecraftServer server) {
+    public static AchievementManager initialize(MinecraftServer server) {
         AchievementManager localRef = instance;
         if (localRef == null) {
             synchronized (AchievementManager.class) {

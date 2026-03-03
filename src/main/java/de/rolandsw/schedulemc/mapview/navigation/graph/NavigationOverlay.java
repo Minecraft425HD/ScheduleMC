@@ -66,7 +66,7 @@ public class NavigationOverlay {
             return;
         }
 
-        this.navigationService = RoadNavigationService.getInstance(mapData);
+        this.navigationService = RoadNavigationService.initialize(mapData);
         this.initialized = true;
 
         LOGGER.info("[NavigationOverlay] Initialized");

@@ -38,7 +38,7 @@ public class RequestAchievementDataPacket {
                 return;
             }
 
-            AchievementManager manager = AchievementManager.getInstance(player.server);
+            AchievementManager manager = AchievementManager.initialize(player.server);
             if (manager == null) {
                 LOGGER.warn("RequestAchievementDataPacket: AchievementManager is null");
                 return;

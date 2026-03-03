@@ -496,7 +496,7 @@ public class PoliceAIHandler {
         // Feature 10: Beweis "Auf frischer Tat ertappt" erstellen
         if (player.level() instanceof ServerLevel sl) {
             de.rolandsw.schedulemc.npc.crime.evidence.EvidenceManager evidenceMgr =
-                de.rolandsw.schedulemc.npc.crime.evidence.EvidenceManager.getInstance(sl.getServer());
+                de.rolandsw.schedulemc.npc.crime.evidence.EvidenceManager.initialize(sl.getServer());
             evidenceMgr.addCaughtInAct(player.getUUID(), player.blockPosition(),
                 "Festnahme durch " + police.getNpcName() + " - Wanted Level " + wantedLevel);
         }

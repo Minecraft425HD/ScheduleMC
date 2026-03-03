@@ -39,7 +39,7 @@ public class MapCommand {
         }
 
         // Syncronisiere Territories zum Client
-        TerritoryManager manager = TerritoryManager.getInstance(player.server);
+        TerritoryManager manager = TerritoryManager.initialize(player.server);
         if (manager != null) {
             TerritoryNetworkHandler.sendToPlayer(new SyncTerritoriesPacket(manager.getTerritoriesMap()), player);
         }

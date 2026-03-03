@@ -104,10 +104,8 @@ public class ImageHelper {
     }
 
     public static BufferedImage blankImage(ResourceLocation Identifier, int w, int h, int imageWidth, int imageHeight, int r, int g, int b, int a) {
-        try {
-            InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(Identifier).get().open();
+        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(Identifier).get().open()) {
             BufferedImage mobSkin = ImageIO.read(is);
-            is.close();
             BufferedImage temp = new BufferedImage(w * mobSkin.getWidth() / imageWidth, h * mobSkin.getWidth() / imageWidth, 6);
             Graphics2D g2 = temp.createGraphics();
             g2.setColor(new Color(r, g, b, a));

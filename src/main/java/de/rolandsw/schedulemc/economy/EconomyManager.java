@@ -210,7 +210,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         }
         // Speichere auch Transaction History
         if (instance != null && instance.server != null) {
-            TransactionHistory history = TransactionHistory.getInstance(instance.server);
+            TransactionHistory history = TransactionHistory.initialize(instance.server);
             if (history != null) {
                 history.save();
             }
@@ -388,7 +388,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
                                       double amount, @Nullable String description,
                                       double balanceAfter) {
         if (instance != null && instance.server != null) {
-            TransactionHistory history = TransactionHistory.getInstance(instance.server);
+            TransactionHistory history = TransactionHistory.initialize(instance.server);
             Transaction transaction = new Transaction(type, from, to, amount, description, balanceAfter);
             history.addTransaction(playerUUID, transaction);
         }

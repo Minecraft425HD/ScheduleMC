@@ -251,7 +251,7 @@ public class PackagedDrugItem extends Item {
         if (variant != null) {
             try {
                 return variant.calculateDynamicPrice(quality, weight, null);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
                 // Fallback auf statische Formel
             }
         }

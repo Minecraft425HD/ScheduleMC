@@ -62,7 +62,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         return instance;
     }
 
-    public static GangManager getInstance(MinecraftServer server) {
+    public static GangManager initialize(MinecraftServer server) {
         GangManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

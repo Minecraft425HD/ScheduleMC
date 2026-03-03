@@ -52,7 +52,7 @@ public class BountyCommand {
     private static int listBounties(CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error").getString(),
             player -> {
-                BountyManager manager = BountyManager.getInstance(player.getServer());
+                BountyManager manager = BountyManager.initialize(player.getServer());
                 List<BountyData> bounties = manager.getTopBounties(10);
 
                 if (bounties.isEmpty()) {
@@ -121,7 +121,7 @@ public class BountyCommand {
                         return;
                     }
 
-                    BountyManager manager = BountyManager.getInstance(player.getServer());
+                    BountyManager manager = BountyManager.initialize(player.getServer());
 
                     if (manager.placeBounty(player.getUUID(), target.getUUID(), amount, reason)) {
                         player.sendSystemMessage(Component.translatable(
@@ -147,7 +147,7 @@ public class BountyCommand {
     private static int showOwnBounty(CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error").getString(),
             player -> {
-                BountyManager manager = BountyManager.getInstance(player.getServer());
+                BountyManager manager = BountyManager.initialize(player.getServer());
                 BountyData bounty = manager.getActiveBounty(player.getUUID());
 
                 if (bounty == null) {
@@ -166,7 +166,7 @@ public class BountyCommand {
             player -> {
                 try {
                     ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
-                    BountyManager manager = BountyManager.getInstance(player.getServer());
+                    BountyManager manager = BountyManager.initialize(player.getServer());
                     BountyData bounty = manager.getActiveBounty(target.getUUID());
 
                     if (bounty == null) {
@@ -193,7 +193,7 @@ public class BountyCommand {
     private static int showHistory(CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.history_error").getString(),
             player -> {
-                BountyManager manager = BountyManager.getInstance(player.getServer());
+                BountyManager manager = BountyManager.initialize(player.getServer());
                 List<BountyData> history = manager.getBountyHistory(player.getUUID());
 
                 if (history.isEmpty()) {

@@ -47,7 +47,7 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
         return instance;
     }
 
-    public static WitnessManager getInstance(MinecraftServer server) {
+    public static WitnessManager initialize(MinecraftServer server) {
         WitnessManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

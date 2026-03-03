@@ -35,7 +35,7 @@ public class LockManager {
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static LockManager getInstance(Path configDir) {
+    public static LockManager initialize(Path configDir) {
         LockManager localRef = instance;
         if (localRef == null) {
             synchronized (LockManager.class) {

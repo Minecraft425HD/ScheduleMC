@@ -38,7 +38,7 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static TerritoryManager getInstance(MinecraftServer server) {
+    public static TerritoryManager initialize(MinecraftServer server) {
         TerritoryManager localRef = instance;
         if (localRef == null) {
             synchronized (TerritoryManager.class) {

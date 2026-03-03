@@ -54,7 +54,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         return instance;
     }
 
-    public static QuestManager getInstance(MinecraftServer server) {
+    public static QuestManager initialize(MinecraftServer server) {
         QuestManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

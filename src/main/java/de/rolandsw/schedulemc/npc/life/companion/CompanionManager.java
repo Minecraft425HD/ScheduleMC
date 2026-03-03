@@ -42,7 +42,7 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
         return instance;
     }
 
-    public static CompanionManager getInstance(MinecraftServer server) {
+    public static CompanionManager initialize(MinecraftServer server) {
         CompanionManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

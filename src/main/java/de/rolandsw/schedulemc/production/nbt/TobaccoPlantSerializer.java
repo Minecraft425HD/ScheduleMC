@@ -49,7 +49,7 @@ public class TobaccoPlantSerializer implements PlantSerializer {
         if (plant != null) {
             try {
                 plant.setQuality(TobaccoQuality.valueOf(plantTag.getString("Quality")));
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException ignored) {
                 // Ungueltige Qualitaet - Standard beibehalten
             }
             plant.setGrowthStage(plantTag.getInt("GrowthStage"));

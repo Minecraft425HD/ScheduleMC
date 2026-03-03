@@ -36,7 +36,7 @@ public class ScenarioManager {
         return instance;
     }
 
-    public static ScenarioManager getInstance(Path saveDir) {
+    public static ScenarioManager initialize(Path saveDir) {
         if (instance == null) {
             synchronized (ScenarioManager.class) {
                 if (instance == null) {

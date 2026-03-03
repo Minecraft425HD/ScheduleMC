@@ -48,7 +48,7 @@ public class EvidenceManager extends AbstractPersistenceManager<EvidenceManager.
         load();
     }
 
-    public static EvidenceManager getInstance(MinecraftServer server) {
+    public static EvidenceManager initialize(MinecraftServer server) {
         EvidenceManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

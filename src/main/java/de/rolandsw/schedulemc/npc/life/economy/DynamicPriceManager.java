@@ -41,7 +41,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         return instance;
     }
 
-    public static DynamicPriceManager getInstance(MinecraftServer server) {
+    public static DynamicPriceManager initialize(MinecraftServer server) {
         DynamicPriceManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

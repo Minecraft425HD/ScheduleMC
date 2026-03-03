@@ -188,7 +188,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
                 executeTransaction(amount);
                 amountInput.setValue("");
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Invalid input - ignore
         }
     }

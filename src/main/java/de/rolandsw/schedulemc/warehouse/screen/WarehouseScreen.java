@@ -302,7 +302,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                         sendUpdateSlotCapacityPacket(selectedSlotIndex, newCapacity);
                         scheduleRefresh();
                     }
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                     // Invalid number, ignore
                 }
             }).bounds(detailX + 75, detailY + 170, 30, 20).build());

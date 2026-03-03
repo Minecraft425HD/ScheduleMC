@@ -1250,7 +1250,7 @@ public class WorldMapScreen extends PopupScreen {
                 // Initialisiere Service falls nötig
                 RoadNavigationService navService = RoadNavigationService.getInstance();
                 if (navService == null) {
-                    navService = RoadNavigationService.getInstance(this.persistentMap);
+                    navService = RoadNavigationService.initialize(this.persistentMap);
                 }
                 navService.startNavigation(target);
             }

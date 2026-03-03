@@ -43,7 +43,7 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
         return instance;
     }
 
-    public static DialogueManager getInstance(MinecraftServer server) {
+    public static DialogueManager initialize(MinecraftServer server) {
         DialogueManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

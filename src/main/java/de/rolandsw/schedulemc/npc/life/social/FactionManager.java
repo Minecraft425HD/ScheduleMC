@@ -32,7 +32,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
         return instance;
     }
 
-    public static FactionManager getInstance(MinecraftServer server) {
+    public static FactionManager initialize(MinecraftServer server) {
         FactionManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

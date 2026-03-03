@@ -413,7 +413,7 @@ public class SmartphoneScreen extends Screen {
                 RenderSystem.setShaderTexture(0, iconTexture);
                 guiGraphics.blit(iconTexture, x, y, 0, 0, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE);
                 iconRendered = true;
-            } catch (Exception e) {
+            } catch (Exception ignored) {
                 // Icon konnte nicht geladen werden
             }
         }

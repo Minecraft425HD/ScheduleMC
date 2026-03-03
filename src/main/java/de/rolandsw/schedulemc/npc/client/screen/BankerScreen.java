@@ -381,7 +381,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new BankDepositPacket(amount));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
@@ -393,7 +393,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new BankWithdrawPacket(amount));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
@@ -405,7 +405,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new SavingsDepositPacket(amount));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
@@ -417,7 +417,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount, forceWithdrawEnabled));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
@@ -432,7 +432,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new BankTransferPacket(target, amount));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
@@ -447,7 +447,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new CreateRecurringPaymentPacket(recipient, amount, selectedInterval));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }

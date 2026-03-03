@@ -140,7 +140,7 @@ public class TutorialManager extends AbstractPersistenceManager<Map<String, Tuto
     @Nullable
     public static TutorialManager getInstance() { return instance; }
 
-    public static TutorialManager getInstance(MinecraftServer server) {
+    public static TutorialManager initialize(MinecraftServer server) {
         TutorialManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

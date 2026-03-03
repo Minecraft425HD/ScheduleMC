@@ -45,7 +45,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
     /**
      * SICHERHEIT: Thread-safe Singleton mit Double-Checked Locking
      */
-    public static BountyManager getInstance(MinecraftServer server) {
+    public static BountyManager initialize(MinecraftServer server) {
         BountyManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

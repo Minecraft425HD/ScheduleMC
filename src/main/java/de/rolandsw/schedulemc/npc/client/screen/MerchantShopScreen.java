@@ -327,7 +327,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
                     if (quantity > 0) {
                         totalCost += row.pricePerItem * quantity;
                     }
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                     // Ignoriere ungültige Eingaben
                 }
             }

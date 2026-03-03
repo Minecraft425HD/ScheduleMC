@@ -217,10 +217,8 @@ public class ColorCalculationService {
     }
 
     private void loadColorPicker() {
-        try {
-            InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/colorpicker.png")).get().open();
+        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/colorpicker.png")).get().open()) {
             Image picker = ImageIO.read(is);
-            is.close();
             this.colorPicker = new BufferedImage(picker.getWidth(null), picker.getHeight(null), 2);
             Graphics gfx = this.colorPicker.createGraphics();
             gfx.drawImage(picker, 0, 0, null);
@@ -719,13 +717,9 @@ public class ColorCalculationService {
         Properties properties = new Properties();
         ResourceLocation propertiesFile = ResourceLocation.fromNamespaceAndPath("minecraft", "optifine/renderpass.properties");
 
-        try {
-            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open();
-            if (input != null) {
-                properties.load(input);
-                input.close();
-                this.renderPassThreeBlendMode = properties.getProperty("blend.3", "alpha");
-            }
+        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open()) {
+            properties.load(input);
+            this.renderPassThreeBlendMode = properties.getProperty("blend.3", "alpha");
         } catch (IOException var9) {
             this.renderPassThreeBlendMode = "alpha";
         }
@@ -757,12 +751,8 @@ public class ColorCalculationService {
             BlockModelShaper blockModelShapes = blockRendererDispatcher.getBlockModelShaper();
             Properties properties = new Properties();
 
-            try {
-                InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open();
-                if (input != null) {
-                    properties.load(input);
-                    input.close();
-                }
+            try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open()) {
+                properties.load(input);
             } catch (IOException var39) {
                 return;
             }
@@ -861,9 +851,10 @@ public class ColorCalculationService {
                 if (!method.equals("horizontal") && !method.startsWith("overlay") && (method.equals("sandstone") || method.equals("top") || faces.contains("top") || faces.contains("all") || faces.isEmpty())) {
                     try {
                         ResourceLocation pngResource = ResourceLocation.fromNamespaceAndPath(propertiesFile.getNamespace(), tilePath);
-                        InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(pngResource).get().open();
-                        Image top = ImageIO.read(is);
-                        is.close();
+                        Image top;
+                        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(pngResource).get().open()) {
+                            top = ImageIO.read(is);
+                        }
                         top = top.getScaledInstance(1, 1, 4);
                         BufferedImage topBuff = new BufferedImage(top.getWidth(null), top.getHeight(null), 6);
                         Graphics gfx = topBuff.createGraphics();
@@ -1088,12 +1079,8 @@ public class ColorCalculationService {
     private void processColorProperties() {
         Properties properties = new Properties();
 
-        try {
-            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.parse("optifine/color.properties")).get().open();
-            if (input != null) {
-                properties.load(input);
-                input.close();
-            }
+        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.parse("optifine/color.properties")).get().open()) {
+            properties.load(input);
         } catch (IOException exception) {
             MapViewConstants.getLogger().error(exception);
         }
@@ -1129,12 +1116,8 @@ public class ColorCalculationService {
         for (ResourceLocation resource : this.findResources("minecraft", "/optifine/colormap/blocks", ".properties", true, false, true)) {
             Properties colorProperties = new Properties();
 
-            try {
-                InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open();
-                if (input != null) {
-                    colorProperties.load(input);
-                    input.close();
-                }
+            try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open()) {
+                colorProperties.load(input);
             } catch (IOException var21) {
                 break;
             }
@@ -1190,23 +1173,19 @@ public class ColorCalculationService {
         Properties colorProperties = new Properties();
         int yOffset = 0;
 
-        try {
-            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resourceProperties).get().open();
-            if (input != null) {
-                colorProperties.load(input);
-                input.close();
-            }
-
-            String format = colorProperties.getProperty("format");
-            if (format != null) {
-                grid = format.equalsIgnoreCase("grid");
-            }
-
-            String yOffsetString = colorProperties.getProperty("yOffset");
-            if (yOffsetString != null) {
-                yOffset = Integer.parseInt(yOffsetString);
-            }
+        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resourceProperties).get().open()) {
+            colorProperties.load(input);
         } catch (IOException ignored) {
+        }
+
+        String format = colorProperties.getProperty("format");
+        if (format != null) {
+            grid = format.equalsIgnoreCase("grid");
+        }
+
+        String yOffsetString = colorProperties.getProperty("yOffset");
+        if (yOffsetString != null) {
+            yOffset = Integer.parseInt(yOffsetString);
         }
 
         this.processColorProperty(resource, list, grid, yOffset);
@@ -1222,10 +1201,8 @@ public class ColorCalculationService {
         boolean swamp = resource.getPath().contains("/swamp");
         Image tintColors;
 
-        try {
-            InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open();
+        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open()) {
             tintColors = ImageIO.read(is);
-            is.close();
         } catch (IOException var21) {
             return;
         }

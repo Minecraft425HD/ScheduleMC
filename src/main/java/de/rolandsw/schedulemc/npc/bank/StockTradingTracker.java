@@ -37,7 +37,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
     /**
      * Thread-safe Singleton
      */
-    public static StockTradingTracker getInstance(MinecraftServer server) {
+    public static StockTradingTracker initialize(MinecraftServer server) {
         StockTradingTracker localRef = instance;
         if (localRef == null) {
             synchronized (StockTradingTracker.class) {
@@ -64,7 +64,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         data.addPurchase(item, quantity, pricePerUnit);
 
         // Achievement: Erster Trade
-        AchievementManager achievementManager = AchievementManager.getInstance(server);
+        AchievementManager achievementManager = AchievementManager.initialize(server);
         if (achievementManager != null) {
             achievementManager.addProgress(playerUUID, "FIRST_TRADE", 1.0);
             achievementManager.addProgress(playerUUID, "ACTIVE_TRADER", 1.0);
@@ -150,7 +150,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         data.totalTrades++;
 
         // Achievement Triggers
-        AchievementManager achievementManager = AchievementManager.getInstance(server);
+        AchievementManager achievementManager = AchievementManager.initialize(server);
         if (achievementManager != null) {
             // Trade Achievements
             achievementManager.addProgress(playerUUID, "FIRST_TRADE", 1.0);

@@ -139,7 +139,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 try {
                     int price = value.isEmpty() ? 0 : Integer.parseInt(value);
                     menu.setItemPrice(finalSlotIndex, price);
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                     // Ignoriere ungültige Eingaben
                 }
             });
@@ -184,7 +184,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 try {
                     int stock = value.isEmpty() ? 0 : Integer.parseInt(value);
                     menu.setItemStock(finalSlotIndex, stock);
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                     // Ignoriere ungültige Eingaben
                 }
             });

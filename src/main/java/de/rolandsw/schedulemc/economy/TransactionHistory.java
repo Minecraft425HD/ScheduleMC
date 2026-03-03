@@ -46,7 +46,7 @@ public class TransactionHistory {
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      * PERFORMANCE: load() wird nach Konstruktion aufgerufen statt im Konstruktor
      */
-    public static TransactionHistory getInstance(MinecraftServer server) {
+    public static TransactionHistory initialize(MinecraftServer server) {
         TransactionHistory localRef = instance;
         if (localRef == null) {
             synchronized (TransactionHistory.class) {

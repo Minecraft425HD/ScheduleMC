@@ -53,7 +53,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
         return getInstance(level.getServer());
     }
 
-    public static WorldEventManager getInstance(MinecraftServer server) {
+    public static WorldEventManager initialize(MinecraftServer server) {
         WorldEventManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

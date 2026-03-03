@@ -41,7 +41,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
         return instance;
     }
 
-    public static NPCInteractionManager getInstance(MinecraftServer server) {
+    public static NPCInteractionManager initialize(MinecraftServer server) {
         NPCInteractionManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

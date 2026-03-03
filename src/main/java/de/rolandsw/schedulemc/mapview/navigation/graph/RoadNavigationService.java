@@ -61,7 +61,7 @@ public class RoadNavigationService {
     /**
      * SICHERHEIT: Thread-safe Singleton mit Double-Checked Locking
      */
-    public static RoadNavigationService getInstance(WorldMapData mapData) {
+    public static RoadNavigationService initialize(WorldMapData mapData) {
         RoadNavigationService result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

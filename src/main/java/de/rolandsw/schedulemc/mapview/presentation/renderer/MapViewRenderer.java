@@ -597,8 +597,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     this.colorManager.setSkyColor(this.getSkyColor());
                 }
             }
-        } catch (NullPointerException ignore) {
-
+        } catch (NullPointerException ignored) {
+            // colorManager oder getSkyColor() noch nicht initialisiert
         }
     }
 
