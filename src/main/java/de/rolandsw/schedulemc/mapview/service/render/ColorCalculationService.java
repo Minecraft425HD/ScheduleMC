@@ -934,8 +934,8 @@ public class ColorCalculationService {
     private String[] parseStringList(String list) {
         ArrayList<String> tmpList = new ArrayList<>();
 
-        for (String token : list.split("\\s+")) {
-            token = token.trim();
+        for (String rawToken : list.split("\\s+")) {
+            String token = rawToken.trim();
 
             try {
                 if (token.matches("^\\d+$")) {
@@ -961,9 +961,9 @@ public class ColorCalculationService {
     private Set<BlockState> parseBlocksList(String blocks, String metadataLine) {
         Set<BlockState> blockStates = new HashSet<>();
 
-        for (String blockString : blocks.split("\\s+")) {
+        for (String rawBlock : blocks.split("\\s+")) {
+            String blockString = rawBlock.trim();
             StringBuilder metadata = new StringBuilder(metadataLine);
-            blockString = blockString.trim();
             String[] blockComponents = blockString.split(":");
             int tokensUsed = 0;
             Block block;

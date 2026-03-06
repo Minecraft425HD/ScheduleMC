@@ -29,6 +29,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -1304,13 +1305,12 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     /**
      * Gibt die Shop-Entries des ersten verknüpften Verkäufer-NPCs zurück
      */
-    @Nullable
     private List<NPCData.ShopEntry> getLinkedNPCShopItems() {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
-        if (warehouse == null || minecraft.level == null) return null;
+        if (warehouse == null || minecraft.level == null) return Collections.emptyList();
 
         List<UUID> sellers = warehouse.getLinkedSellers();
-        if (sellers.isEmpty()) return null;
+        if (sellers.isEmpty()) return Collections.emptyList();
 
         // Hole ersten Verkäufer-NPC
         UUID firstSeller = sellers.get(0);
@@ -1322,7 +1322,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             }
         }
 
-        return null;
+        return Collections.emptyList();
     }
 
     /**

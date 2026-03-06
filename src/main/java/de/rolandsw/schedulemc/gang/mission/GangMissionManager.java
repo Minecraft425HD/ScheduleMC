@@ -236,7 +236,7 @@ public class GangMissionManager {
      */
     public int[] claimReward(UUID gangId, String missionId) {
         List<GangMission> missions = gangMissions.get(gangId);
-        if (missions == null) return null;
+        if (missions == null) return new int[0];
 
         for (GangMission mission : missions) {
             if (mission.getMissionId().equals(missionId) && mission.isClaimable()) {
@@ -244,7 +244,7 @@ public class GangMissionManager {
                 return new int[]{mission.getXpReward(), mission.getMoneyReward()};
             }
         }
-        return null;
+        return new int[0];
     }
 
     /**

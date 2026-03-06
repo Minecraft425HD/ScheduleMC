@@ -112,9 +112,10 @@ public class PhysicsComponent extends VehicleComponent {
     public void tick() {
         prevSteeringAngle = getSteeringAngle();
 
-        Runnable task;
-        while ((task = tasks.poll()) != null) {
+        Runnable task = tasks.poll();
+        while (task != null) {
             task.run();
+            task = tasks.poll();
         }
 
         if (isStarted() && !canEngineStayOn()) {
@@ -164,7 +165,8 @@ public class PhysicsComponent extends VehicleComponent {
 
     public void checkPush() {
         // Throttle: nur alle PUSH_CHECK_INTERVAL Ticks prüfen (Entity-Lookup ist teuer)
-        if (++pushCheckCounter < PUSH_CHECK_INTERVAL) return;
+        pushCheckCounter++;
+        if (pushCheckCounter < PUSH_CHECK_INTERVAL) return;
         pushCheckCounter = 0;
 
         List<Player> list = vehicle.level().getEntitiesOfClass(Player.class, vehicle.getBoundingBox().expandTowards(0.2, 0, 0.2).expandTowards(-0.2, 0, -0.2));

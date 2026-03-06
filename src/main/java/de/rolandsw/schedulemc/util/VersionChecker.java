@@ -49,10 +49,10 @@ public class VersionChecker {
                     if (responseCode == 200) {
                         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                             StringBuilder response = new StringBuilder();
-                            String line;
-
-                            while ((line = reader.readLine()) != null) {
+                            String line = reader.readLine();
+                            while (line != null) {
                                 response.append(line);
+                                line = reader.readLine();
                             }
 
                             parseResponse(response.toString());

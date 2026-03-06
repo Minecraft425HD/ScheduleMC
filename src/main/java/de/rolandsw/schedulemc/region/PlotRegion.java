@@ -627,7 +627,7 @@ public class PlotRegion {
 
         // Hole alle Plots und prüfe ob ein Government-Plot dieses Plot umschließt
         for (PlotRegion other : PlotManager.getPlots()) {
-            if (other == this) continue;
+            if (other.equals(this)) continue;
             if (other.getType() == PlotType.GOVERNMENT) {
                 // Prüfe ob dieses Plot komplett im Government-Plot liegt
                 if (other.contains(this.min) && other.contains(this.max)) {

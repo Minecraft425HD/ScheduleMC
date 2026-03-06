@@ -86,8 +86,8 @@ public class MapViewConfiguration implements SettingsManager {
         try {
             if (this.settingsFile.exists()) {
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(this.settingsFile), StandardCharsets.UTF_8.newDecoder()))) {
-                    String sCurrentLine;
-                    while ((sCurrentLine = in.readLine()) != null) {
+                    String sCurrentLine = in.readLine();
+                    while (sCurrentLine != null) {
                         String[] curLine = sCurrentLine.split(":");
                         switch (curLine[0]) {
                             case "Zoom Level" -> this.zoom = Math.max(0, Math.min(4, Integer.parseInt(curLine[1])));
@@ -99,6 +99,7 @@ public class MapViewConfiguration implements SettingsManager {
                             case "Fullscreen Key" -> this.bindKey(this.keyBindFullscreen, curLine[1]);
                             case "Menu Key" -> this.bindKey(this.keyBindMenu, curLine[1]);
                         }
+                        sCurrentLine = in.readLine();
                     }
                 }
                 KeyMapping.resetMapping();

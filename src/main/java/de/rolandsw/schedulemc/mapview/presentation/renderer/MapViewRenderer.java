@@ -517,6 +517,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     }
 
     public void calculateCurrentLightAndSkyColor() {
+        if (this.world == null || this.colorManager == null || MapViewConstants.getPlayer() == null) return;
         try {
             if (this.world != null) {
                 if (this.needLightmapRefresh && MapViewConstants.getElapsedTicks() != this.tickWithLightChange && !minecraft.isPaused() || this.options.isRealTimeTorches()) {
@@ -597,7 +598,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     this.colorManager.setSkyColor(this.getSkyColor());
                 }
             }
-        } catch (NullPointerException ignored) {
+        } catch (RuntimeException ignored) {
             // colorManager oder getSkyColor() noch nicht initialisiert
         }
     }

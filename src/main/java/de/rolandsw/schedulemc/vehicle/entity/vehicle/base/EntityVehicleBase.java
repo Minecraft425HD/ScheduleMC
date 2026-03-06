@@ -90,7 +90,7 @@ public abstract class EntityVehicleBase extends Entity {
 
     public Player getDriver() {
         List<Entity> passengers = getPassengers();
-        if (passengers.size() <= 0) {
+        if (passengers.isEmpty()) {
             return null;
         }
 
@@ -137,7 +137,7 @@ public abstract class EntityVehicleBase extends Entity {
 
         List<Entity> passengers = getPassengers();
 
-        if (passengers.size() > 0) {
+        if (!passengers.isEmpty()) {
             int i = passengers.indexOf(passenger);
 
             if (i >= 0 && i < getPlayerOffsets().length) {

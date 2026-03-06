@@ -102,9 +102,9 @@ public class ComparisonRegionCache {
                     BiMap<Biome, Integer> biomeMap = null;
                     int version = 1;
 
-                    ZipEntry ze;
                     byte[] decompressedByteData = null;
-                    for (; (ze = zis.getNextEntry()) != null; zis.closeEntry()) {
+                    ZipEntry ze = zis.getNextEntry();
+                    while (ze != null) {
                         if (ze.getName().equals("data")) {
                             decompressedByteData = zis.readAllBytes();
                         }
@@ -135,6 +135,8 @@ public class ComparisonRegionCache {
                                 version = 1;
                             }
                         }
+                        zis.closeEntry();
+                        ze = zis.getNextEntry();
                     }
 
                     if (decompressedByteData != null && decompressedByteData.length == this.data.getExpectedDataLength(version) && stateToInt != null) {

@@ -98,10 +98,9 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         if (playerToGang.containsKey(founderUUID)) return null;
 
         // Pruefe ob Name oder Tag schon vergeben
-        String lowerName = name.toLowerCase();
         String upperTag = tag.toUpperCase();
         for (Gang g : gangs.values()) {
-            if (g.getName().toLowerCase().equals(lowerName)) return null;
+            if (g.getName().equalsIgnoreCase(name)) return null;
             if (g.getTag().equals(upperTag)) return null;
         }
 

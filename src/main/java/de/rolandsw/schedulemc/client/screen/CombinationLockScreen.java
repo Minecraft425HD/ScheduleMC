@@ -31,7 +31,7 @@ public class CombinationLockScreen extends Screen {
     private final boolean isSetMode;  // true = Code setzen, false = Code eingeben
     private final java.util.function.Consumer<String> onSubmit;
 
-    private final StringBuilder code = new StringBuilder();
+    private String code = "";
 
     public CombinationLockScreen(String lockId, boolean isSetMode,
                                   java.util.function.Consumer<String> onSubmit) {
@@ -144,7 +144,7 @@ public class CombinationLockScreen extends Screen {
         if (key >= 48 && key <= 57) { appendDigit((char) key); return true; }
         if (key >= 320 && key <= 329) { appendDigit((char) ('0' + (key - 320))); return true; }
         if (key == 259) { // Backspace
-            if (code.length() > 0) code.deleteCharAt(code.length() - 1);
+            if (!code.isEmpty()) code = code.substring(0, code.length() - 1);
             return true;
         }
         if (key == 257 || key == 335) { submitCode(); return true; } // Enter / Numpad Enter
@@ -152,16 +152,16 @@ public class CombinationLockScreen extends Screen {
     }
 
     private void appendDigit(char digit) {
-        if (code.length() < 4) code.append(digit);
+        if (code.length() < 4) code = code + digit;
     }
 
     private void clearCode() {
-        code.setLength(0);
+        code = "";
     }
 
     private void submitCode() {
         if (code.length() != 4) return;
-        onSubmit.accept(code.toString());
+        onSubmit.accept(code);
         onClose();
     }
 

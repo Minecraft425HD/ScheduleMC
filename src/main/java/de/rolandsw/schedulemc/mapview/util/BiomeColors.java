@@ -36,8 +36,8 @@ public final class BiomeColors {
         File settingsFile = new File(saveDir, "biomecolors.txt");
         if (settingsFile.exists()) {
             try (BufferedReader br = new BufferedReader(new FileReader(settingsFile))) {
-                String sCurrentLine;
-                while ((sCurrentLine = br.readLine()) != null) {
+                String sCurrentLine = br.readLine();
+                while (sCurrentLine != null) {
                     String[] curLine = sCurrentLine.split("=");
                     if (curLine.length == 2) {
                         String name = curLine[0];
@@ -53,6 +53,7 @@ public final class BiomeColors {
                             dirty = true;
                         }
                     }
+                    sCurrentLine = br.readLine();
                 }
             } catch (IOException var12) {
                 MapViewConstants.getLogger().error("biome load error: {}", var12.getLocalizedMessage(), var12);
@@ -64,8 +65,8 @@ public final class BiomeColors {
         if (resourceOptional.isPresent()) {
             try (InputStream is = resourceOptional.get().open();
                  BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-                String sCurrentLine;
-                while ((sCurrentLine = br.readLine()) != null) {
+                String sCurrentLine = br.readLine();
+                while (sCurrentLine != null) {
                     String[] curLine = sCurrentLine.split("=");
                     if (curLine.length == 2) {
                         String name = curLine[0];
@@ -83,6 +84,7 @@ public final class BiomeColors {
                             dirty = true;
                         }
                     }
+                    sCurrentLine = br.readLine();
                 }
             } catch (IOException var11) {
                 MapViewConstants.getLogger().error("Error loading biome color config file from mod resources!", var11);

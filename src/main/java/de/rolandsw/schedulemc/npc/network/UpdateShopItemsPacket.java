@@ -145,8 +145,7 @@ public class UpdateShopItemsPacket {
         WarehouseSlot[] slots = warehouse.getSlots();
 
         // 1. Entferne Items die nicht mehr im Shop sind (O(1) lookup dank HashSet)
-        for (int i = 0; i < slots.length; i++) {
-            WarehouseSlot slot = slots[i];
+        for (WarehouseSlot slot : slots) {
             if (!slot.isEmpty()) {
                 Item slotItem = slot.getAllowedItem();
                 if (!allShopItems.contains(slotItem)) {

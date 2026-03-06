@@ -315,7 +315,7 @@ public class GangActionPacket {
         if (mm == null) { sendError(player, "Missions-System nicht verfuegbar."); return; }
 
         int[] reward = mm.claimReward(gang.getGangId(), stringParam);
-        if (reward != null) {
+        if (reward.length > 0) {
             if (reward[0] > 0) {
                 manager.awardGangXP(player.getUUID(), de.rolandsw.schedulemc.gang.GangXPSource.MISSION_COMPLETED, reward[0]);
             }

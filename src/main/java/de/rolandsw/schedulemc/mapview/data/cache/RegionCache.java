@@ -604,12 +604,13 @@ public class RegionCache {
                     StringBuilder stringBuffer = new StringBuilder();
 
                     for (Entry<Biome, Integer> entry : biomeToInt.entrySet()) {
-                        try {
-                            String nextLine = entry.getValue() + " " + world.registryAccess().registryOrThrow(Registries.BIOME).getKey(entry.getKey()).toString() + "\r\n";
-                            stringBuffer.append(nextLine);
-                        } catch (NullPointerException ex) {
+                        var biomeKey = world.registryAccess().registryOrThrow(Registries.BIOME).getKey(entry.getKey());
+                        if (biomeKey == null) {
                             MapViewConstants.getLogger().warn("Nullpointer for Biome: " + entry.getValue() + " at " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
+                            continue;
                         }
+                        String nextLine = entry.getValue() + " " + biomeKey + "\r\n";
+                        stringBuffer.append(nextLine);
                     }
 
                     byte[] keyByteArray = String.valueOf(stringBuffer).getBytes();

@@ -23,8 +23,8 @@ public class WorldMapConfiguration implements SubSettingsManager {
     @Override
     public void loadSettings(File settingsFile) {
         try (BufferedReader in = new BufferedReader(new FileReader(settingsFile))) {
-            String sCurrentLine;
-            while ((sCurrentLine = in.readLine()) != null) {
+            String sCurrentLine = in.readLine();
+            while (sCurrentLine != null) {
                 String[] curLine = sCurrentLine.split(":");
                 switch (curLine[0]) {
                     case "Worldmap Zoom" -> this.zoom = Float.parseFloat(curLine[1]);
@@ -33,6 +33,7 @@ public class WorldMapConfiguration implements SubSettingsManager {
                     case "Worldmap Cache Size" -> this.cacheSize = Integer.parseInt(curLine[1]);
                     case "Output Images" -> this.outputImages = Boolean.parseBoolean(curLine[1]);
                 }
+                sCurrentLine = in.readLine();
             }
         } catch (IOException ignored) {}
 
