@@ -35,7 +35,7 @@ public class ProductionRegistry {
     // ═══════════════════════════════════════════════════════════
 
     private ProductionRegistry() {
-        registerDefaultProductions();
+        registerDefaultProductions();  // NOPMD
     }
 
     public static ProductionRegistry getInstance() {

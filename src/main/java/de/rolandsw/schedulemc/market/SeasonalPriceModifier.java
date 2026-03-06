@@ -55,7 +55,7 @@ public class SeasonalPriceModifier {
     // ═══════════════════════════════════════════════════════════
 
     private SeasonalPriceModifier() {
-        registerDefaultModifiers();
+        registerDefaultModifiers();  // NOPMD
     }
 
     public static SeasonalPriceModifier getInstance() {

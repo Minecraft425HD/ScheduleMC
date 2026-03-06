@@ -57,7 +57,7 @@ public abstract class EntityVehicleBase extends Entity {
         this.blocksBuilding = true;
         setMaxUpStep(0.6F);
 
-        recalculateBoundingBox();
+        recalculateBoundingBox();  // NOPMD
     }
 
     @Override

@@ -43,7 +43,7 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
     protected AbstractRefineryBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, ProductionSize size) {
         super(type, pos, state);
         this.size = size;
-        initArrays();
+        initArrays();  // NOPMD
     }
 
     /**

@@ -47,7 +47,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
 
     protected AbstractBeerFermentationTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**

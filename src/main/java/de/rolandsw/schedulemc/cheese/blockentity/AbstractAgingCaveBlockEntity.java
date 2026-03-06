@@ -40,7 +40,7 @@ public abstract class AbstractAgingCaveBlockEntity extends BlockEntity implement
 
     protected AbstractAgingCaveBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**

@@ -53,11 +53,11 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
 
     protected AbstractConchingMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        ingredientInputs = new ItemStack[getIngredientSlots()];
+        ingredientInputs = new ItemStack[getIngredientSlots()];  // NOPMD
         for (int i = 0; i < ingredientInputs.length; i++) {
             ingredientInputs[i] = ItemStack.EMPTY;
         }
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**

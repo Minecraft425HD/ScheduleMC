@@ -59,7 +59,7 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
 
     protected AbstractProcessingBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**

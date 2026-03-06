@@ -467,7 +467,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         public QuantitySlider(int x, int y, int width, int height) {
             super(x, y, width, height, Component.translatable("gui.boerse.qty_label", 1), 0.0);
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override

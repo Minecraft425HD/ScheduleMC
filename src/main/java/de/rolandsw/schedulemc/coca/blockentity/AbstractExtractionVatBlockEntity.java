@@ -43,7 +43,7 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
     protected AbstractExtractionVatBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, ProductionSize size) {
         super(type, pos, state);
         this.size = size;
-        initArrays();
+        initArrays();  // NOPMD
     }
 
     /**

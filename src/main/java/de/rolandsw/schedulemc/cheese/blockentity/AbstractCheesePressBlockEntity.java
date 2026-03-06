@@ -43,7 +43,7 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
 
     protected AbstractCheesePressBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**

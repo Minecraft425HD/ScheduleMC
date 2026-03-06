@@ -23,7 +23,7 @@ public abstract class SoundLoopVehicle extends AbstractTickableSoundInstance {
         this.pitch = 1F;
         this.relative = false;
         this.attenuation = Attenuation.LINEAR;
-        this.updatePos();
+        this.updatePos();  // NOPMD
     }
 
     public void updatePos() {

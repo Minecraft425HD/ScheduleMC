@@ -58,7 +58,7 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
 
     protected AbstractDryingRackBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**

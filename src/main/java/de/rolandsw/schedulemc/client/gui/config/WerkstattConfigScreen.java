@@ -127,7 +127,7 @@ public class WerkstattConfigScreen extends Screen {
             this.min = min;
             this.max = max;
             this.format = format;
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override

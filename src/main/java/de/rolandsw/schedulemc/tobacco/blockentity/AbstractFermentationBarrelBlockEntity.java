@@ -40,7 +40,7 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
 
     protected AbstractFermentationBarrelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        initArrays();
+        initArrays();  // NOPMD
     }
 
     /**

@@ -104,7 +104,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         );
         this.server = server;
         load();
-        registerDefaultTemplates();
+        registerDefaultTemplates();  // NOPMD
     }
 
     // ═══════════════════════════════════════════════════════════

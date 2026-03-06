@@ -121,7 +121,7 @@ public class ClientConfigScreen extends Screen {
         public VolumeSlider(int x, int y, int width) {
             super(x, y, width, 20, Component.empty(),
                 ModConfigHandler.VEHICLE_CLIENT.vehicleVolume.get());
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override
@@ -141,7 +141,7 @@ public class ClientConfigScreen extends Screen {
         public ZoomSlider(int x, int y, int width) {
             super(x, y, width, 20, Component.empty(),
                 (ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.get() - 1.0) / 19.0);
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override

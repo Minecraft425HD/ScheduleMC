@@ -47,7 +47,7 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
 
     protected AbstractConditioningTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**

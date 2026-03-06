@@ -353,7 +353,7 @@ public class TobaccoConfigScreen extends Screen {
             this.max = max;
             this.multiplier = multiplier;
             this.format = format;
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override
@@ -383,7 +383,7 @@ public class TobaccoConfigScreen extends Screen {
             this.min = min;
             this.max = max;
             this.format = format;
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override

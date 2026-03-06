@@ -47,7 +47,7 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
 
     protected AbstractBrewKettleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**

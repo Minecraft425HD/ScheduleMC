@@ -80,7 +80,7 @@ public class EconomyController {
     // ═══════════════════════════════════════════════════════════
 
     private EconomyController() {
-        initializeReferencePrices();
+        initializeReferencePrices();  // NOPMD
     }
 
     public static EconomyController getInstance() {

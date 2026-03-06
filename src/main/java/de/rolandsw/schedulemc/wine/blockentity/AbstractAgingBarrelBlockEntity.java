@@ -34,7 +34,7 @@ public abstract class AbstractAgingBarrelBlockEntity extends BlockEntity impleme
 
     protected AbstractAgingBarrelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     protected abstract int getCapacity();

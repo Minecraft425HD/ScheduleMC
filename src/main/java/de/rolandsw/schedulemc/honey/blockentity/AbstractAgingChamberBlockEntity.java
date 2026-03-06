@@ -41,8 +41,8 @@ public abstract class AbstractAgingChamberBlockEntity extends BlockEntity implem
 
     protected AbstractAgingChamberBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
-        agingTicks = new int[getCapacity()];
+        createItemHandler();  // NOPMD
+        agingTicks = new int[getCapacity()];  // NOPMD
     }
 
     protected abstract int getCapacity();

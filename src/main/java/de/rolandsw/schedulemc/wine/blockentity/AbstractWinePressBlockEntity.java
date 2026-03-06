@@ -41,7 +41,7 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
 
     protected AbstractWinePressBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**

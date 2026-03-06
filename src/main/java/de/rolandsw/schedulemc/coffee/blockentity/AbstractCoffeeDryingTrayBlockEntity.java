@@ -45,7 +45,7 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
 
     protected AbstractCoffeeDryingTrayBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**

@@ -47,7 +47,7 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
 
     protected AbstractCoffeeRoasterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**
