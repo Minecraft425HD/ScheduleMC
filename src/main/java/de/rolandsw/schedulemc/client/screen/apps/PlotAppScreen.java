@@ -272,6 +272,7 @@ public class PlotAppScreen extends Screen {
             case 1 -> renderMarketTab(guiGraphics, contentY, contentEndY);
             case 2 -> renderMyPlotsTab(guiGraphics, contentY, contentEndY);
             case 3 -> renderFinanceTab(guiGraphics, contentY, contentEndY);
+            default -> {}
         }
 
         // Scroll-Indikator

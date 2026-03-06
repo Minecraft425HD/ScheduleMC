@@ -337,6 +337,7 @@ public class SettingsAppScreen extends Screen {
             case 0 -> renderPlotSettingsTab(guiGraphics, contentY, contentEndY, mouseX, mouseY);
             case 1 -> renderNotificationsTab(guiGraphics, contentY, contentEndY, mouseX, mouseY);
             case 2 -> renderAccountTab(guiGraphics, contentY, contentEndY);
+            default -> {}
         }
 
         // Scroll-Indikator

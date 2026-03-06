@@ -189,19 +189,21 @@ public class VersionChecker {
     }
 
     public static String getCurrentVersion() {
-        if (CURRENT_VERSION == null) {
-            try {
-                ModContainer container = ModList.get().getModContainerById(ScheduleMC.MOD_ID).orElse(null);
-                if (container != null) {
-                    CURRENT_VERSION = container.getModInfo().getVersion().toString();
-                } else {
+        synchronized (VersionChecker.class) {
+            if (CURRENT_VERSION == null) {
+                try {
+                    ModContainer container = ModList.get().getModContainerById(ScheduleMC.MOD_ID).orElse(null);
+                    if (container != null) {
+                        CURRENT_VERSION = container.getModInfo().getVersion().toString();
+                    } else {
+                        CURRENT_VERSION = "1.0.0-alpha"; // Fallback
+                    }
+                } catch (Exception e) {
+                    ScheduleMC.LOGGER.error("Error getting mod version", e);
                     CURRENT_VERSION = "1.0.0-alpha"; // Fallback
                 }
-            } catch (Exception e) {
-                ScheduleMC.LOGGER.error("Error getting mod version", e);
-                CURRENT_VERSION = "1.0.0-alpha"; // Fallback
             }
+            return CURRENT_VERSION;
         }
-        return CURRENT_VERSION;
     }
 }

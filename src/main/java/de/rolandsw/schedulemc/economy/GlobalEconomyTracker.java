@@ -114,13 +114,15 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
      * @param amount     Menge
      * @param revenue    Einnahmen
      */
-    public synchronized void onSale(UUID playerUUID, ItemCategory category, int amount, double revenue) {
-        categorySalesVolume.merge(category, (long) amount, Long::sum);
-        categoryRevenue.merge(category, revenue, Double::sum);
-        dailyPlayerEarnings.merge(playerUUID, revenue, Double::sum);
-        dailyTransactionVolume += revenue;
-        totalTransactionVolume += revenue;
-        needsSave = true;
+    public void onSale(UUID playerUUID, ItemCategory category, int amount, double revenue) {
+        synchronized (this) {
+            categorySalesVolume.merge(category, (long) amount, Long::sum);
+            categoryRevenue.merge(category, revenue, Double::sum);
+            dailyPlayerEarnings.merge(playerUUID, revenue, Double::sum);
+            dailyTransactionVolume += revenue;
+            totalTransactionVolume += revenue;
+            needsSave = true;
+        }
 
         LOGGER.debug("Sale tracked: player={}, cat={}, amt={}, rev={}",
                 playerUUID, category.name(), amount, String.format("%.2f", revenue));
@@ -133,11 +135,13 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
      * @param amount   Menge
      * @param cost     Kosten
      */
-    public synchronized void onPurchase(ItemCategory category, int amount, double cost) {
-        categoryPurchaseVolume.merge(category, (long) amount, Long::sum);
-        dailyTransactionVolume += cost;
-        totalTransactionVolume += cost;
-        needsSave = true;
+    public void onPurchase(ItemCategory category, int amount, double cost) {
+        synchronized (this) {
+            categoryPurchaseVolume.merge(category, (long) amount, Long::sum);
+            dailyTransactionVolume += cost;
+            totalTransactionVolume += cost;
+            needsSave = true;
+        }
     }
 
     /**

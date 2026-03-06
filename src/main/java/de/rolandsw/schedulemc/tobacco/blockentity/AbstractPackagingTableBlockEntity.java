@@ -250,6 +250,8 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
                     );
                 }
                 break;
+            default:
+                break;
         }
 
         return result;

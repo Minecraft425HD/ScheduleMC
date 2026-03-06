@@ -1035,6 +1035,7 @@ public class GangAppScreen extends Screen {
                 case AUFTRAEGE -> { if (handleMissionClick(relY, mouseX)) return true; }
                 case MITGLIEDER -> { if (handleMemberClick(relY, mouseX)) return true; }
                 case PERKS -> { if (handlePerkClick(relY, mouseX)) return true; }
+                default -> {}
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);

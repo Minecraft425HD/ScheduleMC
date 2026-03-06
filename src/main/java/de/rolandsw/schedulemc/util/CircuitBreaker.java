@@ -192,6 +192,8 @@ public class CircuitBreaker {
                 // Fehler-Zaehler zuruecksetzen nach Erfolg
                 failureCount.set(0);
                 break;
+            default:
+                break;
         }
     }
 
@@ -209,6 +211,8 @@ public class CircuitBreaker {
             case HALF_OPEN:
                 // Sofort zurueck zu OPEN
                 transitionTo(State.HALF_OPEN, State.OPEN);
+                break;
+            default:
                 break;
         }
 

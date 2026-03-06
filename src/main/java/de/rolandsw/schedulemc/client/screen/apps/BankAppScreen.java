@@ -439,6 +439,7 @@ public class BankAppScreen extends Screen {
             case 1 -> renderHistoryTab(guiGraphics, contentY, contentEndY);
             case 2 -> renderTransferTab(guiGraphics, contentY, contentEndY);
             case 3 -> renderDauerauftraegeTab(guiGraphics, contentY, contentEndY);
+            default -> {}
         }
 
         // Scroll-Indikator (nicht in Tab 2)

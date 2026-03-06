@@ -58,40 +58,46 @@ public class GangMission {
      * Addiert Fortschritt (fuer INCREMENTAL Tracking).
      * @return true wenn die Mission durch diesen Aufruf abgeschlossen wurde
      */
-    public synchronized boolean addProgress(int amount) {
-        if (completed) return false;
-        currentProgress = Math.min(currentProgress + amount, targetAmount);
-        if (currentProgress >= targetAmount) {
-            completed = true;
-            return true;
+    public boolean addProgress(int amount) {
+        synchronized (this) {
+            if (completed) return false;
+            currentProgress = Math.min(currentProgress + amount, targetAmount);
+            if (currentProgress >= targetAmount) {
+                completed = true;
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
     /**
      * Setzt den Fortschritt auf einen absoluten Wert (fuer THRESHOLD Tracking).
      * @return true wenn die Mission durch diesen Aufruf abgeschlossen wurde
      */
-    public synchronized boolean setProgress(int value) {
-        if (completed) return false;
-        currentProgress = Math.min(value, targetAmount);
-        if (currentProgress >= targetAmount) {
-            completed = true;
-            return true;
+    public boolean setProgress(int value) {
+        synchronized (this) {
+            if (completed) return false;
+            currentProgress = Math.min(value, targetAmount);
+            if (currentProgress >= targetAmount) {
+                completed = true;
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
     /**
      * Markiert die Belohnung als abgeholt.
      * @return true wenn erfolgreich (war completed und noch nicht claimed)
      */
-    public synchronized boolean claim() {
-        if (completed && !claimed) {
-            claimed = true;
-            return true;
+    public boolean claim() {
+        synchronized (this) {
+            if (completed && !claimed) {
+                claimed = true;
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
     public double getProgressPercent() {

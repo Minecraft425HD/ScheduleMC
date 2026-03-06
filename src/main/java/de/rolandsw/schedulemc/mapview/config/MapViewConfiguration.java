@@ -98,6 +98,7 @@ public class MapViewConfiguration implements SettingsManager {
                             case "Zoom Key" -> this.bindKey(this.keyBindZoom, curLine[1]);
                             case "Fullscreen Key" -> this.bindKey(this.keyBindFullscreen, curLine[1]);
                             case "Menu Key" -> this.bindKey(this.keyBindMenu, curLine[1]);
+                            default -> {}
                         }
                         sCurrentLine = in.readLine();
                     }

@@ -78,9 +78,11 @@ public class NPCNameRegistry {
         if (name == null) return;
 
         String normalizedName = name.trim();
-        if (nameToEntityId.remove(normalizedName) != null) {
-            dirty = true;
-            LOGGER.info("NPC-Name entfernt: {}", normalizedName);
+        synchronized (NPCNameRegistry.class) {
+            if (nameToEntityId.remove(normalizedName) != null) {
+                dirty = true;
+                LOGGER.info("NPC-Name entfernt: {}", normalizedName);
+            }
         }
     }
 

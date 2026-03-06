@@ -37,30 +37,32 @@ public class MapViewHelper {
         return color24;
     }
 
-    public synchronized static boolean isSlimeChunk(int mcX, int mcZ) {
-        int xPosition = mcX >> 4;
-        int zPosition = mcZ >> 4;
-        String seedString = MapViewConstants.getLightMapInstance().getWorldSeed();
-        if (seedString.isEmpty()) {
-            return false;
-        }
-        if (!Objects.equals(lastSeed, seedString)) {
-            lastSeed = seedString;
-            lastSlimeX = Integer.MIN_VALUE;
-            try {
-                lastSeedLong = Long.parseLong(seedString);
-            } catch (NumberFormatException var8) {
-                lastSeedLong = seedString.hashCode();
+    public static boolean isSlimeChunk(int mcX, int mcZ) {
+        synchronized (MapViewHelper.class) {
+            int xPosition = mcX >> 4;
+            int zPosition = mcZ >> 4;
+            String seedString = MapViewConstants.getLightMapInstance().getWorldSeed();
+            if (seedString.isEmpty()) {
+                return false;
             }
-        }
+            if (!Objects.equals(lastSeed, seedString)) {
+                lastSeed = seedString;
+                lastSlimeX = Integer.MIN_VALUE;
+                try {
+                    lastSeedLong = Long.parseLong(seedString);
+                } catch (NumberFormatException var8) {
+                    lastSeedLong = seedString.hashCode();
+                }
+            }
 
-        if (xPosition != lastSlimeX || zPosition != lastSlimeZ) {
-            lastSlimeX = xPosition;
-            lastSlimeZ = zPosition;
-            Random seededRandom = new Random(lastSeedLong + (int) (xPosition * xPosition * 0x4C1906) + (int) (xPosition * 0x5ac0db) + (int) (zPosition * zPosition) * 0x4307a7L + (int) (zPosition * 0x5f24f) ^ 0x3ad8025fL);
-            isSlimeChunk = seededRandom.nextInt(10) == 0;
-        }
+            if (xPosition != lastSlimeX || zPosition != lastSlimeZ) {
+                lastSlimeX = xPosition;
+                lastSlimeZ = zPosition;
+                Random seededRandom = new Random(lastSeedLong + (int) (xPosition * xPosition * 0x4C1906) + (int) (xPosition * 0x5ac0db) + (int) (zPosition * zPosition) * 0x4307a7L + (int) (zPosition * 0x5f24f) ^ 0x3ad8025fL);
+                isSlimeChunk = seededRandom.nextInt(10) == 0;
+            }
 
-        return isSlimeChunk;
+            return isSlimeChunk;
+        }
     }
 }

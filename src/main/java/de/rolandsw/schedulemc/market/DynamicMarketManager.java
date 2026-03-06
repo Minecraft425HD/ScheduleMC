@@ -322,6 +322,7 @@ public class DynamicMarketManager {
                 case RISING -> risingCount++;
                 case FALLING -> fallingCount++;
                 case STABLE -> stableCount++;
+                default -> {}
             }
 
             avgPrice += data.getCurrentPrice();

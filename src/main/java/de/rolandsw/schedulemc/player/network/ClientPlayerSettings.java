@@ -18,10 +18,12 @@ public class ClientPlayerSettings {
     /**
      * Aktualisiert alle Settings atomar (verhindert teilweise Updates durch Race Conditions)
      */
-    public static synchronized void update(boolean warnings, double electricity, double water) {
-        utilityWarningsEnabled = warnings;
-        electricityThreshold = electricity;
-        waterThreshold = water;
+    public static void update(boolean warnings, double electricity, double water) {
+        synchronized (ClientPlayerSettings.class) {
+            utilityWarningsEnabled = warnings;
+            electricityThreshold = electricity;
+            waterThreshold = water;
+        }
     }
 
     /**

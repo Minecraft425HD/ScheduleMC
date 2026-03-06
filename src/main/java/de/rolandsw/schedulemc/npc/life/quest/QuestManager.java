@@ -336,6 +336,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
                     "Schließe den Deal ab"
                 ));
             }
+            default -> {}
         }
     }
 

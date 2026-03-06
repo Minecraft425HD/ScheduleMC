@@ -140,52 +140,54 @@ public class HotReloadableConfig<T> {
         watchedConfigs.remove(configFile.toPath().toAbsolutePath());
     }
 
-    private static synchronized void ensureWatchServiceRunning(Path directory) {
-        if (watcherRunning.get()) return;
+    private static void ensureWatchServiceRunning(Path directory) {
+        synchronized (HotReloadableConfig.class) {
+            if (watcherRunning.get()) return;
 
-        try {
-            watchService = FileSystems.getDefault().newWatchService();
-            directory.register(watchService,
-                StandardWatchEventKinds.ENTRY_MODIFY,
-                StandardWatchEventKinds.ENTRY_CREATE);
+            try {
+                watchService = FileSystems.getDefault().newWatchService();
+                directory.register(watchService,
+                    StandardWatchEventKinds.ENTRY_MODIFY,
+                    StandardWatchEventKinds.ENTRY_CREATE);
 
-            watchThread = new Thread(() -> {
-                LOGGER.info("Config-WatchService gestartet");
-                while (watcherRunning.get()) {
-                    try {
-                        WatchKey key = watchService.poll(1, java.util.concurrent.TimeUnit.SECONDS);
-                        if (key == null) continue;
+                watchThread = new Thread(() -> {
+                    LOGGER.info("Config-WatchService gestartet");
+                    while (watcherRunning.get()) {
+                        try {
+                            WatchKey key = watchService.poll(1, java.util.concurrent.TimeUnit.SECONDS);
+                            if (key == null) continue;
 
-                        for (WatchEvent<?> event : key.pollEvents()) {
-                            if (event.kind() == StandardWatchEventKinds.OVERFLOW) continue;
+                            for (WatchEvent<?> event : key.pollEvents()) {
+                                if (event.kind() == StandardWatchEventKinds.OVERFLOW) continue;
 
-                            @SuppressWarnings("unchecked")
-                            WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
-                            Path changed = ((Path) key.watchable()).resolve(pathEvent.context()).toAbsolutePath();
+                                @SuppressWarnings("unchecked")
+                                WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
+                                Path changed = ((Path) key.watchable()).resolve(pathEvent.context()).toAbsolutePath();
 
-                            HotReloadableConfig<?> config = watchedConfigs.get(changed);
-                            if (config != null) {
-                                config.onFileChanged();
+                                HotReloadableConfig<?> config = watchedConfigs.get(changed);
+                                if (config != null) {
+                                    config.onFileChanged();
+                                }
                             }
+
+                            key.reset();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        } catch (ClosedWatchServiceException e) {
+                            break;
                         }
-
-                        key.reset();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    } catch (ClosedWatchServiceException e) {
-                        break;
                     }
-                }
-                LOGGER.info("Config-WatchService gestoppt");
-            }, "ScheduleMC-ConfigWatcher");
+                    LOGGER.info("Config-WatchService gestoppt");
+                }, "ScheduleMC-ConfigWatcher");
 
-            watchThread.setDaemon(true);
-            watcherRunning.set(true);
-            watchThread.start();
+                watchThread.setDaemon(true);
+                watcherRunning.set(true);
+                watchThread.start();
 
-        } catch (IOException e) {
-            LOGGER.error("Konnte WatchService nicht starten", e);
+            } catch (IOException e) {
+                LOGGER.error("Konnte WatchService nicht starten", e);
+            }
         }
     }
 

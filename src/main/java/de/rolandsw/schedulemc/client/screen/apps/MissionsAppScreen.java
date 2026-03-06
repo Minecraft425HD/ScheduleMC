@@ -241,6 +241,7 @@ public class MissionsAppScreen extends Screen {
                 gui.fill(x, y, x + w, y + h, 0xFF333333);
                 gui.drawCenteredString(this.font, "§8✓", x + w / 2, y + 3, 0x888888);
             }
+            default -> {}
         }
     }
 
@@ -278,6 +279,7 @@ public class MissionsAppScreen extends Screen {
             case COMPLETED -> MissionNetworkHandler.sendToServer(
                 new MissionActionPacket(MissionActionPacket.Action.CLAIM, mission.getMissionId()));
             case CLAIMED -> { /* nichts */ }
+            default -> {}
         }
     }
 

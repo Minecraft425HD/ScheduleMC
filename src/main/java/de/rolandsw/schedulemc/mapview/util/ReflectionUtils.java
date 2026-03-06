@@ -46,7 +46,7 @@ public final class ReflectionUtils {
             if (fieldClasstype.equals(field.getType())) {
                 if (counter == index) {
                     try {
-                        field.setAccessible(true);
+                        field.setAccessible(true); // NOPMD - utility class for controlled reflection access
                         return field.get(o);
                     } catch (IllegalAccessException ignored) {}
                 }
@@ -66,7 +66,7 @@ public final class ReflectionUtils {
 
             for (Field field : fields) {
                 if (fieldClasstype.isAssignableFrom(field.getType())) {
-                    field.setAccessible(true);
+                    field.setAccessible(true); // NOPMD - utility class for controlled reflection access
                     matches.add(field);
                 }
             }

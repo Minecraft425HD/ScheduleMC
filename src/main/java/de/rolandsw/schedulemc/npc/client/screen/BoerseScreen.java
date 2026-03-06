@@ -263,6 +263,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
             case GOLD -> renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getGoldHistory(), 0xFFAA00);
             case DIAMOND -> renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getDiamondHistory(), 0x55FFFF);
             case EMERALD -> renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getEmeraldHistory(), 0x55FF55);
+            default -> {}
         }
 
         // === RIGHT PANEL: Trade Info ===

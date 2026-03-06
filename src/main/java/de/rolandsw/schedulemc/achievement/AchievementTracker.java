@@ -43,8 +43,10 @@ public class AchievementTracker {
         LOGGER.info("AchievementTracker: Player {} joined, checking achievements (UUID: {})",
             player.getName().getString(), player.getUUID());
 
-        if (achievementManager == null) {
-            achievementManager = AchievementManager.initialize(player.getServer());
+        synchronized (AchievementTracker.class) {
+            if (achievementManager == null) {
+                achievementManager = AchievementManager.initialize(player.getServer());
+            }
         }
 
         checkPlayerAchievements(player);

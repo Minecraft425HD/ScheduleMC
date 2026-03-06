@@ -49,9 +49,8 @@ public final class BiomeColors {
                             MapViewConstants.getLogger().warn("Error decoding integer string for biome colors; {}", curLine[1]);
                         }
 
-                        if (nameToColor.put(name, color) != null) {
-                            dirty = true;
-                        }
+                        nameToColor.put(name, color);
+                        dirty = true;
                     }
                     sCurrentLine = br.readLine();
                 }
@@ -79,8 +78,7 @@ public final class BiomeColors {
                             color = 0;
                         }
 
-                        if (nameToColor.get(name) == null) {
-                            nameToColor.put(name, color);
+                        if (nameToColor.putIfAbsent(name, color) == null) {
                             dirty = true;
                         }
                     }

@@ -171,6 +171,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
                 targetLife.getMemory().addPlayerTag(dangerUUID, "Dieb");
                 targetLife.getEmotions().trigger(EmotionState.SUSPICIOUS, 30.0f);
             }
+            default -> {}
         }
 
         // Erinnerung an Warnung speichern

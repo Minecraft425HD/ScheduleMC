@@ -93,6 +93,7 @@ public class CompanionBehavior {
             case HEAL -> behaviorHeal(level, owner);
             case RETURN -> behaviorReturn(owner);
             case FREE -> behaviorFree(level, owner);
+            default -> {}
         }
 
         // Bei Interaktion Zufriedenheit erhöhen
@@ -290,6 +291,7 @@ public class CompanionBehavior {
                 }
             }
             case TRADER -> behaviorFollow(owner);
+            default -> {}
         }
     }
 

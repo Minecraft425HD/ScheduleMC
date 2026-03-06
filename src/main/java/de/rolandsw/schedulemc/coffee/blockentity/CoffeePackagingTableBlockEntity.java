@@ -70,6 +70,7 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
                         selectedSize = PackageSize.values()[value];
                     }
                 }
+                default -> {}
             }
         }
 

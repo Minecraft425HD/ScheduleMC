@@ -167,6 +167,7 @@ public class QuestReward {
                 player.getPersistentData().put("ScheduleMC", data);
             }
             // Weitere spezielle Belohnungen können hier hinzugefügt werden
+            default -> {}
         }
     }
 

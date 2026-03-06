@@ -250,6 +250,8 @@ public class SmartphoneScreen extends Screen {
                             case 12: openApp(new ProducerLevelAppScreen(this)); return true;
                             case 13: openApp(new GangAppScreen(this)); return true;
                             case 14: openApp(new MissionsAppScreen(this)); return true;
+                            default:
+                                break;
                         }
                     }
                 }

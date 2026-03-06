@@ -27,10 +27,12 @@ public final class SereneSeasonsCompat {
      * Prüft ob Serene Seasons installiert ist
      */
     public static boolean isSereneSeasonsLoaded() {
-        if (cachedModPresent == null) {
-            cachedModPresent = ModList.get().isLoaded(SERENE_SEASONS_MOD_ID);
+        synchronized (SereneSeasonsCompat.class) {
+            if (cachedModPresent == null) {
+                cachedModPresent = ModList.get().isLoaded(SERENE_SEASONS_MOD_ID);
+            }
+            return cachedModPresent;
         }
-        return cachedModPresent;
     }
 
     /**
@@ -147,8 +149,10 @@ public final class SereneSeasonsCompat {
                 if (season == null) return "";
 
                 // Cache getSubSeason beim ersten erfolgreichen Aufruf
-                if (cachedGetSubSeason == null) {
-                    cachedGetSubSeason = season.getClass().getMethod("getSubSeason");
+                synchronized (SereneSeasonsHelper.class) {
+                    if (cachedGetSubSeason == null) {
+                        cachedGetSubSeason = season.getClass().getMethod("getSubSeason");
+                    }
                 }
                 Object subSeason = cachedGetSubSeason.invoke(season);
                 return subSeason != null ? subSeason.toString() : "";

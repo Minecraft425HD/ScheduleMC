@@ -32,6 +32,7 @@ public class WorldMapConfiguration implements SubSettingsManager {
                     case "Worldmap Maximum Zoom" -> this.maxZoom = Float.parseFloat(curLine[1]);
                     case "Worldmap Cache Size" -> this.cacheSize = Integer.parseInt(curLine[1]);
                     case "Output Images" -> this.outputImages = Boolean.parseBoolean(curLine[1]);
+                    default -> {}
                 }
                 sCurrentLine = in.readLine();
             }

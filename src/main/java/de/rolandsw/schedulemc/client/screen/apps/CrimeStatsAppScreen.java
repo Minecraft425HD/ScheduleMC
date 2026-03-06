@@ -255,6 +255,7 @@ public class CrimeStatsAppScreen extends Screen {
             case 0 -> renderStatusTab(guiGraphics, contentY, contentEndY);
             case 1 -> renderBailTab(guiGraphics, contentY, contentEndY);
             case 2 -> renderInfoTab(guiGraphics, contentY, contentEndY);
+            default -> {}
         }
 
         // Scroll-Indikator

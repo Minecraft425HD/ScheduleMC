@@ -459,6 +459,7 @@ public class NPCCommand {
             case "workstart" -> npc.getNpcData().setWorkStartTime(ticks);
             case "workend" -> npc.getNpcData().setWorkEndTime(ticks);
             case "home" -> npc.getNpcData().setHomeTime(ticks);
+            default -> {}
         }
 
         String translationKey = switch (timeType) {

@@ -1091,6 +1091,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             case WEST:
                 setYRot(90F);
                 break;
+            default:
+                break;
         }
     }
 

@@ -17,7 +17,7 @@ public class DynamicMoveableTexture extends DynamicTexture {
         // Use reflection to access the private pixels field for performance
         try {
             pixelsField = NativeImage.class.getDeclaredField("pixels");
-            pixelsField.setAccessible(true);
+            pixelsField.setAccessible(true); // NOPMD - required to access private NativeImage field
             pixelsFieldInitialized = true;
         } catch (Exception e) {
             MapViewConstants.getLogger().warn("Could not access NativeImage.pixels field via reflection, using slower fallback");

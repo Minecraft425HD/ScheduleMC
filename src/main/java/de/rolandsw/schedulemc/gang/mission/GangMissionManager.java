@@ -222,6 +222,7 @@ public class GangMissionManager {
             case HOURLY -> stats.hourlyCompleted++;
             case DAILY -> stats.dailyCompleted++;
             case WEEKLY -> stats.weeklyCompleted++;
+            default -> {}
         }
     }
 

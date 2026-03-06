@@ -143,6 +143,8 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                     return (int) Math.round(totalCostThisSession * 100);
                 case 6:
                     return isFueling ? 1 : 0;
+                default:
+                    break;
             }
             return 0;
         }
@@ -173,6 +175,8 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                     break;
                 case 6:
                     isFueling = value != 0;
+                    break;
+                default:
                     break;
             }
         }

@@ -161,6 +161,7 @@ public class NPCNeeds {
         switch (type) {
             case ENERGY -> energy = Math.min(MAX_VALUE, energy + amount);
             case SAFETY -> safety = Math.min(MAX_VALUE, safety + amount);
+            default -> {}
         }
     }
 
@@ -173,6 +174,7 @@ public class NPCNeeds {
         switch (type) {
             case ENERGY -> energy = Math.max(MIN_VALUE, energy - amount);
             case SAFETY -> safety = Math.max(MIN_VALUE, safety - amount);
+            default -> {}
         }
     }
 

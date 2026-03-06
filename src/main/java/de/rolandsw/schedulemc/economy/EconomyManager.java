@@ -67,11 +67,13 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     /**
      * Initialisiert den EconomyManager mit dem Server
      */
-    public static synchronized void initialize(MinecraftServer server) {
-        if (instance == null) {
-            instance = new EconomyManager();
+    public static void initialize(MinecraftServer server) {
+        synchronized (EconomyManager.class) {
+            if (instance == null) {
+                instance = new EconomyManager();
+            }
+            instance.server = server;
         }
-        instance.server = server;
 
         // RateLimiter Auto-Cleanup aktivieren (verhindert Memory Leak bei Spieler-Fluktuation)
         transferLimiter.startAutoCleanup();
