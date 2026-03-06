@@ -31,7 +31,7 @@ public class ImageHelper {
             Graphics2D g2 = temp.createGraphics();
             g2.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
             g2.dispose();
-            image = temp;
+            return temp;
         }
 
         return image;
@@ -155,13 +155,13 @@ public class ImageHelper {
     public static BufferedImage eraseArea(BufferedImage image, int x, int y, int w, int h, int imageWidth, int imageHeight) {
         float scaleX = ((float) image.getWidth(null) / imageWidth);
         float scaleY = ((float) image.getHeight(null) / imageHeight);
-        x = (int) (x * scaleX);
-        y = (int) (y * scaleY);
-        w = (int) (w * scaleX);
-        h = (int) (h * scaleY);
-        int[] blankPixels = new int[w * h];
+        int scaledX = (int) (x * scaleX);
+        int scaledY = (int) (y * scaleY);
+        int scaledW = (int) (w * scaleX);
+        int scaledH = (int) (h * scaleY);
+        int[] blankPixels = new int[scaledW * scaledH];
         Arrays.fill(blankPixels, 0);
-        image.setRGB(x, y, w, h, blankPixels, 0, w);
+        image.setRGB(scaledX, scaledY, scaledW, scaledH, blankPixels, 0, scaledW);
         return image;
     }
 
@@ -185,15 +185,11 @@ public class ImageHelper {
 
     public static BufferedImage loadImage(BufferedImage mobSkin, int x, int y, int w, int h, int imageWidth, int imageHeight) {
         float scale = ((float) mobSkin.getWidth() / imageWidth);
-        x = (int) (x * scale);
-        y = (int) (y * scale);
-        w = (int) (w * scale);
-        h = (int) (h * scale);
-        w = Math.max(1, w);
-        h = Math.max(1, h);
-        x = Math.min(mobSkin.getWidth() - w, x);
-        y = Math.min(mobSkin.getHeight() - h, y);
-        return mobSkin.getSubimage(x, y, w, h);
+        int scaledW = Math.max(1, (int) (w * scale));
+        int scaledH = Math.max(1, (int) (h * scale));
+        int scaledX = Math.min(mobSkin.getWidth() - scaledW, (int) (x * scale));
+        int scaledY = Math.min(mobSkin.getHeight() - scaledH, (int) (y * scale));
+        return mobSkin.getSubimage(scaledX, scaledY, scaledW, scaledH);
     }
 
     public static BufferedImage addImages(BufferedImage base, BufferedImage overlay, float x, float y, int baseWidth, int baseHeight) {
@@ -289,13 +285,14 @@ public class ImageHelper {
     }
 
     public static BufferedImage fillOutline(BufferedImage image, boolean outline, boolean armor, float intendedWidth, float intendedHeight, int passes) {
+        BufferedImage result = image;
         if (outline) {
             for (int t = 0; t < passes; ++t) {
-                image = fillOutline(image, true, armor, intendedWidth, intendedHeight);
+                result = fillOutline(result, true, armor, intendedWidth, intendedHeight);
             }
         }
 
-        return fillOutline(image, false, armor, intendedWidth, intendedHeight);
+        return fillOutline(result, false, armor, intendedWidth, intendedHeight);
     }
 
     private static BufferedImage fillOutline(BufferedImage image, boolean solid, boolean armor, float intendedWidth, float intendedHeight) {
@@ -401,13 +398,14 @@ public class ImageHelper {
     }
 
     public static NativeImage fillOutline(NativeImage image, boolean outline, boolean armor, float intendedWidth, float intendedHeight, int passes) {
+        NativeImage result = image;
         if (outline) {
             for (int t = 0; t < passes; ++t) {
-                image = fillOutline(image, true, armor, intendedWidth, intendedHeight);
+                result = fillOutline(result, true, armor, intendedWidth, intendedHeight);
             }
         }
 
-        return fillOutline(image, false, armor, intendedWidth, intendedHeight);
+        return fillOutline(result, false, armor, intendedWidth, intendedHeight);
     }
 
     private static NativeImage fillOutline(NativeImage image, boolean solid, boolean armor, float intendedWidth, float intendedHeight) {

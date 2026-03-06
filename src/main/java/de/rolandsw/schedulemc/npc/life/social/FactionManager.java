@@ -144,15 +144,16 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
     public void modifyReputation(UUID playerUUID, Faction faction, int amount) {
         // Diminishing Returns bei Strafen: Je negativer die Reputation bereits ist,
         // desto weniger wirken weitere Strafen
+        int effectiveAmount = amount;
         if (amount < 0) {
             int currentRep = getReputation(playerUUID, faction);
             if (currentRep < -50) {
-                amount = (int) Math.ceil(amount * 0.5); // 50% Wirkung unter -50
+                effectiveAmount = (int) Math.ceil(amount * 0.5); // 50% Wirkung unter -50
             } else if (currentRep < -20) {
-                amount = (int) Math.ceil(amount * 0.75); // 75% Wirkung unter -20
+                effectiveAmount = (int) Math.ceil(amount * 0.75); // 75% Wirkung unter -20
             }
         }
-        getRelation(playerUUID, faction).modifyReputation(amount);
+        getRelation(playerUUID, faction).modifyReputation(effectiveAmount);
         markDirty();
 
         // Gegenwirkung auf verbündete/feindliche Fraktionen

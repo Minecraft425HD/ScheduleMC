@@ -150,10 +150,7 @@ public class FuelComponent extends VehicleComponent implements IFluidHandler {
     }
 
     public void setFuelType(String fluid) {
-        if (fluid == null) {
-            fluid = "";
-        }
-        vehicle.getEntityData().set(FUEL_TYPE, fluid);
+        vehicle.getEntityData().set(FUEL_TYPE, fluid == null ? "" : fluid);
     }
 
     public void setFuelType(Fluid fluid) {

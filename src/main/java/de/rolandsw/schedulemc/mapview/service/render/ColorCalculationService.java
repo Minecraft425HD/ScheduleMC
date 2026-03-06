@@ -927,7 +927,7 @@ public class ColorCalculationService {
             blue += (int) (red * (lighteningFactor / 255.0F));
             green += (int) (red * (lighteningFactor / 255.0F));
             int newAlpha = (int) Math.abs(lighteningFactor);
-            rgb = newAlpha << 24 | (red & 0xFF) << 16 | (green & 0xFF) << 8 | blue & 0xFF;
+            return newAlpha << 24 | (red & 0xFF) << 16 | (green & 0xFF) << 8 | blue & 0xFF;
         }
 
         return rgb;
@@ -1050,18 +1050,15 @@ public class ColorCalculationService {
     }
 
     private List<ResourceLocation> findResources(String namespace, String startingPath, String suffixMaybeNull, boolean recursive, boolean directories, boolean sortByFilename) {
-        if (startingPath == null) {
-            startingPath = "";
-        }
-
-        if (!startingPath.isEmpty() && startingPath.charAt(0) == '/') {
-            startingPath = startingPath.substring(1);
+        String effectivePath = startingPath == null ? "" : startingPath;
+        if (!effectivePath.isEmpty() && effectivePath.charAt(0) == '/') {
+            effectivePath = effectivePath.substring(1);
         }
 
         String suffix = suffixMaybeNull == null ? "" : suffixMaybeNull;
         ArrayList<ResourceLocation> resources;
 
-        Map<ResourceLocation, Resource> resourceMap = MapViewConstants.getMinecraft().getResourceManager().listResources(startingPath, asset -> asset.getPath().endsWith(suffix));
+        Map<ResourceLocation, Resource> resourceMap = MapViewConstants.getMinecraft().getResourceManager().listResources(effectivePath, asset -> asset.getPath().endsWith(suffix));
         resources = resourceMap.keySet().stream().filter(candidate -> candidate.getNamespace().equals(namespace)).collect(Collectors.toCollection(ArrayList::new));
 
         if (sortByFilename) {
@@ -1181,16 +1178,14 @@ public class ColorCalculationService {
         }
 
         String format = colorProperties.getProperty("format");
-        if (format != null) {
-            grid = format.equalsIgnoreCase("grid");
-        }
+        boolean effectiveGrid = format != null ? format.equalsIgnoreCase("grid") : grid;
 
         String yOffsetString = colorProperties.getProperty("yOffset");
         if (yOffsetString != null) {
             yOffset = Integer.parseInt(yOffsetString);
         }
 
-        this.processColorProperty(resource, list, grid, yOffset);
+        this.processColorProperty(resource, list, effectiveGrid, yOffset);
     }
 
     private void processColorProperty(ResourceLocation resource, String list, boolean grid, int yOffset) {

@@ -749,7 +749,8 @@ public class WorldMapData implements MapChangeListener {
                     b -= (int) (sc * b);
                 }
 
-                color24 = alpha * 16777216 + r * 65536 + g * 256 + b;
+                int result = alpha * 16777216 + r * 65536 + g * 256 + b;
+                return result;
             }
         }
 

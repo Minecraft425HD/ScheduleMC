@@ -290,12 +290,8 @@ public class BatteryComponent extends VehicleComponent {
     }
 
     public void setBatteryLevel(int level) {
-        if (level < 0) {
-            level = 0;
-        } else if (level > getMaxBatteryLevel()) {
-            level = getMaxBatteryLevel();
-        }
-        vehicle.getEntityData().set(BATTERY_LEVEL, level);
+        int clampedLevel = Math.max(0, Math.min(getMaxBatteryLevel(), level));
+        vehicle.getEntityData().set(BATTERY_LEVEL, clampedLevel);
     }
 
     public int getBatteryLevel() {

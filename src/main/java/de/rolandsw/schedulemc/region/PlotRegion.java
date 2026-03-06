@@ -302,9 +302,8 @@ public class PlotRegion {
      * Fügt ein Rating hinzu (1-5 Sterne)
      */
     public void addRating(UUID playerUUID, int stars) {
-        if (stars < 1) stars = 1;
-        if (stars > 5) stars = 5;
-        getRatings().put(playerUUID.toString(), stars);
+        int clampedStars = Math.max(1, Math.min(5, stars));
+        getRatings().put(playerUUID.toString(), clampedStars);
     }
     
     /**

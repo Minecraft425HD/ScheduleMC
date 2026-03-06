@@ -284,20 +284,18 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
     }
 
     private TobaccoQuality calculateFinalQuality(TobaccoQuality quality) {
-        if (quality == null) {
-            quality = TobaccoQuality.SCHLECHT;
-        }
+        TobaccoQuality effectiveQuality = quality == null ? TobaccoQuality.SCHLECHT : quality;
 
-        if (quality == TobaccoQuality.LEGENDAER) {
-            return quality;
+        if (effectiveQuality == TobaccoQuality.LEGENDAER) {
+            return effectiveQuality;
         }
 
         // Chance auf Upgrade
         if (level != null && level.random.nextFloat() < getQualityUpgradeChance()) {
-            return quality.upgrade();
+            return effectiveQuality.upgrade();
         }
 
-        return quality;
+        return effectiveQuality;
     }
 
     @Override

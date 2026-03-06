@@ -341,21 +341,14 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * Setzt das Guthaben eines Spielers mit Transaktions-Logging
      */
     public static void setBalance(UUID uuid, double amount, TransactionType type, @Nullable String description) {
-        if (amount < 0) {
-            amount = 0;
-        }
-        if (amount > MAX_BALANCE) {
-            amount = MAX_BALANCE;
-        }
-        // OPTIMIERT: Einziger Map-Zugriff statt getOrDefault + put (2 Lookups)
-        final double setAmount = amount;
+        final double setAmount = Math.max(0, Math.min(MAX_BALANCE, amount));
         Double oldBalance = balances.put(uuid, setAmount);
         double difference = setAmount - (oldBalance != null ? oldBalance : 0.0);
         markDirty();
-        LOGGER.info("Balance set: {} to {} € ({})", uuid, amount, type);
+        LOGGER.info("Balance set: {} to {} € ({})", uuid, setAmount, type);
 
         // Transaction History
-        logTransaction(uuid, type, null, uuid, difference, description, amount);
+        logTransaction(uuid, type, null, uuid, difference, description, setAmount);
     }
 
     /**

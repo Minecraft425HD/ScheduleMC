@@ -171,11 +171,12 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
         // Ab Tag 7: Automatischer Ausgleich täglich versuchen (>= statt == 7, damit
         // ein Server-Neustart am Tag 7 den Auto-Repay nicht dauerhaft überspringt).
+        double currentBalance = balance;
         if (daysPassed >= 7 && daysPassed < 28) {
             tryAutoRepay(playerUUID);
             // Nach Auto-Repay nochmal prüfen
-            balance = EconomyManager.getBalance(playerUUID);
-            if (balance >= 0) {
+            currentBalance = EconomyManager.getBalance(playerUUID);
+            if (currentBalance >= 0) {
                 // Schulden beglichen – kein weiteres Vorgehen nötig
                 return;
             }
@@ -185,13 +186,13 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         // kein Warnungs-Meilenstein durch Server-Ausfall übersprungen wird).
         // sendCountdownWarning() stellt per lastWarningDay sicher, dass nur 1× pro Tag
         // gewarnt wird.
-        if (balance < 0 && daysPassed >= 7 && daysPassed < 28) {
-            sendCountdownWarning(playerUUID, balance);
+        if (currentBalance < 0 && daysPassed >= 7 && daysPassed < 28) {
+            sendCountdownWarning(playerUUID, currentBalance);
         }
 
         // Tag 28: GEFÄNGNIS!
-        if (balance < 0 && daysPassed >= 28) {
-            sendToPrison(playerUUID, Math.abs(balance));
+        if (currentBalance < 0 && daysPassed >= 28) {
+            sendToPrison(playerUUID, Math.abs(currentBalance));
         }
     }
 

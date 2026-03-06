@@ -987,7 +987,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     // === Helper rendering ===
 
     private void renderBar(GuiGraphics g, int x, int y, String label, float percent) {
-        percent = Math.max(0, Math.min(100, percent));
+        float clampedPercent = Math.max(0, Math.min(100, percent));
         g.drawString(font, label + ":", x, y, COL_TEXT, false);
 
         int barX = x;
@@ -996,11 +996,11 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int barH = 5;
 
         g.fill(barX, barY, barX + barW, barY + barH, COL_BAR_BG);
-        int fillW = (int) (barW * (percent / 100f));
-        int barColor = percent > 75 ? COL_BAR_GOOD : percent > 40 ? COL_BAR_MED : COL_BAR_BAD;
+        int fillW = (int) (barW * (clampedPercent / 100f));
+        int barColor = clampedPercent > 75 ? COL_BAR_GOOD : clampedPercent > 40 ? COL_BAR_MED : COL_BAR_BAD;
         g.fill(barX, barY, barX + fillW, barY + barH, barColor);
 
-        g.drawString(font, tr("werkstatt.gui.percent_format", percent), barX + barW + 4, y, COL_TEXT_LIGHT, false);
+        g.drawString(font, tr("werkstatt.gui.percent_format", clampedPercent), barX + barW + 4, y, COL_TEXT_LIGHT, false);
     }
 
     // === Vehicle Data Helpers ===

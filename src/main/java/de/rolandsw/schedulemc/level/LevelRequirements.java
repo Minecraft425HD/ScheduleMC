@@ -53,8 +53,7 @@ public class LevelRequirements {
      * @return Benötigte Gesamt-XP um dieses Level zu erreichen
      */
     public static int getRequiredXP(int level) {
-        level = Math.max(0, Math.min(MAX_LEVEL, level));
-        return XP_TABLE[level];
+        return XP_TABLE[Math.max(0, Math.min(MAX_LEVEL, level))];
     }
 
     /**

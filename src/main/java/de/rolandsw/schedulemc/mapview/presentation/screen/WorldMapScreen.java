@@ -420,8 +420,7 @@ public class WorldMapScreen extends PopupScreen {
     }
 
     private float bindZoom(float zoom) {
-        zoom = Math.max(this.options.getMinZoom(), zoom);
-        return Math.min(this.options.getMaxZoom(), zoom);
+        return Math.min(this.options.getMaxZoom(), Math.max(this.options.getMinZoom(), zoom));
     }
 
     /**

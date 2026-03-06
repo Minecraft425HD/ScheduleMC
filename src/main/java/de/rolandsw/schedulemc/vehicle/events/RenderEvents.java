@@ -87,7 +87,7 @@ public class RenderEvents {
     }
 
     public static void renderFuelBar(GuiGraphics guiGraphics, float percent) {
-        percent = Mth.clamp(percent, 0F, 1F);
+        float clampedPercent = Mth.clamp(percent, 0F, 1F);
         int x = mc.getWindow().getGuiScaledWidth() / 2 - 91;
 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -96,7 +96,7 @@ public class RenderEvents {
         int k = mc.getWindow().getGuiScaledHeight() - 32 + 3;
         guiGraphics.blit(GUI_ICONS_LOCATION, x, k, 0, 64, 182, 5);
 
-        int j = (int) (percent * 182F);
+        int j = (int) (clampedPercent * 182F);
 
         if (j > 0) {
             guiGraphics.blit(GUI_ICONS_LOCATION, x, k, 0, 69, j, 5);

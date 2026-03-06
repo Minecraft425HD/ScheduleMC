@@ -867,16 +867,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.heightMapFudge = 0;
         }
 
-        if (Math.abs(offsetX) > 32 * multi || Math.abs(offsetZ) > 32 * multi) {
-            full = true;
-        }
+        boolean doFull = full || Math.abs(offsetX) > 32 * multi || Math.abs(offsetZ) > 32 * multi;
 
         boolean nether = false;
         boolean caves = false;
         needHeightAndID = false;
         int color24;
         // OPTIMIZATION: Removed synchronized block - volatile fields ensure visibility
-        if (!full) {
+        if (!doFull) {
             this.mapImages[zoom].moveY(offsetZ);
             this.mapImages[zoom].moveX(offsetX);
         }
@@ -886,7 +884,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         int startX = currentX - 16 * multi;
         int startZ = currentZ - 16 * multi;
-        if (!full) {
+        if (!doFull) {
             this.mapData[zoom].moveZ(offsetZ);
             this.mapData[zoom].moveX(offsetX);
 
@@ -935,10 +933,10 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             }
         }
 
-        if (full || this.options.heightmap && needHeightMap || needHeightAndID || this.options.lightmap && needLight || skyColorChanged) {
+        if (doFull || this.options.heightmap && needHeightMap || needHeightAndID || this.options.lightmap && needLight || skyColorChanged) {
             for (int imageY = 32 * multi - 1; imageY >= 0; --imageY) {
                 for (int imageX = 0; imageX < 32 * multi; ++imageX) {
-                    color24 = this.getPixelColor(full, full || needHeightAndID, full, full || needLight || needHeightAndID, nether, caves, world, zoom, multi, startX, startZ, imageX, imageY);
+                    color24 = this.getPixelColor(doFull, doFull || needHeightAndID, doFull, doFull || needLight || needHeightAndID, nether, caves, world, zoom, multi, startX, startZ, imageX, imageY);
                     this.mapImages[zoom].setRGB(imageX, imageY, color24);
                 }
             }
@@ -946,9 +944,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         // OPTIMIZED: Throttle biome segmentation - only run every 4 pixels of movement
         // Running on EVERY pixel movement was causing massive stuttering on N/S movement!
-        if ((full || offsetX != 0 || offsetZ != 0 || !this.lastFullscreen) && this.fullscreenMap && this.options.biomeOverlay != 0) {
+        if ((doFull || offsetX != 0 || offsetZ != 0 || !this.lastFullscreen) && this.fullscreenMap && this.options.biomeOverlay != 0) {
             biomeSegmentationCounter += Math.abs(offsetX) + Math.abs(offsetZ);
-            if (full || !this.lastFullscreen || biomeSegmentationCounter >= 4) {
+            if (doFull || !this.lastFullscreen || biomeSegmentationCounter >= 4) {
                 this.mapData[zoom].segmentBiomes();
                 this.mapData[zoom].findCenterOfSegments(!this.options.oldNorth);
                 biomeSegmentationCounter = 0;
@@ -956,7 +954,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         }
 
         this.lastFullscreen = this.fullscreenMap;
-        if (full || offsetX != 0 || offsetZ != 0 || needHeightMap || needLight || skyColorChanged) {
+        if (doFull || offsetX != 0 || offsetZ != 0 || needHeightMap || needLight || skyColorChanged) {
             this.imageChanged = true;
         }
 
@@ -1020,23 +1018,19 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         int multi = (int) Math.pow(2.0, zoom);
         startX -= 16 * multi;
         startZ -= 16 * multi;
-        left = left - startX - 1;
-        right = right - startX + 1;
-        top = top - startZ - 1;
-        bottom = bottom - startZ + 1;
-        left = Math.max(0, left);
-        right = Math.min(32 * multi - 1, right);
-        top = Math.max(0, top);
-        bottom = Math.min(32 * multi - 1, bottom);
+        int adjLeft = Math.max(0, left - startX - 1);
+        int adjRight = Math.min(32 * multi - 1, right - startX + 1);
+        int adjTop = Math.max(0, top - startZ - 1);
+        int adjBottom = Math.min(32 * multi - 1, bottom - startZ + 1);
 
         // Phase 2B: Use Strategy Pattern for flexible scanning algorithms
         // Replaces hardcoded nested loop with configurable strategy
         ChunkScanStrategy scanStrategy = ChunkScanStrategyFactory.getDefault();
 
-        final int finalLeft = left;
-        final int finalTop = top;
-        final int finalRight = right;
-        final int finalBottom = bottom;
+        final int finalLeft = adjLeft;
+        final int finalTop = adjTop;
+        final int finalRight = adjRight;
+        final int finalBottom = adjBottom;
         final int finalZoom = zoom;
         final int finalMulti = multi;
         final int finalStartX = startX;
@@ -1509,11 +1503,12 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     private int getSeafloorHeight(Level world, int x, int z, int height) {
         MutableBlockPos blockPos = BlockPositionCache.get();
-        for (BlockState blockState = world.getBlockState(blockPos.withXYZ(x, height - 1, z)); blockState.getLightBlock(world, blockPos.withXYZ(x, height - 1, z)) < 5 && !(blockState.getBlock() instanceof LeavesBlock) && height > world.getMinBuildHeight() + 1; blockState = world.getBlockState(blockPos.withXYZ(x, height - 1, z))) {
-            --height;
+        int h = height;
+        for (BlockState blockState = world.getBlockState(blockPos.withXYZ(x, h - 1, z)); blockState.getLightBlock(world, blockPos.withXYZ(x, h - 1, z)) < 5 && !(blockState.getBlock() instanceof LeavesBlock) && h > world.getMinBuildHeight() + 1; blockState = world.getBlockState(blockPos.withXYZ(x, h - 1, z))) {
+            --h;
         }
         BlockPositionCache.release(blockPos);
-        return height;
+        return h;
     }
 
     private int getTransparentHeight(boolean nether, boolean caves, Level world, int x, int z, int height) {
@@ -1641,7 +1636,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 b -= (int) (sc * b);
             }
 
-            color24 = alpha * 16777216 + r * 65536 + g * 256 + b;
+            int result = alpha * 16777216 + r * 65536 + g * 256 + b;
+            return result;
         }
 
         return color24;

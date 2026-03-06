@@ -163,8 +163,8 @@ public class EconomyCycle implements IncrementalSaveManager.ISaveable {
      * Smooth-Step Funktion für sanfte Interpolation.
      */
     private static double smoothStep(double t) {
-        t = Math.max(0, Math.min(1, t));
-        return t * t * (3.0 - 2.0 * t);
+        double clamped = Math.max(0, Math.min(1, t));
+        return clamped * clamped * (3.0 - 2.0 * clamped);
     }
 
     /**

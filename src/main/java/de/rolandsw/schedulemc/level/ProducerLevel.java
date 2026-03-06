@@ -230,23 +230,23 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
      * Setzt das Level eines Spielers (Admin-Befehl).
      */
     public void setLevel(UUID playerUUID, int level) {
-        level = Math.max(0, Math.min(LevelRequirements.MAX_LEVEL, level));
+        int clampedLevel = Math.max(0, Math.min(LevelRequirements.MAX_LEVEL, level));
         ProducerLevelData data = getOrCreateData(playerUUID);
 
         // XP auf das Minimum des Ziel-Levels setzen
-        int requiredXP = LevelRequirements.getRequiredXP(level);
+        int requiredXP = LevelRequirements.getRequiredXP(clampedLevel);
 
         // Unlocks für das neue Level zusammenstellen (VORHER, nicht über getUnlockedItems()-Kopie)
         Set<String> updatedUnlocks = new HashSet<>();
         for (Unlockable unlock : Unlockable.values()) {
-            if (unlock.isUnlockedAt(level)) {
+            if (unlock.isUnlockedAt(clampedLevel)) {
                 updatedUnlocks.add(unlock.name());
             }
         }
 
         // Neue Daten erstellen mit korrekten Unlocks
         ProducerLevelData newData = new ProducerLevelData(
-                playerUUID, level, requiredXP, updatedUnlocks,
+                playerUUID, clampedLevel, requiredXP, updatedUnlocks,
                 data.getTotalItemsSold(), data.getTotalIllegalSold(),
                 data.getTotalLegalSold(), data.getTotalRevenue()
         );
@@ -254,7 +254,7 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
         playerData.put(playerUUID, newData);
         needsSave = true;
 
-        LOGGER.info("Admin: Level for {} set to {}", playerUUID, level);
+        LOGGER.info("Admin: Level for {} set to {}", playerUUID, clampedLevel);
     }
 
     /**

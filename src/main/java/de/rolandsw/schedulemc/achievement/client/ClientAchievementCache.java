@@ -59,18 +59,19 @@ public class ClientAchievementCache {
             total, unlocked, earned);
 
         // SIZE CHECK: Validate incoming data size
+        List<AchievementData> limitedAchievements = newAchievements;
         if (newAchievements.size() > MAX_ACHIEVEMENTS_SIZE) {
             LOGGER.warn("Achievement cache size ({}) exceeds limit ({}), truncating to most recent entries",
                 newAchievements.size(), MAX_ACHIEVEMENTS_SIZE);
             // Keep only the first MAX_ACHIEVEMENTS_SIZE entries
-            newAchievements = newAchievements.subList(0, MAX_ACHIEVEMENTS_SIZE);
+            limitedAchievements = newAchievements.subList(0, MAX_ACHIEVEMENTS_SIZE);
         }
 
         achievements.clear();
         achievementMap.clear();
         categoryMap.clear();
 
-        achievements.addAll(newAchievements);
+        achievements.addAll(limitedAchievements);
         totalAchievements = total;
         unlockedCount = unlocked;
         totalEarned = earned;

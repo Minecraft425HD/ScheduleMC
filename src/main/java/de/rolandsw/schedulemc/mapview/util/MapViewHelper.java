@@ -20,21 +20,22 @@ public class MapViewHelper {
     }
 
     public static int doSlimeAndGrid(int color24, ClientLevel world, int mcX, int mcZ) {
+        int result = color24;
         if (options.slimeChunks && isSlimeChunk(mcX, mcZ)) {
-            color24 = ColorUtils.colorAdder(0x7D00FF00, color24);
+            result = ColorUtils.colorAdder(0x7D00FF00, result);
         }
 
         if (options.chunkGrid) {
             if (mcX % 512 != 0 && mcZ % 512 != 0) {
                 if (mcX % 16 == 0 || mcZ % 16 == 0) {
-                    color24 = ColorUtils.colorAdder(0x7D000000, color24);
+                    result = ColorUtils.colorAdder(0x7D000000, result);
                 }
             } else {
-                color24 = ColorUtils.colorAdder(0x7DFF0000, color24);
+                result = ColorUtils.colorAdder(0x7DFF0000, result);
             }
         }
 
-        return color24;
+        return result;
     }
 
     public static boolean isSlimeChunk(int mcX, int mcZ) {
