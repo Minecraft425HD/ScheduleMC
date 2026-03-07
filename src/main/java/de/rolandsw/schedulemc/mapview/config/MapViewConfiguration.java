@@ -29,19 +29,19 @@ public class MapViewConfiguration implements SettingsManager {
     public boolean showUnderMenus;
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
     public final boolean multicore = this.availableProcessors > 1;
-    public final boolean lightmap = true;
-    public final boolean heightmap = true;
-    public final boolean slopemap = true;
-    public final boolean filtering = true;
-    public final boolean waterTransparency = true;
-    public final boolean blockTransparency = true;
-    public final boolean biomes = true;
-    public final int biomeOverlay = 0;
-    public final boolean chunkGrid = false;
-    public final boolean slimeChunks = false;
-    public final boolean worldborder = true;
-    public final boolean squareMap = true;
-    public final boolean rotates = false;
+    public final boolean lightmap = true;  // NOPMD
+    public final boolean heightmap = true;  // NOPMD
+    public final boolean slopemap = true;  // NOPMD
+    public final boolean filtering = true;  // NOPMD
+    public final boolean waterTransparency = true;  // NOPMD
+    public final boolean blockTransparency = true;  // NOPMD
+    public final boolean biomes = true;  // NOPMD
+    public final int biomeOverlay = 0;  // NOPMD
+    public final boolean chunkGrid = false;  // NOPMD
+    public final boolean slimeChunks = false;  // NOPMD
+    public final boolean worldborder = true;  // NOPMD
+    public final boolean squareMap = true;  // NOPMD
+    public final boolean rotates = false;  // NOPMD
     public boolean oldNorth;
     public int zoom = 2;
     public int sizeModifier = 1;
@@ -51,8 +51,8 @@ public class MapViewConfiguration implements SettingsManager {
     public boolean minimapAllowed = true;
     public boolean showTerritories = false; // Territory Overlay on worldmap for normal players
 
-    public final boolean moveMapDownWhileStatusEffect = true;
-    public final boolean moveScoreBoardDown = true;
+    public final boolean moveMapDownWhileStatusEffect = true;  // NOPMD
+    public final boolean moveScoreBoardDown = true;  // NOPMD
     protected boolean realTimeTorches;
     public KeyMapping keyBindZoom;
     public KeyMapping keyBindFullscreen;
@@ -249,7 +249,7 @@ public class MapViewConfiguration implements SettingsManager {
     }
 
     public String getKeyBindingDescription(int keybindIndex) {
-        return this.keyBindings[keybindIndex].getName().equals("key.mapview.menu") ? I18n.get("key.mapview.menu") : I18n.get(this.keyBindings[keybindIndex].getName());
+        return this.keyBindings[keybindIndex]."key.mapview.menu".equals(getName()) ? I18n.get("key.mapview.menu") : I18n.get(this.keyBindings[keybindIndex].getName());
     }
 
     public Component getKeybindDisplayString(int keybindIndex) {

@@ -19,7 +19,7 @@ public class DimensionContainer implements Comparable<DimensionContainer> {
         if (resourceLocation == null) {
             return "UNKNOWN";
         }
-        return resourceLocation.getNamespace().equals("minecraft") ? resourceLocation.getPath() : resourceLocation.toString();
+        return "minecraft".equals(resourceLocation.getNamespace()) ? resourceLocation.getPath() : resourceLocation.toString();
     }
 
     public String getDisplayName() { return TextUtils.prettify(this.name); }

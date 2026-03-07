@@ -105,11 +105,11 @@ public class ComparisonRegionCache {
                     byte[] decompressedByteData = null;
                     ZipEntry ze = zis.getNextEntry();
                     while (ze != null) {
-                        if (ze.getName().equals("data")) {
+                        if ("data".equals(ze.getName())) {
                             decompressedByteData = zis.readAllBytes();
                         }
 
-                        if (ze.getName().equals("key")) {
+                        if ("key".equals(ze.getName())) {
                             stateToInt = HashBiMap.create();
 
                             while (sc.hasNextLine()) {
@@ -117,14 +117,14 @@ public class ComparisonRegionCache {
                             }
                         }
 
-                        if (ze.getName().equals("biomes")) {
+                        if ("biomes".equals(ze.getName())) {
                             biomeMap = HashBiMap.create();
                             while (sc.hasNextLine()) {
                                 BiomeScanner.parseLine(world, sc.nextLine(), biomeMap);
                             }
                         }
 
-                        if (ze.getName().equals("control")) {
+                        if ("control".equals(ze.getName())) {
                             Properties properties = new Properties();
                             properties.load(zis);
                             String versionString = properties.getProperty("version", "1");

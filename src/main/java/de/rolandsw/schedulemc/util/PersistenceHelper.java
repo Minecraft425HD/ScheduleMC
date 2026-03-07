@@ -206,7 +206,7 @@ public class PersistenceHelper {
 
     // ========== Private Hilfsmethoden ==========
 
-    private static <T> T loadFromFile(File file, Gson gson, Type type) throws Exception {
+    private static <T> T loadFromFile(File file, Gson gson, Type type) throws Exception {  // NOPMD
         try (FileReader reader = new FileReader(file)) {
             T data = gson.fromJson(reader, type);
 

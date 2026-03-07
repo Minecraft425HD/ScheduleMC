@@ -201,8 +201,8 @@ public class ScenarioEditorScreen extends Screen {
 
     private int getParamColor(ObjectiveType.ParamDef def) {
         return switch (def.widget()) {
-            case COORD -> def.key().endsWith("x") || def.key().equals("x") ? 0xFFFF6666 :
-                    def.key().endsWith("y") || def.key().equals("y") ? 0xFF66FF66 : 0xFF6666FF;
+            case COORD -> def.key().endsWith("x") || "x".equals(def.key()) ? 0xFFFF6666 :
+                    def.key().endsWith("y") || "y".equals(def.key()) ? 0xFF66FF66 : 0xFF6666FF;
             case NUMBER -> 0xFFFFCC44;
             default -> 0xFFFFFFFF;
         };

@@ -73,7 +73,7 @@ public class RegionCache {
     private boolean underground;
     private int x;
     private int z;
-    private final int width = 256;
+    private static final int width = 256;
     private boolean empty = true;
     private boolean liveChunksUpdated;
     boolean remoteWorld;
@@ -98,7 +98,7 @@ public class RegionCache {
     private static final ReadWriteLock tickLock = new ReentrantReadWriteLock();
     private static int loadedChunkCount;
     private boolean queuedToCompress;
-    final boolean debug = false;
+    static final boolean debug = false;
 
     public RegionCache() {
         this.world = null;

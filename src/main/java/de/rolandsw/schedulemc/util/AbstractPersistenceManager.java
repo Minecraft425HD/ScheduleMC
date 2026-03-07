@@ -93,7 +93,7 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
     /**
      * Lädt Daten aus einer Datei
      */
-    private T loadFromFile(File file) throws Exception {
+    private T loadFromFile(File file) throws Exception {  // NOPMD
         try (FileReader reader = new FileReader(file)) {
             T data = gson.fromJson(reader, getDataType());
 

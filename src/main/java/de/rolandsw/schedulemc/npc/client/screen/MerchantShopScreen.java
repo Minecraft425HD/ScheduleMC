@@ -128,7 +128,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
                 // Fahrzeuge: Nur "1" oder leer erlauben (max 1 Fahrzeug pro Kauf)
                 if (isVehicle) {
                     quantityInput.setMaxLength(1);
-                    quantityInput.setFilter(s -> s.isEmpty() || s.equals("1")); // Nur 1 oder leer
+                    quantityInput.setFilter(s -> s.isEmpty() || "1".equals(s)); // Nur 1 oder leer
                 } else {
                     quantityInput.setFilter(s -> DIGITS_ONLY.matcher(s).matches()); // Nur Zahlen
                 }
@@ -191,7 +191,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             LOGGER.info("[CLIENT] Item {}: {} | savedQuantity='{}' | availableQuantity={}",
                 i, row.item.getHoverName().getString(), quantityStr, row.availableQuantity);
 
-            if (!quantityStr.isEmpty() && !quantityStr.equals("0")) {
+            if (!quantityStr.isEmpty() && !"0".equals(quantityStr)) {
                 try {
                     int quantity = Integer.parseInt(quantityStr);
                     if (quantity > 0 && quantity <= row.availableQuantity) {

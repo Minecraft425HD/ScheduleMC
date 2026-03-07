@@ -105,7 +105,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private final boolean multicore = this.availableProcessors > 1;
     private final int heightMapResetHeight = this.multicore ? 2 : 5;
     private final int heightMapResetTime = this.multicore ? 300 : 3000;
-    private final boolean threading = this.multicore;
+    private final boolean threading = this.multicore;  // NOPMD - verwendet this, kann nicht static sein
     private final MapDataRepository[] mapData = new MapDataRepository[5];
     private final ChunkCache[] chunkCache = new ChunkCache[5];
     private DynamicMoveableTexture[] mapImages;

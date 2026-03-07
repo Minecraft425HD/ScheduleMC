@@ -850,7 +850,7 @@ public class ColorCalculationService {
             }
 
             if (!blockStates.isEmpty()) {
-                if (!method.equals("horizontal") && !method.startsWith("overlay") && (method.equals("sandstone") || method.equals("top") || faces.contains("top") || faces.contains("all") || faces.isEmpty())) {
+                if (!"horizontal".equals(method) && !method.startsWith("overlay") && ("sandstone".equals(method) || "top".equals(method) || faces.contains("top") || faces.contains("all") || faces.isEmpty())) {
                     try {
                         ResourceLocation pngResource = ResourceLocation.fromNamespaceAndPath(propertiesFile.getNamespace(), tilePath);
                         Image top;
@@ -873,7 +873,7 @@ public class ColorCalculationService {
                                 topRGB |= 0xFF000000;
                             }
 
-                            if (renderPass.equals("3")) {
+                            if ("3".equals(renderPass)) {
                                 topRGB = this.processRenderPassThree(topRGB);
                                 int blockStateID = BlockDatabase.getStateId(blockState);
                                 int baseRGB = this.blockColors[blockStateID];
@@ -917,7 +917,7 @@ public class ColorCalculationService {
     }
 
     private int processRenderPassThree(int rgb) {
-        if (this.renderPassThreeBlendMode.equals("color") || this.renderPassThreeBlendMode.equals("overlay")) {
+        if ("color".equals(this.renderPassThreeBlendMode) || "overlay".equals(this.renderPassThreeBlendMode)) {
             int red = rgb >> 16 & 0xFF;
             int green = rgb >> 8 & 0xFF;
             int blue = rgb & 0xFF;
@@ -1100,7 +1100,7 @@ public class ColorCalculationService {
         }
 
         String defaultFormat = properties.getProperty("palette.format");
-        boolean globalGrid = defaultFormat != null && defaultFormat.equalsIgnoreCase("grid");
+        boolean globalGrid = defaultFormat != null && "grid".equalsIgnoreCase(defaultFormat);
         Enumeration<?> e = properties.propertyNames();
 
         while (e.hasMoreElements()) {
@@ -1141,7 +1141,7 @@ public class ColorCalculationService {
             String format = colorProperties.getProperty("format");
             boolean grid;
             if (format != null) {
-                grid = format.equalsIgnoreCase("grid");
+                grid = "grid".equalsIgnoreCase(format);
             } else {
                 grid = globalGrid;
             }
@@ -1178,7 +1178,7 @@ public class ColorCalculationService {
         }
 
         String format = colorProperties.getProperty("format");
-        boolean effectiveGrid = format != null ? format.equalsIgnoreCase("grid") : grid;
+        boolean effectiveGrid = format != null ? "grid".equalsIgnoreCase(format) : grid;
 
         String yOffsetString = colorProperties.getProperty("yOffset");
         if (yOffsetString != null) {

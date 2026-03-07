@@ -256,9 +256,9 @@ public class KeyRingItem extends Item {
                     "§c" + Component.translatable("lock.ring.key_info.empty").getString();
 
             String originShort;
-            if (origin.equals("STOLEN")) {
+            if ("STOLEN".equals(origin)) {
                 originShort = "§c" + Component.translatable("lock.ring.key_info.origin.stolen").getString();
-            } else if (origin.equals("COPY")) {
+            } else if ("COPY".equals(origin)) {
                 originShort = "§e" + Component.translatable("lock.ring.key_info.origin.copy").getString();
             } else {
                 originShort = "§a" + Component.translatable("lock.ring.key_info.origin.original").getString();

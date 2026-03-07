@@ -304,11 +304,11 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
             String skinName = availableSkins.get(selectedSkinIndex);
             // Zeige schöneren Namen für Standard-Skins
             String displayName = skinName;  // NOPMD
-            if (skinName.equals("steve")) {
+            if ("steve".equals(skinName)) {
                 displayName = "Steve (Standard)";
-            } else if (skinName.equals("alex")) {
+            } else if ("alex".equals(skinName)) {
                 displayName = "Alex (Standard)";
-            } else if (skinName.equals("default.png")) {
+            } else if ("default.png".equals(skinName)) {
                 displayName = "Default";
             } else {
                 // Entferne .png Endung für bessere Anzeige

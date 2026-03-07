@@ -42,7 +42,7 @@ public abstract class PartBody extends PartModel {
 
         // Only use dynamic textures for non-white colors (white is the default/original texture)
         ResourceLocation textureToUse;
-        if (colorName.equals("white")) {
+        if ("white".equals(colorName)) {
             // Use original texture for white (default)
             textureToUse = texture;
         } else {

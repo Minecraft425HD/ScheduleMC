@@ -162,8 +162,8 @@ public class InputValidation {
         }
         // SICHERHEIT: Blockiere System-Dateien
         String lower = trimmed.toLowerCase();
-        if (lower.equals("con") || lower.equals("prn") || lower.equals("aux") ||
-            lower.equals("nul") || lower.startsWith("com") || lower.startsWith("lpt")) {
+        if ("con".equals(lower) || "prn".equals(lower) || "aux".equals(lower) ||
+            "nul".equals(lower) || lower.startsWith("com") || lower.startsWith("lpt")) {
             return Result.failure("validation.skin.reserved_filename");
         }
         return Result.success(trimmed);

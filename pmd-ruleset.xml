@@ -59,11 +59,11 @@
         <exclude name="JUnitTestContainsTooManyAsserts"/>
         <exclude name="JUnitTestsShouldIncludeAssert"/>
         <exclude name="JUnitUseExpected"/>
-        <exclude name="LiteralsFirstInComparisons"/>     <!-- Stil, kein Bug -->
+        <!-- LiteralsFirstInComparisons aktiviert: NPE-Schutz – "x".equals(var) statt var.equals("x") -->
         <exclude name="LooseCoupling"/>                  <!-- Interface-Empfehlung, kein Bug -->
         <!-- MethodReturnsInternalArray aktiviert: echte Encapsulation-Bug -->
         <!-- <exclude name="MethodReturnsInternalArray"/> -->
-        <exclude name="MissingOverride"/>                <!-- Compiler warnt ohnehin -->
+        <!-- MissingOverride aktiviert: fehlende @Override können Method-Hiding verstecken -->
         <exclude name="OneDeclarationPerLine"/>          <!-- Stil -->
         <exclude name="ReplaceEnumerationWithIterator"/>
         <exclude name="ReplaceHashtableWithMap"/>
@@ -92,6 +92,56 @@
         <exclude name="ConsecutiveAppendsShouldReuse"/>      <!-- Stil -->
         <exclude name="ConsecutiveLiteralAppends"/>          <!-- Stil -->
         <exclude name="OptimizableToArrayCall"/>             <!-- Stil -->
+    </rule>
+
+
+    <!-- UnnecessaryCast: zu viele false positives bei numerischen/Grafik-Casts (94 Violations geprüft,
+         alle intentionale (float)/(int)-Casts in Rendering-Code) → nicht aktiviert -->
+
+    <!-- ================================================================
+         SECURITY: Kryptografie, Injection, unsichere APIs
+         ================================================================ -->
+    <rule ref="category/java/security.xml"/>
+
+    <!-- ================================================================
+         DESIGN: Resource-Leaks, Exception-Missbrauch, Immutabilität
+         (Size/Complexity-Metriken ausgeschlossen – nur Bug-relevante Regeln)
+         ================================================================ -->
+    <rule ref="category/java/design.xml">
+        <!-- Größen- und Komplexitätsmetriken: Architektur-Entscheidungen, keine Bugs -->
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="CognitiveComplexity"/>
+        <exclude name="NPathComplexity"/>
+        <exclude name="NcssCount"/>
+        <exclude name="ExcessiveMethodLength"/>
+        <exclude name="ExcessiveClassLength"/>
+        <exclude name="ExcessiveParameterList"/>
+        <exclude name="ExcessivePublicCount"/>
+        <exclude name="ExcessiveImports"/>
+        <exclude name="CouplingBetweenObjects"/>
+        <exclude name="TooManyFields"/>
+        <exclude name="TooManyMethods"/>
+        <exclude name="GodClass"/>
+        <exclude name="DataClass"/>
+        <exclude name="SwitchDensity"/>
+        <!-- Stil / Architektur-Empfehlungen, keine Bugs -->
+        <exclude name="UseUtilityClass"/>
+        <exclude name="FieldDeclarationsShouldBeAtStartOfClass"/>
+        <exclude name="LogicInversion"/>
+        <exclude name="SimplifiedTernary"/>
+        <exclude name="UseObjectForClearerAPI"/>
+        <exclude name="LawOfDemeter"/>
+        <exclude name="LoosePackageCoupling"/>
+        <exclude name="AbstractClassWithoutAnyMethod"/>
+        <exclude name="CollapsibleIfStatements"/>       <!-- zu viele false positives -->
+        <!-- Minecraft-Kontext: intentionale Patterns -->
+        <exclude name="AvoidCatchingGenericException"/> <!-- Event-Handler fangen absichtlich alles -->
+        <exclude name="MutableStaticState"/>            <!-- Singleton-Muster in Minecraft-Mods -->
+        <exclude name="ImmutableField"/>                <!-- Stil: final ist gut, kein Bug -->
+        <exclude name="SimplifyBooleanReturns"/>        <!-- Stil, kein Bug -->
+        <exclude name="AvoidDeeplyNestedIfStmts"/>      <!-- Komplexitätsmetrik, kein Bug -->
+        <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/> <!-- Stil -->
+        <exclude name="SingularField"/>                  <!-- false positives bei GUI-Buttons und NPC-Zustandsfeldern -->
     </rule>
 
 </ruleset>

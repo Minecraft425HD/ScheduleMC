@@ -21,7 +21,7 @@ public class PopupComponent {
     private final int clickedWorldZ;
     private boolean shouldClose;  // NOPMD
     private final PopupScreen parentGui;
-    private final int padding = 6;
+    private static final int padding = 6;
 
     public PopupComponent(int x, int y, int directX, int directY, int worldX, int worldZ, int minWidth, ArrayList<PopupEntry> entries, PopupScreen parentGui) {
         this.fontRendererObj = MapViewConstants.getMinecraft().font;

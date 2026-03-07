@@ -289,8 +289,8 @@ public class KeyItem extends Item {
 
         // Herkunft
         String origin = tag.getString("origin");
-        ChatFormatting oc = origin.equals("STOLEN") ? ChatFormatting.RED :
-                origin.equals("COPY") ? ChatFormatting.YELLOW : ChatFormatting.GREEN;
+        ChatFormatting oc = "STOLEN".equals(origin) ? ChatFormatting.RED :
+                "COPY".equals(origin) ? ChatFormatting.YELLOW : ChatFormatting.GREEN;
         try {
             tips.add(Component.translatable("lock.key.tooltip.origin",
                     LockType.KeyOrigin.valueOf(origin).getDisplayName()).withStyle(oc));

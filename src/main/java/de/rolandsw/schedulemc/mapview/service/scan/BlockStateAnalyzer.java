@@ -44,7 +44,7 @@ public final class BlockStateAnalyzer {
             return null;
         }
 
-        if (!(!(block instanceof AirBlock) || resourceString.equals("minecraft:air"))) {
+        if (!(!(block instanceof AirBlock) || "minecraft:air".equals(resourceString))) {
             return null;
         }
 
