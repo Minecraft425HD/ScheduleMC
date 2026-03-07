@@ -94,15 +94,12 @@ public class KristallisatorBlock extends Block implements EntityBlock {
 
             // Status anzeigen
             StringBuilder status = new StringBuilder();
-            status.append(Component.translatable("block.meth.kristallisator_title").getString()).append('
-');
+            status.append(Component.translatable("block.meth.kristallisator_title").getString()).append('\n');
 
             if (kristall.isActive()) {
                 int progress = (int) (kristall.getAverageProgress() * 100);
-                status.append(Component.translatable("block.meth.kristallisator_active", kristall.getActiveSlots()).getString()).append('
-');
-                status.append(Component.translatable("block.meth.kristallisator_progress", progress).getString()).append('
-');
+                status.append(Component.translatable("block.meth.kristallisator_active", kristall.getActiveSlots()).getString()).append('\n');
+                status.append(Component.translatable("block.meth.kristallisator_progress", progress).getString()).append('\n');
             }
 
             if (kristall.hasOutput()) {

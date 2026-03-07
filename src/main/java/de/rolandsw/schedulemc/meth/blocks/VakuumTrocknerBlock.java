@@ -100,15 +100,12 @@ public class VakuumTrocknerBlock extends Block implements EntityBlock {
 
             // Status anzeigen
             StringBuilder status = new StringBuilder();
-            status.append(Component.translatable("block.meth.vakuum_title").getString()).append('
-');
+            status.append(Component.translatable("block.meth.vakuum_title").getString()).append('\n');
 
             if (trockner.isActive()) {
                 int progress = (int) (trockner.getAverageProgress() * 100);
-                status.append(Component.translatable("block.meth.vakuum_active", trockner.getActiveSlots()).getString()).append('
-');
-                status.append(Component.translatable("block.meth.vakuum_progress", progress).getString()).append('
-');
+                status.append(Component.translatable("block.meth.vakuum_active", trockner.getActiveSlots()).getString()).append('\n');
+                status.append(Component.translatable("block.meth.vakuum_progress", progress).getString()).append('\n');
 
                 MethQuality best = trockner.getBestQuality();
                 String qualityInfo = switch (best) {

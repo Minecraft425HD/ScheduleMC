@@ -341,8 +341,7 @@ public class EconomyController {
 
         // Risiko
         if (category.isIllegal()) {
-            sb.append('
-').append(RiskPremium.getFormattedRiskInfo(category, globalWantedLevel));
+            sb.append('\n').append(RiskPremium.getFormattedRiskInfo(category, globalWantedLevel));
         }
 
         return sb.toString();

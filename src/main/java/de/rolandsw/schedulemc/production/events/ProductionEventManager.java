@@ -405,21 +405,17 @@ public class ProductionEventManager {
             sb.append(t.severity.getColor()).append(t.severity.getSymbol())
               .append(" \u00A7f").append(t.name)
               .append(" \u00A77(").append(t.category.getDisplayName()).append(")\n");
-            sb.append("  \u00A77").append(t.description).append('
-');
+            sb.append("  \u00A77").append(t.description).append('\n');
 
             // Modifikatoren anzeigen
             if (t.yieldModifier != 1.0f) {
-                sb.append("  \u00A77Ertrag: ").append(formatModifier(t.yieldModifier)).append('
-');
+                sb.append("  \u00A77Ertrag: ").append(formatModifier(t.yieldModifier)).append('\n');
             }
             if (t.speedModifier != 1.0f) {
-                sb.append("  \u00A77Geschwindigkeit: ").append(formatModifier(t.speedModifier)).append('
-');
+                sb.append("  \u00A77Geschwindigkeit: ").append(formatModifier(t.speedModifier)).append('\n');
             }
             if (t.priceModifier != 1.0f) {
-                sb.append("  \u00A77Preise: ").append(formatModifier(t.priceModifier)).append('
-');
+                sb.append("  \u00A77Preise: ").append(formatModifier(t.priceModifier)).append('\n');
             }
             if (t.qualityChange != 0) {
                 String sign = t.qualityChange > 0 ? "\u00A7a+" : "\u00A7c";

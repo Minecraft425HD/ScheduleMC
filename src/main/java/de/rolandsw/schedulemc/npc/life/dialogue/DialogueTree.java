@@ -323,19 +323,16 @@ public class DialogueTree {
      */
     public String toTreeString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("DialogueTree: ").append(name).append('
-');
+        sb.append("DialogueTree: ").append(name).append('\n');
         sb.append("Start: ").append(startNodeId).append("\n\n");
 
         for (DialogueNode node : nodes.values()) {
             sb.append('[').append(node.getId()).append("]\n");
             sb.append("  Text: ").append(node.getText().length() > 50 ?
-                node.getText().substring(0, 50) + "..." : node.getText()).append('
-');
+                node.getText().substring(0, 50) + "..." : node.getText()).append('\n');
 
             if (node.hasAutoNext()) {
-                sb.append("  -> Auto: ").append(node.getAutoNextNodeId()).append('
-');
+                sb.append("  -> Auto: ").append(node.getAutoNextNodeId()).append('\n');
             }
 
             for (DialogueOption opt : node.getOptions()) {
@@ -346,11 +343,9 @@ public class DialogueTree {
                 } else {
                     sb.append(" -> END");
                 }
-                sb.append('
-');
+                sb.append('\n');
             }
-            sb.append('
-');
+            sb.append('\n');
         }
 
         return sb.toString();
