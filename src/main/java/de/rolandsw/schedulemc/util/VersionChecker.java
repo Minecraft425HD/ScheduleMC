@@ -164,7 +164,7 @@ public class VersionChecker {
             boolean latestIsPreRelease = latest.contains("-");
             boolean currentIsPreRelease = current.contains("-");
 
-            if (!latestIsPreRelease && currentIsPreRelease) {
+            if (!latestIsPreRelease && currentIsPreRelease) {  // NOPMD
                 // Latest ist Release, Current ist Pre-Release -> Update verfügbar
                 return true;
             }

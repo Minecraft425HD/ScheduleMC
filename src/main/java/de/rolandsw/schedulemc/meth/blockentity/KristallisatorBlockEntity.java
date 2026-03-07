@@ -27,10 +27,10 @@ public class KristallisatorBlockEntity extends BlockEntity implements IUtilityCo
     private static final int CRYSTALLIZATION_TIME = 800; // 40 Sekunden
     private static final int CAPACITY = 4; // Kann 4 Batches gleichzeitig verarbeiten
 
-    private ItemStack[] inputs = new ItemStack[CAPACITY];
-    private ItemStack[] outputs = new ItemStack[CAPACITY];
-    private int[] progress = new int[CAPACITY];
-    private MethQuality[] qualities = new MethQuality[CAPACITY];
+    private final ItemStack[] inputs = new ItemStack[CAPACITY];
+    private final ItemStack[] outputs = new ItemStack[CAPACITY];
+    private final int[] progress = new int[CAPACITY];
+    private final MethQuality[] qualities = new MethQuality[CAPACITY];
 
     private boolean isActive = false;  // NOPMD
 

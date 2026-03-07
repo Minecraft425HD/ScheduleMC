@@ -390,7 +390,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
+        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);

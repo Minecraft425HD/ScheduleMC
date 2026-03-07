@@ -99,7 +99,7 @@ public class TerritoryTracker {
         if (lastName == null || lastName.isEmpty()) lastName = null;  // NOPMD
 
         // Wenn Namen unterschiedlich -> Territory hat sich geändert
-        if (!java.util.Objects.equals(currentName, lastName)) {
+        if (!java.util.Objects.equals(currentName, lastName)) {  // NOPMD
             return true;
         }
 

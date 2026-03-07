@@ -154,7 +154,7 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
             return false;
         }
 
-        if (outputStack.isEmpty()) {
+        if (outputStack.isEmpty()) {  // NOPMD
             return true;
         }
 

@@ -72,10 +72,7 @@ public class CreamingStationBlockEntity extends BlockEntity implements IUtilityC
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == HoneyItems.FILTERED_HONEY_BUCKET.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == HoneyItems.FILTERED_HONEY_BUCKET.get();
             }
 
             @Override

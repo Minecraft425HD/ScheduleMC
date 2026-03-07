@@ -17,7 +17,7 @@ import net.minecraftforge.fml.LogicalSide;
 @OnlyIn(Dist.CLIENT)
 public class PlayerEvents {
 
-    private Minecraft minecraft;
+    private final Minecraft minecraft;
     private EntityVehicleBase lastVehicle;
 
     public PlayerEvents() {

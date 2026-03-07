@@ -180,8 +180,8 @@ public class VehicleSpawnRegistry {
      * Repräsentiert einen Fahrzeug-Spawn-Punkt
      */
     public static class VehicleSpawnPoint {
-        private BlockPos position;
-        private float yaw;  // Rotation
+        private final BlockPos position;
+        private final float yaw;  // Rotation
         private boolean occupied;
         private UUID occupyingVehicleId; // null wenn frei
 

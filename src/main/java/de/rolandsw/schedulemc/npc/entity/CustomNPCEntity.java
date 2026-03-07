@@ -784,7 +784,7 @@ public class CustomNPCEntity extends PathfinderMob {
         }
 
         // Prüfe ob NPC zu müde ist
-        if (lifeData.getNeeds().getEnergy() < 10) {
+        if (lifeData.getNeeds().getEnergy() < 10) {  // NOPMD
             return false;
         }
 

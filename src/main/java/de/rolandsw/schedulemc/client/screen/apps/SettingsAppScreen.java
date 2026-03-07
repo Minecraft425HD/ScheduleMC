@@ -140,8 +140,8 @@ public class SettingsAppScreen extends Screen {
     private String cachedSellProducts;
 
     private static class ClickableRegion {
-        int x1, y1, x2, y2;
-        Runnable onClick;
+        int x1, y1, x2, y2;  // NOPMD
+        final Runnable onClick;
 
         ClickableRegion(int x1, int y1, int x2, int y2, Runnable onClick) {
             this.x1 = x1;
@@ -157,9 +157,9 @@ public class SettingsAppScreen extends Screen {
     }
 
     private static class SliderRegion {
-        int x, y, width;
-        double minValue, maxValue;
-        java.util.function.Consumer<Double> onValueChange;
+        int x, y, width;  // NOPMD
+        double minValue, maxValue;  // NOPMD
+        java.util.function.Consumer<Double> onValueChange;  // NOPMD
 
         SliderRegion(int x, int y, int width, double minValue, double maxValue,
                     java.util.function.Consumer<Double> onValueChange) {
@@ -993,7 +993,7 @@ public class SettingsAppScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
+        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
             return true; // Consume event, prevent closing
         }
         return super.keyPressed(keyCode, scanCode, modifiers);

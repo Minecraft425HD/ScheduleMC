@@ -61,7 +61,7 @@ public class TradingComponent implements NPCComponent {
         }
 
         // Nicht handeln wenn zu muede
-        if (lifeData.getNeeds() != null && lifeData.getNeeds().getEnergy() < 10) {
+        if (lifeData.getNeeds() != null && lifeData.getNeeds().getEnergy() < 10) {  // NOPMD
             return false;
         }
 

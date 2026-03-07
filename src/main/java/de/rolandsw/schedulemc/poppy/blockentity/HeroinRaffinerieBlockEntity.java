@@ -27,11 +27,11 @@ public class HeroinRaffinerieBlockEntity extends BlockEntity implements IUtility
     private static final int REFINE_TIME = 300; // 15 Sekunden
     private static final int MAX_FUEL = 800;
 
-    private ItemStack[] inputs = new ItemStack[CAPACITY];
-    private ItemStack[] outputs = new ItemStack[CAPACITY];
-    private int[] progress = new int[CAPACITY];
-    private PoppyType[] types = new PoppyType[CAPACITY];
-    private TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
+    private final ItemStack[] inputs = new ItemStack[CAPACITY];
+    private final ItemStack[] outputs = new ItemStack[CAPACITY];
+    private final int[] progress = new int[CAPACITY];
+    private final PoppyType[] types = new PoppyType[CAPACITY];
+    private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
     private int fuelLevel = 0;
 
     public HeroinRaffinerieBlockEntity(BlockPos pos, BlockState state) {

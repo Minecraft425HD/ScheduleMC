@@ -542,7 +542,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     // Model rendering (client-side)
     // Optimierung: Initial capacity = 8 (typisch ~8 Model-Parts pro Vehicle)
-    private List<OBJModelInstance<EntityGenericVehicle>> modelInstances = new ArrayList<>(8);
+    final private List<OBJModelInstance<EntityGenericVehicle>> modelInstances = new ArrayList<>(8);
 
     protected void initModel() {
         modelInstances.clear();

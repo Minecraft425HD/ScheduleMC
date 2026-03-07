@@ -201,10 +201,7 @@ public class ConfigCategoryScreen extends Screen {
                 if (leftButton != null && leftButton.mouseClicked(mouseX, mouseY, button)) {
                     return true;
                 }
-                if (rightButton != null && rightButton.mouseClicked(mouseX, mouseY, button)) {
-                    return true;
-                }
-                return false;
+                return rightButton != null && rightButton.mouseClicked(mouseX, mouseY, button) || false;
             }
         }
     }

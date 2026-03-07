@@ -8,7 +8,7 @@ import de.rolandsw.schedulemc.cannabis.CannabisStrain;
  */
 public class CannabisPlantData {
 
-    private CannabisStrain strain;
+    private final CannabisStrain strain;
     private CannabisQuality quality;
     private int growthStage; // 0-7 (7 = ausgewachsen)
     private int ticksGrown; // Wie lange die Pflanze bereits wächst

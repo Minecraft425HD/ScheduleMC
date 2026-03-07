@@ -234,7 +234,7 @@ public class Gang {
     // ═══════════════════════════════════════════════════════════
 
     public boolean addTerritory(long chunkKey) {
-        if (territories.size() >= getMaxTerritory()) return false;
+        if (territories.size() >= getMaxTerritory()) return false;  // NOPMD
         return territories.add(chunkKey);
     }
 

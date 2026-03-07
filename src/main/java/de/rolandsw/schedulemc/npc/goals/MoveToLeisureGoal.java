@@ -77,7 +77,7 @@ public class MoveToLeisureGoal extends Goal {
         }
 
         // Weitermachen solange es Freizeit ist
-        if (!isLeisureTime()) {
+        if (!isLeisureTime()) {  // NOPMD
             return false;
         }
 

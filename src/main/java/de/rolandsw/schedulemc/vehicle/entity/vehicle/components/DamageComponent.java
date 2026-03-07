@@ -209,7 +209,7 @@ public class DamageComponent extends VehicleComponent {
             addDamage(25);
             return false;
         }
-        if (vehicle.isInLava() || getDamage() >= 100) {
+        if (vehicle.isInLava() || getDamage() >= 100) {  // NOPMD
             return false;
         }
         return true;

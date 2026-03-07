@@ -16,7 +16,7 @@ public class MushroomPlantData {
     private boolean hasFertilizer;  // NOPMD
     private boolean hasGrowthBooster;  // NOPMD
     private boolean hasQualityBooster;  // NOPMD
-    private int flushCount; // Anzahl der Ernten (max 4)
+    private final int flushCount; // Anzahl der Ernten (max 4)
     private int currentFlush; // Aktuelle Ernte-Welle
 
     public MushroomPlantData(MushroomType type) {

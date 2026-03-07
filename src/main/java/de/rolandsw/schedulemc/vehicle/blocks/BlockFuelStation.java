@@ -71,7 +71,7 @@ public class BlockFuelStation extends BlockOrientableHorizontal {
         return new BlockItem(this, new Item.Properties()) {
             @Override
             protected boolean canPlace(BlockPlaceContext context, BlockState state) {
-                if (!context.getLevel().isEmptyBlock(context.getClickedPos().above())) {
+                if (!context.getLevel().isEmptyBlock(context.getClickedPos().above())) {  // NOPMD
                     return false;
                 }
                 return super.canPlace(context, state);

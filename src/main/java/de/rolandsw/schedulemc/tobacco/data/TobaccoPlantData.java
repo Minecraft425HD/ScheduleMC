@@ -8,7 +8,7 @@ import de.rolandsw.schedulemc.tobacco.TobaccoType;
  */
 public class TobaccoPlantData {
     
-    private TobaccoType type;
+    private final TobaccoType type;
     private TobaccoQuality quality;
     private int growthStage; // 0-7 (7 = ausgewachsen)
     private int ticksGrown; // Wie lange die Pflanze bereits wächst

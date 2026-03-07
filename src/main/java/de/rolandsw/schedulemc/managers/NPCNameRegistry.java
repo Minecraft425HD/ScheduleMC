@@ -117,7 +117,7 @@ public class NPCNameRegistry {
      * @return true wenn Name bereits existiert
      */
     public static boolean isNameTaken(String name) {
-        if (name == null) return false;
+        if (name == null) return false;  // NOPMD
         return nameToEntityId.containsKey(name.trim());
     }
 

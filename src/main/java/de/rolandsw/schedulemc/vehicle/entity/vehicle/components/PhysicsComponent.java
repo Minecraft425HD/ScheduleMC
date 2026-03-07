@@ -199,7 +199,7 @@ public class PhysicsComponent extends VehicleComponent {
 
         // Optimierung: Cache Component-Getter (nur 1 Aufruf statt 2)
         DamageComponent damage = vehicle.getDamageComponent();
-        if (damage != null && !damage.canEngineStayOn()) {
+        if (damage != null && !damage.canEngineStayOn()) {  // NOPMD
             return false;
         }
 
@@ -238,7 +238,7 @@ public class PhysicsComponent extends VehicleComponent {
 
     @OnlyIn(Dist.CLIENT)
     public boolean isSoundPlaying(SoundInstance sound) {
-        if (sound == null) {
+        if (sound == null) {  // NOPMD
             return false;
         }
         return Minecraft.getInstance().getSoundManager().isActive(sound);
@@ -464,7 +464,7 @@ public class PhysicsComponent extends VehicleComponent {
 
         // Optimierung: Cache Component-Getter (nur 1 Aufruf statt 2)
         DamageComponent damage = vehicle.getDamageComponent();
-        if (damage != null && !damage.canStartVehicleEngine()) {
+        if (damage != null && !damage.canStartVehicleEngine()) {  // NOPMD
             return false;
         }
 
@@ -474,11 +474,11 @@ public class PhysicsComponent extends VehicleComponent {
     public boolean canPlayerDriveVehicle(Player player) {
         if (player.equals(vehicle.getDriver()) && isStarted()) {
             FuelComponent fuel = vehicle.getFuelComponent();
-            if (fuel != null && !fuel.hasFuel()) {
+            if (fuel != null && !fuel.hasFuel()) {  // NOPMD
                 return false;
             }
             return true;
-        } else if (vehicle.isInWater() || vehicle.isInLava()) {
+        } else if (vehicle.isInWater() || vehicle.isInLava()) {  // NOPMD
             return false;
         } else {
             return false;

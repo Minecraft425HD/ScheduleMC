@@ -332,7 +332,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
         if (interactionCooldowns.containsKey(cooldownKey)) return false;
 
         // Prüfen ob bereits in Interaktion
-        if (activeInteractions.containsKey(npc1.getNpcData().getNpcUUID()) ||
+        if (activeInteractions.containsKey(npc1.getNpcData().getNpcUUID()) ||  // NOPMD
             activeInteractions.containsKey(npc2.getNpcData().getNpcUUID())) {
             return false;
         }

@@ -29,13 +29,13 @@ public class PrisonScreen extends Screen {
     private static final int COLOR_TEXT_GREEN = 0xFF55FF55;
     private static final int COLOR_TEXT_GOLD = 0xFFFFAA00;
 
-    private int cellNumber;
-    private long totalSentenceTicks;
-    private long releaseTime;
-    private double bailAmount;
+    private final int cellNumber;
+    private final long totalSentenceTicks;
+    private final long releaseTime;
+    private final double bailAmount;
     private double playerBalance;
     private boolean bailAvailable;
-    private long bailAvailableAtTick;
+    private final long bailAvailableAtTick;
 
     private int leftPos;
     private int topPos;

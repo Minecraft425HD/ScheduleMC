@@ -15,7 +15,7 @@ import net.minecraft.world.phys.AABB;
 
 public class TileentitySpecialRendererFuelStation implements BlockEntityRenderer<TileEntityFuelStation> {
 
-    private Minecraft minecraft;
+    private final Minecraft minecraft;
     protected BlockEntityRendererProvider.Context renderer;
 
     public TileentitySpecialRendererFuelStation(BlockEntityRendererProvider.Context renderer) {

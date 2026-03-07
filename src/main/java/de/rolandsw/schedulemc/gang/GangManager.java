@@ -42,7 +42,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
     private final ConcurrentHashMap<UUID, UUID> playerToGang = new ConcurrentHashMap<>(); // playerUUID -> gangId
 
     @Nullable
-    private MinecraftServer server;
+    private final MinecraftServer server;
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON

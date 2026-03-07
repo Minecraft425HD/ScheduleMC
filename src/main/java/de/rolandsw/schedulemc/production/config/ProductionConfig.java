@@ -218,8 +218,8 @@ public class ProductionConfig {
     // ═══════════════════════════════════════════════════════════
 
     public static class Builder {
-        private String id;
-        private String displayName;
+        private final String id;
+        private final String displayName;
         private String colorCode = "§f";  // NOPMD
         private double basePrice = 10.0;  // NOPMD
         private int growthTicks = 3600;  // NOPMD

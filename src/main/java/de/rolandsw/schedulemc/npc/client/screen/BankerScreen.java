@@ -676,8 +676,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 69) return true;
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

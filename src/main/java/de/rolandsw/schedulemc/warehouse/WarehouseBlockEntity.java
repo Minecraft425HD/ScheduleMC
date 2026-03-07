@@ -35,12 +35,12 @@ public class WarehouseBlockEntity extends BlockEntity {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int EXPENSE_RETENTION_DAYS = 30; // Behalte Ausgaben für 30 Tage
 
-    private WarehouseSlot[] slots;
-    private List<UUID> linkedSellers = new ArrayList<>();
+    private final WarehouseSlot[] slots;
+    final private List<UUID> linkedSellers = new ArrayList<>();
     private long lastDeliveryDay = -1; // Tag der letzten Lieferung (nicht absolute ticks!)
     @Nullable
     private String shopId; // Referenz zum Shop-Konto
-    private List<ExpenseEntry> expenses = new ArrayList<>(); // Ausgaben-Historie
+    final private List<ExpenseEntry> expenses = new ArrayList<>(); // Ausgaben-Historie
 
     // Performance-Optimierung: Batched Sync
     private boolean needsSync = false;

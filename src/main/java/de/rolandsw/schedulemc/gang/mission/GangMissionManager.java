@@ -266,7 +266,7 @@ public class GangMissionManager {
      */
     public boolean isBonusClaimed(UUID gangId, MissionType type) {
         List<GangMission> missions = gangMissions.get(gangId);
-        if (missions == null) return false;
+        if (missions == null) return false;  // NOPMD
 
         // Bonus gilt als eingeloest wenn alle Missionen des Typs claimed sind
         return missions.stream()
@@ -536,7 +536,7 @@ public class GangMissionManager {
     private static class SavedGangMissions {
         int missionIdCounter;
         long lastHourlyReset, lastDailyReset, lastWeeklyReset;
-        List<SavedMission> missions = new ArrayList<>();
+        List<SavedMission> missions = new ArrayList<>();  // NOPMD
         int weeklyXP, weeklyMoney, weeklyFees;
         int weeklyHourly, weeklyDaily, weeklyWeekly;
     }

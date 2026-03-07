@@ -28,11 +28,11 @@ public class KochstationBlockEntity extends BlockEntity implements IUtilityConsu
     private static final int MAX_WATER = 1000;
     private static final int MAX_FUEL = 500;
 
-    private ItemStack[] inputs = new ItemStack[CAPACITY];
-    private ItemStack[] outputs = new ItemStack[CAPACITY];
-    private int[] progress = new int[CAPACITY];
-    private PoppyType[] types = new PoppyType[CAPACITY];
-    private TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
+    private final ItemStack[] inputs = new ItemStack[CAPACITY];
+    private final ItemStack[] outputs = new ItemStack[CAPACITY];
+    private final int[] progress = new int[CAPACITY];
+    private final PoppyType[] types = new PoppyType[CAPACITY];
+    private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
     private int waterLevel = 0;
     private int fuelLevel = 0;
 

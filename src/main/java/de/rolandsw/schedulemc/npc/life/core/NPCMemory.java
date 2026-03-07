@@ -96,7 +96,7 @@ public class NPCMemory {
         private int negativeInteractions;
         private int totalTradeValue;
         private String mood; // Durchschnittliche Stimmung
-        private List<String> highlights; // Wichtigste 1-3 Events
+        final private List<String> highlights; // Wichtigste 1-3 Events
 
         public DailySummary(long day, UUID playerId) {
             this.day = day;
@@ -389,10 +389,7 @@ public class NPCMemory {
      */
     public boolean knows(MemoryType type, UUID subject) {
         List<MemoryEntry> memories = detailMemories.get(subject);
-        if (memories != null) {
-            return memories.stream().anyMatch(m -> m.type() == type);
-        }
-        return false;
+        return memories != null && memories.stream().anyMatch(m -> m.type() == type);
     }
 
     /**

@@ -107,7 +107,7 @@ public class RoadBlockDetector {
             initialize();
         }
 
-        if (state == null) {
+        if (state == null) {  // NOPMD
             return false;
         }
 

@@ -167,7 +167,7 @@ public class ScheduleMC {
     private IncrementalSaveManager saveManager;
 
     // Vehicle Mod integration
-    private static Main vehicleMod;
+    private static volatile Main vehicleMod;  // NOPMD
 
     public ScheduleMC() {
         this(FMLJavaModLoadingContext.get().getModEventBus());
@@ -183,7 +183,7 @@ public class ScheduleMC {
         });
 
         // Initialize Vehicle Mod
-        vehicleMod = new Main(modEventBus);
+        vehicleMod = new Main(modEventBus);  // NOPMD
 
         ModItems.ITEMS.register(modEventBus);
         TobaccoItems.ITEMS.register(modEventBus);

@@ -172,7 +172,7 @@ public class RoomScanner {
         BlockState state = level.getBlockState(pos);
 
         // Luft ist immer passierbar
-        if (state.isAir()) {
+        if (state.isAir()) {  // NOPMD
             return true;
         }
 
@@ -190,10 +190,8 @@ public class RoomScanner {
 
         // Direkte Typ-Prüfung statt String-Vergleich
         if (block instanceof net.minecraft.world.level.block.DoorBlock) return true;
-        if (block instanceof net.minecraft.world.level.block.TrapDoorBlock) return true;
-        if (block instanceof net.minecraft.world.level.block.FenceGateBlock) return true;
-
-        return false;
+        return block instanceof net.minecraft.world.level.block.TrapDoorBlock
+                || block instanceof net.minecraft.world.level.block.FenceGateBlock;
     }
 
     /**

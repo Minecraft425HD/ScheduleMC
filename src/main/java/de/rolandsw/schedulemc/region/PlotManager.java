@@ -377,10 +377,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      */
     public static boolean removePlotAt(BlockPos pos) {
         PlotRegion plot = getPlotAt(pos);
-        if (plot != null) {
-            return removePlot(plot.getPlotId());
-        }
-        return false;
+        return plot != null && removePlot(plot.getPlotId());
     }
     
     /**

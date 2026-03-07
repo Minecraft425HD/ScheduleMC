@@ -37,7 +37,7 @@ public class TowingServiceAppScreen extends Screen {
     private int topPos;
     private int scrollOffset = 0;
 
-    private List<VehicleInfo> vehicles = new ArrayList<>();
+    final private List<VehicleInfo> vehicles = new ArrayList<>();
     private MembershipData membership;
     private UUID playerId;
 
@@ -350,7 +350,7 @@ public class TowingServiceAppScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
+        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);

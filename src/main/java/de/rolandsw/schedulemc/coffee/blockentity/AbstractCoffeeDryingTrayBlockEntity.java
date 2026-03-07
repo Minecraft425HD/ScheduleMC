@@ -76,10 +76,7 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() instanceof CoffeeCherryItem;
-                }
-                return false; // Output ist read-only
+                return slot == 0 && stack.getItem() instanceof CoffeeCherryItem;
             }
 
             @Override

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class UniqueBlockPosList {
 
-    private List<BlockPos> positions;
+    final private List<BlockPos> positions;
 
     public UniqueBlockPosList() {
         this.positions = new LinkedList<>();

@@ -21,10 +21,7 @@ public class SoundLoopStarting extends SoundLoopVehicle {
 
     @Override
     public boolean shouldStopSound() {
-        if (!(vehicle instanceof EntityGenericVehicle)) {
-            return true;
-        }
-        return !((EntityGenericVehicle) vehicle).isStarting();
+        return !(vehicle instanceof EntityGenericVehicle) || !((EntityGenericVehicle) vehicle).isStarting();
     }
 
 }

@@ -102,7 +102,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     // Item selection overlay
     private boolean showItemSelection = false;
-    private List<Item> allItems = new ArrayList<>();
+    final private List<Item> allItems = new ArrayList<>();
     private List<Item> filteredItems = new ArrayList<>();  // NOPMD
     private int itemSelectionScrollOffset = 0;
     private static final int ITEM_SELECTION_VISIBLE_ROWS = 10;
@@ -110,9 +110,9 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     // Clickable areas for NPCs
     private static class ClickableNPC {
-        UUID npcId;
-        int x, y, width, height;
-        boolean isRemove; // true = remove button, false = add button
+        final UUID npcId;
+        int x, y, width, height;  // NOPMD
+        final boolean isRemove; // true = remove button, false = add button
 
         ClickableNPC(UUID npcId, int x, int y, int width, int height, boolean isRemove) {
             this.npcId = npcId;
@@ -128,7 +128,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
     }
 
-    private List<ClickableNPC> clickableNPCs = new ArrayList<>();
+    final private List<ClickableNPC> clickableNPCs = new ArrayList<>();
 
     public WarehouseScreen(WarehouseMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -1274,7 +1274,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
 
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
+        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
             return true; // Consume event, prevent closing
         }
 

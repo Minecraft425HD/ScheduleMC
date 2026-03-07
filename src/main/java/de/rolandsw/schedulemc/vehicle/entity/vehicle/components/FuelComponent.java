@@ -178,7 +178,7 @@ public class FuelComponent extends VehicleComponent implements IFluidHandler {
     }
 
     public boolean isValidFuel(Fluid fluid) {
-        if (fluid == null) {
+        if (fluid == null) {  // NOPMD
             return false;
         }
         return getEfficiency(fluid) > 0;

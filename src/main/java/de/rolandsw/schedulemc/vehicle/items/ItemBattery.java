@@ -70,7 +70,7 @@ public class ItemBattery extends Item {
 
     public class BatteryEnergyStorage implements IEnergyStorage {
 
-        private ItemStack stack;
+        private final ItemStack stack;
 
         public BatteryEnergyStorage(ItemStack stack) {
             this.stack = stack;

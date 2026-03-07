@@ -227,8 +227,7 @@ public class GuiTireChange extends Screen {
         TireSeasonType s = tire.getSeasonType();
         if (s == TireSeasonType.ALL_SEASON) return false;
         if (currentTireSeasonType == TireSeasonType.SUMMER) return s == TireSeasonType.WINTER;
-        if (currentTireSeasonType == TireSeasonType.WINTER) return s == TireSeasonType.SUMMER;
-        return false;
+        return currentTireSeasonType == TireSeasonType.WINTER && s == TireSeasonType.SUMMER;
     }
 
     private ItemStack getHotbarStack(int slot) {

@@ -11,11 +11,11 @@ import java.util.Map;
  */
 public class ScenarioObjective {
 
-    private String id;
-    private ObjectiveType type;
+    private final String id;
+    private final ObjectiveType type;
     private int editorX;
     private int editorY;
-    private Map<String, String> params;
+    final private Map<String, String> params;
     private String nextObjectiveId; // null = kein Nachfolger
 
     public ScenarioObjective(String id, ObjectiveType type, int editorX, int editorY) {

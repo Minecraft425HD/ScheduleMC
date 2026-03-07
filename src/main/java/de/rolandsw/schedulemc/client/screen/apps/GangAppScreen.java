@@ -1152,7 +1152,7 @@ public class GangAppScreen extends Screen {
         if (getFocused() instanceof EditBox) {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
-        if (keyCode == 69) return true; // Block E-key
+        if (keyCode == 69) return true; // Block E-key  // NOPMD
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 

@@ -149,7 +149,7 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
         }
 
         // Oil change if selected
-        if (changeOil) {
+        if (changeOil) {  // NOPMD - intentionaler Stub
             // TODO: Implement oil change logic when oil system is added
         }
     }

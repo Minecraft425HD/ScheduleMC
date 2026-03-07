@@ -329,7 +329,7 @@ public class BatteryComponent extends VehicleComponent {
 
     @OnlyIn(Dist.CLIENT)
     public boolean isSoundPlaying(net.minecraft.client.resources.sounds.SoundInstance sound) {
-        if (sound == null) {
+        if (sound == null) {  // NOPMD
             return false;
         }
         return Minecraft.getInstance().getSoundManager().isActive(sound);

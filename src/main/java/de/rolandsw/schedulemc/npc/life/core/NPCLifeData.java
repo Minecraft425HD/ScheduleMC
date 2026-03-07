@@ -302,9 +302,7 @@ public class NPCLifeData {
         // Nicht handeln wenn: kritische Bedürfnisse, starke negative Emotion
         if (needs.isCritical(NeedType.SAFETY)) return false;
         if (emotions.getCurrentEmotion() == EmotionState.FEARFUL && emotions.getIntensity() > 50) return false;
-        if (emotions.getCurrentEmotion() == EmotionState.ANGRY && emotions.getIntensity() > 70) return false;
-
-        return true;
+        return !(emotions.getCurrentEmotion() == EmotionState.ANGRY && emotions.getIntensity() > 70);
     }
 
     /**
@@ -312,7 +310,7 @@ public class NPCLifeData {
      */
     public boolean isWillingToTalk() {
         if (needs.isCritical(NeedType.ENERGY)) return false;
-        if (emotions.getCurrentEmotion() == EmotionState.FEARFUL) return false;
+        if (emotions.getCurrentEmotion() == EmotionState.FEARFUL) return false;  // NOPMD
 
         return emotions.getSocialModifier() > 0.3f;
     }

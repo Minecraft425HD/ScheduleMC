@@ -26,11 +26,11 @@ public class RitzmaschineBlockEntity extends BlockEntity implements IUtilityCons
     private static final int CAPACITY = 8;
     private static final int PROCESS_TIME = 100; // 5 Sekunden
 
-    private ItemStack[] inputs = new ItemStack[CAPACITY];
-    private ItemStack[] outputs = new ItemStack[CAPACITY];
-    private int[] progress = new int[CAPACITY];
-    private PoppyType[] types = new PoppyType[CAPACITY];
-    private TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
+    private final ItemStack[] inputs = new ItemStack[CAPACITY];
+    private final ItemStack[] outputs = new ItemStack[CAPACITY];
+    private final int[] progress = new int[CAPACITY];
+    private final PoppyType[] types = new PoppyType[CAPACITY];
+    private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
 
     public RitzmaschineBlockEntity(BlockPos pos, BlockState state) {
         super(PoppyBlockEntities.RITZMASCHINE.get(), pos, state);

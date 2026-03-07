@@ -72,10 +72,7 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == CheeseItems.CHEESE_CURD.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == CheeseItems.CHEESE_CURD.get();
             }
 
             @Override

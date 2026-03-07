@@ -83,7 +83,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
+    private final MinecraftServer server;
 
     /** Aktive Events - CopyOnWriteArrayList fuer Thread-sichere Iteration ohne externe Synchronisation */
     private final List<WorldEvent> activeEvents = new CopyOnWriteArrayList<>();

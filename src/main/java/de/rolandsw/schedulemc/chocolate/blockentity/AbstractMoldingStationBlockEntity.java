@@ -91,10 +91,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
                 if (slot == 0) {
                     return stack.getItem() == ChocolateItems.TEMPERED_CHOCOLATE.get();
                 }
-                if (slot == 1) {
-                    return stack.getItem() == ChocolateItems.CHOCOLATE_MOLD_BAR.get();
-                }
-                return false;
+                return slot == 1 && stack.getItem() == ChocolateItems.CHOCOLATE_MOLD_BAR.get();
             }
 
             @Override

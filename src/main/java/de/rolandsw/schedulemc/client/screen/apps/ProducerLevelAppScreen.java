@@ -527,7 +527,7 @@ public class ProducerLevelAppScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 69) { // GLFW_KEY_E
+        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);

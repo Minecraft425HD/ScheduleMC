@@ -72,10 +72,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
                 if (slot == 0) {
                     return stack.getItem() == Items.MILK_BUCKET;
                 }
-                if (slot == 1) {
-                    return stack.getItem() == CheeseItems.RENNET.get();
-                }
-                return false;
+                return slot == 1 && stack.getItem() == CheeseItems.RENNET.get();
             }
 
             @Override

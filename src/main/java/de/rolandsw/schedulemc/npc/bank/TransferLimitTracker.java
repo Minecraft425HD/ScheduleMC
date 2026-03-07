@@ -172,7 +172,7 @@ public class TransferLimitTracker {
      * Daten-Klasse für tägliche Überweisungen
      */
     private static class DailyTransferData {
-        long day;
+        final long day;
         double totalTransferred;
 
         DailyTransferData(long day) {

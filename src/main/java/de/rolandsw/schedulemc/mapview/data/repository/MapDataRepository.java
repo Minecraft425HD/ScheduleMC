@@ -9,8 +9,8 @@ import net.minecraft.world.level.block.state.BlockState;
 public class MapDataRepository extends AbstractMapData {
     private final static int LAYERS = 17;
 
-    private int[] data;
-    private Biome[] biomes;
+    private final int[] data;
+    private final Biome[] biomes;
 
     public MapDataRepository(int width, int height) {
         this.width = width;

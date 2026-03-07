@@ -29,13 +29,13 @@ public class ChemieMixerBlockEntity extends BlockEntity implements IUtilityConsu
     private static final int MIXING_TIME = 600; // 30 Sekunden (600 Ticks)
     private static final int CAPACITY = 4; // Kann 4 Batches gleichzeitig verarbeiten
 
-    private ItemStack[] ephedrinSlots = new ItemStack[CAPACITY];
-    private ItemStack[] phosphorSlots = new ItemStack[CAPACITY];
-    private ItemStack[] jodSlots = new ItemStack[CAPACITY];
-    private ItemStack[] outputSlots = new ItemStack[CAPACITY];
+    private final ItemStack[] ephedrinSlots = new ItemStack[CAPACITY];
+    private final ItemStack[] phosphorSlots = new ItemStack[CAPACITY];
+    private final ItemStack[] jodSlots = new ItemStack[CAPACITY];
+    private final ItemStack[] outputSlots = new ItemStack[CAPACITY];
 
-    private int[] mixingProgress = new int[CAPACITY];
-    private boolean[] usedPseudoephedrin = new boolean[CAPACITY]; // Für Qualitätsbonus
+    private final int[] mixingProgress = new int[CAPACITY];
+    private final boolean[] usedPseudoephedrin = new boolean[CAPACITY]; // Für Qualitätsbonus
     private boolean isActive = false;  // NOPMD
 
     public ChemieMixerBlockEntity(BlockPos pos, BlockState state) {

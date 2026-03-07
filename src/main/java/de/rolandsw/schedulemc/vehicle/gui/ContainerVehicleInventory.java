@@ -7,9 +7,9 @@ import net.minecraft.world.inventory.Slot;
 
 public class ContainerVehicleInventory extends ContainerBase {
 
-    private EntityGenericVehicle vehicle;
-    private int internalSlots;
-    private int externalSlots;
+    private final EntityGenericVehicle vehicle;
+    private final int internalSlots;
+    private final int externalSlots;
 
     public ContainerVehicleInventory(int id, EntityGenericVehicle vehicle, Inventory playerInventory) {
         super(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), id, playerInventory, vehicle.getInternalInventory());

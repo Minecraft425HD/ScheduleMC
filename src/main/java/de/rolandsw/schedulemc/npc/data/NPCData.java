@@ -688,7 +688,7 @@ public class NPCData {
      * Shop Inventory - Kaufen/Verkaufen Items
      */
     public static class ShopInventory {
-        private List<ShopEntry> entries;
+        final private List<ShopEntry> entries;
 
         public ShopInventory() {
             this.entries = new ArrayList<>();

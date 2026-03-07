@@ -45,7 +45,7 @@ public class GsonHelper {
 
         // IDE-spezifische Erkennung
         String javaClassPath = System.getProperty("java.class.path", "");
-        if (javaClassPath.contains("idea_rt.jar") ||
+        if (javaClassPath.contains("idea_rt.jar") ||  // NOPMD
             javaClassPath.contains("eclipse.launcher") ||
             javaClassPath.contains("gradle-worker")) {
             return false; // Entwicklung via IDE

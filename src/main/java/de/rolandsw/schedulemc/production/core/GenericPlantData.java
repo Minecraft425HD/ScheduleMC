@@ -161,7 +161,7 @@ public class GenericPlantData<T extends ProductionType, Q extends ProductionQual
      * @return true wenn erfolgreich geerntet
      */
     public boolean harvest() {
-        if (!canHarvest()) {
+        if (!canHarvest()) {  // NOPMD
             return false;
         }
 

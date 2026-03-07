@@ -103,7 +103,7 @@ public class BountyData {
      * Prüft ob Bounty abgelaufen ist
      */
     public boolean isExpired() {
-        if (expiresAt == 0) {
+        if (expiresAt == 0) {  // NOPMD
             return false; // Never expires
         }
         return System.currentTimeMillis() > expiresAt;

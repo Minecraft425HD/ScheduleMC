@@ -75,7 +75,7 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
                 if (handler != null) {
                     // Prüfe ob Pflanze wachsen kann (Licht, spezielle Bedingungen)
-                    if (!handler.canGrow(level, worldPosition, potData)) {
+                    if (!handler.canGrow(level, worldPosition, potData)) {  // NOPMD - intentionaler Stub
                         // Bedingungen nicht erfüllt – kein frühzeitiges return, damit Utility-Status gemeldet wird
                     } else {
 

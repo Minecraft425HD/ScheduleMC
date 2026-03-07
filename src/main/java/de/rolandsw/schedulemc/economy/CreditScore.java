@@ -32,7 +32,7 @@ public class CreditScore {
     private int onTimePayments;
 
     @SerializedName("firstLoginDay")
-    private long firstLoginDay;
+    private final long firstLoginDay;
 
     @SerializedName("totalAmountRepaid")
     private double totalAmountRepaid;

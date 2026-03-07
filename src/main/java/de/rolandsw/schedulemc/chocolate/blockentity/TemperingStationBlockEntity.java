@@ -72,10 +72,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == ChocolateItems.CONCHED_CHOCOLATE.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == ChocolateItems.CONCHED_CHOCOLATE.get();
             }
 
             @Override

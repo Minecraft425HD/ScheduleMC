@@ -8,7 +8,7 @@ import net.minecraft.world.inventory.Slot;
 public class ContainerVehicle extends ContainerBase {
 
     protected EntityGenericVehicle vehicle;
-    private int hotbarY;
+    private final int hotbarY;
 
     public ContainerVehicle(int id, EntityGenericVehicle vehicle, Inventory playerInv) {
         super(Main.VEHICLE_CONTAINER_TYPE.get(), id, playerInv, vehicle);

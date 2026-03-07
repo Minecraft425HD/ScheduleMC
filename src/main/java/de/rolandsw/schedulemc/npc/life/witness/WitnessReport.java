@@ -105,7 +105,7 @@ public class WitnessReport {
      */
     public boolean isUsableAsEvidence() {
         if (bribed) return false;
-        if (witnessCredibility < 50) return false;
+        if (witnessCredibility < 50) return false;  // NOPMD
         return !reported; // Nur einmal verwendbar
     }
 

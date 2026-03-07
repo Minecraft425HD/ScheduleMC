@@ -308,7 +308,7 @@ public enum WorldEventType {
         }
 
         // Gegensätzliche Marktevents
-        if ((this == ECONOMIC_BOOM && other == ECONOMIC_CRISIS) ||
+        if ((this == ECONOMIC_BOOM && other == ECONOMIC_CRISIS) ||  // NOPMD
             (this == ECONOMIC_CRISIS && other == ECONOMIC_BOOM) ||
             (this == TRADE_SURPLUS && other == TRADE_SHORTAGE) ||
             (this == TRADE_SHORTAGE && other == TRADE_SURPLUS)) {

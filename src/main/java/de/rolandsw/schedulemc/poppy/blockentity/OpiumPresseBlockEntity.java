@@ -27,11 +27,11 @@ public class OpiumPresseBlockEntity extends BlockEntity implements IUtilityConsu
     private static final int PROCESS_TIME = 80; // 4 Sekunden (schneller)
     private static final int MAX_DIESEL = 1000;
 
-    private ItemStack[] inputs = new ItemStack[CAPACITY];
-    private ItemStack[] outputs = new ItemStack[CAPACITY];
-    private int[] progress = new int[CAPACITY];
-    private PoppyType[] types = new PoppyType[CAPACITY];
-    private TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
+    private final ItemStack[] inputs = new ItemStack[CAPACITY];
+    private final ItemStack[] outputs = new ItemStack[CAPACITY];
+    private final int[] progress = new int[CAPACITY];
+    private final PoppyType[] types = new PoppyType[CAPACITY];
+    private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
     private int dieselLevel = 0;
 
     public OpiumPresseBlockEntity(BlockPos pos, BlockState state) {

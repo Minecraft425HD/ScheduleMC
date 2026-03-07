@@ -690,7 +690,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         }
     }
 
-    private CachedValue<Vec3> center = new CachedValue<>(() -> new Vec3(worldPosition.getX() + 0.5D, worldPosition.getY() + 1.5D, worldPosition.getZ() + 0.5D));
+    final private CachedValue<Vec3> center = new CachedValue<>(() -> new Vec3(worldPosition.getX() + 0.5D, worldPosition.getY() + 1.5D, worldPosition.getZ() + 0.5D));
 
     @Nullable
     private Entity searchEntityWithFluidHandlerInFront() {
@@ -719,7 +719,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         return entityInFront;
     }
 
-    private CachedValue<AABB> detectionBox = new CachedValue<>(this::createDetectionBox);
+    final private CachedValue<AABB> detectionBox = new CachedValue<>(this::createDetectionBox);
 
     private AABB createDetectionBox() {  // NOPMD
         BlockState ownState = level.getBlockState(worldPosition);
@@ -758,7 +758,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
 
     @Override
     public boolean shouldSoundBePlayed() {
-        if (!isFueling) {
+        if (!isFueling) {  // NOPMD
             return false;
         }
 

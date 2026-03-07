@@ -78,10 +78,7 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() instanceof GreenCoffeeBeanItem;
-                }
-                return false;
+                return slot == 0 && stack.getItem() instanceof GreenCoffeeBeanItem;
             }
 
             @Override

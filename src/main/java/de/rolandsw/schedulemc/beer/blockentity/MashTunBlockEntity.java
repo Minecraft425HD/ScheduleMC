@@ -73,10 +73,7 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
                            stack.getItem() == BeerItems.MALTED_WHEAT.get() ||
                            stack.getItem() == BeerItems.MALTED_RYE.get();
                 }
-                if (slot == 1) {
-                    return stack.getItem() == Items.WATER_BUCKET;
-                }
-                return false;
+                return slot == 1 && stack.getItem() == Items.WATER_BUCKET;
             }
 
             @Override

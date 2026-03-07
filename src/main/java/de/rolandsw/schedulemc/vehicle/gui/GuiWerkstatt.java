@@ -50,8 +50,8 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private static final int COL_BAR_BG = 0xFF555555;
 
     private Inventory playerInv;  // NOPMD
-    private EntityGenericVehicle vehicle;
-    private VehicleUtils.VehicleRenderer vehicleRenderer;
+    private final EntityGenericVehicle vehicle;
+    final private VehicleUtils.VehicleRenderer vehicleRenderer;
 
     // Tab system
     private enum Tab { OVERVIEW, SERVICE, UPGRADE, PAINT, CONTAINER }
@@ -530,7 +530,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             super.onClose();
             return true;
         }
-        if (this.minecraft != null && this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+        if (this.minecraft != null && this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {  // NOPMD
             return true; // Block inventory key while in werkstatt
         }
         return super.keyPressed(keyCode, scanCode, modifiers);

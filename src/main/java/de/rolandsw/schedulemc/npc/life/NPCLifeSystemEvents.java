@@ -179,7 +179,7 @@ public class NPCLifeSystemEvents {
      * Prüft ob das Life-System für ein Level aktiv ist
      */
     public static boolean isSystemActive(Level level) {
-        if (!(level instanceof ServerLevel serverLevel)) return false;
+        if (!(level instanceof ServerLevel serverLevel)) return false;  // NOPMD
         return NPCLifeSystemIntegration.get(serverLevel).isEnabled();
     }
 

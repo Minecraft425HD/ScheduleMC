@@ -85,7 +85,7 @@ public class ActivityTrackingComponent implements NPCComponent {
     }
 
     private boolean isNearLocation(CustomNPCEntity entity, BlockPos location) {
-        if (location == null) return false;
+        if (location == null) return false;  // NOPMD
         return entity.blockPosition().distSqr(location) < LOCATION_RADIUS_SQ;
     }
 

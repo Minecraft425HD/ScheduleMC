@@ -22,13 +22,13 @@ public class PlotArea {
     // ═══════════════════════════════════════════════════════════
     private String id;                    // "apt_1", "apt_2", etc.
     private String name;                  // "Wohnung 1. OG Links"
-    private String parentPlotId;          // ID des Haupt-Plots
+    private final String parentPlotId;          // ID des Haupt-Plots
 
     // ═══════════════════════════════════════════════════════════
     // BEGRENZUNGEN
     // ═══════════════════════════════════════════════════════════
-    private BlockPos minCorner;
-    private BlockPos maxCorner;
+    private final BlockPos minCorner;
+    private final BlockPos maxCorner;
 
     // ═══════════════════════════════════════════════════════════
     // VERMIETUNG
@@ -124,7 +124,7 @@ public class PlotArea {
         }
 
         // Unbefristet vermietet
-        if (rentalEndDate == 0) {
+        if (rentalEndDate == 0) {  // NOPMD
             return true;
         }
 
@@ -140,7 +140,7 @@ public class PlotArea {
             return false;
         }
 
-        if (rentalEndDate == 0) {
+        if (rentalEndDate == 0) {  // NOPMD
             return false; // Unbefristet
         }
 
@@ -230,11 +230,7 @@ public class PlotArea {
         }
 
         // Ist Trusted?
-        if (isTrusted(uuid)) {
-            return true;
-        }
-
-        return false;
+        return isTrusted(uuid) || false;
     }
 
     /**

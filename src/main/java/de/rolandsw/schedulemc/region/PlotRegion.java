@@ -399,9 +399,7 @@ public class PlotRegion {
     public boolean hasAccess(UUID uuid) {
         if (uuid == null) return false;
         if (isOwnedBy(uuid)) return true;
-        if (isTrusted(uuid)) return true;
-        if (isRented() && uuid.toString().equals(renterUUID)) return true;
-        return false;
+        return isTrusted(uuid) || isRented() && uuid.toString().equals(renterUUID);
     }
 
     /**

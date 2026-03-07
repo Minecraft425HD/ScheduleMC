@@ -27,7 +27,7 @@ import de.rolandsw.schedulemc.tobacco.data.TobaccoPlantData;
  */
 public class PlantPotData {
 
-    private PotType potType;
+    private final PotType potType;
     private double waterLevel;
     private double soilLevel;
     private double soilLevelAtPlanting; // HUD-Basis: Erde-Level beim Pflanzen (für visuelle Anzeige)

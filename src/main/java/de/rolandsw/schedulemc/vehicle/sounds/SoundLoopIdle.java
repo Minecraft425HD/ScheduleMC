@@ -6,7 +6,7 @@ import net.minecraft.sounds.SoundSource;
 
 public class SoundLoopIdle extends SoundLoopVehicle {
 
-    private float volumeToReach;
+    private final float volumeToReach;
 
     public SoundLoopIdle(EntityGenericVehicle vehicle, SoundEvent event, SoundSource category) {
         super(vehicle, event, category);

@@ -68,10 +68,7 @@ public class CrushingStationBlockEntity extends BlockEntity implements IUtilityC
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() instanceof GrapeItem;
-                }
-                return false;
+                return slot == 0 && stack.getItem() instanceof GrapeItem;
             }
 
             @Override

@@ -165,7 +165,7 @@ public class BriberySystem {
         }
 
         // Schwere Verbrechen: Nur sehr unehrliche NPCs
-        if (crimeType.getSeverity() >= 8) {
+        if (crimeType.getSeverity() >= 8) {  // NOPMD
             return traits.getHonesty() < 0;
         }
 

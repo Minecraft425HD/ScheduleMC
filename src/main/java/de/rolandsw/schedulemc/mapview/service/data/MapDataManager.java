@@ -52,7 +52,7 @@ public class MapDataManager implements PreparableReloadListener {
     private ColorCalculationService colorManager;
     private DimensionService dimensionManager;
 
-    private ArrayDeque<Runnable> runOnWorldSet = new ArrayDeque<>();
+    final private ArrayDeque<Runnable> runOnWorldSet = new ArrayDeque<>();
 
     public MapDataManager() {
         // Initialize coordination services

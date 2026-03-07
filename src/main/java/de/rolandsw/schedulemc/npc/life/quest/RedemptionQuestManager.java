@@ -123,7 +123,7 @@ public class RedemptionQuestManager {
 
         // Reputation muss unter Schwellwert sein
         FactionManager fm = FactionManager.getInstance();
-        if (fm == null) return false;
+        if (fm == null) return false;  // NOPMD
 
         return fm.getReputation(playerUUID, faction) <= REPUTATION_THRESHOLD;
     }

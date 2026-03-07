@@ -102,15 +102,7 @@ public class TextureAtlas extends AbstractTexture {
             this.mapUploadedSprites.put(iconName, icon);
             this.mapRegisteredSprites.remove(iconName);
 
-            try {
-                // Texture upload handled by Minecraft's texture system
-            } catch (Exception var10) {
-                CrashReport crashReport = CrashReport.forThrowable(var10, "Stitching texture atlas");
-                CrashReportCategory crashReportCategory = crashReport.addCategory("Texture being stitched together");
-                crashReportCategory.setDetail("Atlas path", this.basePath);
-                crashReportCategory.setDetail("Sprite", icon);
-                throw new ReportedException(crashReport);
-            }
+            // Texture upload handled by Minecraft's texture system
         }
 
         for (Sprite icon : tempMapRegisteredSprites.values()) {

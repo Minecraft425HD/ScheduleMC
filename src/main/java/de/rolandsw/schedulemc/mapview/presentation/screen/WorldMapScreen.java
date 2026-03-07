@@ -133,8 +133,8 @@ public class WorldMapScreen extends PopupScreen {
     private boolean keyDownPressed;
     private boolean keyLeftPressed;
     private boolean keyRightPressed;
-    private int iconsWidth = 16;
-    private int iconsHeight = 16;
+    private static final int iconsWidth = 16;
+    private static final int iconsHeight = 16;
 
     // Territory Editor Mode
     private final boolean editMode;
@@ -571,7 +571,7 @@ public class WorldMapScreen extends PopupScreen {
 
         
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
+        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
             return true; // Consume event, prevent closing
         }
         

@@ -292,7 +292,7 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         }
         
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
+        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
             return true; // Consume event, prevent closing
         }
         

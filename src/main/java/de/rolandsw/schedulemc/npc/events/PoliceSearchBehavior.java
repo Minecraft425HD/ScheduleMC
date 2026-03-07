@@ -87,7 +87,7 @@ public class PoliceSearchBehavior {
         }
 
         // Prüfe ob Spieler in einem Gebäude ist
-        if (!isPlayerIndoors(player)) {
+        if (!isPlayerIndoors(player)) {  // NOPMD
             return false; // Spieler ist draußen
         }
 
@@ -105,7 +105,7 @@ public class PoliceSearchBehavior {
         }
 
         // Prüfe ob Spieler in einem Gebäude ist
-        if (!isPlayerIndoors(player)) {
+        if (!isPlayerIndoors(player)) {  // NOPMD
             return false;
         }
 
@@ -276,11 +276,7 @@ public class PoliceSearchBehavior {
         }
 
         // Prüfe Türen
-        if (block instanceof DoorBlock && isTransparentDoor(block)) {
-            return true;
-        }
-
-        return false;
+        return block instanceof DoorBlock && isTransparentDoor(block) || false;
     }
 
     /**

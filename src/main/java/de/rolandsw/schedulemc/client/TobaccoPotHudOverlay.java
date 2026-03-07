@@ -353,9 +353,8 @@ public class TobaccoPotHudOverlay {
         if (potData.hasTobaccoPlant() && potData.getPlant().isFullyGrown()) return true;
         if (potData.hasCannabisPlant() && potData.getCannabisPlant().isFullyGrown()) return true;
         if (potData.hasCocaPlant() && potData.getCocaPlant().isFullyGrown()) return true;
-        if (potData.hasPoppyPlant() && potData.getPoppyPlant().isFullyGrown()) return true;
-        if (potData.hasMushroomPlant() && potData.getMushroomPlant().canHarvest()) return true;
-        return false;
+        return potData.hasPoppyPlant() && potData.getPoppyPlant().isFullyGrown()
+                || potData.hasMushroomPlant() && potData.getMushroomPlant().canHarvest();
     }
 
     /**

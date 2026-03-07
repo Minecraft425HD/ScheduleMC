@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  */
 public class SyncTerritoriesPacket {
 
-    private Map<Long, TerritoryData> territories;
+    final private Map<Long, TerritoryData> territories;
 
     public SyncTerritoriesPacket(Map<Long, Territory> territories) {
         this.territories = new HashMap<>();

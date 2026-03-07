@@ -63,10 +63,7 @@ public class PasteurizationStationBlockEntity extends BlockEntity implements IUt
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == Items.MILK_BUCKET;
-                }
-                return false;
+                return slot == 0 && stack.getItem() == Items.MILK_BUCKET;
             }
 
             @Override

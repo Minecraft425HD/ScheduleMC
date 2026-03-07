@@ -70,10 +70,7 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == ChocolateItems.ROASTED_COCOA_BEANS.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == ChocolateItems.ROASTED_COCOA_BEANS.get();
             }
 
             @Override

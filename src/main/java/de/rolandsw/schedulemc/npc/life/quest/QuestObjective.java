@@ -52,7 +52,7 @@ public class QuestObjective {
 
     // Fortschritt
     private int currentProgress;
-    private int requiredProgress;
+    private final int requiredProgress;
     private boolean completed;
     private boolean failed;
 

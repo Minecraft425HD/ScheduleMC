@@ -202,12 +202,9 @@ public class InputValidation {
     private static boolean containsCommandInjection(String input) {
         String lower = input.toLowerCase();
         // Blockiere eingebettete Commands
-        if (lower.contains("/op ") || lower.contains("/gamemode") ||
+        return lower.contains("/op ") || lower.contains("/gamemode") ||
             lower.contains("/execute") || lower.contains("/give") ||
-            lower.contains("/setblock") || lower.contains("/kill")) {
-            return true;
-        }
-        return false;
+            lower.contains("/setblock") || lower.contains("/kill") || false;
     }
 
     /**

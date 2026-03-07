@@ -38,7 +38,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/merchant_shop.png");
 
-    private List<ShopItemRow> shopItemRows;
+    final private List<ShopItemRow> shopItemRows;
     private int scrollOffset = 0;
     private static final int VISIBLE_ROWS = 6; // Wie viele Items gleichzeitig sichtbar sind
     private Button buyButton; // Einziger Kaufen-Button unten rechts
@@ -336,7 +336,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
+        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
             return true; // Consume event, prevent closing
         }
         return super.keyPressed(keyCode, scanCode, modifiers);

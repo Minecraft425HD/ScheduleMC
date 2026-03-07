@@ -169,7 +169,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private Future<?> zCalcTask;
     private final Object zCalcLock = new Object(); // Lock for coordination with worker thread
     private int zCalcTicker;
-    private int[] lightmapColors = new int[256];
+    private final int[] lightmapColors = new int[256];
     private double zoomScale = 1.0;
     private double zoomScaleAdjusted = 1.0;  // NOPMD
     private static double minTablistOffset;

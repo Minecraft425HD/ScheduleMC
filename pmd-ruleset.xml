@@ -32,7 +32,7 @@
         <exclude name="JUnitSpelling"/>
         <exclude name="JUnitStaticSuite"/>
         <exclude name="SimpleDateFormatNeedsLocale"/>    <!-- keine Datums-Formatierung kritisch -->
-        <exclude name="AssignmentToNonFinalStatic"/>     <!-- viele singletons initialisieren so -->
+        <!-- AssignmentToNonFinalStatic aktiviert: nicht-volatile static-Zuweisung = Thread-Safety-Risiko -->
         <exclude name="AvoidInstanceofChecksInCatchClause"/>
         <exclude name="CloneThrowsCloneNotSupportedException"/>
         <exclude name="DoNotHardCodeSDCard"/>
@@ -99,6 +99,11 @@
          alle intentionale (float)/(int)-Casts in Rendering-Code) → nicht aktiviert -->
 
     <!-- ================================================================
+         CODE STYLE: nur echte Bug-Finder
+         ================================================================ -->
+    <rule ref="category/java/codestyle.xml/EmptyControlStatement"/>
+
+    <!-- ================================================================
          SECURITY: Kryptografie, Injection, unsichere APIs
          ================================================================ -->
     <rule ref="category/java/security.xml"/>
@@ -137,8 +142,8 @@
         <!-- Minecraft-Kontext: intentionale Patterns -->
         <exclude name="AvoidCatchingGenericException"/> <!-- Event-Handler fangen absichtlich alles -->
         <exclude name="MutableStaticState"/>            <!-- Singleton-Muster in Minecraft-Mods -->
-        <exclude name="ImmutableField"/>                <!-- Stil: final ist gut, kein Bug -->
-        <exclude name="SimplifyBooleanReturns"/>        <!-- Stil, kein Bug -->
+        <!-- ImmutableField aktiviert: Felder die nie neu gesetzt werden sollten final sein -->
+        <!-- SimplifyBooleanReturns aktiviert: if(x) return true; else return false; → return x -->
         <exclude name="AvoidDeeplyNestedIfStmts"/>      <!-- Komplexitätsmetrik, kein Bug -->
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/> <!-- Stil -->
         <exclude name="SingularField"/>                  <!-- false positives bei GUI-Buttons und NPC-Zustandsfeldern -->

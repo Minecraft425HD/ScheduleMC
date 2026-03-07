@@ -5,7 +5,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BiomeData extends AbstractMapData {
-    private Biome[] data;
+    private final Biome[] data;
 
     public BiomeData(int width, int height) {
         this.width = width;

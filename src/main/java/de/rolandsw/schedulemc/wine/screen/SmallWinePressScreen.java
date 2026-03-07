@@ -22,7 +22,7 @@ public class SmallWinePressScreen extends AbstractContainerScreen<SmallWinePress
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 69) return true; // Block E key
+        if (keyCode == 69) return true; // Block E key  // NOPMD
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 

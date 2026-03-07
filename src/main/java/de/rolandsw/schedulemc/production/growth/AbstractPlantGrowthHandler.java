@@ -20,7 +20,7 @@ public abstract class AbstractPlantGrowthHandler implements PlantGrowthHandler {
 
     @Override
     public boolean canGrow(Level level, BlockPos pos, PlantPotData potData) {
-        if (level == null) return false;
+        if (level == null) return false;  // NOPMD
 
         // Standard-Licht-Prüfung (kann von Subklassen überschrieben werden)
         return hasEnoughLight(level, pos);
