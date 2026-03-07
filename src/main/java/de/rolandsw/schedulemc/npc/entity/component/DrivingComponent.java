@@ -16,14 +16,14 @@ import net.minecraft.nbt.CompoundTag;
  */
 public class DrivingComponent implements NPCComponent {
 
-    private boolean isDriving = false;
+    private boolean isDriving = false;  // NOPMD
     private float vehicleYaw = 0f;
     private int vehicleColor = 0;
     private boolean sirenActive = false;
 
     // Fahrgeschwindigkeit und -richtung
     private double speed = 0;
-    private double targetX, targetY, targetZ;
+    private double targetX, targetY, targetZ;  // NOPMD
     private boolean hasTarget = false;
 
     @Override

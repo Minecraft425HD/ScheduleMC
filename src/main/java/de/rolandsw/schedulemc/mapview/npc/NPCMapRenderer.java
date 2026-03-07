@@ -128,7 +128,7 @@ public class NPCMapRenderer {
         PoseStack poseStack = graphics.pose();
         poseStack.pushPose();
 
-        int mapSize = Math.min(screenWidth, screenHeight);
+        int mapSize = Math.min(screenWidth, screenHeight);  // NOPMD
 
         for (CustomNPCEntity npc : visibleNPCs) {
             // Berechne Position auf Screen

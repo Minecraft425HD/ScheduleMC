@@ -113,9 +113,9 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
             packagingProgress = 0;
         } else if (handlerWheel.isEmpty()) {
             wheelInput = ItemStack.EMPTY;
-            cheeseType = null;
-            quality = null;
-            ageLevel = null;
+            cheeseType = null;  // NOPMD
+            quality = null;  // NOPMD
+            ageLevel = null;  // NOPMD
             wheelWeight = 0;
             packagingProgress = 0;
         }

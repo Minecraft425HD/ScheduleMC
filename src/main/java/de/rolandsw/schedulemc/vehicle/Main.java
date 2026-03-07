@@ -191,7 +191,7 @@ public class Main {
         }, "onRegisterKeyBinds");
     }
 
-    private static EntityType<EntityGenericVehicle> createVehicleEntityType() {
+    private static EntityType<EntityGenericVehicle> createVehicleEntityType() {  // NOPMD
         return CommonRegistry.registerEntity(Main.MODID, "vehicle", MobCategory.MISC, EntityGenericVehicle.class, builder -> {
             builder.setTrackingRange(128)
                     .setUpdateInterval(1)

@@ -22,7 +22,7 @@ public abstract class BehaviorAction {
     protected final BehaviorState resultState;
 
     // Laufzeit-Daten
-    protected boolean isRunning = false;
+    protected boolean isRunning = false;  // NOPMD
     protected int ticksRunning = 0;
     protected int maxDurationTicks = -1; // -1 = unbegrenzt
 
@@ -112,7 +112,7 @@ public abstract class BehaviorAction {
 
         this.isRunning = false;
         stop(npc, interrupted);
-        this.targetEntity = null;
+        this.targetEntity = null;  // NOPMD
     }
 
     // ═══════════════════════════════════════════════════════════

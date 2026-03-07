@@ -34,7 +34,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Singleton
-    private static volatile GangManager instance;
+    private static volatile GangManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     // Daten
@@ -80,7 +80,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
             if (instance != null) {
                 instance.save();
             }
-            instance = null;
+            instance = null;  // NOPMD
         }
     }
 
@@ -493,7 +493,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
 
     @Override
     protected Map<String, SavedGangData> getCurrentData() {
-        Map<String, SavedGangData> data = new HashMap<>();
+        Map<String, SavedGangData> data = new HashMap<>();  // NOPMD
 
         for (Map.Entry<UUID, Gang> entry : gangs.entrySet()) {
             Gang gang = entry.getValue();

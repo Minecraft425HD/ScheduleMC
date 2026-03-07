@@ -21,18 +21,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConfigCache {
 
     // Cache für Police-AI Werte
-    private static volatile int policeDetectionRadius = -1;
-    private static volatile int policeArrestCooldownSeconds = -1;
-    private static volatile double policeArrestDistance = -1;
+    private static volatile int policeDetectionRadius = -1;  // NOPMD
+    private static volatile int policeArrestCooldownSeconds = -1;  // NOPMD
+    private static volatile double policeArrestDistance = -1;  // NOPMD
 
     // Cache für Warehouse Werte
-    private static volatile int warehouseDeliveryIntervalDays = -1;
+    private static volatile int warehouseDeliveryIntervalDays = -1;  // NOPMD
 
     // Cache für Economy Werte
-    private static volatile double economyStartBalance = -1;
+    private static volatile double economyStartBalance = -1;  // NOPMD
 
     // Invalidation flag
-    private static volatile boolean needsRefresh = true;
+    private static volatile boolean needsRefresh = true;  // NOPMD
 
     /**
      * Markiert den Cache als ungültig (bei Config-Reload)

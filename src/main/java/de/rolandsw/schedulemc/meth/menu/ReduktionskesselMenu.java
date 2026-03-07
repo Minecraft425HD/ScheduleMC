@@ -32,7 +32,7 @@ public class ReduktionskesselMenu extends AbstractContainerMenu {
     private static final int DATA_SIZE = 7;
 
     // Server-side constructor
-    public ReduktionskesselMenu(int containerId, Inventory playerInventory, ReduktionskesselBlockEntity blockEntity) {
+    public ReduktionskesselMenu(int containerId, Inventory playerInventory, ReduktionskesselBlockEntity blockEntity) {  // NOPMD
         super(MethMenuTypes.REDUKTIONSKESSEL_MENU.get(), containerId);
         this.blockEntity = blockEntity;
 

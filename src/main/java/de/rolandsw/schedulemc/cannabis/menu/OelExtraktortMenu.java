@@ -33,7 +33,7 @@ public class OelExtraktortMenu extends AbstractContainerMenu {
     private static final int DATA_SIZE                = 8;
 
     // Server-side constructor
-    public OelExtraktortMenu(int containerId, Inventory playerInventory, OelExtraktortBlockEntity blockEntity) {
+    public OelExtraktortMenu(int containerId, Inventory playerInventory, OelExtraktortBlockEntity blockEntity) {  // NOPMD
         super(CannabisMenuTypes.OEL_EXTRAKTOR_MENU.get(), containerId);
         this.blockEntity = blockEntity;
 
@@ -73,7 +73,7 @@ public class OelExtraktortMenu extends AbstractContainerMenu {
 
         BlockPos pos = extraData.readBlockPos();
         BlockEntity be = playerInventory.player.level().getBlockEntity(pos);
-        this.blockEntity = be instanceof OelExtraktortBlockEntity extraktor ? extraktor : null;
+        this.blockEntity = be instanceof OelExtraktortBlockEntity extraktor ? extraktor : null;  // NOPMD
 
         this.data = new SimpleContainerData(DATA_SIZE);
         addDataSlots(this.data);

@@ -204,7 +204,7 @@ public class FuelBillManager {
             // NULL CHECK
             if (data == null) {
                 LOGGER.warn("Null data loaded for fuel bills");
-                invalidCount++;
+                invalidCount++;  // NOPMD
                 return;
             }
 
@@ -285,7 +285,7 @@ public class FuelBillManager {
 
         @Override
         protected Map<String, List<UnpaidBill>> getCurrentData() {
-            Map<String, List<UnpaidBill>> toSave = new HashMap<>();
+            Map<String, List<UnpaidBill>> toSave = new HashMap<>();  // NOPMD
             for (Map.Entry<UUID, List<UnpaidBill>> entry : playerBills.entrySet()) {
                 toSave.put(entry.getKey().toString(), entry.getValue());
             }

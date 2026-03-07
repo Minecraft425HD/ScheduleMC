@@ -25,7 +25,7 @@ public class CentrifugalExtractorMenu extends AbstractContainerMenu {
     public CentrifugalExtractorMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(HoneyMenuTypes.CENTRIFUGAL_EXTRACTOR_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof CentrifugalExtractorBlockEntity e ? e : null;
+        this.blockEntity = be instanceof CentrifugalExtractorBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

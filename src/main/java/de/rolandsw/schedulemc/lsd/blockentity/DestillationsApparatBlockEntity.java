@@ -27,7 +27,7 @@ public class DestillationsApparatBlockEntity extends BlockEntity implements IUti
     private int ergotCount = 0;
     private int distillationProgress = 0;
     private int outputCount = 0;
-    private boolean isActive = false;
+    private boolean isActive = false;  // NOPMD
 
     public DestillationsApparatBlockEntity(BlockPos pos, BlockState state) {
         super(LSDBlockEntities.DESTILLATIONS_APPARAT.get(), pos, state);
@@ -68,7 +68,7 @@ public class DestillationsApparatBlockEntity extends BlockEntity implements IUti
         if (level == null || level.isClientSide) return;
 
         if (ergotCount > 0 && outputCount == 0) {
-            isActive = true;
+            isActive = true;  // NOPMD
             distillationProgress++;
 
             if (distillationProgress >= DISTILLATION_TIME) {

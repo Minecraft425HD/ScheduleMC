@@ -61,7 +61,7 @@ public class ForgeEvents implements Events {
                 (msg, ctx) -> MapViewWorldIdChannelHandlerForge.handleDataOnMain(msg, ctx),
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT)
             );
-            CHANNEL.registerMessage(id++, WorldIdC2S.class,
+            CHANNEL.registerMessage(id++, WorldIdC2S.class,  // NOPMD
                 WorldIdC2S::write,
                 WorldIdC2S::new,
                 (msg, ctx) -> { ctx.get().setPacketHandled(true); },
@@ -92,7 +92,7 @@ public class ForgeEvents implements Events {
         registerNetworkPackets();
     }
 
-    private void preInitClient(final FMLClientSetupEvent event) {
+    private void preInitClient(final FMLClientSetupEvent event) {  // NOPMD
         // Initialize MapDataManager on the main thread (required for texture creation)
         event.enqueueWork(() -> {
             MapViewConstants.lateInit();

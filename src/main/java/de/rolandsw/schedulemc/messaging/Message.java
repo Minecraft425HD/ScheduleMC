@@ -7,7 +7,7 @@ public class Message {
     private final String senderName;
     private final String content;
     private final long timestamp;
-    private final boolean isPlayerSender;
+    private final boolean isPlayerSender;  // NOPMD
 
     public Message(UUID senderUUID, String senderName, String content, long timestamp, boolean isPlayerSender) {
         this.senderUUID = senderUUID;

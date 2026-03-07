@@ -35,7 +35,7 @@ public class MarketCommand {
     /**
      * /market prices - Zeigt alle Preise
      */
-    private static int showPrices(CommandContext<CommandSourceStack> context) {
+    private static int showPrices(CommandContext<CommandSourceStack> context) {  // NOPMD
         CommandSourceStack source = context.getSource();
         DynamicMarketManager manager = DynamicMarketManager.getInstance();
 
@@ -71,7 +71,7 @@ public class MarketCommand {
     /**
      * /market trends - Zeigt Trends
      */
-    private static int showTrends(CommandContext<CommandSourceStack> context) {
+    private static int showTrends(CommandContext<CommandSourceStack> context) {  // NOPMD
         CommandSourceStack source = context.getSource();
         DynamicMarketManager manager = DynamicMarketManager.getInstance();
 
@@ -112,7 +112,7 @@ public class MarketCommand {
     /**
      * /market stats - Zeigt Statistiken
      */
-    private static int showStats(CommandContext<CommandSourceStack> context) {
+    private static int showStats(CommandContext<CommandSourceStack> context) {  // NOPMD
         CommandSourceStack source = context.getSource();
         DynamicMarketManager manager = DynamicMarketManager.getInstance();
 
@@ -138,7 +138,7 @@ public class MarketCommand {
     /**
      * /market top - Zeigt Top-Preise
      */
-    private static int showTopPrices(CommandContext<CommandSourceStack> context) {
+    private static int showTopPrices(CommandContext<CommandSourceStack> context) {  // NOPMD
         CommandSourceStack source = context.getSource();
         DynamicMarketManager manager = DynamicMarketManager.getInstance();
 

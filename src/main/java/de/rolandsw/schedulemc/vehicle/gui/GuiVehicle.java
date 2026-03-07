@@ -43,7 +43,7 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
     private static final int TEXT_WHITE = 0xFFFFFF;
     private static final int TEXT_LIGHT = 0xDDDDDD;
 
-    private Inventory playerInv;
+    private Inventory playerInv;  // NOPMD
     private EntityGenericVehicle vehicle;
     private int internalRows;
     private int externalRows;

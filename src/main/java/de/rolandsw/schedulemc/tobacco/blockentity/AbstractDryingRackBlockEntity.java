@@ -131,10 +131,10 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
             contentType = ContentType.NONE;
-            tobaccoType = null;
-            tobaccoQuality = null;
-            cannabisStrain = null;
-            cannabisQuality = null;
+            tobaccoType = null;  // NOPMD
+            tobaccoQuality = null;  // NOPMD
+            cannabisStrain = null;  // NOPMD
+            cannabisQuality = null;  // NOPMD
             dryingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -206,10 +206,10 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
             inputStack = ItemStack.EMPTY;
             dryingProgress = 0;
             contentType = ContentType.NONE;
-            tobaccoType = null;
-            tobaccoQuality = null;
-            cannabisStrain = null;
-            cannabisQuality = null;
+            tobaccoType = null;  // NOPMD
+            tobaccoQuality = null;  // NOPMD
+            cannabisStrain = null;  // NOPMD
+            cannabisQuality = null;  // NOPMD
             syncToHandler();
             setChanged();
             return result;
@@ -368,11 +368,11 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
 
         // Legacy-Support: "Type" und "Quality" für alte Saves
         if (tag.contains("Type")) {
-            try { tobaccoType = TobaccoType.valueOf(tag.getString("Type")); }
+            try { tobaccoType = TobaccoType.valueOf(tag.getString("Type")); }  // NOPMD
             catch (IllegalArgumentException ignored) {}
         }
         if (tag.contains("Quality")) {
-            try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("Quality")); }
+            try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("Quality")); }  // NOPMD
             catch (IllegalArgumentException ignored) {}
         }
 

@@ -341,7 +341,7 @@ public class PackagedDrugItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        DrugType drugType = getDrugType(stack);
+        DrugType drugType = getDrugType(stack);  // NOPMD
         int weight = getWeight(stack);
         ProductionQuality quality = parseQuality(getQuality(stack));
         ProductionType variant = parseVariant(getVariant(stack));

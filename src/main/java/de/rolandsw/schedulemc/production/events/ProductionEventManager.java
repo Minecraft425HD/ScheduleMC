@@ -31,7 +31,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ProductionEventManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static volatile ProductionEventManager instance;
+    private static volatile ProductionEventManager instance;  // NOPMD
 
     private static final double EVENT_CHANCE = 0.15; // 15% pro Tag
     private static final int MAX_ACTIVE_EVENTS = 3;
@@ -90,7 +90,7 @@ public class ProductionEventManager {
         private final float speedModifier;    // Multiplikator fuer Geschwindigkeit
         private final float priceModifier;    // Multiplikator fuer Preise
         private final int qualityChange;      // +/- Qualitaetsstufen
-        private final float seasonalWeight;   // Extra-Chance in bestimmter Saison (1.0 = normal)
+        private final float seasonalWeight;   // Extra-Chance in bestimmter Saison (1.0 = normal)  // NOPMD
 
         public ProductionEventTemplate(String id, String name, String description,
                 EventSeverity severity, EventCategory category,

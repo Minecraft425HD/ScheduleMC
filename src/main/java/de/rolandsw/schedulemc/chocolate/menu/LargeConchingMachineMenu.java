@@ -25,7 +25,7 @@ public class LargeConchingMachineMenu extends AbstractContainerMenu {
     public LargeConchingMachineMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(ChocolateMenuTypes.LARGE_CONCHING_MACHINE_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof LargeConchingMachineBlockEntity e ? e : null;
+        this.blockEntity = be instanceof LargeConchingMachineBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

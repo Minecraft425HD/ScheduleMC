@@ -16,14 +16,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NavigationPathOverlay {
 
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile NavigationPathOverlay instance;
+    private static volatile NavigationPathOverlay instance;  // NOPMD
 
     // Pfad-Positionen für schnellen Lookup (x,z -> ist auf Pfad)
     private final Set<Long> pathPositions = ConcurrentHashMap.newKeySet();
 
     // Aktuelle Pfad-Indizes (für das Verschwinden des Pfades)
-    private volatile int currentPathIndex = 0;
-    private volatile List<BlockPos> currentPath = null;
+    private volatile int currentPathIndex = 0;  // NOPMD
+    private volatile List<BlockPos> currentPath = null;  // NOPMD
 
     // Farben - Grelles Magenta/Pink für maximale Sichtbarkeit
     private static final int PATH_COLOR = 0xFFFF00FF;  // Magenta für Pfad
@@ -103,7 +103,7 @@ public class NavigationPathOverlay {
         }
 
         pathPositions.clear();
-        currentPath = null;
+        currentPath = null;  // NOPMD
         currentPathIndex = 0;
     }
 

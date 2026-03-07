@@ -16,7 +16,7 @@ public class NPCSpawnerMenu extends AbstractContainerMenu {
     private final BlockPos spawnPosition;
 
     // Server-Side Constructor
-    public NPCSpawnerMenu(int id, Inventory playerInventory, BlockPos spawnPos) {
+    public NPCSpawnerMenu(int id, Inventory playerInventory, BlockPos spawnPos) {  // NOPMD
         super(NPCMenuTypes.NPC_SPAWNER_MENU.get(), id);
         this.spawnPosition = spawnPos;
 

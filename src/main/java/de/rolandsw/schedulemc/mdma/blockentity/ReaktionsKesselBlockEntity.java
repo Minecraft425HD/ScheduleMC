@@ -32,7 +32,7 @@ public class ReaktionsKesselBlockEntity extends BlockEntity implements IUtilityC
     private int synthesisProgress = 0;
     private int outputCount = 0;
     private MDMAQuality outputQuality = MDMAQuality.SCHLECHT;
-    private boolean isActive = false;
+    private boolean isActive = false;  // NOPMD
 
     public ReaktionsKesselBlockEntity(BlockPos pos, BlockState state) {
         super(MDMABlockEntities.REAKTIONS_KESSEL.get(), pos, state);
@@ -64,7 +64,7 @@ public class ReaktionsKesselBlockEntity extends BlockEntity implements IUtilityC
         if (level == null || level.isClientSide) return;
 
         if (safrolCount > 0 && outputCount == 0) {
-            isActive = true;
+            isActive = true;  // NOPMD
             synthesisProgress++;
 
             if (synthesisProgress >= SYNTHESIS_TIME) {

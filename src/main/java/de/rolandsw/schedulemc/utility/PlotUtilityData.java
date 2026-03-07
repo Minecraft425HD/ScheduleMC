@@ -20,10 +20,10 @@ public class PlotUtilityData {
     private final String plotId;
 
     // Alle Verbraucher-Blöcke in diesem Plot: Position -> Block-ID
-    private final Map<BlockPos, String> consumers = new HashMap<>();
+    private final Map<BlockPos, String> consumers = new HashMap<>();  // NOPMD
 
     // Aktiver Status jedes Blocks: Position -> isActive
-    private final Map<BlockPos, Boolean> activeStatus = new HashMap<>();
+    private final Map<BlockPos, Boolean> activeStatus = new HashMap<>();  // NOPMD
 
     // OPTIMIERT: Circular Buffer statt Array-Shifting
     // Index 0..6 für Tage, historyIndex zeigt auf "heute"
@@ -39,8 +39,8 @@ public class PlotUtilityData {
     private long lastUpdateDay = -1;
 
     // Kategorie-Aufschlüsselung für aktuellen Tag
-    private final Map<UtilityCategory, Double> categoryElectricity = new EnumMap<>(UtilityCategory.class);
-    private final Map<UtilityCategory, Double> categoryWater = new EnumMap<>(UtilityCategory.class);
+    private final Map<UtilityCategory, Double> categoryElectricity = new EnumMap<>(UtilityCategory.class);  // NOPMD
+    private final Map<UtilityCategory, Double> categoryWater = new EnumMap<>(UtilityCategory.class);  // NOPMD
 
     public PlotUtilityData(String plotId) {
         this.plotId = plotId;

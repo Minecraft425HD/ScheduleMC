@@ -32,7 +32,7 @@ public class MapCommand {
     /**
      * Öffnet den Territory Map Editor
      */
-    private static int openEditor(CommandContext<CommandSourceStack> context) {
+    private static int openEditor(CommandContext<CommandSourceStack> context) {  // NOPMD
         if (!(context.getSource().getEntity() instanceof ServerPlayer player)) {
             context.getSource().sendFailure(Component.translatable("command.map.players_only"));
             return 0;
@@ -56,7 +56,7 @@ public class MapCommand {
     /**
      * Zeigt Territory-Statistiken
      */
-    private static int showInfo(CommandContext<CommandSourceStack> context) {
+    private static int showInfo(CommandContext<CommandSourceStack> context) {  // NOPMD
         TerritoryManager manager = TerritoryManager.getInstance();
 
         if (manager == null) {

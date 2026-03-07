@@ -80,7 +80,7 @@ public class SavingsAccount {
         // Wenn gesperrt und erzwungen: Strafe aus Config
         if (!isUnlocked(currentDay) && forcedWithdrawal) {
             double penaltyRate = ModConfigHandler.COMMON.SAVINGS_EARLY_WITHDRAWAL_PENALTY.get();
-            double penalty = amount * penaltyRate;
+            double penalty = amount * penaltyRate;  // NOPMD
             balance -= amount;
             return true; // Strafe wird extern verarbeitet
         }

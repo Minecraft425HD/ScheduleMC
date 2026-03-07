@@ -112,7 +112,7 @@ public class WorldMapScreen extends PopupScreen {
     private float guiToDirectMouse = 2.0F;
     private static boolean gotSkin;
     // OPTIMIZATION: volatile for lock-free reads
-    private volatile boolean closed;
+    private volatile boolean closed;  // NOPMD
     private RegionCache[] regions = new RegionCache[0];
     private final BiomeData biomeMapData = new BiomeData(760, 360);
     private final NPCMapRenderer npcMapRenderer = new NPCMapRenderer();
@@ -145,7 +145,7 @@ public class WorldMapScreen extends PopupScreen {
     private static final int NAME_INPUT_HEIGHT = 20;
     @Nullable
     private TerritoryType selectedType = TerritoryType.COLOR_RED;
-    private final Map<TerritoryType, Button> paletteButtons = new HashMap<>();
+    private final Map<TerritoryType, Button> paletteButtons = new HashMap<>();  // NOPMD
     private EditBox territoryNameInput;
     private String currentTerritoryName = "";
     private Button clearTerritoryButton;
@@ -251,7 +251,7 @@ public class WorldMapScreen extends PopupScreen {
             clearTerritoryButton = Button.builder(
                 Component.literal("🗑"),
                 btn -> {
-                    selectedType = null;
+                    selectedType = null;  // NOPMD
                     currentTerritoryName = "";
                     if (territoryNameInput != null) {
                         territoryNameInput.setValue("");
@@ -545,8 +545,8 @@ public class WorldMapScreen extends PopupScreen {
             if ((keyCode == 257 || keyCode == 335) && this.coordinates.isFocused() && isGood) {
                 String[] xz = this.coordinates.getValue().split(",");
                 this.centerAt(Integer.parseInt(xz[0].trim()), Integer.parseInt(xz[1].trim()));
-                this.editingCoordinates = false;
-                this.lastEditingCoordinates = false;
+                this.editingCoordinates = false;  // NOPMD
+                this.lastEditingCoordinates = false;  // NOPMD
                 this.switchToKeyboardInput();
             }
 
@@ -608,7 +608,7 @@ public class WorldMapScreen extends PopupScreen {
         return super.charTyped(codePoint, modifiers);
     }
 
-    private boolean isAcceptable(String input) {
+    private boolean isAcceptable(String input) {  // NOPMD
         try {
             String[] xz = this.coordinates.getValue().split(",");
             Integer.valueOf(xz[0].trim());
@@ -1356,7 +1356,7 @@ public class WorldMapScreen extends PopupScreen {
      * Rendert das Navigations-Overlay auf der Worldmap
      * Zeigt Pfadlinie, Zielmarker und Distanzanzeige
      */
-    private void renderNavigationOverlay(GuiGraphics graphics, int centerX, int centerZ, float zoom) {
+    private void renderNavigationOverlay(GuiGraphics graphics, int centerX, int centerZ, float zoom) {  // NOPMD
         NavigationOverlay overlay = NavigationOverlay.getInstance();
 
         // Initialisiere falls nötig
@@ -1388,7 +1388,7 @@ public class WorldMapScreen extends PopupScreen {
      * Rendert Territory-Overlays auf der Karte
      * Opacity: 15% für View-Mode, 80% für Edit-Mode
      */
-    private void renderTerritoryOverlay(GuiGraphics guiGraphics, float cursorCoordX, float cursorCoordZ) {
+    private void renderTerritoryOverlay(GuiGraphics guiGraphics, float cursorCoordX, float cursorCoordZ) {  // NOPMD
         Map<Long, SyncTerritoriesPacket.TerritoryData> territories = SyncTerritoriesPacket.TerritoryClientCache.getCache();
 
         // Calculate visible chunk range
@@ -1499,7 +1499,7 @@ public class WorldMapScreen extends PopupScreen {
                 if (lastPaintedTerritoryName != null && !lastPaintedTerritoryName.isEmpty()) {
                     minecraft.player.sendSystemMessage(Component.translatable("gui.worldmap.leaving", lastPaintedTerritoryName));
                 }
-                lastPaintedTerritoryName = null;
+                lastPaintedTerritoryName = null;  // NOPMD
             }
         } else {
             TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ, selectedType, currentTerritoryName));

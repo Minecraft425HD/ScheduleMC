@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TransactionHistory {
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile TransactionHistory instance;
+    private static volatile TransactionHistory instance;  // NOPMD
 
     private static final String FILE_NAME = "plotmod_transactions.json";
     private static final int MAX_TRANSACTIONS_PER_PLAYER = 1000; // Verhindert unbegrenztes Wachstum

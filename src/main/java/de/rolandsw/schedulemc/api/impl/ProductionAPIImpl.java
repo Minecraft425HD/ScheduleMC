@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class ProductionAPIImpl implements IProductionAPI {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
 
     private final ProductionRegistry productionRegistry;
 

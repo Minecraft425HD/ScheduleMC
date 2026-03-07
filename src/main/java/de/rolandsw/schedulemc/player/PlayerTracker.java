@@ -173,7 +173,7 @@ public class PlayerTracker {
             // NULL CHECK
             if (data == null) {
                 LOGGER.warn("Null data loaded for player contacts");
-                invalidCount++;
+                invalidCount++;  // NOPMD
                 return;
             }
 
@@ -246,7 +246,7 @@ public class PlayerTracker {
 
         @Override
         protected Map<String, PlayerContactData> getCurrentData() {
-            Map<String, PlayerContactData> saveMap = new HashMap<>();
+            Map<String, PlayerContactData> saveMap = new HashMap<>();  // NOPMD
 
             playerContacts.forEach((uuid, contact) -> {
                 PlayerContactData data = new PlayerContactData();

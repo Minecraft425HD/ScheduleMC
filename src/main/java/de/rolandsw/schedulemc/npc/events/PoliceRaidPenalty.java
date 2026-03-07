@@ -146,7 +146,7 @@ public class PoliceRaidPenalty {
      * Berechnet Geldstrafe
      * Option C: 10% vom Kontostand (min. 1.000€)
      */
-    private static double calculateFine(double accountBalance, int severity) {
+    private static double calculateFine(double accountBalance, int severity) {  // NOPMD
         double percentage = ModConfigHandler.COMMON.POLICE_RAID_ACCOUNT_PERCENTAGE.get();
         double minFine = ModConfigHandler.COMMON.POLICE_RAID_MIN_FINE.get();
 

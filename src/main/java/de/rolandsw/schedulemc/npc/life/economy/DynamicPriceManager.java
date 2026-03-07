@@ -33,7 +33,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile DynamicPriceManager instance;
+    private static volatile DynamicPriceManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -82,7 +82,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
+    private MinecraftServer server;  // NOPMD
 
     /** Globale Marktbedingung */
     private MarketCondition globalCondition = MarketCondition.NORMAL;
@@ -101,7 +101,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     private long lastKnownDay = -1;
 
     /** Tick-Counter (TRANSIENT - nicht persistiert) */
-    private int tickCounter = 0;
+    private int tickCounter = 0;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR

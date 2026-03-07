@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class PlotAPIImpl implements IPlotAPI {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
 
     private final PlotManager plotManager;
 
@@ -298,7 +298,7 @@ public class PlotAPIImpl implements IPlotAPI {
      */
     @Override
     public Map<PlotType, Integer> getPlotCountByType() {
-        Map<PlotType, Integer> countMap = new HashMap<>();
+        Map<PlotType, Integer> countMap = new HashMap<>();  // NOPMD
         for (PlotType type : PlotType.values()) {
             countMap.put(type, 0);
         }

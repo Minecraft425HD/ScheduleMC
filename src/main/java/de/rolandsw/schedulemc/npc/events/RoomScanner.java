@@ -74,7 +74,7 @@ public class RoomScanner {
 
                 visited.add(neighbor);
 
-                BlockState neighborState = level.getBlockState(neighbor);
+                BlockState neighborState = level.getBlockState(neighbor);  // NOPMD
 
                 // Prüfe ob Nachbar eine Tür/Durchgang ist
                 if (isDoorOrOpening(level, neighbor)) {
@@ -200,7 +200,7 @@ public class RoomScanner {
      * PERFORMANCE: Direkte BlockPos-Offsets statt Arrays.asList() Allokation.
      * Vermeidet 6 BlockPos-Objekte + 1 List-Wrapper pro Flood-Fill-Schritt.
      */
-    private static final BlockPos[] NEIGHBOR_OFFSETS = {
+    private static final BlockPos[] NEIGHBOR_OFFSETS = {  // NOPMD
         new BlockPos(0, 0, -1), // north
         new BlockPos(0, 0, 1),  // south
         new BlockPos(1, 0, 0),  // east

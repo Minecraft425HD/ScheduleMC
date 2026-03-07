@@ -22,7 +22,7 @@ public class CustomNPCModel extends HierarchicalModel<CustomNPCEntity> {
     public static final ModelLayerLocation LAYER_LOCATION =
         new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "custom_npc"), "main");
 
-    private final ModelPart root;
+    private final ModelPart root;  // NOPMD
     private final ModelPart head;
     private final ModelPart body;
     private final ModelPart rightArm;

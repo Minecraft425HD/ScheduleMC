@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 public class DynamicMoveableTexture extends DynamicTexture {
     private final Object bufferLock = new Object();
     private static Field pixelsField = null;
-    private static boolean pixelsFieldInitialized = false;
+    private static boolean pixelsFieldInitialized = false;  // NOPMD
 
     static {
         // Use reflection to access the private pixels field for performance

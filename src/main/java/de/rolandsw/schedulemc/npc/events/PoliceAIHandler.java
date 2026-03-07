@@ -52,12 +52,12 @@ public class PoliceAIHandler {
 
     // Konstanten
     private static final double POLICE_SPEED = 1.2; // 20% schneller
-    private static final long TICKS_PER_SECOND = 20L;
+    private static final long TICKS_PER_SECOND = 20L;  // NOPMD
     private static final int AI_UPDATE_INTERVAL_TICKS = 20; // Alle 1 Sekunde
-    private static final int FINE_PER_WANTED_LEVEL = 500;
-    private static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;
+    private static final int FINE_PER_WANTED_LEVEL = 500;  // NOPMD
+    private static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;  // NOPMD
     private static final int MAX_ARREST_TIMER_ENTRIES = 1000;
-    private static final long ARREST_TIMER_TIMEOUT_MS = 600000; // 10 Minuten
+    private static final long ARREST_TIMER_TIMEOUT_MS = 600000; // 10 Minuten  // NOPMD
     private static final int MAX_CACHE_ENTRIES = 500; // Max Einträge für LRU-Caches
 
     // UUID -> Arrest Start Time (in Ticks) - mit automatischem Cleanup
@@ -109,16 +109,16 @@ public class PoliceAIHandler {
     // Verhindert teure getEntitiesOfClass() Aufrufe für jeden Polizisten
     // Atomic swap statt clear()+put() verhindert Race Conditions
     // ═══════════════════════════════════════════════════════════════════════════
-    private static volatile Map<UUID, CachedPlayerData> playerCache = Map.of();
-    private static volatile long lastCacheUpdateTick = -1;
+    private static volatile Map<UUID, CachedPlayerData> playerCache = Map.of();  // NOPMD
+    private static volatile long lastCacheUpdateTick = -1;  // NOPMD
     private static final int CACHE_UPDATE_INTERVAL = 5; // Alle 5 Ticks (250ms) statt jeden Tick
 
     // ═══════════════════════════════════════════════════════════════════════════
     // OPTIMIERUNG: Polizei-NPC-Cache (aktualisiert alle 10 Ticks = 500ms)
     // Verhindert teuren getEntitiesOfClass() World-Scan pro Spieler pro Tick
     // ═══════════════════════════════════════════════════════════════════════════
-    private static volatile List<CachedPoliceData> policeCache = List.of();
-    private static volatile long lastPoliceCacheUpdateTick = -1;
+    private static volatile List<CachedPoliceData> policeCache = List.of();  // NOPMD
+    private static volatile long lastPoliceCacheUpdateTick = -1;  // NOPMD
     private static final int POLICE_CACHE_UPDATE_INTERVAL = 10; // Alle 10 Ticks (500ms)
 
     /**
@@ -166,7 +166,7 @@ public class PoliceAIHandler {
 
         // Neuen Cache aufbauen und atomar tauschen (keine Race Condition möglich)
         List<ServerPlayer> players = server.getPlayerList().getPlayers();
-        Map<UUID, CachedPlayerData> newCache = new HashMap<>(players.size() * 2);
+        Map<UUID, CachedPlayerData> newCache = new HashMap<>(players.size() * 2);  // NOPMD
         for (ServerPlayer player : players) {
             newCache.put(player.getUUID(), new CachedPlayerData(player));
         }

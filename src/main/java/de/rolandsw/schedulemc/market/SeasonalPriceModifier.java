@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SeasonalPriceModifier {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static volatile SeasonalPriceModifier instance;
+    private static volatile SeasonalPriceModifier instance;  // NOPMD
 
     private static final int DAYS_PER_SEASON = 30;
     private static final int DAYS_PER_YEAR = DAYS_PER_SEASON * 4; // 120 Tage

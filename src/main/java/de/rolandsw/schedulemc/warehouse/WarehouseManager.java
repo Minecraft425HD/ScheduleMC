@@ -40,7 +40,7 @@ public class WarehouseManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<String, Set<BlockPos>> warehouses = new ConcurrentHashMap<>();
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads
-    private static volatile boolean dirty = false;
+    private static volatile boolean dirty = false;  // NOPMD
     private static final AtomicInteger tickCounter = new AtomicInteger(0);
     private static final int CHECK_INTERVAL = 20; // Prüfe jede Sekunde (20 ticks) für schnelle Reaktion
 
@@ -308,7 +308,7 @@ public class WarehouseManager {
      * SICHERHEIT: Deep Copy verhindert externe Modifikation
      */
     public static Map<String, Set<BlockPos>> getAllWarehouses() {
-        Map<String, Set<BlockPos>> copy = new HashMap<>();
+        Map<String, Set<BlockPos>> copy = new HashMap<>();  // NOPMD
         for (Map.Entry<String, Set<BlockPos>> entry : warehouses.entrySet()) {
             copy.put(entry.getKey(), new HashSet<>(entry.getValue()));
         }

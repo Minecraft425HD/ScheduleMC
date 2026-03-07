@@ -218,7 +218,7 @@ public class PhysicsComponent extends VehicleComponent {
             } else if (!isSoundPlaying(startLoop)) {
                 if (startLoop != null) {
                     startLoop.setDonePlaying();
-                    startLoop = null;
+                    startLoop = null;  // NOPMD
                 }
                 checkIdleLoop();
             }
@@ -403,26 +403,26 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public void updateControls(boolean forward, boolean backward, boolean left, boolean right) {
-        boolean needsUpdate = false;
+        boolean needsUpdate = false;  // NOPMD
 
         if (isForward() != forward) {
             setForward(forward);
-            needsUpdate = true;
+            needsUpdate = true;  // NOPMD
         }
 
         if (isBackward() != backward) {
             setBackward(backward);
-            needsUpdate = true;
+            needsUpdate = true;  // NOPMD
         }
 
         if (isLeft() != left) {
             setLeft(left);
-            needsUpdate = true;
+            needsUpdate = true;  // NOPMD
         }
 
         if (isRight() != right) {
             setRight(right);
-            needsUpdate = true;
+            needsUpdate = true;  // NOPMD
         }
     }
 

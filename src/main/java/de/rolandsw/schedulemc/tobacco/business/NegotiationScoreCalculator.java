@@ -59,7 +59,7 @@ public class NegotiationScoreCalculator {
     private NPCPersonalityTrait trait;
     private int addictionLevel;
     private int walletBalance;
-    private double requiredBudget;
+    private double requiredBudget;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // CALCULATION

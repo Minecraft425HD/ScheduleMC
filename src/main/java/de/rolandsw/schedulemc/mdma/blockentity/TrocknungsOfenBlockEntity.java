@@ -32,7 +32,7 @@ public class TrocknungsOfenBlockEntity extends BlockEntity implements IUtilityCo
     private MDMAQuality inputQuality = MDMAQuality.SCHLECHT;
     private int dryingProgress = 0;
     private int outputCount = 0;
-    private boolean isActive = false;
+    private boolean isActive = false;  // NOPMD
 
     public TrocknungsOfenBlockEntity(BlockPos pos, BlockState state) {
         super(MDMABlockEntities.TROCKNUNGS_OFEN.get(), pos, state);
@@ -65,7 +65,7 @@ public class TrocknungsOfenBlockEntity extends BlockEntity implements IUtilityCo
         if (level == null || level.isClientSide) return;
 
         if (inputCount > 0 && outputCount == 0) {
-            isActive = true;
+            isActive = true;  // NOPMD
             dryingProgress++;
 
             if (dryingProgress >= DRYING_TIME) {

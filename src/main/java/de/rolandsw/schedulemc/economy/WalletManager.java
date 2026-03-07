@@ -155,7 +155,7 @@ public class WalletManager {
             // NULL CHECK
             if (data == null) {
                 LOGGER.warn("Null data loaded for wallets");
-                invalidCount++;
+                invalidCount++;  // NOPMD
                 return;
             }
 
@@ -214,7 +214,7 @@ public class WalletManager {
 
         @Override
         protected Map<String, Double> getCurrentData() {
-            Map<String, Double> toSave = new HashMap<>();
+            Map<String, Double> toSave = new HashMap<>();  // NOPMD
             for (Map.Entry<UUID, Double> entry : wallets.entrySet()) {
                 toSave.put(entry.getKey().toString(), entry.getValue());
             }

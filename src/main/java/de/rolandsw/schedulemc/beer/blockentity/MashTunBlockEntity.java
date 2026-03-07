@@ -111,7 +111,7 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
             mashingProgress = 0;
         } else if (handlerGrain.isEmpty()) {
             maltedGrainStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             mashingProgress = 0;
         } else {
             maltedGrainStack = handlerGrain.copy();

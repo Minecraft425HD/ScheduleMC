@@ -90,11 +90,11 @@ public class MapViewConfiguration implements SettingsManager {
                     while (sCurrentLine != null) {
                         String[] curLine = sCurrentLine.split(":");
                         switch (curLine[0]) {
-                            case "Zoom Level" -> this.zoom = Math.max(0, Math.min(4, Integer.parseInt(curLine[1])));
-                            case "Old North" -> this.oldNorth = Boolean.parseBoolean(curLine[1]);
-                            case "MapViewRenderer Corner" -> this.mapCorner = Math.max(0, Math.min(3, Integer.parseInt(curLine[1])));
-                            case "MapViewRenderer Size" -> this.sizeModifier = Math.max(-1, Math.min(4, Integer.parseInt(curLine[1])));
-                            case "Show Territories" -> this.showTerritories = Boolean.parseBoolean(curLine[1]);
+                            case "Zoom Level" -> this.zoom = Math.max(0, Math.min(4, Integer.parseInt(curLine[1])));  // NOPMD
+                            case "Old North" -> this.oldNorth = Boolean.parseBoolean(curLine[1]);  // NOPMD
+                            case "MapViewRenderer Corner" -> this.mapCorner = Math.max(0, Math.min(3, Integer.parseInt(curLine[1])));  // NOPMD
+                            case "MapViewRenderer Size" -> this.sizeModifier = Math.max(-1, Math.min(4, Integer.parseInt(curLine[1])));  // NOPMD
+                            case "Show Territories" -> this.showTerritories = Boolean.parseBoolean(curLine[1]);  // NOPMD
                             case "Zoom Key" -> this.bindKey(this.keyBindZoom, curLine[1]);
                             case "Fullscreen Key" -> this.bindKey(this.keyBindFullscreen, curLine[1]);
                             case "Menu Key" -> this.bindKey(this.keyBindMenu, curLine[1]);

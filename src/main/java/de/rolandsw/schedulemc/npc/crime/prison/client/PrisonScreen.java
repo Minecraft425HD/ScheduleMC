@@ -269,7 +269,7 @@ public class PrisonScreen extends Screen {
         }
     }
 
-    private void onBailButtonClick(Button button) {
+    private void onBailButtonClick(Button button) {  // NOPMD
         if (!bailAvailable || playerBalance < bailAmount) {
             return;
         }

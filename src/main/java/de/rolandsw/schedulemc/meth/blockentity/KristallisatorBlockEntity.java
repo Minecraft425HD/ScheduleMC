@@ -32,7 +32,7 @@ public class KristallisatorBlockEntity extends BlockEntity implements IUtilityCo
     private int[] progress = new int[CAPACITY];
     private MethQuality[] qualities = new MethQuality[CAPACITY];
 
-    private boolean isActive = false;
+    private boolean isActive = false;  // NOPMD
 
     public KristallisatorBlockEntity(BlockPos pos, BlockState state) {
         super(MethBlockEntities.KRISTALLISATOR.get(), pos, state);

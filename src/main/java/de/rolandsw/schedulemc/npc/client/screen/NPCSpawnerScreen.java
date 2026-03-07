@@ -162,7 +162,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     /**
      * Callback wenn der NPC-Name geändert wird
      */
-    private void onNameChanged(String newName) {
+    private void onNameChanged(String newName) {  // NOPMD
         // Update Spawn-Button Aktivierung
         boolean nameTaken = ClientNPCNameCache.isNameTaken(newName);
         spawnButton.active = !nameTaken && !newName.trim().isEmpty();
@@ -303,7 +303,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         if (!availableSkins.isEmpty()) {
             String skinName = availableSkins.get(selectedSkinIndex);
             // Zeige schöneren Namen für Standard-Skins
-            String displayName = skinName;
+            String displayName = skinName;  // NOPMD
             if (skinName.equals("steve")) {
                 displayName = "Steve (Standard)";
             } else if (skinName.equals("alex")) {

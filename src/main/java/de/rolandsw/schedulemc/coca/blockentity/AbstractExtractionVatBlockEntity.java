@@ -129,8 +129,8 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 extractionProgress[i] = 0;
-                cocaTypes[i] = null;
-                qualities[i] = null;
+                cocaTypes[i] = null;  // NOPMD
+                qualities[i] = null;  // NOPMD
             }
         }
 

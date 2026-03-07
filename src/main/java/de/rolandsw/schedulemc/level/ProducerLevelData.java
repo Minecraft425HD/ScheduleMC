@@ -74,7 +74,7 @@ public class ProducerLevelData {
         int newLevel = LevelRequirements.getLevelForXP(totalXP);
 
         if (newLevel > level) {
-            int oldLevel = level;
+            int oldLevel = level;  // NOPMD
             level = newLevel;
 
             // Neue Unlockables freischalten

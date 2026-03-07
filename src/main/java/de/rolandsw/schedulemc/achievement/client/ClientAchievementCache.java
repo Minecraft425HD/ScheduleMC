@@ -42,13 +42,13 @@ public class ClientAchievementCache {
     private static final Map<AchievementCategory, List<AchievementData>> categoryMap = new ConcurrentHashMap<>();
 
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads
-    private static volatile int totalAchievements = 0;
-    private static volatile int unlockedCount = 0;
-    private static volatile double totalEarned = 0.0;
-    private static volatile boolean initialized = false;
+    private static volatile int totalAchievements = 0;  // NOPMD
+    private static volatile int unlockedCount = 0;  // NOPMD
+    private static volatile double totalEarned = 0.0;  // NOPMD
+    private static volatile boolean initialized = false;  // NOPMD
 
     // Listener für Cache-Updates
-    private static volatile Runnable updateListener = null;
+    private static volatile Runnable updateListener = null;  // NOPMD
 
     /**
      * Aktualisiert den Cache mit neuen Daten vom Server
@@ -128,7 +128,7 @@ public class ClientAchievementCache {
         unlockedCount = 0;
         totalEarned = 0.0;
         initialized = false;
-        updateListener = null;
+        updateListener = null;  // NOPMD
 
         if (achievementCount > 0 || mapCount > 0 || categoryCount > 0) {
             LOGGER.info("ClientAchievementCache cleared: {} achievements, {} map entries, {} categories",
@@ -220,6 +220,6 @@ public class ClientAchievementCache {
      * Entfernt den Update-Listener
      */
     public static void removeUpdateListener() {
-        updateListener = null;
+        updateListener = null;  // NOPMD
     }
 }

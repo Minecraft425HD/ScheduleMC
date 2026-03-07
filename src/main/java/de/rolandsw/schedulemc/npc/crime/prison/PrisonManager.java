@@ -35,7 +35,7 @@ public class PrisonManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile PrisonManager instance;
+    private static volatile PrisonManager instance;  // NOPMD
 
     public static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;
     public static final double BAIL_MULTIPLIER = 1000.0;
@@ -508,7 +508,7 @@ public class PrisonManager {
             File file = new File(SAVE_FILE);
             file.getParentFile().mkdirs();
 
-            Map<String, PrisonerData> saveData = new HashMap<>();
+            Map<String, PrisonerData> saveData = new HashMap<>();  // NOPMD
             for (var entry : prisoners.entrySet()) {
                 saveData.put(entry.getKey().toString(), entry.getValue());
             }

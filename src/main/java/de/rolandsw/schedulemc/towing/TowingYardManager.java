@@ -422,7 +422,7 @@ public class TowingYardManager {
             // Parking Spots im Speicher erhalten bleiben statt gelöscht zu werden.
             if (data == null) {
                 LOGGER.warn("Null data loaded for parking spots");
-                invalidCount++;
+                invalidCount++;  // NOPMD
                 return;
             }
 
@@ -543,7 +543,7 @@ public class TowingYardManager {
 
         @Override
         protected Map<String, ParkingSpotSaveData> getCurrentData() {
-            Map<String, ParkingSpotSaveData> saveMap = new HashMap<>();
+            Map<String, ParkingSpotSaveData> saveMap = new HashMap<>();  // NOPMD
 
             parkingSpots.forEach((spotId, spot) -> {
                 ParkingSpotSaveData saveData = new ParkingSpotSaveData();

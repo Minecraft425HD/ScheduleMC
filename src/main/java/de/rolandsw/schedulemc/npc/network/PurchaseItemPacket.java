@@ -278,7 +278,7 @@ public class PurchaseItemPacket {
                 // WorldEventManager Preismodifikator
                 de.rolandsw.schedulemc.npc.life.world.WorldEventManager worldEventManager =
                     de.rolandsw.schedulemc.npc.life.world.WorldEventManager.getManager(serverLevel);
-                float worldModifier = worldEventManager.getCombinedPriceModifier(player.blockPosition());
+                float worldModifier = worldEventManager.getCombinedPriceModifier(player.blockPosition());  // NOPMD
                 // Hinweis: Modifikator wird für zukünftige Preisberechnungen gespeichert
 
                 // Cross-System Koordination via Life System Integration

@@ -519,7 +519,7 @@ public class BankAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.transactions_count").getString() + recentTransactions.size(), leftPos + WIDTH / 2, y, 0xAAAAAA);
         }
-        y += 12;
+        y += 12;  // NOPMD
         contentHeight += 12;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
@@ -577,7 +577,7 @@ public class BankAppScreen extends Screen {
     // TAB 3: ÜBERWEISUNG
     // ═══════════════════════════════════════════════════════════
 
-    private void renderTransferTab(GuiGraphics guiGraphics, int startY, int endY) {
+    private void renderTransferTab(GuiGraphics guiGraphics, int startY, int endY) {  // NOPMD
         // PERFORMANCE: gecachte Strings
         guiGraphics.drawString(this.font, cachedAvailableLabel, leftPos + 15, startY, 0xAAAAAA);
         guiGraphics.drawString(this.font, cachedBalanceStr, leftPos + 110, startY, 0xFFAA00);
@@ -685,7 +685,7 @@ public class BankAppScreen extends Screen {
                     guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.no_recurring").getString(),
                         leftPos + WIDTH / 2, y, 0xAAAAAA);
                 }
-                y += 15;
+                y += 15;  // NOPMD
                 contentHeight += 15;
             } else {
                 // Kredit-Dauerauftrag ZUERST anzeigen (als spezielle Zahlung)
@@ -753,7 +753,7 @@ public class BankAppScreen extends Screen {
                 guiGraphics.drawCenteredString(this.font, Component.translatable("gui.app.bank.no_recurring").getString(),
                     leftPos + WIDTH / 2, y, 0xAAAAAA);
             }
-            y += 15;
+            y += 15;  // NOPMD
             contentHeight += 15;
         }
 

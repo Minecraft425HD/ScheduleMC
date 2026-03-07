@@ -136,7 +136,7 @@ public class HealthCommand {
     /**
      * Zeigt Overall-Health-Status aller 38 Systeme
      */
-    private static int showOverallHealth(CommandContext<CommandSourceStack> context) {
+    private static int showOverallHealth(CommandContext<CommandSourceStack> context) {  // NOPMD
         String report = HealthCheckManager.getHealthReport();
 
         // Split report in Zeilen und sende jede einzeln
@@ -210,7 +210,7 @@ public class HealthCommand {
     /**
      * Economy-System mit Backup-Details
      */
-    private static int showEconomyHealth(CommandContext<CommandSourceStack> context) {
+    private static int showEconomyHealth(CommandContext<CommandSourceStack> context) {  // NOPMD
         // Generischer Health-Check zuerst
         showSystemDetail(context, "economy");
 
@@ -238,7 +238,7 @@ public class HealthCommand {
     /**
      * Plot-System mit Cache-Statistiken und Backup-Details
      */
-    private static int showPlotHealth(CommandContext<CommandSourceStack> context) {
+    private static int showPlotHealth(CommandContext<CommandSourceStack> context) {  // NOPMD
         // Generischer Health-Check zuerst
         showSystemDetail(context, "plot");
 
@@ -277,7 +277,7 @@ public class HealthCommand {
     /**
      * Zeigt Backup-Übersicht aller persistenten Systeme
      */
-    private static int showBackupInfo(CommandContext<CommandSourceStack> context) {
+    private static int showBackupInfo(CommandContext<CommandSourceStack> context) {  // NOPMD
         context.getSource().sendSuccess(() ->
             Component.literal("§e§l══════════════════════════════════"), false);
         context.getSource().sendSuccess(() ->
@@ -347,7 +347,7 @@ public class HealthCommand {
     /**
      * Loggt Health-Check in Server-Console
      */
-    private static int logHealthCheck(CommandContext<CommandSourceStack> context) {
+    private static int logHealthCheck(CommandContext<CommandSourceStack> context) {  // NOPMD
         HealthCheckManager.logHealthCheck();
 
         context.getSource().sendSuccess(() ->

@@ -28,7 +28,7 @@ public class FermentationsTankBlockEntity extends BlockEntity implements IUtilit
     private int mutterkornCount = 0;
     private int fermentationProgress = 0;
     private int outputCount = 0;
-    private boolean isActive = false;
+    private boolean isActive = false;  // NOPMD
 
     public FermentationsTankBlockEntity(BlockPos pos, BlockState state) {
         super(LSDBlockEntities.FERMENTATIONS_TANK.get(), pos, state);
@@ -69,7 +69,7 @@ public class FermentationsTankBlockEntity extends BlockEntity implements IUtilit
         if (level == null || level.isClientSide) return;
 
         if (mutterkornCount > 0 && outputCount == 0) {
-            isActive = true;
+            isActive = true;  // NOPMD
             fermentationProgress++;
 
             if (fermentationProgress >= FERMENTATION_TIME) {

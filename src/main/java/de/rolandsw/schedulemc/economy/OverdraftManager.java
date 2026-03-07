@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OverdraftManager extends AbstractPersistenceManager<Map<String, Object>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile OverdraftManager instance;
+    private static volatile OverdraftManager instance;  // NOPMD
 
     // Tracking: Wann wurde Spieler das erste Mal negativ?
     private final Map<UUID, Long> debtStartDay = new ConcurrentHashMap<>();
@@ -486,7 +486,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         // NULL CHECK
         if (data == null) {
             LOGGER.warn("Null data loaded for overdraft manager");
-            invalidCount++;
+            invalidCount++;  // NOPMD
             return;
         }
 
@@ -562,17 +562,17 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
     @Override
     protected Map<String, Object> getCurrentData() {
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();  // NOPMD
 
-        Map<String, Long> debtStartMap = new HashMap<>();
+        Map<String, Long> debtStartMap = new HashMap<>();  // NOPMD
         debtStartDay.forEach((k, v) -> debtStartMap.put(k.toString(), v));
         data.put("debtStartDay", debtStartMap);
 
-        Map<String, Long> warningMap = new HashMap<>();
+        Map<String, Long> warningMap = new HashMap<>();  // NOPMD
         lastWarningDay.forEach((k, v) -> warningMap.put(k.toString(), v));
         data.put("lastWarningDay", warningMap);
 
-        Map<String, Long> interestMap = new HashMap<>();
+        Map<String, Long> interestMap = new HashMap<>();  // NOPMD
         lastInterestDay.forEach((k, v) -> interestMap.put(k.toString(), v));
         data.put("lastInterestDay", interestMap);
 

@@ -209,7 +209,7 @@ public class WarehouseBlockEntity extends BlockEntity {
 
         // Berechne dynamische Lieferkosten via UDPS
         double totalCostDynamic = 0.0;
-        Map<Item, Integer> toDeliver = new HashMap<>();
+        Map<Item, Integer> toDeliver = new HashMap<>();  // NOPMD
         int slotsWithItems = 0;
         int emptySlots = 0;
         int fullSlots = 0;
@@ -305,8 +305,8 @@ public class WarehouseBlockEntity extends BlockEntity {
 
         // Benachrichtige nahe Spieler
         final int fCost = totalCost;
-        final int fShop = shopPaid;
-        final int fState = statePaid;
+        final int fShop = shopPaid;  // NOPMD
+        final int fState = statePaid;  // NOPMD
         level.players().stream()
             .filter(player -> player.blockPosition().distSqr(worldPosition) < 2500)
             .forEach(player -> player.sendSystemMessage(

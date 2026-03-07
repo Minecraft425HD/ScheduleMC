@@ -38,7 +38,7 @@ public class SyncBankDataPacket {
         this.totalExpenses = totalExpenses;
     }
 
-    private SyncBankDataPacket(double balance, List<TransactionData> transactions, double totalIncome, double totalExpenses, boolean internal) {
+    private SyncBankDataPacket(double balance, List<TransactionData> transactions, double totalIncome, double totalExpenses, boolean internal) {  // NOPMD
         this.balance = balance;
         this.transactions = transactions;
         this.totalIncome = totalIncome;

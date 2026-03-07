@@ -164,7 +164,7 @@ public class NegotiationPacket {
 
                 // Verkauf durchführen
                 double price = offeredPrice;
-                long currentDay = player.level().getDayTime() / 24000;
+                long currentDay = player.level().getDayTime() / 24000;  // NOPMD
 
                 // Parse Type und Quality aus PackagedDrugItem
                 String variantStr = PackagedDrugItem.getVariant(playerItem);

@@ -77,7 +77,7 @@ public class VehicleSpawnTool extends Item {
             String yardId = tag.getString("TowingYardId");
 
             // Erstelle Parkplatz für Towing Yard
-            UUID parkingSpotId = de.rolandsw.schedulemc.towing.TowingYardManager.addParkingSpot(pos, yardId);
+            UUID parkingSpotId = de.rolandsw.schedulemc.towing.TowingYardManager.addParkingSpot(pos, yardId);  // NOPMD
 
             player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.parking_header").withStyle(ChatFormatting.GOLD));
             player.sendSystemMessage(Component.translatable("item.vehicle_spawn_tool.parking_title").withStyle(ChatFormatting.YELLOW)

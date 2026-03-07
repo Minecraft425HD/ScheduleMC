@@ -19,7 +19,7 @@ public class PopupComponent {
     private final int clickedDirectY;
     private final int clickedWorldX;
     private final int clickedWorldZ;
-    private boolean shouldClose;
+    private boolean shouldClose;  // NOPMD
     private final PopupScreen parentGui;
     private final int padding = 6;
 
@@ -78,7 +78,7 @@ public class PopupComponent {
                 if (this.entries[t].enabled) {
                     boolean entryClicked = mouseX >= this.x && mouseX <= (this.x + this.w) && mouseY >= (this.y + t * 20) && mouseY < (this.y + (t + 1) * 20);
                     if (entryClicked) {
-                        this.shouldClose = this.entries[t].causesClose;
+                        this.shouldClose = this.entries[t].causesClose;  // NOPMD
                         this.parentGui.popupAction(this, this.entries[t].action);
                     }
                 }

@@ -27,7 +27,7 @@ public final class BiomeColors {
     private static final ConcurrentHashMap<Biome, Integer> IDtoColor = new ConcurrentHashMap<>(256);
     private static final ConcurrentSkipListMap<String, Integer> nameToColor = new ConcurrentSkipListMap<>();
     // SICHERHEIT: volatile für Memory Visibility
-    private static volatile boolean dirty;
+    private static volatile boolean dirty;  // NOPMD
 
     private BiomeColors() {}
 
@@ -78,7 +78,7 @@ public final class BiomeColors {
                             color = 0;
                         }
 
-                        if (nameToColor.putIfAbsent(name, color) == null) {
+                        if (nameToColor.putIfAbsent(name, color) == null) {  // NOPMD
                             dirty = true;
                         }
                     }

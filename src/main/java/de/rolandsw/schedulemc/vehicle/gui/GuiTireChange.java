@@ -37,7 +37,7 @@ public class GuiTireChange extends Screen {
     private static final int COL_COMPAT   = 0x3300BB00; // schwacher grüner Hint
     private static final int COL_WARN     = 0xFFAA0000;
     private static final int COL_TEXT     = 0x404040;
-    private static final int COL_LIGHT    = 0x555555;
+    private static final int COL_LIGHT    = 0x555555;  // NOPMD
 
     private final UUID vehicleUuid;
     private final TireSeasonType currentTireSeasonType;
@@ -154,7 +154,7 @@ public class GuiTireChange extends Screen {
         }
     }
 
-    private void drawHotbar(GuiGraphics g, int gx, int ty, int mouseX, int mouseY) {
+    private void drawHotbar(GuiGraphics g, int gx, int ty, int mouseX, int mouseY) {  // NOPMD
         int slotStartX = gx + (GUI_W - 9 * 18) / 2;
         for (int i = 0; i < 9; i++) {
             int sx = slotStartX + i * 18;

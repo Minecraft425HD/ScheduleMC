@@ -37,7 +37,7 @@ public class WarehouseMenu extends AbstractContainerMenu {
         this.pos = extraData.readBlockPos();
         this.level = playerInventory.player.level();
         BlockEntity be = level.getBlockEntity(pos);
-        this.warehouseBE = be instanceof WarehouseBlockEntity ? (WarehouseBlockEntity) be : null;
+        this.warehouseBE = be instanceof WarehouseBlockEntity ? (WarehouseBlockEntity) be : null;  // NOPMD
     }
 
     public WarehouseBlockEntity getWarehouse() {

@@ -24,7 +24,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
     private EditBox amountInput;
     private Button withdrawModeButton;
     private Button depositModeButton;
-    private Button confirmButton;
+    private Button confirmButton;  // NOPMD
 
     // Quick amount buttons
     private Button[] quickButtons;

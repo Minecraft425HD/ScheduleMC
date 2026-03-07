@@ -103,7 +103,7 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
             pressingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             pressingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

@@ -101,7 +101,7 @@ public class RoastingStationBlockEntity extends BlockEntity implements IUtilityC
             roastingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             roastingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

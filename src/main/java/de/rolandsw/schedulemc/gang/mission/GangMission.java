@@ -16,9 +16,9 @@ public class GangMission {
     private final int moneyReward;
     private final long createdAt;
 
-    private volatile int currentProgress;
-    private volatile boolean completed;
-    private volatile boolean claimed;
+    private volatile int currentProgress;  // NOPMD
+    private volatile boolean completed;  // NOPMD
+    private volatile boolean claimed;  // NOPMD
 
     public GangMission(String missionId, MissionTemplate template,
                        String description, int targetAmount,

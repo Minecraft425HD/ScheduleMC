@@ -211,7 +211,7 @@ public class EconomyConfigScreen extends Screen {
         // === WIDGET ROW ENTRY ===
 
         public class WidgetRowEntry extends Entry {
-            private final List<GuiEventListener> children = new ArrayList<>();
+            private final List<GuiEventListener> children = new ArrayList<>();  // NOPMD
             @Nullable private final GuiEventListener leftWidget;
             @Nullable private final GuiEventListener rightWidget;
 

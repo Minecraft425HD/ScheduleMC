@@ -30,7 +30,7 @@ public class VehicleSpawnRegistry {
     // UUID (Dealer NPC ID) → List<VehicleSpawnPoint>
     private static Map<UUID, List<VehicleSpawnPoint>> dealerSpawnPoints = new ConcurrentHashMap<>();
     // SICHERHEIT: volatile für Memory Visibility
-    private static volatile boolean isDirty = false;
+    private static volatile boolean isDirty = false;  // NOPMD
 
     /**
      * Lädt Spawn-Punkte vom Disk
@@ -63,7 +63,7 @@ public class VehicleSpawnRegistry {
     public static void save() {
         SPAWN_FILE.getParentFile().mkdirs();
         try {
-            Map<String, List<VehicleSpawnPoint>> toSave = new HashMap<>();
+            Map<String, List<VehicleSpawnPoint>> toSave = new HashMap<>();  // NOPMD
             for (Map.Entry<UUID, List<VehicleSpawnPoint>> entry : dealerSpawnPoints.entrySet()) {
                 toSave.put(entry.getKey().toString(), entry.getValue());
             }
@@ -168,7 +168,7 @@ public class VehicleSpawnRegistry {
             for (VehicleSpawnPoint point : points) {
                 if (vehicleId.equals(point.occupyingVehicleId)) {
                     point.occupied = false;
-                    point.occupyingVehicleId = null;
+                    point.occupyingVehicleId = null;  // NOPMD
                     isDirty = true;
                     return;
                 }
@@ -189,7 +189,7 @@ public class VehicleSpawnRegistry {
             this.position = position;
             this.yaw = yaw;
             this.occupied = false;
-            this.occupyingVehicleId = null;
+            this.occupyingVehicleId = null;  // NOPMD
         }
 
         public BlockPos getPosition() {

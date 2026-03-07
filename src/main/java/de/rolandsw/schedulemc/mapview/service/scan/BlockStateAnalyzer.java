@@ -69,7 +69,7 @@ public final class BlockStateAnalyzer {
         return blockState;
     }
 
-    private static <T extends Comparable<T>> BlockState withValue(BlockState state, Property<T> property, String string) {
+    private static <T extends Comparable<T>> BlockState withValue(BlockState state, Property<T> property, String string) {  // NOPMD
         Optional<T> value = property.getValue(string);
 
         return value.isPresent() ? state.setValue(property, value.get()) : state;

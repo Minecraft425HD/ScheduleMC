@@ -303,10 +303,10 @@ public class GenericQuality implements ProductionQuality {
      */
     public static class Builder {
         private final int tierCount;
-        private String[] names;
-        private String[] colorCodes;
-        private double[] priceMultipliers;
-        private String[] descriptions;
+        private String[] names;  // NOPMD
+        private String[] colorCodes;  // NOPMD
+        private double[] priceMultipliers;  // NOPMD
+        private String[] descriptions;  // NOPMD
 
         public Builder(int tierCount) {
             if (tierCount < 2 || tierCount > 10) {

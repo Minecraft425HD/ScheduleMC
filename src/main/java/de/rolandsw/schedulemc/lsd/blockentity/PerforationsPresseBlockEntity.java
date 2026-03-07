@@ -33,7 +33,7 @@ public class PerforationsPresseBlockEntity extends BlockEntity implements IUtili
     private BlotterDesign selectedDesign = BlotterDesign.TOTENKOPF;
     private int pressProgress = 0;
     private ItemStack outputItem = ItemStack.EMPTY;
-    private boolean isPressing = false;
+    private boolean isPressing = false;  // NOPMD
 
     public PerforationsPresseBlockEntity(BlockPos pos, BlockState state) {
         super(LSDBlockEntities.PERFORATIONS_PRESSE.get(), pos, state);

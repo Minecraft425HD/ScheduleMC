@@ -113,9 +113,9 @@ public class CreamingStationBlockEntity extends BlockEntity implements IUtilityC
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            honeyType = null;
-            quality = null;
-            ageLevel = null;
+            honeyType = null;  // NOPMD
+            quality = null;  // NOPMD
+            ageLevel = null;  // NOPMD
             processingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -155,9 +155,9 @@ public class CreamingStationBlockEntity extends BlockEntity implements IUtilityC
 
                 inputStack.shrink(1);
                 if (inputStack.isEmpty()) {
-                    honeyType = null;
-                    quality = null;
-                    ageLevel = null;
+                    honeyType = null;  // NOPMD
+                    quality = null;  // NOPMD
+                    ageLevel = null;  // NOPMD
                 }
 
                 processingProgress = 0;

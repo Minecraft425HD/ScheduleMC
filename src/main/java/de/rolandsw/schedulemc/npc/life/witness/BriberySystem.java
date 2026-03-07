@@ -189,7 +189,7 @@ public class BriberySystem {
         float greedFactor = 1.0f + (traits.getGreed() / 100.0f) * 0.5f; // 0.5 - 1.5
 
         // Ehrlichkeits-Faktor: Ehrliche NPCs wollen viel mehr
-        float honestyFactor = 1.0f;
+        float honestyFactor = 1.0f;  // NOPMD
         if (traits.getHonesty() > 0) {
             honestyFactor = 1.0f + (traits.getHonesty() / 100.0f) * 2.0f; // 1.0 - 3.0
         } else {

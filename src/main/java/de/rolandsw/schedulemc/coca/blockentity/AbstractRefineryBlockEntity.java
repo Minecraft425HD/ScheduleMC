@@ -144,8 +144,8 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 refineryProgress[i] = 0;
-                cocaTypes[i] = null;
-                qualities[i] = null;
+                cocaTypes[i] = null;  // NOPMD
+                qualities[i] = null;  // NOPMD
             }
         }
 

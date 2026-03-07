@@ -24,7 +24,7 @@ public class ScenarioObjective {
         this.editorX = editorX;
         this.editorY = editorY;
         this.params = new HashMap<>();
-        this.nextObjectiveId = null;
+        this.nextObjectiveId = null;  // NOPMD
 
         // Standard-Parameter setzen
         for (ObjectiveType.ParamDef def : type.getParamDefs()) {

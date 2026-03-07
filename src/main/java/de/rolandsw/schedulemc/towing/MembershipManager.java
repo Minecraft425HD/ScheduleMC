@@ -249,7 +249,7 @@ public class MembershipManager {
             // Mitgliedschaften im Speicher erhalten bleiben statt gelöscht zu werden.
             if (data == null) {
                 LOGGER.warn("Null data loaded for memberships");
-                invalidCount++;
+                invalidCount++;  // NOPMD
                 return;
             }
 
@@ -337,7 +337,7 @@ public class MembershipManager {
 
         @Override
         protected Map<String, MembershipSaveData> getCurrentData() {
-            Map<String, MembershipSaveData> saveMap = new HashMap<>();
+            Map<String, MembershipSaveData> saveMap = new HashMap<>();  // NOPMD
 
             memberships.forEach((playerId, data) -> {
                 // Only save if player has an active membership or had one

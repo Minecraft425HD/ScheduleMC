@@ -294,7 +294,7 @@ public class NegotiationSystem {
         private float totalDiscount = 0.0f;
         private boolean finished = false;
         private FinishReason finishReason;
-        private final boolean isBuying;
+        private final boolean isBuying;  // NOPMD
 
         public NegotiationSession(CustomNPCEntity npc, ServerPlayer player, int originalPrice,
                                  int maxRounds, boolean isBuying) {

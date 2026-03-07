@@ -350,7 +350,7 @@ public class CrimeStatsAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, cachedTipWait, leftPos + 15, y, 0xAAAAAA);
             }
-            y += 11;
+            y += 11;  // NOPMD
             contentHeight += 11;
         } else {
             if (y >= startY - 10 && y < endY) {
@@ -362,7 +362,7 @@ public class CrimeStatsAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, cachedTipAvoidCrime, leftPos + 15, y, 0xAAAAAA);
             }
-            y += 11;
+            y += 11;  // NOPMD
             contentHeight += 11;
         }
 
@@ -458,7 +458,7 @@ public class CrimeStatsAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, cachedWaitDecay, leftPos + 15, y, 0xAAAAAA);
         }
-        y += 11;
+        y += 11;  // NOPMD
         contentHeight += 11;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
@@ -543,7 +543,7 @@ public class CrimeStatsAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, cachedEscapeDistance, leftPos + 15, y, 0xAAAAAA);
         }
-        y += 11;
+        y += 11;  // NOPMD
         contentHeight += 11;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);

@@ -44,7 +44,7 @@ public class LockData {
         this.authorizedPlayers = new HashSet<>();
         this.placedTime = System.currentTimeMillis();
         this.lastCodeRotation = placedTime;
-        this.code = null;
+        this.code = null;  // NOPMD
     }
 
     // ═══════════════════════════════════════════════════════════

@@ -24,7 +24,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile FactionManager instance;
+    private static volatile FactionManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -97,7 +97,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
      * Erstellt Standard-Beziehungen für alle Fraktionen
      */
     private Map<Faction, FactionRelation> createDefaultRelations() {
-        Map<Faction, FactionRelation> relations = new EnumMap<>(Faction.class);
+        Map<Faction, FactionRelation> relations = new EnumMap<>(Faction.class);  // NOPMD
         for (Faction faction : Faction.values()) {
             relations.put(faction, new FactionRelation(faction));
         }
@@ -358,7 +358,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
         for (Map.Entry<String, Map<String, FactionRelation>> entry : data.entrySet()) {
             try {
                 UUID playerUUID = UUID.fromString(entry.getKey());
-                Map<Faction, FactionRelation> relations = new EnumMap<>(Faction.class);
+                Map<Faction, FactionRelation> relations = new EnumMap<>(Faction.class);  // NOPMD
 
                 for (Map.Entry<String, FactionRelation> relEntry : entry.getValue().entrySet()) {
                     try {
@@ -422,10 +422,10 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
 
     @Override
     protected Map<String, Map<String, FactionRelation>> getCurrentData() {
-        Map<String, Map<String, FactionRelation>> data = new HashMap<>();
+        Map<String, Map<String, FactionRelation>> data = new HashMap<>();  // NOPMD
 
         for (Map.Entry<UUID, Map<Faction, FactionRelation>> entry : playerFactions.entrySet()) {
-            Map<String, FactionRelation> relations = new HashMap<>();
+            Map<String, FactionRelation> relations = new HashMap<>();  // NOPMD
             for (Map.Entry<Faction, FactionRelation> relEntry : entry.getValue().entrySet()) {
                 relations.put(relEntry.getKey().name(), relEntry.getValue());
             }

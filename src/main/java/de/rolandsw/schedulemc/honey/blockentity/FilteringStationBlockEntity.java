@@ -108,8 +108,8 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            honeyType = null;
-            quality = null;
+            honeyType = null;  // NOPMD
+            quality = null;  // NOPMD
             processingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -156,8 +156,8 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
 
                 inputStack.shrink(1);
                 if (inputStack.isEmpty()) {
-                    honeyType = null;
-                    quality = null;
+                    honeyType = null;  // NOPMD
+                    quality = null;  // NOPMD
                 }
 
                 processingProgress = 0;

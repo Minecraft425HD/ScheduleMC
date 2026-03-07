@@ -30,7 +30,7 @@ public class MikroDosiererBlockEntity extends BlockEntity implements IUtilityCon
     private int dosageSlider = 50; // 0-100, default 50% = 175μg
     private int processProgress = 0;
     private ItemStack outputItem = ItemStack.EMPTY;
-    private boolean isProcessing = false;
+    private boolean isProcessing = false;  // NOPMD
 
     public MikroDosiererBlockEntity(BlockPos pos, BlockState state) {
         super(LSDBlockEntities.MIKRO_DOSIERER.get(), pos, state);

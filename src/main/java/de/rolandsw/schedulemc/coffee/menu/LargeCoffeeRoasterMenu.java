@@ -18,7 +18,7 @@ public class LargeCoffeeRoasterMenu extends AbstractContainerMenu {
     public LargeCoffeeRoasterMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(CoffeeMenuTypes.LARGE_COFFEE_ROASTER_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof LargeCoffeeRoasterBlockEntity e ? e : null;
+        this.blockEntity = be instanceof LargeCoffeeRoasterBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2); addDataSlots(data); addSlots(inv);
     }
     private void addSlots(Inventory inv) {

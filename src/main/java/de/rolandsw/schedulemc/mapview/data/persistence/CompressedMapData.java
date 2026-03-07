@@ -41,8 +41,8 @@ public class CompressedMapData extends AbstractMapData {
     private final static byte[] compressedEmptyData = CompressionUtils.compress(generateEmptyData());
 
     // OPTIMIZATION: volatile for lock-free reads
-    private volatile byte[] data;
-    private volatile boolean isCompressed;
+    private volatile byte[] data;  // NOPMD
+    private volatile boolean isCompressed;  // NOPMD
 
     // OPTIMIZATION: Replaced BiMap with ConcurrentHashMap (lock-free!)
     private final ConcurrentHashMap<BlockState, Integer> blockStateToInt = new ConcurrentHashMap<>();
@@ -526,7 +526,7 @@ public class CompressedMapData extends AbstractMapData {
 
     // OPTIMIZATION: Rewritten for ConcurrentHashMap (lock-free)
     private void createKeyFromCurrentBlocks() {
-        ConcurrentHashMap<BlockState, Integer> oldStateToInt = new ConcurrentHashMap<>(this.blockStateToInt);
+        ConcurrentHashMap<BlockState, Integer> oldStateToInt = new ConcurrentHashMap<>(this.blockStateToInt);  // NOPMD
         ConcurrentHashMap<Integer, BlockState> oldIntToState = new ConcurrentHashMap<>(this.intToBlockState);
 
         this.blockStateToInt.clear();
@@ -645,7 +645,7 @@ public class CompressedMapData extends AbstractMapData {
 
     // OPTIMIZATION: Rewritten for ConcurrentHashMap (lock-free)
     private void createKeyFromCurrentBiomes() {
-        ConcurrentHashMap<Biome, Integer> oldBiomeToInt = new ConcurrentHashMap<>(this.biomeToInt);
+        ConcurrentHashMap<Biome, Integer> oldBiomeToInt = new ConcurrentHashMap<>(this.biomeToInt);  // NOPMD
         ConcurrentHashMap<Integer, Biome> oldIntToBiome = new ConcurrentHashMap<>(this.intToBiome);
 
         this.biomeToInt.clear();

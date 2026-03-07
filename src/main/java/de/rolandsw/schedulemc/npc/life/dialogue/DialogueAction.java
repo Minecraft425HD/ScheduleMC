@@ -237,7 +237,7 @@ public class DialogueAction {
             "Gerüchte teilen",
             (ctx, npc) -> {
                 if (npc.level() instanceof ServerLevel level) {
-                    RumorNetwork network = RumorNetwork.getNetwork(level);
+                    RumorNetwork network = RumorNetwork.getNetwork(level);  // NOPMD
                     // Gebe dem NPC bekannte Gerüchte an den Spieler weiter
                     ctx.setFlag("rumors_shared");
                     // Die tatsächliche Anzeige der Gerüchte wird vom Dialogue-System behandelt

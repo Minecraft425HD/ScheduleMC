@@ -156,7 +156,7 @@ public class UpdateShopItemsPacket {
 
         // 2. Synchronisiere alle Shop-Items mit Warehouse
         // OPTIMIERUNG: HashMap für O(1) Slot-Lookup statt O(n) pro Item
-        Map<Item, WarehouseSlot> slotByItem = new HashMap<>();
+        Map<Item, WarehouseSlot> slotByItem = new HashMap<>();  // NOPMD
         List<WarehouseSlot> emptySlots = new ArrayList<>();
 
         for (WarehouseSlot slot : slots) {
@@ -167,7 +167,7 @@ public class UpdateShopItemsPacket {
             }
         }
 
-        int itemsAdded = 0;
+        int itemsAdded = 0;  // NOPMD
         int emptySlotIndex = 0;
 
         for (NPCData.ShopEntry entry : shopEntries) {

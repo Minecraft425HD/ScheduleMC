@@ -37,7 +37,7 @@ public class CrimeRecordCommand {
         );
     }
 
-    private static int showCrimeRecord(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+    private static int showCrimeRecord(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {  // NOPMD
         ServerPlayer target = EntityArgument.getPlayer(context, "player");
         CommandSourceStack source = context.getSource();
 
@@ -73,7 +73,7 @@ public class CrimeRecordCommand {
         return 1;
     }
 
-    private static int showEvidence(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+    private static int showEvidence(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {  // NOPMD
         ServerPlayer target = EntityArgument.getPlayer(context, "player");
         CommandSourceStack source = context.getSource();
 
@@ -112,7 +112,7 @@ public class CrimeRecordCommand {
         return 1;
     }
 
-    private static int clearRecord(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+    private static int clearRecord(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {  // NOPMD
         ServerPlayer target = EntityArgument.getPlayer(context, "player");
         CommandSourceStack source = context.getSource();
 

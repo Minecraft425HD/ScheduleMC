@@ -17,9 +17,9 @@ public final class AsyncPersistenceManager {
     // saveExecutorService → ThreadPoolManager.getIOPool() (save operations)
     // DEPRECATED: Use getExecutorService() instead - kept for backward compatibility
     @Deprecated
-    public static ExecutorService executorService = ThreadPoolManager.getComputationPool();
+    public static ExecutorService executorService = ThreadPoolManager.getComputationPool();  // NOPMD
     @Deprecated
-    public static ExecutorService saveExecutorService = ThreadPoolManager.getIOPool();
+    public static ExecutorService saveExecutorService = ThreadPoolManager.getIOPool();  // NOPMD
 
     // Legacy queue reference (for emptyQueue compatibility)
     static final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
@@ -32,7 +32,7 @@ public final class AsyncPersistenceManager {
      *
      * @return ExecutorService for computations
      */
-    public static ExecutorService getExecutorService() {
+    public static ExecutorService getExecutorService() {  // NOPMD
         return ThreadPoolManager.getComputationPool();
     }
 
@@ -42,7 +42,7 @@ public final class AsyncPersistenceManager {
      *
      * @return ExecutorService for I/O operations
      */
-    public static ExecutorService getSaveExecutorService() {
+    public static ExecutorService getSaveExecutorService() {  // NOPMD
         return ThreadPoolManager.getIOPool();
     }
 

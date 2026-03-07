@@ -124,7 +124,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
             enrobingProgress = 0;
         } else if (handlerChocolate.isEmpty()) {
             chocolateInput = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             enrobingProgress = 0;
         } else {
             chocolateInput = handlerChocolate.copy();
@@ -184,7 +184,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
                 itemInput.shrink(1);
 
                 if (chocolateInput.isEmpty()) {
-                    quality = null;
+                    quality = null;  // NOPMD
                 }
 
                 enrobingProgress = 0;

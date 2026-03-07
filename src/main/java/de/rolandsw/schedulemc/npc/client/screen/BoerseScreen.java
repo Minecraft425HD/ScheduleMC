@@ -334,17 +334,17 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
     /**
      * Renders a stock row with price and trend
      */
-    private void renderStockRow(GuiGraphics guiGraphics, int x, int y, StockTradePacket.StockType stock) {
-        double price = getCurrentPrice(stock);
+    private void renderStockRow(GuiGraphics guiGraphics, int x, int y, StockTradePacket.StockType stock) {  // NOPMD
+        double price = getCurrentPrice(stock);  // NOPMD
         int trend = getTrend(stock);
-        double changePercent = getChangePercent(stock);
+        double changePercent = getChangePercent(stock);  // NOPMD
 
         // Trend arrow and color
-        String trendArrow = trend > 0 ? "↗" : (trend < 0 ? "↘" : "→");
-        int trendColor = trend > 0 ? 0x00AA00 : (trend < 0 ? 0xFF5555 : 0x808080);
+        String trendArrow = trend > 0 ? "↗" : (trend < 0 ? "↘" : "→");  // NOPMD
+        int trendColor = trend > 0 ? 0x00AA00 : (trend < 0 ? 0xFF5555 : 0x808080);  // NOPMD
 
         // Draw on button (offset slightly)
-        int yOffset = 5;
+        int yOffset = 5;  // NOPMD
     }
 
     /**

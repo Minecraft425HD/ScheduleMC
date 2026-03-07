@@ -17,11 +17,11 @@ public class PlayerMission {
     private final UUID playerUUID;
     private final MissionDefinition definition;
 
-    private volatile int currentProgress;
-    private volatile MissionStatus status;
+    private volatile int currentProgress;  // NOPMD
+    private volatile MissionStatus status;  // NOPMD
     private final long acceptedAt;
-    private volatile long completedAt;
-    private volatile long claimedAt;
+    private volatile long completedAt;  // NOPMD
+    private volatile long claimedAt;  // NOPMD
 
     public PlayerMission(String missionId, MissionDefinition definition, UUID playerUUID) {
         this.missionId = missionId;

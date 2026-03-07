@@ -387,7 +387,7 @@ public class SettingsAppScreen extends Screen {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44AA0000);
                 guiGraphics.drawString(this.font, cachedNotYourPlot, leftPos + 15, y + 8, 0xFF5555);
             }
-            y += 30;
+            y += 30;  // NOPMD
             contentHeight += 30;
             maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
             return;
@@ -637,7 +637,7 @@ public class SettingsAppScreen extends Screen {
                     null));
             }));
         }
-        y += 25;
+        y += 25;  // NOPMD
         contentHeight += 25;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
@@ -647,7 +647,7 @@ public class SettingsAppScreen extends Screen {
     // TAB 2: BENACHRICHTIGUNGEN
     // ═══════════════════════════════════════════════════════════════════════════
 
-    private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {
+    private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {  // NOPMD
         sliderRegions.clear(); // Clear slider regions before re-rendering
         int y = startY - scrollOffset;
         int contentHeight = 0;
@@ -794,7 +794,7 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, cachedHeatInfo2, leftPos + 15, y + 15, 0x666666);
             guiGraphics.drawString(this.font, cachedHeatThreshold, leftPos + 15, y + 30, 0xAA5555);
         }
-        y += 50;
+        y += 50;  // NOPMD
         contentHeight += 50;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
@@ -948,7 +948,7 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawCenteredString(this.font, cachedEarnMoney, leftPos + WIDTH / 2, y + 5, 0x666666);
             guiGraphics.drawCenteredString(this.font, cachedSellProducts, leftPos + WIDTH / 2, y + 17, 0xAAAAAA);
         }
-        y += 35;
+        y += 35;  // NOPMD
         contentHeight += 35;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);

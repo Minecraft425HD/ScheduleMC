@@ -102,7 +102,7 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
             pressingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             pressingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

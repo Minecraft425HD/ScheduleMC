@@ -147,7 +147,7 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
      *   → Erde wird nur noch bei der Ernte pauschal abgezogen (-33)
      *   → Im HUD wird visuell eine Reduzierung angezeigt (rein optisch!)
      */
-    private void consumeResourcesForGrowth(int newStage) {
+    private void consumeResourcesForGrowth(int newStage) {  // NOPMD
         // Wasser: 1/7 der Kapazität pro Stufe
         double waterToConsume = potData.getMaxWater() / 7.0;
         potData.consumeWater(waterToConsume);

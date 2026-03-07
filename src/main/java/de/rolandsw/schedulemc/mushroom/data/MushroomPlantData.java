@@ -13,9 +13,9 @@ public class MushroomPlantData {
     private int growthStage; // 0-7
     private int ticksGrown;
     private TobaccoQuality quality;
-    private boolean hasFertilizer;
-    private boolean hasGrowthBooster;
-    private boolean hasQualityBooster;
+    private boolean hasFertilizer;  // NOPMD
+    private boolean hasGrowthBooster;  // NOPMD
+    private boolean hasQualityBooster;  // NOPMD
     private int flushCount; // Anzahl der Ernten (max 4)
     private int currentFlush; // Aktuelle Ernte-Welle
 

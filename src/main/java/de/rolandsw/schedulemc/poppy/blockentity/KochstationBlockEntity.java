@@ -119,8 +119,8 @@ public class KochstationBlockEntity extends BlockEntity implements IUtilityConsu
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 progress[i] = 0;
-                types[i] = null;
-                qualities[i] = null;
+                types[i] = null;  // NOPMD
+                qualities[i] = null;  // NOPMD
             }
         }
 

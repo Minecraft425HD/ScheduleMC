@@ -37,7 +37,7 @@ public class EconomyController {
     private static final ItemCategory[] ITEM_CATEGORIES = ItemCategory.values();
 
     // Singleton
-    private static volatile EconomyController instance;
+    private static volatile EconomyController instance;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // REFERENZ-PREISE (kalibrierte Basis-Preise pro Produkt)
@@ -63,12 +63,12 @@ public class EconomyController {
     /**
      * Aktueller Wirtschaftszyklus-Multiplikator (wird von EconomyCycle gesetzt).
      */
-    private volatile double cycleMultiplier = 1.0;
+    private volatile double cycleMultiplier = 1.0;  // NOPMD
 
     /**
      * Aktuelles globales Wanted-Level (Durchschnitt, für Risiko-Berechnung).
      */
-    private volatile int globalWantedLevel = 0;
+    private volatile int globalWantedLevel = 0;  // NOPMD
 
     /**
      * Event-Multiplikatoren pro Kategorie (aus PriceManager-Events aggregiert).

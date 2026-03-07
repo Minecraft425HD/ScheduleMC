@@ -152,7 +152,7 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
                         newTag.putInt("AgingTicks", agingTicks[slot]);
 
                         itemHandler.setStackInSlot(slot, conditionedBeer);
-                        changed = true;
+                        changed = true;  // NOPMD
                     }
 
                     changed = true;

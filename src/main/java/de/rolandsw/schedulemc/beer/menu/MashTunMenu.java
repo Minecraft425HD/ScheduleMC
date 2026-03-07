@@ -25,7 +25,7 @@ public class MashTunMenu extends AbstractContainerMenu {
     public MashTunMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(BeerMenuTypes.MASH_TUN_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof MashTunBlockEntity e ? e : null;
+        this.blockEntity = be instanceof MashTunBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

@@ -66,7 +66,7 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
         renderStartButton(graphics, x + BUTTON_X, y + BUTTON_Y, mouseX, mouseY);
     }
 
-    private void renderSlider(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
+    private void renderSlider(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {  // NOPMD
         // Slider Hintergrund mit Zonen
         graphics.fill(x - 1, y - 1, x + SLIDER_WIDTH + 1, y + SLIDER_HEIGHT + 1, 0xFF555577);
         graphics.fill(x, y, x + SLIDER_WIDTH, y + SLIDER_HEIGHT, 0xFF3D3D5C);

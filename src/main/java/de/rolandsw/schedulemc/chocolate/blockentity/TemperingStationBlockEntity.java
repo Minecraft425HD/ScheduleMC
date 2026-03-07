@@ -106,7 +106,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
             temperingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             temperingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

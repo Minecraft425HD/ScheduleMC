@@ -73,8 +73,8 @@ public class Stitcher {
                 int height = (int) Math.pow(2.0, Math.floor(power / 2.0)) * iconHeight;
                 this.currentWidth = width;
                 this.currentHeight = height;
-                this.currentWidthToPowerOfTwo = width;
-                this.currentHeightToPowerOfTwo = height;
+                this.currentWidthToPowerOfTwo = width;  // NOPMD
+                this.currentHeightToPowerOfTwo = height;  // NOPMD
                 Slot slot = new Slot(0, 0, this.currentWidth, this.currentHeight);
                 this.stitchSlots.add(slot);
             }

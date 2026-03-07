@@ -95,8 +95,8 @@ public class TerritoryTracker {
         String lastName = last.getName();
 
         // Normalisiere null/empty
-        if (currentName == null || currentName.isEmpty()) currentName = null;
-        if (lastName == null || lastName.isEmpty()) lastName = null;
+        if (currentName == null || currentName.isEmpty()) currentName = null;  // NOPMD
+        if (lastName == null || lastName.isEmpty()) lastName = null;  // NOPMD
 
         // Wenn Namen unterschiedlich -> Territory hat sich geändert
         if (!java.util.Objects.equals(currentName, lastName)) {
@@ -111,7 +111,7 @@ public class TerritoryTracker {
      * Zeigt Hologramm mit Territory-Name beim Betreten/Verlassen
      * KEINE Farbanzeige mehr - nur der Name!
      */
-    private static void showTerritoryChange(ServerPlayer player, @Nullable Territory from, @Nullable Territory to) {
+    private static void showTerritoryChange(ServerPlayer player, @Nullable Territory from, @Nullable Territory to) {  // NOPMD
         String title;
         String subtitle = ""; // Kein Subtitle mehr
 

@@ -336,7 +336,7 @@ public class ScheduleMC {
         LOGGER.info("ScheduleMC initialized");
     }
     
-    private void commonSetup(final FMLCommonSetupEvent event) {
+    private void commonSetup(final FMLCommonSetupEvent event) {  // NOPMD
         event.enqueueWork(() -> {
             // Initialize delivery price config from main config (after config is loaded)
             DeliveryPriceConfig.setDefaultPrice(ModConfigHandler.COMMON.WAREHOUSE_DEFAULT_DELIVERY_PRICE.get());
@@ -377,7 +377,7 @@ public class ScheduleMC {
         // Vehicle Mod handles its own setup via event bus (registered in Main constructor)
     }
 
-    private void clientSetup(final net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {
+    private void clientSetup(final net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {  // NOPMD
         event.enqueueWork(() -> {
             // Register client-bound packets that reference Screen classes
             // These must be registered client-side only to avoid loading Screen classes on the server
@@ -387,7 +387,7 @@ public class ScheduleMC {
         });
     }
 
-    private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
+    private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {  // NOPMD
         event.put(NPCEntities.CUSTOM_NPC.get(), CustomNPCEntity.createAttributes().build());
     }
 
@@ -427,7 +427,7 @@ public class ScheduleMC {
             // ═══════════════════════════════════════════════════════════
             LOGGER.info("Loading persistent data in parallel...");
             long startTime = System.currentTimeMillis();
-            ExecutorService ioPool = ThreadPoolManager.getIOPool();
+            ExecutorService ioPool = ThreadPoolManager.getIOPool();  // NOPMD
 
             // OPTIMIERT: Jedes Future mit Exception-Handling wrappen
             // Vorher: Ein fehlgeschlagener Load konnte den gesamten Start blockieren

@@ -35,9 +35,9 @@ public class GenericPlantData<T extends ProductionType, Q extends ProductionQual
     protected int ticksGrown;       // Ticks seit Pflanzung
 
     // Boosters
-    protected boolean hasFertilizer;
-    protected boolean hasGrowthBooster;
-    protected boolean hasQualityBooster;
+    protected boolean hasFertilizer;  // NOPMD
+    protected boolean hasGrowthBooster;  // NOPMD
+    protected boolean hasQualityBooster;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // CONSTANTS

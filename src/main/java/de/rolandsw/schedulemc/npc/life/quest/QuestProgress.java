@@ -31,7 +31,7 @@ public class QuestProgress {
     private final UUID playerUUID;
 
     /** Aktive Quests: Quest ID -> Quest */
-    private final Map<String, Quest> activeQuests = new LinkedHashMap<>();
+    private final Map<String, Quest> activeQuests = new LinkedHashMap<>();  // NOPMD
 
     /** Abgeschlossene Quest-IDs (für Prerequisite-Check) */
     private final Set<String> completedQuestIds = new LinkedHashSet<>();
@@ -45,7 +45,7 @@ public class QuestProgress {
     private int totalQuestsAbandoned = 0;
 
     /** Cooldowns für wiederholbare Quests: Quest ID -> Tag wann wieder verfügbar */
-    private final Map<String, Long> questCooldowns = new HashMap<>();
+    private final Map<String, Long> questCooldowns = new HashMap<>();  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR

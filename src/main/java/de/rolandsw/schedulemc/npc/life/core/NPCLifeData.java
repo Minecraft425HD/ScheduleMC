@@ -163,8 +163,8 @@ public class NPCLifeData {
             // Freund in der Nähe? (Nutze gleichen Cache — nur NPCs in 15 Block Radius prüfen)
             // Statt getEntitiesOfClass: iteriere über alle geladenen Entities im Level
             boolean friendNearby = false;
-            double friendRadiusSq = 15.0 * 15.0;
-            Vec3 npcVec = npc.position();
+            double friendRadiusSq = 15.0 * 15.0;  // NOPMD
+            Vec3 npcVec = npc.position();  // NOPMD
             for (CustomNPCEntity candidate : level.getEntitiesOfClass(
                     CustomNPCEntity.class, npc.getBoundingBox().inflate(15),
                     e -> e != npc && e.getLifeData() != null && e.getLifeData().getMemory() != null)) {

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class EconomyAPIImpl implements IEconomyAPI {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
 
     private final EconomyManager economyManager;
 

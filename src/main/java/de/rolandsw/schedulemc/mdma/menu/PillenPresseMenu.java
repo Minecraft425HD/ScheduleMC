@@ -36,7 +36,7 @@ public class PillenPresseMenu extends AbstractContainerMenu {
     private static final int DATA_SIZE = 10;
 
     // Server-side constructor
-    public PillenPresseMenu(int containerId, Inventory playerInventory, PillenPresseBlockEntity blockEntity) {
+    public PillenPresseMenu(int containerId, Inventory playerInventory, PillenPresseBlockEntity blockEntity) {  // NOPMD
         super(MDMAMenuTypes.PILLEN_PRESSE_MENU.get(), containerId);
         this.blockEntity = blockEntity;
 

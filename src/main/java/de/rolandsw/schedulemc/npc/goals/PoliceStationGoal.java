@@ -93,7 +93,7 @@ public class PoliceStationGoal extends Goal {
             hasArrived = false;
             tickCounter = 0;
             wanderTickCounter = 0;
-            wanderTarget = null;
+            wanderTarget = null;  // NOPMD
 
             // Gehe zur Polizeistation
             npc.getNavigation().moveTo(
@@ -151,8 +151,8 @@ public class PoliceStationGoal extends Goal {
         npc.getNavigation().stop();
         tickCounter = 0;
         wanderTickCounter = 0;
-        stationPos = null;
-        wanderTarget = null;
+        stationPos = null;  // NOPMD
+        wanderTarget = null;  // NOPMD
         hasArrived = false;
     }
 

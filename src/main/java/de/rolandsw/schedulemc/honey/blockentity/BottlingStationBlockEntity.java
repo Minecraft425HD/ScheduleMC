@@ -139,9 +139,9 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
             processingProgress = 0;
         } else if (handlerHoney.isEmpty()) {
             honeyInput = ItemStack.EMPTY;
-            honeyType = null;
-            quality = null;
-            ageLevel = null;
+            honeyType = null;  // NOPMD
+            quality = null;  // NOPMD
+            ageLevel = null;  // NOPMD
             processingProgress = 0;
         }
 
@@ -215,9 +215,9 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
                 lidInput.shrink(1);
 
                 if (honeyInput.isEmpty()) {
-                    honeyType = null;
-                    quality = null;
-                    ageLevel = null;
+                    honeyType = null;  // NOPMD
+                    quality = null;  // NOPMD
+                    ageLevel = null;  // NOPMD
                 }
 
                 processingProgress = 0;

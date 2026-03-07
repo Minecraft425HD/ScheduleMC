@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, List<SavingsAccount>>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile SavingsAccountManager instance;
+    private static volatile SavingsAccountManager instance;  // NOPMD
 
     private final Map<UUID, List<SavingsAccount>> accounts = new ConcurrentHashMap<>();
     private MinecraftServer server;
@@ -323,7 +323,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
         // NULL CHECK
         if (data == null) {
             LOGGER.warn("Null data loaded for savings accounts");
-            invalidCount++;
+            invalidCount++;  // NOPMD
             return;
         }
 

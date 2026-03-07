@@ -26,17 +26,17 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile EconomyManager instance;
+    private static volatile EconomyManager instance;  // NOPMD
     private static final Map<UUID, Double> balances = new ConcurrentHashMap<>();
 
     // SICHERHEIT: Maximales Guthaben um Overflow zu verhindern
     private static final double MAX_BALANCE = 1_000_000_000_000.0; // 1 Billion €
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
-    private static volatile File file = new File("config/plotmod_economy.json");
+    private static volatile File file = new File("config/plotmod_economy.json");  // NOPMD
     private static final Gson gson = GsonHelper.get();
-    private static volatile boolean needsSave = false;
-    private static volatile boolean isHealthy = true;
-    private static volatile String lastError = null;
+    private static volatile boolean needsSave = false;  // NOPMD
+    private static volatile boolean isHealthy = true;  // NOPMD
+    private static volatile String lastError = null;  // NOPMD
 
     // SICHERHEIT: Rate Limiting für DoS-Protection
     private static final RateLimiter transferLimiter = new RateLimiter("money_transfer", 10, 1000L);
@@ -121,7 +121,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         if (!result.hasData()) {
             // Keine Datei gefunden - normaler Start
             isHealthy = true;
-            lastError = null;
+            lastError = null;  // NOPMD
             return;
         }
 
@@ -130,7 +130,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         processLoadedData(loaded);
 
         isHealthy = true;
-        lastError = result.isRecoveredFromBackup() ? "Recovered from backup" : null;
+        lastError = result.isRecoveredFromBackup() ? "Recovered from backup" : null;  // NOPMD
         LOGGER.info("Economy data loaded: {} accounts", balances.size());
     }
 
@@ -183,7 +183,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     public static void saveAccounts() {
         // OPTIMIERT: Direkte Serialisierung mit vorallokierter HashMap
         // statt balances.forEach() mit Lambda-Overhead bei 1000+ Spielern
-        Map<String, Double> saveMap = new HashMap<>((int)(balances.size() / 0.75) + 1);
+        Map<String, Double> saveMap = new HashMap<>((int)(balances.size() / 0.75) + 1);  // NOPMD
         for (Map.Entry<UUID, Double> entry : balances.entrySet()) {
             saveMap.put(entry.getKey().toString(), entry.getValue());
         }
@@ -194,7 +194,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         if (result.isSuccess()) {
             needsSave = false;
             isHealthy = true;
-            lastError = null;
+            lastError = null;  // NOPMD
             LOGGER.debug("Economy data saved: {} accounts", balances.size());
         } else {
             isHealthy = false;

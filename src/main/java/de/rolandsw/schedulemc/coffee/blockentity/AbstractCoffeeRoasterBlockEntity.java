@@ -113,8 +113,8 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
             roastingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            coffeeType = null;
-            quality = null;
+            coffeeType = null;  // NOPMD
+            quality = null;  // NOPMD
             roastingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

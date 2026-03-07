@@ -111,8 +111,8 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
             dryingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            coffeeType = null;
-            quality = null;
+            coffeeType = null;  // NOPMD
+            quality = null;  // NOPMD
             dryingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -155,8 +155,8 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
             outputStack = ItemStack.EMPTY;
             inputStack = ItemStack.EMPTY;
             dryingProgress = 0;
-            coffeeType = null;
-            quality = null;
+            coffeeType = null;  // NOPMD
+            quality = null;  // NOPMD
             syncToHandler();
             setChanged();
             return result;

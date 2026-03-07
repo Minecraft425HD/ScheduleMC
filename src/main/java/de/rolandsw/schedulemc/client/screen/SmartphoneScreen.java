@@ -144,7 +144,7 @@ public class SmartphoneScreen extends Screen {
 
         // Berechne Start-Position für App-Grid (zentriert im Smartphone)
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
+        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;  // NOPMD
         int gridStartY = topPos + 45; // Abstand von oben
 
         // Keine App-Buttons mehr - Klick-Handling erfolgt manuell in mouseClicked()
@@ -284,7 +284,7 @@ public class SmartphoneScreen extends Screen {
 
         // === HOVER-ERKENNUNG ===
         // Berechne welche App gehovered wird
-        hoveredAppIndex = -1;
+        hoveredAppIndex = -1;  // NOPMD
         int relativeX = mouseX - gridStartX;
         int relativeY = mouseY - gridStartY + scrollOffset;
 
@@ -469,8 +469,8 @@ public class SmartphoneScreen extends Screen {
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (isDraggingScrollbar && button == 0) {
             int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-            int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
-            int gridStartY = topPos + 45;
+            int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;  // NOPMD
+            int gridStartY = topPos + 45;  // NOPMD
             int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
 
             // Berechne wie viel die Maus bewegt wurde

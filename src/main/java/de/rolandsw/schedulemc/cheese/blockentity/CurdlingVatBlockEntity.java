@@ -157,7 +157,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
                 }
 
                 curdlingProgress = 0;
-                quality = null;
+                quality = null;  // NOPMD
                 changed = true;
             }
 
@@ -165,7 +165,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
         } else {
             if (curdlingProgress > 0 && (milkInput.isEmpty() || rennetInput.isEmpty())) {
                 curdlingProgress = 0;
-                quality = null;
+                quality = null;  // NOPMD
                 changed = true;
             }
         }

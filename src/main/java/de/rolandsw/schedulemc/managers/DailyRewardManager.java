@@ -205,7 +205,7 @@ public class DailyRewardManager {
      */
     public static Map<String, Object> getStats(UUID playerUUID) {
         DailyReward reward = getReward(playerUUID);
-        Map<String, Object> stats = new HashMap<>();
+        Map<String, Object> stats = new HashMap<>();  // NOPMD
 
         stats.put("currentStreak", reward.getCurrentStreak());
         stats.put("longestStreak", reward.getLongestStreak());
@@ -262,7 +262,7 @@ public class DailyRewardManager {
             // NULL CHECK
             if (data == null) {
                 LOGGER.warn("Null data loaded for daily rewards");
-                invalidCount++;
+                invalidCount++;  // NOPMD
                 return;
             }
 

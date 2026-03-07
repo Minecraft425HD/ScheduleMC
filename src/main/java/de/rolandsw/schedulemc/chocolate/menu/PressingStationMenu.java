@@ -25,7 +25,7 @@ public class PressingStationMenu extends AbstractContainerMenu {
     public PressingStationMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(ChocolateMenuTypes.PRESSING_STATION_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof PressingStationBlockEntity e ? e : null;
+        this.blockEntity = be instanceof PressingStationBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

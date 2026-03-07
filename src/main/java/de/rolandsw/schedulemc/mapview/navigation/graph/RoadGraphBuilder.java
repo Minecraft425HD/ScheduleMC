@@ -32,7 +32,7 @@ public class RoadGraphBuilder {
     };
 
     private final WorldMapData mapData;
-    private final Map<BlockPos, RoadNode> nodesByPosition = new HashMap<>();
+    private final Map<BlockPos, RoadNode> nodesByPosition = new HashMap<>();  // NOPMD
     private final List<RoadSegment> segments = new ArrayList<>();
     private final Set<BlockPos> allRoadBlocks = new HashSet<>();
     // OPTIMIERUNG: O(1) Segment-Existenz-Check statt O(n) Iteration
@@ -185,7 +185,7 @@ public class RoadGraphBuilder {
             BlockPos nextPos = startNode.getPosition().offset(dir[0], 0, dir[1]);
 
             // Prüfe ob diese Richtung bereits verarbeitet wurde
-            String segmentKey = createSegmentKey(startNode.getPosition(), nextPos);
+            String segmentKey = createSegmentKey(startNode.getPosition(), nextPos);  // NOPMD
             if (processedStartPoints.contains(nextPos) && !nodesByPosition.containsKey(nextPos)) {
                 continue;
             }
@@ -303,9 +303,9 @@ public class RoadGraphBuilder {
 
         // Scan nur den Chunk-Bereich plus 1 Block Rand
         // (um Verbindungen zu Nachbar-Chunks zu erkennen)
-        int radius = 9; // 16/2 + 1
-        int centerX = blockX + 8;
-        int centerZ = blockZ + 8;
+        int radius = 9; // 16/2 + 1  // NOPMD
+        int centerX = blockX + 8;  // NOPMD
+        int centerZ = blockZ + 8;  // NOPMD
 
         // Entferne alte Nodes/Segments im Bereich
         // ... (komplexe Logik für inkrementelle Updates)

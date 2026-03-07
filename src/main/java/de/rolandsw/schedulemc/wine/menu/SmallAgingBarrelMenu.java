@@ -25,7 +25,7 @@ public class SmallAgingBarrelMenu extends AbstractContainerMenu {
     public SmallAgingBarrelMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(WineMenuTypes.SMALL_AGING_BARREL_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof SmallAgingBarrelBlockEntity e ? e : null;
+        this.blockEntity = be instanceof SmallAgingBarrelBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

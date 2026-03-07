@@ -17,7 +17,7 @@ public class NPCInteractionMenu extends AbstractContainerMenu {
     private final int entityId;
 
     // Server-Side Constructor
-    public NPCInteractionMenu(int id, Inventory playerInventory, CustomNPCEntity npc) {
+    public NPCInteractionMenu(int id, Inventory playerInventory, CustomNPCEntity npc) {  // NOPMD
         super(NPCMenuTypes.NPC_INTERACTION_MENU.get(), id);
         this.npc = npc;
         this.entityId = npc.getId();

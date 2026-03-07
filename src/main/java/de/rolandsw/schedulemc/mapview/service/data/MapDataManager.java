@@ -58,7 +58,7 @@ public class MapDataManager implements PreparableReloadListener {
         // Initialize coordination services
         this.renderService = new RenderCoordinationService();
         this.worldStateService = new WorldStateService();
-        this.lifecycleServiceInstance = null; // Initialized in lateInit when config is ready
+        this.lifecycleServiceInstance = null; // Initialized in lateInit when config is ready  // NOPMD
     }
 
     public void lateInit(boolean showUnderMenus, boolean isFair) {

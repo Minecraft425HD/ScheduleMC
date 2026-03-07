@@ -23,7 +23,7 @@ public class MerchantShopMenu extends AbstractContainerMenu {
     private final List<NPCData.ShopEntry> shopItems; // Shop-Items (Client-Side verfügbar)
 
     // Server-Side Constructor
-    public MerchantShopMenu(int id, Inventory playerInventory, CustomNPCEntity merchant) {
+    public MerchantShopMenu(int id, Inventory playerInventory, CustomNPCEntity merchant) {  // NOPMD
         super(NPCMenuTypes.MERCHANT_SHOP_MENU.get(), id);
         this.merchant = merchant;
         this.entityId = merchant.getId();

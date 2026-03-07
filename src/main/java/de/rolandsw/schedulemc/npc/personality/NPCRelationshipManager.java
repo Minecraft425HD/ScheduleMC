@@ -25,7 +25,7 @@ public class NPCRelationshipManager extends AbstractPersistenceManager<NPCRelati
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile NPCRelationshipManager instance;
+    private static volatile NPCRelationshipManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable

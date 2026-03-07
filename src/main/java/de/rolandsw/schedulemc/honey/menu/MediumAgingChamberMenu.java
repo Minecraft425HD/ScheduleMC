@@ -25,7 +25,7 @@ public class MediumAgingChamberMenu extends AbstractContainerMenu {
     public MediumAgingChamberMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(HoneyMenuTypes.MEDIUM_AGING_CHAMBER_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof MediumAgingChamberBlockEntity e ? e : null;
+        this.blockEntity = be instanceof MediumAgingChamberBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

@@ -36,7 +36,7 @@ public class PerformanceMonitor {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final Map<String, OperationStats> stats = new ConcurrentHashMap<>();
-    private static volatile boolean enabled = true;
+    private static volatile boolean enabled = true;  // NOPMD
 
     /**
      * Aktiviert/Deaktiviert Performance Monitoring

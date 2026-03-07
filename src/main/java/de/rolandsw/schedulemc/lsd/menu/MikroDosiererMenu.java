@@ -30,7 +30,7 @@ public class MikroDosiererMenu extends AbstractContainerMenu {
     private static final int DATA_SIZE = 6;
 
     // Server-side constructor
-    public MikroDosiererMenu(int containerId, Inventory playerInventory, MikroDosiererBlockEntity blockEntity) {
+    public MikroDosiererMenu(int containerId, Inventory playerInventory, MikroDosiererBlockEntity blockEntity) {  // NOPMD
         super(LSDMenuTypes.MIKRO_DOSIERER_MENU.get(), containerId);
         this.blockEntity = blockEntity;
 

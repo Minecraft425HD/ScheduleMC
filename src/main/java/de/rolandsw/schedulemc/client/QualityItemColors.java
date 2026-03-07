@@ -73,7 +73,7 @@ public class QualityItemColors {
      * QualityFrameHidingModel und QualityHandRenderHandler nutzen diesen Flag,
      * um den Qualitätsrahmen beim Halten zu unterdrücken.
      */
-    public static volatile boolean isRenderingHeld = false;
+    public static volatile boolean isRenderingHeld = false;  // NOPMD
 
     @SubscribeEvent
     public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
@@ -214,7 +214,7 @@ public class QualityItemColors {
      * @param tintIndex 0 = Basis-Textur, 1 = Qualitäts-Rahmen
      * @return ARGB Farbwert
      */
-    private static int getQualityColor(ItemStack stack, int tintIndex) {
+    private static int getQualityColor(ItemStack stack, int tintIndex) {  // NOPMD
         // Layer 0 (Basis-Textur) - keine Färbung
         if (tintIndex == 0) {
             return COLOR_DEFAULT;

@@ -45,7 +45,7 @@ public class ChatScreen extends Screen {
     private String cachedOnlineStr;
     private String cachedNoMessagesStr;
     private String cachedNowStr;
-    private final Map<String, List<String>> wrappedTextCache = new HashMap<>();
+    private final Map<String, List<String>> wrappedTextCache = new HashMap<>();  // NOPMD
     private long renderFrameTime; // Einmal pro Frame statt pro Message
 
     public ChatScreen(Screen parent, Conversation conversation) {

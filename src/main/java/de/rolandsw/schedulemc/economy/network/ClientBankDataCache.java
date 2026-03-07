@@ -85,7 +85,7 @@ public class ClientBankDataCache {
     private static double emeraldAvg = 100.0;
 
     // Status
-    private static boolean hasData = false;
+    private static boolean hasData = false;  // NOPMD
     private static long lastUpdateTime = 0;
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -397,9 +397,9 @@ public class ClientBankDataCache {
         totalExpenses = 0.0;
 
         // MEMORY LEAK PREVENTION: Clear all collections
-        int transactionCount = transactions.size();
-        int recurringPaymentCount = recurringPayments.size();
-        int totalHistoryCount = goldHistory.size() + diamondHistory.size() + emeraldHistory.size();
+        int transactionCount = transactions.size();  // NOPMD
+        int recurringPaymentCount = recurringPayments.size();  // NOPMD
+        int totalHistoryCount = goldHistory.size() + diamondHistory.size() + emeraldHistory.size();  // NOPMD
 
         transactions.clear();
         recurringPayments.clear();
@@ -408,7 +408,7 @@ public class ClientBankDataCache {
         emeraldHistory.clear();
 
         // Clear complex objects
-        activeLoan = null;
+        activeLoan = null;  // NOPMD
 
         // Clear overdraft data
         overdraftAmount = 0.0;

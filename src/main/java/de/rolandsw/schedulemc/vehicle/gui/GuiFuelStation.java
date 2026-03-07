@@ -41,7 +41,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
     // Text colors
     private static final int TEXT_DARK = 0x404040;
     private static final int TEXT_WHITE = 0xFFFFFF;
-    private static final int TEXT_LIGHT = 0xAAAAAA;
+    private static final int TEXT_LIGHT = 0xAAAAAA;  // NOPMD
     private static final int TEXT_GREEN = 0x55FF55;
     private static final int TEXT_GRAY = 0x888888;
 

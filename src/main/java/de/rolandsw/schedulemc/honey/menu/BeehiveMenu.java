@@ -25,7 +25,7 @@ public class BeehiveMenu extends AbstractContainerMenu {
     public BeehiveMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(HoneyMenuTypes.BEEHIVE_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof BeehiveBlockEntity e ? e : null;
+        this.blockEntity = be instanceof BeehiveBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

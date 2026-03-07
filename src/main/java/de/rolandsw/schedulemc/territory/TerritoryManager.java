@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Territory>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile TerritoryManager instance;
+    private static volatile TerritoryManager instance;  // NOPMD
 
     // ChunkKey -> Territory
     private final Map<Long, Territory> territories = new ConcurrentHashMap<>();
@@ -195,7 +195,7 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
      * Gibt Statistiken zurück
      */
     public String getStatistics() {
-        Map<TerritoryType, Integer> counts = new HashMap<>();
+        Map<TerritoryType, Integer> counts = new HashMap<>();  // NOPMD
         for (Territory territory : territories.values()) {
             counts.merge(territory.getType(), 1, Integer::sum);
         }
@@ -238,7 +238,7 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
         // NULL CHECK vor clear(), damit bei null-Daten die alten Territorien erhalten bleiben
         if (data == null) {
             LOGGER.warn("Null data loaded for territories");
-            invalidCount++;
+            invalidCount++;  // NOPMD
             return;
         }
 

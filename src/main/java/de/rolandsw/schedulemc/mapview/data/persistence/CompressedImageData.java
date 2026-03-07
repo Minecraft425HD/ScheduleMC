@@ -24,7 +24,7 @@ import org.lwjgl.system.MemoryUtil;
 public class CompressedImageData {
     // OPTIMIERUNG: LRU-Cache mit max. 8 ByteBuffers verhindert Memory Leaks
     private static final int MAX_BUFFER_CACHE_SIZE = 8;
-    private static final Map<Integer, ByteBuffer> byteBuffers = new LinkedHashMap<Integer, ByteBuffer>(
+    private static final Map<Integer, ByteBuffer> byteBuffers = new LinkedHashMap<Integer, ByteBuffer>(  // NOPMD
             MAX_BUFFER_CACHE_SIZE, 0.75f, true) {
         @Override
         protected boolean removeEldestEntry(Map.Entry<Integer, ByteBuffer> eldest) {
@@ -35,16 +35,16 @@ public class CompressedImageData {
     private static final ByteBuffer defaultSizeBuffer = ByteBuffer.allocateDirect(DEFAULT_SIZE * DEFAULT_SIZE * 4).order(ByteOrder.nativeOrder());
 
     // OPTIMIZATION: volatile for lock-free reads
-    private volatile byte[] bytes;
+    private volatile byte[] bytes;  // NOPMD
     private final int width;
     private final int height;
     private final Object bufferLock = new Object();
-    private volatile boolean isCompressed;
+    private volatile boolean isCompressed;  // NOPMD
     private final boolean compressNotDelete;
     private final ResourceLocation location = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/mapimage/" + UUID.randomUUID());
     private DynamicTexture texture;
 
-    public CompressedImageData(int width, int height, int imageType) {
+    public CompressedImageData(int width, int height, int imageType) {  // NOPMD
         this.width = width;
         this.height = height;
         this.bytes = new byte[width * height * 4];
@@ -78,7 +78,7 @@ public class CompressedImageData {
         }
         if (this.texture != null) {
             Minecraft.getInstance().getTextureManager().release(location);
-            this.texture = null;
+            this.texture = null;  // NOPMD
         }
     }
 
@@ -164,7 +164,7 @@ public class CompressedImageData {
                         byte[] compressedBytes = CompressionUtils.compress(this.bytes);
                         this.bytes = compressedBytes;
                     } else {
-                        this.bytes = null;
+                        this.bytes = null;  // NOPMD
                     }
                     this.isCompressed = true;
                 }

@@ -130,7 +130,7 @@ public class MissionsAppScreen extends Screen {
         super.render(gui, mouseX, mouseY, partialTick);
     }
 
-    private void renderMissionList(GuiGraphics gui, int listStartY, int mouseX, int mouseY, float partialTick) {
+    private void renderMissionList(GuiGraphics gui, int listStartY, int mouseX, int mouseY, float partialTick) {  // NOPMD
         List<PlayerMissionDto> missions = ClientMissionCache.getByCategory(activeTab);
 
         // Scrollbar-Berechnung

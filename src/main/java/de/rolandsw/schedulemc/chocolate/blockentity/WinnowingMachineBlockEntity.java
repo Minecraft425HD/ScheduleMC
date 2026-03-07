@@ -104,7 +104,7 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
             winnowingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             winnowingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

@@ -28,7 +28,7 @@ public class QuestReward {
     // ═══════════════════════════════════════════════════════════
 
     /** Geldbelohnung */
-    private int money;
+    private int money;  // NOPMD
 
     /** Item-Belohnungen */
     private final List<ItemStack> items = new ArrayList<>();
@@ -37,7 +37,7 @@ public class QuestReward {
     private final List<FactionRepReward> factionRewards = new ArrayList<>();
 
     /** Erfahrungspunkte (optional) */
-    private int experience;
+    private int experience;  // NOPMD
 
     /** Spezielle Belohnung (z.B. Zugang zu neuen Dialogen) */
     @Nullable

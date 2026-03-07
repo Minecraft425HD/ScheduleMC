@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GangMissionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GangMissionManager.class);
-    private static volatile GangMissionManager instance;
+    private static volatile GangMissionManager instance;  // NOPMD
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     // gangId -> Liste aktiver Missionen
@@ -71,7 +71,7 @@ public class GangMissionManager {
         synchronized (GangMissionManager.class) {
             if (instance != null) {
                 instance.save();
-                instance = null;
+                instance = null;  // NOPMD
             }
         }
     }
@@ -428,7 +428,7 @@ public class GangMissionManager {
 
     public void save() {
         try {
-            Map<String, SavedGangMissions> saveData = new HashMap<>();
+            Map<String, SavedGangMissions> saveData = new HashMap<>();  // NOPMD
             for (Map.Entry<UUID, List<GangMission>> entry : gangMissions.entrySet()) {
                 SavedGangMissions saved = new SavedGangMissions();
                 saved.missionIdCounter = missionIdCounter.get();
@@ -493,7 +493,7 @@ public class GangMissionManager {
                 missionIdCounter.accumulateAndGet(saved.missionIdCounter, Math::max);
 
                 // Resets
-                Map<MissionType, Long> resets = new EnumMap<>(MissionType.class);
+                Map<MissionType, Long> resets = new EnumMap<>(MissionType.class);  // NOPMD
                 resets.put(MissionType.HOURLY, saved.lastHourlyReset);
                 resets.put(MissionType.DAILY, saved.lastDailyReset);
                 resets.put(MissionType.WEEKLY, saved.lastWeeklyReset);

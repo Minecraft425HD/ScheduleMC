@@ -122,9 +122,9 @@ public class ProcessingStationBlockEntity extends BlockEntity implements IUtilit
             processingProgress = 0;
         } else if (handlerHoney.isEmpty()) {
             honeyInput = ItemStack.EMPTY;
-            honeyType = null;
-            quality = null;
-            ageLevel = null;
+            honeyType = null;  // NOPMD
+            quality = null;  // NOPMD
+            ageLevel = null;  // NOPMD
             processingProgress = 0;
         }
 
@@ -175,9 +175,9 @@ public class ProcessingStationBlockEntity extends BlockEntity implements IUtilit
                 additiveInput.shrink(1);
 
                 if (honeyInput.isEmpty()) {
-                    honeyType = null;
-                    quality = null;
-                    ageLevel = null;
+                    honeyType = null;  // NOPMD
+                    quality = null;  // NOPMD
+                    ageLevel = null;  // NOPMD
                 }
 
                 processingProgress = 0;

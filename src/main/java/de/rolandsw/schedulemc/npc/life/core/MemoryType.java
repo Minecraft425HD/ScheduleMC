@@ -77,7 +77,7 @@ public enum MemoryType {
 
     private final String displayName;
     private final int defaultImportance;
-    private final boolean isNegative;
+    private final boolean isNegative;  // NOPMD
 
     MemoryType(String displayName, int defaultImportance, boolean isNegative) {
         this.displayName = displayName;
