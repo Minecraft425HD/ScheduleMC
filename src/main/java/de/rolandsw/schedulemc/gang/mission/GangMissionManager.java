@@ -335,7 +335,7 @@ public class GangMissionManager {
     public void onGangXPAwarded(UUID gangId, int amount) {
         trackProgress(gangId, "GANG_XP", amount);
         WeeklyStats stats = weeklyStats.computeIfAbsent(gangId, k -> new WeeklyStats());
-        stats.xpGained += amount;
+        stats.xpGained = (int) Math.min((long) stats.xpGained + amount, Integer.MAX_VALUE);
     }
 
     /**
@@ -372,7 +372,7 @@ public class GangMissionManager {
     public void onMoneyEarned(UUID gangId, int amount) {
         trackProgress(gangId, "EARN", amount);
         WeeklyStats stats = weeklyStats.computeIfAbsent(gangId, k -> new WeeklyStats());
-        stats.moneyEarned += amount;
+        stats.moneyEarned = (int) Math.min((long) stats.moneyEarned + amount, Integer.MAX_VALUE);
     }
 
     /**
@@ -380,7 +380,7 @@ public class GangMissionManager {
      */
     public void onFeesCollected(UUID gangId, int amount) {
         WeeklyStats stats = weeklyStats.computeIfAbsent(gangId, k -> new WeeklyStats());
-        stats.feesCollected += amount;
+        stats.feesCollected = (int) Math.min((long) stats.feesCollected + amount, Integer.MAX_VALUE);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -489,6 +489,7 @@ public class GangMissionManager {
             for (Map.Entry<String, SavedGangMissions> entry : saveData.entrySet()) {
                 UUID gangId = UUID.fromString(entry.getKey());
                 SavedGangMissions saved = entry.getValue();
+                if (saved == null) continue;
 
                 missionIdCounter.accumulateAndGet(saved.missionIdCounter, Math::max);
 

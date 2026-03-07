@@ -266,9 +266,10 @@ public class NPCBehaviorEngine {
         inEmergency = true;
         emergencyTicksRemaining = 6000; // 5 Minuten
 
-        // Emotion auslösen
-        if (npc.getLifeData() != null) {
-            npc.getLifeData().getEmotions().trigger(EmotionState.FEARFUL, 70.0f);
+        // Emotion auslösen (einmal cachen verhindert Race Condition durch doppelten Aufruf)
+        NPCLifeData cachedLifeData = npc.getLifeData();
+        if (cachedLifeData != null) {
+            cachedLifeData.getEmotions().trigger(EmotionState.FEARFUL, 70.0f);
         }
     }
 
