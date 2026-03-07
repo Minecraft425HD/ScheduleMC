@@ -21,8 +21,7 @@ public class LargeCheesePressScreen extends AbstractContainerScreen<LargeCheeseP
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 69) return true; // Block E key  // NOPMD
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key
     }
 
     @Override

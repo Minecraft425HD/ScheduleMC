@@ -571,11 +571,7 @@ public class WorldMapScreen extends PopupScreen {
 
         
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
-            return true; // Consume event, prevent closing
-        }
-        
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override

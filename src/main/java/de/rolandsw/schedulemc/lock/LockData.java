@@ -23,7 +23,9 @@ public class LockData {
     private long lastCodeRotation;    // Zeitpunkt der letzten Code-Rotation
 
     // Tuer-Position (lower half)
-    private int doorX, doorY, doorZ;  // NOPMD
+    private final int doorX;
+    private final int doorY;
+    private final int doorZ;
     private final String dimension;
 
     // Autorisierte Spieler (duerfen Schluessel erstellen)

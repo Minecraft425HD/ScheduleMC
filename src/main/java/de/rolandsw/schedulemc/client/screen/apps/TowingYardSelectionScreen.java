@@ -222,10 +222,7 @@ public class TowingYardSelectionScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
-            return true;
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override

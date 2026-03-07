@@ -111,7 +111,10 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // Clickable areas for NPCs
     private static class ClickableNPC {
         final UUID npcId;
-        int x, y, width, height;  // NOPMD
+        final int x;
+        final int y;
+        final int width;
+        final int height;
         final boolean isRemove; // true = remove button, false = add button
 
         ClickableNPC(UUID npcId, int x, int y, int width, int height, boolean isRemove) {
@@ -1274,11 +1277,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
 
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E  // NOPMD
-            return true; // Consume event, prevent closing
-        }
-
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override
