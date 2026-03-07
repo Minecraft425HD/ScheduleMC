@@ -201,10 +201,12 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Territories: ").append(territories.size()).append("\n");
+        sb.append("Territories: ").append(territories.size()).append('
+');
         for (Map.Entry<TerritoryType, Integer> entry : counts.entrySet()) {
             sb.append("  ").append(entry.getKey().getDisplayName())
-              .append(": ").append(entry.getValue()).append("\n");
+              .append(": ").append(entry.getValue()).append('
+');
         }
         return sb.toString();
     }

@@ -74,8 +74,8 @@ public class ScenarioObjective {
         for (ObjectiveType.ParamDef def : type.getParamDefs()) {
             String val = params.get(def.key());
             if (val != null && !val.isEmpty()) {
-                if (count > 0) sb.append(" ");
-                sb.append(def.label()).append(":").append(val);
+                if (count > 0) sb.append(' ');
+                sb.append(def.label()).append(':').append(val);
                 count++;
                 if (count >= 2) break; // Maximal 2 Parameter anzeigen
             }

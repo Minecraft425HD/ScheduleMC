@@ -92,7 +92,7 @@ public class CrackKocherBlock extends BaseEntityBlock {
                     heldItem.shrink(heldItem.getCount());
                 }
                 player.displayClientMessage(Component.translatable("block.crack_kocher.cocaine_added")
-                        .append(Component.literal(kocher.getCocaineGrams() + ""))
+                        .append(Component.literal(String.valueOf(kocher.getCocaineGrams())))
                         .append(Component.translatable("block.crack_kocher.cocaine_grams")), true);
                 return InteractionResult.CONSUME;
             }
@@ -105,7 +105,7 @@ public class CrackKocherBlock extends BaseEntityBlock {
                     heldItem.shrink(heldItem.getCount());
                 }
                 player.displayClientMessage(Component.translatable("block.crack_kocher.baking_soda_added")
-                        .append(Component.literal(kocher.getBackpulverCount() + ""))
+                        .append(Component.literal(String.valueOf(kocher.getBackpulverCount())))
                         .append(Component.translatable("block.crack_kocher.baking_soda_count")), true);
                 return InteractionResult.CONSUME;
             }
@@ -129,14 +129,14 @@ public class CrackKocherBlock extends BaseEntityBlock {
                 default -> Component.translatable("block.crack_kocher.zone_too_late");
             };
             player.displayClientMessage(Component.translatable("block.crack_kocher.cooking_progress")
-                    .append(Component.literal(progress + ""))
+                    .append(Component.literal(String.valueOf(progress)))
                     .append(Component.translatable("block.crack_kocher.cooking_percent"))
                     .append(zone), true);
         } else if (kocher.getCocaineGrams() > 0) {
             player.displayClientMessage(Component.translatable("block.crack_kocher.status_cocaine")
-                    .append(Component.literal(kocher.getCocaineGrams() + ""))
+                    .append(Component.literal(String.valueOf(kocher.getCocaineGrams())))
                     .append(Component.translatable("block.crack_kocher.status_grams"))
-                    .append(Component.literal(kocher.getBackpulverCount() + "")), true);
+                    .append(Component.literal(String.valueOf(kocher.getBackpulverCount()))), true);
             if (kocher.canStartCooking()) {
                 player.displayClientMessage(Component.translatable("block.crack_kocher.shift_to_start"), false);
             } else if (kocher.getBackpulverCount() < 1) {

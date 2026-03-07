@@ -682,8 +682,9 @@ public class GangAppScreen extends Screen {
                             barX + barW + 3, yPos + 12, 0xAAAAAA);
 
                     // Belohnung
-                    String reward = "\u00A7e+" + mi.xpReward() + "XP";
-                    if (mi.moneyReward() > 0) reward += " \u00A7a+" + mi.moneyReward() + "\u20AC";
+                    StringBuilder rewardSb = new StringBuilder("\u00A7e+").append(mi.xpReward()).append("XP");
+                    if (mi.moneyReward() > 0) rewardSb.append(" \u00A7a+").append(mi.moneyReward()).append('\u20AC');
+                    String reward = rewardSb.toString();
                     g.drawString(this.font, reward, leftPos + 12, yPos + 21, 0xFFFFFF);
 
                     if (mi.claimable()) {
@@ -844,8 +845,9 @@ public class GangAppScreen extends Screen {
                 // XP + Beitrag
                 double mult = switch (m.rankPriority()) { case 4 -> 0.0; case 3 -> 0.10; case 2 -> 0.50; default -> 1.0; };
                 int memberFee = (int) Math.ceil(fee * mult);
-                String info = "\u00A78+" + m.contributedXP() + "XP";
-                if (fee > 0) info += " \u00A77" + memberFee + "\u20AC";
+                StringBuilder infoSb = new StringBuilder("\u00A78+").append(m.contributedXP()).append("XP");
+                if (fee > 0) infoSb.append(" \u00A77").append(memberFee).append('\u20AC');
+                String info = infoSb.toString();
                 int infoW = this.font.width(info);
                 g.drawString(this.font, info, rightX - infoW - 2, y + 2, 0x888888);
 

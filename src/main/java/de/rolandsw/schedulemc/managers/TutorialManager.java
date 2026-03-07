@@ -254,7 +254,8 @@ public class TutorialManager extends AbstractPersistenceManager<Map<String, Tuto
             if (step.getPhase() == data.currentPhase) {
                 boolean done = data.isStepCompleted(step);
                 msg.append(done ? "\u00A7a\u2714 " : "\u00A7c\u2718 ");
-                msg.append("\u00A77").append(step.getDescription()).append("\n");
+                msg.append("\u00A77").append(step.getDescription()).append('
+');
             }
         }
         msg.append("\u00A78Ueberspringe mit /tutorial skip");

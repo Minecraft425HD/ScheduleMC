@@ -227,7 +227,7 @@ public class QuestReward {
         for (FactionRepReward rep : factionRewards) {
             if (sb.length() > 0) sb.append(", ");
             sb.append(rep.amount > 0 ? "+" : "").append(rep.amount)
-              .append(" ").append(rep.faction.getDisplayName()).append("-Ruf");
+              .append(' ').append(rep.faction.getDisplayName()).append("-Ruf");
         }
 
         if (experience > 0) {

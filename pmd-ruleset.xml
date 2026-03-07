@@ -50,7 +50,8 @@
         <exclude name="AbstractClassWithoutAbstractMethod"/>
         <exclude name="AccessorClassGeneration"/>
         <exclude name="AccessorMethodGeneration"/>
-        <exclude name="ArrayIsStoredDirectly"/>
+        <!-- ArrayIsStoredDirectly aktiviert: echte Encapsulation-Bug -->
+        <!-- <exclude name="ArrayIsStoredDirectly"/> -->
         <exclude name="AvoidPrintStackTrace"/>           <!-- normal in Entwicklung -->
         <exclude name="ForLoopVariableCount"/>
         <exclude name="GuardLogStatement"/>              <!-- SLF4J-Logging-Pattern OK -->
@@ -60,7 +61,8 @@
         <exclude name="JUnitUseExpected"/>
         <exclude name="LiteralsFirstInComparisons"/>     <!-- Stil, kein Bug -->
         <exclude name="LooseCoupling"/>                  <!-- Interface-Empfehlung, kein Bug -->
-        <exclude name="MethodReturnsInternalArray"/>
+        <!-- MethodReturnsInternalArray aktiviert: echte Encapsulation-Bug -->
+        <!-- <exclude name="MethodReturnsInternalArray"/> -->
         <exclude name="MissingOverride"/>                <!-- Compiler warnt ohnehin -->
         <exclude name="OneDeclarationPerLine"/>          <!-- Stil -->
         <exclude name="ReplaceEnumerationWithIterator"/>
@@ -69,6 +71,27 @@
         <exclude name="SystemPrintln"/>                  <!-- normal in Entwicklung -->
         <exclude name="UseVarargs"/>                     <!-- Stil -->
         <exclude name="AvoidUsingHardCodedIP"/>          <!-- Minecraft-Localhost-Adressen -->
+    </rule>
+
+
+    <!-- ================================================================
+         PERFORMANCE: unnötige Wrapper-Objekte, String-Probleme
+         ================================================================ -->
+    <rule ref="category/java/performance.xml">
+        <exclude name="AvoidCalendarDateCreation"/>
+        <exclude name="AvoidFileStream"/>
+        <exclude name="InsufficientStringBufferDeclaration"/>
+        <exclude name="TooFewBranchesForASwitchStatement"/>
+        <exclude name="UseArraysAsList"/>
+        <exclude name="UseIOStreamsWithApacheCommonsFileItem"/>
+        <exclude name="UseIndexOfChar"/>
+        <exclude name="AvoidArrayLoops"/>
+        <!-- Stil-Regeln ausschließen -->
+        <exclude name="RedundantFieldInitializer"/>          <!-- = 0, = false, = null ist Stil -->
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>   <!-- zu viele false positives in Render-Code -->
+        <exclude name="ConsecutiveAppendsShouldReuse"/>      <!-- Stil -->
+        <exclude name="ConsecutiveLiteralAppends"/>          <!-- Stil -->
+        <exclude name="OptimizableToArrayCall"/>             <!-- Stil -->
     </rule>
 
 </ruleset>

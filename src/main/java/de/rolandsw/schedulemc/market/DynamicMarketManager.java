@@ -399,7 +399,7 @@ public class DynamicMarketManager {
             StringBuilder name = new StringBuilder();
             for (String part : parts) {
                 if (!part.isEmpty()) {
-                    if (name.length() > 0) name.append(" ");
+                    if (name.length() > 0) name.append(' ');
                     name.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
                 }
             }

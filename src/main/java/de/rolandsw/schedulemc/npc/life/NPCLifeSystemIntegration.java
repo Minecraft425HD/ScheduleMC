@@ -519,19 +519,29 @@ public class NPCLifeSystemIntegration {
     public String getDebugInfo() {
         StringBuilder sb = new StringBuilder();
         sb.append("=== NPC Life System ===\n");
-        sb.append("Enabled: ").append(enabled).append("\n");
+        sb.append("Enabled: ").append(enabled).append('
+');
         sb.append("Tick: ").append(tickCounter).append("\n\n");
 
         sb.append("Subsystems:\n");
-        sb.append("- ").append(factionManager).append("\n");
-        sb.append("- ").append(rumorNetwork).append("\n");
-        sb.append("- ").append(interactionManager).append("\n");
-        sb.append("- ").append(witnessManager).append("\n");
-        sb.append("- ").append(priceManager).append("\n");
-        sb.append("- ").append(dialogueManager).append("\n");
-        sb.append("- ").append(questManager).append("\n");
-        sb.append("- ").append(companionManager).append("\n");
-        sb.append("- ").append(worldEventManager).append("\n");
+        sb.append("- ").append(factionManager).append('
+');
+        sb.append("- ").append(rumorNetwork).append('
+');
+        sb.append("- ").append(interactionManager).append('
+');
+        sb.append("- ").append(witnessManager).append('
+');
+        sb.append("- ").append(priceManager).append('
+');
+        sb.append("- ").append(dialogueManager).append('
+');
+        sb.append("- ").append(questManager).append('
+');
+        sb.append("- ").append(companionManager).append('
+');
+        sb.append("- ").append(worldEventManager).append('
+');
 
         return sb.toString();
     }

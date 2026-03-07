@@ -346,7 +346,8 @@ public class HealthCheckManager {
     private static void appendIfPresent(StringBuilder sb, Map<String, ComponentHealth> results, String key) {
         ComponentHealth health = results.get(key);
         if (health != null) {
-            sb.append(health.toString()).append("\n");
+            sb.append(health.toString()).append('
+');
         }
     }
 

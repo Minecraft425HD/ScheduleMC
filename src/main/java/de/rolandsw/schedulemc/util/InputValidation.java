@@ -61,7 +61,7 @@ public class InputValidation {
             this.valid = valid;
             this.error = error;
             this.errorKey = errorKey;
-            this.errorArgs = errorArgs;
+            this.errorArgs = errorArgs != null ? errorArgs.clone() : null;  // NOPMD
             this.sanitizedValue = sanitizedValue;
         }
 
@@ -75,7 +75,7 @@ public class InputValidation {
         @Nullable public String getError() { return error; }
         @Nullable public String getErrorMessage() { return error; }  // Alias für getError
         @Nullable public String getErrorKey() { return errorKey; }
-        @Nullable public Object[] getErrorArgs() { return errorArgs; }
+        @Nullable public Object[] getErrorArgs() { return errorArgs != null ? errorArgs.clone() : null; }
         @Nullable public String getSanitizedValue() { return sanitizedValue; }
 
         public Component toComponent() {

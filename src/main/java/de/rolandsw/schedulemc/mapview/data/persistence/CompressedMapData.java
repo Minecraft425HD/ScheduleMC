@@ -331,7 +331,7 @@ public class CompressedMapData extends AbstractMapData {
 
     // OPTIMIZATION: Lock-free with volatile data, BiMap conversion to ConcurrentHashMap
     public void setData(byte[] is, BiMap<BlockState, Integer> newStateToInt, BiMap<Biome, Integer> newBiomeToInt, int version) {
-        this.data = is;
+        this.data = is;  // NOPMD
         this.isCompressed = false;
         if (version < DATA_VERSION) {
             this.convertData(version);
@@ -454,7 +454,7 @@ public class CompressedMapData extends AbstractMapData {
             this.decompress();
         }
 
-        return this.data;
+        return this.data;  // NOPMD
     }
 
     // OPTIMIZATION: Double-Checked Locking for minimal synchronization

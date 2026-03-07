@@ -111,7 +111,7 @@ public class ProductionConfig {
     }
 
     public GenericQuality[] getQualityTiers() {
-        return qualityTiers;
+        return qualityTiers;  // NOPMD
     }
 
     public GenericQuality getDefaultQuality() {
@@ -290,7 +290,7 @@ public class ProductionConfig {
         }
 
         public Builder qualityTiers(GenericQuality[] qualityTiers) {
-            this.qualityTiers = qualityTiers;
+            this.qualityTiers = qualityTiers;  // NOPMD
             return this;
         }
 

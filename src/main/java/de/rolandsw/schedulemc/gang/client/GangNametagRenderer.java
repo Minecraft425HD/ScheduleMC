@@ -69,7 +69,7 @@ public class GangNametagRenderer {
         StringBuilder sb = new StringBuilder();
         if (info.isInGang()) {
             sb.append(info.getFormattedGangTag());
-            sb.append(" ");
+            sb.append(' ');
             sb.append(info.getRankColorCode()).append(info.getRankName());
         }
         return sb.toString();

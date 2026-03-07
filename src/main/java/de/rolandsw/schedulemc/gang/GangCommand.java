@@ -328,10 +328,13 @@ public class GangCommand {
                 int oldLevel = gang.getGangLevel();
                 boolean leveledUp = gang.addXPDirect(xp);
                 manager.markDirty();
-                String msg = "\u00A7a[Admin] Gang '" + gang.getName() + "' +" + xp + " XP (Gesamt: " + gang.getGangXP() + ")";
+                StringBuilder msgSb = new StringBuilder("\u00A7a[Admin] Gang '")
+                        .append(gang.getName()).append("' +").append(xp)
+                        .append(" XP (Gesamt: ").append(gang.getGangXP()).append(')');
                 if (leveledUp) {
-                    msg += " \u00A76Level-Up! " + oldLevel + " \u2192 " + gang.getGangLevel();
+                    msgSb.append(" \u00A76Level-Up! ").append(oldLevel).append(" \u2192 ").append(gang.getGangLevel());
                 }
+                String msg = msgSb.toString();
                 source.sendSystemMessage(Component.literal(msg));
                 GangSyncHelper.broadcastAllPlayerInfos(source.getServer());
                 return 1;

@@ -288,7 +288,7 @@ public class ChatScreen extends Screen {
             String testLine = currentLine.length() == 0 ? word : currentLine + " " + word;
 
             if (this.font.width(testLine) <= maxWidth) {
-                if (currentLine.length() > 0) currentLine.append(" ");
+                if (currentLine.length() > 0) currentLine.append(' ');
                 currentLine.append(word);
             } else {
                 if (currentLine.length() > 0) {

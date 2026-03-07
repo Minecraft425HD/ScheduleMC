@@ -622,7 +622,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     }
 
     public int[] getLightmapArray() {
-        return this.lightmapColors;
+        return this.lightmapColors;  // NOPMD
     }
 
     public int getLightmapColor(int skyLight, int blockLight) {

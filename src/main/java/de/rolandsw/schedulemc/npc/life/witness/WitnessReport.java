@@ -288,13 +288,16 @@ public class WitnessReport {
     public String getFullDescription() {
         StringBuilder sb = new StringBuilder();
         sb.append("=== Zeugenbericht ===\n");
-        sb.append("Verbrechen: ").append(crimeType.getDisplayName()).append("\n");
-        sb.append("Ort: ").append(location.toShortString()).append("\n");
-        sb.append("Tag: ").append(gameDay).append("\n");
+        sb.append("Verbrechen: ").append(crimeType.getDisplayName()).append('
+');
+        sb.append("Ort: ").append(location.toShortString()).append('
+');
+        sb.append("Tag: ").append(gameDay).append('
+');
         sb.append("Schwere: ").append(crimeType.getSeverity()).append("/10\n");
         sb.append("Status: ").append(reported ? "Gemeldet" : "Nicht gemeldet");
         if (bribed) {
-            sb.append(" (Bestochen: ").append(bribeAmount).append(")");
+            sb.append(" (Bestochen: ").append(bribeAmount).append(')');
         }
         if (!details.isEmpty()) {
             sb.append("\nDetails: ").append(details);

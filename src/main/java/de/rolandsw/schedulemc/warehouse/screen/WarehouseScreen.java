@@ -1064,7 +1064,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     }
 
     private void filterItems(String searchText) {  // NOPMD
-        if (searchText == null || searchText.trim().isEmpty()) {
+        if (searchText == null || searchText.isBlank()) {
             filteredItems = new ArrayList<>(allItems);
         } else {
             String search = searchText.toLowerCase();

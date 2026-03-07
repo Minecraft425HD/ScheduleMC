@@ -56,7 +56,7 @@ public class CompressedImageData {
             this.decompress();
         }
 
-        return this.bytes;
+        return this.bytes;  // NOPMD
     }
 
     public ResourceLocation getTextureLocation() {

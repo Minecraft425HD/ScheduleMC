@@ -255,10 +255,10 @@ public class NPCAddictionProfile {
         StringBuilder sb = new StringBuilder("NPCAddictionProfile{");
         for (Map.Entry<DrugType, Integer> entry : preferences.entrySet()) {
             if (entry.getValue() > 0) {
-                sb.append(entry.getKey().name()).append("=").append(entry.getValue()).append(", ");
+                sb.append(entry.getKey().name()).append('=').append(entry.getValue()).append(", ");
             }
         }
-        sb.append("primary=").append(getPrimaryDrugType().name()).append("}");
+        sb.append("primary=").append(getPrimaryDrugType().name()).append('}');
         return sb.toString();
     }
 }

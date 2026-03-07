@@ -424,7 +424,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     private void handleTransfer() {
         String target = transferTargetInput.getValue();
-        if (target == null || target.trim().isEmpty()) return;
+        if (target == null || target.isBlank()) return;
 
         try {
             double amount = Double.parseDouble(transferAmountInput.getValue());
@@ -439,7 +439,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     private void handleRecurringCreate() {
         String recipient = recurringRecipientInput.getValue();
-        if (recipient == null || recipient.trim().isEmpty()) return;
+        if (recipient == null || recipient.isBlank()) return;
 
         try {
             double amount = Double.parseDouble(recurringAmountInput.getValue());

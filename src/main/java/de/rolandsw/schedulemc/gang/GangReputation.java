@@ -53,7 +53,7 @@ public enum GangReputation {
         if (rep.starCount == 0) return "";
         StringBuilder sb = new StringBuilder("\u00A74");
         for (int i = 0; i < rep.starCount; i++) {
-            sb.append("\u2605");
+            sb.append('\u2605');
         }
         return sb.toString();
     }
@@ -66,7 +66,7 @@ public enum GangReputation {
         if (stars == 0) return "";
         StringBuilder sb = new StringBuilder("\u00A74");
         for (int i = 0; i < stars; i++) {
-            sb.append("\u2605");
+            sb.append('\u2605');
         }
         return sb.toString();
     }

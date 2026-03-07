@@ -115,9 +115,9 @@ public class PlayerGangInfo {
         int empty = 6 - filled;
 
         StringBuilder bar = new StringBuilder("\u00A7a");
-        for (int i = 0; i < filled; i++) bar.append("\u2588");
+        for (int i = 0; i < filled; i++) bar.append('\u2588');
         bar.append("\u00A77");
-        for (int i = 0; i < empty; i++) bar.append("\u2591");
+        for (int i = 0; i < empty; i++) bar.append('\u2591');
 
         return "\u00A76Lv." + playerLevel + " " + bar + " \u00A77" +
                 String.format("%.0f%%", playerProgress * 100);

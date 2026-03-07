@@ -70,7 +70,7 @@ public class PlotTrustPacket {
             }
 
             // Validiere Spielername
-            if (msg.playerName == null || msg.playerName.trim().isEmpty()) {
+            if (msg.playerName == null || msg.playerName.isBlank()) {
                 player.sendSystemMessage(Component.translatable("message.plot.playername_empty"));
                 return;
             }

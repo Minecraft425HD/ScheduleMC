@@ -116,9 +116,9 @@ public class LevelRequirements {
 
         StringBuilder sb = new StringBuilder();
         sb.append("§a");
-        for (int i = 0; i < filled; i++) sb.append("█");
+        for (int i = 0; i < filled; i++) sb.append('█');
         sb.append("§7");
-        for (int i = 0; i < empty; i++) sb.append("░");
+        for (int i = 0; i < empty; i++) sb.append('░');
 
         sb.append(String.format(" §f%d%%", (int) (progress * 100)));
 

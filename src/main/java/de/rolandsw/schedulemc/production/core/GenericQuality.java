@@ -331,7 +331,7 @@ public class GenericQuality implements ProductionQuality {
             if (names.length != tierCount) {
                 throw new IllegalArgumentException("Must provide exactly " + tierCount + " names");
             }
-            this.names = names;
+            this.names = names.clone();
             return this;
         }
 
@@ -339,7 +339,7 @@ public class GenericQuality implements ProductionQuality {
             if (colorCodes.length != tierCount) {
                 throw new IllegalArgumentException("Must provide exactly " + tierCount + " color codes");
             }
-            this.colorCodes = colorCodes;
+            this.colorCodes = colorCodes.clone();
             return this;
         }
 
@@ -347,7 +347,7 @@ public class GenericQuality implements ProductionQuality {
             if (multipliers.length != tierCount) {
                 throw new IllegalArgumentException("Must provide exactly " + tierCount + " price multipliers");
             }
-            this.priceMultipliers = multipliers;
+            this.priceMultipliers = multipliers.clone();
             return this;
         }
 
@@ -355,7 +355,7 @@ public class GenericQuality implements ProductionQuality {
             if (descriptions.length != tierCount) {
                 throw new IllegalArgumentException("Must provide exactly " + tierCount + " descriptions");
             }
-            this.descriptions = descriptions;
+            this.descriptions = descriptions.clone();
             return this;
         }
 

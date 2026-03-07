@@ -49,7 +49,7 @@ public class NPCNameRegistry {
      * @return true wenn erfolgreich registriert, false wenn Name bereits existiert
      */
     public static boolean registerName(String name, int entityId) {
-        if (name == null || name.trim().isEmpty()) {
+        if (name == null || name.isBlank()) {
             return false;
         }
 

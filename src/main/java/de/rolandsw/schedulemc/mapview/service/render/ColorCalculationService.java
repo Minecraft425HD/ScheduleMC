@@ -780,11 +780,11 @@ public class ColorCalculationService {
             if (tilePath.startsWith("~")) {
                 tilePath = tilePath.replace("~", "optifine");
             } else if (!tilePath.contains("/")) {
-                tilePath = directory + tilePath;
+                tilePath = directory + tilePath;  // NOPMD
             }
 
             if (!tilePath.toLowerCase().endsWith(".png")) {
-                tilePath = tilePath + ".png";
+                tilePath = tilePath + ".png";  // NOPMD
             }
 
             String[] biomesArray = biomes.split(" ");
@@ -984,7 +984,7 @@ public class ColorCalculationService {
                     metadata = new StringBuilder(blockComponents[tokensUsed]);
 
                     for (int t = tokensUsed + 1; t < blockComponents.length; ++t) {
-                        metadata.append(":").append(blockComponents[t]);
+                        metadata.append(':').append(blockComponents[t]);
                     }
                 }
 

@@ -160,7 +160,7 @@ public class ShopEditorMenu extends AbstractContainerMenu {
     }
 
     public int[] getItemPrices() {
-        return itemPrices;
+        return itemPrices;  // NOPMD
     }
 
     public void setItemPrice(int slot, int price) {
@@ -170,7 +170,7 @@ public class ShopEditorMenu extends AbstractContainerMenu {
     }
 
     public boolean[] getItemUnlimited() {
-        return itemUnlimited;
+        return itemUnlimited;  // NOPMD
     }
 
     public void setItemUnlimited(int slot, boolean unlimited) {
@@ -180,7 +180,7 @@ public class ShopEditorMenu extends AbstractContainerMenu {
     }
 
     public int[] getItemStock() {
-        return itemStock;
+        return itemStock;  // NOPMD
     }
 
     public void setItemStock(int slot, int stock) {

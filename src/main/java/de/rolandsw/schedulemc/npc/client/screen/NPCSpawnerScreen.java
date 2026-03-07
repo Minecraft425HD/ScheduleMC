@@ -165,7 +165,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     private void onNameChanged(String newName) {  // NOPMD
         // Update Spawn-Button Aktivierung
         boolean nameTaken = ClientNPCNameCache.isNameTaken(newName);
-        spawnButton.active = !nameTaken && !newName.trim().isEmpty();
+        spawnButton.active = !nameTaken && !newName.isBlank();
     }
 
     /**
