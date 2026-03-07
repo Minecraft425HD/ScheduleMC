@@ -93,7 +93,7 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
@@ -127,7 +127,7 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
         boolean changed = false;
 
         if (!inputStack.isEmpty() && butterOutput.isEmpty() && powderOutput.isEmpty()) {
-            pressingProgress++;
+            pressingProgress = Math.min(pressingProgress + 1, PROCESSING_TIME);
 
             if (pressingProgress >= PROCESSING_TIME) {
                 // Pressing complete: Cocoa Mass → Cocoa Butter + Cocoa Powder
@@ -209,7 +209,7 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
         pressingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

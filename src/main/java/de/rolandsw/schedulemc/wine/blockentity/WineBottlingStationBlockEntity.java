@@ -92,11 +92,11 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
                 }
                 if (tag.contains("Quality")) {
                     try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
                 }
                 if (tag.contains("AgeLevel")) {
                     try { ageLevel = WineAgeLevel.valueOf(tag.getString("AgeLevel")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { ageLevel = WineAgeLevel.YOUNG; }
                 } else ageLevel = WineAgeLevel.YOUNG;
             }
             bottlingProgress = 0;
@@ -139,8 +139,8 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
         if (level == null || level.isClientSide) return;
 
         if (!wineInput.isEmpty() && !bottleInput.isEmpty() && output.isEmpty()) {
-            bottlingProgress++;
             int bottlingTime = 200; // 10 seconds per bottle
+            bottlingProgress = Math.min(bottlingProgress + 1, bottlingTime);
 
             if (bottlingProgress >= bottlingTime) {
                 ItemStack filledBottle = WineBottleItem.create(
@@ -247,15 +247,15 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
         }
         if (tag.contains("AgeLevel")) {
             try { ageLevel = WineAgeLevel.valueOf(tag.getString("AgeLevel")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { ageLevel = WineAgeLevel.YOUNG; }
         }
         if (tag.contains("ProcessingMethod")) {
             try { processingMethod = WineProcessingMethod.valueOf(tag.getString("ProcessingMethod")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { processingMethod = WineProcessingMethod.DRY; }
         } else {
             processingMethod = WineProcessingMethod.DRY;
         }

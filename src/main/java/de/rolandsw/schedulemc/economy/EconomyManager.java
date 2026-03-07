@@ -156,7 +156,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
                     continue;
                 }
 
-                if (balance == 0.0) {
+                if (Math.abs(balance) < 0.001) {
                     zeroBalanceAccounts++;
                 }
 
@@ -384,8 +384,10 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
                                       double balanceAfter) {
         if (instance != null && instance.server != null) {
             TransactionHistory history = TransactionHistory.initialize(instance.server);
-            Transaction transaction = new Transaction(type, from, to, amount, description, balanceAfter);
-            history.addTransaction(playerUUID, transaction);
+            if (history != null) {
+                Transaction transaction = new Transaction(type, from, to, amount, description, balanceAfter);
+                history.addTransaction(playerUUID, transaction);
+            }
         }
     }
 

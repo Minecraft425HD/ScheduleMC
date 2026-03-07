@@ -91,7 +91,7 @@ public abstract class AbstractAgingCaveBlockEntity extends BlockEntity implement
                 }
                 if (tag.contains("Quality")) {
                     try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
                 }
                 if (tag.contains("WeightKg")) weightKg = tag.getDouble("WeightKg");
                 if (tag.contains("AgingTicks")) agingTicks = tag.getInt("AgingTicks");
@@ -178,7 +178,7 @@ public abstract class AbstractAgingCaveBlockEntity extends BlockEntity implement
         }
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
         }
         weightKg = tag.getDouble("WeightKg");
         if (!storedCheese.isEmpty()) itemHandler.setStackInSlot(0, storedCheese.copy());

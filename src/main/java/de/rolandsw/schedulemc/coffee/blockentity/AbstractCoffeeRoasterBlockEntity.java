@@ -152,9 +152,9 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            roastingProgress++;
-
             int totalTime = getRoastingTimePerBean() * inputStack.getCount();
+            roastingProgress = Math.min(roastingProgress + 1, totalTime);
+
             if (roastingProgress >= totalTime) {
                 // Röstung abgeschlossen
                 outputStack = RoastedCoffeeBeanItem.create(

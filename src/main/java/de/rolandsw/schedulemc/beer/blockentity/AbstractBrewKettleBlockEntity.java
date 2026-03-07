@@ -112,7 +112,7 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
             CompoundTag tag = handlerWort.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
             } else {
                 quality = BeerQuality.SCHLECHT;
             }
@@ -161,9 +161,9 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
         boolean changed = false;
 
         if (!wortStack.isEmpty() && !hopsStack.isEmpty() && outputStack.isEmpty()) {
-            brewingProgress++;
-
             int totalTime = getTotalBrewingTime();
+            brewingProgress = Math.min(brewingProgress + 1, totalTime);
+
             if (brewingProgress >= totalTime) {
                 // Brewing complete: Wort + Hops → Unfermented Beer
                 ItemStack unfermentedBeer = new ItemStack(BeerItems.FERMENTING_BEER.get(), 1);
@@ -249,7 +249,7 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
         brewingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
         }
         syncToHandler();
     }

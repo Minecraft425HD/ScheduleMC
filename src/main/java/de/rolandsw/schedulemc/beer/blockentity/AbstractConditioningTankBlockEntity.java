@@ -141,7 +141,7 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
                         BeerQuality quality = BeerQuality.SCHLECHT;
                         if (tag.contains("Quality")) {
                             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                        catch (IllegalArgumentException ignored) {}
+                        catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
                         }
 
                         // Create conditioned beer

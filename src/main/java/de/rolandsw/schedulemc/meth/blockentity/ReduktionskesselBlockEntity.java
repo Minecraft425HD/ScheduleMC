@@ -182,7 +182,7 @@ public class ReduktionskesselBlockEntity extends BlockEntity implements IUtility
             // Prüfe ob Temperatur hoch genug ist
             if (currentTemperature >= TEMP_OPTIMAL_MIN) {
                 isProcessing = true;
-                processProgress++;
+                processProgress = Math.min(processProgress + 1, PROCESS_TIME);
 
                 // Zähle Zeit in verschiedenen Temperaturzonen
                 if (currentTemperature <= TEMP_OPTIMAL_MAX) {

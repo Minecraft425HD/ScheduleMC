@@ -182,7 +182,7 @@ public class CrackKocherBlockEntity extends BlockEntity implements IUtilityConsu
         if (level == null || level.isClientSide) return;
 
         if (isMinigameActive && waitingForRemove) {
-            cookTick++;
+            cookTick = Math.min(cookTick + 1, PERFECT_WINDOW_START);
 
             // Timeout - automatisch verbrannt
             if (cookTick >= COOK_CYCLE_TICKS) {

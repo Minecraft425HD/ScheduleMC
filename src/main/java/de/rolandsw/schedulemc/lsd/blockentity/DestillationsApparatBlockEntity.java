@@ -41,7 +41,7 @@ public class DestillationsApparatBlockEntity extends BlockEntity implements IUti
         if (ergotCount >= CAPACITY) return false;
         if (outputCount > 0) return false;
 
-        ergotCount++;
+        ergotCount = Math.min(ergotCount + 1, CAPACITY);
         if (distillationProgress == 0) {
             isActive = true;
         }
@@ -69,7 +69,7 @@ public class DestillationsApparatBlockEntity extends BlockEntity implements IUti
 
         if (ergotCount > 0 && outputCount == 0) {
             isActive = true;  // NOPMD
-            distillationProgress++;
+            distillationProgress = Math.min(distillationProgress + 1, DISTILLATION_TIME);
 
             if (distillationProgress >= DISTILLATION_TIME) {
                 // Destillation abgeschlossen - 2 Lysergsäure pro 1 Ergot-Kultur

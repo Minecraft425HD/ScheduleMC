@@ -258,9 +258,9 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            dryingProgress++;
-
             int totalTime = getDryingTime() * inputStack.getCount();
+            dryingProgress = Math.min(dryingProgress + 1, totalTime);
+
             if (dryingProgress >= totalTime) {
                 // Trocknung abgeschlossen - erstelle richtigen Output
                 if (contentType == ContentType.TOBACCO) {
@@ -373,7 +373,7 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         }
         if (tag.contains("Quality")) {
             try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("Quality")); }  // NOPMD
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { tobaccoQuality = TobaccoQuality.SCHLECHT; }  // NOPMD - legacy path, may be overwritten by TobaccoQuality tag
         }
 
         // Neue Felder
@@ -383,7 +383,7 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         }
         if (tag.contains("TobaccoQuality")) {
             try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("TobaccoQuality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { tobaccoQuality = TobaccoQuality.SCHLECHT; }
         }
         if (tag.contains("CannabisStrain")) {
             try { cannabisStrain = CannabisStrain.valueOf(tag.getString("CannabisStrain")); }
@@ -391,7 +391,7 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         }
         if (tag.contains("CannabisQuality")) {
             try { cannabisQuality = CannabisQuality.valueOf(tag.getString("CannabisQuality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { cannabisQuality = CannabisQuality.GUT; }
         }
 
         syncToHandler();

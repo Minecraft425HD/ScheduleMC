@@ -130,7 +130,7 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
             CompoundTag tag = handlerCocoaMass.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
@@ -189,7 +189,7 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
         }
 
         if (!cocoaMassInput.isEmpty() && hasIngredient && outputStack.isEmpty()) {
-            conchingProgress++;
+            conchingProgress = Math.min(conchingProgress + 1, getTotalConchingTime);
 
             if (conchingProgress >= getTotalConchingTime()) {
                 // Conching complete: Cocoa Mass + Ingredients → Conched Chocolate
@@ -316,7 +316,7 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
         conchingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

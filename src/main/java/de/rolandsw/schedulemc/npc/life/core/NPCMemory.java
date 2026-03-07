@@ -221,7 +221,7 @@ public class NPCMemory {
         }
 
         public void recordCrime() {
-            crimeCount++;
+            crimeCount = Math.min(crimeCount + 1, NPCLifeConstants);
             if (crimeCount >= NPCLifeConstants.Memory.CRIMES_FOR_SUSPICIOUS) {
                 reputationTags.add(NPCLifeConstants.PlayerTags.SUSPICIOUS);
             }
@@ -234,7 +234,7 @@ public class NPCMemory {
         }
 
         public void recordHelp() {
-            helpCount++;
+            helpCount = Math.min(helpCount + 1, NPCLifeConstants);
             if (helpCount >= NPCLifeConstants.Memory.HELPS_FOR_HELPFUL) {
                 reputationTags.add(NPCLifeConstants.PlayerTags.HELPFUL);
             }

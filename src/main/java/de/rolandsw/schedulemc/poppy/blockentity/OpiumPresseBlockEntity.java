@@ -279,11 +279,11 @@ public class OpiumPresseBlockEntity extends BlockEntity implements IUtilityConsu
 
             if (tag.contains("Type" + i)) {
                 try { types[i] = PoppyType.valueOf(tag.getString("Type" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHANISCH; }
             }
             if (tag.contains("Quality" + i)) {
                 try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.SCHLECHT; }
             }
         }
     }

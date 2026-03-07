@@ -100,11 +100,11 @@ public class CreamingStationBlockEntity extends BlockEntity implements IUtilityC
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
                 }
                 if (tag.contains("AgeLevel")) {
                     try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { ageLevel = HoneyAgeLevel.FRESH; }
                 } else ageLevel = HoneyAgeLevel.FRESH;
             }
             processingProgress = 0;
@@ -138,7 +138,7 @@ public class CreamingStationBlockEntity extends BlockEntity implements IUtilityC
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            processingProgress++;
+            processingProgress = Math.min(processingProgress + 1, PROCESSING_TIME);
 
             if (processingProgress >= PROCESSING_TIME) {
                 // Processing complete: Filtered Honey → Creamed Honey
@@ -226,11 +226,11 @@ public class CreamingStationBlockEntity extends BlockEntity implements IUtilityC
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
         }
         if (tag.contains("AgeLevel")) {
             try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { ageLevel = HoneyAgeLevel.FRESH; }
         }
         syncToHandler();
     }

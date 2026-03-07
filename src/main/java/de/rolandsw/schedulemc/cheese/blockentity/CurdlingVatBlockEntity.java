@@ -131,7 +131,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
         boolean changed = false;
 
         if (!milkInput.isEmpty() && !rennetInput.isEmpty() && outputStack.isEmpty()) {
-            curdlingProgress++;
+            curdlingProgress = Math.min(curdlingProgress + 1, getTotalCurdlingTime);
 
             if (curdlingProgress >= getTotalCurdlingTime()) {
                 // Determine quality once at completion
@@ -223,7 +223,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
         curdlingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
         }
         syncToHandler();
     }

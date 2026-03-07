@@ -206,7 +206,7 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
         boolean changed = false;
 
         if (canPackage()) {
-            packagingProgress++;
+            packagingProgress = Math.min(packagingProgress + 1, 200);
 
             if (packagingProgress >= 200) { // 10 Sekunden
                 // Packaging abgeschlossen

@@ -43,7 +43,7 @@ public class TrocknungsOfenBlockEntity extends BlockEntity implements IUtilityCo
         if (inputCount >= CAPACITY || outputCount > 0) return false;
 
         inputQuality = MDMABaseItem.getQuality(stack);
-        inputCount++;
+        inputCount = Math.min(inputCount + 1, CAPACITY);
         if (dryingProgress == 0) isActive = true;
         setChanged();
         return true;
@@ -66,7 +66,7 @@ public class TrocknungsOfenBlockEntity extends BlockEntity implements IUtilityCo
 
         if (inputCount > 0 && outputCount == 0) {
             isActive = true;  // NOPMD
-            dryingProgress++;
+            dryingProgress = Math.min(dryingProgress + 1, DRYING_TIME);
 
             if (dryingProgress >= DRYING_TIME) {
                 outputCount = inputCount;

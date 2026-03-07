@@ -122,9 +122,9 @@ public class CrushingStationBlockEntity extends BlockEntity implements IUtilityC
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            crushingProgress++;
-
             int totalTime = getTotalCrushingTime();
+            crushingProgress = Math.min(crushingProgress + 1, totalTime);
+
             if (crushingProgress >= totalTime) {
                 // Guard against corrupt state: wineType must be set
                 if (wineType == null) {
@@ -215,7 +215,7 @@ public class CrushingStationBlockEntity extends BlockEntity implements IUtilityC
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
         }
         syncToHandler();
     }

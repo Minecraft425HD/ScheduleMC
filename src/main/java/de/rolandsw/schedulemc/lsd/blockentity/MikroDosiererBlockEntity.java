@@ -44,7 +44,7 @@ public class MikroDosiererBlockEntity extends BlockEntity implements IUtilityCon
         if (lysergsaeureCount >= 16) return false;
         if (!outputItem.isEmpty()) return false;
 
-        lysergsaeureCount++;
+        lysergsaeureCount = Math.min(lysergsaeureCount + 1, 16);
         setChanged();
         return true;
     }
@@ -89,7 +89,7 @@ public class MikroDosiererBlockEntity extends BlockEntity implements IUtilityCon
         if (level == null || level.isClientSide) return;
 
         if (isProcessing && lysergsaeureCount > 0) {
-            processProgress++;
+            processProgress = Math.min(processProgress + 1, PROCESS_TIME);
 
             if (processProgress >= PROCESS_TIME) {
                 // Prozess abgeschlossen

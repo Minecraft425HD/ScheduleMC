@@ -201,9 +201,9 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            dryingProgress++;
-
             int totalTime = getDryingTimePerCherry() * inputStack.getCount();
+            dryingProgress = Math.min(dryingProgress + 1, totalTime);
+
             if (dryingProgress >= totalTime) {
                 // Trocknung abgeschlossen
                 // 2 Bohnen pro Kirsche

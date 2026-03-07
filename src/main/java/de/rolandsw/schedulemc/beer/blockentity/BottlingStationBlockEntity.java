@@ -134,14 +134,14 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
 
                 if (tag.contains("Quality")) {
                     try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
                 } else {
                     quality = BeerQuality.SCHLECHT;
                 }
 
                 if (tag.contains("AgeLevel")) {
                     try { ageLevel = BeerAgeLevel.valueOf(tag.getString("AgeLevel")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { ageLevel = BeerAgeLevel.YOUNG; }
                 } else {
                     ageLevel = BeerAgeLevel.YOUNG;
                 }
@@ -227,9 +227,9 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
 
         // Check if we have all required inputs and empty output
         if (!beerSource.isEmpty() && !containerStack.isEmpty() && !capStack.isEmpty() && outputStack.isEmpty()) {
-            bottlingProgress++;
-
             int totalTime = getTotalBottlingTime();
+            bottlingProgress = Math.min(bottlingProgress + 1, totalTime);
+
             if (bottlingProgress >= totalTime) {
                 // Bottling complete: Create final beer bottle with all NBT data
                 ItemStack filledBeer = BeerBottleItem.create(
@@ -337,15 +337,15 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
         }
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
         }
         if (tag.contains("AgeLevel")) {
             try { ageLevel = BeerAgeLevel.valueOf(tag.getString("AgeLevel")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { ageLevel = BeerAgeLevel.YOUNG; }
         }
         if (tag.contains("ProcessingMethod")) {
             try { processingMethod = BeerProcessingMethod.valueOf(tag.getString("ProcessingMethod")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { processingMethod = BeerProcessingMethod.BOTTLED; }
         } else {
             processingMethod = BeerProcessingMethod.BOTTLED;
         }

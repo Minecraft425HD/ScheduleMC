@@ -91,7 +91,7 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
@@ -124,7 +124,7 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            grindingProgress++;
+            grindingProgress = Math.min(grindingProgress + 1, PROCESSING_TIME);
 
             if (grindingProgress >= PROCESSING_TIME) {
                 // Grinding complete: Cocoa Nibs → Cocoa Mass
@@ -205,7 +205,7 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
         grindingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

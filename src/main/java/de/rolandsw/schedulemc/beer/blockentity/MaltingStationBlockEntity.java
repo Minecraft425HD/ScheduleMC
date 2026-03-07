@@ -96,7 +96,7 @@ public class MaltingStationBlockEntity extends BlockEntity implements IUtilityCo
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
             } else {
                 quality = BeerQuality.SCHLECHT;
             }
@@ -130,9 +130,9 @@ public class MaltingStationBlockEntity extends BlockEntity implements IUtilityCo
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            maltingProgress++;
-
             int totalTime = getTotalMaltingTime();
+            maltingProgress = Math.min(maltingProgress + 1, totalTime);
+
             if (maltingProgress >= totalTime) {
                 // Malting complete: Grain → Malted Grain
                 ItemStack maltedGrain = ItemStack.EMPTY;
@@ -216,7 +216,7 @@ public class MaltingStationBlockEntity extends BlockEntity implements IUtilityCo
         maltingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
         }
         syncToHandler();
     }

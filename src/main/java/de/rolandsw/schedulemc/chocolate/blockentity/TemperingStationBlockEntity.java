@@ -96,7 +96,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
@@ -129,7 +129,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            temperingProgress++;
+            temperingProgress = Math.min(temperingProgress + 1, PROCESSING_TIME);
 
             if (temperingProgress >= PROCESSING_TIME) {
                 // Tempering complete: Conched Chocolate → Tempered Chocolate
@@ -216,7 +216,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
         temperingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

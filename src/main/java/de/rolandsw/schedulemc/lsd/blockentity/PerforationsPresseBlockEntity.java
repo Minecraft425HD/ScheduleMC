@@ -59,7 +59,7 @@ public class PerforationsPresseBlockEntity extends BlockEntity implements IUtili
         if (!(stack.getItem() instanceof BlotterPapierItem)) return false;
         if (blotterPapierCount >= 16) return false;
 
-        blotterPapierCount++;
+        blotterPapierCount = Math.min(blotterPapierCount + 1, 16);
         setChanged();
         return true;
     }
@@ -120,7 +120,7 @@ public class PerforationsPresseBlockEntity extends BlockEntity implements IUtili
         if (level == null || level.isClientSide) return;
 
         if (isPressing) {
-            pressProgress++;
+            pressProgress = Math.min(pressProgress + 1, PRESS_TIME);
 
             if (pressProgress >= PRESS_TIME) {
                 // Pressen abgeschlossen

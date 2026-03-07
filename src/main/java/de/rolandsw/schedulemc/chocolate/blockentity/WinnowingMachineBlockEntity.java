@@ -94,7 +94,7 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
@@ -128,7 +128,7 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty() && byproductStack.isEmpty()) {
-            winnowingProgress++;
+            winnowingProgress = Math.min(winnowingProgress + 1, PROCESSING_TIME);
 
             if (winnowingProgress >= PROCESSING_TIME) {
                 // Winnowing complete: Roasted Beans → Cocoa Nibs + Shells
@@ -209,7 +209,7 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
         winnowingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

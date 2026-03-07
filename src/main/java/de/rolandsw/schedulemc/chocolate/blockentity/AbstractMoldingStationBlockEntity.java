@@ -118,7 +118,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
             if (tag != null) {
                 if (tag.contains("Quality")) {
                     try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
                 } else {
                     quality = ChocolateQuality.GUT;
                 }
@@ -176,7 +176,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
         boolean changed = false;
 
         if (!chocolateInput.isEmpty() && !moldInput.isEmpty() && outputStack.isEmpty()) {
-            moldingProgress++;
+            moldingProgress = Math.min(moldingProgress + 1, getTotalMoldingTime);
 
             if (moldingProgress >= getTotalMoldingTime()) {
                 // Molding complete: Tempered Chocolate + Mold → Chocolate Bar
@@ -287,7 +287,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
         moldingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         hasMilk = tag.getBoolean("HasMilk");
         hasVanilla = tag.getBoolean("HasVanilla");

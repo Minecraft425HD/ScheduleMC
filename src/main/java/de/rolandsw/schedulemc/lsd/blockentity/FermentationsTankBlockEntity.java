@@ -42,7 +42,7 @@ public class FermentationsTankBlockEntity extends BlockEntity implements IUtilit
         if (mutterkornCount >= CAPACITY) return false;
         if (outputCount > 0) return false; // Erst Output entnehmen
 
-        mutterkornCount++;
+        mutterkornCount = Math.min(mutterkornCount + 1, CAPACITY);
         if (fermentationProgress == 0) {
             isActive = true;
         }
@@ -70,7 +70,7 @@ public class FermentationsTankBlockEntity extends BlockEntity implements IUtilit
 
         if (mutterkornCount > 0 && outputCount == 0) {
             isActive = true;  // NOPMD
-            fermentationProgress++;
+            fermentationProgress = Math.min(fermentationProgress + 1, FERMENTATION_TIME);
 
             if (fermentationProgress >= FERMENTATION_TIME) {
                 // Fermentation abgeschlossen

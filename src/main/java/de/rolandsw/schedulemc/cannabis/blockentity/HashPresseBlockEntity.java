@@ -85,7 +85,7 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
         if (level == null || level.isClientSide) return;
 
         if (isPressing) {
-            pressProgress++;
+            pressProgress = Math.min(pressProgress + 1, PRESS_TICKS);
 
             if (pressProgress >= PRESS_TICKS) {
                 finishPressing();

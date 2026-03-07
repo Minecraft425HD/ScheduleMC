@@ -565,7 +565,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             }
 
             renderY += 22;
-            visibleCount++;
+            visibleCount = Math.min(visibleCount + 1, ITEMS_VISIBLE_ROWS);
             currentIndex++;
         }
 
@@ -666,7 +666,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             clickableNPCs.add(new ClickableNPC(sellerId, removeX, removeY, 30, 12, true));
 
             renderY += 18;
-            visibleCount++;
+            visibleCount = Math.min(visibleCount + 1, ITEMS_VISIBLE_ROWS);
         }
 
         if (sellers.isEmpty()) {
@@ -702,7 +702,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             clickableNPCs.add(new ClickableNPC(npc.getUUID(), addX, addY, 160, 12, false));
 
             renderY += 18;
-            visibleCount++;
+            visibleCount = Math.min(visibleCount + 1, ITEMS_VISIBLE_ROWS);
         }
 
         if (availableNpcs.isEmpty()) {

@@ -99,7 +99,7 @@ public class HoneyExtractorBlockEntity extends BlockEntity implements IUtilityCo
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
                 }
             }
             processingProgress = 0;
@@ -133,7 +133,7 @@ public class HoneyExtractorBlockEntity extends BlockEntity implements IUtilityCo
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            processingProgress++;
+            processingProgress = Math.min(processingProgress + 1, PROCESSING_TIME);
 
             if (processingProgress >= PROCESSING_TIME) {
                 // Processing complete: Honeycomb → Raw Honey + Beeswax
@@ -223,7 +223,7 @@ public class HoneyExtractorBlockEntity extends BlockEntity implements IUtilityCo
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
         }
         syncToHandler();
     }

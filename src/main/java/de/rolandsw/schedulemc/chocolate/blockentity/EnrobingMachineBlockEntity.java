@@ -114,7 +114,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
             CompoundTag tag = handlerChocolate.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
@@ -156,7 +156,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
         boolean changed = false;
 
         if (!chocolateInput.isEmpty() && !itemInput.isEmpty() && outputStack.isEmpty()) {
-            enrobingProgress++;
+            enrobingProgress = Math.min(enrobingProgress + 1, PROCESSING_TIME);
 
             if (enrobingProgress >= PROCESSING_TIME) {
                 // Enrobing complete: Create chocolate-covered item
@@ -247,7 +247,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
         enrobingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

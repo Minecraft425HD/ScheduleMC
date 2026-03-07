@@ -206,7 +206,7 @@ public class PoliceSearchBehavior {
         for (BlockPos wallPos : checkPositions) {
             BlockState state = level.getBlockState(wallPos);
             if (!state.isAir() && state.isRedstoneConductor(level, wallPos)) {
-                wallCount++;
+                wallCount = Math.min(wallCount + 1, 2);
                 if (wallCount >= 2) return true; // Early-exit: Genug Wände gefunden
             }
         }

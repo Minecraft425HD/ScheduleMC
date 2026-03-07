@@ -165,10 +165,12 @@ public class ChemieMixerBlockEntity extends BlockEntity implements IUtilityConsu
                     MethQuality quality = calculateQuality(i);
                     outputSlots[i] = MethPasteItem.create(quality, 1);
 
-                    // Verbrauche Zutaten (bleiben als "used" markiert im Slot bis Entnahme)
+                    // Verbrauche Zutaten und setze Progress zurück
                     ephedrinSlots[i] = ItemStack.EMPTY;
                     phosphorSlots[i] = ItemStack.EMPTY;
                     jodSlots[i] = ItemStack.EMPTY;
+                    mixingProgress[i] = 0;
+                    usedPseudoephedrin[i] = false;
 
                     changed = true;
                 }

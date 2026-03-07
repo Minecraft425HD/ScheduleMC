@@ -109,7 +109,7 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
         if (level == null || level.isClientSide) return;
 
         if (isExtracting) {
-            extractionProgress++;
+            extractionProgress = Math.min(extractionProgress + 1, EXTRACTION_TICKS);
 
             if (extractionProgress >= EXTRACTION_TICKS) {
                 finishExtraction();

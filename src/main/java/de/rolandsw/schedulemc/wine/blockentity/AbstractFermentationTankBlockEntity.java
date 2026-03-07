@@ -98,7 +98,7 @@ public abstract class AbstractFermentationTankBlockEntity extends BlockEntity im
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
             } else {
                 quality = WineQuality.SCHLECHT;
             }
@@ -136,9 +136,9 @@ public abstract class AbstractFermentationTankBlockEntity extends BlockEntity im
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            fermentationProgress++;
-
             int totalTime = getTotalFermentationTime();
+            fermentationProgress = Math.min(fermentationProgress + 1, totalTime);
+
             if (fermentationProgress >= totalTime) {
                 // Guard against corrupt state: wineType must be set
                 if (wineType == null) {
@@ -223,7 +223,7 @@ public abstract class AbstractFermentationTankBlockEntity extends BlockEntity im
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
         }
         syncToHandler();
     }

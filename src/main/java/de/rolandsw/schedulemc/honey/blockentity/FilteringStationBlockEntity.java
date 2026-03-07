@@ -99,7 +99,7 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
                 }
             }
             processingProgress = 0;
@@ -133,7 +133,7 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            processingProgress++;
+            processingProgress = Math.min(processingProgress + 1, PROCESSING_TIME);
 
             if (processingProgress >= PROCESSING_TIME) {
                 // Processing complete: Raw Honey → Filtered Honey
@@ -237,7 +237,7 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
         }
         syncToHandler();
     }

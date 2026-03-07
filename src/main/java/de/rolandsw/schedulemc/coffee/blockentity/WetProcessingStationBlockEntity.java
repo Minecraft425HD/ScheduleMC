@@ -117,7 +117,7 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
                 processingProgress = 0;
                 changed = true;
             } else {
-                processingProgress++;
+                processingProgress = Math.min(processingProgress + 1, currentStage);
 
                 if (processingProgress >= currentStage.getDuration()) {
                     ProcessingStage nextStage = currentStage.next();

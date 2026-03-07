@@ -92,7 +92,7 @@ public class ApiaryBlockEntity extends BlockEntity implements IUtilityConsumer, 
 
         // Check if we can produce (output slot not full)
         if (output.isEmpty() || (output.getItem() == HoneyItems.RAW_HONEYCOMB.get() && output.getCount() < 62)) {
-            tickCount++;
+            tickCount = Math.min(tickCount + 1, PRODUCTION_TIME);
 
             // Determine quality based on biome
             if (tickCount == 1) {
@@ -200,7 +200,7 @@ public class ApiaryBlockEntity extends BlockEntity implements IUtilityConsumer, 
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
         }
     }
 

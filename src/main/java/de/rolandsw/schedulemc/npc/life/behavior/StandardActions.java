@@ -178,7 +178,7 @@ public class StandardActions {
 
         @Override
         public boolean tick(CustomNPCEntity npc) {
-            alertTimer++;
+            alertTimer = Math.min(alertTimer + 1, 40);
 
             // Nach 2 Sekunden: Alarmierung auslösen
             if (alertTimer >= 40 && !hasAlerted) {
