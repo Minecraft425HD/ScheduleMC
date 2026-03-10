@@ -5973,5 +5973,21 @@
   "gui.oel_extraktor.info_oil": "§7Oil: §f",
   "gui.oel_extraktor.info_quality_sep": "ml §7| Quality: ",
   "gui.oel_extraktor.hint_solvent_needed": "§7(Solvent required)",
-  "gui.oel_extraktor.hint_min_material": "§7(At least %dg material required)"
+  "gui.oel_extraktor.hint_min_material": "§7(At least %dg material required)",
+
+  "block.schedulemc.secret_door_oak": "Secret Oak Door",
+  "block.schedulemc.secret_door_stone": "Secret Stone Door",
+  "block.schedulemc.secret_door_iron": "Secret Iron Door",
+  "block.schedulemc.sliding_door_oak": "Secret Oak Sliding Door",
+  "block.schedulemc.sliding_door_stone": "Secret Stone Sliding Door",
+  "block.schedulemc.sliding_door_iron": "Secret Iron Sliding Door",
+  "block.schedulemc.portcullis_oak": "Oak Portcullis",
+  "block.schedulemc.portcullis_stone": "Stone Portcullis",
+  "block.schedulemc.portcullis_iron": "Iron Portcullis",
+  "block.schedulemc.hatch_oak": "Oak Floor Hatch",
+  "block.schedulemc.hatch_stone": "Stone Floor Hatch",
+  "block.schedulemc.hatch_iron": "Iron Floor Hatch",
+  "block.schedulemc.hidden_switch_stone": "Hidden Stone Switch",
+  "block.schedulemc.hidden_switch_oak": "Hidden Oak Switch",
+  "item.schedulemc.remote_control": "Remote Control"
 }

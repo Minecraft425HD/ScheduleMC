@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "powered=false": { "model": "schedulemc:block/hidden_switch_oak" },
+    "powered=true":  { "model": "schedulemc:block/hidden_switch_oak" }
+  }
+}
