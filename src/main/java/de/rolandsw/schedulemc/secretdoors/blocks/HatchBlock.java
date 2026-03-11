@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 /**
  * Bodenluke / Falltür (Hatch).
  * Öffnet sich als Bodenplatte nach unten/zur Seite.
- * Unterstützt dynamische Größen von 1×1 bis 10×10.
+ * Unterstützt dynamische Größen von 1×1 bis 20×20.
  * Breitet sich horizontal (X-Z-Ebene) aus statt vertikal.
  */
 public class HatchBlock extends AbstractSecretDoorBlock {
@@ -22,8 +22,8 @@ public class HatchBlock extends AbstractSecretDoorBlock {
     // Luken haben keine horizontale Ausrichtung - verwende FACING für die Seite zur Wand
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public HatchBlock(BlockBehaviour.Properties props, DoorMaterial material) {
-        super(props, material, DoorType.HATCH);
+    public HatchBlock(BlockBehaviour.Properties props) {
+        super(props, DoorType.HATCH);
     }
 
     @Override

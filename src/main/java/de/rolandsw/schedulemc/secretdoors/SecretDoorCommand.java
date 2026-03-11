@@ -35,8 +35,8 @@ public class SecretDoorCommand {
             // /secretdoor size <x> <y> <z> <breite> <höhe>
             .then(Commands.literal("size")
                 .then(Commands.argument("pos", BlockPosArgument.blockPos())
-                    .then(Commands.argument("breite", IntegerArgumentType.integer(1, 10))
-                        .then(Commands.argument("hoehe", IntegerArgumentType.integer(1, 10))
+                    .then(Commands.argument("breite", IntegerArgumentType.integer(1, 20))
+                        .then(Commands.argument("hoehe", IntegerArgumentType.integer(1, 20))
                             .executes(SecretDoorCommand::executeSize)
                         )
                     )
@@ -140,7 +140,6 @@ public class SecretDoorCommand {
             source.sendSuccess(() -> Component.literal(
                 "§6=== Geheimtür Info ===\n" +
                 "§7Typ: §e" + doorBlock.getDoorType().name() + "\n" +
-                "§7Material: §e" + doorBlock.getMaterial().name() + "\n" +
                 "§7Größe: §e" + be.getDoorWidth() + "×" + be.getDoorHeight() + "\n" +
                 "§7Status: §e" + (be.isOpen() ? "§aOFFEN" : "§cGESCHLOSSEN") + "\n" +
                 "§7Besitzer: §e" + (be.getOwnerName().isEmpty() ? "Niemand" : be.getOwnerName()) + "\n" +

@@ -83,22 +83,11 @@ public class ModCreativeTabs {
                 output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.REMOTE_CONTROL.get());
                 output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HIDDEN_SWITCH_STONE.get());
                 output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HIDDEN_SWITCH_OAK.get());
-                // Geheime Schwenktüren (1×1 bis 10×10 via Shift+Rechtsklick oder /secretdoor size)
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SECRET_DOOR_OAK.get());
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SECRET_DOOR_STONE.get());
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SECRET_DOOR_IRON.get());
-                // Schiebetüren
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SLIDING_DOOR_OAK.get());
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SLIDING_DOOR_STONE.get());
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SLIDING_DOOR_IRON.get());
-                // Fallgitter / Portkullis
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.PORTCULLIS_OAK.get());
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.PORTCULLIS_STONE.get());
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.PORTCULLIS_IRON.get());
-                // Bodenluken / Falltüren
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HATCH_OAK.get());
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HATCH_STONE.get());
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HATCH_IRON.get());
+                // Geheime Türen (1×1 bis 20×20 via Shift+Rechtsklick oder /secretdoor size)
+                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SECRET_DOOR.get());
+                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SLIDING_DOOR.get());
+                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.PORTCULLIS.get());
+                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HATCH.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // SCHLOSS-SYSTEM (Locks, Keys, Lock Picks)

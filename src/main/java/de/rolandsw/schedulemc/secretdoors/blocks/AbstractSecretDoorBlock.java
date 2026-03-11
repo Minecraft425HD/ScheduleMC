@@ -10,6 +10,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -42,13 +43,10 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-    protected final DoorMaterial material;
     protected final DoorType doorType;
 
-    protected AbstractSecretDoorBlock(BlockBehaviour.Properties props,
-                                       DoorMaterial material, DoorType doorType) {
+    protected AbstractSecretDoorBlock(BlockBehaviour.Properties props, DoorType doorType) {
         super(props);
-        this.material = material;
         this.doorType = doorType;
         registerDefaultState(stateDefinition.any()
             .setValue(OPEN, false)
@@ -79,8 +77,8 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        // Wenn offen: unsichtbar (kein Modell)
-        return state.getValue(OPEN) ? RenderShape.INVISIBLE : RenderShape.MODEL;
+        // Immer ENTITYBLOCK_ANIMATED: Renderer übernimmt Darstellung (inkl. Tarnung)
+        return state.getValue(OPEN) ? RenderShape.INVISIBLE : RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
     @Override
@@ -122,8 +120,8 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
      * Spawnt Füller-Blöcke für eine gegebene Größe.
      * @param controllerPos Position des Controller-Blocks (unten-links)
      * @param be BlockEntity des Controllers
-     * @param width Breite (1-10)
-     * @param height Höhe (1-10)
+     * @param width Breite (1-20)
+     * @param height Höhe (1-20)
      * @param facing Ausrichtung des Türrahmens
      */
     public void spawnFillers(Level level, BlockPos controllerPos, SecretDoorBlockEntity be,
@@ -229,6 +227,23 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
+        // Shift+Rechtsklick mit Block → Tarnung entfernen
+        if (player.isShiftKeyDown() && heldItem.getItem() instanceof BlockItem) {
+            be.clearCamoBlock();
+            level.sendBlockUpdated(pos, state, state, 3);
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§7Tarnung entfernt."));
+            return InteractionResult.SUCCESS;
+        }
+
+        // Rechtsklick mit Block → Tarnung setzen
+        if (!player.isShiftKeyDown() && heldItem.getItem() instanceof BlockItem blockItem) {
+            be.setCamoBlock(blockItem.getBlock());
+            level.sendBlockUpdated(pos, state, state, 3);
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "§aTarnung gesetzt auf: §e" + heldItem.getHoverName().getString()));
+            return InteractionResult.SUCCESS;
+        }
+
         // Normaler Rechtsklick → Tür toggeln
         be.toggle(level, player);
         return InteractionResult.SUCCESS;
@@ -248,7 +263,7 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
             "§7Aktuelle Größe: §e" + w + "×" + h + "\n" +
             "§7Tipp: §aSchneide mit §eFernbedienung§a oder nutze\n" +
             "§7/secretdoor size " + pos.getX() + " " + pos.getY() + " " + pos.getZ() +
-            " <breite 1-10> <höhe 1-10>\n" +
+            " <breite 1-20> <höhe 1-20>\n" +
             "§7Besitzer: §b" + (be.getOwnerName().isEmpty() ? "Niemand" : be.getOwnerName())
         ));
     }
@@ -295,24 +310,11 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
     // Getter
     // ─────────────────────────────────────────────────────────────────
 
-    public DoorMaterial getMaterial() { return material; }
     public DoorType getDoorType() { return doorType; }
 
     // ─────────────────────────────────────────────────────────────────
     // Enums
     // ─────────────────────────────────────────────────────────────────
-
-    public enum DoorMaterial {
-        OAK, STONE, IRON;
-
-        public String getTexturePath() {
-            return switch (this) {
-                case OAK -> "minecraft:block/oak_planks";
-                case STONE -> "minecraft:block/stone";
-                case IRON -> "minecraft:block/iron_block";
-            };
-        }
-    }
 
     public enum DoorType {
         PIVOT,       // Schwenktür

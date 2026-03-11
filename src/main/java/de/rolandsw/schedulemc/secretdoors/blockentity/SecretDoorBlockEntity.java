@@ -6,13 +6,16 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +33,9 @@ public class SecretDoorBlockEntity extends BlockEntity {
     private boolean open = false;
     private UUID ownerId = null;
     private String ownerName = "";
+
+    // Tarnung: Textur des angeklickten Blocks
+    private String camoBlockId = null;
 
     // Relative Offsets der Füller-Blöcke (als [dx, dy, dz])
     private final List<int[]> fillerOffsets = new ArrayList<>();
@@ -125,8 +131,8 @@ public class SecretDoorBlockEntity extends BlockEntity {
             }
         }
         fillerOffsets.clear();
-        doorWidth = Math.max(1, Math.min(10, w));
-        doorHeight = Math.max(1, Math.min(10, h));
+        doorWidth = Math.max(1, Math.min(20, w));
+        doorHeight = Math.max(1, Math.min(20, h));
         setChanged();
     }
 
@@ -203,6 +209,26 @@ public class SecretDoorBlockEntity extends BlockEntity {
     public String getOwnerName() { return ownerName; }
     public UUID getOwnerId() { return ownerId; }
 
+    public void setCamoBlock(Block block) {
+        ResourceLocation key = ForgeRegistries.BLOCKS.getKey(block);
+        this.camoBlockId = key != null ? key.toString() : null;
+        setChanged();
+    }
+
+    public void clearCamoBlock() {
+        this.camoBlockId = null;
+        setChanged();
+    }
+
+    /** Gibt den Block zurück, dessen Textur als Tarnung genutzt wird (oder null = Standard). */
+    public Block getCamoBlock() {
+        if (camoBlockId == null) return null;
+        ResourceLocation rl = new ResourceLocation(camoBlockId);
+        return ForgeRegistries.BLOCKS.containsKey(rl) ? ForgeRegistries.BLOCKS.getValue(rl) : null;
+    }
+
+    public String getCamoBlockId() { return camoBlockId; }
+
     // ─────────────────────────────────────────────────────────────────
     // NBT
     // ─────────────────────────────────────────────────────────────────
@@ -216,6 +242,9 @@ public class SecretDoorBlockEntity extends BlockEntity {
         if (ownerId != null) {
             tag.putUUID("owner_id", ownerId);
             tag.putString("owner_name", ownerName);
+        }
+        if (camoBlockId != null) {
+            tag.putString("camo_block", camoBlockId);
         }
         // Füller-Offsets speichern
         ListTag fillerList = new ListTag();
@@ -249,6 +278,7 @@ public class SecretDoorBlockEntity extends BlockEntity {
             ownerId = tag.getUUID("owner_id");
             ownerName = tag.getString("owner_name");
         }
+        camoBlockId = tag.contains("camo_block") ? tag.getString("camo_block") : null;
         // Füller-Offsets laden
         fillerOffsets.clear();
         ListTag fillerList = tag.getList("filler_offsets", Tag.TAG_COMPOUND);
