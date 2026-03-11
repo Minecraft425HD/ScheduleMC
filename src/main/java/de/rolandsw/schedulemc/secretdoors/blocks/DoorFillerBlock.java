@@ -43,7 +43,8 @@ public class DoorFillerBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
+        // Filler ist unsichtbar – nur Kollision, kein eigenes Modell
+        return RenderShape.INVISIBLE;
     }
 
     @Override
@@ -93,11 +94,14 @@ public class DoorFillerBlock extends BaseEntityBlock {
                 BlockState controllerState = level.getBlockState(controllerPos);
                 if (controllerState.getBlock() instanceof AbstractSecretDoorBlock) {
                     if (level.getBlockEntity(controllerPos) instanceof SecretDoorBlockEntity be) {
-                        // Alle anderen Füller entfernen
-                        AbstractSecretDoorBlock.removeAllFillers(level, controllerPos, be);
+                        // Nur kaskadieren wenn die Tür GESCHLOSSEN ist.
+                        // Ist die Tür offen, wurde der Filler durch open() entfernt – kein Cascade.
+                        // Ist die Tür zu, wurde der Filler von außen abgebaut → Controller mitentfernen.
+                        if (!be.isOpen()) {
+                            AbstractSecretDoorBlock.removeAllFillers(level, controllerPos, be);
+                            level.destroyBlock(controllerPos, true);
+                        }
                     }
-                    // Controller-Block entfernen (droppt Item)
-                    level.destroyBlock(controllerPos, true);
                 }
             }
         }
