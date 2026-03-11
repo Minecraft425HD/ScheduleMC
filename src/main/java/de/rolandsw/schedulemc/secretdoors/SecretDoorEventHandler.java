@@ -46,7 +46,7 @@ public class SecretDoorEventHandler {
         if (player.level().isClientSide) return;
 
         UUID uid = player.getUUID();
-        boolean onGround   = player.isOnGround();
+        boolean onGround   = player.onGround();
         boolean wasOnGround = lastOnGround.getOrDefault(uid, true);
         lastOnGround.put(uid, onGround);
 
