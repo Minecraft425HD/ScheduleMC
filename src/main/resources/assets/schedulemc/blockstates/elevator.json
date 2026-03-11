@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,powered=false": { "model": "schedulemc:block/elevator" },
+    "facing=north,powered=true":  { "model": "schedulemc:block/elevator" },
+    "facing=south,powered=false": { "model": "schedulemc:block/elevator", "y": 180 },
+    "facing=south,powered=true":  { "model": "schedulemc:block/elevator", "y": 180 },
+    "facing=east,powered=false":  { "model": "schedulemc:block/elevator", "y": 90 },
+    "facing=east,powered=true":   { "model": "schedulemc:block/elevator", "y": 90 },
+    "facing=west,powered=false":  { "model": "schedulemc:block/elevator", "y": 270 },
+    "facing=west,powered=true":   { "model": "schedulemc:block/elevator", "y": 270 }
+  }
+}

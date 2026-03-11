@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.secretdoors.blocks;
 
 import de.rolandsw.schedulemc.secretdoors.SecretDoors;
 import de.rolandsw.schedulemc.secretdoors.blockentity.DoorFillerBlockEntity;
+import de.rolandsw.schedulemc.secretdoors.blockentity.ElevatorBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blockentity.SecretDoorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -77,6 +78,9 @@ public class DoorFillerBlock extends BaseEntityBlock {
         if (controllerState.getBlock() instanceof AbstractSecretDoorBlock) {
             return controllerState.getBlock().use(controllerState, level, controllerPos, player, hand, hit);
         }
+        if (controllerState.getBlock() instanceof ElevatorBlock) {
+            return controllerState.getBlock().use(controllerState, level, controllerPos, player, hand, hit);
+        }
 
         return InteractionResult.PASS;
     }
@@ -95,12 +99,15 @@ public class DoorFillerBlock extends BaseEntityBlock {
                 if (controllerState.getBlock() instanceof AbstractSecretDoorBlock) {
                     if (level.getBlockEntity(controllerPos) instanceof SecretDoorBlockEntity be) {
                         // Nur kaskadieren wenn die Tür GESCHLOSSEN ist.
-                        // Ist die Tür offen, wurde der Filler durch open() entfernt – kein Cascade.
-                        // Ist die Tür zu, wurde der Filler von außen abgebaut → Controller mitentfernen.
                         if (!be.isOpen()) {
                             AbstractSecretDoorBlock.removeAllFillers(level, controllerPos, be);
                             level.destroyBlock(controllerPos, true);
                         }
+                    }
+                } else if (controllerState.getBlock() instanceof ElevatorBlock) {
+                    if (level.getBlockEntity(controllerPos) instanceof ElevatorBlockEntity ebe) {
+                        ElevatorBlock.removeAllFillers(level, controllerPos, ebe);
+                        level.destroyBlock(controllerPos, true);
                     }
                 }
             }
