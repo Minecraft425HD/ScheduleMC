@@ -248,16 +248,7 @@ public class ElevatorBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
-        // Normaler Rechtsklick → Status anzeigen
-        List<BlockPos> stations = be.getLinkedStationsSortedByY();
-        if (stations.isEmpty()) {
-            player.sendSystemMessage(Component.literal(
-                "§7[Aufzug] Keine Stationen verknüpft. §eShift+Klick §7(leere Hand) zum Verknüpfen."));
-        } else {
-            player.sendSystemMessage(Component.literal(
-                "§a[Aufzug] §e" + stations.size() + "§a Station(en) – §eSpringen §7= hoch, §eSneaken §7= runter."));
-        }
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     // ─────────────────────────────────────────────────────────────────

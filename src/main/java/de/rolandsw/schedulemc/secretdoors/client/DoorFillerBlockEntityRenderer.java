@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.secretdoors.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import de.rolandsw.schedulemc.secretdoors.blockentity.DoorFillerBlockEntity;
+import de.rolandsw.schedulemc.secretdoors.blockentity.ElevatorBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blockentity.SecretDoorBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -36,11 +37,20 @@ public class DoorFillerBlockEntityRenderer implements BlockEntityRenderer<DoorFi
         if (controllerPos == null) return;
 
         BlockEntity controllerBE = level.getBlockEntity(controllerPos);
-        if (!(controllerBE instanceof SecretDoorBlockEntity doorBE)) return;
 
-        // Camo des Controllers übernehmen (Standard: Steinquader – identisch zum Controller-Renderer)
-        Block camoBlock = doorBE.getCamoBlock();
-        BlockState renderState = (camoBlock != null ? camoBlock : Blocks.STONE_BRICKS).defaultBlockState();
+        Block camoBlock;
+        Block defaultBlock;
+        if (controllerBE instanceof SecretDoorBlockEntity doorBE) {
+            camoBlock = doorBE.getCamoBlock();
+            defaultBlock = Blocks.STONE_BRICKS;
+        } else if (controllerBE instanceof ElevatorBlockEntity elevatorBE) {
+            camoBlock = elevatorBE.getCamoBlock();
+            defaultBlock = Blocks.IRON_BLOCK;
+        } else {
+            return;
+        }
+
+        BlockState renderState = (camoBlock != null ? camoBlock : defaultBlock).defaultBlockState();
 
         Minecraft.getInstance().getBlockRenderer()
             .renderSingleBlock(renderState, poseStack, bufferSource, packedLight, packedOverlay);
