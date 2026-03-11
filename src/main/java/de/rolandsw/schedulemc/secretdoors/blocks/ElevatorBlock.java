@@ -248,19 +248,14 @@ public class ElevatorBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
 
-        // Normaler Rechtsklick → Teleportation zur nächsten Station oben
-        if (!(player instanceof ServerPlayer sp)) return InteractionResult.SUCCESS;
-
+        // Normaler Rechtsklick → Status anzeigen
         List<BlockPos> stations = be.getLinkedStationsSortedByY();
         if (stations.isEmpty()) {
             player.sendSystemMessage(Component.literal(
-                "§7[Aufzug] Keine Stationen verknüpft. §eShift+Klick §7zum Verknüpfen."));
-            return InteractionResult.SUCCESS;
-        }
-
-        boolean teleported = be.teleportPlayerUp(sp);
-        if (!teleported) {
-            player.sendSystemMessage(Component.literal("§7[Aufzug] Keine Station gefunden."));
+                "§7[Aufzug] Keine Stationen verknüpft. §eShift+Klick §7(leere Hand) zum Verknüpfen."));
+        } else {
+            player.sendSystemMessage(Component.literal(
+                "§a[Aufzug] §e" + stations.size() + "§a Station(en) – §eSpringen §7= hoch, §eSneaken §7= runter."));
         }
         return InteractionResult.SUCCESS;
     }
@@ -350,6 +345,15 @@ public class ElevatorBlock extends BaseEntityBlock {
     private InteractionResult handleLinking(Level level, BlockPos sourcePos, BlockPos targetPos,
                                              BlockState targetState, Player player) {
         if (!(level.getBlockEntity(sourcePos) instanceof ElevatorBlockEntity sourceBE)) return InteractionResult.PASS;
+
+        // Stationen müssen exakt über-/untereinander sein (gleicher X/Z)
+        if (sourcePos.getX() != targetPos.getX() || sourcePos.getZ() != targetPos.getZ()) {
+            player.sendSystemMessage(Component.literal(
+                "§c[Aufzug] Stationen müssen exakt über-/untereinander sein (gleicher X/Z)."));
+            sourceBE.setLinkingMode(false);
+            sourceBE.setChanged();
+            return InteractionResult.SUCCESS;
+        }
 
         int yDist = Math.abs(targetPos.getY() - sourcePos.getY());
         if (yDist > ElevatorBlockEntity.MAX_DISTANCE) {

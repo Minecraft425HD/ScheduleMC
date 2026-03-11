@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -36,6 +37,21 @@ public class DoorFillerBlock extends BaseEntityBlock {
 
     public DoorFillerBlock(BlockBehaviour.Properties props) {
         super(props);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Unzerstörbar durch Spieler – Abbau nur über den Controller-Block
+    // ─────────────────────────────────────────────────────────────────
+
+    /**
+     * Verhindert das Abbauen durch Spieler (auch im Creative-Modus).
+     * Der gesamte Türrahmen / Aufzugsboden kann nur durch Abbauen des
+     * Controller-Blocks entfernt werden.
+     */
+    @Override
+    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos,
+                                        Player player, boolean willHarvest, FluidState fluid) {
+        return false; // Block wird nicht abgebaut
     }
 
     // ─────────────────────────────────────────────────────────────────

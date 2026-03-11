@@ -74,6 +74,20 @@ public class ElevatorBlockEntity extends BlockEntity {
     }
 
     /**
+     * Nächste Station unterhalb von {@code current} (zyklisch – springt zur obersten wenn unten).
+     */
+    public BlockPos getNextStationBelow(BlockPos current) {
+        List<BlockPos> sorted = getLinkedStationsSortedByY();
+        if (sorted.isEmpty()) return null;
+        // Stationen mit niedrigerem Y als current (in umgekehrter Reihenfolge)
+        for (int i = sorted.size() - 1; i >= 0; i--) {
+            if (sorted.get(i).getY() < current.getY()) return sorted.get(i);
+        }
+        // Wrap: zur obersten Station
+        return sorted.get(sorted.size() - 1);
+    }
+
+    /**
      * Nächste Station oberhalb von {@code current} (zyklisch – springt zur untersten wenn oben).
      */
     public BlockPos getNextStationAbove(BlockPos current) {
@@ -98,11 +112,18 @@ public class ElevatorBlockEntity extends BlockEntity {
     public boolean teleportPlayerUp(ServerPlayer player) {
         BlockPos target = getNextStationAbove(worldPosition);
         if (target == null) return false;
-        // Zielkoordinaten: Spieler landet 1 Block über dem Aufzugsboden der Zielstation
-        double tx = target.getX() + 0.5;
-        double ty = target.getY() + 1.0;
-        double tz = target.getZ() + 0.5;
-        player.teleportTo(tx, ty, tz);
+        player.teleportTo(target.getX() + 0.5, target.getY() + 1.0, target.getZ() + 0.5);
+        return true;
+    }
+
+    /**
+     * Teleportiert den Spieler eine Ebene tiefer (oder zur obersten wenn bereits unten).
+     * Gibt false zurück wenn keine verknüpften Stationen vorhanden sind.
+     */
+    public boolean teleportPlayerDown(ServerPlayer player) {
+        BlockPos target = getNextStationBelow(worldPosition);
+        if (target == null) return false;
+        player.teleportTo(target.getX() + 0.5, target.getY() + 1.0, target.getZ() + 0.5);
         return true;
     }
 
