@@ -5973,5 +5973,11 @@
   "gui.oel_extraktor.info_oil": "§7Oil: §f",
   "gui.oel_extraktor.info_quality_sep": "ml §7| Quality: ",
   "gui.oel_extraktor.hint_solvent_needed": "§7(Solvent required)",
-  "gui.oel_extraktor.hint_min_material": "§7(At least %dg material required)"
+  "gui.oel_extraktor.hint_min_material": "§7(At least %dg material required)",
+
+  "block.schedulemc.secret_door": "Secret Door",
+  "block.schedulemc.hatch": "Floor Hatch",
+  "block.schedulemc.hidden_switch_stone": "Hidden Stone Switch",
+  "block.schedulemc.hidden_switch_oak": "Hidden Oak Switch",
+  "item.schedulemc.remote_control": "Remote Control"
 }

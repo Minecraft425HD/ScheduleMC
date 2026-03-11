@@ -298,6 +298,12 @@ public class ScheduleMC {
         // Lock-System registrieren
         LockItems.ITEMS.register(modEventBus);
         de.rolandsw.schedulemc.towing.menu.TowingMenuTypes.MENUS.register(modEventBus);
+
+        // Geheime Türen System registrieren
+        de.rolandsw.schedulemc.secretdoors.SecretDoors.BLOCKS.register(modEventBus);
+        de.rolandsw.schedulemc.secretdoors.SecretDoors.ITEMS.register(modEventBus);
+        de.rolandsw.schedulemc.secretdoors.SecretDoors.BLOCK_ENTITIES.register(modEventBus);
+
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
 
         ModLoadingContext context = ModLoadingContext.get();
@@ -413,6 +419,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.gang.GangCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.commands.AdminCommand.register(event.getDispatcher());
             LockCommand.register(event.getDispatcher());
+            de.rolandsw.schedulemc.secretdoors.SecretDoorCommand.register(event.getDispatcher());
 
             // Vehicle Mod handles its own commands via event bus (registered in Main.commonSetup)
         }, "onRegisterCommands");

@@ -5973,5 +5973,11 @@
   "gui.oel_extraktor.info_oil": "§7Öl: §f",
   "gui.oel_extraktor.info_quality_sep": "ml §7| Qualität: ",
   "gui.oel_extraktor.hint_solvent_needed": "§7(Lösungsmittel benötigt)",
-  "gui.oel_extraktor.hint_min_material": "§7(Mindestens %dg Material benötigt)"
+  "gui.oel_extraktor.hint_min_material": "§7(Mindestens %dg Material benötigt)",
+
+  "block.schedulemc.secret_door": "Geheimtür",
+  "block.schedulemc.hatch": "Bodenluke",
+  "block.schedulemc.hidden_switch_stone": "Versteckter Steinschalter",
+  "block.schedulemc.hidden_switch_oak": "Versteckter Holzschalter",
+  "item.schedulemc.remote_control": "Fernbedienung"
 }

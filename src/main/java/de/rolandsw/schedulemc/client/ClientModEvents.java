@@ -2,6 +2,9 @@ package de.rolandsw.schedulemc.client;
 import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.secretdoors.SecretDoors;
+import de.rolandsw.schedulemc.secretdoors.client.DoorFillerBlockEntityRenderer;
+import de.rolandsw.schedulemc.secretdoors.client.SecretDoorBlockEntityRenderer;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.integration.forge.ForgeEvents;
 import de.rolandsw.schedulemc.mapview.integration.forge.ForgePacketBridge;
@@ -49,6 +52,7 @@ import de.rolandsw.schedulemc.beer.menu.BeerMenuTypes;
 import de.rolandsw.schedulemc.beer.screen.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -181,5 +185,11 @@ public class ClientModEvents {
                 MenuScreens.register(BeerMenuTypes.BOTTLING_STATION_MENU.get(), de.rolandsw.schedulemc.beer.screen.BottlingStationScreen::new);
             });
         }, "onClientSetup");
+    }
+
+    @SubscribeEvent
+    public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(SecretDoors.SECRET_DOOR_BE.get(), SecretDoorBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(SecretDoors.DOOR_FILLER_BE.get(), DoorFillerBlockEntityRenderer::new);
     }
 }

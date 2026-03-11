@@ -78,6 +78,16 @@ public class ModCreativeTabs {
                 output.accept(NPCItems.ENTITY_REMOVER.get());
 
                 // ═══════════════════════════════════════════════════════════
+                // GEHEIME TÜREN & TORE (Secret Doors & Gates)
+                // ═══════════════════════════════════════════════════════════
+                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.REMOTE_CONTROL.get());
+                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HIDDEN_SWITCH_STONE.get());
+                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HIDDEN_SWITCH_OAK.get());
+                // Geheime Türen (1×1 bis 20×20 via Rechtsklick oder /secretdoor size)
+                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SECRET_DOOR.get());
+                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HATCH.get());
+
+                // ═══════════════════════════════════════════════════════════
                 // SCHLOSS-SYSTEM (Locks, Keys, Lock Picks)
                 // ═══════════════════════════════════════════════════════════
                 output.accept(de.rolandsw.schedulemc.lock.items.LockItems.SIMPLE_LOCK.get());
