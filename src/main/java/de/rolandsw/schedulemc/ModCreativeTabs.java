@@ -83,10 +83,8 @@ public class ModCreativeTabs {
                 output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.REMOTE_CONTROL.get());
                 output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HIDDEN_SWITCH_STONE.get());
                 output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HIDDEN_SWITCH_OAK.get());
-                // Geheime Türen (1×1 bis 20×20 via Shift+Rechtsklick oder /secretdoor size)
+                // Geheime Türen (1×1 bis 20×20 via Rechtsklick oder /secretdoor size)
                 output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SECRET_DOOR.get());
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.SLIDING_DOOR.get());
-                output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.PORTCULLIS.get());
                 output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HATCH.get());
 
                 // ═══════════════════════════════════════════════════════════

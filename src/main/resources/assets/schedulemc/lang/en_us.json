@@ -5976,8 +5976,6 @@
   "gui.oel_extraktor.hint_min_material": "§7(At least %dg material required)",
 
   "block.schedulemc.secret_door": "Secret Door",
-  "block.schedulemc.sliding_door": "Sliding Secret Door",
-  "block.schedulemc.portcullis": "Portcullis",
   "block.schedulemc.hatch": "Floor Hatch",
   "block.schedulemc.hidden_switch_stone": "Hidden Stone Switch",
   "block.schedulemc.hidden_switch_oak": "Hidden Oak Switch",

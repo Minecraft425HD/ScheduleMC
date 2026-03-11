@@ -37,25 +37,13 @@ public class SecretDoors {
     }
 
     // ─────────────────────────────────────────────────────────────────
-    // Geheime Schwenktür (Secret Pivot Door)
+    // Geheimtür (horizontal – Wand)
     // ─────────────────────────────────────────────────────────────────
     public static final RegistryObject<Block> SECRET_DOOR = BLOCKS.register("secret_door",
         () -> new SecretDoorBlock(doorProps()));
 
     // ─────────────────────────────────────────────────────────────────
-    // Schiebetür (Sliding Door)
-    // ─────────────────────────────────────────────────────────────────
-    public static final RegistryObject<Block> SLIDING_DOOR = BLOCKS.register("sliding_door",
-        () -> new SlidingDoorBlock(doorProps()));
-
-    // ─────────────────────────────────────────────────────────────────
-    // Fallgitter / Tor (Portcullis)
-    // ─────────────────────────────────────────────────────────────────
-    public static final RegistryObject<Block> PORTCULLIS = BLOCKS.register("portcullis",
-        () -> new PortcullisBlock(doorProps()));
-
-    // ─────────────────────────────────────────────────────────────────
-    // Bodenluke / Falltür (Hatch)
+    // Bodenluke (vertikal – Boden/Decke)
     // ─────────────────────────────────────────────────────────────────
     public static final RegistryObject<Block> HATCH = BLOCKS.register("hatch",
         () -> new HatchBlock(doorProps()));
@@ -86,12 +74,6 @@ public class SecretDoors {
     public static final RegistryObject<Item> SECRET_DOOR_ITEM = ITEMS.register("secret_door",
         () -> new BlockItem(SECRET_DOOR.get(), new Item.Properties()));
 
-    public static final RegistryObject<Item> SLIDING_DOOR_ITEM = ITEMS.register("sliding_door",
-        () -> new BlockItem(SLIDING_DOOR.get(), new Item.Properties()));
-
-    public static final RegistryObject<Item> PORTCULLIS_ITEM = ITEMS.register("portcullis",
-        () -> new BlockItem(PORTCULLIS.get(), new Item.Properties()));
-
     public static final RegistryObject<Item> HATCH_ITEM = ITEMS.register("hatch",
         () -> new BlockItem(HATCH.get(), new Item.Properties()));
 
@@ -112,7 +94,7 @@ public class SecretDoors {
     public static final RegistryObject<BlockEntityType<SecretDoorBlockEntity>> SECRET_DOOR_BE =
         BLOCK_ENTITIES.register("secret_door_be", () -> BlockEntityType.Builder.of(
             SecretDoorBlockEntity::new,
-            SECRET_DOOR.get(), SLIDING_DOOR.get(), PORTCULLIS.get(), HATCH.get()
+            SECRET_DOOR.get(), HATCH.get()
         ).build(null));
 
     public static final RegistryObject<BlockEntityType<HiddenSwitchBlockEntity>> HIDDEN_SWITCH_BE =

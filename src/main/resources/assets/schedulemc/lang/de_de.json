@@ -5976,8 +5976,6 @@
   "gui.oel_extraktor.hint_min_material": "§7(Mindestens %dg Material benötigt)",
 
   "block.schedulemc.secret_door": "Geheimtür",
-  "block.schedulemc.sliding_door": "Geheime Schiebetür",
-  "block.schedulemc.portcullis": "Fallgitter",
   "block.schedulemc.hatch": "Bodenluke",
   "block.schedulemc.hidden_switch_stone": "Versteckter Steinschalter",
   "block.schedulemc.hidden_switch_oak": "Versteckter Holzschalter",

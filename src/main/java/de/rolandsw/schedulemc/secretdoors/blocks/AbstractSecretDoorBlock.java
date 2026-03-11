@@ -317,9 +317,7 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
     // ─────────────────────────────────────────────────────────────────
 
     public enum DoorType {
-        PIVOT,       // Schwenktür
-        SLIDE,       // Schiebetür
-        PORTCULLIS,  // Aufziehendes Tor
-        HATCH        // Bodenluke
+        PIVOT,   // Geheimtür (horizontal, Wand)
+        HATCH    // Bodenluke (vertikal, Boden/Decke)
     }
 }
