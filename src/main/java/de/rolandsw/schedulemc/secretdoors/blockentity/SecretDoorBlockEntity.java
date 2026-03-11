@@ -206,6 +206,12 @@ public class SecretDoorBlockEntity extends BlockEntity {
     public int getDoorWidth() { return doorWidth; }
     public int getDoorHeight() { return doorHeight; }
 
+    public void setDoorSize(int width, int height) {
+        this.doorWidth = Math.max(1, Math.min(20, width));
+        this.doorHeight = Math.max(1, Math.min(20, height));
+        setChanged();
+    }
+
     public String getOwnerName() { return ownerName; }
     public UUID getOwnerId() { return ownerId; }
 

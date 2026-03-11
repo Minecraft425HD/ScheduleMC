@@ -107,14 +107,58 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
         // Besitzer setzen
         if (placer instanceof Player player && level.getBlockEntity(pos) instanceof SecretDoorBlockEntity be) {
             be.setOwner(player);
-            // Standard-Größe: 1×2
-            spawnFillers(level, pos, be, 1, 2, state.getValue(FACING));
+            // Größe automatisch aus angrenzenden Luftblöcken ermitteln
+            Direction facing = state.getValue(FACING);
+            int[] size = autoDetectSize(level, pos, facing);
+            spawnFillers(level, pos, be, size[0], size[1], facing);
         }
     }
 
     // ─────────────────────────────────────────────────────────────────
     // Füller-Blöcke aufspannen
     // ─────────────────────────────────────────────────────────────────
+
+    /**
+     * Erkennt automatisch die Türgröße anhand aufeinanderfolgender Luftblöcke
+     * ausgehend vom Controller-Block (max. 20×20).
+     *
+     * PIVOT: Breite → rechts, Höhe → aufwärts
+     * HATCH: Breite → rechts, Höhe → in FACING-Richtung (horizontal)
+     *
+     * @return int[]{width, height}
+     */
+    private int[] autoDetectSize(Level level, BlockPos pos, Direction facing) {
+        Direction right = facing.getClockWise();
+
+        // Breite: aufeinanderfolgende Luftblöcke in Querrichtung (ab w=1, inkl. Controller = +1)
+        int width = 1;
+        for (int w = 1; w < 20; w++) {
+            BlockPos check = pos.offset(w * right.getStepX(), 0, w * right.getStepZ());
+            if (level.getBlockState(check).isAir()) {
+                width++;
+            } else {
+                break;
+            }
+        }
+
+        // Höhe: aufeinanderfolgende Luftblöcke aufwärts (PIVOT) oder in FACING-Richtung (HATCH)
+        int height = 1;
+        for (int h = 1; h < 20; h++) {
+            BlockPos check;
+            if (doorType == DoorType.HATCH) {
+                check = pos.offset(h * facing.getStepX(), 0, h * facing.getStepZ());
+            } else {
+                check = pos.above(h);
+            }
+            if (level.getBlockState(check).isAir()) {
+                height++;
+            } else {
+                break;
+            }
+        }
+
+        return new int[]{width, height};
+    }
 
     /**
      * Spawnt Füller-Blöcke für eine gegebene Größe.
@@ -137,6 +181,7 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
         }
         be.clearFillerOffsets();
         be.setOpen(false);
+        be.setDoorSize(width, height);
 
         // Richtungsvektoren berechnen (seitwärts = rechts vom FACING)
         Direction right = facing.getClockWise();
