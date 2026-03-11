@@ -43,8 +43,8 @@ public class DoorFillerBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        // Filler ist unsichtbar – nur Kollision, kein eigenes Modell
-        return RenderShape.INVISIBLE;
+        // ENTITYBLOCK_ANIMATED → DoorFillerBlockEntityRenderer übernimmt die Darstellung
+        return RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
     @Override
