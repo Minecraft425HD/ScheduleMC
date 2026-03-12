@@ -212,24 +212,16 @@ public class ElevatorBlock extends BaseEntityBlock {
 
         ItemStack held = player.getItemInHand(hand);
 
-        // Shift+Rechtsklick mit Block → Tarnung setzen
-        if (player.isShiftKeyDown() && held.getItem() instanceof BlockItem blockItem) {
-            be.setCamoBlock(blockItem.getBlock());
-            level.sendBlockUpdated(pos, state, state, 3);
-            player.sendSystemMessage(Component.literal(
-                "§a[Aufzug] Tarnung: §e" + held.getHoverName().getString()));
+        // Shift+Rechtsklick mit Block → Tarnung entfernen (wie bei Türen)
+        if (player.isShiftKeyDown() && held.getItem() instanceof BlockItem) {
+            be.clearCamoBlock();
+            sendCamoUpdateToAll(level, pos, state, be);
+            player.sendSystemMessage(Component.literal("§7[Aufzug] Tarnung entfernt."));
             return InteractionResult.SUCCESS;
         }
 
-        // Shift+Rechtsklick mit leerem Hand → Tarnung löschen, Verknüpfung oder Modus-Toggle
+        // Shift+Rechtsklick mit leerem Hand → Verknüpfungs-Modus oder Camo-Clear
         if (player.isShiftKeyDown() && held.isEmpty()) {
-            if (be.getCamoBlock() != null) {
-                be.clearCamoBlock();
-                level.sendBlockUpdated(pos, state, state, 3);
-                player.sendSystemMessage(Component.literal("§7[Aufzug] Tarnung entfernt."));
-                return InteractionResult.SUCCESS;
-            }
-
             // Suche nach einem ANDEREN Aufzug im Linking-Modus (max. 16 H / 128 V Blöcke)
             BlockPos linkingSource = findLinkingElevator(level, pos, player);
             if (linkingSource != null) {
@@ -245,6 +237,15 @@ public class ElevatorBlock extends BaseEntityBlock {
             } else {
                 player.sendSystemMessage(Component.literal("§7[Aufzug] Verknüpfungs-Modus AUS."));
             }
+            return InteractionResult.SUCCESS;
+        }
+
+        // Normaler Rechtsklick mit Block → Tarnung setzen (wie bei Türen)
+        if (!player.isShiftKeyDown() && held.getItem() instanceof BlockItem blockItem) {
+            be.setCamoBlock(blockItem.getBlock());
+            sendCamoUpdateToAll(level, pos, state, be);
+            player.sendSystemMessage(Component.literal(
+                "§a[Aufzug] Tarnung: §e" + held.getHoverName().getString()));
             return InteractionResult.SUCCESS;
         }
 
@@ -377,6 +378,24 @@ public class ElevatorBlock extends BaseEntityBlock {
                 "§7[Aufzug] Bereits verknüpft oder Stationslimit (32) erreicht."));
         }
         return InteractionResult.SUCCESS;
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Hilfsmethoden
+    // ─────────────────────────────────────────────────────────────────
+
+    /**
+     * Sendet ein Block-Update an den Controller und alle Filler-Blöcke,
+     * damit die Tarnung in allen Chunks aktualisiert wird.
+     */
+    private static void sendCamoUpdateToAll(Level level, BlockPos controllerPos,
+                                             BlockState controllerState, ElevatorBlockEntity be) {
+        level.sendBlockUpdated(controllerPos, controllerState, controllerState, 3);
+        for (int[] offset : be.getFillerOffsets()) {
+            BlockPos fp = controllerPos.offset(offset[0], offset[1], offset[2]);
+            BlockState fs = level.getBlockState(fp);
+            level.sendBlockUpdated(fp, fs, fs, 3);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────
