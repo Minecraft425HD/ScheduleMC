@@ -1,6 +1,6 @@
 # ScheduleMC API Reference
 
-**Version:** 3.6.0-beta | **Minecraft:** 1.20.1 | **Forge:** 47.4.0 | **Java:** 17+
+**Version:** 3.6.9-beta | **Minecraft:** 1.20.1 | **Forge:** 47.4.0 | **Java:** 17+
 
 Complete API reference for external mod developers integrating with ScheduleMC.
 
@@ -2647,9 +2647,10 @@ public class DrugBustHandler {
 
 | API Version | Mod Version    | Minecraft | Forge  | Changes                                    |
 |------------|----------------|-----------|--------|--------------------------------------------|
-| 3.0.0      | 3.0.0          | 1.20.1    | 47.4.0 | Initial public API release. All 11 modules |
-| 3.1.0      | 3.1.0 - 3.5.x | 1.20.1    | 47.4.0 | Javadoc improvements, minor fixes          |
-| 3.1.0      | 3.6.0-beta     | 1.20.1    | 47.4.0 | Current release                            |
+| 3.0.0      | 3.0.0          | 1.20.1    | 47.4.0 | Initial public API release. 11 core modules |
+| 3.1.0      | 3.1.0 – 3.5.x | 1.20.1    | 47.4.0 | Javadoc improvements, minor fixes           |
+| 3.1.0      | 3.6.0-beta     | 1.20.1    | 47.4.0 | Lock, Gang, Territory, Towing, Level systems |
+| 3.2.0      | 3.6.9-beta     | 1.20.1    | 47.4.0 | Extended methods for Messaging, Achievement, Market; 12 total modules |
 
 ### Supported Environments
 
@@ -2739,6 +2740,6 @@ de.rolandsw.schedulemc.api
 
 ---
 
-*ScheduleMC API Reference -- Generated for version 3.6.0-beta*
+*ScheduleMC API Reference -- Version 3.6.9-beta*
 *Author: Luckas R. Schneider (Minecraft425HD)*
 *License: All Rights Reserved*

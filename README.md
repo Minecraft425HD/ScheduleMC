@@ -138,9 +138,9 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 ### Server Installation
 
 1. Download and install [Minecraft Forge 47.4.0](https://files.minecraftforge.net/) for Minecraft 1.20.1.
-2. Download the latest `schedulemc-3.6.0-beta.jar` release from [GitHub Releases](https://github.com/Minecraft425HD/ScheduleMC/releases).
+2. Download the latest `schedulemc-3.6.9-beta.jar` release from [GitHub Releases](https://github.com/Minecraft425HD/ScheduleMC/releases).
 3. Download [CoreLib 1.20.1-1.1.1](https://maven.maxhenkel.de/repository/public/de/maxhenkel/corelib/) and place it in your `mods/` folder.
-4. Place `schedulemc-3.6.0-beta.jar` into the server's `mods/` folder.
+4. Place `schedulemc-3.6.9-beta.jar` into the server's `mods/` folder.
 5. Start the server once to generate default configuration files.
 6. Edit configuration files in `config/schedulemc/` to match your server's needs.
 7. Restart the server.
@@ -1574,9 +1574,11 @@ ScheduleMC/
 ├── docs/
 │   ├── API_REFERENCE.md
 │   ├── ARCHITECTURE.md
+│   ├── CHANGELOG.md
 │   ├── CONFIGURATION.md
 │   ├── DEVELOPER_GUIDE.md
 │   ├── PROJECT_STRUCTURE.md
+│   ├── TESTING.md
 │   ├── TOWING_NPC_INVOICE_SCREEN.md
 │   ├── TOWING_SYSTEM_SETUP.md
 ├── gradle/

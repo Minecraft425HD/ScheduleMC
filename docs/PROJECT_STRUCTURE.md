@@ -1,11 +1,11 @@
 # ScheduleMC - Vollstaendige Projektstruktur
 
-> Automatisch generiert am 2026-02-07
+> Aktualisiert am 2026-03-16 | Version 3.6.9-beta
 >
 > **Gesamtstatistik:**
-> - Java-Quelldateien (main): 1419
-> - Java-Testdateien: 19
-> - Ressourcen-Dateien: 1207
+> - Java-Quelldateien (main): 1.448
+> - Java-Testdateien: 32
+> - Ressourcen-Dateien: 1.797
 > - Gesamtzeilen in dieser Datei: ~3,000+
 
 ---
@@ -20,9 +20,11 @@ ScheduleMC/
 ├── docs/
 │   ├── API_REFERENCE.md
 │   ├── ARCHITECTURE.md
+│   ├── CHANGELOG.md
 │   ├── CONFIGURATION.md
 │   ├── DEVELOPER_GUIDE.md
 │   ├── PROJECT_STRUCTURE.md
+│   ├── TESTING.md
 │   ├── TOWING_NPC_INVOICE_SCREEN.md
 │   ├── TOWING_SYSTEM_SETUP.md
 ├── gradle/
@@ -2991,6 +2993,51 @@ ScheduleMC/
 │       └── resources
 │           └── mockito-extensions
 │               └── org.mockito.plugins.MockMaker
+├── wiki/
+│   ├── Home.md                             ← Wiki home page with navigation
+│   ├── Getting-Started.md
+│   ├── Commands.md
+│   ├── Items.md
+│   ├── Blocks.md
+│   ├── Production-Systems.md
+│   ├── FAQ.md
+│   ├── features/
+│   │   ├── Achievement-System.md
+│   │   ├── Economy-System.md
+│   │   ├── Gang-System.md
+│   │   ├── Level-System.md
+│   │   ├── Lock-System.md
+│   │   ├── MapView-System.md
+│   │   ├── Market-System.md
+│   │   ├── Messaging-System.md
+│   │   ├── Mission-System.md               ← NEW: Mission lifecycle, tracking keys, rewards
+│   │   ├── NPC-System.md
+│   │   ├── Player-Settings-System.md       ← NEW: Settings, PlayerTracker, ServiceContact
+│   │   ├── Plot-System.md
+│   │   ├── Police-Crime-System.md
+│   │   ├── Secret-Doors-System.md          ← NEW: Secret doors, hatches, elevators, switches
+│   │   ├── Smartphone-System.md
+│   │   ├── Territory-System.md
+│   │   ├── Towing-System.md
+│   │   ├── Tutorial-System.md
+│   │   ├── Utility-System.md               ← NEW: Electricity/water tracking, 7-day average
+│   │   ├── Vehicle-System.md
+│   │   └── Warehouse-System.md
+│   └── production/
+│       ├── Beer-System.md
+│       ├── Cannabis-System.md
+│       ├── Cheese-System.md
+│       ├── Chocolate-System.md
+│       ├── Coca-System.md
+│       ├── Coffee-System.md
+│       ├── Honey-System.md
+│       ├── LSD-System.md
+│       ├── MDMA-System.md
+│       ├── Meth-System.md
+│       ├── Mushroom-System.md
+│       ├── Poppy-System.md
+│       ├── Tobacco-System.md
+│       └── Wine-System.md
 ├── build.gradle
 ├── gradle.properties
 ├── gradlew

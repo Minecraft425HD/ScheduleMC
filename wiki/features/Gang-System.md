@@ -1,10 +1,50 @@
 # Gang-System
 
-> Organisierte Kriminalitaet mit Hierarchie, Perks, Missionen und Territorien
+<div align="center">
+
+**Organisierte Kriminalitaet mit Hierarchie, Perks, Missionen und Territorien**
+
+Level 1–30 Progression, 20 Perks in 4 Branches, automatische Missionen und Gebietsansprueche
+
+[Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md) | [Territory System](Territory-System.md)
+
+</div>
+
+---
+
+## Table of Contents
+
+1. [Ueberblick](#ueberblick)
+2. [Gang erstellen](#gang-erstellen)
+3. [Rang-Hierarchie](#rang-hierarchie)
+4. [XP und Level-System](#xp-und-level-system)
+5. [Perk-System](#perk-system)
+6. [Woechentliche Gebuehren](#woechentliche-gebuehren)
+7. [Missions-System](#missions-system)
+8. [Befehle](#befehle)
+9. [Datenspeicherung](#datenspeicherung)
+10. [Best Practices](#best-practices)
+11. [Fehlerbehebung](#fehlerbehebung)
+
+---
 
 ## Ueberblick
 
 Das Gang-System ermoeglicht Spielern die Gruendung krimineller Organisationen mit hierarchischen Raengen, XP-Progression (Level 1-30), freischaltbaren Perks, automatischen Missionen und Gebietsanspruechen. Gangs verdienen kollektiv XP durch Aktivitaeten ihrer Mitglieder und schalten dadurch neue Faehigkeiten frei.
+
+### Kennzahlen
+
+| Metrik | Wert |
+|--------|------|
+| Max. Gang-Level | 30 |
+| Max. Mitglieder (Level 30) | 20 |
+| Verfuegbare Perks | 20 (in 4 Branches) |
+| Missionstypen | 3 (Stuendlich, Taeglich, Woechentlich) |
+| Missionsvorlagen (gesamt) | 30 |
+| Szenario-Zieltypen | 63 |
+| Reputationsstufen | 5 |
+
+---
 
 ## Gang erstellen
 
@@ -232,6 +272,60 @@ Der Szenario-Editor (OP Level 2) ermoeglicht das Erstellen komplexer Missionsabl
 
 ## Datenspeicherung
 
-- **Gang-Daten**: `config/schedulemc_gangs.json`
-- **Missions-Daten**: `config/schedulemc_gang_missions.json`
-- **Szenario-Daten**: `config/schedulemc_scenarios.json`
+| Datei | Inhalt |
+|-------|--------|
+| `config/schedulemc_gangs.json` | Gang-Daten: Mitglieder, Level, XP, Perks, Wochen-Gebuehren |
+| `config/schedulemc_gang_missions.json` | Aktive und abgeschlossene Missionen |
+| `config/schedulemc_scenarios.json` | Szenario-Definitionen vom Editor |
+
+---
+
+## Best Practices
+
+### Fuer Gang-Bosse
+
+1. **Frueh in Territory investieren** — Territorien generieren 2 XP/Tag pro Chunk. Ab Level 8 mit `TERRITORY_EXPAND` koennen bis zu 9 Chunks gehalten werden — das ergibt 18 XP/Tag passiv.
+2. **Missionen aktiv nutzen** — Stuendliche Missionen (50 XP + 500 EUR Bonus) werden oft ignoriert. Teile aktiven Mitgliedern spezifische Missionen zu.
+3. **Wochenbeitrag moderat setzen** — Ein zu hoher Beitrag fuehrt zu Auto-Kicks nach 3 verpassten Zahlungen. Starte mit 500–1.000 EUR/Woche.
+4. **Perk-Prioritaeten**:
+   - Level 3: `PRODUCTION_XP_BOOST` oder `TERRITORY_EXPAND`
+   - Level 5: `CRIME_PROTECTION` (wichtig fuer illegale Produktion)
+   - Level 10: `ECONOMY_TAX` oder `TERRITORY_FORTIFY`
+5. **Boss-Transfer vorsichtig nutzen** — Der aktuelle Boss wird automatisch zum UNDERBOSS degradiert. Nur an vertrauenswuerdige Spieler weitergeben.
+
+### Fuer Server-Admins
+
+1. **Gruendungskosten anpassen** — Standard: 25.000 EUR fuer Gang-Gruendung (Level 15). Zu niedrig = zu viele Gangs; zu hoch = wenig Gang-Aktivitaet.
+2. **XP-Kurve balancieren** — Die XP-Formel `200 * Level^1.7` ergibt ~656.000 XP fuer Level 30. Passe `BASE_XP` an die Server-Aktivitaet an.
+3. **Szenario-Editor nutzen** — Erstelle einzigartige Raid-Szenarien mit `/gang task editor` fuer Server-Events.
+4. **Territorien vorplanen** — Konfiguriere mit `/map edit` farbliche Zonen fuer spaeteren Gang-Wettbewerb.
+5. **Gang-Monitor** — Nutze `/gang admin info <name>` regelmaessig um inaktive Gangs zu identifizieren und ggf. aufzuloesen.
+
+---
+
+## Fehlerbehebung
+
+### Gang kann nicht gegruendet werden
+
+1. **Level pruefen** — Mindest-Produzentenlevel 15 erforderlich. Pruefe mit `/level` oder Smartphone-App.
+2. **Kosten pruefen** — 25.000 EUR auf dem Bankkonto benoetigt. Pruefe mit `/money balance`.
+3. **Bereits in einer Gang** — Verlasse die aktuelle Gang zuerst mit `/gang leave`.
+4. **Name bereits vergeben** — Gang-Namen sind nicht case-sensitiv und muessen eindeutig sein.
+
+### Perk kann nicht freigeschaltet werden
+
+1. **Perk-Punkte pruefen** — `verfuegbare Punkte = Gang-Level - 2`. Bei Level 10: 8 Punkte.
+2. **Nur Boss** — Nur der Gang-Boss kann Perks freischalten.
+3. **Perk-Voraussetzung** — Einige Perks haben Level-Anforderungen (z.B. `TERRITORY_EXPAND` ab Level 3).
+
+### Missionen erscheinen nicht
+
+1. **Automatische Generierung** — Missionen werden automatisch zum Reset-Zeitpunkt generiert (stuendlich / taeglich / Montag 00:00 Uhr).
+2. **Keine Mitglieder online** — Manche Missionstypen erfordern Online-Mitglieder.
+3. **Datei pruefen** — Pruefe `config/schedulemc_gang_missions.json` auf Korruption.
+
+### Gang-Daten nach Neustart verloren
+
+1. **Datei pruefen** — `config/schedulemc_gangs.json` auf gueltiges JSON pruefen.
+2. **Backup wiederherstellen** — Aus `config/backups/schedulemc_gangs_<timestamp>.json` wiederherstellen.
+3. **Schreibrechte** — Der Server braucht Schreibzugriff auf das `config/`-Verzeichnis.
