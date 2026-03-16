@@ -82,6 +82,10 @@ Detailed documentation for each major game system.
 | [Level System](features/Level-System.md) | Producer Progression | Level 0-30 progression with 53 unlockable features, XP from production and sales, unlock system for strains, machines, vehicles, and economy features |
 | [MapView System](features/MapView-System.md) | In-Game Map | Advanced map renderer with minimap, world map, A* road navigation, NPC display, territory overlay, and configurable display settings |
 | [Messaging System](features/Messaging-System.md) | Communication | Player-to-player and player-to-NPC messaging with persistent history, reputation-based NPC responses, real-time notifications, and smartphone integration |
+| [Secret Doors System](features/Secret-Doors-System.md) | Concealed Passages | Dynamic 1×1–20×20 secret doors (pivot and hatch types), camouflage as any block, hidden switches (stone/oak), BFS floodfill elevators with station chains, and Remote Control item (20 doors, 64-block range) |
+| [Mission System](features/Mission-System.md) | Player Missions | Story missions (Hauptmissionen) and repeatable side missions (Nebenmissionen), four-state lifecycle (AVAILABLE → ACTIVE → COMPLETED → CLAIMED), XP and money rewards, prerequisite chains, and NPC giver support |
+| [Utility System](features/Utility-System.md) | Electricity & Water | Per-plot electricity and water consumption tracking for 40+ block types, 7-day rolling average via circular buffer, 9 consumption categories, police integration for anomaly detection |
+| [Player Settings System](features/Player-Settings-System.md) | Player Preferences | Per-player configurable utility warning thresholds, persistent player contact registry for the Contacts App, built-in service contacts (Towing, Taxi, etc.), and network sync |
 
 ---
 
@@ -401,7 +405,7 @@ When reporting an issue, include the following information:
 
 - Minecraft version (1.20.1)
 - Forge version
-- ScheduleMC version (3.6.0-beta)
+- ScheduleMC version (3.6.9-beta)
 - Steps to reproduce the problem
 - Relevant log output from `.minecraft/logs/latest.log`
 - Output of the `/health` command if applicable
