@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.secretdoors.blocks;
 
 import de.rolandsw.schedulemc.secretdoors.SecretDoors;
 import de.rolandsw.schedulemc.secretdoors.blockentity.DoorFillerBlockEntity;
+import de.rolandsw.schedulemc.secretdoors.blockentity.ElevatorBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blockentity.SecretDoorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -35,6 +37,21 @@ public class DoorFillerBlock extends BaseEntityBlock {
 
     public DoorFillerBlock(BlockBehaviour.Properties props) {
         super(props);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // Unzerstörbar durch Spieler – Abbau nur über den Controller-Block
+    // ─────────────────────────────────────────────────────────────────
+
+    /**
+     * Verhindert das Abbauen durch Spieler (auch im Creative-Modus).
+     * Der gesamte Türrahmen / Aufzugsboden kann nur durch Abbauen des
+     * Controller-Blocks entfernt werden.
+     */
+    @Override
+    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos,
+                                        Player player, boolean willHarvest, FluidState fluid) {
+        return false; // Block wird nicht abgebaut
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -77,6 +94,9 @@ public class DoorFillerBlock extends BaseEntityBlock {
         if (controllerState.getBlock() instanceof AbstractSecretDoorBlock) {
             return controllerState.getBlock().use(controllerState, level, controllerPos, player, hand, hit);
         }
+        if (controllerState.getBlock() instanceof ElevatorBlock) {
+            return controllerState.getBlock().use(controllerState, level, controllerPos, player, hand, hit);
+        }
 
         return InteractionResult.PASS;
     }
@@ -95,12 +115,15 @@ public class DoorFillerBlock extends BaseEntityBlock {
                 if (controllerState.getBlock() instanceof AbstractSecretDoorBlock) {
                     if (level.getBlockEntity(controllerPos) instanceof SecretDoorBlockEntity be) {
                         // Nur kaskadieren wenn die Tür GESCHLOSSEN ist.
-                        // Ist die Tür offen, wurde der Filler durch open() entfernt – kein Cascade.
-                        // Ist die Tür zu, wurde der Filler von außen abgebaut → Controller mitentfernen.
                         if (!be.isOpen()) {
                             AbstractSecretDoorBlock.removeAllFillers(level, controllerPos, be);
                             level.destroyBlock(controllerPos, true);
                         }
+                    }
+                } else if (controllerState.getBlock() instanceof ElevatorBlock) {
+                    if (level.getBlockEntity(controllerPos) instanceof ElevatorBlockEntity ebe) {
+                        ElevatorBlock.removeAllFillers(level, controllerPos, ebe);
+                        level.destroyBlock(controllerPos, true);
                     }
                 }
             }

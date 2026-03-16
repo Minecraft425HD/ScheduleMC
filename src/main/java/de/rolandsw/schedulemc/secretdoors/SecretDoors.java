@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.secretdoors;
 
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.secretdoors.blockentity.ElevatorBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blockentity.HiddenSwitchBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blockentity.SecretDoorBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blocks.*;
@@ -107,5 +108,24 @@ public class SecretDoors {
         BLOCK_ENTITIES.register("door_filler_be", () -> BlockEntityType.Builder.of(
             de.rolandsw.schedulemc.secretdoors.blockentity.DoorFillerBlockEntity::new,
             DOOR_FILLER.get()
+        ).build(null));
+
+    // ─────────────────────────────────────────────────────────────────
+    // Aufzug (Elevator)
+    // ─────────────────────────────────────────────────────────────────
+    public static final RegistryObject<Block> ELEVATOR = BLOCKS.register("elevator",
+        () -> new ElevatorBlock(BlockBehaviour.Properties.of()
+            .mapColor(MapColor.STONE)
+            .sound(SoundType.STONE)
+            .strength(3.5f, 6.0f)
+            .noOcclusion()));
+
+    public static final RegistryObject<Item> ELEVATOR_ITEM = ITEMS.register("elevator",
+        () -> new BlockItem(ELEVATOR.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<ElevatorBlockEntity>> ELEVATOR_BE =
+        BLOCK_ENTITIES.register("elevator_be", () -> BlockEntityType.Builder.of(
+            ElevatorBlockEntity::new,
+            ELEVATOR.get()
         ).build(null));
 }
