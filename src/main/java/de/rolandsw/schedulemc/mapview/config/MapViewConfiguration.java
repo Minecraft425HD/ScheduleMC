@@ -249,7 +249,7 @@ public class MapViewConfiguration implements SettingsManager {
     }
 
     public String getKeyBindingDescription(int keybindIndex) {
-        return this.keyBindings[keybindIndex]."key.mapview.menu".equals(getName()) ? I18n.get("key.mapview.menu") : I18n.get(this.keyBindings[keybindIndex].getName());
+        return "key.mapview.menu".equals(this.keyBindings[keybindIndex].getName()) ? I18n.get("key.mapview.menu") : I18n.get(this.keyBindings[keybindIndex].getName());
     }
 
     public Component getKeybindDisplayString(int keybindIndex) {
