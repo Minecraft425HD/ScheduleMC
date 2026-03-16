@@ -3,8 +3,8 @@
 Comprehensive guide for developers who want to build, extend, and contribute to the
 ScheduleMC Minecraft Forge 1.20.1 mod.
 
-**Mod Version:** 3.6.0-beta
-**API Version:** 3.0.0
+**Mod Version:** 3.6.9-beta
+**API Version:** 3.2.0
 **Forge Version:** 1.20.1-47.4.0
 **Java Version:** 17
 **Author:** Luckas R. Schneider (Minecraft425HD)

@@ -1,6 +1,32 @@
-# Produzenten-Level-System
+# Produzenten-Level-System (Level System)
 
-> Stufenbasierte Progression mit Freischaltungen von Level 0 bis 30
+<div align="center">
+
+**Stufenbasierte Progression mit Freischaltungen von Level 0 bis 30**
+
+53 freischaltbare Features, XP aus Produktion und Verkauf, Progression fuer Anfaenger bis Endgame
+
+[Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md)
+
+</div>
+
+---
+
+## Table of Contents
+
+1. [Ueberblick](#ueberblick)
+2. [XP-Progression](#xp-progression)
+3. [XP-Quellen](#xp-quellen)
+4. [Freischaltungen](#freischaltungen)
+5. [Level-Up Benachrichtigung](#level-up-benachrichtigung)
+6. [Smartphone-App](#smartphone-app)
+7. [Netzwerk-Synchronisation](#netzwerk-synchronisation)
+8. [Datenspeicherung](#datenspeicherung)
+9. [Admin-Befehle](#admin-befehle)
+10. [Best Practices](#best-practices)
+11. [Fehlerbehebung](#fehlerbehebung)
+
+---
 
 ## Ueberblick
 
@@ -201,4 +227,66 @@ Die **Produzenten-Level-App** zeigt:
 
 **Datei**: `config/schedulemc_producer_levels.json`
 
-Pro Spieler gespeichert: Level, Gesamt-XP, freigeschaltete Items, Verkaufsstatistiken (legal/illegal), Gesamtumsatz.
+### Gespeicherte Daten pro Spieler
+
+| Feld | Beschreibung |
+|------|-------------|
+| `playerUUID` | Eindeutiger Spieler-Identifikator |
+| `level` | Aktuelles Level (0–30) |
+| `totalXP` | Gesamt-XP aller Zeiten |
+| `unlockedItems` | Set freigeschalteter Item-IDs |
+| `legalSales` | Anzahl legaler Verkauefe |
+| `illegalSales` | Anzahl illegaler Verkauefe |
+| `totalRevenue` | Kumulativer Gesamtumsatz in EUR |
+
+---
+
+## Admin-Befehle
+
+| Befehl | Berechtigung | Beschreibung |
+|--------|-------------|-------------|
+| `/level set <spieler> <level>` | OP Level 2 | Spieler-Level direkt setzen |
+| `/level addxp <spieler> <xp>` | OP Level 2 | XP hinzufuegen |
+| `/level reset <spieler>` | OP Level 2 | Level und XP zuruecksetzen |
+| `/level info <spieler>` | OP Level 2 | Detaillierte Level-Informationen |
+
+---
+
+## Best Practices
+
+### Fuer Spieler
+
+1. **Illegale Produktion priorisieren** — Illegale Verkauefe geben 1,5x mehr XP (konfigurierbar). Das beschleunigt die Progression erheblich, aber mit hoeherem Risiko.
+2. **Qualitaets-Multiplikator nutzen** — Bessere Qualitaet gibt mehr XP pro Verkauf (`XP = Basis-XP × Menge × Qualitaets-Multiplikator`).
+3. **Taeglich einloggen** — 5 XP/Tag klingt wenig, aber ueber 30 Tage sind das 150 XP = 1,5 frueher erreichte Level in den Anfangsstufen.
+4. **Maschinen herstellen** — Jede hergestellte Maschine gibt 10 XP. Beim Aufbau einer Produktionsanlage koennen schnell 100–200 XP zusammenkommen.
+5. **Achievements abschliessen** — Abgeschlossene Achievements geben 25 XP und EUR-Belohnungen.
+
+### Fuer Server-Admins
+
+1. **XP-Kurve anpassen** — Standard `EXPONENT = 1.8` erzeugt eine steile Kurve (Level 30 = 656.059 XP). Setze auf `1.5` fuer schnellere Progression.
+2. **Multiplier balancieren** — `illegal_xp_multiplier = 1.5` incentiviert risikoreichere Produktion. Auf `1.0` setzen fuer gleiche XP bei legalem und illegalem Spielstil.
+3. **Level-Requirements fuer Gangs** — Gang-Gruendung erfordert Level 15, Beitreten Level 5. Diese Werte sind Teil der Spielbalance und sollten nicht zu niedrig sein.
+4. **Admin-Reset** — Nutze `/level reset <spieler>` nur auf explizite Anfrage des Spielers oder bei technischen Problemen.
+
+---
+
+## Fehlerbehebung
+
+### Level steigt nicht
+
+1. **Synchronisation abwarten** — Level-Updates kommen nach dem Verkauf. Pruefe die Smartphone-App nach 1–2 Sekunden.
+2. **XP-Quelle pruefen** — Nicht alle Aktionen geben XP. Pruefe die XP-Quellen-Tabelle oben.
+3. **Datei pruefen** — Oeffne `config/schedulemc_producer_levels.json` auf korrupte Eintraege.
+
+### Freischaltung nicht verfuegbar
+
+1. **Level-Anforderung** — Pruefe das genaue Level fuer das Feature in der Freischaltungs-Tabelle.
+2. **Neu laden** — Trenne dich und verbinde dich neu. Das Level-System synchronisiert beim Join.
+3. **Admin-Pruefung** — Nutze `/level info <spieler>` um den aktuellen State zu sehen.
+
+### Daten nach Neustart verloren
+
+1. **Datei pruefen** — `config/schedulemc_producer_levels.json` auf gueltiges JSON pruefen.
+2. **Backup wiederherstellen** — Aus `config/backups/schedulemc_producer_levels_<timestamp>.json`.
+3. **Schreibrechte** — Server braucht Schreibzugriff auf das `config/`-Verzeichnis.

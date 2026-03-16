@@ -1,11 +1,11 @@
 # ScheduleMC - Vollstaendige Projektstruktur
 
-> Automatisch generiert am 2026-02-07
+> Aktualisiert am 2026-03-16 | Version 3.6.9-beta
 >
 > **Gesamtstatistik:**
-> - Java-Quelldateien (main): 1419
-> - Java-Testdateien: 19
-> - Ressourcen-Dateien: 1207
+> - Java-Quelldateien (main): 1.448
+> - Java-Testdateien: 32
+> - Ressourcen-Dateien: 1.797
 > - Gesamtzeilen in dieser Datei: ~3,000+
 
 ---
@@ -20,9 +20,11 @@ ScheduleMC/
 ├── docs/
 │   ├── API_REFERENCE.md
 │   ├── ARCHITECTURE.md
+│   ├── CHANGELOG.md
 │   ├── CONFIGURATION.md
 │   ├── DEVELOPER_GUIDE.md
 │   ├── PROJECT_STRUCTURE.md
+│   ├── TESTING.md
 │   ├── TOWING_NPC_INVOICE_SCREEN.md
 │   ├── TOWING_SYSTEM_SETUP.md
 ├── gradle/

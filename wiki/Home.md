@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/Version-3.6.0--beta-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-3.6.9--beta-blue?style=for-the-badge)
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-green?style=for-the-badge)
 ![Forge](https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge)
 ![Java](https://img.shields.io/badge/Java-17-red?style=for-the-badge)
@@ -24,7 +24,7 @@
 
 | Metric | Value |
 |---|---|
-| **Version** | 3.6.0-beta |
+| **Version** | 3.6.9-beta |
 | **Minecraft** | 1.20.1 |
 | **Forge** | 47.4.0 |
 | **Java** | 17 |
@@ -119,27 +119,34 @@ Technical documentation for mod developers and server plugin authors.
 
 | Document | Location | Description |
 |---|---|---|
+| API Reference | [docs/API_REFERENCE.md](../docs/API_REFERENCE.md) | Complete API documentation for all 12 public modules |
+| Architecture | [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) | System design, patterns, and mod lifecycle |
+| Developer Guide | [docs/DEVELOPER_GUIDE.md](../docs/DEVELOPER_GUIDE.md) | Setup, extending, and contributing to ScheduleMC |
+| Configuration | [docs/CONFIGURATION.md](../docs/CONFIGURATION.md) | Complete reference for all config options |
+| Testing Guide | [docs/TESTING.md](../docs/TESTING.md) | Running tests, writing tests, CI/CD pipeline |
+| Changelog | [docs/CHANGELOG.md](../docs/CHANGELOG.md) | Version history and release notes |
 | Towing System Setup | [docs/TOWING_SYSTEM_SETUP.md](../docs/TOWING_SYSTEM_SETUP.md) | Setup guide for the vehicle towing and impound system |
 | Towing NPC Invoice Screen | [docs/TOWING_NPC_INVOICE_SCREEN.md](../docs/TOWING_NPC_INVOICE_SCREEN.md) | Technical documentation for the towing NPC invoice GUI |
+| Project Structure | [docs/PROJECT_STRUCTURE.md](../docs/PROJECT_STRUCTURE.md) | Complete source tree with all 1,448 Java files |
 
 #### Public API Modules
 
-ScheduleMC exposes 12 public API modules through the `ScheduleMCAPI` singleton. All API interfaces are located in the `de.rolandsw.schedulemc.api` package.
+ScheduleMC exposes 12 public API modules through the `ScheduleMCAPI` singleton and 1 legacy static utility class. All API interfaces are located in the `de.rolandsw.schedulemc.api` package.
 
-| Module | Interface | Purpose |
-|---|---|---|
-| Economy | `IEconomyAPI` | Account management, deposits, withdrawals, balance queries, transactions |
-| Plot | `IPlotAPI` | Plot creation, lookup, ownership, region queries |
-| Production | `IProductionAPI` | Custom plant registration, production chain hooks |
-| NPC | `INPCAPI` | NPC spawning, configuration, schedule management |
-| Police | `IPoliceAPI` | Wanted level management, crime records, arrest triggers |
-| Vehicle | `IVehicleAPI` | Vehicle spawning, part management, fuel operations |
-| Warehouse | `IWarehouseAPI` | Item storage, delivery scheduling, shop linking |
-| Messaging | `IMessagingAPI` | Player-to-player and system messaging |
-| Smartphone | `ISmartphoneAPI` | Custom app registration, notification system |
-| Achievement | `IAchievementAPI` | Achievement granting, progress tracking |
-| Tutorial | `ITutorialAPI` | Tutorial step management, progress control |
-| Market | `IMarketAPI` | Price queries, supply/demand data, market manipulation |
+| # | Module | Interface | Purpose |
+|---|--------|-----------|---------|
+| 1 | Economy | `IEconomyAPI` | Account management, deposits, withdrawals, balance queries, transactions |
+| 2 | Plot | `IPlotAPI` | Plot creation, lookup, ownership, region queries |
+| 3 | Production | `IProductionAPI` | Custom plant registration, production chain hooks |
+| 4 | NPC | `INPCAPI` | NPC spawning, configuration, schedule management |
+| 5 | Police | `IPoliceAPI` | Wanted level management, crime records, arrest triggers |
+| 6 | Vehicle | `IVehicleAPI` | Vehicle spawning, part management, fuel operations |
+| 7 | Warehouse | `IWarehouseAPI` | Item storage, delivery scheduling, shop linking |
+| 8 | Messaging | `IMessagingAPI` | Player-to-player and system messaging, block/unblock |
+| 9 | Smartphone | `ISmartphoneAPI` | Custom app registration, notification system |
+| 10 | Achievement | `IAchievementAPI` | Achievement granting, progress tracking, leaderboards |
+| 11 | Market | `IMarketAPI` | Price queries, supply/demand data, market manipulation |
+| 12 | PlotModAPI | Static utility | Legacy static utility class for common operations |
 
 **API usage example:**
 
@@ -264,36 +271,18 @@ These mods are not required but provide enhanced functionality when installed:
 
 | Version | Status | Highlights |
 |---|---|---|
-| **3.6.0-beta** | **Current** | Towing system, gang and territory systems, additional crafting (beer, wine, coffee, chocolate, cheese, honey), map view, lock system, level system, continued API expansion |
+| **3.6.9-beta** | **Current** | Achievement system expansion, API v3.2.0, extended Messaging/Market/Achievement API methods, 32 test files, full documentation overhaul |
+| 3.6.0-beta | -- | Towing system, gang and territory systems, legal crafting (beer, wine, coffee, chocolate, cheese, honey), map view, lock system, level system, API v3.1.0 |
 | 3.4.0-beta | -- | Vehicle system enhancements, API v3 stabilization, expanded unit test coverage |
-| 2.7.0-beta | -- | Market system, smartphone apps, documentation overhaul |
-| 2.6.0 | -- | Prison system, utility system (power and water tracking) |
+| 2.7.0-beta | -- | Market system, smartphone apps, messaging system, documentation overhaul |
+| 2.6.0 | -- | Prison system, hospital system, bounty system, utility system |
 | 2.5.0 | -- | Vehicle system introduction with CoreLib integration |
-| 2.0.0 | -- | NPC system, all 8 production chains, police and crime system |
+| 2.0.0 | -- | NPC system, all 8 illegal production chains, police and crime system |
 | 1.7.0-alpha | -- | Warehouse system with auto-delivery, minimap improvements, plot optimizations |
-| 1.6.0 | -- | Initial feature set and bug fixes |
-| 1.0.0 | -- | Plot management system, core economy |
+| 1.6.0 | -- | Daily rewards, tax system, recurring payments, anti-exploit measures |
+| 1.0.0 | -- | Plot management system, core economy, initial API |
 
----
-
-## Additional Source Modules
-
-Beyond the primary systems documented above, version 3.6.0-beta includes the following modules visible in the source tree. These represent newer or supplementary systems:
-
-| Module | Package | Description |
-|---|---|---|
-| Beer | `beer` | Beer brewing and serving |
-| Wine | `wine` | Wine production |
-| Coffee | `coffee` | Coffee roasting and preparation |
-| Chocolate | `chocolate` | Chocolate crafting |
-| Cheese | `cheese` | Cheese making |
-| Honey | `honey` | Beekeeping and honey production |
-| Gang | `gang` | Player gang/faction system |
-| Territory | `territory` | Territory control mechanics |
-| Towing | `towing` | Vehicle towing and impound service |
-| Lock | `lock` | Door and container locking |
-| Map View | `mapview` | In-game map rendering |
-| Level | `level` | Player leveling and progression |
+For full release notes, see [docs/CHANGELOG.md](../docs/CHANGELOG.md).
 
 ---
 
@@ -421,7 +410,7 @@ When reporting an issue, include the following information:
 
 <div align="center">
 
-ScheduleMC v3.6.0-beta -- Minecraft 1.20.1 -- Forge 47.4.0
+ScheduleMC v3.6.9-beta -- Minecraft 1.20.1 -- Forge 47.4.0
 
 Developed by Luckas R. Schneider (Minecraft425HD)
 
