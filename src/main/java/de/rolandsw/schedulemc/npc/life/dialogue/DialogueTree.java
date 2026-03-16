@@ -20,7 +20,7 @@ public class DialogueTree {
     private final String name;
 
     /** Alle Nodes im Baum, nach ID */
-    private final Map<String, DialogueNode> nodes = new LinkedHashMap<>();
+    private final Map<String, DialogueNode> nodes = new LinkedHashMap<>();  // NOPMD
 
     /** ID des Start-Nodes */
     private String startNodeId = "start";
@@ -29,10 +29,10 @@ public class DialogueTree {
     private final List<ConditionalStart> conditionalStarts = new ArrayList<>();
 
     /** Bedingung um diesen Dialog zu starten */
-    private DialogueCondition startCondition = DialogueCondition.always();
+    private DialogueCondition startCondition = DialogueCondition.always();  // NOPMD
 
     /** Priorität wenn mehrere Dialoge verfügbar sind */
-    private int priority = 0;
+    private int priority = 0;  // NOPMD
 
     /** Tags für Kategorisierung */
     private final Set<String> tags = new HashSet<>();
@@ -323,16 +323,16 @@ public class DialogueTree {
      */
     public String toTreeString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("DialogueTree: ").append(name).append("\n");
+        sb.append("DialogueTree: ").append(name).append('\n');
         sb.append("Start: ").append(startNodeId).append("\n\n");
 
         for (DialogueNode node : nodes.values()) {
-            sb.append("[").append(node.getId()).append("]\n");
+            sb.append('[').append(node.getId()).append("]\n");
             sb.append("  Text: ").append(node.getText().length() > 50 ?
-                node.getText().substring(0, 50) + "..." : node.getText()).append("\n");
+                node.getText().substring(0, 50) + "..." : node.getText()).append('\n');
 
             if (node.hasAutoNext()) {
-                sb.append("  -> Auto: ").append(node.getAutoNextNodeId()).append("\n");
+                sb.append("  -> Auto: ").append(node.getAutoNextNodeId()).append('\n');
             }
 
             for (DialogueOption opt : node.getOptions()) {
@@ -343,9 +343,9 @@ public class DialogueTree {
                 } else {
                     sb.append(" -> END");
                 }
-                sb.append("\n");
+                sb.append('\n');
             }
-            sb.append("\n");
+            sb.append('\n');
         }
 
         return sb.toString();

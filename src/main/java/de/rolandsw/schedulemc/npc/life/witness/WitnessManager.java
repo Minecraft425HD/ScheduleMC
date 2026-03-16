@@ -39,7 +39,7 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile WitnessManager instance;
+    private static volatile WitnessManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -47,7 +47,7 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
         return instance;
     }
 
-    public static WitnessManager getInstance(MinecraftServer server) {
+    public static WitnessManager initialize(MinecraftServer server) {
         WitnessManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

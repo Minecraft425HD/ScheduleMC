@@ -360,7 +360,7 @@ public class UtilityRegistry {
                     CONSUMPTION_MAP.put(registryObject.get(), data);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             // Block not yet registered, will be resolved later
         }
     }

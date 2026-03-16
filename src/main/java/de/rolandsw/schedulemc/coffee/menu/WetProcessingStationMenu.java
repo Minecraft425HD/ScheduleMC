@@ -18,7 +18,7 @@ public class WetProcessingStationMenu extends AbstractContainerMenu {
     public WetProcessingStationMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(CoffeeMenuTypes.WET_PROCESSING_STATION_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof WetProcessingStationBlockEntity s ? s : null;
+        this.blockEntity = be instanceof WetProcessingStationBlockEntity s ? s : null;  // NOPMD
         this.data = new SimpleContainerData(2); addDataSlots(data); addSlots(inv);
     }
     private void addSlots(Inventory inv) {

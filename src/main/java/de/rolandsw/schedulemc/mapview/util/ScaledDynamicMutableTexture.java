@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.mapview.util;
 public class ScaledDynamicMutableTexture extends DynamicMoveableTexture {
     private final int scale;
 
-    public ScaledDynamicMutableTexture(int width, int height, boolean clear) {
+    public ScaledDynamicMutableTexture(int width, int height, boolean clear) {  // NOPMD
         super(512, 512, clear);
         this.scale = 512 / width;
     }

@@ -60,7 +60,7 @@ public class PlotRenamePacket {
             }
 
             // Validiere Name
-            if (msg.newName == null || msg.newName.trim().isEmpty()) {
+            if (msg.newName == null || msg.newName.isBlank()) {
                 player.sendSystemMessage(Component.translatable("message.plot.name_empty"));
                 return;
             }

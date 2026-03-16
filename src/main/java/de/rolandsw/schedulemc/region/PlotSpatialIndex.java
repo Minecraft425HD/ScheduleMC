@@ -111,6 +111,12 @@ public class PlotSpatialIndex {
         BlockPos min = plot.getMin();
         BlockPos max = plot.getMax();
 
+        // Null-Safety: min/max können nach GSON-Deserialisierung null sein
+        if (min == null || max == null) {
+            LOGGER.warn("Plot {} has null min/max, skipping spatial index entry", plot.getPlotId());
+            return chunks;
+        }
+
         int minChunkX = toChunkCoord(min.getX());
         int minChunkY = toChunkCoord(min.getY());
         int minChunkZ = toChunkCoord(min.getZ());

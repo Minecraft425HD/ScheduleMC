@@ -33,7 +33,7 @@ public class DeleteRecurringPaymentPacket {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
             // Validierung: PaymentId nicht leer
-            if (paymentId == null || paymentId.trim().isEmpty()) {
+            if (paymentId == null || paymentId.isBlank()) {
                 player.sendSystemMessage(Component.translatable("message.bank.invalid_payment_id")
                     .withStyle(ChatFormatting.RED));
                 return;

@@ -70,10 +70,7 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == ChocolateItems.ROASTED_COCOA_BEANS.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == ChocolateItems.ROASTED_COCOA_BEANS.get();
             }
 
             @Override
@@ -97,14 +94,14 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
             winnowingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             winnowingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -131,7 +128,7 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty() && byproductStack.isEmpty()) {
-            winnowingProgress++;
+            winnowingProgress = Math.min(winnowingProgress + 1, PROCESSING_TIME);
 
             if (winnowingProgress >= PROCESSING_TIME) {
                 // Winnowing complete: Roasted Beans → Cocoa Nibs + Shells
@@ -212,7 +209,7 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
         winnowingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

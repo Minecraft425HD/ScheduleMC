@@ -228,7 +228,7 @@ public class ShopAccount {
         sb.append("§7Kontostand: §6§l").append(shopBalance).append("€§r\n");
         sb.append("§77-Tage-Einnahmen: §a").append(get7DayRevenue()).append("€\n");
         sb.append("§77-Tage-Ausgaben: §c").append(get7DayExpenses()).append("€\n");
-        sb.append("§7Nettoumsatz: §6§l").append(get7DayNetRevenue()).append("€");
+        sb.append("§7Nettoumsatz: §6§l").append(get7DayNetRevenue()).append('€');
 
         return sb.toString();
     }

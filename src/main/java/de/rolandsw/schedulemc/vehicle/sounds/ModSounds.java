@@ -84,7 +84,7 @@ public class ModSounds {
     }
 
     public static boolean isVehicleSoundCategory(SoundEvent event) {
-        if (event == null) return false;
+        if (event == null) return false;  // NOPMD
         return VEHICLE_SOUND_EVENTS.stream().anyMatch(r -> event.equals(r.get()));
     }
 

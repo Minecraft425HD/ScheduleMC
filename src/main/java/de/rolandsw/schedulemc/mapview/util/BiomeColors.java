@@ -27,7 +27,7 @@ public final class BiomeColors {
     private static final ConcurrentHashMap<Biome, Integer> IDtoColor = new ConcurrentHashMap<>(256);
     private static final ConcurrentSkipListMap<String, Integer> nameToColor = new ConcurrentSkipListMap<>();
     // SICHERHEIT: volatile für Memory Visibility
-    private static volatile boolean dirty;
+    private static volatile boolean dirty;  // NOPMD
 
     private BiomeColors() {}
 
@@ -36,8 +36,8 @@ public final class BiomeColors {
         File settingsFile = new File(saveDir, "biomecolors.txt");
         if (settingsFile.exists()) {
             try (BufferedReader br = new BufferedReader(new FileReader(settingsFile))) {
-                String sCurrentLine;
-                while ((sCurrentLine = br.readLine()) != null) {
+                String sCurrentLine = br.readLine();
+                while (sCurrentLine != null) {
                     String[] curLine = sCurrentLine.split("=");
                     if (curLine.length == 2) {
                         String name = curLine[0];
@@ -49,10 +49,10 @@ public final class BiomeColors {
                             MapViewConstants.getLogger().warn("Error decoding integer string for biome colors; {}", curLine[1]);
                         }
 
-                        if (nameToColor.put(name, color) != null) {
-                            dirty = true;
-                        }
+                        nameToColor.put(name, color);
+                        dirty = true;
                     }
+                    sCurrentLine = br.readLine();
                 }
             } catch (IOException var12) {
                 MapViewConstants.getLogger().error("biome load error: {}", var12.getLocalizedMessage(), var12);
@@ -64,8 +64,8 @@ public final class BiomeColors {
         if (resourceOptional.isPresent()) {
             try (InputStream is = resourceOptional.get().open();
                  BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-                String sCurrentLine;
-                while ((sCurrentLine = br.readLine()) != null) {
+                String sCurrentLine = br.readLine();
+                while (sCurrentLine != null) {
                     String[] curLine = sCurrentLine.split("=");
                     if (curLine.length == 2) {
                         String name = curLine[0];
@@ -78,11 +78,11 @@ public final class BiomeColors {
                             color = 0;
                         }
 
-                        if (nameToColor.get(name) == null) {
-                            nameToColor.put(name, color);
+                        if (nameToColor.putIfAbsent(name, color) == null) {  // NOPMD
                             dirty = true;
                         }
                     }
+                    sCurrentLine = br.readLine();
                 }
             } catch (IOException var11) {
                 MapViewConstants.getLogger().error("Error loading biome color config file from mod resources!", var11);

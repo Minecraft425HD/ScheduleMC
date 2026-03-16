@@ -27,12 +27,12 @@ public class VakuumTrocknerBlockEntity extends BlockEntity implements IUtilityCo
     private static final int DRYING_TIME = 600; // 30 Sekunden
     private static final int CAPACITY = 6; // Kann 6 Batches gleichzeitig verarbeiten
 
-    private ItemStack[] inputs = new ItemStack[CAPACITY];
-    private ItemStack[] outputs = new ItemStack[CAPACITY];
-    private int[] progress = new int[CAPACITY];
-    private MethQuality[] qualities = new MethQuality[CAPACITY];
+    private final ItemStack[] inputs = new ItemStack[CAPACITY];
+    private final ItemStack[] outputs = new ItemStack[CAPACITY];
+    private final int[] progress = new int[CAPACITY];
+    private final MethQuality[] qualities = new MethQuality[CAPACITY];
 
-    private boolean isActive = false;
+    private boolean isActive = false;  // NOPMD
 
     public VakuumTrocknerBlockEntity(BlockPos pos, BlockState state) {
         super(MethBlockEntities.VAKUUM_TROCKNER.get(), pos, state);

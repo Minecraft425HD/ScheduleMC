@@ -27,11 +27,11 @@ public class HeroinRaffinerieBlockEntity extends BlockEntity implements IUtility
     private static final int REFINE_TIME = 300; // 15 Sekunden
     private static final int MAX_FUEL = 800;
 
-    private ItemStack[] inputs = new ItemStack[CAPACITY];
-    private ItemStack[] outputs = new ItemStack[CAPACITY];
-    private int[] progress = new int[CAPACITY];
-    private PoppyType[] types = new PoppyType[CAPACITY];
-    private TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
+    private final ItemStack[] inputs = new ItemStack[CAPACITY];
+    private final ItemStack[] outputs = new ItemStack[CAPACITY];
+    private final int[] progress = new int[CAPACITY];
+    private final PoppyType[] types = new PoppyType[CAPACITY];
+    private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
     private int fuelLevel = 0;
 
     public HeroinRaffinerieBlockEntity(BlockPos pos, BlockState state) {
@@ -101,8 +101,8 @@ public class HeroinRaffinerieBlockEntity extends BlockEntity implements IUtility
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 progress[i] = 0;
-                types[i] = null;
-                qualities[i] = null;
+                types[i] = null;  // NOPMD
+                qualities[i] = null;  // NOPMD
             }
         }
 
@@ -199,10 +199,10 @@ public class HeroinRaffinerieBlockEntity extends BlockEntity implements IUtility
                     // Chance auf Qualitätsverbesserung
                     TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
                     outputs[i] = HeroinItem.create(types[i], finalQuality, 1);
+                    inputs[i] = ItemStack.EMPTY;
+                    progress[i] = 0;
                     changed = true;
-                }
-
-                if (progress[i] % 20 == 0) {
+                } else if (progress[i] % 20 == 0) {
                     changed = true;
                 }
             }
@@ -290,11 +290,11 @@ public class HeroinRaffinerieBlockEntity extends BlockEntity implements IUtility
 
             if (tag.contains("Type" + i)) {
                 try { types[i] = PoppyType.valueOf(tag.getString("Type" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHANISCH; }
             }
             if (tag.contains("Quality" + i)) {
                 try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.SCHLECHT; }
             }
         }
     }

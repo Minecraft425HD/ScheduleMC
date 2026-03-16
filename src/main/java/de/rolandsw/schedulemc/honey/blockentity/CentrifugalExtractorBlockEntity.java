@@ -71,10 +71,7 @@ public class CentrifugalExtractorBlockEntity extends BlockEntity implements IUti
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == HoneyItems.RAW_HONEYCOMB.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == HoneyItems.RAW_HONEYCOMB.get();
             }
 
             @Override
@@ -102,14 +99,14 @@ public class CentrifugalExtractorBlockEntity extends BlockEntity implements IUti
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
                 }
             }
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            honeyType = null;
-            quality = null;
+            honeyType = null;  // NOPMD
+            quality = null;  // NOPMD
             processingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -136,7 +133,7 @@ public class CentrifugalExtractorBlockEntity extends BlockEntity implements IUti
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            processingProgress++;
+            processingProgress = Math.min(processingProgress + 1, PROCESSING_TIME);
 
             if (processingProgress >= PROCESSING_TIME) {
                 // Processing complete: Honeycomb → Raw Honey + Beeswax
@@ -152,8 +149,8 @@ public class CentrifugalExtractorBlockEntity extends BlockEntity implements IUti
 
                 inputStack.shrink(4); // 4 honeycombs = 1 bucket
                 if (inputStack.isEmpty()) {
-                    honeyType = null;
-                    quality = null;
+                    honeyType = null;  // NOPMD
+                    quality = null;  // NOPMD
                 }
 
                 processingProgress = 0;
@@ -226,7 +223,7 @@ public class CentrifugalExtractorBlockEntity extends BlockEntity implements IUti
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
         }
         syncToHandler();
     }

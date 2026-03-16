@@ -93,7 +93,7 @@ public class BeehiveBlockEntity extends BlockEntity implements IUtilityConsumer,
 
         // Check if we can produce (output slot not full)
         if (output.isEmpty() || (output.getItem() == HoneyItems.RAW_HONEYCOMB.get() && output.getCount() < 64)) {
-            tickCount++;
+            tickCount = Math.min(tickCount + 1, PRODUCTION_TIME);
 
             // Determine quality based on biome (once — biome at fixed position doesn't change)
             if (!biomeDetermined) {
@@ -202,7 +202,7 @@ public class BeehiveBlockEntity extends BlockEntity implements IUtilityConsumer,
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
         }
     }
 

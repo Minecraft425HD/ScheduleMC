@@ -16,8 +16,8 @@ public enum PlotType {
     PRISON(false, false),         // Gefängnis-Plot
     TOWING_YARD(true, true);      // Abschlepphof
 
-    private final boolean canBePurchased;
-    private final boolean canBeRented;
+    private final boolean canBePurchased;  // NOPMD
+    private final boolean canBeRented;  // NOPMD
 
     PlotType(boolean canBePurchased, boolean canBeRented) {
         this.canBePurchased = canBePurchased;

@@ -25,8 +25,8 @@ public class TextureAtlas extends AbstractTexture {
     private final Sprite missingImage;
     private final Sprite failedImage;
     private Stitcher stitcher;
-    private boolean linearFilter;
-    private boolean mipmap;
+    private boolean linearFilter;  // NOPMD
+    private boolean mipmap;  // NOPMD
     private ResourceLocation resourceLocation;
 
     public TextureAtlas(String basePath, ResourceLocation resourceLocation) {
@@ -102,15 +102,7 @@ public class TextureAtlas extends AbstractTexture {
             this.mapUploadedSprites.put(iconName, icon);
             this.mapRegisteredSprites.remove(iconName);
 
-            try {
-                // Texture upload handled by Minecraft's texture system
-            } catch (Throwable var10) {
-                CrashReport crashReport = CrashReport.forThrowable(var10, "Stitching texture atlas");
-                CrashReportCategory crashReportCategory = crashReport.addCategory("Texture being stitched together");
-                crashReportCategory.setDetail("Atlas path", this.basePath);
-                crashReportCategory.setDetail("Sprite", icon);
-                throw new ReportedException(crashReport);
-            }
+            // Texture upload handled by Minecraft's texture system
         }
 
         for (Sprite icon : tempMapRegisteredSprites.values()) {

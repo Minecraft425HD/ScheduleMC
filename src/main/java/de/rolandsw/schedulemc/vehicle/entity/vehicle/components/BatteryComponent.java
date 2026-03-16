@@ -92,7 +92,7 @@ public class BatteryComponent extends VehicleComponent {
                 timeToStart = getTimeToStart();
             }
 
-            if (time > getTimeToStart()) {
+            if (time > timeToStart) {
                 physics.startVehicleEngine();
                 timeToStart = 0;
             }
@@ -166,7 +166,7 @@ public class BatteryComponent extends VehicleComponent {
                     count = 2;
                     r = 0.3;
                 }
-                for (int i = 0; i <= count; i++) {
+                for (int i = 0; i < count; i++) {
                     spawnParticle(ParticleTypes.LARGE_SMOKE, offX, offY, offZ, speedX, speedZ, r);
                 }
             } else {
@@ -275,7 +275,7 @@ public class BatteryComponent extends VehicleComponent {
 
         float basePitch = 1F - 0.002F * ((float) getStartingTime());
 
-        if (batteryLevel > startLevel) {
+        if (startLevel <= 0 || batteryLevel > startLevel) {
             return basePitch;
         }
 
@@ -290,12 +290,8 @@ public class BatteryComponent extends VehicleComponent {
     }
 
     public void setBatteryLevel(int level) {
-        if (level < 0) {
-            level = 0;
-        } else if (level > getMaxBatteryLevel()) {
-            level = getMaxBatteryLevel();
-        }
-        vehicle.getEntityData().set(BATTERY_LEVEL, level);
+        int clampedLevel = Math.max(0, Math.min(getMaxBatteryLevel(), level));
+        vehicle.getEntityData().set(BATTERY_LEVEL, clampedLevel);
     }
 
     public int getBatteryLevel() {
@@ -333,7 +329,7 @@ public class BatteryComponent extends VehicleComponent {
 
     @OnlyIn(Dist.CLIENT)
     public boolean isSoundPlaying(net.minecraft.client.resources.sounds.SoundInstance sound) {
-        if (sound == null) {
+        if (sound == null) {  // NOPMD
             return false;
         }
         return Minecraft.getInstance().getSoundManager().isActive(sound);

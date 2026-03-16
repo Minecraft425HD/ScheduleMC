@@ -161,7 +161,8 @@ public class ChunkCache {
             if (totalChunks > 100) { // Nur bei >100 Chunks parallel (ab zoom=2)
                 // Parallele Verarbeitung mit AsyncPersistenceManager
                 java.util.concurrent.CompletableFuture<?>[] futures = new java.util.concurrent.CompletableFuture<?>[totalChunks];
-                for (int z = this.height - 1, idx = 0; z >= 0; --z) {
+                int idx = 0;
+                for (int z = this.height - 1; z >= 0; --z) {
                     for (int x = 0; x < this.width; ++x, ++idx) {
                         final int index = x + z * this.width;
                         futures[idx] = java.util.concurrent.CompletableFuture.runAsync(() -> {

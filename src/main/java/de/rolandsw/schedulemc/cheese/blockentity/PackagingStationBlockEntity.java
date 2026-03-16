@@ -102,20 +102,20 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
                 }
                 if (tag.contains("Quality")) {
                     try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
                 }
                 if (tag.contains("AgeLevel")) {
                     try { ageLevel = CheeseAgeLevel.valueOf(tag.getString("AgeLevel")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { ageLevel = CheeseAgeLevel.FRESH; }
                 } else ageLevel = CheeseAgeLevel.FRESH;
                 if (tag.contains("WeightKg")) wheelWeight = tag.getDouble("WeightKg");
             }
             packagingProgress = 0;
         } else if (handlerWheel.isEmpty()) {
             wheelInput = ItemStack.EMPTY;
-            cheeseType = null;
-            quality = null;
-            ageLevel = null;
+            cheeseType = null;  // NOPMD
+            quality = null;  // NOPMD
+            ageLevel = null;  // NOPMD
             wheelWeight = 0;
             packagingProgress = 0;
         }
@@ -135,8 +135,8 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
         if (level == null || level.isClientSide) return;
 
         if (!wheelInput.isEmpty() && !packagingInput.isEmpty() && output.isEmpty()) {
-            packagingProgress++;
             int packagingTime = 300; // 15 seconds per wheel
+            packagingProgress = Math.min(packagingProgress + 1, packagingTime);
 
             if (packagingProgress >= packagingTime) {
                 // Output the packaged cheese wheel
@@ -237,11 +237,11 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
         }
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
         }
         if (tag.contains("AgeLevel")) {
             try { ageLevel = CheeseAgeLevel.valueOf(tag.getString("AgeLevel")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { ageLevel = CheeseAgeLevel.FRESH; }
         }
         wheelWeight = tag.contains("WheelWeight") ? tag.getDouble("WheelWeight") : 0;
     }

@@ -27,11 +27,11 @@ public class OpiumPresseBlockEntity extends BlockEntity implements IUtilityConsu
     private static final int PROCESS_TIME = 80; // 4 Sekunden (schneller)
     private static final int MAX_DIESEL = 1000;
 
-    private ItemStack[] inputs = new ItemStack[CAPACITY];
-    private ItemStack[] outputs = new ItemStack[CAPACITY];
-    private int[] progress = new int[CAPACITY];
-    private PoppyType[] types = new PoppyType[CAPACITY];
-    private TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
+    private final ItemStack[] inputs = new ItemStack[CAPACITY];
+    private final ItemStack[] outputs = new ItemStack[CAPACITY];
+    private final int[] progress = new int[CAPACITY];
+    private final PoppyType[] types = new PoppyType[CAPACITY];
+    private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
     private int dieselLevel = 0;
 
     public OpiumPresseBlockEntity(BlockPos pos, BlockState state) {
@@ -101,8 +101,8 @@ public class OpiumPresseBlockEntity extends BlockEntity implements IUtilityConsu
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 progress[i] = 0;
-                types[i] = null;
-                qualities[i] = null;
+                types[i] = null;  // NOPMD
+                qualities[i] = null;  // NOPMD
             }
         }
 
@@ -192,17 +192,18 @@ public class OpiumPresseBlockEntity extends BlockEntity implements IUtilityConsu
                 if (progress[i] >= PROCESS_TIME) {
                     // Höherer Ertrag als Ritzmaschine!
                     // 1 Kapsel = 2-5 Rohopium (basierend auf Qualität)
-                    int yield = switch (qualities[i]) {
+                    TobaccoQuality quality = qualities[i] != null ? qualities[i] : TobaccoQuality.SCHLECHT;
+                    int yield = switch (quality) {
                         case SCHLECHT -> 2;
                         case GUT -> 3;
                         case SEHR_GUT -> 4;
                         case LEGENDAER -> 5;
                     };
-                    outputs[i] = RawOpiumItem.create(types[i], qualities[i], yield);
+                    outputs[i] = RawOpiumItem.create(types[i], quality, yield);
+                    inputs[i] = ItemStack.EMPTY;
+                    progress[i] = 0;
                     changed = true;
-                }
-
-                if (progress[i] % 20 == 0) {
+                } else if (progress[i] % 20 == 0) {
                     changed = true;
                 }
             }
@@ -278,11 +279,11 @@ public class OpiumPresseBlockEntity extends BlockEntity implements IUtilityConsu
 
             if (tag.contains("Type" + i)) {
                 try { types[i] = PoppyType.valueOf(tag.getString("Type" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHANISCH; }
             }
             if (tag.contains("Quality" + i)) {
                 try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.SCHLECHT; }
             }
         }
     }

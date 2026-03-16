@@ -37,7 +37,7 @@ public class DialogueContext {
     private final Set<String> sessionFlags = new HashSet<>();
 
     /** Variablen die in dieser Sitzung gesetzt wurden */
-    private final Map<String, Object> sessionVariables = new HashMap<>();
+    private final Map<String, Object> sessionVariables = new HashMap<>();  // NOPMD
 
     /** Ob der Dialog beendet wurde */
     private boolean ended = false;
@@ -96,7 +96,7 @@ public class DialogueContext {
     @Nullable
     public String consumeNextNodeId() {
         String id = nextNodeId;
-        nextNodeId = null;
+        nextNodeId = null;  // NOPMD
         return id;
     }
 

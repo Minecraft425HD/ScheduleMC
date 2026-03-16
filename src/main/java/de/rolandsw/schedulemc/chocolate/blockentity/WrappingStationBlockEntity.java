@@ -160,7 +160,7 @@ public class WrappingStationBlockEntity extends BlockEntity implements IUtilityC
 
         // Need chocolate and wrapper (box is optional)
         if (!chocolateInput.isEmpty() && !wrapperInput.isEmpty() && outputStack.isEmpty()) {
-            wrappingProgress++;
+            wrappingProgress = Math.min(wrappingProgress + 1, PROCESSING_TIME);
 
             if (wrappingProgress >= PROCESSING_TIME) {
                 // Wrapping complete: Create wrapped chocolate

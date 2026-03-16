@@ -203,15 +203,19 @@ public class TowingYardManager {
         List<TowingTransaction> transactions = towingTransactions.computeIfAbsent(
             towingYardPlotId, k -> new ArrayList<>());
 
-        // SIZE CHECK: Limit transactions per yard
-        if (transactions.size() >= MAX_TRANSACTIONS_PER_YARD) {
-            // Remove oldest transaction
-            transactions.remove(0);
-            LOGGER.warn("Transaction limit reached for yard {} ({}), removed oldest entry",
-                towingYardPlotId, MAX_TRANSACTIONS_PER_YARD);
-        }
+        // BUG FIX: Zugriff auf die ArrayList synchronisieren, da cleanupOldTransactions()
+        // gleichzeitig removeIf() auf derselben Liste ausführen kann (Race Condition).
+        synchronized (transactions) {
+            // SIZE CHECK: Limit transactions per yard
+            if (transactions.size() >= MAX_TRANSACTIONS_PER_YARD) {
+                // Remove oldest transaction
+                transactions.remove(0);
+                LOGGER.warn("Transaction limit reached for yard {} ({}), removed oldest entry",
+                    towingYardPlotId, MAX_TRANSACTIONS_PER_YARD);
+            }
 
-        transactions.add(transaction);
+            transactions.add(transaction);
+        }
         markDirty();
         LOGGER.info("Recorded towing transaction: {} → yard {} (revenue: {}€)", playerId, towingYardPlotId, yardRevenue);
     }
@@ -228,7 +232,9 @@ public class TowingYardManager {
      */
     public static double getTotalRevenue(String towingYardPlotId, long currentTime, int days) {
         List<TowingTransaction> transactions = towingTransactions.getOrDefault(towingYardPlotId, new ArrayList<>());
-        return transactions.stream()
+        List<TowingTransaction> snapshot;
+        synchronized (transactions) { snapshot = new ArrayList<>(transactions); }
+        return snapshot.stream()
             .filter(t -> !t.isOlderThan(currentTime, days))
             .mapToDouble(TowingTransaction::getYardRevenue)
             .sum();
@@ -239,7 +245,9 @@ public class TowingYardManager {
      */
     public static int getTowingCount(String towingYardPlotId, long currentTime, int days) {
         List<TowingTransaction> transactions = towingTransactions.getOrDefault(towingYardPlotId, new ArrayList<>());
-        return (int) transactions.stream()
+        List<TowingTransaction> snapshot;
+        synchronized (transactions) { snapshot = new ArrayList<>(transactions); }
+        return (int) snapshot.stream()
             .filter(t -> !t.isOlderThan(currentTime, days))
             .count();
     }
@@ -249,7 +257,9 @@ public class TowingYardManager {
      */
     public static double getAverageRevenue(String towingYardPlotId, long currentTime, int days) {
         List<TowingTransaction> transactions = towingTransactions.getOrDefault(towingYardPlotId, new ArrayList<>());
-        List<TowingTransaction> recent = transactions.stream()
+        List<TowingTransaction> snapshot;
+        synchronized (transactions) { snapshot = new ArrayList<>(transactions); }
+        List<TowingTransaction> recent = snapshot.stream()
             .filter(t -> !t.isOlderThan(currentTime, days))
             .toList();
 
@@ -265,8 +275,14 @@ public class TowingYardManager {
      * Cleans up old transactions (older than 30 days)
      */
     public static void cleanupOldTransactions(long currentTime) {
+        // BUG FIX: Die Listen in towingTransactions sind plain ArrayLists.
+        // removeIf() auf einer ArrayList ist nicht thread-safe, wenn recordTransaction()
+        // gleichzeitig auf dieselbe Liste schreibt. Daher wird der Zugriff auf jede
+        // Liste einzeln synchronisiert.
         for (List<TowingTransaction> transactions : towingTransactions.values()) {
-            transactions.removeIf(t -> t.isOlderThan(currentTime, 30));
+            synchronized (transactions) {
+                transactions.removeIf(t -> t.isOlderThan(currentTime, 30));
+            }
         }
         markDirty();
     }
@@ -399,17 +415,18 @@ public class TowingYardManager {
 
         @Override
         protected void onDataLoaded(Map<String, ParkingSpotSaveData> data) {
-            parkingSpots.clear();
-
             int invalidCount = 0;
             int correctedCount = 0;
 
-            // NULL CHECK
+            // BUG FIX: NULL CHECK vor clear(), damit bei null-Daten die vorhandenen
+            // Parking Spots im Speicher erhalten bleiben statt gelöscht zu werden.
             if (data == null) {
                 LOGGER.warn("Null data loaded for parking spots");
-                invalidCount++;
+                invalidCount++;  // NOPMD
                 return;
             }
+
+            parkingSpots.clear();
 
             // Check collection size
             if (data.size() > 10000) {
@@ -526,7 +543,7 @@ public class TowingYardManager {
 
         @Override
         protected Map<String, ParkingSpotSaveData> getCurrentData() {
-            Map<String, ParkingSpotSaveData> saveMap = new HashMap<>();
+            Map<String, ParkingSpotSaveData> saveMap = new HashMap<>();  // NOPMD
 
             parkingSpots.forEach((spotId, spot) -> {
                 ParkingSpotSaveData saveData = new ParkingSpotSaveData();

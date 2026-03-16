@@ -34,7 +34,7 @@ public class NPCBehaviorEngine {
     // Verfügbare Aktionen (sortiert nach Priorität, höchste zuerst)
     private final List<BehaviorAction> availableActions = new ArrayList<>();
     /** Index: BehaviorState → Aktionen für schnellen Lookup statt linearer Suche */
-    private final Map<BehaviorState, List<BehaviorAction>> actionsByState = new EnumMap<>(BehaviorState.class);
+    private final Map<BehaviorState, List<BehaviorAction>> actionsByState = new EnumMap<>(BehaviorState.class);  // NOPMD
 
     // Aktion-History (für Debug)
     private final Deque<String> actionHistory = new ArrayDeque<>();
@@ -250,7 +250,7 @@ public class NPCBehaviorEngine {
     private void finishCurrentAction(boolean interrupted) {
         if (currentAction != null) {
             currentAction.end(npc, interrupted);
-            currentAction = null;
+            currentAction = null;  // NOPMD
         }
         currentState = BehaviorState.IDLE;
     }
@@ -266,9 +266,10 @@ public class NPCBehaviorEngine {
         inEmergency = true;
         emergencyTicksRemaining = 6000; // 5 Minuten
 
-        // Emotion auslösen
-        if (npc.getLifeData() != null) {
-            npc.getLifeData().getEmotions().trigger(EmotionState.FEARFUL, 70.0f);
+        // Emotion auslösen (einmal cachen verhindert Race Condition durch doppelten Aufruf)
+        NPCLifeData cachedLifeData = npc.getLifeData();
+        if (cachedLifeData != null) {
+            cachedLifeData.getEmotions().trigger(EmotionState.FEARFUL, 70.0f);
         }
     }
 

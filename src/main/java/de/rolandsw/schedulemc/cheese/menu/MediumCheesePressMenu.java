@@ -25,7 +25,7 @@ public class MediumCheesePressMenu extends AbstractContainerMenu {
     public MediumCheesePressMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(CheeseMenuTypes.MEDIUM_CHEESE_PRESS_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof MediumCheesePressBlockEntity e ? e : null;
+        this.blockEntity = be instanceof MediumCheesePressBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

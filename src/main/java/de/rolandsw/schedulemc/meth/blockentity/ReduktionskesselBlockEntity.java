@@ -54,8 +54,8 @@ public class ReduktionskesselBlockEntity extends BlockEntity implements IUtility
 
     // Zustandsvariablen
     private float currentTemperature = TEMP_MIN;
-    private boolean isHeating = false;
-    private boolean isProcessing = false;
+    private boolean isHeating = false;  // NOPMD
+    private boolean isProcessing = false;  // NOPMD
     private int processProgress = 0;
     private int optimalTimeTicks = 0;  // Zeit im optimalen Bereich
     private int dangerTimeTicks = 0;   // Zeit im gefährlichen Bereich
@@ -138,7 +138,7 @@ public class ReduktionskesselBlockEntity extends BlockEntity implements IUtility
      * Entfernt aktiven Spieler (wenn GUI geschlossen wird)
      */
     public void clearActivePlayer() {
-        this.activePlayer = null;
+        this.activePlayer = null;  // NOPMD
         this.isHeating = false;
     }
 
@@ -182,7 +182,7 @@ public class ReduktionskesselBlockEntity extends BlockEntity implements IUtility
             // Prüfe ob Temperatur hoch genug ist
             if (currentTemperature >= TEMP_OPTIMAL_MIN) {
                 isProcessing = true;
-                processProgress++;
+                processProgress = Math.min(processProgress + 1, PROCESS_TIME);
 
                 // Zähle Zeit in verschiedenen Temperaturzonen
                 if (currentTemperature <= TEMP_OPTIMAL_MAX) {

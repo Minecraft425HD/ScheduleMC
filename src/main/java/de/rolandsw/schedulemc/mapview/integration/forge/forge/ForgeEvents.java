@@ -42,32 +42,34 @@ public class ForgeEvents implements Events {
      * Register network packets for the lightmap channel.
      * Must be called on both client and server to avoid version mismatch.
      */
-    public static synchronized void registerNetworkPackets() {
-        if (packetsRegistered) {
-            return; // Already registered
+    public static void registerNetworkPackets() {
+        synchronized (ForgeEvents.class) {
+            if (packetsRegistered) {
+                return; // Already registered
+            }
+
+            int id = 0;
+            CHANNEL.registerMessage(id++, MapViewSettingsS2C.class,
+                MapViewSettingsS2C::write,
+                MapViewSettingsS2C::new,
+                (msg, ctx) -> MapViewSettingsChannelHandlerForge.handleDataOnMain(msg, ctx),
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT)
+            );
+            CHANNEL.registerMessage(id++, WorldIdS2C.class,
+                WorldIdS2C::write,
+                WorldIdS2C::new,
+                (msg, ctx) -> MapViewWorldIdChannelHandlerForge.handleDataOnMain(msg, ctx),
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT)
+            );
+            CHANNEL.registerMessage(id++, WorldIdC2S.class,  // NOPMD
+                WorldIdC2S::write,
+                WorldIdC2S::new,
+                (msg, ctx) -> { ctx.get().setPacketHandled(true); },
+                Optional.of(NetworkDirection.PLAY_TO_SERVER)
+            );
+
+            packetsRegistered = true;
         }
-
-        int id = 0;
-        CHANNEL.registerMessage(id++, MapViewSettingsS2C.class,
-            MapViewSettingsS2C::write,
-            MapViewSettingsS2C::new,
-            (msg, ctx) -> MapViewSettingsChannelHandlerForge.handleDataOnMain(msg, ctx),
-            Optional.of(NetworkDirection.PLAY_TO_CLIENT)
-        );
-        CHANNEL.registerMessage(id++, WorldIdS2C.class,
-            WorldIdS2C::write,
-            WorldIdS2C::new,
-            (msg, ctx) -> MapViewWorldIdChannelHandlerForge.handleDataOnMain(msg, ctx),
-            Optional.of(NetworkDirection.PLAY_TO_CLIENT)
-        );
-        CHANNEL.registerMessage(id++, WorldIdC2S.class,
-            WorldIdC2S::write,
-            WorldIdC2S::new,
-            (msg, ctx) -> { ctx.get().setPacketHandled(true); },
-            Optional.of(NetworkDirection.PLAY_TO_SERVER)
-        );
-
-        packetsRegistered = true;
     }
 
     @Override
@@ -90,7 +92,7 @@ public class ForgeEvents implements Events {
         registerNetworkPackets();
     }
 
-    private void preInitClient(final FMLClientSetupEvent event) {
+    private void preInitClient(final FMLClientSetupEvent event) {  // NOPMD
         // Initialize MapDataManager on the main thread (required for texture creation)
         event.enqueueWork(() -> {
             MapViewConstants.lateInit();

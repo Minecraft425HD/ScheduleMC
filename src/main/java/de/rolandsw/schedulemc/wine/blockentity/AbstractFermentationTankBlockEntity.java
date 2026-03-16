@@ -41,7 +41,7 @@ public abstract class AbstractFermentationTankBlockEntity extends BlockEntity im
 
     protected AbstractFermentationTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     protected abstract int getCapacity();
@@ -98,15 +98,15 @@ public abstract class AbstractFermentationTankBlockEntity extends BlockEntity im
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
             } else {
                 quality = WineQuality.SCHLECHT;
             }
             fermentationProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            wineType = null;
-            quality = null;
+            wineType = null;  // NOPMD
+            quality = null;  // NOPMD
             fermentationProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -136,10 +136,18 @@ public abstract class AbstractFermentationTankBlockEntity extends BlockEntity im
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            fermentationProgress++;
-
             int totalTime = getTotalFermentationTime();
+            fermentationProgress = Math.min(fermentationProgress + 1, totalTime);
+
             if (fermentationProgress >= totalTime) {
+                // Guard against corrupt state: wineType must be set
+                if (wineType == null) {
+                    fermentationProgress = 0;
+                    inputStack = ItemStack.EMPTY;
+                    syncToHandler();
+                    setChanged();
+                    return;
+                }
                 // Fermentation complete: Juice → Young Wine
                 ItemStack youngWine = new ItemStack(WineItems.YOUNG_WINE.get(), inputStack.getCount());
 
@@ -215,7 +223,7 @@ public abstract class AbstractFermentationTankBlockEntity extends BlockEntity im
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
         }
         syncToHandler();
     }

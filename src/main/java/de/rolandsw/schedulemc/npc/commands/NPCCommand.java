@@ -171,7 +171,7 @@ public class NPCCommand {
         );
     }
 
-    private static int setMovement(CommandContext<CommandSourceStack> context) {
+    private static int setMovement(CommandContext<CommandSourceStack> context) {  // NOPMD
         String npcName = StringArgumentType.getString(context, "npcName");
         boolean enabled = BoolArgumentType.getBool(context, "enabled");
         ServerLevel level = context.getSource().getLevel();
@@ -201,7 +201,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int setSpeed(CommandContext<CommandSourceStack> context) {
+    private static int setSpeed(CommandContext<CommandSourceStack> context) {  // NOPMD
         String npcName = StringArgumentType.getString(context, "npcName");
         float speed = FloatArgumentType.getFloat(context, "speed");
         ServerLevel level = context.getSource().getLevel();
@@ -231,7 +231,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int showInfo(CommandContext<CommandSourceStack> context) {
+    private static int showInfo(CommandContext<CommandSourceStack> context) {  // NOPMD
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
         Player player = context.getSource().getPlayer();
@@ -399,15 +399,15 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int setWorkStartTime(CommandContext<CommandSourceStack> context) {
+    private static int setWorkStartTime(CommandContext<CommandSourceStack> context) {  // NOPMD
         return setScheduleTime(context, "workstart");
     }
 
-    private static int setWorkEndTime(CommandContext<CommandSourceStack> context) {
+    private static int setWorkEndTime(CommandContext<CommandSourceStack> context) {  // NOPMD
         return setScheduleTime(context, "workend");
     }
 
-    private static int setHomeTime(CommandContext<CommandSourceStack> context) {
+    private static int setHomeTime(CommandContext<CommandSourceStack> context) {  // NOPMD
         return setScheduleTime(context, "home");
     }
 
@@ -459,6 +459,7 @@ public class NPCCommand {
             case "workstart" -> npc.getNpcData().setWorkStartTime(ticks);
             case "workend" -> npc.getNpcData().setWorkEndTime(ticks);
             case "home" -> npc.getNpcData().setHomeTime(ticks);
+            default -> {}
         }
 
         String translationKey = switch (timeType) {
@@ -481,7 +482,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int addLeisureLocation(CommandContext<CommandSourceStack> context) {
+    private static int addLeisureLocation(CommandContext<CommandSourceStack> context) {  // NOPMD
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
         Player player = context.getSource().getPlayer();
@@ -524,7 +525,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int removeLeisureLocation(CommandContext<CommandSourceStack> context) {
+    private static int removeLeisureLocation(CommandContext<CommandSourceStack> context) {  // NOPMD
         int index = IntegerArgumentType.getInteger(context, "index");
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
@@ -568,7 +569,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int listLeisureLocations(CommandContext<CommandSourceStack> context) {
+    private static int listLeisureLocations(CommandContext<CommandSourceStack> context) {  // NOPMD
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
         Player player = context.getSource().getPlayer();
@@ -614,7 +615,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int clearLeisureLocations(CommandContext<CommandSourceStack> context) {
+    private static int clearLeisureLocations(CommandContext<CommandSourceStack> context) {  // NOPMD
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
         Player player = context.getSource().getPlayer();
@@ -648,7 +649,7 @@ public class NPCCommand {
 
     // ===== INVENTAR COMMANDS =====
 
-    private static int showInventory(CommandContext<CommandSourceStack> context) {
+    private static int showInventory(CommandContext<CommandSourceStack> context) {  // NOPMD
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
         Player player = context.getSource().getPlayer();
@@ -705,7 +706,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int giveInventoryItem(CommandContext<CommandSourceStack> context) {
+    private static int giveInventoryItem(CommandContext<CommandSourceStack> context) {  // NOPMD
         int slot = IntegerArgumentType.getInteger(context, "slot");
         ItemInput itemInput = context.getArgument("item", ItemInput.class);
         String npcName = StringArgumentType.getString(context, "npcName");
@@ -758,7 +759,7 @@ public class NPCCommand {
         }
     }
 
-    private static int clearInventory(CommandContext<CommandSourceStack> context) {
+    private static int clearInventory(CommandContext<CommandSourceStack> context) {  // NOPMD
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
         Player player = context.getSource().getPlayer();
@@ -800,7 +801,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int clearInventorySlot(CommandContext<CommandSourceStack> context) {
+    private static int clearInventorySlot(CommandContext<CommandSourceStack> context) {  // NOPMD
         int slot = IntegerArgumentType.getInteger(context, "slot");
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
@@ -843,7 +844,7 @@ public class NPCCommand {
 
     // ===== WALLET COMMANDS =====
 
-    private static int showWallet(CommandContext<CommandSourceStack> context) {
+    private static int showWallet(CommandContext<CommandSourceStack> context) {  // NOPMD
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
         Player player = context.getSource().getPlayer();
@@ -885,7 +886,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int setWallet(CommandContext<CommandSourceStack> context) {
+    private static int setWallet(CommandContext<CommandSourceStack> context) {  // NOPMD
         int amount = IntegerArgumentType.getInteger(context, "amount");
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
@@ -931,7 +932,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int addWallet(CommandContext<CommandSourceStack> context) {
+    private static int addWallet(CommandContext<CommandSourceStack> context) {  // NOPMD
         int amount = IntegerArgumentType.getInteger(context, "amount");
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
@@ -978,7 +979,7 @@ public class NPCCommand {
         return 1;
     }
 
-    private static int removeWallet(CommandContext<CommandSourceStack> context) {
+    private static int removeWallet(CommandContext<CommandSourceStack> context) {  // NOPMD
         int amount = IntegerArgumentType.getInteger(context, "amount");
         String npcName = StringArgumentType.getString(context, "npcName");
         ServerLevel level = context.getSource().getLevel();
@@ -1128,7 +1129,7 @@ public class NPCCommand {
         return null;
     }
 
-    private static int setWarehouse(CommandContext<CommandSourceStack> context) {
+    private static int setWarehouse(CommandContext<CommandSourceStack> context) {  // NOPMD
         try {
             String npcName = StringArgumentType.getString(context, "npcName");
             ServerLevel level = context.getSource().getLevel();
@@ -1165,7 +1166,7 @@ public class NPCCommand {
         }
     }
 
-    private static int clearWarehouse(CommandContext<CommandSourceStack> context) {
+    private static int clearWarehouse(CommandContext<CommandSourceStack> context) {  // NOPMD
         try {
             String npcName = StringArgumentType.getString(context, "npcName");
             ServerLevel level = context.getSource().getLevel();
@@ -1192,7 +1193,7 @@ public class NPCCommand {
         }
     }
 
-    private static int warehouseInfo(CommandContext<CommandSourceStack> context) {
+    private static int warehouseInfo(CommandContext<CommandSourceStack> context) {  // NOPMD
         try {
             String npcName = StringArgumentType.getString(context, "npcName");
             ServerLevel level = context.getSource().getLevel();

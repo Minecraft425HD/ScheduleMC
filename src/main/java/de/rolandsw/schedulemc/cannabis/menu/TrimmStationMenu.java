@@ -34,7 +34,7 @@ public class TrimmStationMenu extends AbstractContainerMenu {
     public static final int BUTTON_TRIM = 0;
 
     // Server-side constructor
-    public TrimmStationMenu(int containerId, Inventory playerInventory, TrimmStationBlockEntity blockEntity) {
+    public TrimmStationMenu(int containerId, Inventory playerInventory, TrimmStationBlockEntity blockEntity) {  // NOPMD
         super(CannabisMenuTypes.TRIMM_STATION_MENU.get(), containerId);
         this.blockEntity = blockEntity;
 
@@ -61,7 +61,7 @@ public class TrimmStationMenu extends AbstractContainerMenu {
 
         BlockPos pos = extraData.readBlockPos();
         BlockEntity be = playerInventory.player.level().getBlockEntity(pos);
-        this.blockEntity = be instanceof TrimmStationBlockEntity station ? station : null;
+        this.blockEntity = be instanceof TrimmStationBlockEntity station ? station : null;  // NOPMD
 
         this.data = new SimpleContainerData(DATA_SIZE);
         addDataSlots(this.data);

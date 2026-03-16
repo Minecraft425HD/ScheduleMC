@@ -14,6 +14,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,7 +87,7 @@ public class PoliceSearchBehavior {
         }
 
         // Prüfe ob Spieler in einem Gebäude ist
-        if (!isPlayerIndoors(player)) {
+        if (!isPlayerIndoors(player)) {  // NOPMD
             return false; // Spieler ist draußen
         }
 
@@ -103,7 +105,7 @@ public class PoliceSearchBehavior {
         }
 
         // Prüfe ob Spieler in einem Gebäude ist
-        if (!isPlayerIndoors(player)) {
+        if (!isPlayerIndoors(player)) {  // NOPMD
             return false;
         }
 
@@ -204,7 +206,7 @@ public class PoliceSearchBehavior {
         for (BlockPos wallPos : checkPositions) {
             BlockState state = level.getBlockState(wallPos);
             if (!state.isAir() && state.isRedstoneConductor(level, wallPos)) {
-                wallCount++;
+                wallCount = Math.min(wallCount + 1, 2);
                 if (wallCount >= 2) return true; // Early-exit: Genug Wände gefunden
             }
         }
@@ -274,11 +276,7 @@ public class PoliceSearchBehavior {
         }
 
         // Prüfe Türen
-        if (block instanceof DoorBlock && isTransparentDoor(block)) {
-            return true;
-        }
-
-        return false;
+        return block instanceof DoorBlock && isTransparentDoor(block) || false;
     }
 
     /**
@@ -540,18 +538,23 @@ public class PoliceSearchBehavior {
         int removed = 0;
 
         // Entferne abgelaufene Search Timer
+        // Sammle zuerst alle abgelaufenen UUIDs, um Modifikation während der Iteration zu vermeiden
+        List<UUID> expiredPlayers = new ArrayList<>();
         for (UUID playerUUID : searchTimers.keySet()) {
             if (isSearchExpired(playerUUID, currentTick)) {
-                // Entferne alle Daten für diesen Spieler
-                lastKnownPositions.remove(playerUUID);
-                searchTimers.remove(playerUUID);
-                movementDirections.remove(playerUUID);
-
-                // Entferne alle NPCs, die diesen Spieler suchen
-                activeSearches.entrySet().removeIf(entry -> playerUUID.equals(entry.getValue()));
-
-                removed++;
+                expiredPlayers.add(playerUUID);
             }
+        }
+        for (UUID playerUUID : expiredPlayers) {
+            // Entferne alle Daten für diesen Spieler
+            lastKnownPositions.remove(playerUUID);
+            searchTimers.remove(playerUUID);
+            movementDirections.remove(playerUUID);
+
+            // Entferne alle NPCs, die diesen Spieler suchen
+            activeSearches.entrySet().removeIf(entry -> playerUUID.equals(entry.getValue()));
+
+            removed++;
         }
 
         if (removed > 0 && LOGGER.isDebugEnabled()) {

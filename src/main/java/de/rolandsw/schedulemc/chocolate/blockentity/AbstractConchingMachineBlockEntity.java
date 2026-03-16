@@ -53,11 +53,11 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
 
     protected AbstractConchingMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        ingredientInputs = new ItemStack[getIngredientSlots()];
+        ingredientInputs = new ItemStack[getIngredientSlots()];  // NOPMD
         for (int i = 0; i < ingredientInputs.length; i++) {
             ingredientInputs[i] = ItemStack.EMPTY;
         }
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**
@@ -130,14 +130,14 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
             CompoundTag tag = handlerCocoaMass.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
             conchingProgress = 0;
         } else if (handlerCocoaMass.isEmpty()) {
             cocoaMassInput = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             conchingProgress = 0;
         } else {
             cocoaMassInput = handlerCocoaMass.copy();
@@ -189,7 +189,7 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
         }
 
         if (!cocoaMassInput.isEmpty() && hasIngredient && outputStack.isEmpty()) {
-            conchingProgress++;
+            conchingProgress = Math.min(conchingProgress + 1, getTotalConchingTime);
 
             if (conchingProgress >= getTotalConchingTime()) {
                 // Conching complete: Cocoa Mass + Ingredients → Conched Chocolate
@@ -212,6 +212,10 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
                 tag.putBoolean("HasVanilla", hasIngredient(ChocolateItems.VANILLA_EXTRACT.get()));
 
                 outputStack = conchedChocolate;
+                cocoaMassInput = ItemStack.EMPTY;
+                for (int i = 0; i < ingredientInputs.length; i++) {
+                    ingredientInputs[i] = ItemStack.EMPTY;
+                }
                 conchingProgress = 0;
                 changed = true;
             }
@@ -312,7 +316,7 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
         conchingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

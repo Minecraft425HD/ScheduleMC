@@ -203,7 +203,7 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
             ItemStack extracted = outputs[slot].copy();
             outputs[slot] = ItemStack.EMPTY;
             productionIds[slot] = "";
-            qualities[slot] = null;
+            qualities[slot] = null;  // NOPMD
             changed = true;
             setChanged();
             return extracted;
@@ -356,7 +356,7 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
                 productionIds[i] = slotTag.getString("ProductionId");
 
                 if (slotTag.contains("QualityLevel")) {
-                    int qualityLevel = slotTag.getInt("QualityLevel");
+                    int qualityLevel = slotTag.getInt("QualityLevel");  // NOPMD
                     // TODO: Quality Lookup basierend auf Production Config
                     // qualities[i] = config.getQualityTiers()[qualityLevel];
                 }

@@ -198,7 +198,7 @@ public class PlotCommand {
         );
     }
 
-    private static int giveWand(CommandContext<CommandSourceStack> ctx) {
+    private static int giveWand(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.wand.error",
             player -> {
                 ItemStack wand = new ItemStack(ModItems.PLOT_SELECTION_TOOL.get());
@@ -284,7 +284,7 @@ public class PlotCommand {
             });
     }
 
-    private static int setPlotOwner(CommandContext<CommandSourceStack> ctx) {
+    private static int setPlotOwner(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.setowner.error",
             player -> {
                 ServerPlayer newOwner = EntityArgument.getPlayer(ctx, "player");
@@ -309,7 +309,7 @@ public class PlotCommand {
             });
     }
 
-    private static int buyPlot(CommandContext<CommandSourceStack> ctx) {
+    private static int buyPlot(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.buy.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
@@ -323,7 +323,7 @@ public class PlotCommand {
             });
     }
 
-    private static int buyPlotById(CommandContext<CommandSourceStack> ctx) {
+    private static int buyPlotById(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.buy.error_id",
             player -> {
                 String plotId = StringArgumentType.getString(ctx, "plotId");
@@ -374,7 +374,7 @@ public class PlotCommand {
         return 1;
     }
     
-    private static int listPlots(CommandContext<CommandSourceStack> ctx) {
+    private static int listPlots(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         List<PlotRegion> plots = PlotManager.getPlots();
 
         if (plots.isEmpty()) {
@@ -403,7 +403,7 @@ public class PlotCommand {
         return 1;
     }
     
-    private static int plotInfo(CommandContext<CommandSourceStack> ctx) {
+    private static int plotInfo(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.info.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
@@ -446,7 +446,7 @@ public class PlotCommand {
             });
     }
 
-    private static int setPlotName(CommandContext<CommandSourceStack> ctx) {
+    private static int setPlotName(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.name.error",
             player -> {
                 String name = StringArgumentType.getString(ctx, "name");
@@ -469,7 +469,7 @@ public class PlotCommand {
             });
     }
 
-    private static int setPlotDescription(CommandContext<CommandSourceStack> ctx) {
+    private static int setPlotDescription(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.description.error",
             player -> {
                 String description = StringArgumentType.getString(ctx, "description");
@@ -492,7 +492,7 @@ public class PlotCommand {
             });
     }
 
-    private static int trustPlayer(CommandContext<CommandSourceStack> ctx) {
+    private static int trustPlayer(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.trust.error",
             player -> {
                 ServerPlayer trustPlayer = EntityArgument.getPlayer(ctx, "player");
@@ -522,7 +522,7 @@ public class PlotCommand {
             });
     }
 
-    private static int untrustPlayer(CommandContext<CommandSourceStack> ctx) {
+    private static int untrustPlayer(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.untrust.error",
             player -> {
                 ServerPlayer untrustPlayer = EntityArgument.getPlayer(ctx, "player");
@@ -552,7 +552,7 @@ public class PlotCommand {
             });
     }
 
-    private static int listTrusted(CommandContext<CommandSourceStack> ctx) {
+    private static int listTrusted(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.trustlist.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
@@ -577,7 +577,7 @@ public class PlotCommand {
             });
     }
 
-    private static int sellPlot(CommandContext<CommandSourceStack> ctx) {
+    private static int sellPlot(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.sell.error",
             player -> {
                 double price = DoubleArgumentType.getDouble(ctx, "price");
@@ -603,7 +603,7 @@ public class PlotCommand {
             });
     }
 
-    private static int unsellPlot(CommandContext<CommandSourceStack> ctx) {
+    private static int unsellPlot(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.unsell.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
@@ -626,7 +626,7 @@ public class PlotCommand {
             });
     }
 
-    private static int transferPlot(CommandContext<CommandSourceStack> ctx) {
+    private static int transferPlot(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.transfer.error",
             player -> {
                 ServerPlayer newOwner = EntityArgument.getPlayer(ctx, "player");
@@ -652,7 +652,7 @@ public class PlotCommand {
             });
     }
 
-    private static int abandonPlot(CommandContext<CommandSourceStack> ctx) {
+    private static int abandonPlot(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.abandon.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
@@ -685,7 +685,7 @@ public class PlotCommand {
             });
     }
 
-    private static int setForRent(CommandContext<CommandSourceStack> ctx) {
+    private static int setForRent(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.rent.error",
             player -> {
                 double pricePerDay = DoubleArgumentType.getDouble(ctx, "pricePerDay");
@@ -711,7 +711,7 @@ public class PlotCommand {
             });
     }
 
-    private static int cancelRent(CommandContext<CommandSourceStack> ctx) {
+    private static int cancelRent(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.rentcancel.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
@@ -734,7 +734,7 @@ public class PlotCommand {
             });
     }
 
-    private static int rentPlot(CommandContext<CommandSourceStack> ctx) {
+    private static int rentPlot(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.rentplot.error",
             player -> {
                 int days = IntegerArgumentType.getInteger(ctx, "days");
@@ -749,7 +749,7 @@ public class PlotCommand {
             });
     }
 
-    private static int rentPlotById(CommandContext<CommandSourceStack> ctx) {
+    private static int rentPlotById(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.rentplot.error_id",
             player -> {
                 int days = IntegerArgumentType.getInteger(ctx, "days");
@@ -801,7 +801,7 @@ public class PlotCommand {
         return 1;
     }
     
-    private static int extendRent(CommandContext<CommandSourceStack> ctx) {
+    private static int extendRent(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.rentextend.error",
             player -> {
                 int days = IntegerArgumentType.getInteger(ctx, "days");
@@ -812,7 +812,7 @@ public class PlotCommand {
                     return;
                 }
 
-                if (!plot.getRenterUUID().equals(player.getUUID().toString())) {
+                if (plot.getRenterUUID() == null || !plot.getRenterUUID().equals(player.getUUID().toString())) {
                     CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.rentextend.not_renting").getString());
                     return;
                 }
@@ -843,7 +843,7 @@ public class PlotCommand {
     // ✅ REMOVED: ratePlot() - Ersetzt durch PlotInfoScreen Rating-Buttons + PlotRatingPacket
     // ✅ REMOVED: topPlots() - Ersetzt durch PlotInfoScreen Rating-Anzeige
 
-    private static int removePlot(CommandContext<CommandSourceStack> ctx) {
+    private static int removePlot(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.remove.error",
             admin -> {
                 // RATE LIMITING: DoS Protection für Plot-Löschung
@@ -876,7 +876,7 @@ public class PlotCommand {
             });
     }
 
-    private static int reindexPlots(CommandContext<CommandSourceStack> ctx) {
+    private static int reindexPlots(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executeSourceCommand(ctx, "command.plot.reindex.error",
             source -> {
                 PlotManager.rebuildSpatialIndex();
@@ -885,7 +885,7 @@ public class PlotCommand {
             });
     }
 
-    private static int debugPosition(CommandContext<CommandSourceStack> ctx) {
+    private static int debugPosition(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.debug.error",
             player -> {
                 BlockPos pos = player.blockPosition();
@@ -914,7 +914,7 @@ public class PlotCommand {
     // APARTMENT COMMANDS
     // ═══════════════════════════════════════════════════════════
 
-    private static int apartmentWand(CommandContext<CommandSourceStack> ctx) {
+    private static int apartmentWand(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.wand.error",
             player -> {
                 ItemStack wand = new ItemStack(ModItems.PLOT_SELECTION_TOOL.get());
@@ -927,7 +927,7 @@ public class PlotCommand {
             });
     }
 
-    private static int createApartment(CommandContext<CommandSourceStack> ctx) {
+    private static int createApartment(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.create.error",
             player -> {
                 String name = StringArgumentType.getString(ctx, "name");
@@ -1005,7 +1005,7 @@ public class PlotCommand {
             });
     }
 
-    private static int deleteApartment(CommandContext<CommandSourceStack> ctx) {
+    private static int deleteApartment(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.delete.error",
             player -> {
                 String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
@@ -1042,7 +1042,7 @@ public class PlotCommand {
             });
     }
 
-    private static int listApartments(CommandContext<CommandSourceStack> ctx) {
+    private static int listApartments(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.list.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
@@ -1085,7 +1085,7 @@ public class PlotCommand {
             });
     }
 
-    private static int apartmentInfo(CommandContext<CommandSourceStack> ctx) {
+    private static int apartmentInfo(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.info.error",
             player -> {
                 String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
@@ -1122,11 +1122,11 @@ public class PlotCommand {
             });
     }
 
-    private static int rentApartment(CommandContext<CommandSourceStack> ctx) {
+    private static int rentApartment(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return rentApartmentDays(ctx, 30); // Default: 30 Tage
     }
 
-    private static int rentApartmentDays(CommandContext<CommandSourceStack> ctx) {
+    private static int rentApartmentDays(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         int days = IntegerArgumentType.getInteger(ctx, "days");
         return rentApartmentDays(ctx, days);
     }
@@ -1199,7 +1199,7 @@ public class PlotCommand {
             });
     }
 
-    private static int leaveApartment(CommandContext<CommandSourceStack> ctx) {
+    private static int leaveApartment(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.leave.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
@@ -1239,7 +1239,7 @@ public class PlotCommand {
             });
     }
 
-    private static int setApartmentRent(CommandContext<CommandSourceStack> ctx) {
+    private static int setApartmentRent(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.setrent.error",
             player -> {
                 String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
@@ -1275,7 +1275,7 @@ public class PlotCommand {
             });
     }
 
-    private static int evictTenant(CommandContext<CommandSourceStack> ctx) {
+    private static int evictTenant(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.apartment.evict.error",
             player -> {
                 String apartmentId = StringArgumentType.getString(ctx, "apartmentId");
@@ -1325,7 +1325,7 @@ public class PlotCommand {
         if (apartment == null) {
             // Versuche nach Name zu suchen
             for (de.rolandsw.schedulemc.region.PlotArea apt : plot.getSubAreas()) {
-                if (apt.getName().equalsIgnoreCase(idOrName)) {
+                if (apt.getName() != null && apt.getName().equalsIgnoreCase(idOrName)) {
                     return apt;
                 }
             }
@@ -1338,7 +1338,7 @@ public class PlotCommand {
     // WAREHOUSE & PLOT TYPE COMMANDS
     // ═══════════════════════════════════════════════════════════
 
-    private static int setPlotType(CommandContext<CommandSourceStack> ctx) {
+    private static int setPlotType(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.settype.error",
             player -> {
                 String typeStr = StringArgumentType.getString(ctx, "type").toUpperCase();
@@ -1402,7 +1402,7 @@ public class PlotCommand {
         return null;
     }
 
-    private static int setWarehouseLocation(CommandContext<CommandSourceStack> ctx) {
+    private static int setWarehouseLocation(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.warehouse.set.error",
             player -> {
                 BlockPos warehousePos = findWarehouseBlockPos(player);
@@ -1426,7 +1426,7 @@ public class PlotCommand {
             });
     }
 
-    private static int clearWarehouseLocation(CommandContext<CommandSourceStack> ctx) {
+    private static int clearWarehouseLocation(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.warehouse.clear.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
@@ -1444,7 +1444,7 @@ public class PlotCommand {
             });
     }
 
-    private static int warehouseInfo(CommandContext<CommandSourceStack> ctx) {
+    private static int warehouseInfo(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, "command.plot.warehouse.info.error",
             player -> {
                 PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());

@@ -56,7 +56,7 @@ public class BountyData {
         this.timestamp = System.currentTimeMillis();
         this.expiresAt = 0; // Never expires by default
         this.claimed = false;
-        this.claimedBy = null;
+        this.claimedBy = null;  // NOPMD
         this.claimedAt = 0;
     }
 
@@ -103,7 +103,7 @@ public class BountyData {
      * Prüft ob Bounty abgelaufen ist
      */
     public boolean isExpired() {
-        if (expiresAt == 0) {
+        if (expiresAt == 0) {  // NOPMD
             return false; // Never expires
         }
         return System.currentTimeMillis() > expiresAt;

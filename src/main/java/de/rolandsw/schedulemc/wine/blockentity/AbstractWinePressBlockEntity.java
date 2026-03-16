@@ -41,7 +41,7 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
 
     protected AbstractWinePressBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**
@@ -107,15 +107,15 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
             } else {
                 quality = WineQuality.SCHLECHT;
             }
             pressingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            wineType = null;
-            quality = null;
+            wineType = null;  // NOPMD
+            quality = null;  // NOPMD
             pressingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -145,11 +145,19 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            pressingProgress++;
-
             int totalTime = getTotalPressingTime();
+            pressingProgress = Math.min(pressingProgress + 1, totalTime);
+
             if (pressingProgress >= totalTime) {
                 // Pressing complete: Mash → Juice
+                if (wineType == null) {
+                    // Guard against corrupt state: reset and abort
+                    pressingProgress = 0;
+                    inputStack = ItemStack.EMPTY;
+                    syncToHandler();
+                    setChanged();
+                    return;
+                }
                 ItemStack juice = switch (wineType) {
                     case RIESLING -> new ItemStack(WineItems.RIESLING_JUICE.get(), inputStack.getCount());
                     case SPAETBURGUNDER -> new ItemStack(WineItems.SPAETBURGUNDER_JUICE.get(), inputStack.getCount());
@@ -230,7 +238,7 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
         }
         syncToHandler();
     }

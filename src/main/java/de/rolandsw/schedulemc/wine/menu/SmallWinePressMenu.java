@@ -25,7 +25,7 @@ public class SmallWinePressMenu extends AbstractContainerMenu {
     public SmallWinePressMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(WineMenuTypes.SMALL_WINE_PRESS_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof SmallWinePressBlockEntity e ? e : null;
+        this.blockEntity = be instanceof SmallWinePressBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

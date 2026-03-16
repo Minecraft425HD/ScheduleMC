@@ -296,7 +296,7 @@ public class WorldEvent {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof WorldEvent other)) return false;
+        if (!(obj instanceof WorldEvent other)) return false;  // NOPMD
         return eventId.equals(other.eventId);
     }
 

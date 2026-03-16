@@ -16,7 +16,7 @@ public class Sprite {
     private float maxU;
     private float minV;
     private float maxV;
-    private TextureAtlas textureAtlas;
+    private final TextureAtlas textureAtlas;
 
     public Sprite(Object iconName, TextureAtlas textureAtlas) {
         this.iconName = iconName;

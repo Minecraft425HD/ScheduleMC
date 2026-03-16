@@ -55,8 +55,8 @@ public class RiskPremium {
     private static final double CONFISCATION_RISK_MULTIPLIER = 1.25;
 
     // Aktuelle Razzia-Daten (werden vom PolizeiSystem gesetzt)
-    private static volatile long lastRaidTimestamp = 0;
-    private static volatile int recentRaidCount = 0;
+    private static volatile long lastRaidTimestamp = 0;  // NOPMD
+    private static volatile int recentRaidCount = 0;  // NOPMD
 
     private RiskPremium() {
         // Utility class
@@ -86,7 +86,7 @@ public class RiskPremium {
 
         double totalRisk = baseRisk * wantedMultiplier * raidBonus;
 
-        LOGGER.debug("Risk premium for {}: base={:.2f} × wanted={:.2f} × raid={:.2f} = {:.2f}",
+        LOGGER.debug("Risk premium for {}: base={} × wanted={} × raid={} = {}",
                 category.name(), baseRisk, wantedMultiplier, raidBonus, totalRisk);
 
         return totalRisk;

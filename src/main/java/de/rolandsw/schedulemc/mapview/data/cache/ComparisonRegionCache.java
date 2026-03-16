@@ -77,7 +77,7 @@ public class ComparisonRegionCache {
 
     }
 
-    private boolean isChunkEmpty(ClientLevel world, LevelChunk chunk) {
+    private boolean isChunkEmpty(ClientLevel world, LevelChunk chunk) {  // NOPMD
 
         return IntStream.range(0, 16).noneMatch(t -> IntStream.range(0, 16).anyMatch(s -> chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, t, s) != 0));
     }
@@ -102,14 +102,14 @@ public class ComparisonRegionCache {
                     BiMap<Biome, Integer> biomeMap = null;
                     int version = 1;
 
-                    ZipEntry ze;
                     byte[] decompressedByteData = null;
-                    for (; (ze = zis.getNextEntry()) != null; zis.closeEntry()) {
-                        if (ze.getName().equals("data")) {
+                    ZipEntry ze = zis.getNextEntry();
+                    while (ze != null) {
+                        if ("data".equals(ze.getName())) {
                             decompressedByteData = zis.readAllBytes();
                         }
 
-                        if (ze.getName().equals("key")) {
+                        if ("key".equals(ze.getName())) {
                             stateToInt = HashBiMap.create();
 
                             while (sc.hasNextLine()) {
@@ -117,14 +117,14 @@ public class ComparisonRegionCache {
                             }
                         }
 
-                        if (ze.getName().equals("biomes")) {
+                        if ("biomes".equals(ze.getName())) {
                             biomeMap = HashBiMap.create();
                             while (sc.hasNextLine()) {
                                 BiomeScanner.parseLine(world, sc.nextLine(), biomeMap);
                             }
                         }
 
-                        if (ze.getName().equals("control")) {
+                        if ("control".equals(ze.getName())) {
                             Properties properties = new Properties();
                             properties.load(zis);
                             String versionString = properties.getProperty("version", "1");
@@ -135,6 +135,8 @@ public class ComparisonRegionCache {
                                 version = 1;
                             }
                         }
+                        zis.closeEntry();
+                        ze = zis.getNextEntry();
                     }
 
                     if (decompressedByteData != null && decompressedByteData.length == this.data.getExpectedDataLength(version) && stateToInt != null) {

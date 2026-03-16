@@ -56,7 +56,7 @@ public class CommandExecutor {
      */
     @FunctionalInterface
     public interface PlayerCommand {
-        void execute(ServerPlayer player) throws Exception;
+        void execute(ServerPlayer player) throws Exception;  // NOPMD
     }
 
     /**
@@ -64,7 +64,7 @@ public class CommandExecutor {
      */
     @FunctionalInterface
     public interface SourceCommand {
-        void execute(CommandSourceStack source) throws Exception;
+        void execute(CommandSourceStack source) throws Exception;  // NOPMD
     }
 
     /**

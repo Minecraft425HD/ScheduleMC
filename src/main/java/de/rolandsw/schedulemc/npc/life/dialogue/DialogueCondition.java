@@ -277,8 +277,7 @@ public class DialogueCondition {
         return new DialogueCondition("first_conversation", "Erstes Gespräch",
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
-                if (life == null) return true;
-                return life.getMemory().getPlayerProfile(ctx.getPlayer().getUUID())
+                return life == null || life.getMemory().getPlayerProfile(ctx.getPlayer().getUUID())
                     .getTotalTransactions() == 0;
             });
     }

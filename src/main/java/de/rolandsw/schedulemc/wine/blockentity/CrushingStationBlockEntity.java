@@ -68,10 +68,7 @@ public class CrushingStationBlockEntity extends BlockEntity implements IUtilityC
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() instanceof GrapeItem;
-                }
-                return false;
+                return slot == 0 && stack.getItem() instanceof GrapeItem;
             }
 
             @Override
@@ -98,8 +95,8 @@ public class CrushingStationBlockEntity extends BlockEntity implements IUtilityC
             crushingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            wineType = null;
-            quality = null;
+            wineType = null;  // NOPMD
+            quality = null;  // NOPMD
             crushingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -125,10 +122,18 @@ public class CrushingStationBlockEntity extends BlockEntity implements IUtilityC
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            crushingProgress++;
-
             int totalTime = getTotalCrushingTime();
+            crushingProgress = Math.min(crushingProgress + 1, totalTime);
+
             if (crushingProgress >= totalTime) {
+                // Guard against corrupt state: wineType must be set
+                if (wineType == null) {
+                    crushingProgress = 0;
+                    inputStack = ItemStack.EMPTY;
+                    syncToHandler();
+                    setChanged();
+                    return;
+                }
                 // Crushing complete: Grapes → Mash
                 ItemStack mash = switch (wineType) {
                     case RIESLING -> new ItemStack(WineItems.RIESLING_MASH.get(), inputStack.getCount());
@@ -210,7 +215,7 @@ public class CrushingStationBlockEntity extends BlockEntity implements IUtilityC
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
         }
         syncToHandler();
     }

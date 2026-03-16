@@ -94,8 +94,6 @@ public class BlockFuelStationTop extends BlockBase {
     @Override
     public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.getBlock() != newState.getBlock()) {
-            super.onRemove(state, worldIn, pos, newState, isMoving);
-
             BlockState stateDown = worldIn.getBlockState(pos.below());
             if (stateDown.getBlock().equals(ModBlocks.FUEL_STATION.get())) {
                 worldIn.destroyBlock(pos.below(), false);
@@ -107,7 +105,6 @@ public class BlockFuelStationTop extends BlockBase {
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         BlockState stateDown = world.getBlockState(pos.below());
-        stateDown.getBlock();
         if (stateDown.getBlock().equals(ModBlocks.FUEL_STATION.get()) && !player.getAbilities().instabuild) {
             ModBlocks.FUEL_STATION.get().playerDestroy(world, player, pos.below(), world.getBlockState(pos.below()), world.getBlockEntity(pos.below()), player.getMainHandItem());
         }
@@ -117,7 +114,6 @@ public class BlockFuelStationTop extends BlockBase {
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player) {
         BlockState stateDown = world.getBlockState(pos.below());
-        stateDown.getBlock();
         if (stateDown.getBlock().equals(ModBlocks.FUEL_STATION.get())) {
             return ModBlocks.FUEL_STATION.get().getCloneItemStack(stateDown, target, world, pos.below(), player);
         }

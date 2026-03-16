@@ -33,13 +33,13 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
     public static final float TRIM_CONVERSION_RATE = 0.08f; // 10g Trim -> 0.8ml Öl
 
     private int materialWeight = 0;
-    private boolean isFromBuds = false; // true = Buds, false = Trim
+    private boolean isFromBuds = false; // true = Buds, false = Trim  // NOPMD
     private CannabisStrain strain = CannabisStrain.HYBRID;
     private CannabisQuality baseQuality = CannabisQuality.GUT;
     private int solventCount = 0;
 
     private int extractionProgress = 0;
-    private boolean isExtracting = false;
+    private boolean isExtracting = false;  // NOPMD
     private ItemStack outputItem = ItemStack.EMPTY;
 
     public OelExtraktortBlockEntity(BlockPos pos, BlockState state) {
@@ -55,6 +55,8 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
             if (materialWeight > 0 && (budStrain != strain || !isFromBuds)) {
                 return false;
             }
+            // Überlauf verhindern
+            if (materialWeight + TrimmedBudItem.getWeight(stack) > MAX_MATERIAL_WEIGHT) return false;
             strain = budStrain;
             baseQuality = TrimmedBudItem.getQuality(stack);
             materialWeight += TrimmedBudItem.getWeight(stack);
@@ -64,6 +66,8 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
             if (materialWeight > 0 && (trimStrain != strain || isFromBuds)) {
                 return false;
             }
+            // Überlauf verhindern
+            if (materialWeight + TrimItem.getWeight(stack) > MAX_MATERIAL_WEIGHT) return false;
             strain = trimStrain;
             baseQuality = CannabisQuality.GUT;
             materialWeight += TrimItem.getWeight(stack);
@@ -105,7 +109,7 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
         if (level == null || level.isClientSide) return;
 
         if (isExtracting) {
-            extractionProgress++;
+            extractionProgress = Math.min(extractionProgress + 1, EXTRACTION_TICKS);
 
             if (extractionProgress >= EXTRACTION_TICKS) {
                 finishExtraction();

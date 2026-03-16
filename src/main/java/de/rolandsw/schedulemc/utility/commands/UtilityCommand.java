@@ -102,7 +102,7 @@ public class UtilityCommand {
 
         StringBuilder msg = new StringBuilder();
         msg.append("§6§l═══ UTILITY VERBRAUCH ═══\n");
-        msg.append("§7Plot: §f").append(plotId).append("\n");
+        msg.append("§7Plot: §f").append(plotId).append('\n');
         msg.append("§7Verbraucher: §f").append(data.getConsumerCount()).append(" Blöcke\n\n");
 
         msg.append("§e⚡ STROM:\n");
@@ -137,7 +137,7 @@ public class UtilityCommand {
         for (Map.Entry<UtilityCategory, Double> entry : elecByCategory.entrySet()) {
             if (entry.getValue() > 0) {
                 msg.append("  §7").append(entry.getKey().getFormattedName())
-                        .append(": §f").append(PlotUtilityManager.formatElectricity(entry.getValue())).append("\n");
+                        .append(": §f").append(PlotUtilityManager.formatElectricity(entry.getValue())).append('\n');
             }
         }
 
@@ -146,7 +146,7 @@ public class UtilityCommand {
         for (Map.Entry<UtilityCategory, Double> entry : waterByCategory.entrySet()) {
             if (entry.getValue() > 0) {
                 msg.append("  §7").append(entry.getKey().getFormattedName())
-                        .append(": §f").append(PlotUtilityManager.formatWater(entry.getValue())).append("\n");
+                        .append(": §f").append(PlotUtilityManager.formatWater(entry.getValue())).append('\n');
             }
         }
 
@@ -170,8 +170,8 @@ public class UtilityCommand {
             String elec = PlotUtilityManager.formatElectricity(data.get7DayAverageElectricity());
             String water = PlotUtilityManager.formatWater(data.get7DayAverageWater());
 
-            msg.append("§e").append(rank).append(". §f").append(data.getPlotId()).append("\n");
-            msg.append("   §7⚡ ").append(elec).append(" §8| §7💧 ").append(water).append("\n");
+            msg.append("§e").append(rank).append(". §f").append(data.getPlotId()).append('\n');
+            msg.append("   §7⚡ ").append(elec).append(" §8| §7💧 ").append(water).append('\n');
             rank++;
         }
 

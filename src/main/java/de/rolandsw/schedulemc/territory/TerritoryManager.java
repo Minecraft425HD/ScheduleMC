@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Territory>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile TerritoryManager instance;
+    private static volatile TerritoryManager instance;  // NOPMD
 
     // ChunkKey -> Territory
     private final Map<Long, Territory> territories = new ConcurrentHashMap<>();
@@ -38,7 +38,7 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static TerritoryManager getInstance(MinecraftServer server) {
+    public static TerritoryManager initialize(MinecraftServer server) {
         TerritoryManager localRef = instance;
         if (localRef == null) {
             synchronized (TerritoryManager.class) {
@@ -48,7 +48,11 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
                 }
             }
         }
-        localRef.server = server;
+        // server-Feld innerhalb synchronized aktualisieren, damit der Write
+        // nicht mit dem Double-Checked-Locking in getInstance() in Race Conditions gerät
+        synchronized (TerritoryManager.class) {
+            localRef.server = server;
+        }
         return localRef;
     }
 
@@ -191,16 +195,16 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
      * Gibt Statistiken zurück
      */
     public String getStatistics() {
-        Map<TerritoryType, Integer> counts = new HashMap<>();
+        Map<TerritoryType, Integer> counts = new HashMap<>();  // NOPMD
         for (Territory territory : territories.values()) {
             counts.merge(territory.getType(), 1, Integer::sum);
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Territories: ").append(territories.size()).append("\n");
+        sb.append("Territories: ").append(territories.size()).append('\n');
         for (Map.Entry<TerritoryType, Integer> entry : counts.entrySet()) {
             sb.append("  ").append(entry.getKey().getDisplayName())
-              .append(": ").append(entry.getValue()).append("\n");
+              .append(": ").append(entry.getValue()).append('\n');
         }
         return sb.toString();
     }
@@ -228,17 +232,17 @@ public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Terri
 
     @Override
     protected void onDataLoaded(Map<Long, Territory> data) {
-        territories.clear();
-
         int invalidCount = 0;
         int correctedCount = 0;
 
-        // NULL CHECK
+        // NULL CHECK vor clear(), damit bei null-Daten die alten Territorien erhalten bleiben
         if (data == null) {
             LOGGER.warn("Null data loaded for territories");
-            invalidCount++;
+            invalidCount++;  // NOPMD
             return;
         }
+
+        territories.clear();
 
         // Check collection size
         if (data.size() > 100000) {

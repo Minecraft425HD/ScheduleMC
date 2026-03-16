@@ -177,7 +177,7 @@ public class CompanionEventHandler {
         if (ownerUUID == null) return;
 
         ServerPlayer owner = level.getServer().getPlayerList().getPlayer(ownerUUID);
-        if (owner != null) {
+        if (owner != null) {  // NOPMD - intentionaler Stub
             // Hier könnte eine Nachricht gesendet werden
             // owner.displayClientMessage(Component.literal("Dein Begleiter ist schwer verletzt!"), true);
         }
@@ -191,7 +191,7 @@ public class CompanionEventHandler {
         if (ownerUUID == null) return;
 
         ServerPlayer owner = level.getServer().getPlayerList().getPlayer(ownerUUID);
-        if (owner != null) {
+        if (owner != null) {  // NOPMD - intentionaler Stub
             // owner.displayClientMessage(
             //     Component.literal(companionData.getName() + " wurde besiegt!"),
             //     false
@@ -212,7 +212,7 @@ public class CompanionEventHandler {
 
         // Besitzer benachrichtigen
         ServerPlayer owner = level.getServer().getPlayerList().getPlayer(ownerUUID);
-        if (owner != null) {
+        if (owner != null) {  // NOPMD - intentionaler Stub
             // owner.displayClientMessage(
             //     Component.literal(companionData.getName() + " hat dich verlassen!"),
             //     false

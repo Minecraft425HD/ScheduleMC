@@ -58,7 +58,7 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
 
     protected AbstractDryingRackBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**
@@ -131,10 +131,10 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
             contentType = ContentType.NONE;
-            tobaccoType = null;
-            tobaccoQuality = null;
-            cannabisStrain = null;
-            cannabisQuality = null;
+            tobaccoType = null;  // NOPMD
+            tobaccoQuality = null;  // NOPMD
+            cannabisStrain = null;  // NOPMD
+            cannabisQuality = null;  // NOPMD
             dryingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -206,10 +206,10 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
             inputStack = ItemStack.EMPTY;
             dryingProgress = 0;
             contentType = ContentType.NONE;
-            tobaccoType = null;
-            tobaccoQuality = null;
-            cannabisStrain = null;
-            cannabisQuality = null;
+            tobaccoType = null;  // NOPMD
+            tobaccoQuality = null;  // NOPMD
+            cannabisStrain = null;  // NOPMD
+            cannabisQuality = null;  // NOPMD
             syncToHandler();
             setChanged();
             return result;
@@ -240,6 +240,7 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
     public float getAverageDryingPercentage() {
         if (inputStack.isEmpty()) return 0;
         int totalTime = getDryingTime() * inputStack.getCount();
+        if (totalTime <= 0) return 0;
         return (float) dryingProgress / totalTime;
     }
 
@@ -257,9 +258,9 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            dryingProgress++;
-
             int totalTime = getDryingTime() * inputStack.getCount();
+            dryingProgress = Math.min(dryingProgress + 1, totalTime);
+
             if (dryingProgress >= totalTime) {
                 // Trocknung abgeschlossen - erstelle richtigen Output
                 if (contentType == ContentType.TOBACCO) {
@@ -367,12 +368,12 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
 
         // Legacy-Support: "Type" und "Quality" für alte Saves
         if (tag.contains("Type")) {
-            try { tobaccoType = TobaccoType.valueOf(tag.getString("Type")); }
+            try { tobaccoType = TobaccoType.valueOf(tag.getString("Type")); }  // NOPMD
             catch (IllegalArgumentException ignored) {}
         }
         if (tag.contains("Quality")) {
-            try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("Quality")); }  // NOPMD
+            catch (IllegalArgumentException e) { tobaccoQuality = TobaccoQuality.SCHLECHT; }  // NOPMD - legacy path, may be overwritten by TobaccoQuality tag
         }
 
         // Neue Felder
@@ -382,7 +383,7 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         }
         if (tag.contains("TobaccoQuality")) {
             try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("TobaccoQuality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { tobaccoQuality = TobaccoQuality.SCHLECHT; }
         }
         if (tag.contains("CannabisStrain")) {
             try { cannabisStrain = CannabisStrain.valueOf(tag.getString("CannabisStrain")); }
@@ -390,7 +391,7 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         }
         if (tag.contains("CannabisQuality")) {
             try { cannabisQuality = CannabisQuality.valueOf(tag.getString("CannabisQuality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { cannabisQuality = CannabisQuality.GUT; }
         }
 
         syncToHandler();

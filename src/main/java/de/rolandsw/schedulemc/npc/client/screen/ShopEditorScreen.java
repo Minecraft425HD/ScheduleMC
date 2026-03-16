@@ -37,7 +37,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         EditBox stockInput;
     }
 
-    private List<ItemRow> itemRows;
+    final private List<ItemRow> itemRows;
     private Button saveButton;
     private int scrollOffset = 0;
     private static final int VISIBLE_ROWS = 4; // Zeige 4 Zeilen gleichzeitig (keine Überlappung)
@@ -139,7 +139,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 try {
                     int price = value.isEmpty() ? 0 : Integer.parseInt(value);
                     menu.setItemPrice(finalSlotIndex, price);
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                     // Ignoriere ungültige Eingaben
                 }
             });
@@ -184,7 +184,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 try {
                     int stock = value.isEmpty() ? 0 : Integer.parseInt(value);
                     menu.setItemStock(finalSlotIndex, stock);
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                     // Ignoriere ungültige Eingaben
                 }
             });
@@ -324,7 +324,7 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Verhindere, dass E-Taste das GUI schließt
-        if (keyCode == 69) { // 69 = E-Taste
+        if (keyCode == 69) { // 69 = E-Taste  // NOPMD
             return true; // Event konsumieren ohne etwas zu tun
         }
         return super.keyPressed(keyCode, scanCode, modifiers);

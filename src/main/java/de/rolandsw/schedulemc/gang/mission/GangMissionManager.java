@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GangMissionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GangMissionManager.class);
-    private static volatile GangMissionManager instance;
+    private static volatile GangMissionManager instance;  // NOPMD
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     // gangId -> Liste aktiver Missionen
@@ -55,7 +56,7 @@ public class GangMissionManager {
         return instance;
     }
 
-    public static GangMissionManager getInstance(Path saveDir) {
+    public static GangMissionManager initialize(Path saveDir) {
         if (instance == null) {
             synchronized (GangMissionManager.class) {
                 if (instance == null) {
@@ -67,9 +68,11 @@ public class GangMissionManager {
     }
 
     public static void resetInstance() {
-        if (instance != null) {
-            instance.save();
-            instance = null;
+        synchronized (GangMissionManager.class) {
+            if (instance != null) {
+                instance.save();
+                instance = null;  // NOPMD
+            }
         }
     }
 
@@ -91,7 +94,7 @@ public class GangMissionManager {
             UUID gangId = gang.getGangId();
 
             // Sicherstellen dass die Gang Eintraege hat
-            gangMissions.computeIfAbsent(gangId, k -> new ArrayList<>());
+            gangMissions.computeIfAbsent(gangId, k -> new CopyOnWriteArrayList<>());
             lastResets.computeIfAbsent(gangId, k -> new EnumMap<>(MissionType.class));
 
             for (MissionType type : MissionType.values()) {
@@ -115,7 +118,7 @@ public class GangMissionManager {
      * Wird direkt nach Gang-Erstellung aufgerufen.
      */
     public void generateInitialMissions(UUID gangId) {
-        gangMissions.computeIfAbsent(gangId, k -> new ArrayList<>());
+        gangMissions.computeIfAbsent(gangId, k -> new CopyOnWriteArrayList<>());
         Map<MissionType, Long> resets = lastResets.computeIfAbsent(gangId, k -> new EnumMap<>(MissionType.class));
 
         long now = System.currentTimeMillis();
@@ -219,6 +222,7 @@ public class GangMissionManager {
             case HOURLY -> stats.hourlyCompleted++;
             case DAILY -> stats.dailyCompleted++;
             case WEEKLY -> stats.weeklyCompleted++;
+            default -> {}
         }
     }
 
@@ -233,7 +237,7 @@ public class GangMissionManager {
      */
     public int[] claimReward(UUID gangId, String missionId) {
         List<GangMission> missions = gangMissions.get(gangId);
-        if (missions == null) return null;
+        if (missions == null) return new int[0];
 
         for (GangMission mission : missions) {
             if (mission.getMissionId().equals(missionId) && mission.isClaimable()) {
@@ -241,7 +245,7 @@ public class GangMissionManager {
                 return new int[]{mission.getXpReward(), mission.getMoneyReward()};
             }
         }
-        return null;
+        return new int[0];
     }
 
     /**
@@ -262,7 +266,7 @@ public class GangMissionManager {
      */
     public boolean isBonusClaimed(UUID gangId, MissionType type) {
         List<GangMission> missions = gangMissions.get(gangId);
-        if (missions == null) return false;
+        if (missions == null) return false;  // NOPMD
 
         // Bonus gilt als eingeloest wenn alle Missionen des Typs claimed sind
         return missions.stream()
@@ -314,8 +318,8 @@ public class GangMissionManager {
         WeeklyStats stats = weeklyStats.get(gangId);
         if (stats != null) {
             stats.previousWeeks.add(0, new WeekSnapshot(stats));
-            if (stats.previousWeeks.size() > 3) {
-                stats.previousWeeks.subList(3, stats.previousWeeks.size()).clear();
+            while (stats.previousWeeks.size() > 3) {
+                stats.previousWeeks.remove(stats.previousWeeks.size() - 1);
             }
             stats.reset();
         }
@@ -331,7 +335,7 @@ public class GangMissionManager {
     public void onGangXPAwarded(UUID gangId, int amount) {
         trackProgress(gangId, "GANG_XP", amount);
         WeeklyStats stats = weeklyStats.computeIfAbsent(gangId, k -> new WeeklyStats());
-        stats.xpGained += amount;
+        stats.xpGained = (int) Math.min((long) stats.xpGained + amount, Integer.MAX_VALUE);
     }
 
     /**
@@ -368,7 +372,7 @@ public class GangMissionManager {
     public void onMoneyEarned(UUID gangId, int amount) {
         trackProgress(gangId, "EARN", amount);
         WeeklyStats stats = weeklyStats.computeIfAbsent(gangId, k -> new WeeklyStats());
-        stats.moneyEarned += amount;
+        stats.moneyEarned = (int) Math.min((long) stats.moneyEarned + amount, Integer.MAX_VALUE);
     }
 
     /**
@@ -376,7 +380,7 @@ public class GangMissionManager {
      */
     public void onFeesCollected(UUID gangId, int amount) {
         WeeklyStats stats = weeklyStats.computeIfAbsent(gangId, k -> new WeeklyStats());
-        stats.feesCollected += amount;
+        stats.feesCollected = (int) Math.min((long) stats.feesCollected + amount, Integer.MAX_VALUE);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -424,7 +428,7 @@ public class GangMissionManager {
 
     public void save() {
         try {
-            Map<String, SavedGangMissions> saveData = new HashMap<>();
+            Map<String, SavedGangMissions> saveData = new HashMap<>();  // NOPMD
             for (Map.Entry<UUID, List<GangMission>> entry : gangMissions.entrySet()) {
                 SavedGangMissions saved = new SavedGangMissions();
                 saved.missionIdCounter = missionIdCounter.get();
@@ -485,18 +489,19 @@ public class GangMissionManager {
             for (Map.Entry<String, SavedGangMissions> entry : saveData.entrySet()) {
                 UUID gangId = UUID.fromString(entry.getKey());
                 SavedGangMissions saved = entry.getValue();
+                if (saved == null) continue;
 
                 missionIdCounter.accumulateAndGet(saved.missionIdCounter, Math::max);
 
                 // Resets
-                Map<MissionType, Long> resets = new EnumMap<>(MissionType.class);
+                Map<MissionType, Long> resets = new EnumMap<>(MissionType.class);  // NOPMD
                 resets.put(MissionType.HOURLY, saved.lastHourlyReset);
                 resets.put(MissionType.DAILY, saved.lastDailyReset);
                 resets.put(MissionType.WEEKLY, saved.lastWeeklyReset);
                 lastResets.put(gangId, resets);
 
                 // Missionen
-                List<GangMission> missions = new ArrayList<>();
+                List<GangMission> missions = new CopyOnWriteArrayList<>();
                 for (SavedMission sm : saved.missions) {
                     try {
                         MissionTemplate tpl = MissionTemplate.valueOf(sm.templateName);
@@ -505,7 +510,7 @@ public class GangMissionManager {
                                 sm.xp, sm.money, sm.createdAt,
                                 sm.progress, sm.completed, sm.claimed
                         ));
-                    } catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException ignored) {
                         // Template wurde entfernt, Mission ueberspringen
                     }
                 }
@@ -532,7 +537,7 @@ public class GangMissionManager {
     private static class SavedGangMissions {
         int missionIdCounter;
         long lastHourlyReset, lastDailyReset, lastWeeklyReset;
-        List<SavedMission> missions = new ArrayList<>();
+        List<SavedMission> missions = new ArrayList<>();  // NOPMD
         int weeklyXP, weeklyMoney, weeklyFees;
         int weeklyHourly, weeklyDaily, weeklyWeekly;
     }

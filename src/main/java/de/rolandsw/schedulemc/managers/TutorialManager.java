@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TutorialManager extends AbstractPersistenceManager<Map<String, TutorialManager.PlayerTutorialData>> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static volatile TutorialManager instance;
+    private static volatile TutorialManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     private final ConcurrentHashMap<UUID, PlayerTutorialData> playerData = new ConcurrentHashMap<>();
@@ -140,7 +140,7 @@ public class TutorialManager extends AbstractPersistenceManager<Map<String, Tuto
     @Nullable
     public static TutorialManager getInstance() { return instance; }
 
-    public static TutorialManager getInstance(MinecraftServer server) {
+    public static TutorialManager initialize(MinecraftServer server) {
         TutorialManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {
@@ -156,7 +156,7 @@ public class TutorialManager extends AbstractPersistenceManager<Map<String, Tuto
     public static void resetInstance() {
         synchronized (INSTANCE_LOCK) {
             if (instance != null) instance.save();
-            instance = null;
+            instance = null;  // NOPMD
         }
     }
 
@@ -254,7 +254,7 @@ public class TutorialManager extends AbstractPersistenceManager<Map<String, Tuto
             if (step.getPhase() == data.currentPhase) {
                 boolean done = data.isStepCompleted(step);
                 msg.append(done ? "\u00A7a\u2714 " : "\u00A7c\u2718 ");
-                msg.append("\u00A77").append(step.getDescription()).append("\n");
+                msg.append("\u00A77").append(step.getDescription()).append('\n');
             }
         }
         msg.append("\u00A78Ueberspringe mit /tutorial skip");
@@ -286,7 +286,7 @@ public class TutorialManager extends AbstractPersistenceManager<Map<String, Tuto
 
     @Override
     protected Map<String, PlayerTutorialData> getCurrentData() {
-        Map<String, PlayerTutorialData> data = new HashMap<>();
+        Map<String, PlayerTutorialData> data = new HashMap<>();  // NOPMD
         playerData.forEach((uuid, td) -> data.put(uuid.toString(), td));
         return data;
     }

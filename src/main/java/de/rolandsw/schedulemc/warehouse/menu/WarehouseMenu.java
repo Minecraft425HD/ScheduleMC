@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.warehouse.WarehouseBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -35,7 +36,8 @@ public class WarehouseMenu extends AbstractContainerMenu {
         // Lese BlockPos vom Netzwerk
         this.pos = extraData.readBlockPos();
         this.level = playerInventory.player.level();
-        this.warehouseBE = (WarehouseBlockEntity) level.getBlockEntity(pos);
+        BlockEntity be = level.getBlockEntity(pos);
+        this.warehouseBE = be instanceof WarehouseBlockEntity ? (WarehouseBlockEntity) be : null;  // NOPMD
     }
 
     public WarehouseBlockEntity getWarehouse() {

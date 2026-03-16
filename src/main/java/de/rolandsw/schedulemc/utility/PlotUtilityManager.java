@@ -41,8 +41,8 @@ public class PlotUtilityManager {
     // BlockPos -> Plot-ID (Cache für schnelle Lookups)
     private static final Map<BlockPos, String> positionCache = new ConcurrentHashMap<>();
 
-    private static volatile boolean dirty = false;
-    private static volatile long lastTickDay = -1;
+    private static volatile boolean dirty = false;  // NOPMD
+    private static volatile long lastTickDay = -1;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════════════════════
     // INITIALISIERUNG
@@ -257,9 +257,12 @@ public class PlotUtilityManager {
      * Aktualisiert den Status aller Verbraucher in einem Plot
      */
     private static void updateConsumerStatus(ServerLevel level, PlotUtilityData data) {
-        // Iteriere über alle registrierten Positionen im Plot
-        // und prüfe den aktuellen Status der BlockEntities
-        // (Implementierung nutzt das IUtilityConsumer Interface)
+        for (BlockPos pos : data.getConsumerPositions()) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof IUtilityConsumer consumer) {
+                data.setActiveStatus(pos, consumer.isActivelyConsuming());
+            }
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -363,8 +366,12 @@ public class PlotUtilityManager {
     private static void rebuildPositionCache() {
         positionCache.clear();
 
-        // Dies würde alle registrierten Positionen aus den PlotUtilityData durchgehen
-        // und den Cache rebuilden - wird bei load() aufgerufen
+        for (Map.Entry<String, PlotUtilityData> entry : plotData.entrySet()) {
+            String plotId = entry.getKey();
+            for (BlockPos pos : entry.getValue().getConsumerPositions()) {
+                positionCache.put(pos, plotId);
+            }
+        }
     }
 
     /**

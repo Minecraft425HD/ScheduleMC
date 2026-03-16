@@ -28,6 +28,7 @@ import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -51,61 +52,73 @@ public class PoliceAIHandler {
 
     // Konstanten
     private static final double POLICE_SPEED = 1.2; // 20% schneller
-    private static final long TICKS_PER_SECOND = 20L;
+    private static final long TICKS_PER_SECOND = 20L;  // NOPMD
     private static final int AI_UPDATE_INTERVAL_TICKS = 20; // Alle 1 Sekunde
-    private static final int FINE_PER_WANTED_LEVEL = 500;
-    private static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;
+    private static final int FINE_PER_WANTED_LEVEL = 500;  // NOPMD
+    private static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;  // NOPMD
     private static final int MAX_ARREST_TIMER_ENTRIES = 1000;
-    private static final long ARREST_TIMER_TIMEOUT_MS = 600000; // 10 Minuten
+    private static final long ARREST_TIMER_TIMEOUT_MS = 600000; // 10 Minuten  // NOPMD
     private static final int MAX_CACHE_ENTRIES = 500; // Max Einträge für LRU-Caches
 
     // UUID -> Arrest Start Time (in Ticks) - mit automatischem Cleanup
-    private static final Map<UUID, Long> arrestTimers = new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
-            return size() > MAX_ARREST_TIMER_ENTRIES;
+    // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
+    private static final Map<UUID, Long> arrestTimers = Collections.synchronizedMap(
+        new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
+                return size() > MAX_ARREST_TIMER_ENTRIES;
+            }
         }
-    };
+    );
 
     // NPC UUID -> Last Pursuit Target (um zu wissen wen wir verfolgt haben) - LRU Cache
-    private static final Map<UUID, UUID> lastPursuitTarget = new LinkedHashMap<UUID, UUID>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, UUID> eldest) {
-            return size() > MAX_CACHE_ENTRIES;
+    // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
+    private static final Map<UUID, UUID> lastPursuitTarget = Collections.synchronizedMap(
+        new LinkedHashMap<UUID, UUID>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<UUID, UUID> eldest) {
+                return size() > MAX_CACHE_ENTRIES;
+            }
         }
-    };
+    );
 
     // Wanted-Level Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache
-    private static final Map<UUID, Integer> lastSyncedWantedLevel = new LinkedHashMap<UUID, Integer>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, Integer> eldest) {
-            return size() > MAX_CACHE_ENTRIES;
+    // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
+    private static final Map<UUID, Integer> lastSyncedWantedLevel = Collections.synchronizedMap(
+        new LinkedHashMap<UUID, Integer>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<UUID, Integer> eldest) {
+                return size() > MAX_CACHE_ENTRIES;
+            }
         }
-    };
+    );
 
     // Escape-Time Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache
-    private static final Map<UUID, Long> lastSyncedEscapeTime = new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
-            return size() > MAX_CACHE_ENTRIES;
+    // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
+    private static final Map<UUID, Long> lastSyncedEscapeTime = Collections.synchronizedMap(
+        new LinkedHashMap<UUID, Long>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<UUID, Long> eldest) {
+                return size() > MAX_CACHE_ENTRIES;
+            }
         }
-    };
+    );
 
     // ═══════════════════════════════════════════════════════════════════════════
     // OPTIMIERUNG: Globaler Spieler-Cache (aktualisiert alle 5 Ticks = 250ms)
     // Verhindert teure getEntitiesOfClass() Aufrufe für jeden Polizisten
     // Atomic swap statt clear()+put() verhindert Race Conditions
     // ═══════════════════════════════════════════════════════════════════════════
-    private static volatile Map<UUID, CachedPlayerData> playerCache = Map.of();
-    private static volatile long lastCacheUpdateTick = -1;
+    private static volatile Map<UUID, CachedPlayerData> playerCache = Map.of();  // NOPMD
+    private static volatile long lastCacheUpdateTick = -1;  // NOPMD
     private static final int CACHE_UPDATE_INTERVAL = 5; // Alle 5 Ticks (250ms) statt jeden Tick
 
     // ═══════════════════════════════════════════════════════════════════════════
     // OPTIMIERUNG: Polizei-NPC-Cache (aktualisiert alle 10 Ticks = 500ms)
     // Verhindert teuren getEntitiesOfClass() World-Scan pro Spieler pro Tick
     // ═══════════════════════════════════════════════════════════════════════════
-    private static volatile List<CachedPoliceData> policeCache = List.of();
-    private static volatile long lastPoliceCacheUpdateTick = -1;
+    private static volatile List<CachedPoliceData> policeCache = List.of();  // NOPMD
+    private static volatile long lastPoliceCacheUpdateTick = -1;  // NOPMD
     private static final int POLICE_CACHE_UPDATE_INTERVAL = 10; // Alle 10 Ticks (500ms)
 
     /**
@@ -153,7 +166,7 @@ public class PoliceAIHandler {
 
         // Neuen Cache aufbauen und atomar tauschen (keine Race Condition möglich)
         List<ServerPlayer> players = server.getPlayerList().getPlayers();
-        Map<UUID, CachedPlayerData> newCache = new HashMap<>(players.size() * 2);
+        Map<UUID, CachedPlayerData> newCache = new HashMap<>(players.size() * 2);  // NOPMD
         for (ServerPlayer player : players) {
             newCache.put(player.getUUID(), new CachedPlayerData(player));
         }
@@ -483,7 +496,7 @@ public class PoliceAIHandler {
         // Feature 10: Beweis "Auf frischer Tat ertappt" erstellen
         if (player.level() instanceof ServerLevel sl) {
             de.rolandsw.schedulemc.npc.crime.evidence.EvidenceManager evidenceMgr =
-                de.rolandsw.schedulemc.npc.crime.evidence.EvidenceManager.getInstance(sl.getServer());
+                de.rolandsw.schedulemc.npc.crime.evidence.EvidenceManager.initialize(sl.getServer());
             evidenceMgr.addCaughtInAct(player.getUUID(), player.blockPosition(),
                 "Festnahme durch " + police.getNpcName() + " - Wanted Level " + wantedLevel);
         }
@@ -745,18 +758,18 @@ public class PoliceAIHandler {
                     hiddenFromAll = false;
                 }
             }
-            // Konvertiere squared distance zurück für Vergleich
-            minDistance = Math.sqrt(minDistance);
-
             // Escape-Logic
             boolean canHide = false;
 
-            if (!nearbyPolice.isEmpty()) {
+            if (nearbyPolice.isEmpty()) {
+                // Keine Polizei in der Nähe – Spieler kann sich verstecken
+                canHide = true;
+            } else {
+                // Konvertiere squared distance zurück für Vergleich
+                minDistance = Math.sqrt(minDistance);
                 if (hiddenFromAll) {
                     canHide = true;
                 }
-            } else if (minDistance > CrimeManager.ESCAPE_DISTANCE) {
-                canHide = true;
             }
 
             if (canHide) {

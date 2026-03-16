@@ -38,7 +38,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/merchant_shop.png");
 
-    private List<ShopItemRow> shopItemRows;
+    final private List<ShopItemRow> shopItemRows;
     private int scrollOffset = 0;
     private static final int VISIBLE_ROWS = 6; // Wie viele Items gleichzeitig sichtbar sind
     private Button buyButton; // Einziger Kaufen-Button unten rechts
@@ -128,7 +128,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
                 // Fahrzeuge: Nur "1" oder leer erlauben (max 1 Fahrzeug pro Kauf)
                 if (isVehicle) {
                     quantityInput.setMaxLength(1);
-                    quantityInput.setFilter(s -> s.isEmpty() || s.equals("1")); // Nur 1 oder leer
+                    quantityInput.setFilter(s -> s.isEmpty() || "1".equals(s)); // Nur 1 oder leer
                 } else {
                     quantityInput.setFilter(s -> DIGITS_ONLY.matcher(s).matches()); // Nur Zahlen
                 }
@@ -191,7 +191,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             LOGGER.info("[CLIENT] Item {}: {} | savedQuantity='{}' | availableQuantity={}",
                 i, row.item.getHoverName().getString(), quantityStr, row.availableQuantity);
 
-            if (!quantityStr.isEmpty() && !quantityStr.equals("0")) {
+            if (!quantityStr.isEmpty() && !"0".equals(quantityStr)) {
                 try {
                     int quantity = Integer.parseInt(quantityStr);
                     if (quantity > 0 && quantity <= row.availableQuantity) {
@@ -254,7 +254,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         for (ShopItemRow row : shopItemRows) {
             if (row.quantityInput != null) {
                 this.removeWidget(row.quantityInput);
-                row.quantityInput = null;
+                row.quantityInput = null;  // NOPMD
             }
         }
 
@@ -293,7 +293,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
      * Rendert eine Shop-Item Row
      * Schema: [Icon] Name | Preis | Verfügbar | [Input]
      */
-    private void renderShopItem(GuiGraphics guiGraphics, ShopItemRow row, int x, int y, int rowIndex) {
+    private void renderShopItem(GuiGraphics guiGraphics, ShopItemRow row, int x, int y, int rowIndex) {  // NOPMD
         // Item Icon (16x16)
         guiGraphics.renderItem(row.item, x, y);
 
@@ -327,7 +327,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
                     if (quantity > 0) {
                         totalCost += row.pricePerItem * quantity;
                     }
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                     // Ignoriere ungültige Eingaben
                 }
             }
@@ -336,10 +336,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
 

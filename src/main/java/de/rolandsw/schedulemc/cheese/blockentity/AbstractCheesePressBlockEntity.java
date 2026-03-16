@@ -43,7 +43,7 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
 
     protected AbstractCheesePressBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**
@@ -72,10 +72,7 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == CheeseItems.CHEESE_CURD.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == CheeseItems.CHEESE_CURD.get();
             }
 
             @Override
@@ -102,7 +99,7 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
             pressingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             pressingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -128,9 +125,9 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            pressingProgress++;
-
             int totalTime = getTotalPressingTime();
+            pressingProgress = Math.min(pressingProgress + 1, totalTime);
+
             if (pressingProgress >= totalTime) {
                 // Pressing complete: Curd → Fresh Cheese Wheel
                 // Weight: 0.25kg per curd item
@@ -145,6 +142,7 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
                 );
 
                 outputStack = cheeseWheel;
+                inputStack = ItemStack.EMPTY;
                 pressingProgress = 0;
                 changed = true;
             }
@@ -206,7 +204,7 @@ public abstract class AbstractCheesePressBlockEntity extends BlockEntity impleme
         pressingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
         }
         syncToHandler();
     }

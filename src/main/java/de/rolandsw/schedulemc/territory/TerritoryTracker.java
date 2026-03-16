@@ -52,7 +52,16 @@ public class TerritoryTracker {
 
         // Hat sich Territory geändert?
         if (hasChanged(currentTerritory, lastPlayerTerritory)) {
-            // Cooldown prüfen
+            // Territory IMMER aktualisieren, unabhängig vom Cooldown.
+            // Andernfalls wird das letzte Territory nie gesetzt wenn der Cooldown
+            // die Benachrichtigung unterdrückt, was zu wiederholtem Triggern führt.
+            if (currentTerritory != null) {
+                lastTerritory.put(player.getUUID(), currentTerritory);
+            } else {
+                lastTerritory.remove(player.getUUID());
+            }
+
+            // Cooldown prüfen (nur für die Benachrichtigung, nicht für den State-Update)
             long now = System.currentTimeMillis();
             Long lastNotification = lastNotificationTime.get(player.getUUID());
 
@@ -62,13 +71,6 @@ public class TerritoryTracker {
 
                 // Update
                 lastNotificationTime.put(player.getUUID(), now);
-            }
-
-            // Territory aktualisieren
-            if (currentTerritory != null) {
-                lastTerritory.put(player.getUUID(), currentTerritory);
-            } else {
-                lastTerritory.remove(player.getUUID());
             }
         }
     }
@@ -93,11 +95,11 @@ public class TerritoryTracker {
         String lastName = last.getName();
 
         // Normalisiere null/empty
-        if (currentName == null || currentName.isEmpty()) currentName = null;
-        if (lastName == null || lastName.isEmpty()) lastName = null;
+        if (currentName == null || currentName.isEmpty()) currentName = null;  // NOPMD
+        if (lastName == null || lastName.isEmpty()) lastName = null;  // NOPMD
 
         // Wenn Namen unterschiedlich -> Territory hat sich geändert
-        if (!java.util.Objects.equals(currentName, lastName)) {
+        if (!java.util.Objects.equals(currentName, lastName)) {  // NOPMD
             return true;
         }
 
@@ -109,7 +111,7 @@ public class TerritoryTracker {
      * Zeigt Hologramm mit Territory-Name beim Betreten/Verlassen
      * KEINE Farbanzeige mehr - nur der Name!
      */
-    private static void showTerritoryChange(ServerPlayer player, @Nullable Territory from, @Nullable Territory to) {
+    private static void showTerritoryChange(ServerPlayer player, @Nullable Territory from, @Nullable Territory to) {  // NOPMD
         String title;
         String subtitle = ""; // Kein Subtitle mehr
 

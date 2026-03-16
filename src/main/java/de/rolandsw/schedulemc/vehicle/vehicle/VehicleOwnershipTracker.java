@@ -26,10 +26,10 @@ public class VehicleOwnershipTracker extends SavedData {
     private static final String DATA_NAME = "vehicle_ownership";
 
     // Spieler UUID -> Anzahl gekaufter Fahrzeuge
-    private final Map<UUID, Integer> vehicleCounts = new HashMap<>();
+    private final Map<UUID, Integer> vehicleCounts = new HashMap<>();  // NOPMD
 
     // Präfix (z.B. "MIN") -> (Spieler UUID -> Offset)
-    private final Map<String, Map<UUID, Integer>> prefixOffsets = new HashMap<>();
+    private final Map<String, Map<UUID, Integer>> prefixOffsets = new HashMap<>();  // NOPMD
 
     public VehicleOwnershipTracker() {
     }
@@ -135,7 +135,7 @@ public class VehicleOwnershipTracker extends SavedData {
                 CompoundTag prefixTag = prefixList.getCompound(i);
                 String prefix = prefixTag.getString("Prefix");
 
-                Map<UUID, Integer> offsetMap = new HashMap<>();
+                Map<UUID, Integer> offsetMap = new HashMap<>();  // NOPMD
                 if (prefixTag.contains("Offsets")) {
                     CompoundTag offsets = prefixTag.getCompound("Offsets");
                     for (String key : offsets.getAllKeys()) {

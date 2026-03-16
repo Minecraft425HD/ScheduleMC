@@ -11,11 +11,11 @@ import java.util.Map;
  */
 public class ScenarioObjective {
 
-    private String id;
-    private ObjectiveType type;
+    private final String id;
+    private final ObjectiveType type;
     private int editorX;
     private int editorY;
-    private Map<String, String> params;
+    final private Map<String, String> params;
     private String nextObjectiveId; // null = kein Nachfolger
 
     public ScenarioObjective(String id, ObjectiveType type, int editorX, int editorY) {
@@ -24,7 +24,7 @@ public class ScenarioObjective {
         this.editorX = editorX;
         this.editorY = editorY;
         this.params = new HashMap<>();
-        this.nextObjectiveId = null;
+        this.nextObjectiveId = null;  // NOPMD
 
         // Standard-Parameter setzen
         for (ObjectiveType.ParamDef def : type.getParamDefs()) {
@@ -74,8 +74,8 @@ public class ScenarioObjective {
         for (ObjectiveType.ParamDef def : type.getParamDefs()) {
             String val = params.get(def.key());
             if (val != null && !val.isEmpty()) {
-                if (count > 0) sb.append(" ");
-                sb.append(def.label()).append(":").append(val);
+                if (count > 0) sb.append(' ');
+                sb.append(def.label()).append(':').append(val);
                 count++;
                 if (count >= 2) break; // Maximal 2 Parameter anzeigen
             }

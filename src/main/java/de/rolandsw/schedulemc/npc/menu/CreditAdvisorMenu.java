@@ -17,7 +17,7 @@ public class CreditAdvisorMenu extends AbstractContainerMenu {
     private final int entityId;
 
     // Server-side constructor
-    public CreditAdvisorMenu(int containerId, Inventory playerInventory, CustomNPCEntity npc) {
+    public CreditAdvisorMenu(int containerId, Inventory playerInventory, CustomNPCEntity npc) {  // NOPMD
         super(NPCMenuTypes.CREDIT_ADVISOR_MENU.get(), containerId);
         this.npc = npc;
         this.entityId = npc.getId();

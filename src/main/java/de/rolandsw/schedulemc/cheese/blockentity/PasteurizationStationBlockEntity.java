@@ -63,10 +63,7 @@ public class PasteurizationStationBlockEntity extends BlockEntity implements IUt
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == Items.MILK_BUCKET;
-                }
-                return false;
+                return slot == 0 && stack.getItem() == Items.MILK_BUCKET;
             }
 
             @Override
@@ -114,13 +111,14 @@ public class PasteurizationStationBlockEntity extends BlockEntity implements IUt
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            pasteurizationProgress++;
+            pasteurizationProgress = Math.min(pasteurizationProgress + 1, getTotalPasteurizationTime);
 
             if (pasteurizationProgress >= getTotalPasteurizationTime()) {
                 // Pasteurization complete: Raw Milk → Pasteurized Milk
                 ItemStack pasteurizedMilk = new ItemStack(Items.MILK_BUCKET, inputStack.getCount());
 
                 outputStack = pasteurizedMilk;
+                inputStack = ItemStack.EMPTY;
                 pasteurizationProgress = 0;
                 changed = true;
             }

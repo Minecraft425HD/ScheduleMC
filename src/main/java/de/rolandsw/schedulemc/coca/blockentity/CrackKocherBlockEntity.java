@@ -48,7 +48,7 @@ public class CrackKocherBlockEntity extends BlockEntity implements IUtilityConsu
     private TobaccoQuality inputQuality = TobaccoQuality.GUT;
 
     // Minigame
-    private boolean isMinigameActive = false;
+    private boolean isMinigameActive = false;  // NOPMD
     private int cookTick = 0;
     private boolean waitingForRemove = false;
     private UUID activePlayer = null;
@@ -157,7 +157,7 @@ public class CrackKocherBlockEntity extends BlockEntity implements IUtilityConsu
         backpulverCount = Math.max(0, backpulverCount - 1);
 
         isMinigameActive = false;
-        activePlayer = null;
+        activePlayer = null;  // NOPMD
 
         setChanged();
         if (level != null) {
@@ -182,7 +182,7 @@ public class CrackKocherBlockEntity extends BlockEntity implements IUtilityConsu
         if (level == null || level.isClientSide) return;
 
         if (isMinigameActive && waitingForRemove) {
-            cookTick++;
+            cookTick = Math.min(cookTick + 1, PERFECT_WINDOW_START);
 
             // Timeout - automatisch verbrannt
             if (cookTick >= COOK_CYCLE_TICKS) {
@@ -214,7 +214,7 @@ public class CrackKocherBlockEntity extends BlockEntity implements IUtilityConsu
         isMinigameActive = false;
         waitingForRemove = false;
         cookTick = 0;
-        activePlayer = null;
+        activePlayer = null;  // NOPMD
         setChanged();
     }
 

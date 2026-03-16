@@ -93,6 +93,7 @@ public class CompanionBehavior {
             case HEAL -> behaviorHeal(level, owner);
             case RETURN -> behaviorReturn(owner);
             case FREE -> behaviorFree(level, owner);
+            default -> {}
         }
 
         // Bei Interaktion Zufriedenheit erhöhen
@@ -179,7 +180,7 @@ public class CompanionBehavior {
 
         // Ziel validieren
         if (currentTarget != null && (currentTarget.isDeadOrDying() || companion.distanceTo(currentTarget) > 20)) {
-            currentTarget = null;
+            currentTarget = null;  // NOPMD
         }
 
         // Neues Ziel suchen
@@ -227,7 +228,7 @@ public class CompanionBehavior {
     /**
      * Heil-Verhalten: Heilt den Besitzer
      */
-    private void behaviorHeal(ServerLevel level, ServerPlayer owner) {
+    private void behaviorHeal(ServerLevel level, ServerPlayer owner) {  // NOPMD
         if (!data.getType().canHeal()) return;
 
         // Zum Besitzer gehen
@@ -290,6 +291,7 @@ public class CompanionBehavior {
                 }
             }
             case TRADER -> behaviorFollow(owner);
+            default -> {}
         }
     }
 
@@ -376,7 +378,7 @@ public class CompanionBehavior {
     /**
      * Warnt den Besitzer vor einer Bedrohung
      */
-    private void warnOwnerAboutThreat(ServerPlayer owner, LivingEntity threat) {
+    private void warnOwnerAboutThreat(ServerPlayer owner, LivingEntity threat) {  // NOPMD
         // Hier könnte eine Nachricht oder ein Sound gesendet werden
         // Für jetzt: Companion schaut zum Besitzer
         companion.getLookControl().setLookAt(owner);

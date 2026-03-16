@@ -121,7 +121,7 @@ public class CoolingTunnelBlockEntity extends BlockEntity implements IUtilityCon
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            coolingProgress++;
+            coolingProgress = Math.min(coolingProgress + 1, PROCESSING_TIME);
 
             if (coolingProgress >= PROCESSING_TIME) {
                 // Cooling complete: Add "Cooled" tag

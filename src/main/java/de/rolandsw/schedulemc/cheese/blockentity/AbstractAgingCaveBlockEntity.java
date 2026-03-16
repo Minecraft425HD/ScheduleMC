@@ -40,7 +40,7 @@ public abstract class AbstractAgingCaveBlockEntity extends BlockEntity implement
 
     protected AbstractAgingCaveBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**
@@ -91,7 +91,7 @@ public abstract class AbstractAgingCaveBlockEntity extends BlockEntity implement
                 }
                 if (tag.contains("Quality")) {
                     try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
                 }
                 if (tag.contains("WeightKg")) weightKg = tag.getDouble("WeightKg");
                 if (tag.contains("AgingTicks")) agingTicks = tag.getInt("AgingTicks");
@@ -99,8 +99,8 @@ public abstract class AbstractAgingCaveBlockEntity extends BlockEntity implement
             }
         } else if (handlerInput.isEmpty()) {
             storedCheese = ItemStack.EMPTY;
-            cheeseType = null;
-            quality = null;
+            cheeseType = null;  // NOPMD
+            quality = null;  // NOPMD
             weightKg = 0;
             agingTicks = 0;
         }
@@ -178,7 +178,7 @@ public abstract class AbstractAgingCaveBlockEntity extends BlockEntity implement
         }
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
         }
         weightKg = tag.getDouble("WeightKg");
         if (!storedCheese.isEmpty()) itemHandler.setStackInSlot(0, storedCheese.copy());

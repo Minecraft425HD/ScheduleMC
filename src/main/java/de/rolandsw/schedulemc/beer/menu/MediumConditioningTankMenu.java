@@ -25,7 +25,7 @@ public class MediumConditioningTankMenu extends AbstractContainerMenu {
     public MediumConditioningTankMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(BeerMenuTypes.MEDIUM_CONDITIONING_TANK_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof MediumConditioningTankBlockEntity e ? e : null;
+        this.blockEntity = be instanceof MediumConditioningTankBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

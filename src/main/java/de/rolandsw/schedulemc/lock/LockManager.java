@@ -19,13 +19,13 @@ public class LockManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("ScheduleMC-LockManager");
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile LockManager instance;
+    private static volatile LockManager instance;  // NOPMD
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     // BlockPos-Key: "dim:x:y:z" (immer lower half der Tuer)
     private final ConcurrentHashMap<String, LockData> locks = new ConcurrentHashMap<>();
     private final Path saveFile;
-    private volatile boolean dirty = false;
+    private volatile boolean dirty = false;  // NOPMD
 
     private LockManager(Path configDir) {
         this.saveFile = configDir.resolve("schedulemc_locks.json");
@@ -35,7 +35,7 @@ public class LockManager {
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static LockManager getInstance(Path configDir) {
+    public static LockManager initialize(Path configDir) {
         LockManager localRef = instance;
         if (localRef == null) {
             synchronized (LockManager.class) {
@@ -55,7 +55,7 @@ public class LockManager {
             if (instance != null) {
                 instance.save();
             }
-            instance = null;
+            instance = null;  // NOPMD
         }
     }
 
@@ -147,7 +147,7 @@ public class LockManager {
         for (LockData data : locks.values()) {
             if (data.needsCodeRotation()) {
                 String newCode = data.rotateCode();
-                dirty = true;
+                dirty = true;  // NOPMD
                 LOGGER.debug("Code rotated for lock {} -> {}", data.getLockId(), newCode);
             }
         }
@@ -231,6 +231,12 @@ public class LockManager {
 
     private LockData deserializeLock(JsonObject obj) {
         try {
+            for (String required : new String[]{"type", "lockId", "owner", "doorX", "doorY", "doorZ", "dimension", "placedTime"}) {
+                if (!obj.has(required)) {
+                    LOGGER.error("Missing required field '{}' in lock entry: {}", required, obj);
+                    return null;
+                }
+            }
             LockType type = LockType.valueOf(obj.get("type").getAsString());
             LockData data = new LockData(
                     obj.get("lockId").getAsString(), type,

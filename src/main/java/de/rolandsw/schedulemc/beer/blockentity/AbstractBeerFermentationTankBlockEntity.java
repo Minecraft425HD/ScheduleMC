@@ -47,7 +47,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
 
     protected AbstractBeerFermentationTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**
@@ -112,7 +112,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
             CompoundTag tag = handlerBeer.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
             } else {
                 quality = BeerQuality.SCHLECHT;
             }
@@ -120,7 +120,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
             fermentationProgress = 0;
         } else if (handlerBeer.isEmpty()) {
             unfermentedBeerStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             fermentationProgress = 0;
         } else {
             unfermentedBeerStack = handlerBeer.copy();
@@ -161,9 +161,9 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
         boolean changed = false;
 
         if (!unfermentedBeerStack.isEmpty() && !yeastStack.isEmpty() && outputStack.isEmpty()) {
-            fermentationProgress++;
-
             int totalTime = getTotalFermentationTime();
+            fermentationProgress = Math.min(fermentationProgress + 1, totalTime);
+
             if (fermentationProgress >= totalTime) {
                 // Fermentation complete: Unfermented Beer + Yeast → Young Beer
                 ItemStack youngBeer = new ItemStack(BeerItems.GREEN_BEER.get(), 1);
@@ -243,7 +243,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
         fermentationProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
         }
         syncToHandler();
     }

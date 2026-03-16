@@ -35,8 +35,7 @@ public class GangLevelRequirements {
     private GangLevelRequirements() {}
 
     public static int getRequiredXP(int level) {
-        level = Math.max(0, Math.min(MAX_LEVEL, level));
-        return XP_TABLE[level];
+        return XP_TABLE[Math.max(0, Math.min(MAX_LEVEL, level))];
     }
 
     public static int getXPToNextLevel(int currentLevel, int currentXP) {

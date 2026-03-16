@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  */
 public class GangActionPacket {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
 
     public enum ActionType {
         CREATE, INVITE, ACCEPT_INVITE, LEAVE, KICK, PROMOTE, DISBAND, UNLOCK_PERK, SET_FEE, CLAIM_MISSION
@@ -315,7 +315,7 @@ public class GangActionPacket {
         if (mm == null) { sendError(player, "Missions-System nicht verfuegbar."); return; }
 
         int[] reward = mm.claimReward(gang.getGangId(), stringParam);
-        if (reward != null) {
+        if (reward.length > 0) {
             if (reward[0] > 0) {
                 manager.awardGangXP(player.getUUID(), de.rolandsw.schedulemc.gang.GangXPSource.MISSION_COMPLETED, reward[0]);
             }

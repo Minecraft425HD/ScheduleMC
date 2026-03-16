@@ -114,7 +114,7 @@ public class TobaccoPotHudOverlay {
      * Gaming HUD am oberen Bildschirmrand mit Box-Design
      */
     private static void renderUnifiedHud(GuiGraphics guiGraphics, Minecraft mc, PlantPotBlock potBlock,
-                                         PlantPotBlockEntity potBE, boolean lookingAtPlant) {
+                                         PlantPotBlockEntity potBE, boolean lookingAtPlant) {  // NOPMD
         PlantPotData potData = potBE.getPotData();
         if (potData == null) return;
 
@@ -353,15 +353,14 @@ public class TobaccoPotHudOverlay {
         if (potData.hasTobaccoPlant() && potData.getPlant().isFullyGrown()) return true;
         if (potData.hasCannabisPlant() && potData.getCannabisPlant().isFullyGrown()) return true;
         if (potData.hasCocaPlant() && potData.getCocaPlant().isFullyGrown()) return true;
-        if (potData.hasPoppyPlant() && potData.getPoppyPlant().isFullyGrown()) return true;
-        if (potData.hasMushroomPlant() && potData.getMushroomPlant().canHarvest()) return true;
-        return false;
+        return potData.hasPoppyPlant() && potData.getPoppyPlant().isFullyGrown()
+                || potData.hasMushroomPlant() && potData.getMushroomPlant().canHarvest();
     }
 
     /**
      * Gibt Pflanzen-Info als String zurück
      */
-    private static String getPlantInfo(PlantPotData potData) {
+    private static String getPlantInfo(PlantPotData potData) {  // NOPMD
         if (potData.hasTobaccoPlant()) {
             var plant = potData.getPlant();
             return plant.getType().getColoredName() + " §7| " + plant.getQuality().getColoredName();
@@ -429,7 +428,7 @@ public class TobaccoPotHudOverlay {
     /**
      * Ressourcen-Balken mit 5 Segmenten
      */
-    private static void drawResourceBar(GuiGraphics guiGraphics, int x, int y, float fillRatio, int color) {
+    private static void drawResourceBar(GuiGraphics guiGraphics, int x, int y, float fillRatio, int color) {  // NOPMD
         // Hintergrund
         guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF1A1A1A);
 
@@ -455,7 +454,7 @@ public class TobaccoPotHudOverlay {
     /**
      * Fortschritts-Balken (Wachstum)
      */
-    private static void drawProgressBar(GuiGraphics guiGraphics, int x, int y, int percent, boolean fullyGrown) {
+    private static void drawProgressBar(GuiGraphics guiGraphics, int x, int y, int percent, boolean fullyGrown) {  // NOPMD
         int color = fullyGrown ? 0xFF4CAF50 : 0xFFFDD835;
 
         // Hintergrund

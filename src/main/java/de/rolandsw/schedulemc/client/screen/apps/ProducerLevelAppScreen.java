@@ -106,7 +106,7 @@ public class ProducerLevelAppScreen extends Screen {
         ClientProducerLevelCache.removeUpdateListener();
     }
 
-    private void onCacheUpdated() {
+    private void onCacheUpdated() {  // NOPMD
         if (selectedCategory != null && currentView == ViewMode.CATEGORY) {
             loadCategoryUnlockables();
         }
@@ -126,13 +126,13 @@ public class ProducerLevelAppScreen extends Screen {
                 }
             } else if (currentView == ViewMode.DETAIL) {
                 currentView = ViewMode.CATEGORY;
-                selectedUnlockable = null;
+                selectedUnlockable = null;  // NOPMD
                 scrollOffset = 0;
                 initButtons();
             } else {
                 currentView = ViewMode.OVERVIEW;
-                selectedCategory = null;
-                currentCategoryUnlockables = null;
+                selectedCategory = null;  // NOPMD
+                currentCategoryUnlockables = null;  // NOPMD
                 scrollOffset = 0;
                 initButtons();
             }
@@ -154,7 +154,7 @@ public class ProducerLevelAppScreen extends Screen {
 
     private void loadCategoryUnlockables() {
         if (!ClientProducerLevelCache.isInitialized() || selectedCategory == null) {
-            currentCategoryUnlockables = null;
+            currentCategoryUnlockables = null;  // NOPMD
             return;
         }
         currentCategoryUnlockables = ClientProducerLevelCache.getUnlockablesByCategory(selectedCategory);
@@ -296,7 +296,7 @@ public class ProducerLevelAppScreen extends Screen {
     // ═══════════════════════════════════════════════════════════
 
     private void renderCategoryView(GuiGraphics guiGraphics, int startY, int endY,
-                                     int mouseX, int mouseY) {
+                                     int mouseX, int mouseY) {  // NOPMD
         if (selectedCategory == null) return;
 
         // Kategorie-Header
@@ -380,7 +380,7 @@ public class ProducerLevelAppScreen extends Screen {
     // DETAIL VIEW
     // ═══════════════════════════════════════════════════════════
 
-    private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {
+    private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {  // NOPMD
         if (selectedUnlockable == null) return;
 
         UnlockableData unlock = selectedUnlockable;
@@ -527,10 +527,7 @@ public class ProducerLevelAppScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true;
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override

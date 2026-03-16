@@ -15,7 +15,7 @@ import net.minecraft.world.phys.AABB;
 
 public class TileentitySpecialRendererFuelStation implements BlockEntityRenderer<TileEntityFuelStation> {
 
-    private Minecraft minecraft;
+    private final Minecraft minecraft;
     protected BlockEntityRendererProvider.Context renderer;
 
     public TileentitySpecialRendererFuelStation(BlockEntityRendererProvider.Context renderer) {
@@ -66,7 +66,9 @@ public class TileentitySpecialRendererFuelStation implements BlockEntityRenderer
     }
 
     public void renderBoundingBox(TileEntityFuelStation target, float partialTicks, PoseStack matrixStack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
-        AABB axisalignedbb = target.getDetectionBox().move(-target.getBlockPos().getX(), -target.getBlockPos().getY(), -target.getBlockPos().getZ());
+        AABB detectionBox = target.getDetectionBox();
+        if (detectionBox == null) return;
+        AABB axisalignedbb = detectionBox.move(-target.getBlockPos().getX(), -target.getBlockPos().getY(), -target.getBlockPos().getZ());
         LevelRenderer.renderLineBox(matrixStack, buffer.getBuffer(RenderType.lines()), axisalignedbb, 0F, 0F, 1F, 1F);
     }
 

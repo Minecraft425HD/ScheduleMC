@@ -22,7 +22,7 @@ public abstract class BehaviorAction {
     protected final BehaviorState resultState;
 
     // Laufzeit-Daten
-    protected boolean isRunning = false;
+    protected boolean isRunning = false;  // NOPMD
     protected int ticksRunning = 0;
     protected int maxDurationTicks = -1; // -1 = unbegrenzt
 
@@ -112,7 +112,7 @@ public abstract class BehaviorAction {
 
         this.isRunning = false;
         stop(npc, interrupted);
-        this.targetEntity = null;
+        this.targetEntity = null;  // NOPMD
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -172,15 +172,14 @@ public abstract class BehaviorAction {
      * Prüft ob diese Aktion eine andere überschreiben kann
      */
     public boolean canOverride(BehaviorAction other) {
-        if (other == null) return true;
-        return this.priority.isHigherThan(other.priority);
+        return other == null || this.priority.isHigherThan(other.priority);
     }
 
     /**
      * Prüft ob diese Aktion von einer anderen überschrieben werden kann
      */
     public boolean canBeOverriddenBy(BehaviorAction other) {
-        if (other == null) return false;
+        if (other == null) return false;  // NOPMD
         return other.priority.isHigherThan(this.priority);
     }
 

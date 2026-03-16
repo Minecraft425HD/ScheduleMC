@@ -4,6 +4,8 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'jacoco'
+    id 'pmd'
+    id 'com.github.spotbugs' version '6.0.9'
 }
 
 version = mod_version
@@ -288,4 +290,58 @@ jacocoTestCoverageVerification {
 }
 
 check.dependsOn jacocoTestCoverageVerification
+
+
+// ==================== SpotBugs Static Analysis ====================
+
+spotbugs {
+    toolVersion = '4.8.3'
+    ignoreFailures = true        // Kein Build-Abbruch – wir wollen den Report sehen
+    excludeFilter = file('spotbugs-exclude.xml')
+    // effort und reportLevel bleiben auf Defaults (DEFAULT / MEDIUM)
+    // Enum-Zuweisung über Groovy-DSL ist in dieser Plugin-Version inkompatibel
+}
+
+spotbugsMain {
+    reports {
+        html {
+            required = true
+            outputLocation = file("${buildDir}/reports/spotbugs/main.html")
+            stylesheet = 'fancy-hist.xsl'
+        }
+        xml {
+            required = true
+            outputLocation = file("${buildDir}/reports/spotbugs/main.xml")
+        }
+    }
+}
+
+// SpotBugs nur für main-Sources, nicht für Tests
+spotbugsTest.enabled = false
+
+
+// ==================== PMD Static Analysis ====================
+
+pmd {
+    toolVersion = '6.55.0'
+    ignoreFailures = true        // Kein Build-Abbruch – wir wollen den Report sehen
+    ruleSetFiles = files('pmd-ruleset.xml')
+    consoleOutput = false
+}
+
+pmdMain {
+    reports {
+        html {
+            required = true
+            outputLocation = file("${buildDir}/reports/pmd/main.html")
+        }
+        xml {
+            required = true
+            outputLocation = file("${buildDir}/reports/pmd/main.xml")
+        }
+    }
+}
+
+// PMD nur für main-Sources, nicht für Tests
+pmdTest.enabled = false
 

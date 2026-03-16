@@ -240,8 +240,8 @@ public class BatchTransactionManager {
 
         BatchResult result = new BatchResult(total, successful, failed, durationMs);
 
-        LOGGER.debug("Batch execution completed: {} transactions in {:.2f}ms ({} success, {} failed)",
-            total, durationMs, successful, failed);
+        LOGGER.debug("Batch execution completed: {} transactions in {}ms ({} success, {} failed)",
+            total, String.format("%.2f", durationMs), successful, failed);
 
         return result;
     }

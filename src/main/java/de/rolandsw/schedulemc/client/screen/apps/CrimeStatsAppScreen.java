@@ -255,6 +255,7 @@ public class CrimeStatsAppScreen extends Screen {
             case 0 -> renderStatusTab(guiGraphics, contentY, contentEndY);
             case 1 -> renderBailTab(guiGraphics, contentY, contentEndY);
             case 2 -> renderInfoTab(guiGraphics, contentY, contentEndY);
+            default -> {}
         }
 
         // Scroll-Indikator
@@ -349,7 +350,7 @@ public class CrimeStatsAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, cachedTipWait, leftPos + 15, y, 0xAAAAAA);
             }
-            y += 11;
+            y += 11;  // NOPMD
             contentHeight += 11;
         } else {
             if (y >= startY - 10 && y < endY) {
@@ -361,7 +362,7 @@ public class CrimeStatsAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, cachedTipAvoidCrime, leftPos + 15, y, 0xAAAAAA);
             }
-            y += 11;
+            y += 11;  // NOPMD
             contentHeight += 11;
         }
 
@@ -457,7 +458,7 @@ public class CrimeStatsAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, cachedWaitDecay, leftPos + 15, y, 0xAAAAAA);
         }
-        y += 11;
+        y += 11;  // NOPMD
         contentHeight += 11;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
@@ -542,7 +543,7 @@ public class CrimeStatsAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawString(this.font, cachedEscapeDistance, leftPos + 15, y, 0xAAAAAA);
         }
-        y += 11;
+        y += 11;  // NOPMD
         contentHeight += 11;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
@@ -592,10 +593,7 @@ public class CrimeStatsAppScreen extends Screen {
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
 

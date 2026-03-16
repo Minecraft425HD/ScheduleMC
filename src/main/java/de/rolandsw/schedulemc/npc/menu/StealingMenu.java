@@ -19,7 +19,7 @@ public class StealingMenu extends AbstractContainerMenu {
     private final int npcWalletAmount;
 
     // Server-Side Constructor
-    public StealingMenu(int id, Inventory playerInventory, CustomNPCEntity npc) {
+    public StealingMenu(int id, Inventory playerInventory, CustomNPCEntity npc) {  // NOPMD
         super(NPCMenuTypes.STEALING_MENU.get(), id);
         this.npc = npc;
         this.entityId = npc.getId();

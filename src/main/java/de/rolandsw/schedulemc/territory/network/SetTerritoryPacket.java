@@ -86,7 +86,7 @@ public class SetTerritoryPacket {
                     : msg.name;
             }
 
-            TerritoryManager manager = TerritoryManager.getInstance(player.server);
+            TerritoryManager manager = TerritoryManager.initialize(player.server);
             if (manager != null) {
                 if (msg.remove) {
                     manager.removeTerritory(msg.chunkX, msg.chunkZ);

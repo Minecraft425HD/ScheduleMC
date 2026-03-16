@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -29,7 +30,7 @@ public class PlayerMissionManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(PlayerMissionManager.class);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private static volatile PlayerMissionManager instance;
+    private static volatile PlayerMissionManager instance;  // NOPMD
 
     /** playerUUID -> Liste aktiver/abgeschlossener Missionen */
     private final ConcurrentHashMap<UUID, List<PlayerMission>> playerMissions = new ConcurrentHashMap<>();
@@ -47,7 +48,7 @@ public class PlayerMissionManager {
         return instance;
     }
 
-    public static PlayerMissionManager getInstance(Path saveDir) {
+    public static PlayerMissionManager initialize(Path saveDir) {
         if (instance == null) {
             synchronized (PlayerMissionManager.class) {
                 if (instance == null) {
@@ -59,9 +60,11 @@ public class PlayerMissionManager {
     }
 
     public static void resetInstance() {
-        if (instance != null) {
-            instance.save();
-            instance = null;
+        synchronized (PlayerMissionManager.class) {
+            if (instance != null) {
+                instance.save();
+                instance = null;  // NOPMD
+            }
         }
     }
 
@@ -73,7 +76,8 @@ public class PlayerMissionManager {
      * Gibt alle Missionen eines Spielers zurück.
      */
     public List<PlayerMission> getPlayerMissions(UUID playerUUID) {
-        return playerMissions.getOrDefault(playerUUID, Collections.emptyList());
+        List<PlayerMission> missions = playerMissions.get(playerUUID);
+        return missions == null ? Collections.emptyList() : new ArrayList<>(missions);
     }
 
     /**
@@ -88,7 +92,7 @@ public class PlayerMissionManager {
             return false;
         }
 
-        List<PlayerMission> missions = playerMissions.computeIfAbsent(uuid, k -> new ArrayList<>());
+        List<PlayerMission> missions = playerMissions.computeIfAbsent(uuid, k -> new CopyOnWriteArrayList<>());
 
         // Bereits aktiv oder abgeschlossen (nicht claimed)?
         for (PlayerMission m : missions) {
@@ -146,6 +150,10 @@ public class PlayerMissionManager {
             if (mission.getMissionId().equals(missionId) && mission.claim()) {
                 // XP und Geld auszahlen
                 MissionDefinition def = mission.getDefinition();
+                if (def == null) {
+                    LOGGER.warn("claimMission: keine MissionDefinition für '{}' ({})", missionId, uuid);
+                    return false;
+                }
                 player.giveExperiencePoints(def.getXpReward());
                 // Geld via EconomyManager auszahlen (falls verfügbar)
                 try {
@@ -208,7 +216,7 @@ public class PlayerMissionManager {
 
     public void save() {
         try {
-            Map<String, List<MissionSaveEntry>> data = new HashMap<>();
+            Map<String, List<MissionSaveEntry>> data = new HashMap<>();  // NOPMD
             for (Map.Entry<UUID, List<PlayerMission>> entry : playerMissions.entrySet()) {
                 List<MissionSaveEntry> entries = new ArrayList<>();
                 for (PlayerMission m : entry.getValue()) {
@@ -231,6 +239,10 @@ public class PlayerMissionManager {
     }
 
     private void load() {
+        loadInternal(false);
+    }
+
+    private void loadInternal(boolean isBackupAttempt) {
         if (!Files.exists(saveFile)) return;
         try {
             String json = Files.readString(saveFile);
@@ -241,7 +253,7 @@ public class PlayerMissionManager {
             for (Map.Entry<String, List<MissionSaveEntry>> entry : data.entrySet()) {
                 try {
                     UUID uuid = UUID.fromString(entry.getKey());
-                    List<PlayerMission> missions = new ArrayList<>();
+                    List<PlayerMission> missions = new CopyOnWriteArrayList<>();
                     for (MissionSaveEntry saved : entry.getValue()) {
                         MissionDefinition def = MissionRegistry.getById(saved.definitionId);
                         if (def == null) {
@@ -262,8 +274,12 @@ public class PlayerMissionManager {
             }
             LOGGER.info("Missions-Daten geladen: {} Spieler", playerMissions.size());
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Lesen der Missions-Datei, versuche Backup", e);
-            loadBackup();
+            if (isBackupAttempt) {
+                LOGGER.error("Backup-Datei konnte ebenfalls nicht gelesen werden – Missions-Daten nicht verfügbar", e);
+            } else {
+                LOGGER.error("Fehler beim Lesen der Missions-Datei, versuche Backup", e);
+                loadBackup();
+            }
         }
     }
 
@@ -271,7 +287,7 @@ public class PlayerMissionManager {
         if (!Files.exists(backupFile)) return;
         try {
             Files.copy(backupFile, saveFile, StandardCopyOption.REPLACE_EXISTING);
-            load();
+            loadInternal(true);
         } catch (IOException e) {
             LOGGER.error("Backup-Wiederherstellung fehlgeschlagen", e);
         }

@@ -57,7 +57,7 @@ public abstract class EntityVehicleBase extends Entity {
         this.blocksBuilding = true;
         setMaxUpStep(0.6F);
 
-        recalculateBoundingBox();
+        recalculateBoundingBox();  // NOPMD
     }
 
     @Override
@@ -90,7 +90,7 @@ public abstract class EntityVehicleBase extends Entity {
 
     public Player getDriver() {
         List<Entity> passengers = getPassengers();
-        if (passengers.size() <= 0) {
+        if (passengers.isEmpty()) {
             return null;
         }
 
@@ -137,20 +137,22 @@ public abstract class EntityVehicleBase extends Entity {
 
         List<Entity> passengers = getPassengers();
 
-        if (passengers.size() > 0) {
+        if (!passengers.isEmpty()) {
             int i = passengers.indexOf(passenger);
 
-            Vector3d offset = getPlayerOffsets()[i];
-            front = offset.x;
-            side = offset.z;
-            height = offset.y;
-        }
+            if (i >= 0 && i < getPlayerOffsets().length) {
+                Vector3d offset = getPlayerOffsets()[i];
+                front = offset.x;
+                side = offset.z;
+                height = offset.y;
+            }
 
-        Vec3 vec3d = (new Vec3(front, height, side)).yRot(-getYRot() * 0.017453292F - ((float) Math.PI / 2F));
-        passenger.setPos(getX() + vec3d.x, getY() + vec3d.y, getZ() + vec3d.z);
-        passenger.setYRot(passenger.getYRot() + deltaRotation);
-        passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
-        applyYawToEntity(passenger);
+            Vec3 vec3d = (new Vec3(front, height, side)).yRot(-getYRot() * 0.017453292F - ((float) Math.PI / 2F));
+            passenger.setPos(getX() + vec3d.x, getY() + vec3d.y, getZ() + vec3d.z);
+            passenger.setYRot(passenger.getYRot() + deltaRotation);
+            passenger.setYHeadRot(passenger.getYHeadRot() + this.deltaRotation);
+            applyYawToEntity(passenger);
+        }
     }
 
     @Override

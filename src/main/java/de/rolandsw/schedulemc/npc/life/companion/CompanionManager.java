@@ -34,7 +34,7 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile CompanionManager instance;
+    private static volatile CompanionManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -42,7 +42,7 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
         return instance;
     }
 
-    public static CompanionManager getInstance(MinecraftServer server) {
+    public static CompanionManager initialize(MinecraftServer server) {
         CompanionManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {
@@ -77,7 +77,7 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
+    private MinecraftServer server;  // NOPMD
 
     /** Alle registrierten Begleiter: Companion UUID -> Data */
     private final Map<UUID, CompanionData> allCompanions = new ConcurrentHashMap<>();
@@ -118,7 +118,7 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
         }
 
         // Prüfe Reputation
-        ServerLevel level = (ServerLevel) player.level();
+        ServerLevel level = (ServerLevel) player.level();  // NOPMD
         FactionManager factionManager = FactionManager.getInstance();
         if (factionManager != null) {
             Faction npcFaction = Faction.forNPCType(npc.getNpcType());

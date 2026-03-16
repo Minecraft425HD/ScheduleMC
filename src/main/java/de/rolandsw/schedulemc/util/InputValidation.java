@@ -61,7 +61,7 @@ public class InputValidation {
             this.valid = valid;
             this.error = error;
             this.errorKey = errorKey;
-            this.errorArgs = errorArgs;
+            this.errorArgs = errorArgs != null ? errorArgs.clone() : null;  // NOPMD
             this.sanitizedValue = sanitizedValue;
         }
 
@@ -75,7 +75,7 @@ public class InputValidation {
         @Nullable public String getError() { return error; }
         @Nullable public String getErrorMessage() { return error; }  // Alias für getError
         @Nullable public String getErrorKey() { return errorKey; }
-        @Nullable public Object[] getErrorArgs() { return errorArgs; }
+        @Nullable public Object[] getErrorArgs() { return errorArgs != null ? errorArgs.clone() : null; }
         @Nullable public String getSanitizedValue() { return sanitizedValue; }
 
         public Component toComponent() {
@@ -162,8 +162,8 @@ public class InputValidation {
         }
         // SICHERHEIT: Blockiere System-Dateien
         String lower = trimmed.toLowerCase();
-        if (lower.equals("con") || lower.equals("prn") || lower.equals("aux") ||
-            lower.equals("nul") || lower.startsWith("com") || lower.startsWith("lpt")) {
+        if ("con".equals(lower) || "prn".equals(lower) || "aux".equals(lower) ||
+            "nul".equals(lower) || lower.startsWith("com") || lower.startsWith("lpt")) {
             return Result.failure("validation.skin.reserved_filename");
         }
         return Result.success(trimmed);
@@ -202,12 +202,9 @@ public class InputValidation {
     private static boolean containsCommandInjection(String input) {
         String lower = input.toLowerCase();
         // Blockiere eingebettete Commands
-        if (lower.contains("/op ") || lower.contains("/gamemode") ||
+        return lower.contains("/op ") || lower.contains("/gamemode") ||
             lower.contains("/execute") || lower.contains("/give") ||
-            lower.contains("/setblock") || lower.contains("/kill")) {
-            return true;
-        }
-        return false;
+            lower.contains("/setblock") || lower.contains("/kill") || false;
     }
 
     /**

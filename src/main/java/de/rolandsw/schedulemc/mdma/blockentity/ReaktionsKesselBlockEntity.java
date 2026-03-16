@@ -32,7 +32,7 @@ public class ReaktionsKesselBlockEntity extends BlockEntity implements IUtilityC
     private int synthesisProgress = 0;
     private int outputCount = 0;
     private MDMAQuality outputQuality = MDMAQuality.SCHLECHT;
-    private boolean isActive = false;
+    private boolean isActive = false;  // NOPMD
 
     public ReaktionsKesselBlockEntity(BlockPos pos, BlockState state) {
         super(MDMABlockEntities.REAKTIONS_KESSEL.get(), pos, state);
@@ -42,7 +42,7 @@ public class ReaktionsKesselBlockEntity extends BlockEntity implements IUtilityC
         if (!(stack.getItem() instanceof SafrolItem)) return false;
         if (safrolCount >= CAPACITY || outputCount > 0) return false;
 
-        safrolCount++;
+        safrolCount = Math.min(safrolCount + 1, CAPACITY);
         if (synthesisProgress == 0) isActive = true;
         setChanged();
         return true;
@@ -64,8 +64,8 @@ public class ReaktionsKesselBlockEntity extends BlockEntity implements IUtilityC
         if (level == null || level.isClientSide) return;
 
         if (safrolCount > 0 && outputCount == 0) {
-            isActive = true;
-            synthesisProgress++;
+            isActive = true;  // NOPMD
+            synthesisProgress = Math.min(synthesisProgress + 1, SYNTHESIS_TIME);
 
             if (synthesisProgress >= SYNTHESIS_TIME) {
                 // Synthese abgeschlossen - Qualität basiert auf Menge

@@ -28,7 +28,7 @@ public class QuestReward {
     // ═══════════════════════════════════════════════════════════
 
     /** Geldbelohnung */
-    private int money;
+    private int money;  // NOPMD
 
     /** Item-Belohnungen */
     private final List<ItemStack> items = new ArrayList<>();
@@ -37,7 +37,7 @@ public class QuestReward {
     private final List<FactionRepReward> factionRewards = new ArrayList<>();
 
     /** Erfahrungspunkte (optional) */
-    private int experience;
+    private int experience;  // NOPMD
 
     /** Spezielle Belohnung (z.B. Zugang zu neuen Dialogen) */
     @Nullable
@@ -167,6 +167,7 @@ public class QuestReward {
                 player.getPersistentData().put("ScheduleMC", data);
             }
             // Weitere spezielle Belohnungen können hier hinzugefügt werden
+            default -> {}
         }
     }
 
@@ -226,7 +227,7 @@ public class QuestReward {
         for (FactionRepReward rep : factionRewards) {
             if (sb.length() > 0) sb.append(", ");
             sb.append(rep.amount > 0 ? "+" : "").append(rep.amount)
-              .append(" ").append(rep.faction.getDisplayName()).append("-Ruf");
+              .append(' ').append(rep.faction.getDisplayName()).append("-Ruf");
         }
 
         if (experience > 0) {

@@ -72,10 +72,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
                 if (slot == 0) {
                     return stack.getItem() == Items.MILK_BUCKET;
                 }
-                if (slot == 1) {
-                    return stack.getItem() == CheeseItems.RENNET.get();
-                }
-                return false;
+                return slot == 1 && stack.getItem() == CheeseItems.RENNET.get();
             }
 
             @Override
@@ -134,7 +131,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
         boolean changed = false;
 
         if (!milkInput.isEmpty() && !rennetInput.isEmpty() && outputStack.isEmpty()) {
-            curdlingProgress++;
+            curdlingProgress = Math.min(curdlingProgress + 1, getTotalCurdlingTime);
 
             if (curdlingProgress >= getTotalCurdlingTime()) {
                 // Determine quality once at completion
@@ -157,7 +154,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
                 }
 
                 curdlingProgress = 0;
-                quality = null;
+                quality = null;  // NOPMD
                 changed = true;
             }
 
@@ -165,7 +162,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
         } else {
             if (curdlingProgress > 0 && (milkInput.isEmpty() || rennetInput.isEmpty())) {
                 curdlingProgress = 0;
-                quality = null;
+                quality = null;  // NOPMD
                 changed = true;
             }
         }
@@ -226,7 +223,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
         curdlingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
         }
         syncToHandler();
     }

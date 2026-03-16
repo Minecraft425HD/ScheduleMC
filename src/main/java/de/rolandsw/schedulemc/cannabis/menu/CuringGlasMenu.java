@@ -30,7 +30,7 @@ public class CuringGlasMenu extends AbstractContainerMenu {
     private static final int DATA_SIZE        = 5;
 
     // Server-side constructor
-    public CuringGlasMenu(int containerId, Inventory playerInventory, CuringGlasBlockEntity blockEntity) {
+    public CuringGlasMenu(int containerId, Inventory playerInventory, CuringGlasBlockEntity blockEntity) {  // NOPMD
         super(CannabisMenuTypes.CURING_GLAS_MENU.get(), containerId);
         this.blockEntity = blockEntity;
 
@@ -67,7 +67,7 @@ public class CuringGlasMenu extends AbstractContainerMenu {
 
         BlockPos pos = extraData.readBlockPos();
         BlockEntity be = playerInventory.player.level().getBlockEntity(pos);
-        this.blockEntity = be instanceof CuringGlasBlockEntity glas ? glas : null;
+        this.blockEntity = be instanceof CuringGlasBlockEntity glas ? glas : null;  // NOPMD
 
         this.data = new SimpleContainerData(DATA_SIZE);
         addDataSlots(this.data);

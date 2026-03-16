@@ -37,7 +37,7 @@ public class TowingServiceAppScreen extends Screen {
     private int topPos;
     private int scrollOffset = 0;
 
-    private List<VehicleInfo> vehicles = new ArrayList<>();
+    final private List<VehicleInfo> vehicles = new ArrayList<>();
     private MembershipData membership;
     private UUID playerId;
 
@@ -289,7 +289,7 @@ public class TowingServiceAppScreen extends Screen {
         return 0xFF00AA00; // Green
     }
 
-    private double calculateTowingCost(VehicleInfo vehicleInfo) {
+    private double calculateTowingCost(VehicleInfo vehicleInfo) {  // NOPMD
         if (minecraft == null || minecraft.player == null) {
             return 0;
         }
@@ -350,10 +350,7 @@ public class TowingServiceAppScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true;
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override

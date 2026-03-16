@@ -42,7 +42,7 @@ public abstract class PartBody extends PartModel {
 
         // Only use dynamic textures for non-white colors (white is the default/original texture)
         ResourceLocation textureToUse;
-        if (colorName.equals("white")) {
+        if ("white".equals(colorName)) {
             // Use original texture for white (default)
             textureToUse = texture;
         } else {
@@ -59,11 +59,11 @@ public abstract class PartBody extends PartModel {
     }
 
     public Vector3d[] getWheelOffsets() {
-        return wheelOffsets;
+        return wheelOffsets;  // NOPMD
     }
 
     public Vector3d[] getPlayerOffsets() {
-        return playerOffsets;
+        return playerOffsets;  // NOPMD
     }
 
     public Vector3d getNumberPlateOffset() {

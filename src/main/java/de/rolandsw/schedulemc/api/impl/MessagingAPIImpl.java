@@ -34,7 +34,7 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (fromUUID == null || toUUID == null) {
             throw new IllegalArgumentException("fromUUID and toUUID cannot be null");
         }
-        if (message == null || message.trim().isEmpty()) {
+        if (message == null || message.isBlank()) {
             throw new IllegalArgumentException("message cannot be null or empty");
         }
         // Call with default names (API doesn't expose player names)
@@ -140,7 +140,7 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (fromUUID == null) {
             throw new IllegalArgumentException("fromUUID cannot be null");
         }
-        if (message == null || message.trim().isEmpty()) {
+        if (message == null || message.isBlank()) {
             throw new IllegalArgumentException("message cannot be null or empty");
         }
         LOGGER.debug("Stub: broadcastMessage not fully implemented - broadcast system not directly accessible");
@@ -155,7 +155,7 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (toUUID == null) {
             throw new IllegalArgumentException("toUUID cannot be null");
         }
-        if (message == null || message.trim().isEmpty()) {
+        if (message == null || message.isBlank()) {
             throw new IllegalArgumentException("message cannot be null or empty");
         }
         return sendMessage(SYSTEM_UUID, toUUID, message);

@@ -724,10 +724,7 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key from closing
-        if (keyCode == 69) {
-            return true;
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

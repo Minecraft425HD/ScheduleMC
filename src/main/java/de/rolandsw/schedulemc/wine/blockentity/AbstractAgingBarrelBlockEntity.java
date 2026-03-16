@@ -34,7 +34,7 @@ public abstract class AbstractAgingBarrelBlockEntity extends BlockEntity impleme
 
     protected AbstractAgingBarrelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     protected abstract int getCapacity();
@@ -68,14 +68,14 @@ public abstract class AbstractAgingBarrelBlockEntity extends BlockEntity impleme
                 }
                 if (tag.contains("Quality")) {
                     try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
                 }
             }
             agingTicks = 0;
         } else if (handlerInput.isEmpty()) {
             storedWine = ItemStack.EMPTY;
-            wineType = null;
-            quality = null;
+            wineType = null;  // NOPMD
+            quality = null;  // NOPMD
             agingTicks = 0;
         }
     }
@@ -121,7 +121,7 @@ public abstract class AbstractAgingBarrelBlockEntity extends BlockEntity impleme
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
         }
         if (!storedWine.isEmpty()) itemHandler.setStackInSlot(0, storedWine.copy());
     }

@@ -135,7 +135,7 @@ public class TileEntityWerkstatt extends TileEntityBase implements ITickableBloc
                 isActive = false;
                 guiOpenedForCurrentVehicle = false; // Reset flag when vehicle leaves
             }
-            trackedVehicleUUID = null;
+            trackedVehicleUUID = null;  // NOPMD
         }
 
         // Show pre-scan particles (yellow) when no vehicle is locked but in range

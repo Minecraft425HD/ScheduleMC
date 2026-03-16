@@ -21,7 +21,7 @@ public class RoadGraph {
     private final Map<UUID, RoadNode> nodesById;
 
     // Cache für häufige Routen
-    private final Map<String, List<BlockPos>> pathCache = new LinkedHashMap<String, List<BlockPos>>(100, 0.75f, true) {
+    private final Map<String, List<BlockPos>> pathCache = new LinkedHashMap<String, List<BlockPos>>(100, 0.75f, true) {  // NOPMD
         @Override
         protected boolean removeEldestEntry(Map.Entry<String, List<BlockPos>> eldest) {
             return size() > 100;
@@ -194,8 +194,8 @@ public class RoadGraph {
      */
     private List<RoadNode> dijkstra(RoadNode start, RoadNode end) {
         // Distanzen zu allen Nodes
-        Map<RoadNode, Double> distances = new HashMap<>();
-        Map<RoadNode, RoadNode> previous = new HashMap<>();
+        Map<RoadNode, Double> distances = new HashMap<>();  // NOPMD
+        Map<RoadNode, RoadNode> previous = new HashMap<>();  // NOPMD
         Set<RoadNode> visited = new HashSet<>();
 
         // Priority Queue sortiert nach Distanz

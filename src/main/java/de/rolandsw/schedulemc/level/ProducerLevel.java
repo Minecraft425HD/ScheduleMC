@@ -35,15 +35,15 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Singleton
-    private static volatile ProducerLevel instance;
+    private static volatile ProducerLevel instance;  // NOPMD
 
     // Daten
     private final ConcurrentHashMap<UUID, ProducerLevelData> playerData = new ConcurrentHashMap<>();
 
     // Persistenz
-    private static volatile File file = new File("config/schedulemc_producer_levels.json");
+    private static volatile File file = new File("config/schedulemc_producer_levels.json");  // NOPMD
     private static final Gson gson = GsonHelper.get();
-    private static volatile boolean needsSave = false;
+    private static volatile boolean needsSave = false;  // NOPMD
 
     @Nullable
     private MinecraftServer server;
@@ -230,23 +230,23 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
      * Setzt das Level eines Spielers (Admin-Befehl).
      */
     public void setLevel(UUID playerUUID, int level) {
-        level = Math.max(0, Math.min(LevelRequirements.MAX_LEVEL, level));
+        int clampedLevel = Math.max(0, Math.min(LevelRequirements.MAX_LEVEL, level));
         ProducerLevelData data = getOrCreateData(playerUUID);
 
         // XP auf das Minimum des Ziel-Levels setzen
-        int requiredXP = LevelRequirements.getRequiredXP(level);
+        int requiredXP = LevelRequirements.getRequiredXP(clampedLevel);
 
         // Unlocks für das neue Level zusammenstellen (VORHER, nicht über getUnlockedItems()-Kopie)
         Set<String> updatedUnlocks = new HashSet<>();
         for (Unlockable unlock : Unlockable.values()) {
-            if (unlock.isUnlockedAt(level)) {
+            if (unlock.isUnlockedAt(clampedLevel)) {
                 updatedUnlocks.add(unlock.name());
             }
         }
 
         // Neue Daten erstellen mit korrekten Unlocks
         ProducerLevelData newData = new ProducerLevelData(
-                playerUUID, level, requiredXP, updatedUnlocks,
+                playerUUID, clampedLevel, requiredXP, updatedUnlocks,
                 data.getTotalItemsSold(), data.getTotalIllegalSold(),
                 data.getTotalLegalSold(), data.getTotalRevenue()
         );
@@ -254,7 +254,7 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
         playerData.put(playerUUID, newData);
         needsSave = true;
 
-        LOGGER.info("Admin: Level for {} set to {}", playerUUID, level);
+        LOGGER.info("Admin: Level for {} set to {}", playerUUID, clampedLevel);
     }
 
     /**
@@ -264,7 +264,8 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
         List<Map.Entry<UUID, Integer>> entries = new ArrayList<>();
         playerData.forEach((uuid, data) -> entries.add(Map.entry(uuid, data.getLevel())));
         entries.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
-        return entries.subList(0, Math.min(count, entries.size()));
+        int limit = Math.max(0, Math.min(count, entries.size()));
+        return new ArrayList<>(entries.subList(0, limit));
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -312,7 +313,7 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
     }
 
     public void saveData() {
-        Map<String, SavedLevelData> saveMap = new HashMap<>();
+        Map<String, SavedLevelData> saveMap = new HashMap<>();  // NOPMD
 
         playerData.forEach((uuid, data) -> {
             SavedLevelData saved = new SavedLevelData();

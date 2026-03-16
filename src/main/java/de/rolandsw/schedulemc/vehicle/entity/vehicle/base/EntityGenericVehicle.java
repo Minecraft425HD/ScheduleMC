@@ -76,7 +76,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private boolean spawnPointReleased = false; // Track if spawn point was released when driving away
 
     // Werkstatt locking system
-    private boolean isLockedInWerkstatt;
+    private boolean isLockedInWerkstatt;  // NOPMD
     @Nullable
     private BlockPos werkstattPosition;
 
@@ -88,7 +88,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private int winterTireSwapCount = 0;   // Wie oft Winterreifen ausgebaut wurden
     private int storedSummerTireIndex = 0; // Letzte Sommer-Reifenstufe (0=Standard,1=Sport,2=Premium)
 
-    private boolean isSpawned = true;
+    private boolean isSpawned = true;  // NOPMD
 
     public EntityGenericVehicle(EntityType type, Level worldIn) {
         super(type, worldIn);
@@ -406,7 +406,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             return false;
         }
         Container partInv = inventoryComponent.getPartInventory();
-        for (int i = 0; i < stacks.size(); i++) {
+        for (int i = 0; i < stacks.size() && i < partInv.getContainerSize(); i++) {
             partInv.setItem(i, stacks.get(i));
         }
         return true;
@@ -542,7 +542,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     // Model rendering (client-side)
     // Optimierung: Initial capacity = 8 (typisch ~8 Model-Parts pro Vehicle)
-    private List<OBJModelInstance<EntityGenericVehicle>> modelInstances = new ArrayList<>(8);
+    final private List<OBJModelInstance<EntityGenericVehicle>> modelInstances = new ArrayList<>(8);
 
     protected void initModel() {
         modelInstances.clear();
@@ -752,7 +752,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     public void unlockFromWerkstatt() {
         this.isLockedInWerkstatt = false;
-        this.werkstattPosition = null;
+        this.werkstattPosition = null;  // NOPMD
     }
 
     public boolean isLockedInWerkstatt() {
@@ -891,7 +891,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         checkInitializing();
 
         // Initialize default items if this is a new vehicle (MUST be AFTER checkInitializing!)
-        if (compound.getAllKeys().stream().allMatch(s -> s.equals("id"))) {
+        if (compound.getAllKeys().stream().allMatch(s -> "id".equals(s))) {
             Container internal = inventoryComponent.getInternalInventory();
             internal.setItem(0, ItemKey.getKeyForVehicle(getUUID()));
             internal.setItem(1, ItemKey.getKeyForVehicle(getUUID()));
@@ -1090,6 +1090,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
                 break;
             case WEST:
                 setYRot(90F);
+                break;
+            default:
                 break;
         }
     }

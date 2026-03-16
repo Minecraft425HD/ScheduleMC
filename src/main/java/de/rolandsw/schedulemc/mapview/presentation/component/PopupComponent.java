@@ -19,9 +19,9 @@ public class PopupComponent {
     private final int clickedDirectY;
     private final int clickedWorldX;
     private final int clickedWorldZ;
-    private boolean shouldClose;
+    private boolean shouldClose;  // NOPMD
     private final PopupScreen parentGui;
-    private final int padding = 6;
+    private static final int padding = 6;
 
     public PopupComponent(int x, int y, int directX, int directY, int worldX, int worldZ, int minWidth, ArrayList<PopupEntry> entries, PopupScreen parentGui) {
         this.fontRendererObj = MapViewConstants.getMinecraft().font;
@@ -78,7 +78,7 @@ public class PopupComponent {
                 if (this.entries[t].enabled) {
                     boolean entryClicked = mouseX >= this.x && mouseX <= (this.x + this.w) && mouseY >= (this.y + t * 20) && mouseY < (this.y + (t + 1) * 20);
                     if (entryClicked) {
-                        this.shouldClose = this.entries[t].causesClose;
+                        this.shouldClose = this.entries[t].causesClose;  // NOPMD
                         this.parentGui.popupAction(this, this.entries[t].action);
                     }
                 }
@@ -115,8 +115,6 @@ public class PopupComponent {
 
         for (int t = 0; t < this.entries.length; ++t) {
             boolean hover = mouseX >= this.x && mouseX <= this.x + this.w && mouseY >= this.y + t * 20 && mouseY < this.y + (t + 1) * 20;
-            if (hover) {
-            }
             int color = !this.entries[t].enabled ? 0xFFA0A0A0 : (hover ? 0xFFFFFFA0 : 0xFFE0E0E0);
             guiGraphics.drawString(this.fontRendererObj, this.entries[t].name, (this.x + this.padding), (this.y + this.padding + t * 20), color);
         }

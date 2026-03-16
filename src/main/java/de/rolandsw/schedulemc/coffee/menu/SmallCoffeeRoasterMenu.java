@@ -18,7 +18,7 @@ public class SmallCoffeeRoasterMenu extends AbstractContainerMenu {
     public SmallCoffeeRoasterMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(CoffeeMenuTypes.SMALL_COFFEE_ROASTER_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof SmallCoffeeRoasterBlockEntity r ? r : null;
+        this.blockEntity = be instanceof SmallCoffeeRoasterBlockEntity r ? r : null;  // NOPMD
         this.data = new SimpleContainerData(2); addDataSlots(data); addSlots(inv);
     }
     private void addSlots(Inventory inv) {

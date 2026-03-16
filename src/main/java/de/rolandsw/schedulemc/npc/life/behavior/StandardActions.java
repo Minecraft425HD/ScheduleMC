@@ -31,7 +31,7 @@ public class StandardActions {
     public static class FleeAction extends BehaviorAction {
 
         private static final double FLEE_DISTANCE = 30.0;
-        private static final int FLEE_SPEED_BOOST = 40; // 40% schneller
+        private static final int FLEE_SPEED_BOOST = 40; // 40% schneller  // NOPMD
 
         private Vec3 fleeDirection;
         private BlockPos fleeTarget;
@@ -178,7 +178,7 @@ public class StandardActions {
 
         @Override
         public boolean tick(CustomNPCEntity npc) {
-            alertTimer++;
+            alertTimer = Math.min(alertTimer + 1, 40);
 
             // Nach 2 Sekunden: Alarmierung auslösen
             if (alertTimer >= 40 && !hasAlerted) {
@@ -339,7 +339,7 @@ public class StandardActions {
         public void stop(CustomNPCEntity npc, boolean interrupted) {
             investigateTime = 0;
             reachedTarget = false;
-            investigateTarget = null;
+            investigateTarget = null;  // NOPMD
 
             // Emotion: Leicht misstrauisch bleiben
             NPCLifeData lifeData = npc.getLifeData();
@@ -425,7 +425,7 @@ public class StandardActions {
         @Override
         public void stop(CustomNPCEntity npc, boolean interrupted) {
             isHiding = false;
-            hideSpot = null;
+            hideSpot = null;  // NOPMD
         }
     }
 

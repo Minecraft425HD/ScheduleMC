@@ -137,7 +137,7 @@ public final class MapViewConstants {
         long shutdownTime = System.currentTimeMillis();
 
         while (de.rolandsw.schedulemc.util.ThreadPoolManager.getComputationPoolQueueSize() + de.rolandsw.schedulemc.util.ThreadPoolManager.getComputationPoolActiveCount() > 0 && System.currentTimeMillis() - shutdownTime < 10000L) {
-            Thread.onSpinWait();
+            Thread.onSpinWait();  // NOPMD
         }
     }
 

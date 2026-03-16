@@ -34,7 +34,7 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
     private CannabisQuality trimQuality = CannabisQuality.GUT;
     private CannabisStrain strain = CannabisStrain.HYBRID;
     private int pressProgress = 0;
-    private boolean isPressing = false;
+    private boolean isPressing = false;  // NOPMD
     private ItemStack outputItem = ItemStack.EMPTY;
 
     public HashPresseBlockEntity(BlockPos pos, BlockState state) {
@@ -54,6 +54,9 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
         if (trimWeight > 0 && trimStrain != strain) {
             return false;
         }
+
+        // Überlauf verhindern
+        if (trimWeight + addWeight > MAX_TRIM_WEIGHT) return false;
 
         strain = trimStrain;
         if (trimWeight == 0) { trimQuality = addQuality; }
@@ -82,7 +85,7 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
         if (level == null || level.isClientSide) return;
 
         if (isPressing) {
-            pressProgress++;
+            pressProgress = Math.min(pressProgress + 1, PRESS_TICKS);
 
             if (pressProgress >= PRESS_TICKS) {
                 finishPressing();

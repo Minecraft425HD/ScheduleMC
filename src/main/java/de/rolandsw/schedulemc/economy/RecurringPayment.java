@@ -79,7 +79,7 @@ public class RecurringPayment {
             return true;
         } else {
             // Fehlgeschlagen
-            failureCount++;
+            failureCount = Math.min(failureCount + 1, 3);
 
             // Nach 3 Fehlversuchen: deaktivieren
             if (failureCount >= 3) {

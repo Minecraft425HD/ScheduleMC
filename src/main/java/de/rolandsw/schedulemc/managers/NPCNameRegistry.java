@@ -35,7 +35,7 @@ public class NPCNameRegistry {
     private static final Gson GSON = GsonHelper.get();
 
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads
-    private static volatile boolean dirty = false;
+    private static volatile boolean dirty = false;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // REGISTRIERUNG
@@ -49,7 +49,7 @@ public class NPCNameRegistry {
      * @return true wenn erfolgreich registriert, false wenn Name bereits existiert
      */
     public static boolean registerName(String name, int entityId) {
-        if (name == null || name.trim().isEmpty()) {
+        if (name == null || name.isBlank()) {
             return false;
         }
 
@@ -78,9 +78,11 @@ public class NPCNameRegistry {
         if (name == null) return;
 
         String normalizedName = name.trim();
-        if (nameToEntityId.remove(normalizedName) != null) {
-            dirty = true;
-            LOGGER.info("NPC-Name entfernt: {}", normalizedName);
+        synchronized (NPCNameRegistry.class) {
+            if (nameToEntityId.remove(normalizedName) != null) {
+                dirty = true;
+                LOGGER.info("NPC-Name entfernt: {}", normalizedName);
+            }
         }
     }
 
@@ -115,7 +117,7 @@ public class NPCNameRegistry {
      * @return true wenn Name bereits existiert
      */
     public static boolean isNameTaken(String name) {
-        if (name == null) return false;
+        if (name == null) return false;  // NOPMD
         return nameToEntityId.containsKey(name.trim());
     }
 

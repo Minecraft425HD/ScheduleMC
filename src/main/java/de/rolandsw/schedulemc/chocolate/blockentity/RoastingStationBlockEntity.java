@@ -67,10 +67,7 @@ public class RoastingStationBlockEntity extends BlockEntity implements IUtilityC
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == ChocolateItems.COCOA_BEANS.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == ChocolateItems.COCOA_BEANS.get();
             }
 
             @Override
@@ -94,14 +91,14 @@ public class RoastingStationBlockEntity extends BlockEntity implements IUtilityC
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
             roastingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             roastingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -127,7 +124,7 @@ public class RoastingStationBlockEntity extends BlockEntity implements IUtilityC
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            roastingProgress++;
+            roastingProgress = Math.min(roastingProgress + 1, PROCESSING_TIME);
 
             if (roastingProgress >= PROCESSING_TIME) {
                 // Roasting complete: Cocoa Beans → Roasted Cocoa Beans
@@ -140,6 +137,7 @@ public class RoastingStationBlockEntity extends BlockEntity implements IUtilityC
                 }
 
                 outputStack = roastedBeans;
+                inputStack = ItemStack.EMPTY;
                 roastingProgress = 0;
                 changed = true;
             }
@@ -201,7 +199,7 @@ public class RoastingStationBlockEntity extends BlockEntity implements IUtilityC
         roastingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

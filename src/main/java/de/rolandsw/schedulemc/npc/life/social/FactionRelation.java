@@ -32,9 +32,9 @@ public class FactionRelation {
     private FactionStanding standing;
 
     // Optionale spezielle Rollen
-    private boolean isMember = false;
+    private boolean isMember = false;  // NOPMD
     private String memberTitle = "";
-    private boolean isKnown = false; // Hat die Fraktion diesen Spieler bemerkt?
+    private boolean isKnown = false; // Hat die Fraktion diesen Spieler bemerkt?  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
@@ -265,9 +265,9 @@ public class FactionRelation {
         REVERED("Verehrt", true, true, true, 0.85f);
 
         private final String displayName;
-        private final boolean canTrade;
-        private final boolean canAcceptQuests;
-        private final boolean wouldHelp;
+        private final boolean canTrade;  // NOPMD
+        private final boolean canAcceptQuests;  // NOPMD
+        private final boolean wouldHelp;  // NOPMD
         private final float priceModifier;
 
         FactionStanding(String displayName, boolean canTrade, boolean canAcceptQuests,

@@ -110,7 +110,7 @@ public class AchievementAppScreen extends Screen {
     /**
      * Called when achievement cache is updated from server
      */
-    private void onCacheUpdated() {
+    private void onCacheUpdated() {  // NOPMD
         LOGGER.info("AchievementAppScreen: Cache updated! Refreshing display (total: {}, unlocked: {})",
             ClientAchievementCache.getTotalAchievements(), ClientAchievementCache.getUnlockedCount());
 
@@ -140,12 +140,12 @@ public class AchievementAppScreen extends Screen {
                 }
             } else if (currentView == ViewMode.DETAIL) {
                 currentView = ViewMode.CATEGORY;
-                selectedAchievementData = null;
+                selectedAchievementData = null;  // NOPMD
                 scrollOffset = 0;
                 initButtons();
             } else {
                 currentView = ViewMode.OVERVIEW;
-                selectedCategory = null;
+                selectedCategory = null;  // NOPMD
                 scrollOffset = 0;
                 initButtons();
             }
@@ -247,7 +247,7 @@ public class AchievementAppScreen extends Screen {
     // OVERVIEW VIEW
     // ═══════════════════════════════════════════════════════════
 
-    private void renderOverviewView(GuiGraphics guiGraphics, int startY, int endY) {
+    private void renderOverviewView(GuiGraphics guiGraphics, int startY, int endY) {  // NOPMD
         // Gesamt-Fortschritt Box
         guiGraphics.fill(leftPos + 10, startY, leftPos + WIDTH - 10, startY + 55, 0x44228B22);
 
@@ -376,7 +376,7 @@ public class AchievementAppScreen extends Screen {
     // DETAIL VIEW
     // ═══════════════════════════════════════════════════════════
 
-    private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {
+    private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {  // NOPMD
         if (selectedAchievementData == null) return;
 
         AchievementData ach = selectedAchievementData;
@@ -480,10 +480,7 @@ public class AchievementAppScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true;
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override

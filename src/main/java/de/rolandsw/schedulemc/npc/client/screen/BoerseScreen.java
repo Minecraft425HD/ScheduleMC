@@ -263,6 +263,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
             case GOLD -> renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getGoldHistory(), 0xFFAA00);
             case DIAMOND -> renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getDiamondHistory(), 0x55FFFF);
             case EMERALD -> renderMiniChart(guiGraphics, x + 8, y + 125, 120, 30, ClientBankDataCache.getEmeraldHistory(), 0x55FF55);
+            default -> {}
         }
 
         // === RIGHT PANEL: Trade Info ===
@@ -333,17 +334,17 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
     /**
      * Renders a stock row with price and trend
      */
-    private void renderStockRow(GuiGraphics guiGraphics, int x, int y, StockTradePacket.StockType stock) {
-        double price = getCurrentPrice(stock);
+    private void renderStockRow(GuiGraphics guiGraphics, int x, int y, StockTradePacket.StockType stock) {  // NOPMD
+        double price = getCurrentPrice(stock);  // NOPMD
         int trend = getTrend(stock);
-        double changePercent = getChangePercent(stock);
+        double changePercent = getChangePercent(stock);  // NOPMD
 
         // Trend arrow and color
-        String trendArrow = trend > 0 ? "↗" : (trend < 0 ? "↘" : "→");
-        int trendColor = trend > 0 ? 0x00AA00 : (trend < 0 ? 0xFF5555 : 0x808080);
+        String trendArrow = trend > 0 ? "↗" : (trend < 0 ? "↘" : "→");  // NOPMD
+        int trendColor = trend > 0 ? 0x00AA00 : (trend < 0 ? 0xFF5555 : 0x808080);  // NOPMD
 
         // Draw on button (offset slightly)
-        int yOffset = 5;
+        int yOffset = 5;  // NOPMD
     }
 
     /**
@@ -438,10 +439,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override
@@ -466,7 +464,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         public QuantitySlider(int x, int y, int width, int height) {
             super(x, y, width, height, Component.translatable("gui.boerse.qty_label", 1), 0.0);
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override

@@ -8,13 +8,13 @@ import de.rolandsw.schedulemc.tobacco.TobaccoType;
  */
 public class TobaccoPlantData {
     
-    private TobaccoType type;
+    private final TobaccoType type;
     private TobaccoQuality quality;
     private int growthStage; // 0-7 (7 = ausgewachsen)
     private int ticksGrown; // Wie lange die Pflanze bereits wächst
-    private boolean hasFertilizer; // Dünger angewendet
-    private boolean hasGrowthBooster; // Wachstumsbeschleuniger angewendet
-    private boolean hasQualityBooster; // Qualitätsverbesserer angewendet
+    private boolean hasFertilizer; // Dünger angewendet  // NOPMD
+    private boolean hasGrowthBooster; // Wachstumsbeschleuniger angewendet  // NOPMD
+    private boolean hasQualityBooster; // Qualitätsverbesserer angewendet  // NOPMD
     
     public TobaccoPlantData(TobaccoType type) {
         this.type = type;
@@ -129,7 +129,8 @@ public class TobaccoPlantData {
         incrementTicks();
 
         int requiredTicks = getGrowthSpeed();
-        int ticksPerStage = requiredTicks / 8; // 8 Wachstumsstufen (0-7)
+        // Mindestens 1, um Division-durch-null zu vermeiden wenn requiredTicks < 8
+        int ticksPerStage = Math.max(1, requiredTicks / 8); // 8 Wachstumsstufen (0-7)
 
         int newStage = Math.min(7, ticksGrown / ticksPerStage);
         setGrowthStage(newStage);

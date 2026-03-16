@@ -145,8 +145,7 @@ public class UpdateShopItemsPacket {
         WarehouseSlot[] slots = warehouse.getSlots();
 
         // 1. Entferne Items die nicht mehr im Shop sind (O(1) lookup dank HashSet)
-        for (int i = 0; i < slots.length; i++) {
-            WarehouseSlot slot = slots[i];
+        for (WarehouseSlot slot : slots) {
             if (!slot.isEmpty()) {
                 Item slotItem = slot.getAllowedItem();
                 if (!allShopItems.contains(slotItem)) {
@@ -157,7 +156,7 @@ public class UpdateShopItemsPacket {
 
         // 2. Synchronisiere alle Shop-Items mit Warehouse
         // OPTIMIERUNG: HashMap für O(1) Slot-Lookup statt O(n) pro Item
-        Map<Item, WarehouseSlot> slotByItem = new HashMap<>();
+        Map<Item, WarehouseSlot> slotByItem = new HashMap<>();  // NOPMD
         List<WarehouseSlot> emptySlots = new ArrayList<>();
 
         for (WarehouseSlot slot : slots) {
@@ -168,7 +167,7 @@ public class UpdateShopItemsPacket {
             }
         }
 
-        int itemsAdded = 0;
+        int itemsAdded = 0;  // NOPMD
         int emptySlotIndex = 0;
 
         for (NPCData.ShopEntry entry : shopEntries) {

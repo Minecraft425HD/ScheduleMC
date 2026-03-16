@@ -67,10 +67,7 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == ChocolateItems.COCOA_NIBS.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == ChocolateItems.COCOA_NIBS.get();
             }
 
             @Override
@@ -94,14 +91,14 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
             grindingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             grindingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -127,7 +124,7 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            grindingProgress++;
+            grindingProgress = Math.min(grindingProgress + 1, PROCESSING_TIME);
 
             if (grindingProgress >= PROCESSING_TIME) {
                 // Grinding complete: Cocoa Nibs → Cocoa Mass
@@ -146,6 +143,7 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
                 tag.putString("Quality", upgradedQuality.name());
 
                 outputStack = cocoaMass;
+                inputStack = ItemStack.EMPTY;
                 grindingProgress = 0;
                 changed = true;
             }
@@ -207,7 +205,7 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
         grindingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

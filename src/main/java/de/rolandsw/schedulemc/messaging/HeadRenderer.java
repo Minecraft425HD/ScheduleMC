@@ -45,15 +45,13 @@ public class HeadRenderer {
      * @param skinTexture Skin texture location (can be null for Steve skin)
      */
     public static void renderPlayerHead(GuiGraphics guiGraphics, int x, int y, int size, ResourceLocation skinTexture) {
-        if (skinTexture == null) {
-            skinTexture = DefaultPlayerSkin.getDefaultSkin();
-        }
+        ResourceLocation effectiveSkin = skinTexture == null ? DefaultPlayerSkin.getDefaultSkin() : skinTexture;
 
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
 
         // Bind skin texture
-        RenderSystem.setShaderTexture(0, skinTexture);
+        RenderSystem.setShaderTexture(0, effectiveSkin);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         // Draw head front (face)

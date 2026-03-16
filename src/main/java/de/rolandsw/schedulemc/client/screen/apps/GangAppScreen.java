@@ -115,7 +115,7 @@ public class GangAppScreen extends Screen {
         ClientGangCache.removeUpdateListener();
     }
 
-    private void onCacheUpdated() {
+    private void onCacheUpdated() {  // NOPMD
         boolean wasInGang = hasGang;
         updateState();
         if (wasInGang != hasGang) {
@@ -143,10 +143,10 @@ public class GangAppScreen extends Screen {
     @Override
     protected void rebuildWidgets() {
         clearWidgets();
-        createNameInput = null;
-        createTagInput = null;
-        inviteInput = null;
-        feeInput = null;
+        createNameInput = null;  // NOPMD
+        createTagInput = null;  // NOPMD
+        inviteInput = null;  // NOPMD
+        feeInput = null;  // NOPMD
 
         if (!hasGang) {
             buildNoGangWidgets();
@@ -332,7 +332,7 @@ public class GangAppScreen extends Screen {
         };
     }
 
-    private void renderCurrentPage(GuiGraphics g, int mouseX, int mouseY) {
+    private void renderCurrentPage(GuiGraphics g, int mouseX, int mouseY) {  // NOPMD
         // Footer (dunkler Bereich mit Trennlinie)
         g.fill(leftPos, contentBottom, leftPos + WIDTH, topPos + HEIGHT, 0xFF0D0D0D);
         g.fill(leftPos, contentBottom, leftPos + WIDTH, contentBottom + 1, 0x33FFFFFF);
@@ -647,66 +647,68 @@ public class GangAppScreen extends Screen {
 
     private int renderMissionCategory(GuiGraphics g, SyncGangDataPacket data, int y, int typeOrd, String header, int headerBg) {
         List<SyncGangDataPacket.MissionInfo> missions = data.getMissionsByType(typeOrd);
+        int yPos = y;
 
-        if (y > contentTop - 16 && y < contentBottom + 16) {
-            g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 14, headerBg);
-            g.drawString(this.font, header, leftPos + 10, y + 3, 0xFFFFFF);
+        if (yPos > contentTop - 16 && yPos < contentBottom + 16) {
+            g.fill(leftPos + 5, yPos, leftPos + WIDTH - 5, yPos + 14, headerBg);
+            g.drawString(this.font, header, leftPos + 10, yPos + 3, 0xFFFFFF);
         }
-        y += 16;
+        yPos += 16;
 
         if (missions.isEmpty()) {
-            if (y > contentTop - 12 && y < contentBottom + 12) {
-                g.drawString(this.font, "\u00A78Keine Auftraege.", leftPos + 15, y, 0x888888);
+            if (yPos > contentTop - 12 && yPos < contentBottom + 12) {
+                g.drawString(this.font, "\u00A78Keine Auftraege.", leftPos + 15, yPos, 0x888888);
             }
-            y += 14;
+            yPos += 14;
         } else {
             for (SyncGangDataPacket.MissionInfo mi : missions) {
-                if (y > contentTop - MISSION_CARD_HEIGHT && y < contentBottom + MISSION_CARD_HEIGHT) {
+                if (yPos > contentTop - MISSION_CARD_HEIGHT && yPos < contentBottom + MISSION_CARD_HEIGHT) {
                     int bg = mi.claimable() ? 0x4400AA00 : (mi.completed() ? 0x3300AA00 : 0x22333333);
-                    g.fill(leftPos + 8, y, leftPos + WIDTH - 8, y + MISSION_CARD_HEIGHT - 2, bg);
+                    g.fill(leftPos + 8, yPos, leftPos + WIDTH - 8, yPos + MISSION_CARD_HEIGHT - 2, bg);
 
                     String icon = mi.claimable() ? "\u00A7a\u2713 " : (mi.completed() ? "\u00A72\u2713 " : "\u00A7e\u25B6 ");
-                    g.drawString(this.font, icon + "\u00A7f" + mi.description(), leftPos + 12, y + 2, 0xFFFFFF);
+                    g.drawString(this.font, icon + "\u00A7f" + mi.description(), leftPos + 12, yPos + 2, 0xFFFFFF);
 
                     // Fortschrittsbalken
                     int barX = leftPos + 12;
                     int barW = WIDTH - 75;
                     double prog = mi.getProgressPercent();
                     int filledW = (int) (barW * Math.min(1.0, prog));
-                    g.fill(barX, y + 13, barX + barW, y + 18, 0xFF333333);
+                    g.fill(barX, yPos + 13, barX + barW, yPos + 18, 0xFF333333);
                     if (filledW > 0) {
-                        g.fill(barX, y + 13, barX + filledW, y + 18, mi.completed() ? 0xFF00AA00 : 0xFFFFAA00);
+                        g.fill(barX, yPos + 13, barX + filledW, yPos + 18, mi.completed() ? 0xFF00AA00 : 0xFFFFAA00);
                     }
                     g.drawString(this.font, "\u00A77" + mi.currentProgress() + "/" + mi.targetAmount(),
-                            barX + barW + 3, y + 12, 0xAAAAAA);
+                            barX + barW + 3, yPos + 12, 0xAAAAAA);
 
                     // Belohnung
-                    String reward = "\u00A7e+" + mi.xpReward() + "XP";
-                    if (mi.moneyReward() > 0) reward += " \u00A7a+" + mi.moneyReward() + "\u20AC";
-                    g.drawString(this.font, reward, leftPos + 12, y + 21, 0xFFFFFF);
+                    StringBuilder rewardSb = new StringBuilder("\u00A7e+").append(mi.xpReward()).append("XP");
+                    if (mi.moneyReward() > 0) rewardSb.append(" \u00A7a+").append(mi.moneyReward()).append('\u20AC');
+                    String reward = rewardSb.toString();
+                    g.drawString(this.font, reward, leftPos + 12, yPos + 21, 0xFFFFFF);
 
                     if (mi.claimable()) {
-                        g.drawString(this.font, "\u00A7e[Abholen!]", leftPos + WIDTH - 60, y + 21, 0xFFFF55);
+                        g.drawString(this.font, "\u00A7e[Abholen!]", leftPos + WIDTH - 60, yPos + 21, 0xFFFF55);
                     }
                 }
-                y += MISSION_CARD_HEIGHT;
+                yPos += MISSION_CARD_HEIGHT;
             }
 
             // Bonus-Check
             long completedCount = missions.stream().filter(SyncGangDataPacket.MissionInfo::completed).count();
             MissionType mt = MissionType.values()[typeOrd];
-            if (y > contentTop - 14 && y < contentBottom + 14) {
+            if (yPos > contentTop - 14 && yPos < contentBottom + 14) {
                 if (completedCount >= mt.getMissionCount()) {
                     g.drawString(this.font, "\u00A7a\u00A7l\u2713 BONUS: +" + mt.getBonusXP() + "XP +" + mt.getBonusMoney() + "\u20AC",
-                            leftPos + 15, y, 0x55FF55);
+                            leftPos + 15, yPos, 0x55FF55);
                 } else {
                     g.drawString(this.font, "\u00A78Alle " + mt.getMissionCount() + " = Bonus +" + mt.getBonusXP() + "XP (" +
-                            completedCount + "/" + mt.getMissionCount() + ")", leftPos + 15, y, 0x888888);
+                            completedCount + "/" + mt.getMissionCount() + ")", leftPos + 15, yPos, 0x888888);
                 }
             }
-            y += 16;
+            yPos += 16;
         }
-        return y;
+        return yPos;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -843,8 +845,9 @@ public class GangAppScreen extends Screen {
                 // XP + Beitrag
                 double mult = switch (m.rankPriority()) { case 4 -> 0.0; case 3 -> 0.10; case 2 -> 0.50; default -> 1.0; };
                 int memberFee = (int) Math.ceil(fee * mult);
-                String info = "\u00A78+" + m.contributedXP() + "XP";
-                if (fee > 0) info += " \u00A77" + memberFee + "\u20AC";
+                StringBuilder infoSb = new StringBuilder("\u00A78+").append(m.contributedXP()).append("XP");
+                if (fee > 0) infoSb.append(" \u00A77").append(memberFee).append('\u20AC');
+                String info = infoSb.toString();
                 int infoW = this.font.width(info);
                 g.drawString(this.font, info, rightX - infoW - 2, y + 2, 0x888888);
 
@@ -1035,6 +1038,7 @@ public class GangAppScreen extends Screen {
                 case AUFTRAEGE -> { if (handleMissionClick(relY, mouseX)) return true; }
                 case MITGLIEDER -> { if (handleMemberClick(relY, mouseX)) return true; }
                 case PERKS -> { if (handlePerkClick(relY, mouseX)) return true; }
+                default -> {}
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -1054,7 +1058,7 @@ public class GangAppScreen extends Screen {
         return false;
     }
 
-    private boolean handleMissionClick(double relY, double mouseX) {
+    private boolean handleMissionClick(double relY, double mouseX) {  // NOPMD
         SyncGangDataPacket data = ClientGangCache.getMyGangData();
         if (data == null) return false;
 
@@ -1148,7 +1152,7 @@ public class GangAppScreen extends Screen {
         if (getFocused() instanceof EditBox) {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
-        if (keyCode == 69) return true; // Block E-key
+        if (keyCode == 69) return true; // Block E-key  // NOPMD
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 

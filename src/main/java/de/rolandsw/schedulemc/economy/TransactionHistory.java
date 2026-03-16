@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TransactionHistory {
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile TransactionHistory instance;
+    private static volatile TransactionHistory instance;  // NOPMD
 
     private static final String FILE_NAME = "plotmod_transactions.json";
     private static final int MAX_TRANSACTIONS_PER_PLAYER = 1000; // Verhindert unbegrenztes Wachstum
@@ -46,7 +46,7 @@ public class TransactionHistory {
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      * PERFORMANCE: load() wird nach Konstruktion aufgerufen statt im Konstruktor
      */
-    public static TransactionHistory getInstance(MinecraftServer server) {
+    public static TransactionHistory initialize(MinecraftServer server) {
         TransactionHistory localRef = instance;
         if (localRef == null) {
             synchronized (TransactionHistory.class) {
@@ -70,14 +70,17 @@ public class TransactionHistory {
      * Fügt eine neue Transaktion hinzu
      */
     public void addTransaction(UUID playerUUID, Transaction transaction) {
-        transactions.computeIfAbsent(playerUUID, k -> new ArrayList<>()).add(transaction);
-
-        // Begrenze Anzahl pro Spieler
-        List<Transaction> playerTransactions = transactions.get(playerUUID);
-        if (playerTransactions.size() > MAX_TRANSACTIONS_PER_PLAYER) {
-            // Entferne älteste Transaktionen
-            playerTransactions.subList(0, playerTransactions.size() - MAX_TRANSACTIONS_PER_PLAYER).clear();
-        }
+        // compute() ist atomar: Hinzufügen + Trimmen geschehen ohne Race Condition.
+        // Wir erstellen eine neue Liste (defensive copy), damit parallele Leser
+        // (getRecentTransactions / getAllTransactions) stets eine konsistente Snapshot-Ansicht haben.
+        transactions.compute(playerUUID, (k, existing) -> {
+            List<Transaction> updated = existing == null ? new ArrayList<>() : new ArrayList<>(existing);
+            updated.add(transaction);
+            if (updated.size() > MAX_TRANSACTIONS_PER_PLAYER) {
+                updated.subList(0, updated.size() - MAX_TRANSACTIONS_PER_PLAYER).clear();
+            }
+            return updated;
+        });
 
         needsSave = true;
     }

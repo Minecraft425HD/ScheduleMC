@@ -84,7 +84,7 @@ public class UnifiedPriceCalculator {
         // Schritt 5: Auf Menge multiplizieren
         double totalPrice = clampedUnitPrice * amount;
 
-        LOGGER.debug("Price calc: ref={:.2f} × q={:.2f} × sd={:.2f} × risk={:.2f} × cycle={:.2f} × event={:.2f} = {:.2f} (×{} = {:.2f})",
+        LOGGER.debug("Price calc: ref={} × q={} × sd={} × risk={} × cycle={} × event={} = {} (×{} = {})",
                 referencePrice, qualityMultiplier, supplyDemandMultiplier,
                 riskMultiplier, cycleMultiplier, eventMultiplier,
                 clampedUnitPrice, amount, totalPrice);

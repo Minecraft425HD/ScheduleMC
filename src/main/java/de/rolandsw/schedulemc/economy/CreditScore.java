@@ -32,7 +32,7 @@ public class CreditScore {
     private int onTimePayments;
 
     @SerializedName("firstLoginDay")
-    private long firstLoginDay;
+    private final long firstLoginDay;
 
     @SerializedName("totalAmountRepaid")
     private double totalAmountRepaid;
@@ -92,12 +92,12 @@ public class CreditScore {
             score += 100;
         }
 
-        // 5. Abzüge für Ausfälle
-        int defaultPenalty = totalLoansDefaulted * 100;
+        // 5. Abzüge für Ausfälle (long-Arithmetik verhindert int-Overflow)
+        int defaultPenalty = (int) Math.min((long) totalLoansDefaulted * 100, 1000L);
         score -= defaultPenalty;
 
-        // 6. Abzüge für verpasste Zahlungen
-        int missedPenalty = missedPayments * 10;
+        // 6. Abzüge für verpasste Zahlungen (long-Arithmetik verhindert int-Overflow)
+        int missedPenalty = (int) Math.min((long) missedPayments * 10, 1000L);
         score -= missedPenalty;
 
         // Score zwischen 0 und 1000 begrenzen

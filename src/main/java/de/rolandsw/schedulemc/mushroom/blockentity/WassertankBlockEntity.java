@@ -38,12 +38,12 @@ public class WassertankBlockEntity extends BlockEntity implements IUtilityConsum
         if (tickCounter < 10) return;
         tickCounter = 0;
 
-        if (waterLevel <= 0) return;
+        // Finde benachbarten Topf zum Bewässern (nur wenn Wasser vorhanden)
+        if (waterLevel > 0) {
+            waterNeighborPot();
+        }
 
-        // Finde benachbarten Topf zum Bewässern
-        waterNeighborPot();
-
-        // Utility-Status nur bei Änderung melden
+        // Utility-Status immer prüfen – auch wenn kein Wasser (damit Zustandsübergang gemeldet wird)
         boolean currentActive = isActivelyConsuming();
         if (currentActive != lastActiveState) {
             lastActiveState = currentActive;

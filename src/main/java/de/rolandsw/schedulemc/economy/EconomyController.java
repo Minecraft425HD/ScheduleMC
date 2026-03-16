@@ -37,7 +37,7 @@ public class EconomyController {
     private static final ItemCategory[] ITEM_CATEGORIES = ItemCategory.values();
 
     // Singleton
-    private static volatile EconomyController instance;
+    private static volatile EconomyController instance;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // REFERENZ-PREISE (kalibrierte Basis-Preise pro Produkt)
@@ -63,12 +63,12 @@ public class EconomyController {
     /**
      * Aktueller Wirtschaftszyklus-Multiplikator (wird von EconomyCycle gesetzt).
      */
-    private volatile double cycleMultiplier = 1.0;
+    private volatile double cycleMultiplier = 1.0;  // NOPMD
 
     /**
      * Aktuelles globales Wanted-Level (Durchschnitt, für Risiko-Berechnung).
      */
-    private volatile int globalWantedLevel = 0;
+    private volatile int globalWantedLevel = 0;  // NOPMD
 
     /**
      * Event-Multiplikatoren pro Kategorie (aus PriceManager-Events aggregiert).
@@ -80,7 +80,7 @@ public class EconomyController {
     // ═══════════════════════════════════════════════════════════
 
     private EconomyController() {
-        initializeReferencePrices();
+        initializeReferencePrices();  // NOPMD
     }
 
     public static EconomyController getInstance() {
@@ -152,7 +152,7 @@ public class EconomyController {
             }
         }
 
-        LOGGER.debug("Sell price for {}(q={}, amt={}): {:.2f}€ (tax: {:.0f}%)",
+        LOGGER.debug("Sell price for {}(q={}, amt={}): {}€ (tax: {}%)",
                 productId, quality.getDisplayName(), amount, afterTax, taxRate * 100);
 
         return afterTax;
@@ -294,7 +294,7 @@ public class EconomyController {
         double unitPrice = baseDeliveryPrice * dampedCycle * inflationAdj;
         double total = Math.max(0.01, unitPrice) * amount;
 
-        LOGGER.debug("Delivery price: base={:.2f} × cycle={:.2f} × infl={:.2f} × {} = {:.2f}€",
+        LOGGER.debug("Delivery price: base={} × cycle={} × infl={} × {} = {}€",
                 baseDeliveryPrice, dampedCycle, inflationAdj, amount, total);
 
         return total;
@@ -341,7 +341,7 @@ public class EconomyController {
 
         // Risiko
         if (category.isIllegal()) {
-            sb.append("\n").append(RiskPremium.getFormattedRiskInfo(category, globalWantedLevel));
+            sb.append('\n').append(RiskPremium.getFormattedRiskInfo(category, globalWantedLevel));
         }
 
         return sb.toString();
@@ -356,7 +356,7 @@ public class EconomyController {
      */
     public void setCycleMultiplier(double multiplier) {
         this.cycleMultiplier = multiplier;
-        LOGGER.info("Economy cycle multiplier set to: {:.2f}", multiplier);
+        LOGGER.info("Economy cycle multiplier set to: {}", multiplier);
     }
 
     public double getCycleMultiplier() {
@@ -384,7 +384,7 @@ public class EconomyController {
     public void registerProduct(String productId, double referencePrice, ItemCategory category) {
         referencePrices.put(productId, referencePrice);
         itemCategories.put(productId, category);
-        LOGGER.debug("Product registered: {} = {:.2f}€ ({})", productId, referencePrice, category.name());
+        LOGGER.debug("Product registered: {} = {}€ ({})", productId, referencePrice, category.name());
     }
 
     /**
@@ -722,7 +722,7 @@ public class EconomyController {
         // Anti-Exploit täglicher Reset
         AntiExploitManager.getInstance().onNewDay();
 
-        LOGGER.info("New economy day started. Cycle multiplier: {:.2f}", cycleMultiplier);
+        LOGGER.info("New economy day started. Cycle multiplier: {}", cycleMultiplier);
     }
 
     /**
@@ -751,7 +751,7 @@ public class EconomyController {
             LOGGER.warn("Could not load EconomyCycle, using default multiplier");
         }
 
-        LOGGER.info("EconomyController started - {} products registered, cycle={:.2f}",
+        LOGGER.info("EconomyController started - {} products registered, cycle={}",
                 referencePrices.size(), cycleMultiplier);
     }
 

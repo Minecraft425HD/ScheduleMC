@@ -45,8 +45,8 @@ public class PersistenceHelper {
      */
     public static class LoadResult<T> {
         private final T data;
-        private final boolean success;
-        private final boolean recoveredFromBackup;
+        private final boolean success;  // NOPMD
+        private final boolean recoveredFromBackup;  // NOPMD
         private final String error;
 
         private LoadResult(T data, boolean success, boolean recoveredFromBackup, String error) {
@@ -83,7 +83,7 @@ public class PersistenceHelper {
      * Ergebnis eines Speichervorgangs
      */
     public static class SaveResult {
-        private final boolean success;
+        private final boolean success;  // NOPMD
         private final String error;
 
         private SaveResult(boolean success, String error) {
@@ -206,7 +206,7 @@ public class PersistenceHelper {
 
     // ========== Private Hilfsmethoden ==========
 
-    private static <T> T loadFromFile(File file, Gson gson, Type type) throws Exception {
+    private static <T> T loadFromFile(File file, Gson gson, Type type) throws Exception {  // NOPMD
         try (FileReader reader = new FileReader(file)) {
             T data = gson.fromJson(reader, type);
 

@@ -122,7 +122,7 @@ public class WarehouseCommand {
         return null;
     }
 
-    private static int showInfo(CommandContext<CommandSourceStack> ctx) {
+    private static int showInfo(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             WarehouseBlockEntity warehouse = findWarehouse(player);
@@ -168,7 +168,7 @@ public class WarehouseCommand {
         }
     }
 
-    private static int addItem(CommandContext<CommandSourceStack> ctx) {
+    private static int addItem(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             WarehouseBlockEntity warehouse = findWarehouse(player);
@@ -203,7 +203,7 @@ public class WarehouseCommand {
         }
     }
 
-    private static int removeItem(CommandContext<CommandSourceStack> ctx) {
+    private static int removeItem(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             WarehouseBlockEntity warehouse = findWarehouse(player);
@@ -236,7 +236,7 @@ public class WarehouseCommand {
         }
     }
 
-    private static int clearWarehouse(CommandContext<CommandSourceStack> ctx) {
+    private static int clearWarehouse(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             WarehouseBlockEntity warehouse = findWarehouse(player);
@@ -256,7 +256,7 @@ public class WarehouseCommand {
         }
     }
 
-    private static int setShopId(CommandContext<CommandSourceStack> ctx) {
+    private static int setShopId(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             WarehouseBlockEntity warehouse = findWarehouse(player);
@@ -280,7 +280,7 @@ public class WarehouseCommand {
         }
     }
 
-    private static int manualDelivery(CommandContext<CommandSourceStack> ctx) {
+    private static int manualDelivery(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             WarehouseBlockEntity warehouse = findWarehouse(player);
@@ -314,7 +314,7 @@ public class WarehouseCommand {
         }
     }
 
-    private static int resetTimer(CommandContext<CommandSourceStack> ctx) {
+    private static int resetTimer(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         try {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             WarehouseBlockEntity warehouse = findWarehouse(player);

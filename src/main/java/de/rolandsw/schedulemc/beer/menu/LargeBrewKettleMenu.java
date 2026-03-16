@@ -25,7 +25,7 @@ public class LargeBrewKettleMenu extends AbstractContainerMenu {
     public LargeBrewKettleMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(BeerMenuTypes.LARGE_BREW_KETTLE_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof LargeBrewKettleBlockEntity e ? e : null;
+        this.blockEntity = be instanceof LargeBrewKettleBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

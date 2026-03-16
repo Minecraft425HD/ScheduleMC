@@ -203,6 +203,8 @@ public class SpawnNPCPacket {
                 // Initialisiere Shop-Items basierend auf Service-Kategorie
                 MerchantShopDefaults.setupServiceShopItems(data, serviceCategory);
                 break;
+            default:
+                break;
         }
     }
 }

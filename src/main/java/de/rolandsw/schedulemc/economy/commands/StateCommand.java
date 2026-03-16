@@ -45,7 +45,7 @@ public class StateCommand {
         );
     }
 
-    private static int showBalance(CommandContext<CommandSourceStack> ctx) {
+    private static int showBalance(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         try {
             int balance = StateAccount.getBalance();
 
@@ -59,7 +59,7 @@ public class StateCommand {
         }
     }
 
-    private static int deposit(CommandContext<CommandSourceStack> ctx) {
+    private static int deposit(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         try {
             int amount = IntegerArgumentType.getInteger(ctx, "amount");
 
@@ -78,7 +78,7 @@ public class StateCommand {
         }
     }
 
-    private static int withdraw(CommandContext<CommandSourceStack> ctx) {
+    private static int withdraw(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         try {
             int amount = IntegerArgumentType.getInteger(ctx, "amount");
 

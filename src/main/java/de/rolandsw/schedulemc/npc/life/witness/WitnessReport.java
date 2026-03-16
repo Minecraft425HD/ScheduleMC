@@ -105,7 +105,7 @@ public class WitnessReport {
      */
     public boolean isUsableAsEvidence() {
         if (bribed) return false;
-        if (witnessCredibility < 50) return false;
+        if (witnessCredibility < 50) return false;  // NOPMD
         return !reported; // Nur einmal verwendbar
     }
 
@@ -288,13 +288,13 @@ public class WitnessReport {
     public String getFullDescription() {
         StringBuilder sb = new StringBuilder();
         sb.append("=== Zeugenbericht ===\n");
-        sb.append("Verbrechen: ").append(crimeType.getDisplayName()).append("\n");
-        sb.append("Ort: ").append(location.toShortString()).append("\n");
-        sb.append("Tag: ").append(gameDay).append("\n");
+        sb.append("Verbrechen: ").append(crimeType.getDisplayName()).append('\n');
+        sb.append("Ort: ").append(location.toShortString()).append('\n');
+        sb.append("Tag: ").append(gameDay).append('\n');
         sb.append("Schwere: ").append(crimeType.getSeverity()).append("/10\n");
         sb.append("Status: ").append(reported ? "Gemeldet" : "Nicht gemeldet");
         if (bribed) {
-            sb.append(" (Bestochen: ").append(bribeAmount).append(")");
+            sb.append(" (Bestochen: ").append(bribeAmount).append(')');
         }
         if (!details.isEmpty()) {
             sb.append("\nDetails: ").append(details);

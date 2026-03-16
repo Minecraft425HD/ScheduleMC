@@ -52,13 +52,13 @@ public class MapDataManager implements PreparableReloadListener {
     private ColorCalculationService colorManager;
     private DimensionService dimensionManager;
 
-    private ArrayDeque<Runnable> runOnWorldSet = new ArrayDeque<>();
+    final private ArrayDeque<Runnable> runOnWorldSet = new ArrayDeque<>();
 
     public MapDataManager() {
         // Initialize coordination services
         this.renderService = new RenderCoordinationService();
         this.worldStateService = new WorldStateService();
-        this.lifecycleServiceInstance = null; // Initialized in lateInit when config is ready
+        this.lifecycleServiceInstance = null; // Initialized in lateInit when config is ready  // NOPMD
     }
 
     public void lateInit(boolean showUnderMenus, boolean isFair) {

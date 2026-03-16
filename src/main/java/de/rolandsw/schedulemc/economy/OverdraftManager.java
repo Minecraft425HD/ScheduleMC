@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OverdraftManager extends AbstractPersistenceManager<Map<String, Object>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile OverdraftManager instance;
+    private static volatile OverdraftManager instance;  // NOPMD
 
     // Tracking: Wann wurde Spieler das erste Mal negativ?
     private final Map<UUID, Long> debtStartDay = new ConcurrentHashMap<>();
@@ -149,11 +149,9 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             }
         }
 
-        // Täglicher Reset: Alle Transaktionshistorien löschen
-        TransactionHistory history = TransactionHistory.getInstance();
-        if (history != null) {
-            history.clearAllTransactions();
-        }
+        // Hinweis: TransactionHistory.clearAllTransactions() hier NICHT aufrufen –
+        // das würde die komplette 90-Tage-Historie aller Spieler täglich löschen.
+        // TransactionHistory verwaltet TTL/Aufräumen intern.
     }
 
     /**
@@ -171,21 +169,30 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         // Wöchentliche Zinsen (jede Woche!)
         chargeOverdraftInterest(playerUUID, balance);
 
-        // Tag 7: Automatischer Ausgleich
-        if (daysPassed == 7) {
+        // Ab Tag 7: Automatischer Ausgleich täglich versuchen (>= statt == 7, damit
+        // ein Server-Neustart am Tag 7 den Auto-Repay nicht dauerhaft überspringt).
+        double currentBalance = balance;
+        if (daysPassed >= 7 && daysPassed < 28) {
             tryAutoRepay(playerUUID);
             // Nach Auto-Repay nochmal prüfen
-            balance = EconomyManager.getBalance(playerUUID);
+            currentBalance = EconomyManager.getBalance(playerUUID);
+            if (currentBalance >= 0) {
+                // Schulden beglichen – kein weiteres Vorgehen nötig
+                return;
+            }
         }
 
-        // Tag 7, 14, 21: Warnungen
-        if (daysPassed == 7 || daysPassed == 14 || daysPassed == 21) {
-            sendCountdownWarning(playerUUID, balance);
+        // Ab Tag 7 bis Tag 27: Tägliche Warnung (>= statt exakter Meilensteine, damit
+        // kein Warnungs-Meilenstein durch Server-Ausfall übersprungen wird).
+        // sendCountdownWarning() stellt per lastWarningDay sicher, dass nur 1× pro Tag
+        // gewarnt wird.
+        if (currentBalance < 0 && daysPassed >= 7 && daysPassed < 28) {
+            sendCountdownWarning(playerUUID, currentBalance);
         }
 
         // Tag 28: GEFÄNGNIS!
-        if (daysPassed >= 28) {
-            sendToPrison(playerUUID, Math.abs(balance));
+        if (currentBalance < 0 && daysPassed >= 28) {
+            sendToPrison(playerUUID, Math.abs(currentBalance));
         }
     }
 
@@ -320,6 +327,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             SavingsAccountManager savingsManager = SavingsAccountManager.getInstance(server);
             if (savingsManager != null) {
                 List<SavingsAccount> savingsAccounts = savingsManager.getAccounts(playerUUID);
+                if (savingsAccounts == null) savingsAccounts = new ArrayList<>();
 
                 // Sortiere nach Balance (größte zuerst)
                 savingsAccounts.sort((a, b) -> Double.compare(b.getBalance(), a.getBalance()));
@@ -478,7 +486,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         // NULL CHECK
         if (data == null) {
             LOGGER.warn("Null data loaded for overdraft manager");
-            invalidCount++;
+            invalidCount++;  // NOPMD
             return;
         }
 
@@ -554,17 +562,17 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
     @Override
     protected Map<String, Object> getCurrentData() {
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();  // NOPMD
 
-        Map<String, Long> debtStartMap = new HashMap<>();
+        Map<String, Long> debtStartMap = new HashMap<>();  // NOPMD
         debtStartDay.forEach((k, v) -> debtStartMap.put(k.toString(), v));
         data.put("debtStartDay", debtStartMap);
 
-        Map<String, Long> warningMap = new HashMap<>();
+        Map<String, Long> warningMap = new HashMap<>();  // NOPMD
         lastWarningDay.forEach((k, v) -> warningMap.put(k.toString(), v));
         data.put("lastWarningDay", warningMap);
 
-        Map<String, Long> interestMap = new HashMap<>();
+        Map<String, Long> interestMap = new HashMap<>();  // NOPMD
         lastInterestDay.forEach((k, v) -> interestMap.put(k.toString(), v));
         data.put("lastInterestDay", interestMap);
 

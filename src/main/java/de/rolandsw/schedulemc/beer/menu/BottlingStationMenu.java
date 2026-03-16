@@ -25,7 +25,7 @@ public class BottlingStationMenu extends AbstractContainerMenu {
     public BottlingStationMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(BeerMenuTypes.BOTTLING_STATION_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof BottlingStationBlockEntity e ? e : null;
+        this.blockEntity = be instanceof BottlingStationBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

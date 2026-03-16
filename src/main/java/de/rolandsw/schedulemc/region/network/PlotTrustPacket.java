@@ -70,14 +70,14 @@ public class PlotTrustPacket {
             }
 
             // Validiere Spielername
-            if (msg.playerName == null || msg.playerName.trim().isEmpty()) {
+            if (msg.playerName == null || msg.playerName.isBlank()) {
                 player.sendSystemMessage(Component.translatable("message.plot.playername_empty"));
                 return;
             }
 
             // Prüfe ob Spieler existiert (online oder offline via UserCache)
             com.mojang.authlib.GameProfile profile = player.server.getProfileCache().get(msg.playerName).orElse(null);
-            java.util.UUID targetUUID = null;
+            java.util.UUID targetUUID = null;  // NOPMD
 
             if (profile != null) {
                 targetUUID = profile.getId();

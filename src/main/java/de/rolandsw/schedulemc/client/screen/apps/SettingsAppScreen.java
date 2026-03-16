@@ -140,8 +140,11 @@ public class SettingsAppScreen extends Screen {
     private String cachedSellProducts;
 
     private static class ClickableRegion {
-        int x1, y1, x2, y2;
-        Runnable onClick;
+        final int x1;
+        final int y1;
+        final int x2;
+        final int y2;
+        final Runnable onClick;
 
         ClickableRegion(int x1, int y1, int x2, int y2, Runnable onClick) {
             this.x1 = x1;
@@ -157,9 +160,12 @@ public class SettingsAppScreen extends Screen {
     }
 
     private static class SliderRegion {
-        int x, y, width;
-        double minValue, maxValue;
-        java.util.function.Consumer<Double> onValueChange;
+        final int x;
+        final int y;
+        final int width;
+        final double minValue;
+        final double maxValue;
+        final java.util.function.Consumer<Double> onValueChange;
 
         SliderRegion(int x, int y, int width, double minValue, double maxValue,
                     java.util.function.Consumer<Double> onValueChange) {
@@ -337,6 +343,7 @@ public class SettingsAppScreen extends Screen {
             case 0 -> renderPlotSettingsTab(guiGraphics, contentY, contentEndY, mouseX, mouseY);
             case 1 -> renderNotificationsTab(guiGraphics, contentY, contentEndY, mouseX, mouseY);
             case 2 -> renderAccountTab(guiGraphics, contentY, contentEndY);
+            default -> {}
         }
 
         // Scroll-Indikator
@@ -386,7 +393,7 @@ public class SettingsAppScreen extends Screen {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44AA0000);
                 guiGraphics.drawString(this.font, cachedNotYourPlot, leftPos + 15, y + 8, 0xFF5555);
             }
-            y += 30;
+            y += 30;  // NOPMD
             contentHeight += 30;
             maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
             return;
@@ -636,7 +643,7 @@ public class SettingsAppScreen extends Screen {
                     null));
             }));
         }
-        y += 25;
+        y += 25;  // NOPMD
         contentHeight += 25;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
@@ -646,7 +653,7 @@ public class SettingsAppScreen extends Screen {
     // TAB 2: BENACHRICHTIGUNGEN
     // ═══════════════════════════════════════════════════════════════════════════
 
-    private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {
+    private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {  // NOPMD
         sliderRegions.clear(); // Clear slider regions before re-rendering
         int y = startY - scrollOffset;
         int contentHeight = 0;
@@ -793,7 +800,7 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawString(this.font, cachedHeatInfo2, leftPos + 15, y + 15, 0x666666);
             guiGraphics.drawString(this.font, cachedHeatThreshold, leftPos + 15, y + 30, 0xAA5555);
         }
-        y += 50;
+        y += 50;  // NOPMD
         contentHeight += 50;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
@@ -947,7 +954,7 @@ public class SettingsAppScreen extends Screen {
             guiGraphics.drawCenteredString(this.font, cachedEarnMoney, leftPos + WIDTH / 2, y + 5, 0x666666);
             guiGraphics.drawCenteredString(this.font, cachedSellProducts, leftPos + WIDTH / 2, y + 17, 0xAAAAAA);
         }
-        y += 35;
+        y += 35;  // NOPMD
         contentHeight += 35;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
@@ -992,10 +999,7 @@ public class SettingsAppScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override

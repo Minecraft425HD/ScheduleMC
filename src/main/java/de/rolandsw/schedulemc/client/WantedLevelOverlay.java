@@ -115,7 +115,7 @@ public class WantedLevelOverlay {
     static {
         for (int level = 0; level <= 5; level++) {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < level; i++) sb.append("★");
+            for (int i = 0; i < level; i++) sb.append('★');
             for (int i = level; i < 5; i++) sb.append("§8☆");
             STAR_STRINGS[level] = sb.toString();
         }

@@ -104,7 +104,7 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         graphics.drawString(this.font, bindeText, x + GUI_WIDTH - 90, infoY + 16, 0xFFFFFF, false);
     }
 
-    private void renderTimingBar(GuiGraphics graphics, int x, int y, float partialTick) {
+    private void renderTimingBar(GuiGraphics graphics, int x, int y, float partialTick) {  // NOPMD
         // Rahmen
         graphics.fill(x - 2, y - 2, x + BAR_WIDTH + 2, y + BAR_HEIGHT + 2, 0xFF555555);
 
@@ -292,11 +292,7 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         }
         
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override

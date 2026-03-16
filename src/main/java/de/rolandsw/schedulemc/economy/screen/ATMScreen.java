@@ -24,7 +24,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
     private EditBox amountInput;
     private Button withdrawModeButton;
     private Button depositModeButton;
-    private Button confirmButton;
+    private Button confirmButton;  // NOPMD
 
     // Quick amount buttons
     private Button[] quickButtons;
@@ -139,28 +139,25 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         // Validate against available funds
         // ATM-Gebühr ist immer 5.0€ (sync with FeeManager.ATM_FEE)
         double atmFee = 5.0;
+        double clampedAmount;
 
         if (isDepositMode) {
             // Bei Einzahlen wird das gesamte Bargeld eingezahlt
             // Die Gebühr wird dann vom eingezahlten Betrag auf dem Konto abgezogen
             // Beispiel: 100€ Bargeld → 100€ aufs Konto → 5€ Gebühr abgezogen → 95€ Kontostand
-            if (amount > walletBalance) {
-                amount = walletBalance;
-            }
+            clampedAmount = Math.min(amount, walletBalance);
         } else {
             // Bei Abheben wird die Gebühr zusätzlich vom Konto abgezogen
             // Beispiel: 100€ Konto → 95€ abheben möglich, 5€ Gebühr
             double maxWithdraw = Math.max(0, balance - atmFee);
-            if (amount > maxWithdraw) {
-                amount = maxWithdraw;
-            }
+            clampedAmount = Math.min(amount, maxWithdraw);
         }
 
-        if (amount <= 0) return;
+        if (clampedAmount <= 0) return;
 
         ATMTransactionPacket packet = new ATMTransactionPacket(
             menu.getBlockPos(),
-            amount,
+            clampedAmount,
             isDepositMode
         );
         EconomyNetworkHandler.INSTANCE.sendToServer(packet);
@@ -188,7 +185,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
                 executeTransaction(amount);
                 amountInput.setValue("");
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Invalid input - ignore
         }
     }

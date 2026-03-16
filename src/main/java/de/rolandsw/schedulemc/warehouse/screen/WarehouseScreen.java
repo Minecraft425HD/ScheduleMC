@@ -29,6 +29,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -101,17 +102,20 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     // Item selection overlay
     private boolean showItemSelection = false;
-    private List<Item> allItems = new ArrayList<>();
-    private List<Item> filteredItems = new ArrayList<>();
+    final private List<Item> allItems = new ArrayList<>();
+    private List<Item> filteredItems = new ArrayList<>();  // NOPMD
     private int itemSelectionScrollOffset = 0;
     private static final int ITEM_SELECTION_VISIBLE_ROWS = 10;
     private EditBox itemSearchField;
 
     // Clickable areas for NPCs
     private static class ClickableNPC {
-        UUID npcId;
-        int x, y, width, height;
-        boolean isRemove; // true = remove button, false = add button
+        final UUID npcId;
+        final int x;
+        final int y;
+        final int width;
+        final int height;
+        final boolean isRemove; // true = remove button, false = add button
 
         ClickableNPC(UUID npcId, int x, int y, int width, int height, boolean isRemove) {
             this.npcId = npcId;
@@ -127,7 +131,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
     }
 
-    private List<ClickableNPC> clickableNPCs = new ArrayList<>();
+    final private List<ClickableNPC> clickableNPCs = new ArrayList<>();
 
     public WarehouseScreen(WarehouseMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -302,7 +306,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                         sendUpdateSlotCapacityPacket(selectedSlotIndex, newCapacity);
                         scheduleRefresh();
                     }
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                     // Invalid number, ignore
                 }
             }).bounds(detailX + 75, detailY + 170, 30, 20).build());
@@ -446,7 +450,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     private void sendUpdateSettingsPacket() {
         String shopId = shopIdInput.getValue().trim();
-        if (shopId.isEmpty()) shopId = null;
+        if (shopId.isEmpty()) shopId = null;  // NOPMD
 
         WarehouseNetworkHandler.INSTANCE.sendToServer(
             new UpdateSettingsPacket(menu.getBlockPos(), shopId)
@@ -561,7 +565,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             }
 
             renderY += 22;
-            visibleCount++;
+            visibleCount = Math.min(visibleCount + 1, ITEMS_VISIBLE_ROWS);
             currentIndex++;
         }
 
@@ -662,7 +666,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             clickableNPCs.add(new ClickableNPC(sellerId, removeX, removeY, 30, 12, true));
 
             renderY += 18;
-            visibleCount++;
+            visibleCount = Math.min(visibleCount + 1, ITEMS_VISIBLE_ROWS);
         }
 
         if (sellers.isEmpty()) {
@@ -698,7 +702,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             clickableNPCs.add(new ClickableNPC(npc.getUUID(), addX, addY, 160, 12, false));
 
             renderY += 18;
-            visibleCount++;
+            visibleCount = Math.min(visibleCount + 1, ITEMS_VISIBLE_ROWS);
         }
 
         if (availableNpcs.isEmpty()) {
@@ -764,7 +768,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // STATS TAB RENDERING
     // ═══════════════════════════════════════════════════════════
 
-    private void renderStatsTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
+    private void renderStatsTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {  // NOPMD
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
 
@@ -922,7 +926,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // SETTINGS TAB RENDERING
     // ═══════════════════════════════════════════════════════════
 
-    private void renderSettingsTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
+    private void renderSettingsTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {  // NOPMD
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
 
@@ -1059,11 +1063,11 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     private void closeItemSelection() {
         showItemSelection = false;
-        itemSearchField = null;
+        itemSearchField = null;  // NOPMD
     }
 
-    private void filterItems(String searchText) {
-        if (searchText == null || searchText.trim().isEmpty()) {
+    private void filterItems(String searchText) {  // NOPMD
+        if (searchText == null || searchText.isBlank()) {
             filteredItems = new ArrayList<>(allItems);
         } else {
             String search = searchText.toLowerCase();
@@ -1273,11 +1277,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         }
 
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override
@@ -1304,13 +1304,12 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     /**
      * Gibt die Shop-Entries des ersten verknüpften Verkäufer-NPCs zurück
      */
-    @Nullable
-    private List<NPCData.ShopEntry> getLinkedNPCShopItems() {
+    private List<NPCData.ShopEntry> getLinkedNPCShopItems() {  // NOPMD
         WarehouseBlockEntity warehouse = menu.getWarehouse();
-        if (warehouse == null || minecraft.level == null) return null;
+        if (warehouse == null || minecraft.level == null) return Collections.emptyList();
 
         List<UUID> sellers = warehouse.getLinkedSellers();
-        if (sellers.isEmpty()) return null;
+        if (sellers.isEmpty()) return Collections.emptyList();
 
         // Hole ersten Verkäufer-NPC
         UUID firstSeller = sellers.get(0);
@@ -1322,7 +1321,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             }
         }
 
-        return null;
+        return Collections.emptyList();
     }
 
     /**

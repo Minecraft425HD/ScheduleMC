@@ -27,7 +27,7 @@ public class DestillationsApparatBlockEntity extends BlockEntity implements IUti
     private int ergotCount = 0;
     private int distillationProgress = 0;
     private int outputCount = 0;
-    private boolean isActive = false;
+    private boolean isActive = false;  // NOPMD
 
     public DestillationsApparatBlockEntity(BlockPos pos, BlockState state) {
         super(LSDBlockEntities.DESTILLATIONS_APPARAT.get(), pos, state);
@@ -41,7 +41,7 @@ public class DestillationsApparatBlockEntity extends BlockEntity implements IUti
         if (ergotCount >= CAPACITY) return false;
         if (outputCount > 0) return false;
 
-        ergotCount++;
+        ergotCount = Math.min(ergotCount + 1, CAPACITY);
         if (distillationProgress == 0) {
             isActive = true;
         }
@@ -68,8 +68,8 @@ public class DestillationsApparatBlockEntity extends BlockEntity implements IUti
         if (level == null || level.isClientSide) return;
 
         if (ergotCount > 0 && outputCount == 0) {
-            isActive = true;
-            distillationProgress++;
+            isActive = true;  // NOPMD
+            distillationProgress = Math.min(distillationProgress + 1, DISTILLATION_TIME);
 
             if (distillationProgress >= DISTILLATION_TIME) {
                 // Destillation abgeschlossen - 2 Lysergsäure pro 1 Ergot-Kultur

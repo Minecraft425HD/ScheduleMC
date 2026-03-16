@@ -47,7 +47,7 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
 
     protected AbstractConditioningTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**
@@ -123,7 +123,7 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
                 anyActive = true;
 
                 // Increment aging with speed multiplier
-                agingTicks[slot] += (int) getSpeedMultiplier();
+                agingTicks[slot] += (int) Math.round(getSpeedMultiplier());
 
                 // Update NBT with aging information every 100 ticks
                 if (agingTicks[slot] % 100 == 0) {
@@ -141,7 +141,7 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
                         BeerQuality quality = BeerQuality.SCHLECHT;
                         if (tag.contains("Quality")) {
                             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                        catch (IllegalArgumentException ignored) {}
+                        catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
                         }
 
                         // Create conditioned beer
@@ -152,7 +152,7 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
                         newTag.putInt("AgingTicks", agingTicks[slot]);
 
                         itemHandler.setStackInSlot(slot, conditionedBeer);
-                        changed = true;
+                        changed = true;  // NOPMD
                     }
 
                     changed = true;

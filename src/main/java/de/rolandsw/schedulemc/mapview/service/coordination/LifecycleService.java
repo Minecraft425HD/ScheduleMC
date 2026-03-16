@@ -65,7 +65,7 @@ public class LifecycleService {
      */
     public void clearServerSettings() {
         if (configuration != null) {
-            configuration.serverTeleportCommand = null;
+            configuration.serverTeleportCommand = null;  // NOPMD
             configuration.worldmapAllowed = true;
             configuration.minimapAllowed = true;
         }

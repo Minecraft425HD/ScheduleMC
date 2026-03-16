@@ -96,7 +96,7 @@ public class NPCLifeSystemEvents {
     // ═══════════════════════════════════════════════════════════
 
     /** Zähler für periodisches Auto-Save */
-    private static int autoSaveCounter = 0;
+    private static volatile int autoSaveCounter = 0;  // NOPMD
     private static final int AUTO_SAVE_INTERVAL = 6000; // Alle 5 Minuten
 
     /**
@@ -179,7 +179,7 @@ public class NPCLifeSystemEvents {
      * Prüft ob das Life-System für ein Level aktiv ist
      */
     public static boolean isSystemActive(Level level) {
-        if (!(level instanceof ServerLevel serverLevel)) return false;
+        if (!(level instanceof ServerLevel serverLevel)) return false;  // NOPMD
         return NPCLifeSystemIntegration.get(serverLevel).isEnabled();
     }
 

@@ -25,7 +25,7 @@ public class WinnowingMachineMenu extends AbstractContainerMenu {
     public WinnowingMachineMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(ChocolateMenuTypes.WINNOWING_MACHINE_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof WinnowingMachineBlockEntity e ? e : null;
+        this.blockEntity = be instanceof WinnowingMachineBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

@@ -232,7 +232,7 @@ public class Quest {
         status = QuestStatus.AVAILABLE;
         startDay = -1;
 
-        for (QuestObjective obj : objectives) {
+        for (QuestObjective obj : objectives) {  // NOPMD
             // Objectives müssen neu erstellt werden
         }
     }

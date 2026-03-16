@@ -45,8 +45,12 @@ public class SyncAchievementDataPacket {
 
     public static SyncAchievementDataPacket decode(FriendlyByteBuf buf) {
         int size = buf.readInt();
-        // SICHERHEIT: Ablehnen statt truncaten um Buffer-Korruption zu vermeiden
+        // SICHERHEIT: Ablehnen statt truncaten um Buffer-Korruption zu vermeiden.
+        // Die Achievement-Einträge werden übersprungen, damit der Buffer-Zeiger korrekt bleibt.
         if (size < 0 || size > 1000) {
+            for (int i = 0; i < Math.max(0, size); i++) {
+                AchievementData.decode(buf);
+            }
             return new SyncAchievementDataPacket(new ArrayList<>(), buf.readInt(), buf.readInt(), buf.readDouble());
         }
         List<AchievementData> achievements = new ArrayList<>(size);

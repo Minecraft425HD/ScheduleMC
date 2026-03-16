@@ -162,10 +162,10 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     /**
      * Callback wenn der NPC-Name geändert wird
      */
-    private void onNameChanged(String newName) {
+    private void onNameChanged(String newName) {  // NOPMD
         // Update Spawn-Button Aktivierung
         boolean nameTaken = ClientNPCNameCache.isNameTaken(newName);
-        spawnButton.active = !nameTaken && !newName.trim().isEmpty();
+        spawnButton.active = !nameTaken && !newName.isBlank();
     }
 
     /**
@@ -303,12 +303,12 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         if (!availableSkins.isEmpty()) {
             String skinName = availableSkins.get(selectedSkinIndex);
             // Zeige schöneren Namen für Standard-Skins
-            String displayName = skinName;
-            if (skinName.equals("steve")) {
+            String displayName = skinName;  // NOPMD
+            if ("steve".equals(skinName)) {
                 displayName = "Steve (Standard)";
-            } else if (skinName.equals("alex")) {
+            } else if ("alex".equals(skinName)) {
                 displayName = "Alex (Standard)";
-            } else if (skinName.equals("default.png")) {
+            } else if ("default.png".equals(skinName)) {
                 displayName = "Default";
             } else {
                 // Entferne .png Endung für bessere Anzeige
@@ -361,10 +361,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
 

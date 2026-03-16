@@ -46,7 +46,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
     private ChocolateQuality quality;
     private boolean hasMilk;
     private boolean hasVanilla;
-    private de.rolandsw.schedulemc.chocolate.ChocolateProcessingMethod processingMethod;
+    private de.rolandsw.schedulemc.chocolate.ChocolateProcessingMethod processingMethod;  // NOPMD
 
     protected ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
@@ -91,10 +91,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
                 if (slot == 0) {
                     return stack.getItem() == ChocolateItems.TEMPERED_CHOCOLATE.get();
                 }
-                if (slot == 1) {
-                    return stack.getItem() == ChocolateItems.CHOCOLATE_MOLD_BAR.get();
-                }
-                return false;
+                return slot == 1 && stack.getItem() == ChocolateItems.CHOCOLATE_MOLD_BAR.get();
             }
 
             @Override
@@ -121,7 +118,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
             if (tag != null) {
                 if (tag.contains("Quality")) {
                     try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
                 } else {
                     quality = ChocolateQuality.GUT;
                 }
@@ -135,7 +132,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
             moldingProgress = 0;
         } else if (handlerChocolate.isEmpty()) {
             chocolateInput = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             hasMilk = false;
             hasVanilla = false;
             moldingProgress = 0;
@@ -179,7 +176,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
         boolean changed = false;
 
         if (!chocolateInput.isEmpty() && !moldInput.isEmpty() && outputStack.isEmpty()) {
-            moldingProgress++;
+            moldingProgress = Math.min(moldingProgress + 1, getTotalMoldingTime);
 
             if (moldingProgress >= getTotalMoldingTime()) {
                 // Molding complete: Tempered Chocolate + Mold → Chocolate Bar
@@ -220,7 +217,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
                 moldInput.shrink(1);
 
                 if (chocolateInput.isEmpty()) {
-                    quality = null;
+                    quality = null;  // NOPMD
                     hasMilk = false;
                     hasVanilla = false;
                 }
@@ -290,7 +287,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
         moldingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         hasMilk = tag.getBoolean("HasMilk");
         hasVanilla = tag.getBoolean("HasVanilla");

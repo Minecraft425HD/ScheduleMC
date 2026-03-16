@@ -210,6 +210,7 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
                         partsChanged = true;
                     }
                 }
+                default -> {}
             }
         }
 

@@ -43,7 +43,7 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
     protected AbstractRefineryBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, ProductionSize size) {
         super(type, pos, state);
         this.size = size;
-        initArrays();
+        initArrays();  // NOPMD
     }
 
     /**
@@ -144,8 +144,8 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 refineryProgress[i] = 0;
-                cocaTypes[i] = null;
-                qualities[i] = null;
+                cocaTypes[i] = null;  // NOPMD
+                qualities[i] = null;  // NOPMD
             }
         }
 
@@ -284,16 +284,18 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
     }
 
     private TobaccoQuality calculateFinalQuality(TobaccoQuality quality) {
-        if (quality == TobaccoQuality.LEGENDAER) {
-            return quality;
+        TobaccoQuality effectiveQuality = quality == null ? TobaccoQuality.SCHLECHT : quality;
+
+        if (effectiveQuality == TobaccoQuality.LEGENDAER) {
+            return effectiveQuality;
         }
 
         // Chance auf Upgrade
         if (level != null && level.random.nextFloat() < getQualityUpgradeChance()) {
-            return quality.upgrade();
+            return effectiveQuality.upgrade();
         }
 
-        return quality;
+        return effectiveQuality;
     }
 
     @Override

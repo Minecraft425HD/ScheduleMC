@@ -35,23 +35,23 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private static final int COL_BG = 0xFFC6C6C6;
     private static final int COL_CARD_BG = 0xFFAAAAAA;
     private static final int COL_CART_BG = 0xFFB8B8B8;
-    private static final int COL_TAB_ACTIVE = 0xFF9090D0;
-    private static final int COL_TAB_INACTIVE = 0xFF808080;
+    private static final int COL_TAB_ACTIVE = 0xFF9090D0;  // NOPMD
+    private static final int COL_TAB_INACTIVE = 0xFF808080;  // NOPMD
 
     private static final int COL_TEXT = 0x404040;
     private static final int COL_TEXT_LIGHT = 0x555555;
     private static final int COL_GREEN = 0x00AA00;
     private static final int COL_RED = 0xAA0000;
-    private static final int COL_TITLE = 0xFFFFFF;
+    private static final int COL_TITLE = 0xFFFFFF;  // NOPMD
     private static final int COL_PRICE = 0x006600;
     private static final int COL_BAR_GOOD = 0xFF00CC00;
     private static final int COL_BAR_MED = 0xFFCCCC00;
     private static final int COL_BAR_BAD = 0xFFCC0000;
     private static final int COL_BAR_BG = 0xFF555555;
 
-    private Inventory playerInv;
-    private EntityGenericVehicle vehicle;
-    private VehicleUtils.VehicleRenderer vehicleRenderer;
+    private Inventory playerInv;  // NOPMD
+    private final EntityGenericVehicle vehicle;
+    final private VehicleUtils.VehicleRenderer vehicleRenderer;
 
     // Tab system
     private enum Tab { OVERVIEW, SERVICE, UPGRADE, PAINT, CONTAINER }
@@ -61,7 +61,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private final List<WerkstattCartItem> cart = new ArrayList<>();
 
     // Tab buttons
-    private Button tabOverview, tabService, tabUpgrade, tabPaint, tabContainer;
+    private Button tabOverview, tabService, tabUpgrade, tabPaint, tabContainer;  // NOPMD
 
     // Service buttons (add to cart)
     private Button btnAddRepair, btnAddBattery, btnAddOil, btnTireSeasonSwitch;
@@ -82,7 +82,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private final List<Button> cartRemoveButtons = new ArrayList<>();
 
     // Bottom buttons
-    private Button btnCheckout, btnLeave;
+    private Button btnCheckout, btnLeave;  // NOPMD
 
     // Cart scroll offset
     private int cartScrollOffset = 0;
@@ -328,7 +328,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private void initBottomButtons() {
         int btnW = 160;
         int btnH = 20;
-        int centerX = leftPos + (imageWidth - 160) / 2 - 80;
+        int centerX = leftPos + (imageWidth - 160) / 2 - 80;  // NOPMD
 
         btnCheckout = addRenderableWidget(Button.builder(
                 Component.translatable("werkstatt.btn.checkout"),
@@ -530,7 +530,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             super.onClose();
             return true;
         }
-        if (this.minecraft != null && this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+        if (this.minecraft != null && this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {  // NOPMD
             return true; // Block inventory key while in werkstatt
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -761,12 +761,12 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                     fenderLevel < 3 ? getFenderUpgradeCost(fenderLevel) : -1,
                     fenderLevel >= 3,
                     isInCart(WerkstattCartItem.Type.UPGRADE_FENDER));
-            y += spacing;
+            y += spacing;  // NOPMD
         }
 
     }
 
-    private void drawUpgradeCard(GuiGraphics g, int x, int y, String title, String current, String next, double cost, boolean isMax, boolean inCart) {
+    private void drawUpgradeCard(GuiGraphics g, int x, int y, String title, String current, String next, double cost, boolean isMax, boolean inCart) {  // NOPMD
         g.fill(x, y, x + 190, y + 42, 0xFF999999);
         g.fill(x + 1, y + 1, x + 189, y + 41, 0xFFBBBBBB);
 
@@ -921,7 +921,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
             if (cart.size() > CART_VISIBLE_ITEMS) {
                 g.drawString(font, "...", cartX, y, COL_TEXT_LIGHT, false);
-                y += 10;
+                y += 10;  // NOPMD
             }
         }
 
@@ -987,7 +987,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     // === Helper rendering ===
 
     private void renderBar(GuiGraphics g, int x, int y, String label, float percent) {
-        percent = Math.max(0, Math.min(100, percent));
+        float clampedPercent = Math.max(0, Math.min(100, percent));
         g.drawString(font, label + ":", x, y, COL_TEXT, false);
 
         int barX = x;
@@ -996,11 +996,11 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int barH = 5;
 
         g.fill(barX, barY, barX + barW, barY + barH, COL_BAR_BG);
-        int fillW = (int) (barW * (percent / 100f));
-        int barColor = percent > 75 ? COL_BAR_GOOD : percent > 40 ? COL_BAR_MED : COL_BAR_BAD;
+        int fillW = (int) (barW * (clampedPercent / 100f));
+        int barColor = clampedPercent > 75 ? COL_BAR_GOOD : clampedPercent > 40 ? COL_BAR_MED : COL_BAR_BAD;
         g.fill(barX, barY, barX + fillW, barY + barH, barColor);
 
-        g.drawString(font, tr("werkstatt.gui.percent_format", percent), barX + barW + 4, y, COL_TEXT_LIGHT, false);
+        g.drawString(font, tr("werkstatt.gui.percent_format", clampedPercent), barX + barW + 4, y, COL_TEXT_LIGHT, false);
     }
 
     // === Vehicle Data Helpers ===

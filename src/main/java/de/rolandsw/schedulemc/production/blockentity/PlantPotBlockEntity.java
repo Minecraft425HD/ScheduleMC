@@ -75,9 +75,9 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
                 if (handler != null) {
                     // Prüfe ob Pflanze wachsen kann (Licht, spezielle Bedingungen)
-                    if (!handler.canGrow(level, worldPosition, potData)) {
-                        return;  // Bedingungen nicht erfüllt
-                    }
+                    if (!handler.canGrow(level, worldPosition, potData)) {  // NOPMD - intentionaler Stub
+                        // Bedingungen nicht erfüllt – kein frühzeitiges return, damit Utility-Status gemeldet wird
+                    } else {
 
                     // Wachstumsgeschwindigkeit basierend auf Licht
                     double lightSpeedMultiplier = getLightSpeedMultiplier();
@@ -118,6 +118,7 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
                         setChanged();
                         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                     }
+                    } // end else (canGrow)
                 }
             }
         }
@@ -146,7 +147,7 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
      *   → Erde wird nur noch bei der Ernte pauschal abgezogen (-33)
      *   → Im HUD wird visuell eine Reduzierung angezeigt (rein optisch!)
      */
-    private void consumeResourcesForGrowth(int newStage) {
+    private void consumeResourcesForGrowth(int newStage) {  // NOPMD
         // Wasser: 1/7 der Kapazität pro Stufe
         double waterToConsume = potData.getMaxWater() / 7.0;
         potData.consumeWater(waterToConsume);

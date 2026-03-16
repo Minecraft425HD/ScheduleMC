@@ -66,7 +66,7 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
         renderStartButton(graphics, x + BUTTON_X, y + BUTTON_Y, mouseX, mouseY);
     }
 
-    private void renderSlider(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
+    private void renderSlider(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {  // NOPMD
         // Slider Hintergrund mit Zonen
         graphics.fill(x - 1, y - 1, x + SLIDER_WIDTH + 1, y + SLIDER_HEIGHT + 1, 0xFF555577);
         graphics.fill(x, y, x + SLIDER_WIDTH, y + SLIDER_HEIGHT, 0xFF3D3D5C);
@@ -230,10 +230,7 @@ public class MikroDosiererScreen extends AbstractContainerScreen<MikroDosiererMe
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
 

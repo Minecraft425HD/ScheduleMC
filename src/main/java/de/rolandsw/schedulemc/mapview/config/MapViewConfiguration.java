@@ -29,19 +29,19 @@ public class MapViewConfiguration implements SettingsManager {
     public boolean showUnderMenus;
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
     public final boolean multicore = this.availableProcessors > 1;
-    public final boolean lightmap = true;
-    public final boolean heightmap = true;
-    public final boolean slopemap = true;
-    public final boolean filtering = true;
-    public final boolean waterTransparency = true;
-    public final boolean blockTransparency = true;
-    public final boolean biomes = true;
-    public final int biomeOverlay = 0;
-    public final boolean chunkGrid = false;
-    public final boolean slimeChunks = false;
-    public final boolean worldborder = true;
-    public final boolean squareMap = true;
-    public final boolean rotates = false;
+    public final boolean lightmap = true;  // NOPMD
+    public final boolean heightmap = true;  // NOPMD
+    public final boolean slopemap = true;  // NOPMD
+    public final boolean filtering = true;  // NOPMD
+    public final boolean waterTransparency = true;  // NOPMD
+    public final boolean blockTransparency = true;  // NOPMD
+    public final boolean biomes = true;  // NOPMD
+    public final int biomeOverlay = 0;  // NOPMD
+    public final boolean chunkGrid = false;  // NOPMD
+    public final boolean slimeChunks = false;  // NOPMD
+    public final boolean worldborder = true;  // NOPMD
+    public final boolean squareMap = true;  // NOPMD
+    public final boolean rotates = false;  // NOPMD
     public boolean oldNorth;
     public int zoom = 2;
     public int sizeModifier = 1;
@@ -51,8 +51,8 @@ public class MapViewConfiguration implements SettingsManager {
     public boolean minimapAllowed = true;
     public boolean showTerritories = false; // Territory Overlay on worldmap for normal players
 
-    public final boolean moveMapDownWhileStatusEffect = true;
-    public final boolean moveScoreBoardDown = true;
+    public final boolean moveMapDownWhileStatusEffect = true;  // NOPMD
+    public final boolean moveScoreBoardDown = true;  // NOPMD
     protected boolean realTimeTorches;
     public KeyMapping keyBindZoom;
     public KeyMapping keyBindFullscreen;
@@ -86,19 +86,21 @@ public class MapViewConfiguration implements SettingsManager {
         try {
             if (this.settingsFile.exists()) {
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(this.settingsFile), StandardCharsets.UTF_8.newDecoder()))) {
-                    String sCurrentLine;
-                    while ((sCurrentLine = in.readLine()) != null) {
+                    String sCurrentLine = in.readLine();
+                    while (sCurrentLine != null) {
                         String[] curLine = sCurrentLine.split(":");
                         switch (curLine[0]) {
-                            case "Zoom Level" -> this.zoom = Math.max(0, Math.min(4, Integer.parseInt(curLine[1])));
-                            case "Old North" -> this.oldNorth = Boolean.parseBoolean(curLine[1]);
-                            case "MapViewRenderer Corner" -> this.mapCorner = Math.max(0, Math.min(3, Integer.parseInt(curLine[1])));
-                            case "MapViewRenderer Size" -> this.sizeModifier = Math.max(-1, Math.min(4, Integer.parseInt(curLine[1])));
-                            case "Show Territories" -> this.showTerritories = Boolean.parseBoolean(curLine[1]);
+                            case "Zoom Level" -> this.zoom = Math.max(0, Math.min(4, Integer.parseInt(curLine[1])));  // NOPMD
+                            case "Old North" -> this.oldNorth = Boolean.parseBoolean(curLine[1]);  // NOPMD
+                            case "MapViewRenderer Corner" -> this.mapCorner = Math.max(0, Math.min(3, Integer.parseInt(curLine[1])));  // NOPMD
+                            case "MapViewRenderer Size" -> this.sizeModifier = Math.max(-1, Math.min(4, Integer.parseInt(curLine[1])));  // NOPMD
+                            case "Show Territories" -> this.showTerritories = Boolean.parseBoolean(curLine[1]);  // NOPMD
                             case "Zoom Key" -> this.bindKey(this.keyBindZoom, curLine[1]);
                             case "Fullscreen Key" -> this.bindKey(this.keyBindFullscreen, curLine[1]);
                             case "Menu Key" -> this.bindKey(this.keyBindMenu, curLine[1]);
+                            default -> {}
                         }
+                        sCurrentLine = in.readLine();
                     }
                 }
                 KeyMapping.resetMapping();
@@ -247,7 +249,7 @@ public class MapViewConfiguration implements SettingsManager {
     }
 
     public String getKeyBindingDescription(int keybindIndex) {
-        return this.keyBindings[keybindIndex].getName().equals("key.mapview.menu") ? I18n.get("key.mapview.menu") : I18n.get(this.keyBindings[keybindIndex].getName());
+        return this.keyBindings[keybindIndex]."key.mapview.menu".equals(getName()) ? I18n.get("key.mapview.menu") : I18n.get(this.keyBindings[keybindIndex].getName());
     }
 
     public Component getKeybindDisplayString(int keybindIndex) {

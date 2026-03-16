@@ -17,12 +17,12 @@ import net.minecraftforge.fml.LogicalSide;
 @OnlyIn(Dist.CLIENT)
 public class PlayerEvents {
 
-    private Minecraft minecraft;
+    private final Minecraft minecraft;
     private EntityVehicleBase lastVehicle;
 
     public PlayerEvents() {
         this.minecraft = Minecraft.getInstance();
-        this.lastVehicle = null;
+        this.lastVehicle = null;  // NOPMD
     }
 
     @SubscribeEvent
@@ -69,7 +69,11 @@ public class PlayerEvents {
     }
 
     private Entity getRidingEntity() {
-        return getPlayer().getVehicle();
+        LocalPlayer player = getPlayer();
+        if (player == null) {
+            return null;
+        }
+        return player.getVehicle();
     }
 
     private EntityVehicleBase getRidingVehicle() {

@@ -13,54 +13,57 @@ public class MapViewHelper {
     private static long lastSeedLong;
     private static int lastSlimeX;
     private static int lastSlimeZ;
-    private static boolean isSlimeChunk;
+    private static boolean isSlimeChunk;  // NOPMD
 
     public static void reset() {
         options = MapViewConstants.getLightMapInstance().getMapOptions();
     }
 
     public static int doSlimeAndGrid(int color24, ClientLevel world, int mcX, int mcZ) {
+        int result = color24;
         if (options.slimeChunks && isSlimeChunk(mcX, mcZ)) {
-            color24 = ColorUtils.colorAdder(0x7D00FF00, color24);
+            result = ColorUtils.colorAdder(0x7D00FF00, result);
         }
 
         if (options.chunkGrid) {
             if (mcX % 512 != 0 && mcZ % 512 != 0) {
                 if (mcX % 16 == 0 || mcZ % 16 == 0) {
-                    color24 = ColorUtils.colorAdder(0x7D000000, color24);
+                    result = ColorUtils.colorAdder(0x7D000000, result);
                 }
             } else {
-                color24 = ColorUtils.colorAdder(0x7DFF0000, color24);
+                result = ColorUtils.colorAdder(0x7DFF0000, result);
             }
         }
 
-        return color24;
+        return result;
     }
 
-    public synchronized static boolean isSlimeChunk(int mcX, int mcZ) {
-        int xPosition = mcX >> 4;
-        int zPosition = mcZ >> 4;
-        String seedString = MapViewConstants.getLightMapInstance().getWorldSeed();
-        if (seedString.isEmpty()) {
-            return false;
-        }
-        if (!Objects.equals(lastSeed, seedString)) {
-            lastSeed = seedString;
-            lastSlimeX = Integer.MIN_VALUE;
-            try {
-                lastSeedLong = Long.parseLong(seedString);
-            } catch (NumberFormatException var8) {
-                lastSeedLong = seedString.hashCode();
+    public static boolean isSlimeChunk(int mcX, int mcZ) {
+        synchronized (MapViewHelper.class) {
+            int xPosition = mcX >> 4;
+            int zPosition = mcZ >> 4;
+            String seedString = MapViewConstants.getLightMapInstance().getWorldSeed();
+            if (seedString.isEmpty()) {
+                return false;
             }
-        }
+            if (!Objects.equals(lastSeed, seedString)) {
+                lastSeed = seedString;
+                lastSlimeX = Integer.MIN_VALUE;
+                try {
+                    lastSeedLong = Long.parseLong(seedString);
+                } catch (NumberFormatException var8) {
+                    lastSeedLong = seedString.hashCode();
+                }
+            }
 
-        if (xPosition != lastSlimeX || zPosition != lastSlimeZ) {
-            lastSlimeX = xPosition;
-            lastSlimeZ = zPosition;
-            Random seededRandom = new Random(lastSeedLong + (int) (xPosition * xPosition * 0x4C1906) + (int) (xPosition * 0x5ac0db) + (int) (zPosition * zPosition) * 0x4307a7L + (int) (zPosition * 0x5f24f) ^ 0x3ad8025fL);
-            isSlimeChunk = seededRandom.nextInt(10) == 0;
-        }
+            if (xPosition != lastSlimeX || zPosition != lastSlimeZ) {
+                lastSlimeX = xPosition;
+                lastSlimeZ = zPosition;
+                Random seededRandom = new Random(lastSeedLong + (int) (xPosition * xPosition * 0x4C1906) + (int) (xPosition * 0x5ac0db) + (int) (zPosition * zPosition) * 0x4307a7L + (int) (zPosition * 0x5f24f) ^ 0x3ad8025fL);
+                isSlimeChunk = seededRandom.nextInt(10) == 0;
+            }
 
-        return isSlimeChunk;
+            return isSlimeChunk;
+        }
     }
 }

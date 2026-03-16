@@ -52,7 +52,7 @@ public class NPCNeeds {
     private float safety = MAX_VALUE;
 
     // Tracking für Regeneration
-    private boolean isSleeping = false;
+    private boolean isSleeping = false;  // NOPMD
     private int ticksSinceLastUpdate = 0;
     private static final int UPDATE_INTERVAL = 20; // Alle 20 Ticks (1 Sekunde)
 
@@ -161,6 +161,7 @@ public class NPCNeeds {
         switch (type) {
             case ENERGY -> energy = Math.min(MAX_VALUE, energy + amount);
             case SAFETY -> safety = Math.min(MAX_VALUE, safety + amount);
+            default -> {}
         }
     }
 
@@ -173,6 +174,7 @@ public class NPCNeeds {
         switch (type) {
             case ENERGY -> energy = Math.max(MIN_VALUE, energy - amount);
             case SAFETY -> safety = Math.max(MIN_VALUE, safety - amount);
+            default -> {}
         }
     }
 

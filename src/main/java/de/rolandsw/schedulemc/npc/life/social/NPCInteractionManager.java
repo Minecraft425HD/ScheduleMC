@@ -33,7 +33,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile NPCInteractionManager instance;
+    private static volatile NPCInteractionManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -41,7 +41,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
         return instance;
     }
 
-    public static NPCInteractionManager getInstance(MinecraftServer server) {
+    public static NPCInteractionManager initialize(MinecraftServer server) {
         NPCInteractionManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {
@@ -79,7 +79,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
+    private MinecraftServer server;  // NOPMD
 
     /** Aktive Interaktionen: NPC UUID -> InteractionContext (TRANSIENT - nicht persistiert) */
     private final Map<UUID, InteractionContext> activeInteractions = new ConcurrentHashMap<>();
@@ -109,10 +109,18 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
      */
     public void tick() {
         // Cooldowns verringern
-        interactionCooldowns.entrySet().removeIf(e -> {
-            e.setValue(e.getValue() - 1);
-            return e.getValue() <= 0;
-        });
+        // Expliziter Iterator statt removeIf+setValue: setValue innerhalb von removeIf ist
+        // ein spezifizierter Seiteneffekt, der von ConcurrentHashMap nicht unterstützt wird.
+        Iterator<Map.Entry<String, Integer>> cooldownIter = interactionCooldowns.entrySet().iterator();
+        while (cooldownIter.hasNext()) {
+            Map.Entry<String, Integer> e = cooldownIter.next();
+            int newVal = e.getValue() - 1;
+            if (newVal <= 0) {
+                cooldownIter.remove();
+            } else {
+                e.setValue(newVal);
+            }
+        }
 
         // Aktive Interaktionen ticken
         activeInteractions.entrySet().removeIf(e -> {
@@ -163,6 +171,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
                 targetLife.getMemory().addPlayerTag(dangerUUID, "Dieb");
                 targetLife.getEmotions().trigger(EmotionState.SUSPICIOUS, 30.0f);
             }
+            default -> {}
         }
 
         // Erinnerung an Warnung speichern
@@ -323,7 +332,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
         if (interactionCooldowns.containsKey(cooldownKey)) return false;
 
         // Prüfen ob bereits in Interaktion
-        if (activeInteractions.containsKey(npc1.getNpcData().getNpcUUID()) ||
+        if (activeInteractions.containsKey(npc1.getNpcData().getNpcUUID()) ||  // NOPMD
             activeInteractions.containsKey(npc2.getNpcData().getNpcUUID())) {
             return false;
         }

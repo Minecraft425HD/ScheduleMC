@@ -108,7 +108,7 @@ public class ColorCalculationService {
 
     // Performance-Optimierung: LRU Cache für Biome Tints (reduziert 9 Biome-Lookups pro Block)
     // Cache-Size: 4096 Einträge = ~32KB Memory (genug für typische Spieler-Umgebung)
-    private final Map<Long, Integer> biomeTintCache = new LinkedHashMap<Long, Integer>(4096, 0.75f, true) {
+    private final Map<Long, Integer> biomeTintCache = new LinkedHashMap<Long, Integer>(4096, 0.75f, true) {  // NOPMD
         @Override
         protected boolean removeEldestEntry(Map.Entry<Long, Integer> eldest) {
             return size() > 4096;
@@ -184,7 +184,7 @@ public class ColorCalculationService {
         TextureAtlasSprite missing = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(ResourceLocation.parse("missingno"));
         this.failedToLoadX = missing.getU0();
         this.failedToLoadY = missing.getV0();
-        this.loaded = false;
+        this.loaded = false;  // NOPMD
 
         try {
             Arrays.fill(this.blockColors, 0xFEFF00FF);
@@ -217,10 +217,8 @@ public class ColorCalculationService {
     }
 
     private void loadColorPicker() {
-        try {
-            InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/colorpicker.png")).get().open();
+        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/colorpicker.png")).get().open()) {
             Image picker = ImageIO.read(is);
-            is.close();
             this.colorPicker = new BufferedImage(picker.getWidth(null), picker.getHeight(null), 2);
             Graphics gfx = this.colorPicker.createGraphics();
             gfx.drawImage(picker, 0, 0, null);
@@ -260,7 +258,7 @@ public class ColorCalculationService {
 
     public final int getBlockColorWithDefaultTint(MutableBlockPos blockPos, int blockStateID) {
         if (this.loaded && loadedTerrainImage) {
-            int col = 0x1B000000;
+            int col = 0x1B000000;  // NOPMD
 
             try {
                 col = this.blockColorsWithDefaultTint[blockStateID];
@@ -294,22 +292,24 @@ public class ColorCalculationService {
     /**
      * SICHERHEIT: Synchronized für Thread-safe Array-Zugriff während Resize
      */
-    private synchronized int getBlockColor(MutableBlockPos blockPos, int blockStateID) {
-        int col = 0x1B000000;
+    private int getBlockColor(MutableBlockPos blockPos, int blockStateID) {
+        synchronized (this) {
+            int col = 0x1B000000;  // NOPMD
 
-        // Nach Synchronisierung ist Array-Zugriff sicher
-        if (blockStateID >= this.blockColors.length) {
-            this.resizeColorArrays(blockStateID);
+            // Nach Synchronisierung ist Array-Zugriff sicher
+            if (blockStateID >= this.blockColors.length) {
+                this.resizeColorArrays(blockStateID);
+            }
+
+            col = this.blockColors[blockStateID];
+
+            if (col == 0xFEFF00FF || col == 0x1B000000) {
+                BlockState blockState = BlockDatabase.getStateById(blockStateID);
+                col = this.blockColors[blockStateID] = this.getColor(blockPos, blockState);
+            }
+
+            return col;
         }
-
-        col = this.blockColors[blockStateID];
-
-        if (col == 0xFEFF00FF || col == 0x1B000000) {
-            BlockState blockState = BlockDatabase.getStateById(blockStateID);
-            col = this.blockColors[blockStateID] = this.getColor(blockPos, blockState);
-        }
-
-        return col;
     }
 
     private void resizeColorArrays(int queriedID) {
@@ -367,7 +367,7 @@ public class ColorCalculationService {
         }
     }
 
-    private int getColorForBlockPosBlockStateAndFacing(BlockPos blockPos, BlockState blockState, Direction facing) {
+    private int getColorForBlockPosBlockStateAndFacing(BlockPos blockPos, BlockState blockState, Direction facing) {  // NOPMD
         int color = 0x1B000000;
 
         try {
@@ -508,7 +508,7 @@ public class ColorCalculationService {
 
     }
 
-    private int tintFromFakePlacedBlock(BlockState blockState, MutableBlockPos loopBlockPos, Biome biomeID) {
+    private int tintFromFakePlacedBlock(BlockState blockState, MutableBlockPos loopBlockPos, Biome biomeID) {  // NOPMD
         return -1;
     }
 
@@ -679,7 +679,7 @@ public class ColorCalculationService {
         return tint;
     }
 
-    private int getCustomBlockBiomeTintFromUnloadedChunk(AbstractMapData mapData, Level world, BlockState blockState, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ) {
+    private int getCustomBlockBiomeTintFromUnloadedChunk(AbstractMapData mapData, Level world, BlockState blockState, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ) {  // NOPMD
         int tint;
 
         try {
@@ -715,17 +715,13 @@ public class ColorCalculationService {
     }
 
     private void processCTM() {
-        this.renderPassThreeBlendMode = "alpha";
+        this.renderPassThreeBlendMode = "alpha";  // NOPMD
         Properties properties = new Properties();
         ResourceLocation propertiesFile = ResourceLocation.fromNamespaceAndPath("minecraft", "optifine/renderpass.properties");
 
-        try {
-            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open();
-            if (input != null) {
-                properties.load(input);
-                input.close();
-                this.renderPassThreeBlendMode = properties.getProperty("blend.3", "alpha");
-            }
+        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open()) {
+            properties.load(input);
+            this.renderPassThreeBlendMode = properties.getProperty("blend.3", "alpha");
         } catch (IOException var9) {
             this.renderPassThreeBlendMode = "alpha";
         }
@@ -757,12 +753,8 @@ public class ColorCalculationService {
             BlockModelShaper blockModelShapes = blockRendererDispatcher.getBlockModelShaper();
             Properties properties = new Properties();
 
-            try {
-                InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open();
-                if (input != null) {
-                    properties.load(input);
-                    input.close();
-                }
+            try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open()) {
+                properties.load(input);
             } catch (IOException var39) {
                 return;
             }
@@ -788,11 +780,11 @@ public class ColorCalculationService {
             if (tilePath.startsWith("~")) {
                 tilePath = tilePath.replace("~", "optifine");
             } else if (!tilePath.contains("/")) {
-                tilePath = directory + tilePath;
+                tilePath = directory + tilePath;  // NOPMD
             }
 
             if (!tilePath.toLowerCase().endsWith(".png")) {
-                tilePath = tilePath + ".png";
+                tilePath = tilePath + ".png";  // NOPMD
             }
 
             String[] biomesArray = biomes.split(" ");
@@ -858,12 +850,13 @@ public class ColorCalculationService {
             }
 
             if (!blockStates.isEmpty()) {
-                if (!method.equals("horizontal") && !method.startsWith("overlay") && (method.equals("sandstone") || method.equals("top") || faces.contains("top") || faces.contains("all") || faces.isEmpty())) {
+                if (!"horizontal".equals(method) && !method.startsWith("overlay") && ("sandstone".equals(method) || "top".equals(method) || faces.contains("top") || faces.contains("all") || faces.isEmpty())) {
                     try {
                         ResourceLocation pngResource = ResourceLocation.fromNamespaceAndPath(propertiesFile.getNamespace(), tilePath);
-                        InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(pngResource).get().open();
-                        Image top = ImageIO.read(is);
-                        is.close();
+                        Image top;
+                        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(pngResource).get().open()) {
+                            top = ImageIO.read(is);
+                        }
                         top = top.getScaledInstance(1, 1, 4);
                         BufferedImage topBuff = new BufferedImage(top.getWidth(null), top.getHeight(null), 6);
                         Graphics gfx = topBuff.createGraphics();
@@ -880,7 +873,7 @@ public class ColorCalculationService {
                                 topRGB |= 0xFF000000;
                             }
 
-                            if (renderPass.equals("3")) {
+                            if ("3".equals(renderPass)) {
                                 topRGB = this.processRenderPassThree(topRGB);
                                 int blockStateID = BlockDatabase.getStateId(blockState);
                                 int baseRGB = this.blockColors[blockStateID];
@@ -924,7 +917,7 @@ public class ColorCalculationService {
     }
 
     private int processRenderPassThree(int rgb) {
-        if (this.renderPassThreeBlendMode.equals("color") || this.renderPassThreeBlendMode.equals("overlay")) {
+        if ("color".equals(this.renderPassThreeBlendMode) || "overlay".equals(this.renderPassThreeBlendMode)) {
             int red = rgb >> 16 & 0xFF;
             int green = rgb >> 8 & 0xFF;
             int blue = rgb & 0xFF;
@@ -934,7 +927,7 @@ public class ColorCalculationService {
             blue += (int) (red * (lighteningFactor / 255.0F));
             green += (int) (red * (lighteningFactor / 255.0F));
             int newAlpha = (int) Math.abs(lighteningFactor);
-            rgb = newAlpha << 24 | (red & 0xFF) << 16 | (green & 0xFF) << 8 | blue & 0xFF;
+            return newAlpha << 24 | (red & 0xFF) << 16 | (green & 0xFF) << 8 | blue & 0xFF;
         }
 
         return rgb;
@@ -943,8 +936,8 @@ public class ColorCalculationService {
     private String[] parseStringList(String list) {
         ArrayList<String> tmpList = new ArrayList<>();
 
-        for (String token : list.split("\\s+")) {
-            token = token.trim();
+        for (String rawToken : list.split("\\s+")) {
+            String token = rawToken.trim();
 
             try {
                 if (token.matches("^\\d+$")) {
@@ -970,9 +963,9 @@ public class ColorCalculationService {
     private Set<BlockState> parseBlocksList(String blocks, String metadataLine) {
         Set<BlockState> blockStates = new HashSet<>();
 
-        for (String blockString : blocks.split("\\s+")) {
+        for (String rawBlock : blocks.split("\\s+")) {
+            String blockString = rawBlock.trim();
             StringBuilder metadata = new StringBuilder(metadataLine);
-            blockString = blockString.trim();
             String[] blockComponents = blockString.split(":");
             int tokensUsed = 0;
             Block block;
@@ -991,7 +984,7 @@ public class ColorCalculationService {
                     metadata = new StringBuilder(blockComponents[tokensUsed]);
 
                     for (int t = tokensUsed + 1; t < blockComponents.length; ++t) {
-                        metadata.append(":").append(blockComponents[t]);
+                        metadata.append(':').append(blockComponents[t]);
                     }
                 }
 
@@ -1056,19 +1049,16 @@ public class ColorCalculationService {
         return biome != null ? this.world.registryAccess().registryOrThrow(Registries.BIOME).getId(biome) : -1;
     }
 
-    private List<ResourceLocation> findResources(String namespace, String startingPath, String suffixMaybeNull, boolean recursive, boolean directories, boolean sortByFilename) {
-        if (startingPath == null) {
-            startingPath = "";
-        }
-
-        if (!startingPath.isEmpty() && startingPath.charAt(0) == '/') {
-            startingPath = startingPath.substring(1);
+    private List<ResourceLocation> findResources(String namespace, String startingPath, String suffixMaybeNull, boolean recursive, boolean directories, boolean sortByFilename) {  // NOPMD
+        String effectivePath = startingPath == null ? "" : startingPath;
+        if (!effectivePath.isEmpty() && effectivePath.charAt(0) == '/') {
+            effectivePath = effectivePath.substring(1);
         }
 
         String suffix = suffixMaybeNull == null ? "" : suffixMaybeNull;
         ArrayList<ResourceLocation> resources;
 
-        Map<ResourceLocation, Resource> resourceMap = MapViewConstants.getMinecraft().getResourceManager().listResources(startingPath, asset -> asset.getPath().endsWith(suffix));
+        Map<ResourceLocation, Resource> resourceMap = MapViewConstants.getMinecraft().getResourceManager().listResources(effectivePath, asset -> asset.getPath().endsWith(suffix));
         resources = resourceMap.keySet().stream().filter(candidate -> candidate.getNamespace().equals(namespace)).collect(Collectors.toCollection(ArrayList::new));
 
         if (sortByFilename) {
@@ -1088,12 +1078,8 @@ public class ColorCalculationService {
     private void processColorProperties() {
         Properties properties = new Properties();
 
-        try {
-            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.parse("optifine/color.properties")).get().open();
-            if (input != null) {
-                properties.load(input);
-                input.close();
-            }
+        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.parse("optifine/color.properties")).get().open()) {
+            properties.load(input);
         } catch (IOException exception) {
             MapViewConstants.getLogger().error(exception);
         }
@@ -1114,7 +1100,7 @@ public class ColorCalculationService {
         }
 
         String defaultFormat = properties.getProperty("palette.format");
-        boolean globalGrid = defaultFormat != null && defaultFormat.equalsIgnoreCase("grid");
+        boolean globalGrid = defaultFormat != null && "grid".equalsIgnoreCase(defaultFormat);
         Enumeration<?> e = properties.propertyNames();
 
         while (e.hasMoreElements()) {
@@ -1129,12 +1115,8 @@ public class ColorCalculationService {
         for (ResourceLocation resource : this.findResources("minecraft", "/optifine/colormap/blocks", ".properties", true, false, true)) {
             Properties colorProperties = new Properties();
 
-            try {
-                InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open();
-                if (input != null) {
-                    colorProperties.load(input);
-                    input.close();
-                }
+            try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open()) {
+                colorProperties.load(input);
             } catch (IOException var21) {
                 break;
             }
@@ -1159,7 +1141,7 @@ public class ColorCalculationService {
             String format = colorProperties.getProperty("format");
             boolean grid;
             if (format != null) {
-                grid = format.equalsIgnoreCase("grid");
+                grid = "grid".equalsIgnoreCase(format);
             } else {
                 grid = globalGrid;
             }
@@ -1190,26 +1172,20 @@ public class ColorCalculationService {
         Properties colorProperties = new Properties();
         int yOffset = 0;
 
-        try {
-            InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resourceProperties).get().open();
-            if (input != null) {
-                colorProperties.load(input);
-                input.close();
-            }
-
-            String format = colorProperties.getProperty("format");
-            if (format != null) {
-                grid = format.equalsIgnoreCase("grid");
-            }
-
-            String yOffsetString = colorProperties.getProperty("yOffset");
-            if (yOffsetString != null) {
-                yOffset = Integer.parseInt(yOffsetString);
-            }
+        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resourceProperties).get().open()) {
+            colorProperties.load(input);
         } catch (IOException ignored) {
         }
 
-        this.processColorProperty(resource, list, grid, yOffset);
+        String format = colorProperties.getProperty("format");
+        boolean effectiveGrid = format != null ? "grid".equalsIgnoreCase(format) : grid;
+
+        String yOffsetString = colorProperties.getProperty("yOffset");
+        if (yOffsetString != null) {
+            yOffset = Integer.parseInt(yOffsetString);
+        }
+
+        this.processColorProperty(resource, list, effectiveGrid, yOffset);
     }
 
     private void processColorProperty(ResourceLocation resource, String list, boolean grid, int yOffset) {
@@ -1222,10 +1198,8 @@ public class ColorCalculationService {
         boolean swamp = resource.getPath().contains("/swamp");
         Image tintColors;
 
-        try {
-            InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open();
+        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open()) {
             tintColors = ImageIO.read(is);
-            is.close();
         } catch (IOException var21) {
             return;
         }

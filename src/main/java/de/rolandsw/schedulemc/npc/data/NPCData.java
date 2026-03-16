@@ -552,7 +552,7 @@ public class NPCData {
     }
 
     public void addMoney(int amount) {
-        this.wallet += amount;
+        this.wallet = (int) Math.max(0L, Math.min((long) this.wallet + amount, Integer.MAX_VALUE));
     }
 
     public boolean removeMoney(int amount) {
@@ -688,7 +688,7 @@ public class NPCData {
      * Shop Inventory - Kaufen/Verkaufen Items
      */
     public static class ShopInventory {
-        private List<ShopEntry> entries;
+        final private List<ShopEntry> entries;
 
         public ShopInventory() {
             this.entries = new ArrayList<>();
@@ -810,7 +810,7 @@ public class NPCData {
      * NPC Behavior - Verhaltenseinstellungen
      */
     public static class NPCBehavior {
-        private boolean canMove;
+        private boolean canMove;  // NOPMD
         private boolean lookAtPlayer;
         private float movementSpeed;
 

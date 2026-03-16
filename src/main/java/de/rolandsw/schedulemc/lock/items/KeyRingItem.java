@@ -98,12 +98,12 @@ public class KeyRingItem extends Item {
         long now = System.currentTimeMillis();
         for (int i = 0; i < keys.size(); i++) {
             CompoundTag kt = keys.getCompound(i);
-            if (!kt.getString("lock_id").equals(lockId)) continue;
-            // Abgelaufen?
-            if (kt.contains("expire_time") && now > kt.getLong("expire_time")) continue;
-            // Nutzungen?
-            if (kt.contains("uses_left") && kt.getInt("uses_left") <= 0) continue;
-            return i;
+            boolean correctLock = kt.getString("lock_id").equals(lockId);
+            boolean notExpired = !kt.contains("expire_time") || now <= kt.getLong("expire_time");
+            boolean hasUses = !kt.contains("uses_left") || kt.getInt("uses_left") > 0;
+            if (correctLock && notExpired && hasUses) {
+                return i;
+            }
         }
         return -1;
     }
@@ -256,9 +256,9 @@ public class KeyRingItem extends Item {
                     "§c" + Component.translatable("lock.ring.key_info.empty").getString();
 
             String originShort;
-            if (origin.equals("STOLEN")) {
+            if ("STOLEN".equals(origin)) {
                 originShort = "§c" + Component.translatable("lock.ring.key_info.origin.stolen").getString();
-            } else if (origin.equals("COPY")) {
+            } else if ("COPY".equals(origin)) {
                 originShort = "§e" + Component.translatable("lock.ring.key_info.origin.copy").getString();
             } else {
                 originShort = "§a" + Component.translatable("lock.ring.key_info.origin.original").getString();

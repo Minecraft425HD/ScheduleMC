@@ -45,7 +45,7 @@ public class ScheduleMCAPI {
     private static final String VERSION = "3.2.0";
 
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile ScheduleMCAPI instance;
+    private static volatile ScheduleMCAPI instance;  // NOPMD
 
     // API Implementations
     private IEconomyAPI economyAPI;

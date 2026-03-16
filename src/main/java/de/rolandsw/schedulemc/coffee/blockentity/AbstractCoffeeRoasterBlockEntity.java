@@ -47,7 +47,7 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
 
     protected AbstractCoffeeRoasterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**
@@ -78,10 +78,7 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() instanceof GreenCoffeeBeanItem;
-                }
-                return false;
+                return slot == 0 && stack.getItem() instanceof GreenCoffeeBeanItem;
             }
 
             @Override
@@ -113,8 +110,8 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
             roastingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            coffeeType = null;
-            quality = null;
+            coffeeType = null;  // NOPMD
+            quality = null;  // NOPMD
             roastingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -155,9 +152,9 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            roastingProgress++;
-
             int totalTime = getRoastingTimePerBean() * inputStack.getCount();
+            roastingProgress = Math.min(roastingProgress + 1, totalTime);
+
             if (roastingProgress >= totalTime) {
                 // Röstung abgeschlossen
                 outputStack = RoastedCoffeeBeanItem.create(
@@ -166,6 +163,8 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
                     selectedRoastLevel,
                     inputStack.getCount()
                 );
+                inputStack = ItemStack.EMPTY;
+                roastingProgress = 0;
                 changed = true;
             }
 

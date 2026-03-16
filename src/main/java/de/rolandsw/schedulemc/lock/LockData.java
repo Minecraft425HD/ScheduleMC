@@ -13,21 +13,23 @@ public class LockData {
     /** Nil-UUID fuer Schloesser ohne Besitzer (Admin-Platzierung). */
     public static final UUID NO_OWNER = new UUID(0, 0);
 
-    private String lockId;
-    private LockType type;
-    private UUID ownerUUID;
-    private String ownerName;
+    private final String lockId;
+    private final LockType type;
+    private final UUID ownerUUID;
+    private final String ownerName;
 
     // Zahlenschloss
     private String code;              // 4-stelliger Code (null bei reinen Schluessel-Schloessern)
     private long lastCodeRotation;    // Zeitpunkt der letzten Code-Rotation
 
     // Tuer-Position (lower half)
-    private int doorX, doorY, doorZ;
-    private String dimension;
+    private final int doorX;
+    private final int doorY;
+    private final int doorZ;
+    private final String dimension;
 
     // Autorisierte Spieler (duerfen Schluessel erstellen)
-    private Set<UUID> authorizedPlayers;
+    final private Set<UUID> authorizedPlayers;
 
     private long placedTime;
 
@@ -44,7 +46,7 @@ public class LockData {
         this.authorizedPlayers = new HashSet<>();
         this.placedTime = System.currentTimeMillis();
         this.lastCodeRotation = placedTime;
-        this.code = null;
+        this.code = null;  // NOPMD
     }
 
     // ═══════════════════════════════════════════════════════════

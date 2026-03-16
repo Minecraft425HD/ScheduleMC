@@ -29,7 +29,7 @@ public class NPCMemory {
 
     private static final int MAX_MEMORIES_PER_PLAYER = NPCLifeConstants.Memory.MAX_MEMORIES_PER_PLAYER;
     private static final int MAX_DAILY_SUMMARIES = NPCLifeConstants.Memory.MAX_DAILY_SUMMARIES;
-    private static final int MAX_PLAYER_PROFILES = NPCLifeConstants.Memory.MAX_PLAYER_PROFILES;
+    private static final int MAX_PLAYER_PROFILES = NPCLifeConstants.Memory.MAX_PLAYER_PROFILES;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // DATA STRUCTURES
@@ -96,7 +96,7 @@ public class NPCMemory {
         private int negativeInteractions;
         private int totalTradeValue;
         private String mood; // Durchschnittliche Stimmung
-        private List<String> highlights; // Wichtigste 1-3 Events
+        final private List<String> highlights; // Wichtigste 1-3 Events
 
         public DailySummary(long day, UUID playerId) {
             this.day = day;
@@ -221,7 +221,7 @@ public class NPCMemory {
         }
 
         public void recordCrime() {
-            crimeCount++;
+            crimeCount = Math.min(crimeCount + 1, NPCLifeConstants);
             if (crimeCount >= NPCLifeConstants.Memory.CRIMES_FOR_SUSPICIOUS) {
                 reputationTags.add(NPCLifeConstants.PlayerTags.SUSPICIOUS);
             }
@@ -234,7 +234,7 @@ public class NPCMemory {
         }
 
         public void recordHelp() {
-            helpCount++;
+            helpCount = Math.min(helpCount + 1, NPCLifeConstants);
             if (helpCount >= NPCLifeConstants.Memory.HELPS_FOR_HELPFUL) {
                 reputationTags.add(NPCLifeConstants.PlayerTags.HELPFUL);
             }
@@ -389,10 +389,7 @@ public class NPCMemory {
      */
     public boolean knows(MemoryType type, UUID subject) {
         List<MemoryEntry> memories = detailMemories.get(subject);
-        if (memories != null) {
-            return memories.stream().anyMatch(m -> m.type() == type);
-        }
-        return false;
+        return memories != null && memories.stream().anyMatch(m -> m.type() == type);
     }
 
     /**

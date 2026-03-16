@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, List<SavingsAccount>>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile SavingsAccountManager instance;
+    private static volatile SavingsAccountManager instance;  // NOPMD
 
     private final Map<UUID, List<SavingsAccount>> accounts = new ConcurrentHashMap<>();
     private MinecraftServer server;
@@ -192,8 +192,9 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
         }
 
         boolean isUnlocked = account.isUnlocked(currentDay);
+        double balanceBeforeClose = account.getBalance(); // capture before close() zeroes it
         double payout = account.close(currentDay);
-        double penalty = isUnlocked ? 0 : account.getBalance() * 0.10;
+        double penalty = isUnlocked ? 0 : balanceBeforeClose * 0.10;
 
         // Zahle auf Hauptkonto
         EconomyManager.deposit(playerUUID, payout, TransactionType.SAVINGS_WITHDRAW,
@@ -201,7 +202,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
 
         // Strafe an Staatskasse
         if (penalty > 0) {
-            StateAccount.getInstance(server).deposit((int) penalty, "Sparkonto-Schließung (vorzeitig)");
+            StateAccount.getInstance(server).deposit((int) Math.round(penalty), "Sparkonto-Schließung (vorzeitig)");
         }
 
         // Entferne Konto
@@ -322,7 +323,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
         // NULL CHECK
         if (data == null) {
             LOGGER.warn("Null data loaded for savings accounts");
-            invalidCount++;
+            invalidCount++;  // NOPMD
             return;
         }
 

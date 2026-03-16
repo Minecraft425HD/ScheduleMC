@@ -40,14 +40,14 @@ public class HotReloadableConfig<T> {
     private static final Gson GSON = GsonHelper.get();
 
     // Globale WatchService-Instanz (geteilt)
-    private static volatile WatchService watchService;
+    private static volatile WatchService watchService;  // NOPMD
     private static final AtomicBoolean watcherRunning = new AtomicBoolean(false);
     private static final Map<Path, HotReloadableConfig<?>> watchedConfigs = new ConcurrentHashMap<>();
-    private static Thread watchThread;
+    private static Thread watchThread;  // NOPMD
 
     private final File configFile;
     private final Class<T> configClass;
-    private volatile T currentConfig;
+    private volatile T currentConfig;  // NOPMD
     private long lastModified = 0;
     private long lastReloadTime = 0;
     private static final long DEBOUNCE_MS = 500; // Minimum 500ms zwischen Reloads
@@ -121,7 +121,12 @@ public class HotReloadableConfig<T> {
      * Startet die Datei-Ueberwachung fuer diese Config.
      */
     public void startWatching() {
-        Path dir = configFile.getParentFile().toPath();
+        File parentFile = configFile.getParentFile();
+        if (parentFile == null) {
+            LOGGER.error("Kann Config-Datei nicht überwachen – kein übergeordnetes Verzeichnis: {}", configFile.getName());
+            return;
+        }
+        Path dir = parentFile.toPath();
         watchedConfigs.put(configFile.toPath().toAbsolutePath(), this);
 
         ensureWatchServiceRunning(dir);
@@ -135,52 +140,54 @@ public class HotReloadableConfig<T> {
         watchedConfigs.remove(configFile.toPath().toAbsolutePath());
     }
 
-    private static synchronized void ensureWatchServiceRunning(Path directory) {
-        if (watcherRunning.get()) return;
+    private static void ensureWatchServiceRunning(Path directory) {
+        synchronized (HotReloadableConfig.class) {
+            if (watcherRunning.get()) return;
 
-        try {
-            watchService = FileSystems.getDefault().newWatchService();
-            directory.register(watchService,
-                StandardWatchEventKinds.ENTRY_MODIFY,
-                StandardWatchEventKinds.ENTRY_CREATE);
+            try {
+                watchService = FileSystems.getDefault().newWatchService();
+                directory.register(watchService,
+                    StandardWatchEventKinds.ENTRY_MODIFY,
+                    StandardWatchEventKinds.ENTRY_CREATE);
 
-            watchThread = new Thread(() -> {
-                LOGGER.info("Config-WatchService gestartet");
-                while (watcherRunning.get()) {
-                    try {
-                        WatchKey key = watchService.poll(1, java.util.concurrent.TimeUnit.SECONDS);
-                        if (key == null) continue;
+                watchThread = new Thread(() -> {  // NOPMD
+                    LOGGER.info("Config-WatchService gestartet");
+                    while (watcherRunning.get()) {
+                        try {
+                            WatchKey key = watchService.poll(1, java.util.concurrent.TimeUnit.SECONDS);
+                            if (key == null) continue;
 
-                        for (WatchEvent<?> event : key.pollEvents()) {
-                            if (event.kind() == StandardWatchEventKinds.OVERFLOW) continue;
+                            for (WatchEvent<?> event : key.pollEvents()) {
+                                if (event.kind() == StandardWatchEventKinds.OVERFLOW) continue;
 
-                            @SuppressWarnings("unchecked")
-                            WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
-                            Path changed = ((Path) key.watchable()).resolve(pathEvent.context()).toAbsolutePath();
+                                @SuppressWarnings("unchecked")
+                                WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
+                                Path changed = ((Path) key.watchable()).resolve(pathEvent.context()).toAbsolutePath();
 
-                            HotReloadableConfig<?> config = watchedConfigs.get(changed);
-                            if (config != null) {
-                                config.onFileChanged();
+                                HotReloadableConfig<?> config = watchedConfigs.get(changed);
+                                if (config != null) {
+                                    config.onFileChanged();
+                                }
                             }
+
+                            key.reset();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();  // NOPMD
+                            break;
+                        } catch (ClosedWatchServiceException e) {
+                            break;
                         }
-
-                        key.reset();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    } catch (ClosedWatchServiceException e) {
-                        break;
                     }
-                }
-                LOGGER.info("Config-WatchService gestoppt");
-            }, "ScheduleMC-ConfigWatcher");
+                    LOGGER.info("Config-WatchService gestoppt");
+                }, "ScheduleMC-ConfigWatcher");
 
-            watchThread.setDaemon(true);
-            watcherRunning.set(true);
-            watchThread.start();
+                watchThread.setDaemon(true);
+                watcherRunning.set(true);
+                watchThread.start();
 
-        } catch (IOException e) {
-            LOGGER.error("Konnte WatchService nicht starten", e);
+            } catch (IOException e) {
+                LOGGER.error("Konnte WatchService nicht starten", e);
+            }
         }
     }
 
@@ -236,7 +243,7 @@ public class HotReloadableConfig<T> {
                 return false;
             }
 
-            T oldConfig = currentConfig;
+            T oldConfig = currentConfig;  // NOPMD
             currentConfig = newConfig;
 
             // Listener benachrichtigen

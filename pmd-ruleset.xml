@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<!--
+    PMD 7 Regelwerk für ScheduleMC
+    Verwendet die vollständigen Kategorien mit gezielten Ausschlüssen für
+    reine Stil-/Lärm-Regeln, die keine echten Bugs darstellen.
+    Fokus: Korrektheit, Thread-Safety, Null-Pointer-Risiken.
+-->
+<ruleset name="ScheduleMC Bug Detection"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
+                             https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>Bug-Detection-Regeln für ScheduleMC (PMD 7).</description>
+
+    <!-- ================================================================
+         MULTI-THREADING: alle Regeln – Thread-Safety ist kritisch
+         ================================================================ -->
+    <rule ref="category/java/multithreading.xml"/>
+
+    <!-- ================================================================
+         FEHLERANFÄLLIGE KONSTRUKTE: vollständig, ohne Stil-Rauschen
+         ================================================================ -->
+    <rule ref="category/java/errorprone.xml">
+        <!-- Stil-Regeln ausschließen, die keine echten Bugs sind -->
+        <exclude name="AvoidDuplicateLiterals"/>         <!-- zu viel Rauschen bei Minecraft-Keys -->
+        <exclude name="AvoidLiteralsInIfCondition"/>     <!-- normale Grenzwertchecks -->
+        <exclude name="MissingSerialVersionUID"/>        <!-- nicht relevant für Forge-Mods -->
+        <exclude name="NonSerializableClass"/>           <!-- nicht relevant für Forge-Mods -->
+        <exclude name="UseLocaleWithCaseConversions"/>   <!-- Minecraft-interne Strings -->
+        <exclude name="TestClassWithoutTestCases"/>      <!-- false positives bei abstract tests -->
+        <exclude name="JUnitSpelling"/>
+        <exclude name="JUnitStaticSuite"/>
+        <exclude name="SimpleDateFormatNeedsLocale"/>    <!-- keine Datums-Formatierung kritisch -->
+        <!-- AssignmentToNonFinalStatic aktiviert: nicht-volatile static-Zuweisung = Thread-Safety-Risiko -->
+        <exclude name="AvoidInstanceofChecksInCatchClause"/>
+        <exclude name="CloneThrowsCloneNotSupportedException"/>
+        <exclude name="DoNotHardCodeSDCard"/>
+        <exclude name="DontImportSun"/>
+        <exclude name="DetachedTestCase"/>
+        <exclude name="MissingStaticMethodInNonInstantiatableClass"/>
+        <exclude name="AvoidDecimalLiteralsInBigDecimalConstructor"/> <!-- kein BigDecimal in Use -->
+    </rule>
+
+    <!-- ================================================================
+         BEST PRACTICES: nur Bug-relevante Regeln
+         ================================================================ -->
+    <rule ref="category/java/bestpractices.xml">
+        <!-- Stil und Architektur ausschließen – nur echte Bug-Risiken behalten -->
+        <exclude name="AbstractClassWithoutAbstractMethod"/>
+        <exclude name="AccessorClassGeneration"/>
+        <exclude name="AccessorMethodGeneration"/>
+        <!-- ArrayIsStoredDirectly aktiviert: echte Encapsulation-Bug -->
+        <!-- <exclude name="ArrayIsStoredDirectly"/> -->
+        <exclude name="AvoidPrintStackTrace"/>           <!-- normal in Entwicklung -->
+        <exclude name="ForLoopVariableCount"/>
+        <exclude name="GuardLogStatement"/>              <!-- SLF4J-Logging-Pattern OK -->
+        <exclude name="JUnitAssertionsShouldIncludeMessage"/>
+        <exclude name="JUnitTestContainsTooManyAsserts"/>
+        <exclude name="JUnitTestsShouldIncludeAssert"/>
+        <exclude name="JUnitUseExpected"/>
+        <!-- LiteralsFirstInComparisons aktiviert: NPE-Schutz – "x".equals(var) statt var.equals("x") -->
+        <exclude name="LooseCoupling"/>                  <!-- Interface-Empfehlung, kein Bug -->
+        <!-- MethodReturnsInternalArray aktiviert: echte Encapsulation-Bug -->
+        <!-- <exclude name="MethodReturnsInternalArray"/> -->
+        <!-- MissingOverride aktiviert: fehlende @Override können Method-Hiding verstecken -->
+        <exclude name="OneDeclarationPerLine"/>          <!-- Stil -->
+        <exclude name="ReplaceEnumerationWithIterator"/>
+        <exclude name="ReplaceHashtableWithMap"/>
+        <exclude name="ReplaceVectorWithList"/>
+        <exclude name="SystemPrintln"/>                  <!-- normal in Entwicklung -->
+        <exclude name="UseVarargs"/>                     <!-- Stil -->
+        <exclude name="AvoidUsingHardCodedIP"/>          <!-- Minecraft-Localhost-Adressen -->
+    </rule>
+
+
+    <!-- ================================================================
+         PERFORMANCE: unnötige Wrapper-Objekte, String-Probleme
+         ================================================================ -->
+    <rule ref="category/java/performance.xml">
+        <exclude name="AvoidCalendarDateCreation"/>
+        <exclude name="AvoidFileStream"/>
+        <exclude name="InsufficientStringBufferDeclaration"/>
+        <exclude name="TooFewBranchesForASwitchStatement"/>
+        <exclude name="UseArraysAsList"/>
+        <exclude name="UseIOStreamsWithApacheCommonsFileItem"/>
+        <exclude name="UseIndexOfChar"/>
+        <exclude name="AvoidArrayLoops"/>
+        <!-- Stil-Regeln ausschließen -->
+        <exclude name="RedundantFieldInitializer"/>          <!-- = 0, = false, = null ist Stil -->
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>   <!-- zu viele false positives in Render-Code -->
+        <exclude name="ConsecutiveAppendsShouldReuse"/>      <!-- Stil -->
+        <exclude name="ConsecutiveLiteralAppends"/>          <!-- Stil -->
+        <exclude name="OptimizableToArrayCall"/>             <!-- Stil -->
+    </rule>
+
+
+    <!-- UnnecessaryCast: zu viele false positives bei numerischen/Grafik-Casts (94 Violations geprüft,
+         alle intentionale (float)/(int)-Casts in Rendering-Code) → nicht aktiviert -->
+
+    <!-- ================================================================
+         CODE STYLE: nur echte Bug-Finder
+         ================================================================ -->
+    <rule ref="category/java/codestyle.xml/EmptyControlStatement"/>
+
+    <!-- ================================================================
+         SECURITY: Kryptografie, Injection, unsichere APIs
+         ================================================================ -->
+    <rule ref="category/java/security.xml"/>
+
+    <!-- ================================================================
+         DESIGN: Resource-Leaks, Exception-Missbrauch, Immutabilität
+         (Size/Complexity-Metriken ausgeschlossen – nur Bug-relevante Regeln)
+         ================================================================ -->
+    <rule ref="category/java/design.xml">
+        <!-- Größen- und Komplexitätsmetriken: Architektur-Entscheidungen, keine Bugs -->
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="CognitiveComplexity"/>
+        <exclude name="NPathComplexity"/>
+        <exclude name="NcssCount"/>
+        <exclude name="ExcessiveMethodLength"/>
+        <exclude name="ExcessiveClassLength"/>
+        <exclude name="ExcessiveParameterList"/>
+        <exclude name="ExcessivePublicCount"/>
+        <exclude name="ExcessiveImports"/>
+        <exclude name="CouplingBetweenObjects"/>
+        <exclude name="TooManyFields"/>
+        <exclude name="TooManyMethods"/>
+        <exclude name="GodClass"/>
+        <exclude name="DataClass"/>
+        <exclude name="SwitchDensity"/>
+        <!-- Stil / Architektur-Empfehlungen, keine Bugs -->
+        <exclude name="UseUtilityClass"/>
+        <exclude name="FieldDeclarationsShouldBeAtStartOfClass"/>
+        <exclude name="LogicInversion"/>
+        <exclude name="SimplifiedTernary"/>
+        <exclude name="UseObjectForClearerAPI"/>
+        <exclude name="LawOfDemeter"/>
+        <exclude name="LoosePackageCoupling"/>
+        <exclude name="AbstractClassWithoutAnyMethod"/>
+        <exclude name="CollapsibleIfStatements"/>       <!-- zu viele false positives -->
+        <!-- Minecraft-Kontext: intentionale Patterns -->
+        <exclude name="AvoidCatchingGenericException"/> <!-- Event-Handler fangen absichtlich alles -->
+        <exclude name="MutableStaticState"/>            <!-- Singleton-Muster in Minecraft-Mods -->
+        <!-- ImmutableField aktiviert: Felder die nie neu gesetzt werden sollten final sein -->
+        <!-- SimplifyBooleanReturns aktiviert: if(x) return true; else return false; → return x -->
+        <exclude name="AvoidDeeplyNestedIfStmts"/>      <!-- Komplexitätsmetrik, kein Bug -->
+        <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal"/> <!-- Stil -->
+        <exclude name="SingularField"/>                  <!-- false positives bei GUI-Buttons und NPC-Zustandsfeldern -->
+    </rule>
+
+</ruleset>

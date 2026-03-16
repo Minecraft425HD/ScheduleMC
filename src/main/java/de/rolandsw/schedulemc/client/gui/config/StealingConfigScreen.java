@@ -85,7 +85,7 @@ public class StealingConfigScreen extends Screen {
             this.min = min;
             this.max = max;
             this.format = format;
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override
@@ -115,7 +115,7 @@ public class StealingConfigScreen extends Screen {
             this.min = min;
             this.max = max;
             this.format = format;
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override

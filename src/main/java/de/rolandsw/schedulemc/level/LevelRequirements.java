@@ -53,8 +53,7 @@ public class LevelRequirements {
      * @return Benötigte Gesamt-XP um dieses Level zu erreichen
      */
     public static int getRequiredXP(int level) {
-        level = Math.max(0, Math.min(MAX_LEVEL, level));
-        return XP_TABLE[level];
+        return XP_TABLE[Math.max(0, Math.min(MAX_LEVEL, level))];
     }
 
     /**
@@ -117,9 +116,9 @@ public class LevelRequirements {
 
         StringBuilder sb = new StringBuilder();
         sb.append("§a");
-        for (int i = 0; i < filled; i++) sb.append("█");
+        for (int i = 0; i < filled; i++) sb.append('█');
         sb.append("§7");
-        for (int i = 0; i < empty; i++) sb.append("░");
+        for (int i = 0; i < empty; i++) sb.append('░');
 
         sb.append(String.format(" §f%d%%", (int) (progress * 100)));
 

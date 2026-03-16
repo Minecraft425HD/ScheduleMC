@@ -19,8 +19,8 @@ import net.minecraft.world.item.ItemStack;
  */
 public class SlotMaintenance extends Slot {
 
-    private EntityGenericVehicle vehicle;
-    private Player player;
+    private final EntityGenericVehicle vehicle;
+    private final Player player;
 
     public SlotMaintenance(EntityGenericVehicle vehicle, int index, int xPosition, int yPosition, Player player) {
         super(new SimpleContainer(1), index, xPosition, yPosition);

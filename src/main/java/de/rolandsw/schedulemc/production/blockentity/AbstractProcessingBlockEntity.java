@@ -59,7 +59,7 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
 
     protected AbstractProcessingBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        createItemHandler();
+        createItemHandler();  // NOPMD
     }
 
     /**
@@ -154,7 +154,7 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
             return false;
         }
 
-        if (outputStack.isEmpty()) {
+        if (outputStack.isEmpty()) {  // NOPMD
             return true;
         }
 
@@ -177,8 +177,8 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
         inputDirty = true; // OPTIMIERUNG: Markiere als dirty
         if (inputStack.getCount() <= 0) {
             inputStack = ItemStack.EMPTY;
-            productionType = null;
-            quality = null;
+            productionType = null;  // NOPMD
+            quality = null;  // NOPMD
         }
 
         // Erhöhe Output
@@ -219,8 +219,8 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            productionType = null;
-            quality = null;
+            productionType = null;  // NOPMD
+            quality = null;  // NOPMD
             processingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

@@ -10,7 +10,7 @@ import java.util.*;
  */
 public class MissionRegistry {
 
-    private static final Map<String, MissionDefinition> REGISTRY = new LinkedHashMap<>();
+    private static final Map<String, MissionDefinition> REGISTRY = new LinkedHashMap<>();  // NOPMD
 
     static {
         // ── Hauptmissionen ──────────────────────────────────────────────

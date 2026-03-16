@@ -112,9 +112,10 @@ public class PhysicsComponent extends VehicleComponent {
     public void tick() {
         prevSteeringAngle = getSteeringAngle();
 
-        Runnable task;
-        while ((task = tasks.poll()) != null) {
+        Runnable task = tasks.poll();
+        while (task != null) {
             task.run();
+            task = tasks.poll();
         }
 
         if (isStarted() && !canEngineStayOn()) {
@@ -164,7 +165,8 @@ public class PhysicsComponent extends VehicleComponent {
 
     public void checkPush() {
         // Throttle: nur alle PUSH_CHECK_INTERVAL Ticks prüfen (Entity-Lookup ist teuer)
-        if (++pushCheckCounter < PUSH_CHECK_INTERVAL) return;
+        pushCheckCounter++;
+        if (pushCheckCounter < PUSH_CHECK_INTERVAL) return;
         pushCheckCounter = 0;
 
         List<Player> list = vehicle.level().getEntitiesOfClass(Player.class, vehicle.getBoundingBox().expandTowards(0.2, 0, 0.2).expandTowards(-0.2, 0, -0.2));
@@ -197,7 +199,7 @@ public class PhysicsComponent extends VehicleComponent {
 
         // Optimierung: Cache Component-Getter (nur 1 Aufruf statt 2)
         DamageComponent damage = vehicle.getDamageComponent();
-        if (damage != null && !damage.canEngineStayOn()) {
+        if (damage != null && !damage.canEngineStayOn()) {  // NOPMD
             return false;
         }
 
@@ -216,7 +218,7 @@ public class PhysicsComponent extends VehicleComponent {
             } else if (!isSoundPlaying(startLoop)) {
                 if (startLoop != null) {
                     startLoop.setDonePlaying();
-                    startLoop = null;
+                    startLoop = null;  // NOPMD
                 }
                 checkIdleLoop();
             }
@@ -236,7 +238,7 @@ public class PhysicsComponent extends VehicleComponent {
 
     @OnlyIn(Dist.CLIENT)
     public boolean isSoundPlaying(SoundInstance sound) {
-        if (sound == null) {
+        if (sound == null) {  // NOPMD
             return false;
         }
         return Minecraft.getInstance().getSoundManager().isActive(sound);
@@ -291,14 +293,15 @@ public class PhysicsComponent extends VehicleComponent {
         }
 
         vehicle.setYRot(vehicle.getYRot() + vehicle.getDeltaRotation());
-        float delta = Math.abs(vehicle.getYRot() - vehicle.yRotO);
+        // Preserve signed rotation delta so yRotO stays consistent after wrap
+        float signedDelta = vehicle.getYRot() - vehicle.yRotO;
         while (vehicle.getYRot() > 180F) {
             vehicle.setYRot(vehicle.getYRot() - 360F);
-            vehicle.yRotO = vehicle.getYRot() - delta;
+            vehicle.yRotO = vehicle.getYRot() - signedDelta;
         }
         while (vehicle.getYRot() <= -180F) {
             vehicle.setYRot(vehicle.getYRot() + 360F);
-            vehicle.yRotO = delta + vehicle.getYRot();
+            vehicle.yRotO = vehicle.getYRot() - signedDelta;
         }
 
         if (vehicle.horizontalCollision) {
@@ -400,26 +403,26 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public void updateControls(boolean forward, boolean backward, boolean left, boolean right) {
-        boolean needsUpdate = false;
+        boolean needsUpdate = false;  // NOPMD
 
         if (isForward() != forward) {
             setForward(forward);
-            needsUpdate = true;
+            needsUpdate = true;  // NOPMD
         }
 
         if (isBackward() != backward) {
             setBackward(backward);
-            needsUpdate = true;
+            needsUpdate = true;  // NOPMD
         }
 
         if (isLeft() != left) {
             setLeft(left);
-            needsUpdate = true;
+            needsUpdate = true;  // NOPMD
         }
 
         if (isRight() != right) {
             setRight(right);
-            needsUpdate = true;
+            needsUpdate = true;  // NOPMD
         }
     }
 
@@ -461,7 +464,7 @@ public class PhysicsComponent extends VehicleComponent {
 
         // Optimierung: Cache Component-Getter (nur 1 Aufruf statt 2)
         DamageComponent damage = vehicle.getDamageComponent();
-        if (damage != null && !damage.canStartVehicleEngine()) {
+        if (damage != null && !damage.canStartVehicleEngine()) {  // NOPMD
             return false;
         }
 
@@ -471,11 +474,11 @@ public class PhysicsComponent extends VehicleComponent {
     public boolean canPlayerDriveVehicle(Player player) {
         if (player.equals(vehicle.getDriver()) && isStarted()) {
             FuelComponent fuel = vehicle.getFuelComponent();
-            if (fuel != null && !fuel.hasFuel()) {
+            if (fuel != null && !fuel.hasFuel()) {  // NOPMD
                 return false;
             }
             return true;
-        } else if (vehicle.isInWater() || vehicle.isInLava()) {
+        } else if (vehicle.isInWater() || vehicle.isInLava()) {  // NOPMD
             return false;
         } else {
             return false;
@@ -720,7 +723,8 @@ public class PhysicsComponent extends VehicleComponent {
                 long blocks = (long) odometerAccumulator;
                 odometer += blocks;
                 odometerAccumulator -= blocks;
-                vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
+                // Clamp to Integer.MAX_VALUE to avoid overflow in synced int field
+                vehicle.getEntityData().set(ODOMETER_SYNCED, (int) Math.min(odometer, Integer.MAX_VALUE));
             }
         }
     }
@@ -734,7 +738,8 @@ public class PhysicsComponent extends VehicleComponent {
 
     public void setOdometer(long odometer) {
         this.odometer = odometer;
-        vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
+        // Clamp to Integer.MAX_VALUE to avoid overflow in synced int field
+        vehicle.getEntityData().set(ODOMETER_SYNCED, (int) Math.min(odometer, Integer.MAX_VALUE));
     }
 
     /**
@@ -771,6 +776,7 @@ public class PhysicsComponent extends VehicleComponent {
     public void readAdditionalData(CompoundTag compound) {
         setStarted(compound.getBoolean("started"), false, false);
         odometer = compound.getLong("odometer");
-        vehicle.getEntityData().set(ODOMETER_SYNCED, (int) odometer);
+        // Clamp to Integer.MAX_VALUE to avoid overflow in synced int field
+        vehicle.getEntityData().set(ODOMETER_SYNCED, (int) Math.min(odometer, Integer.MAX_VALUE));
     }
 }

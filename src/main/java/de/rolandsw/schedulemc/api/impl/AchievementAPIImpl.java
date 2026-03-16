@@ -39,7 +39,7 @@ public class AchievementAPIImpl implements IAchievementAPI {
         if (server == null) {
             throw new IllegalStateException("Server not started yet");
         }
-        this.achievementManager = AchievementManager.getInstance(server);
+        this.achievementManager = AchievementManager.initialize(server);
     }
 
     /**

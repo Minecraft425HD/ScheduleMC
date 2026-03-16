@@ -45,7 +45,7 @@ public class ChatScreen extends Screen {
     private String cachedOnlineStr;
     private String cachedNoMessagesStr;
     private String cachedNowStr;
-    private final Map<String, List<String>> wrappedTextCache = new HashMap<>();
+    private final Map<String, List<String>> wrappedTextCache = new HashMap<>();  // NOPMD
     private long renderFrameTime; // Einmal pro Frame statt pro Message
 
     public ChatScreen(Screen parent, Conversation conversation) {
@@ -288,7 +288,7 @@ public class ChatScreen extends Screen {
             String testLine = currentLine.length() == 0 ? word : currentLine + " " + word;
 
             if (this.font.width(testLine) <= maxWidth) {
-                if (currentLine.length() > 0) currentLine.append(" ");
+                if (currentLine.length() > 0) currentLine.append(' ');
                 currentLine.append(word);
             } else {
                 if (currentLine.length() > 0) {
@@ -321,10 +321,7 @@ public class ChatScreen extends Screen {
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
 

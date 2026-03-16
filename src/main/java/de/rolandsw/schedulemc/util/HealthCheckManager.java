@@ -114,7 +114,7 @@ public class HealthCheckManager {
      * Registry für Health-Checks. Jeder Check wird mit Key, Kategorie und
      * Supplier registriert. Eliminiert 30+ duplizierte Methoden.
      */
-    private static final Map<String, HealthCheckEntry> checkRegistry = new LinkedHashMap<>();
+    private static final Map<String, HealthCheckEntry> checkRegistry = new LinkedHashMap<>();  // NOPMD
 
     private static class HealthCheckEntry {
         final String category;
@@ -288,7 +288,7 @@ public class HealthCheckManager {
      * Nutzt die Registry statt 38 einzelner Methoden.
      */
     public static Map<String, ComponentHealth> checkAllSystems() {
-        Map<String, ComponentHealth> results = new LinkedHashMap<>();
+        Map<String, ComponentHealth> results = new LinkedHashMap<>();  // NOPMD
 
         for (Map.Entry<String, HealthCheckEntry> entry : checkRegistry.entrySet()) {
             results.put(entry.getKey(), checkSingletonManager(entry.getKey(), entry.getValue().supplier));
@@ -346,7 +346,7 @@ public class HealthCheckManager {
     private static void appendIfPresent(StringBuilder sb, Map<String, ComponentHealth> results, String key) {
         ComponentHealth health = results.get(key);
         if (health != null) {
-            sb.append(health.toString()).append("\n");
+            sb.append(health.toString()).append('\n');
         }
     }
 

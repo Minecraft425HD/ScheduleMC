@@ -72,10 +72,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == ChocolateItems.CONCHED_CHOCOLATE.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == ChocolateItems.CONCHED_CHOCOLATE.get();
             }
 
             @Override
@@ -99,14 +96,14 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
             temperingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             temperingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -132,7 +129,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            temperingProgress++;
+            temperingProgress = Math.min(temperingProgress + 1, PROCESSING_TIME);
 
             if (temperingProgress >= PROCESSING_TIME) {
                 // Tempering complete: Conched Chocolate → Tempered Chocolate
@@ -157,6 +154,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
                 }
 
                 outputStack = temperedChocolate;
+                inputStack = ItemStack.EMPTY;
                 temperingProgress = 0;
                 changed = true;
             }
@@ -218,7 +216,7 @@ public class TemperingStationBlockEntity extends BlockEntity implements IUtility
         temperingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

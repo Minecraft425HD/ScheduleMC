@@ -381,7 +381,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new BankDepositPacket(amount));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
@@ -393,7 +393,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new BankWithdrawPacket(amount));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
@@ -405,7 +405,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new SavingsDepositPacket(amount));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
@@ -417,14 +417,14 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount, forceWithdrawEnabled));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
 
     private void handleTransfer() {
         String target = transferTargetInput.getValue();
-        if (target == null || target.trim().isEmpty()) return;
+        if (target == null || target.isBlank()) return;
 
         try {
             double amount = Double.parseDouble(transferAmountInput.getValue());
@@ -432,14 +432,14 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new BankTransferPacket(target, amount));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
 
     private void handleRecurringCreate() {
         String recipient = recurringRecipientInput.getValue();
-        if (recipient == null || recipient.trim().isEmpty()) return;
+        if (recipient == null || recipient.isBlank()) return;
 
         try {
             double amount = Double.parseDouble(recurringAmountInput.getValue());
@@ -447,7 +447,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
                 NPCNetworkHandler.sendToServer(new CreateRecurringPaymentPacket(recipient, amount, selectedInterval));
                 // GUI bleibt offen
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             // Ignore
         }
     }
@@ -676,8 +676,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 69) return true;
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

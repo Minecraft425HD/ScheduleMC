@@ -151,7 +151,7 @@ public class MembershipManager {
 
         // Verteile Brutto-Gebühr gleichmäßig auf alle Towing Yards
         // addRevenue() zieht automatisch 19% MwSt ab und führt diese an Staatskasse ab
-        int feePerYard = (int) Math.ceil(fee / towingYards.size());
+        int feePerYard = (int) Math.round(fee / towingYards.size());
         net.minecraft.world.level.Level level = server.overworld();
 
         for (String yardPlotId : towingYards) {
@@ -242,17 +242,18 @@ public class MembershipManager {
 
         @Override
         protected void onDataLoaded(Map<String, MembershipSaveData> data) {
-            memberships.clear();
-
             int invalidCount = 0;
             int correctedCount = 0;
 
-            // NULL CHECK
+            // BUG FIX: NULL CHECK vor clear(), damit bei null-Daten die vorhandenen
+            // Mitgliedschaften im Speicher erhalten bleiben statt gelöscht zu werden.
             if (data == null) {
                 LOGGER.warn("Null data loaded for memberships");
-                invalidCount++;
+                invalidCount++;  // NOPMD
                 return;
             }
+
+            memberships.clear();
 
             // Check collection size
             if (data.size() > 10000) {
@@ -315,10 +316,8 @@ public class MembershipManager {
                     membershipData.setActive(saveData.active);
                     membershipData.setNextPaymentDate(saveData.nextPaymentDate);
 
-                    // Restore tow count
-                    for (int i = 0; i < saveData.towsThisPeriod; i++) {
-                        membershipData.incrementTows();
-                    }
+                    // Restore tow count directly (O(1) instead of an O(n) increment loop)
+                    membershipData.setTowsThisPeriod(saveData.towsThisPeriod);
 
                     memberships.put(playerId, membershipData);
                 } catch (IllegalArgumentException e) {
@@ -338,7 +337,7 @@ public class MembershipManager {
 
         @Override
         protected Map<String, MembershipSaveData> getCurrentData() {
-            Map<String, MembershipSaveData> saveMap = new HashMap<>();
+            Map<String, MembershipSaveData> saveMap = new HashMap<>();  // NOPMD
 
             memberships.forEach((playerId, data) -> {
                 // Only save if player has an active membership or had one

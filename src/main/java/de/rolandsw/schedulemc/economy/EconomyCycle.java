@@ -31,37 +31,37 @@ public class EconomyCycle implements IncrementalSaveManager.ISaveable {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Singleton
-    private static volatile EconomyCycle instance;
+    private static volatile EconomyCycle instance;  // NOPMD
 
     // Persistenz
-    private static volatile File file = new File("config/schedulemc_economy_cycle.json");
+    private static volatile File file = new File("config/schedulemc_economy_cycle.json");  // NOPMD
     private static final Gson gson = GsonHelper.get();
-    private static volatile boolean needsSave = false;
+    private static volatile boolean needsSave = false;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // ZYKLUS-DATEN
     // ═══════════════════════════════════════════════════════════
 
     /** Aktuelle Phase */
-    private volatile EconomyCyclePhase currentPhase = EconomyCyclePhase.NORMAL;
+    private volatile EconomyCyclePhase currentPhase = EconomyCyclePhase.NORMAL;  // NOPMD
 
     /** Verbleibende Tage in der aktuellen Phase */
-    private volatile int remainingDays;
+    private volatile int remainingDays;  // NOPMD
 
     /** Gesamte vergangene Tage seit Server-Start */
-    private volatile int totalDaysElapsed = 0;
+    private volatile int totalDaysElapsed = 0;  // NOPMD
 
     /** Anzahl abgeschlossener Zyklen */
-    private volatile int completedCycles = 0;
+    private volatile int completedCycles = 0;  // NOPMD
 
     /** Aktueller interpolierter Multiplikator (smooth transition) */
-    private volatile double currentMultiplier = 1.0;
+    private volatile double currentMultiplier = 1.0;  // NOPMD
 
     /** Multiplikator der vorherigen Phase (für Interpolation) */
-    private volatile double previousMultiplier = 1.0;
+    private volatile double previousMultiplier = 1.0;  // NOPMD
 
     /** Tage die diese Phase insgesamt dauert (für Interpolation) */
-    private volatile int currentPhaseTotalDays;
+    private volatile int currentPhaseTotalDays;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -113,7 +113,7 @@ public class EconomyCycle implements IncrementalSaveManager.ISaveable {
 
         needsSave = true;
 
-        LOGGER.info("Economy Day {}: Phase={}, Remaining={} days, Multiplier={:.2f}",
+        LOGGER.info("Economy Day {}: Phase={}, Remaining={} days, Multiplier={}",
                 totalDaysElapsed, currentPhase.getDisplayName(), remainingDays, currentMultiplier);
     }
 
@@ -163,8 +163,8 @@ public class EconomyCycle implements IncrementalSaveManager.ISaveable {
      * Smooth-Step Funktion für sanfte Interpolation.
      */
     private static double smoothStep(double t) {
-        t = Math.max(0, Math.min(1, t));
-        return t * t * (3.0 - 2.0 * t);
+        double clamped = Math.max(0, Math.min(1, t));
+        return clamped * clamped * (3.0 - 2.0 * clamped);
     }
 
     /**

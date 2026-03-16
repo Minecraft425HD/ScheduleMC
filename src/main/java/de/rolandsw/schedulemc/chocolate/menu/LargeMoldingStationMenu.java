@@ -25,7 +25,7 @@ public class LargeMoldingStationMenu extends AbstractContainerMenu {
     public LargeMoldingStationMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(ChocolateMenuTypes.LARGE_MOLDING_STATION_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof LargeMoldingStationBlockEntity e ? e : null;
+        this.blockEntity = be instanceof LargeMoldingStationBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

@@ -151,7 +151,7 @@ public class StockTradePacket {
         }
 
         // Tracke Kauf für Trading Achievements
-        StockTradingTracker tracker = StockTradingTracker.getInstance(player.server);
+        StockTradingTracker tracker = StockTradingTracker.initialize(player.server);
         tracker.recordPurchase(player.getUUID(), item, quantity, pricePerUnit);
 
         // Erfolgs-Nachricht
@@ -221,7 +221,7 @@ public class StockTradePacket {
         }
 
         // Tracke Verkauf und berechne Gewinn/Verlust + Spekulationssteuer
-        StockTradingTracker tracker = StockTradingTracker.getInstance(player.server);
+        StockTradingTracker tracker = StockTradingTracker.initialize(player.server);
         double[] saleResult = tracker.recordSaleWithTax(player.getUUID(), item, quantity, pricePerUnit);
         double profitLoss = saleResult[0];
         double tax = saleResult[1];

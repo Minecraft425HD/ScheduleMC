@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile InterestManager instance;
+    private static volatile InterestManager instance;  // NOPMD
 
     private static final double INTEREST_RATE = 0.02; // 2% pro Woche
     private static final double MAX_INTEREST_PER_WEEK = 10000.0;
@@ -56,7 +56,7 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
         // NULL CHECK
         if (data == null) {
             LOGGER.warn("Null data loaded for interest manager");
-            invalidCount++;
+            invalidCount++;  // NOPMD
             return;
         }
 

@@ -37,6 +37,8 @@ public class MerchantShopDefaults {
             case AUTOHAENDLER:
                 setupAutohaendlerShop(shop);
                 break;
+            default:
+                break;
         }
     }
 
@@ -58,6 +60,8 @@ public class MerchantShopDefaults {
                 break;
             case NOTDIENST:
                 setupNotdienstShop(shop);
+                break;
+            default:
                 break;
         }
     }

@@ -312,7 +312,7 @@ public class VehiclePurchaseHandler {
         if (result.length() < 3) {
             // Mit 'X' auffüllen
             while (result.length() < 3) {
-                result += "X";
+                result += "X";  // NOPMD - max 2 iterations, no performance concern
             }
         } else if (result.length() > 3) {
             // Nur erste 3 Zeichen

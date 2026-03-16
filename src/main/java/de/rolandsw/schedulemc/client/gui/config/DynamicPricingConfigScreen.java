@@ -98,7 +98,7 @@ public class DynamicPricingConfigScreen extends Screen {
             this.min = min;
             this.max = max;
             this.format = format;
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override
@@ -128,7 +128,7 @@ public class DynamicPricingConfigScreen extends Screen {
             this.min = min;
             this.max = max;
             this.format = format;
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override

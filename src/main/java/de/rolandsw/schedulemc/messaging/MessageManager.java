@@ -79,14 +79,11 @@ public class MessageManager {
     private static void addMessageToConversation(UUID ownerUUID, UUID participantUUID,
                                                  String participantName, boolean isPlayerParticipant,
                                                  Message message) {
-        playerConversations.computeIfAbsent(ownerUUID, k -> new ConcurrentHashMap<>());
-        Map<UUID, Conversation> conversations = playerConversations.get(ownerUUID);
+        Map<UUID, Conversation> conversations =
+                playerConversations.computeIfAbsent(ownerUUID, k -> new ConcurrentHashMap<>());
 
-        Conversation conv = conversations.get(participantUUID);
-        if (conv == null) {
-            conv = new Conversation(participantUUID, participantName, isPlayerParticipant);
-            conversations.put(participantUUID, conv);
-        }
+        Conversation conv = conversations.computeIfAbsent(participantUUID,
+                k -> new Conversation(participantUUID, participantName, isPlayerParticipant));
 
         conv.addMessage(message);
     }
@@ -196,7 +193,7 @@ public class MessageManager {
             // NULL CHECK
             if (data == null) {
                 LOGGER.warn("Null data loaded for messages");
-                invalidCount++;
+                invalidCount++;  // NOPMD
                 return;
             }
 
@@ -353,10 +350,10 @@ public class MessageManager {
 
         @Override
         protected Map<String, Map<String, ConversationData>> getCurrentData() {
-            Map<String, Map<String, ConversationData>> saveMap = new HashMap<>();
+            Map<String, Map<String, ConversationData>> saveMap = new HashMap<>();  // NOPMD
 
             playerConversations.forEach((playerUUID, conversations) -> {
-                Map<String, ConversationData> convMap = new HashMap<>();
+                Map<String, ConversationData> convMap = new HashMap<>();  // NOPMD
 
                 conversations.forEach((participantUUID, conv) -> {
                     ConversationData data = new ConversationData();

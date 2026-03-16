@@ -82,7 +82,7 @@ public class WorldStateService {
      * Resets world state (called on disconnect).
      */
     public void reset() {
-        this.currentWorld = null;
+        this.currentWorld = null;  // NOPMD
         this.worldSeed = "";
     }
 }

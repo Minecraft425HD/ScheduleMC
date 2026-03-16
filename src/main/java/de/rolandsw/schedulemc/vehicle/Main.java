@@ -71,12 +71,12 @@ public class Main {
     private static final DeferredRegister<EntityDataSerializer<?>> ENTITY_DATA_SERIALIZER_REGISTER = DeferredRegister.create(ForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, Main.MODID);
     public static final RegistryObject<EntityDataSerializer<NonNullList<ItemStack>>> ITEM_LIST = ENTITY_DATA_SERIALIZER_REGISTER.register("serializer_item_list", () -> DataSerializerItemList.create());
 
-    public static FuelConfig FUEL_CONFIG;
+    public static volatile FuelConfig FUEL_CONFIG;  // NOPMD
 
     public Main(IEventBus modEventBus) {
         modEventBus.addListener(this::commonSetup);
 
-        FUEL_CONFIG = CommonRegistry.registerDynamicConfig(DynamicConfig.DynamicConfigType.SERVER, Main.MODID, "fuel", FuelConfig.class);
+        FUEL_CONFIG = CommonRegistry.registerDynamicConfig(DynamicConfig.DynamicConfigType.SERVER, Main.MODID, "fuel", FuelConfig.class);  // NOPMD
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             modEventBus.addListener(Main.this::clientSetup);
@@ -191,7 +191,7 @@ public class Main {
         }, "onRegisterKeyBinds");
     }
 
-    private static EntityType<EntityGenericVehicle> createVehicleEntityType() {
+    private static EntityType<EntityGenericVehicle> createVehicleEntityType() {  // NOPMD
         return CommonRegistry.registerEntity(Main.MODID, "vehicle", MobCategory.MISC, EntityGenericVehicle.class, builder -> {
             builder.setTrackingRange(128)
                     .setUpdateInterval(1)

@@ -24,7 +24,7 @@ import java.util.List;
 public class PlotInfoScreen extends Screen {
 
     private final PlotRegion plot;
-    private int backgroundWidth = 280;
+    private static final int backgroundWidth = 280;
     private int backgroundHeight = 250; // Erhöht von 200 auf 250 für Rating-Sektion
     private int leftPos;
     private int topPos;
@@ -330,10 +330,7 @@ public class PlotInfoScreen extends Screen {
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override

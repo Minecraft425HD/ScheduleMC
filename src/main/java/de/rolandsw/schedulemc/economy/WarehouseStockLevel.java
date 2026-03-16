@@ -56,10 +56,10 @@ public enum WarehouseStockLevel {
      * @return Passendes Stock-Level
      */
     public static WarehouseStockLevel fromFillPercent(double fillPercent) {
-        fillPercent = Math.max(0.0, Math.min(1.0, fillPercent));
+        double fp = Math.max(0.0, Math.min(1.0, fillPercent));
 
         for (WarehouseStockLevel level : values()) {
-            if (fillPercent >= level.minFillPercent && fillPercent < level.maxFillPercent) {
+            if (fp >= level.minFillPercent && fp < level.maxFillPercent) {
                 return level;
             }
         }

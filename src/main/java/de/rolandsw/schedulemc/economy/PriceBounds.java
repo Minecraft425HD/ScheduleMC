@@ -51,7 +51,7 @@ public class PriceBounds {
         double clampedPrice = Math.max(minPrice, Math.min(maxPrice, calculatedPrice));
 
         if (clampedPrice != calculatedPrice) {
-            LOGGER.debug("Price clamped for category {}: {:.2f} → {:.2f} (bounds: {:.2f}-{:.2f})",
+            LOGGER.debug("Price clamped for category {}: {} → {} (bounds: {}-{})",
                     category.name(), calculatedPrice, clampedPrice, minPrice, maxPrice);
         }
 

@@ -106,13 +106,13 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         shopBuyButton.visible = !isBank;
 
         // Deaktiviere Kaufen-Button wenn NPC außerhalb der Arbeitszeiten ist
-        if (npc != null && minecraft != null && minecraft.level != null) {
+        if (npc != null && npc.getNpcData() != null && minecraft != null && minecraft.level != null) {
             boolean withinWorkingHours = npc.getNpcData().isWithinWorkingHours(minecraft.level);
             shopBuyButton.active = withinWorkingHours;
         }
 
         // Missionen-Button (sichtbar wenn NPC Missionen vergeben kann)
-        boolean hasMissions = npc != null && !npc.getNpcData().getMissionIds().isEmpty();
+        boolean hasMissions = npc != null && npc.getNpcData() != null && !npc.getNpcData().getMissionIds().isEmpty();
         missionButton = addRenderableWidget(Button.builder(
             Component.translatable("gui.npc.missions"), button -> openNpcMissions()
         ).bounds(x + 8, y + 78, 160, 20).build());
@@ -133,7 +133,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
      */
     private void openDialog() {
         CustomNPCEntity npc = menu.getNpc();
-        if (npc != null) {
+        if (npc != null && npc.getNpcData() != null) {
             // Sende Packet an Server: Nächster Dialog
             NPCNetworkHandler.sendToServer(new NPCActionPacket(
                 menu.getEntityId(),
@@ -246,10 +246,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
 

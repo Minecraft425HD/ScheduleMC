@@ -225,7 +225,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
                                   int progress, int remainingDays) {
         this.creditScore = score;
         this.creditRating = CreditScore.CreditRating.values()[
-            Math.min(ratingOrdinal, CreditScore.CreditRating.values().length - 1)
+            Math.max(0, Math.min(ratingOrdinal, CreditScore.CreditRating.values().length - 1))
         ];
         this.hasActiveLoan = hasLoan;
         this.activeLoanType = loanType;
@@ -390,10 +390,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true;
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
     @Override

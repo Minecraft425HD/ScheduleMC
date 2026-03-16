@@ -71,10 +71,7 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == HoneyItems.RAW_HONEY_BUCKET.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == HoneyItems.RAW_HONEY_BUCKET.get();
             }
 
             @Override
@@ -102,14 +99,14 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
                 }
             }
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            honeyType = null;
-            quality = null;
+            honeyType = null;  // NOPMD
+            quality = null;  // NOPMD
             processingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -136,7 +133,7 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            processingProgress++;
+            processingProgress = Math.min(processingProgress + 1, PROCESSING_TIME);
 
             if (processingProgress >= PROCESSING_TIME) {
                 // Processing complete: Raw Honey → Filtered Honey
@@ -156,8 +153,8 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
 
                 inputStack.shrink(1);
                 if (inputStack.isEmpty()) {
-                    honeyType = null;
-                    quality = null;
+                    honeyType = null;  // NOPMD
+                    quality = null;  // NOPMD
                 }
 
                 processingProgress = 0;
@@ -240,7 +237,7 @@ public class FilteringStationBlockEntity extends BlockEntity implements IUtility
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
         }
         syncToHandler();
     }

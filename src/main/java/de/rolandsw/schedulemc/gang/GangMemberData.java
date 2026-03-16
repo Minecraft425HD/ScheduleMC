@@ -51,7 +51,8 @@ public class GangMemberData {
     public void setRank(GangRank rank) { this.rank = rank; }
 
     public void addContributedXP(int xp) {
-        this.contributedXP += xp;
+        if (xp <= 0) return;
+        this.contributedXP = (int) Math.min((long) this.contributedXP + xp, Integer.MAX_VALUE);
     }
 
     public void resetFeePaid() {

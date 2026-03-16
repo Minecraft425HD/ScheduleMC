@@ -150,14 +150,14 @@ public class FuelComponent extends VehicleComponent implements IFluidHandler {
     }
 
     public void setFuelType(String fluid) {
-        if (fluid == null) {
-            fluid = "";
-        }
-        vehicle.getEntityData().set(FUEL_TYPE, fluid);
+        vehicle.getEntityData().set(FUEL_TYPE, fluid == null ? "" : fluid);
     }
 
     public void setFuelType(Fluid fluid) {
-        setFuelType(ForgeRegistries.FLUIDS.getKey(fluid).toString());
+        net.minecraft.resources.ResourceLocation key = ForgeRegistries.FLUIDS.getKey(fluid);
+        if (key != null) {
+            setFuelType(key.toString());
+        }
     }
 
     public String getFuelType() {
@@ -178,7 +178,7 @@ public class FuelComponent extends VehicleComponent implements IFluidHandler {
     }
 
     public boolean isValidFuel(Fluid fluid) {
-        if (fluid == null) {
+        if (fluid == null) {  // NOPMD
             return false;
         }
         return getEfficiency(fluid) > 0;

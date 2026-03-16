@@ -78,7 +78,7 @@ public class Evidence {
         this.locationZ = location != null ? location.getZ() : 0;
         this.reliability = Math.max(0.0f, Math.min(1.0f, reliability));
         this.description = description;
-        this.witnessUUID = witnessUUID != null ? witnessUUID.toString() : null;
+        this.witnessUUID = witnessUUID != null ? witnessUUID.toString() : null;  // NOPMD
     }
 
     // Getters

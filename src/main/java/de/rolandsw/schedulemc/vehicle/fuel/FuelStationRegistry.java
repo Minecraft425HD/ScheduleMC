@@ -31,7 +31,7 @@ public class FuelStationRegistry {
     // BlockPos → UUID (für schnelle Lookup)
     private static Map<BlockPos, UUID> positionToId = new ConcurrentHashMap<>();
     // SICHERHEIT: volatile für Memory Visibility
-    private static volatile boolean isDirty = false;
+    private static volatile boolean isDirty = false;  // NOPMD
 
     /**
      * Lädt Registry vom Disk

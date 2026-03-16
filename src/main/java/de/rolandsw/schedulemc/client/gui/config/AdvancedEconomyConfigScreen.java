@@ -273,7 +273,7 @@ public class AdvancedEconomyConfigScreen extends Screen {
         // === WIDGET ROW ENTRY ===
 
         public class WidgetRowEntry extends Entry {
-            private final List<GuiEventListener> children = new ArrayList<>();
+            private final List<GuiEventListener> children = new ArrayList<>();  // NOPMD
             @Nullable private final GuiEventListener leftWidget;
             @Nullable private final GuiEventListener rightWidget;
 
@@ -365,7 +365,7 @@ public class AdvancedEconomyConfigScreen extends Screen {
             this.max = max;
             this.multiplier = multiplier;
             this.format = format;
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override
@@ -395,7 +395,7 @@ public class AdvancedEconomyConfigScreen extends Screen {
             this.min = min;
             this.max = max;
             this.format = format;
-            updateMessage();
+            updateMessage();  // NOPMD
         }
 
         @Override

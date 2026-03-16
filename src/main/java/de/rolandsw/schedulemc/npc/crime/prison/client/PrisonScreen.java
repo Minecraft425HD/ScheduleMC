@@ -29,13 +29,13 @@ public class PrisonScreen extends Screen {
     private static final int COLOR_TEXT_GREEN = 0xFF55FF55;
     private static final int COLOR_TEXT_GOLD = 0xFFFFAA00;
 
-    private int cellNumber;
-    private long totalSentenceTicks;
-    private long releaseTime;
-    private double bailAmount;
+    private final int cellNumber;
+    private final long totalSentenceTicks;
+    private final long releaseTime;
+    private final double bailAmount;
     private double playerBalance;
     private boolean bailAvailable;
-    private long bailAvailableAtTick;
+    private final long bailAvailableAtTick;
 
     private int leftPos;
     private int topPos;
@@ -92,12 +92,6 @@ public class PrisonScreen extends Screen {
         }
 
         if (keyCode == 84) { // T für Chat
-            
-            // Block E key (inventory key - 69) from closing the screen
-            if (keyCode == 69) { // GLFW_KEY_E
-                return true; // Consume event, prevent closing
-            }
-            
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
 
@@ -275,7 +269,7 @@ public class PrisonScreen extends Screen {
         }
     }
 
-    private void onBailButtonClick(Button button) {
+    private void onBailButtonClick(Button button) {  // NOPMD
         if (!bailAvailable || playerBalance < bailAmount) {
             return;
         }

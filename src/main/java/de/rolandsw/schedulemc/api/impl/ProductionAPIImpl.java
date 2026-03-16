@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class ProductionAPIImpl implements IProductionAPI {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
 
     private final ProductionRegistry productionRegistry;
 
@@ -185,7 +185,7 @@ public class ProductionAPIImpl implements IProductionAPI {
             throw new IllegalArgumentException("newBasePrice must be non-negative, got: " + newBasePrice);
         }
         ProductionConfig config = productionRegistry.get(productionId);
-        if (config == null) {
+        if (config == null) {  // NOPMD
             return false;
         }
         // ProductionConfig is immutable - base price cannot be changed at runtime

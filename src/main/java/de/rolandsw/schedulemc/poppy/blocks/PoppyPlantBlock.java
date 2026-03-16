@@ -197,7 +197,7 @@ public class PoppyPlantBlock extends Block {
                 potPos = pos.below();
             } else {
                 // Obere Hälfte wurde abgebaut - Topf ist 2 Blöcke darunter
-                potPos = pos.below(2);
+                potPos = pos.below(2);  // NOPMD
                 // Bei oberer Hälfte: normale Destroy-Logik (entfernt Pflanze aus Topf)
                 super.playerWillDestroy(level, pos, state, player);
                 return;

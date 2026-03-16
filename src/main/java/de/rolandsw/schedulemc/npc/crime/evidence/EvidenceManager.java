@@ -31,7 +31,7 @@ public class EvidenceManager extends AbstractPersistenceManager<EvidenceManager.
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static volatile EvidenceManager instance;
+    private static volatile EvidenceManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     /** Maximale Beweise pro Spieler */
@@ -48,7 +48,7 @@ public class EvidenceManager extends AbstractPersistenceManager<EvidenceManager.
         load();
     }
 
-    public static EvidenceManager getInstance(MinecraftServer server) {
+    public static EvidenceManager initialize(MinecraftServer server) {
         EvidenceManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

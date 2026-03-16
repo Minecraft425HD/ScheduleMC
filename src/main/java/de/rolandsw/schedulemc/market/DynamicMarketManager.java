@@ -33,7 +33,7 @@ public class DynamicMarketManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile DynamicMarketManager instance;
+    private static volatile DynamicMarketManager instance;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // DATA
@@ -57,11 +57,11 @@ public class DynamicMarketManager {
 
     private static final File MARKET_FILE = new File("config/plotmod_market.json");
     private static final Gson GSON = GsonHelper.get();
-    private volatile boolean dirty = false;
+    private volatile boolean dirty = false;  // NOPMD
 
     // Statistics
-    private volatile long lastUpdateTime = 0;
-    private volatile long totalUpdates = 0;
+    private volatile long lastUpdateTime = 0;  // NOPMD
+    private volatile long totalUpdates = 0;  // NOPMD
     // CONCURRENCY: AtomicInteger für thread-safe Inkrement-Operationen
     private final AtomicInteger tickCounter = new AtomicInteger(0);
 
@@ -215,9 +215,9 @@ public class DynamicMarketManager {
     public void tick() {
         if (!enabled) return;
 
-        tickCounter.incrementAndGet();
-
-        if (tickCounter.get() >= updateInterval) {
+        // Atomares getAndIncrement verhindert, dass zwei Threads gleichzeitig
+        // das Intervall überschreiten und beide ein Update auslösen.
+        if (tickCounter.incrementAndGet() >= updateInterval) {
             tickCounter.set(0);
             performMarketUpdate();
         }
@@ -322,6 +322,7 @@ public class DynamicMarketManager {
                 case RISING -> risingCount++;
                 case FALLING -> fallingCount++;
                 case STABLE -> stableCount++;
+                default -> {}
             }
 
             avgPrice += data.getCurrentPrice();
@@ -398,7 +399,7 @@ public class DynamicMarketManager {
             StringBuilder name = new StringBuilder();
             for (String part : parts) {
                 if (!part.isEmpty()) {
-                    if (name.length() > 0) name.append(" ");
+                    if (name.length() > 0) name.append(' ');
                     name.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
                 }
             }

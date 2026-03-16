@@ -73,10 +73,7 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
                            stack.getItem() == BeerItems.MALTED_WHEAT.get() ||
                            stack.getItem() == BeerItems.MALTED_RYE.get();
                 }
-                if (slot == 1) {
-                    return stack.getItem() == Items.WATER_BUCKET;
-                }
-                return false;
+                return slot == 1 && stack.getItem() == Items.WATER_BUCKET;
             }
 
             @Override
@@ -103,7 +100,7 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
             CompoundTag tag = handlerGrain.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
             } else {
                 quality = BeerQuality.SCHLECHT;
             }
@@ -111,7 +108,7 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
             mashingProgress = 0;
         } else if (handlerGrain.isEmpty()) {
             maltedGrainStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             mashingProgress = 0;
         } else {
             maltedGrainStack = handlerGrain.copy();
@@ -146,9 +143,9 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
         boolean changed = false;
 
         if (!maltedGrainStack.isEmpty() && !waterBucketStack.isEmpty() && outputStack.isEmpty()) {
-            mashingProgress++;
-
             int totalTime = getTotalMashingTime();
+            mashingProgress = Math.min(mashingProgress + 1, totalTime);
+
             if (mashingProgress >= totalTime) {
                 // Mashing complete: Malted Grain + Water → Wort
                 ItemStack wortBucket = new ItemStack(BeerItems.WORT_BUCKET.get(), 1);
@@ -239,7 +236,7 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
         mashingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
         }
         syncToHandler();
     }

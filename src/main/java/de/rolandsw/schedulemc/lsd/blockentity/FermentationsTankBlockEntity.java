@@ -28,7 +28,7 @@ public class FermentationsTankBlockEntity extends BlockEntity implements IUtilit
     private int mutterkornCount = 0;
     private int fermentationProgress = 0;
     private int outputCount = 0;
-    private boolean isActive = false;
+    private boolean isActive = false;  // NOPMD
 
     public FermentationsTankBlockEntity(BlockPos pos, BlockState state) {
         super(LSDBlockEntities.FERMENTATIONS_TANK.get(), pos, state);
@@ -42,7 +42,7 @@ public class FermentationsTankBlockEntity extends BlockEntity implements IUtilit
         if (mutterkornCount >= CAPACITY) return false;
         if (outputCount > 0) return false; // Erst Output entnehmen
 
-        mutterkornCount++;
+        mutterkornCount = Math.min(mutterkornCount + 1, CAPACITY);
         if (fermentationProgress == 0) {
             isActive = true;
         }
@@ -69,8 +69,8 @@ public class FermentationsTankBlockEntity extends BlockEntity implements IUtilit
         if (level == null || level.isClientSide) return;
 
         if (mutterkornCount > 0 && outputCount == 0) {
-            isActive = true;
-            fermentationProgress++;
+            isActive = true;  // NOPMD
+            fermentationProgress = Math.min(fermentationProgress + 1, FERMENTATION_TIME);
 
             if (fermentationProgress >= FERMENTATION_TIME) {
                 // Fermentation abgeschlossen

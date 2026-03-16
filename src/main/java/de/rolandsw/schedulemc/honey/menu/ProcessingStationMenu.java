@@ -25,7 +25,7 @@ public class ProcessingStationMenu extends AbstractContainerMenu {
     public ProcessingStationMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(HoneyMenuTypes.PROCESSING_STATION_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof ProcessingStationBlockEntity e ? e : null;
+        this.blockEntity = be instanceof ProcessingStationBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

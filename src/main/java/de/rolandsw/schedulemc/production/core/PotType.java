@@ -25,7 +25,7 @@ public enum PotType {
     private final int waterCapacity;
     private final int soilCapacity;
     private final double consumptionMultiplier;
-    private final boolean hasQualityBoost;
+    private final boolean hasQualityBoost;  // NOPMD
 
     PotType(String displayName, String colorCode, double price, int waterCapacity,
             int soilCapacity, double consumptionMultiplier, boolean hasQualityBoost) {

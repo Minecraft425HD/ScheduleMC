@@ -105,7 +105,7 @@ public class RoadPathRenderer {
      */
     private void renderLineSegments(PoseStack poseStack, List<BlockPos> path, int startIndex,
                                      int worldCenterX, int worldCenterZ,
-                                     int screenCenterX, int screenCenterY, float halfMap,
+                                     int screenCenterX, int screenCenterY, float halfMap,  // NOPMD
                                      float scale, float rotation, float lineWidth, int color, float alpha) {
 
         RenderSystem.enableBlend();

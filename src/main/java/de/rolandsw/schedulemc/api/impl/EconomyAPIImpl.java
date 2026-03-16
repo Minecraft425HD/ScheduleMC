@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.api.economy.IEconomyAPI;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.Transaction;
 import de.rolandsw.schedulemc.economy.TransactionHistory;
+import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import com.mojang.logging.LogUtils;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class EconomyAPIImpl implements IEconomyAPI {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
 
     private final EconomyManager economyManager;
 
@@ -93,7 +94,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
         if (amount < 0) {
             throw new IllegalArgumentException("amount must be positive, got: " + amount);
         }
-        economyManager.deposit(playerUUID, amount);
+        economyManager.deposit(playerUUID, amount, TransactionType.OTHER, description);
     }
 
     /**
@@ -115,7 +116,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
         if (amount < 0) {
             throw new IllegalArgumentException("amount must be positive, got: " + amount);
         }
-        return economyManager.withdraw(playerUUID, amount);
+        return economyManager.withdraw(playerUUID, amount, TransactionType.OTHER, description);
     }
 
     /**
@@ -255,7 +256,7 @@ public class EconomyAPIImpl implements IEconomyAPI {
             if (entry.getKey() == null) {
                 throw new IllegalArgumentException("recipient UUID cannot be null");
             }
-            if (entry.getValue() < 0) {
+            if (entry.getValue() == null || entry.getValue() < 0) {
                 throw new IllegalArgumentException("transfer amount must be non-negative");
             }
             boolean success = transfer(fromUUID, entry.getKey(), entry.getValue(), description);

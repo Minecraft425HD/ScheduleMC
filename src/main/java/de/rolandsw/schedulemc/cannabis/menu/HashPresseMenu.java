@@ -31,7 +31,7 @@ public class HashPresseMenu extends AbstractContainerMenu {
     private static final int DATA_SIZE           = 6;
 
     // Server-side constructor
-    public HashPresseMenu(int containerId, Inventory playerInventory, HashPresseBlockEntity blockEntity) {
+    public HashPresseMenu(int containerId, Inventory playerInventory, HashPresseBlockEntity blockEntity) {  // NOPMD
         super(CannabisMenuTypes.HASH_PRESSE_MENU.get(), containerId);
         this.blockEntity = blockEntity;
 
@@ -69,7 +69,7 @@ public class HashPresseMenu extends AbstractContainerMenu {
 
         BlockPos pos = extraData.readBlockPos();
         BlockEntity be = playerInventory.player.level().getBlockEntity(pos);
-        this.blockEntity = be instanceof HashPresseBlockEntity presse ? presse : null;
+        this.blockEntity = be instanceof HashPresseBlockEntity presse ? presse : null;  // NOPMD
 
         this.data = new SimpleContainerData(DATA_SIZE);
         addDataSlots(this.data);

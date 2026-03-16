@@ -44,8 +44,8 @@ public class NPCDrivingScheduler {
 
     private static final Deque<NPCDrivingTask> activeTasks = new ConcurrentLinkedDeque<>();
     private static final Map<UUID, NPCDrivingTask> tasksByNpc = new ConcurrentHashMap<>();
-    private static volatile int tickCounter = 0;
-    private static volatile int assignmentCheckCounter = 0;
+    private static volatile int tickCounter = 0;  // NOPMD
+    private static volatile int assignmentCheckCounter = 0;  // NOPMD
 
     /**
      * Startet eine NPC-Fahrt entlang des RoadGraph-Pfads.
@@ -143,7 +143,7 @@ public class NPCDrivingScheduler {
         EventHelper.handleServerTickEnd(event, NPCDrivingScheduler::tick);
     }
 
-    private static void tick(MinecraftServer server) {
+    private static void tick(MinecraftServer server) {  // NOPMD
         tickCounter++;
 
         // Vehicle-Assignments periodisch aktualisieren
@@ -154,7 +154,7 @@ public class NPCDrivingScheduler {
         }
 
         // Budget-basiertes Round-Robin Update
-        int processed = 0;
+        int processed = 0;  // NOPMD
         int tasksToProcess = Math.min(BUDGET_PER_TICK, activeTasks.size());
 
         for (int i = 0; i < tasksToProcess; i++) {

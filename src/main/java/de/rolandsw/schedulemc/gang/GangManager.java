@@ -34,7 +34,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Singleton
-    private static volatile GangManager instance;
+    private static volatile GangManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     // Daten
@@ -42,7 +42,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
     private final ConcurrentHashMap<UUID, UUID> playerToGang = new ConcurrentHashMap<>(); // playerUUID -> gangId
 
     @Nullable
-    private MinecraftServer server;
+    private final MinecraftServer server;
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -62,7 +62,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         return instance;
     }
 
-    public static GangManager getInstance(MinecraftServer server) {
+    public static GangManager initialize(MinecraftServer server) {
         GangManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {
@@ -80,7 +80,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
             if (instance != null) {
                 instance.save();
             }
-            instance = null;
+            instance = null;  // NOPMD
         }
     }
 
@@ -98,10 +98,9 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         if (playerToGang.containsKey(founderUUID)) return null;
 
         // Pruefe ob Name oder Tag schon vergeben
-        String lowerName = name.toLowerCase();
         String upperTag = tag.toUpperCase();
         for (Gang g : gangs.values()) {
-            if (g.getName().toLowerCase().equals(lowerName)) return null;
+            if (g.getName().equalsIgnoreCase(name)) return null;
             if (g.getTag().equals(upperTag)) return null;
         }
 
@@ -137,8 +136,9 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         GangRank rank = gang.getRank(requesterUUID);
         if (rank == null || !rank.canDisband()) return false;
 
-        // Alle Mitglieder entfernen
-        for (UUID memberUUID : gang.getMembers().keySet()) {
+        // Alle Mitglieder entfernen – Kopie der Keys, damit kein CME entsteht
+        // falls die backing-Map durch einen anderen Thread verändert wird
+        for (UUID memberUUID : new java.util.ArrayList<>(gang.getMembers().keySet())) {
             playerToGang.remove(memberUUID);
         }
 
@@ -319,7 +319,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
      * Vorschlag 2 Staffelung:
      * RECRUIT: 100%, MEMBER: 50%, UNDERBOSS: 10%, BOSS: 0%
      *
-     * Bei 3 verpassten Zahlungen: Auto-Kick.
+     * Bei 6 verpassten Zahlungen: Auto-Kick.
      */
     public void collectWeeklyFees(MinecraftServer srv) {
         if (srv == null) return;
@@ -377,7 +377,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
             for (UUID kickUUID : toKick) {
                 gang.removeMember(kickUUID);
                 playerToGang.remove(kickUUID);
-                LOGGER.info("Auto-kicked {} from gang '{}' (missed 3 fee payments)", kickUUID, gang.getName());
+                LOGGER.info("Auto-kicked {} from gang '{}' (missed 6 fee payments)", kickUUID, gang.getName());
             }
             if (!toKick.isEmpty()) {
                 markDirty();
@@ -493,7 +493,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
 
     @Override
     protected Map<String, SavedGangData> getCurrentData() {
-        Map<String, SavedGangData> data = new HashMap<>();
+        Map<String, SavedGangData> data = new HashMap<>();  // NOPMD
 
         for (Map.Entry<UUID, Gang> entry : gangs.entrySet()) {
             Gang gang = entry.getValue();

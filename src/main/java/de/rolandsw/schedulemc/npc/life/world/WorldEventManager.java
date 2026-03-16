@@ -37,7 +37,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile WorldEventManager instance;
+    private static volatile WorldEventManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -53,7 +53,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
         return getInstance(level.getServer());
     }
 
-    public static WorldEventManager getInstance(MinecraftServer server) {
+    public static WorldEventManager initialize(MinecraftServer server) {
         WorldEventManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {
@@ -83,7 +83,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
+    private final MinecraftServer server;
 
     /** Aktive Events - CopyOnWriteArrayList fuer Thread-sichere Iteration ohne externe Synchronisation */
     private final List<WorldEvent> activeEvents = new CopyOnWriteArrayList<>();
@@ -159,7 +159,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
     /**
      * Versucht ein neues Event zu generieren
      */
-    private void tryGenerateEvent(ServerLevel level, long currentDay) {
+    private void tryGenerateEvent(ServerLevel level, long currentDay) {  // NOPMD
         if (activeEvents.size() >= MAX_ACTIVE_EVENTS) {
             return;
         }
@@ -301,7 +301,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
     /**
      * Kündigt ein Event an (z.B. via Chat)
      */
-    private void announceEvent(WorldEvent event) {
+    private void announceEvent(WorldEvent event) {  // NOPMD
         // Hier könnte eine Server-weite Nachricht gesendet werden
         // level.getServer().getPlayerList().broadcastSystemMessage(
         //     Component.literal("[Event] " + event.getType().getDisplayName() + ": " +

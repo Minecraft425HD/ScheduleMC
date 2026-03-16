@@ -59,7 +59,7 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
 
     public AbstractPackagingTableBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int slots) {
         super(type, pos, state);
-        this.itemHandler = createItemHandler(slots);
+        this.itemHandler = createItemHandler(slots);  // NOPMD
     }
 
     /**
@@ -249,6 +249,8 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
                         0
                     );
                 }
+                break;
+            default:
                 break;
         }
 

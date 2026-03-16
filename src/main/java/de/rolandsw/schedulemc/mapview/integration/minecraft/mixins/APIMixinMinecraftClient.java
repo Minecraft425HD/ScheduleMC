@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class APIMixinMinecraftClient {
 
     // @Inject(method = "tick()V", at = @At("RETURN"), require = 0)
-    private void onTick(CallbackInfo ci) {
+    private void onTick(CallbackInfo ci) {  // NOPMD
         MapViewConstants.clientTick();
     }
 

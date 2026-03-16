@@ -95,7 +95,7 @@ public class CoffeeGrinderBlockEntity extends BlockEntity implements IUtilityCon
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            grindingProgress++;
+            grindingProgress = Math.min(grindingProgress + 1, 100);
 
             if (grindingProgress >= 100) {
                 CoffeeType type = RoastedCoffeeBeanItem.getType(inputStack);
@@ -103,6 +103,7 @@ public class CoffeeGrinderBlockEntity extends BlockEntity implements IUtilityCon
                 CoffeeRoastLevel roastLevel = RoastedCoffeeBeanItem.getRoastLevel(inputStack);
 
                 outputStack = GroundCoffeeItem.create(type, quality, roastLevel, selectedGrindSize, inputStack.getCount());
+                inputStack = ItemStack.EMPTY;
                 grindingProgress = 0;
                 changed = true;
             }

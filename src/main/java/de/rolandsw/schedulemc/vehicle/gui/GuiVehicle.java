@@ -43,13 +43,13 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
     private static final int TEXT_WHITE = 0xFFFFFF;
     private static final int TEXT_LIGHT = 0xDDDDDD;
 
-    private Inventory playerInv;
-    private EntityGenericVehicle vehicle;
-    private int internalRows;
-    private int externalRows;
-    private int internalSlots;
-    private int externalSlots;
-    private int hotbarY; // Y position for hotbar slots
+    private Inventory playerInv;  // NOPMD
+    private final EntityGenericVehicle vehicle;
+    private final int internalRows;
+    private final int externalRows;
+    private final int internalSlots;
+    private final int externalSlots;
+    private final int hotbarY; // Y position for hotbar slots
 
     public GuiVehicle(ContainerVehicle containerVehicle, Inventory playerInv, Component title) {
         super(TEXTURE, containerVehicle, playerInv, title);

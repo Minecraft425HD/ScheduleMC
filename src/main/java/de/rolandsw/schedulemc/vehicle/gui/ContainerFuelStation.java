@@ -6,7 +6,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class ContainerFuelStation extends ContainerBase {
 
-    private TileEntityFuelStation fuelStation;
+    private final TileEntityFuelStation fuelStation;
 
     public ContainerFuelStation(int id, TileEntityFuelStation fuelStation, Inventory playerInv) {
         super(Main.FUEL_STATION_CONTAINER_TYPE.get(), id, playerInv, null);

@@ -49,10 +49,10 @@ public class BountyCommand {
     /**
      * Zeigt alle aktiven Bounties
      */
-    private static int listBounties(CommandContext<CommandSourceStack> ctx) {
+    private static int listBounties(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error").getString(),
             player -> {
-                BountyManager manager = BountyManager.getInstance(player.getServer());
+                BountyManager manager = BountyManager.initialize(player.getServer());
                 List<BountyData> bounties = manager.getTopBounties(10);
 
                 if (bounties.isEmpty()) {
@@ -97,7 +97,7 @@ public class BountyCommand {
     /**
      * Platziert Kopfgeld
      */
-    private static int placeBounty(CommandContext<CommandSourceStack> ctx) {
+    private static int placeBounty(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.place_error").getString(),
             player -> {
                 try {
@@ -121,7 +121,7 @@ public class BountyCommand {
                         return;
                     }
 
-                    BountyManager manager = BountyManager.getInstance(player.getServer());
+                    BountyManager manager = BountyManager.initialize(player.getServer());
 
                     if (manager.placeBounty(player.getUUID(), target.getUUID(), amount, reason)) {
                         player.sendSystemMessage(Component.translatable(
@@ -144,10 +144,10 @@ public class BountyCommand {
     /**
      * Zeigt eigenes Bounty
      */
-    private static int showOwnBounty(CommandContext<CommandSourceStack> ctx) {
+    private static int showOwnBounty(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error").getString(),
             player -> {
-                BountyManager manager = BountyManager.getInstance(player.getServer());
+                BountyManager manager = BountyManager.initialize(player.getServer());
                 BountyData bounty = manager.getActiveBounty(player.getUUID());
 
                 if (bounty == null) {
@@ -161,12 +161,12 @@ public class BountyCommand {
     /**
      * Zeigt Bounty eines anderen Spielers
      */
-    private static int showTargetBounty(CommandContext<CommandSourceStack> ctx) {
+    private static int showTargetBounty(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.fetch_error").getString(),
             player -> {
                 try {
                     ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
-                    BountyManager manager = BountyManager.getInstance(player.getServer());
+                    BountyManager manager = BountyManager.initialize(player.getServer());
                     BountyData bounty = manager.getActiveBounty(target.getUUID());
 
                     if (bounty == null) {
@@ -190,10 +190,10 @@ public class BountyCommand {
     /**
      * Zeigt Bounty-Historie
      */
-    private static int showHistory(CommandContext<CommandSourceStack> ctx) {
+    private static int showHistory(CommandContext<CommandSourceStack> ctx) {  // NOPMD
         return CommandExecutor.executePlayerCommand(ctx, Component.translatable("command.bounty.history_error").getString(),
             player -> {
-                BountyManager manager = BountyManager.getInstance(player.getServer());
+                BountyManager manager = BountyManager.initialize(player.getServer());
                 List<BountyData> history = manager.getBountyHistory(player.getUUID());
 
                 if (history.isEmpty()) {

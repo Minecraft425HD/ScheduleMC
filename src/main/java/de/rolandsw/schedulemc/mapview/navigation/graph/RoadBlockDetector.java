@@ -27,7 +27,7 @@ public class RoadBlockDetector {
     // Gecachte Straßenblöcke für schnellen Lookup
     private static final Set<Block> roadBlocks = ConcurrentHashMap.newKeySet();
     // SICHERHEIT: volatile für Memory Visibility
-    private static volatile boolean initialized = false;
+    private static volatile boolean initialized = false;  // NOPMD
 
     /**
      * Initialisiert den Detector mit Blöcken aus der Config
@@ -107,7 +107,7 @@ public class RoadBlockDetector {
             initialize();
         }
 
-        if (state == null) {
+        if (state == null) {  // NOPMD
             return false;
         }
 

@@ -201,7 +201,7 @@ public class DialogueHelper {
         if (lifeData == null) return false;
 
         // Braucht gute Beziehung
-        if (!lifeData.getMemory().hasPlayerTag(player.getUUID(), "Freund")) {
+        if (!lifeData.getMemory().hasPlayerTag(player.getUUID(), "Freund")) {  // NOPMD
             return false;
         }
 

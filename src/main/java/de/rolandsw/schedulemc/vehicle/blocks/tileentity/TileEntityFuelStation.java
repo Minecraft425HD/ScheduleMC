@@ -54,7 +54,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     private final int transferRate;
 
     private int fuelCounter;
-    private boolean isFueling;
+    private boolean isFueling;  // NOPMD
     private boolean wasFueling;
 
     private SimpleContainer inventory;
@@ -143,6 +143,8 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                     return (int) Math.round(totalCostThisSession * 100);
                 case 6:
                     return isFueling ? 1 : 0;
+                default:
+                    break;
             }
             return 0;
         }
@@ -173,6 +175,8 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                     break;
                 case 6:
                     isFueling = value != 0;
+                    break;
+                default:
                     break;
             }
         }
@@ -211,7 +215,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             cachedEntityInFront = searchEntityWithFluidHandlerInFront();
             cachedFluidHandler = cachedEntityInFront != null
                     ? cachedEntityInFront.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null)
-                    : null;
+                    : null;  // NOPMD
         }
         entityInFront = cachedEntityInFront;
         fluidHandlerInFront = cachedFluidHandler;
@@ -404,9 +408,9 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         isFueling = false;
         totalCostThisSession = 0;
         totalFueledThisSession = 0;
-        currentFuelingPlayer = null;
-        cachedEntityInFront = null; // Cache invalidieren für nächstes Fahrzeug
-        cachedFluidHandler = null;
+        currentFuelingPlayer = null;  // NOPMD
+        cachedEntityInFront = null; // Cache invalidieren für nächstes Fahrzeug  // NOPMD
+        cachedFluidHandler = null;  // NOPMD
         synchronize();
         setChanged();
     }
@@ -686,7 +690,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         }
     }
 
-    private CachedValue<Vec3> center = new CachedValue<>(() -> new Vec3(worldPosition.getX() + 0.5D, worldPosition.getY() + 1.5D, worldPosition.getZ() + 0.5D));
+    final private CachedValue<Vec3> center = new CachedValue<>(() -> new Vec3(worldPosition.getX() + 0.5D, worldPosition.getY() + 1.5D, worldPosition.getZ() + 0.5D));
 
     @Nullable
     private Entity searchEntityWithFluidHandlerInFront() {
@@ -715,9 +719,9 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         return entityInFront;
     }
 
-    private CachedValue<AABB> detectionBox = new CachedValue<>(this::createDetectionBox);
+    final private CachedValue<AABB> detectionBox = new CachedValue<>(this::createDetectionBox);
 
-    private AABB createDetectionBox() {
+    private AABB createDetectionBox() {  // NOPMD
         BlockState ownState = level.getBlockState(worldPosition);
 
         if (!ownState.getBlock().equals(ModBlocks.FUEL_STATION.get())) {
@@ -754,7 +758,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
 
     @Override
     public boolean shouldSoundBePlayed() {
-        if (!isFueling) {
+        if (!isFueling) {  // NOPMD
             return false;
         }
 

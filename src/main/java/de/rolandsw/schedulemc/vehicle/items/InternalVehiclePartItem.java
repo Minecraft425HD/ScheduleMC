@@ -65,7 +65,7 @@ public class InternalVehiclePartItem extends Item implements IVehiclePart {
      */
     public static boolean isLicensePlate(ItemStack stack) {
         if (!(stack.getItem() instanceof InternalVehiclePartItem)) return false;
-        if (!stack.hasTag()) return false;
+        if (!stack.hasTag()) return false;  // NOPMD
         return "license_sign".equals(stack.getTag().getString(TAG_PART_ID));
     }
 }

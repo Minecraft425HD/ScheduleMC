@@ -161,7 +161,7 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             // Reset all market data
             marketManager.reset();
-        } else {
+        } else {  // NOPMD - intentionaler Stub
             // Stub: Per-item reset not available in DynamicMarketManager
             // Only full reset is supported via reset()
         }

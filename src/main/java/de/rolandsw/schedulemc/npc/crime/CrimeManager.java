@@ -474,9 +474,9 @@ public class CrimeManager {
     }
 
     private static class CrimeData {
-        Map<String, Integer> wantedLevels = new HashMap<>();
-        Map<String, Long> lastCrimeDay = new HashMap<>();
-        Map<String, Long> escapeTimers = new HashMap<>(); // FIX 5
-        Map<String, List<CrimeRecord>> crimeRecords = new HashMap<>(); // FIX 8
+        Map<String, Integer> wantedLevels = new HashMap<>();  // NOPMD
+        Map<String, Long> lastCrimeDay = new HashMap<>();  // NOPMD
+        Map<String, Long> escapeTimers = new HashMap<>(); // FIX 5  // NOPMD
+        Map<String, List<CrimeRecord>> crimeRecords = new HashMap<>(); // FIX 8  // NOPMD
     }
 }

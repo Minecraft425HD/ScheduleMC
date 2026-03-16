@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RedemptionQuestManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static volatile RedemptionQuestManager instance;
+    private static volatile RedemptionQuestManager instance;  // NOPMD
     private static final RedemptionQuestType[] QUEST_TYPES = RedemptionQuestType.values();
 
     // Aktive Vergebungs-Quests pro Spieler
@@ -65,7 +65,7 @@ public class RedemptionQuestManager {
         private final Faction targetFaction;
         private final RedemptionQuestType type;
         private int progress;
-        private final long startTime;
+        private final long startTime;  // NOPMD
 
         public RedemptionQuest(UUID playerUUID, Faction targetFaction, RedemptionQuestType type) {
             this.playerUUID = playerUUID;
@@ -123,7 +123,7 @@ public class RedemptionQuestManager {
 
         // Reputation muss unter Schwellwert sein
         FactionManager fm = FactionManager.getInstance();
-        if (fm == null) return false;
+        if (fm == null) return false;  // NOPMD
 
         return fm.getReputation(playerUUID, faction) <= REPUTATION_THRESHOLD;
     }

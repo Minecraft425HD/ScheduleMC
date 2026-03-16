@@ -90,7 +90,7 @@ public class Transaction {
         sb.append(" §7- §e").append(type.getDisplayName());
 
         if (description != null && !description.isEmpty()) {
-            sb.append(" §7(").append(description).append(")");
+            sb.append(" §7(").append(description).append(')');
         }
 
         sb.append("\n  §7Neuer Kontostand: §6").append(String.format("%.2f€", balanceAfter));

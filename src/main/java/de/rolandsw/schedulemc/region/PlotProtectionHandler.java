@@ -222,24 +222,24 @@ public class PlotProtectionHandler {
         if (plotName == null || plotName.isEmpty()) {
             plotName = Component.translatable("plot.unnamed").getString();
         }
-        info.append("§e").append(plotName).append("\n");
+        info.append("§e").append(plotName).append('\n');
 
         String ownerName = plot.hasOwner() ? plot.getOwnerName() : Component.translatable("plot.no_owner").getString();
-        info.append(Component.translatable("message.plot.info_owner", ownerName).getString()).append("\n");
+        info.append(Component.translatable("message.plot.info_owner", ownerName).getString()).append('\n');
 
         if (plot.isForSale()) {
-            info.append(Component.translatable("message.plot.info_for_sale", plot.getSalePrice()).getString()).append("\n");
+            info.append(Component.translatable("message.plot.info_for_sale", plot.getSalePrice()).getString()).append('\n');
         }
 
         if (plot.isForRent()) {
-            info.append(Component.translatable("message.plot.info_for_rent", plot.getRentPricePerDay()).getString()).append("\n");
+            info.append(Component.translatable("message.plot.info_for_rent", plot.getRentPricePerDay()).getString()).append('\n');
         }
 
         if (plot.isRented()) {
-            info.append(Component.translatable("message.plot.info_rented_days", plot.getRentDaysLeft()).getString()).append("\n");
+            info.append(Component.translatable("message.plot.info_rented_days", plot.getRentDaysLeft()).getString()).append('\n');
         }
 
-        info.append(Component.translatable("message.plot.info_rating", plot.getRatingStars(), plot.getRatingCount()).getString()).append("\n");
+        info.append(Component.translatable("message.plot.info_rating", plot.getRatingStars(), plot.getRatingCount()).getString()).append('\n');
         info.append(Component.translatable("message.plot.info_size", plot.getVolume()).getString());
 
         return info.toString();

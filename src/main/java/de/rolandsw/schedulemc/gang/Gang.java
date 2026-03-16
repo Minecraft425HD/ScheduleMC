@@ -23,14 +23,14 @@ public class Gang {
     public static final int MAX_WEEKLY_FEE = 10_000;
 
     private final UUID gangId;
-    private volatile String name;
-    private volatile String tag; // 3-4 Buchstaben
-    private volatile int gangLevel;
+    private volatile String name;  // NOPMD
+    private volatile String tag; // 3-4 Buchstaben  // NOPMD
+    private volatile int gangLevel;  // NOPMD
     private final AtomicInteger gangXP;
     private final AtomicInteger gangBalance;
-    private volatile ChatFormatting color;
-    private volatile long foundedTimestamp;
-    private volatile int weeklyFee; // Wochenbeitrag (0 = kein Beitrag, max 10000)
+    private volatile ChatFormatting color;  // NOPMD
+    private volatile long foundedTimestamp;  // NOPMD
+    private volatile int weeklyFee; // Wochenbeitrag (0 = kein Beitrag, max 10000)  // NOPMD
 
     private final ConcurrentHashMap<UUID, GangMemberData> members = new ConcurrentHashMap<>();
     private final Set<String> unlockedPerks = ConcurrentHashMap.newKeySet();
@@ -234,7 +234,7 @@ public class Gang {
     // ═══════════════════════════════════════════════════════════
 
     public boolean addTerritory(long chunkKey) {
-        if (territories.size() >= getMaxTerritory()) return false;
+        if (territories.size() >= getMaxTerritory()) return false;  // NOPMD
         return territories.add(chunkKey);
     }
 

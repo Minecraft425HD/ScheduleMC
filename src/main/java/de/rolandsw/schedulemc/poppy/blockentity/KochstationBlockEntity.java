@@ -28,11 +28,11 @@ public class KochstationBlockEntity extends BlockEntity implements IUtilityConsu
     private static final int MAX_WATER = 1000;
     private static final int MAX_FUEL = 500;
 
-    private ItemStack[] inputs = new ItemStack[CAPACITY];
-    private ItemStack[] outputs = new ItemStack[CAPACITY];
-    private int[] progress = new int[CAPACITY];
-    private PoppyType[] types = new PoppyType[CAPACITY];
-    private TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
+    private final ItemStack[] inputs = new ItemStack[CAPACITY];
+    private final ItemStack[] outputs = new ItemStack[CAPACITY];
+    private final int[] progress = new int[CAPACITY];
+    private final PoppyType[] types = new PoppyType[CAPACITY];
+    private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
     private int waterLevel = 0;
     private int fuelLevel = 0;
 
@@ -119,8 +119,8 @@ public class KochstationBlockEntity extends BlockEntity implements IUtilityConsu
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 progress[i] = 0;
-                types[i] = null;
-                qualities[i] = null;
+                types[i] = null;  // NOPMD
+                qualities[i] = null;  // NOPMD
             }
         }
 
@@ -211,10 +211,10 @@ public class KochstationBlockEntity extends BlockEntity implements IUtilityConsu
                 if (progress[i] >= COOK_TIME) {
                     // 1 Rohopium = 1 Morphin (Qualität bleibt)
                     outputs[i] = MorphineItem.create(types[i], qualities[i], 1);
+                    inputs[i] = ItemStack.EMPTY;
+                    progress[i] = 0;
                     changed = true;
-                }
-
-                if (progress[i] % 20 == 0) {
+                } else if (progress[i] % 20 == 0) {
                     changed = true;
                 }
             }
@@ -292,11 +292,11 @@ public class KochstationBlockEntity extends BlockEntity implements IUtilityConsu
 
             if (tag.contains("Type" + i)) {
                 try { types[i] = PoppyType.valueOf(tag.getString("Type" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHANISCH; }
             }
             if (tag.contains("Quality" + i)) {
                 try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.SCHLECHT; }
             }
         }
     }

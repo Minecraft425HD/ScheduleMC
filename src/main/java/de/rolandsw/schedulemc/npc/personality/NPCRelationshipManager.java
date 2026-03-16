@@ -25,7 +25,7 @@ public class NPCRelationshipManager extends AbstractPersistenceManager<NPCRelati
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile NPCRelationshipManager instance;
+    private static volatile NPCRelationshipManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -33,7 +33,7 @@ public class NPCRelationshipManager extends AbstractPersistenceManager<NPCRelati
         return instance;
     }
 
-    public static NPCRelationshipManager getInstance(MinecraftServer server) {
+    public static NPCRelationshipManager initialize(MinecraftServer server) {
         NPCRelationshipManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {

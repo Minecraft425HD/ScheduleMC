@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ScenarioManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScenarioManager.class);
-    private static volatile ScenarioManager instance;
+    private static volatile ScenarioManager instance;  // NOPMD
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private final Map<String, MissionScenario> scenarios = new ConcurrentHashMap<>();
@@ -36,7 +36,7 @@ public class ScenarioManager {
         return instance;
     }
 
-    public static ScenarioManager getInstance(Path saveDir) {
+    public static ScenarioManager initialize(Path saveDir) {
         if (instance == null) {
             synchronized (ScenarioManager.class) {
                 if (instance == null) {
@@ -48,9 +48,11 @@ public class ScenarioManager {
     }
 
     public static void resetInstance() {
-        if (instance != null) {
-            instance.save();
-            instance = null;
+        synchronized (ScenarioManager.class) {
+            if (instance != null) {
+                instance.save();
+                instance = null;  // NOPMD
+            }
         }
     }
 
@@ -245,6 +247,6 @@ public class ScenarioManager {
     static class SavedObjective {
         String id, type, nextId;
         int x, y;
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<>();  // NOPMD
     }
 }

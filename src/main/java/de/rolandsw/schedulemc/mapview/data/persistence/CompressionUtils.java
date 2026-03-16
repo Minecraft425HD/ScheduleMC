@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.mapview.data.persistence;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -26,7 +27,7 @@ public final class CompressionUtils {
 
             return outputStream.toByteArray();
         } catch (IOException e) {
-            throw new RuntimeException("IOException should not happen for ByteArrayOutputStream", e);
+            throw new UncheckedIOException("IOException should not happen for ByteArrayOutputStream", e);
         }
     }
 
@@ -44,7 +45,7 @@ public final class CompressionUtils {
 
             return outputStream.toByteArray();
         } catch (IOException e) {
-            throw new RuntimeException("IOException should not happen for ByteArrayOutputStream", e);
+            throw new UncheckedIOException("IOException should not happen for ByteArrayOutputStream", e);
         }
     }
 }

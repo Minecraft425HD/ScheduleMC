@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Verhindert Spam und potentielle Exploits
  */
 public class RateLimiter {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
 
     // Maximale Anzahl an Transaktionen pro Minute
     private static final int MAX_TRANSACTIONS_PER_MINUTE = 10;

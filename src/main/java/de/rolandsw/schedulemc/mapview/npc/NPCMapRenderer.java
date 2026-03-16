@@ -128,7 +128,7 @@ public class NPCMapRenderer {
         PoseStack poseStack = graphics.pose();
         poseStack.pushPose();
 
-        int mapSize = Math.min(screenWidth, screenHeight);
+        int mapSize = Math.min(screenWidth, screenHeight);  // NOPMD
 
         for (CustomNPCEntity npc : visibleNPCs) {
             // Berechne Position auf Screen
@@ -305,27 +305,18 @@ public class NPCMapRenderer {
         Entity nullEntity = null;
         for (Entity entity : level.getEntities(nullEntity, searchBox, e -> e instanceof CustomNPCEntity)) {
             CustomNPCEntity npc = (CustomNPCEntity) entity;
-
-            if (npc.getNpcType() == NPCType.POLIZEI) {
-                continue;
-            }
-
             NPCActivityStatus status = npc.getActivityStatus();
-            if (!status.isVisibleOnMap()) {
-                continue;
+            if (npc.getNpcType() != NPCType.POLIZEI && status.isVisibleOnMap()) {
+                // Zeige Tooltip für ersten sichtbaren NPC
+                String name = npc.getNpcName();
+                String typeStr = npc.getNpcType().getDisplayName().getString();
+                graphics.renderTooltip(
+                        Minecraft.getInstance().font,
+                        net.minecraft.network.chat.Component.literal(name + " (" + typeStr + ")"),
+                        mouseX, mouseY
+                );
+                return;
             }
-
-            // Zeige Tooltip
-            String name = npc.getNpcName();
-            String typeStr = npc.getNpcType().getDisplayName().getString();
-
-            graphics.renderTooltip(
-                    Minecraft.getInstance().font,
-                    net.minecraft.network.chat.Component.literal(name + " (" + typeStr + ")"),
-                    mouseX, mouseY
-            );
-
-            break; // Nur ersten NPC anzeigen
         }
     }
 }

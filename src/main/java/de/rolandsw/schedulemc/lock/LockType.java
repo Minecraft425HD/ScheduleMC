@@ -51,9 +51,9 @@ public enum LockType {
     private final long keyDurationMs;
     private final int keyMaxUses;
     private final float pickChance;
-    private final boolean hasCode;
+    private final boolean hasCode;  // NOPMD
     private final long codeRotationMs;
-    private final boolean triggersAlarm;
+    private final boolean triggersAlarm;  // NOPMD
     private final int color;
 
     LockType(long keyDurationMs, int keyMaxUses, float pickChance,

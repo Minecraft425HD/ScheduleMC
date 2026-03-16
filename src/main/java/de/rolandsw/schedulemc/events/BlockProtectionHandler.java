@@ -38,7 +38,7 @@ public class BlockProtectionHandler {
 
     // NPC Work Location Cache (Performance-Optimierung)
     private static final Map<BlockPos, CustomNPCEntity> npcWorkLocationCache = new ConcurrentHashMap<>();
-    private static volatile long lastNPCCacheUpdate = 0;
+    private static volatile long lastNPCCacheUpdate = 0;  // NOPMD
     // PERFORMANCE: Cache-Dauer von 5s auf 30s erhöht - NPC-Arbeitsorte ändern sich selten
     private static final long CACHE_DURATION_MS = 30000; // 30 Sekunden Cache
 
@@ -339,6 +339,7 @@ public class BlockProtectionHandler {
 
         // Befülle Cache
         for (CustomNPCEntity npc : npcs) {
+            if (npc.getNpcData() == null) continue;
             BlockPos workLocation = npc.getNpcData().getWorkLocation();
             if (workLocation != null) {
                 npcWorkLocationCache.put(workLocation, npc);

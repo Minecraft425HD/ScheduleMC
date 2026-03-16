@@ -77,10 +77,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
                 if (slot == 0) {
                     return stack.getItem() == ChocolateItems.TEMPERED_CHOCOLATE.get();
                 }
-                if (slot == 1) {
-                    return isEnrobable(stack);
-                }
-                return false;
+                return slot == 1 && isEnrobable(stack);
             }
 
             @Override
@@ -117,14 +114,14 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
             CompoundTag tag = handlerChocolate.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
             enrobingProgress = 0;
         } else if (handlerChocolate.isEmpty()) {
             chocolateInput = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             enrobingProgress = 0;
         } else {
             chocolateInput = handlerChocolate.copy();
@@ -159,7 +156,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
         boolean changed = false;
 
         if (!chocolateInput.isEmpty() && !itemInput.isEmpty() && outputStack.isEmpty()) {
-            enrobingProgress++;
+            enrobingProgress = Math.min(enrobingProgress + 1, PROCESSING_TIME);
 
             if (enrobingProgress >= PROCESSING_TIME) {
                 // Enrobing complete: Create chocolate-covered item
@@ -184,7 +181,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
                 itemInput.shrink(1);
 
                 if (chocolateInput.isEmpty()) {
-                    quality = null;
+                    quality = null;  // NOPMD
                 }
 
                 enrobingProgress = 0;
@@ -250,7 +247,7 @@ public class EnrobingMachineBlockEntity extends BlockEntity implements IUtilityC
         enrobingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

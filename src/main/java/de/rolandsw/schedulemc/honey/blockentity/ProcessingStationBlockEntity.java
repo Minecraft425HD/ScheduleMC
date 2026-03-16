@@ -112,19 +112,19 @@ public class ProcessingStationBlockEntity extends BlockEntity implements IUtilit
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
                 }
                 if (tag.contains("AgeLevel")) {
                     try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException e) { ageLevel = HoneyAgeLevel.FRESH; }
                 } else ageLevel = HoneyAgeLevel.FRESH;
             }
             processingProgress = 0;
         } else if (handlerHoney.isEmpty()) {
             honeyInput = ItemStack.EMPTY;
-            honeyType = null;
-            quality = null;
-            ageLevel = null;
+            honeyType = null;  // NOPMD
+            quality = null;  // NOPMD
+            ageLevel = null;  // NOPMD
             processingProgress = 0;
         }
 
@@ -155,7 +155,7 @@ public class ProcessingStationBlockEntity extends BlockEntity implements IUtilit
         boolean changed = false;
 
         if (!honeyInput.isEmpty() && !additiveInput.isEmpty() && outputStack.isEmpty()) {
-            processingProgress++;
+            processingProgress = Math.min(processingProgress + 1, PROCESSING_TIME);
 
             if (processingProgress >= PROCESSING_TIME) {
                 // Processing complete
@@ -175,9 +175,9 @@ public class ProcessingStationBlockEntity extends BlockEntity implements IUtilit
                 additiveInput.shrink(1);
 
                 if (honeyInput.isEmpty()) {
-                    honeyType = null;
-                    quality = null;
-                    ageLevel = null;
+                    honeyType = null;  // NOPMD
+                    quality = null;  // NOPMD
+                    ageLevel = null;  // NOPMD
                 }
 
                 processingProgress = 0;
@@ -261,11 +261,11 @@ public class ProcessingStationBlockEntity extends BlockEntity implements IUtilit
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
         }
         if (tag.contains("AgeLevel")) {
             try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { ageLevel = HoneyAgeLevel.FRESH; }
         }
         syncToHandler();
     }

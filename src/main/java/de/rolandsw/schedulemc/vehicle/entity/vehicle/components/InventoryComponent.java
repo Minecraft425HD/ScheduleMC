@@ -248,7 +248,7 @@ public class InventoryComponent extends VehicleComponent {
         return inventoryFluidHandler;
     }
 
-    private IFluidHandler inventoryFluidHandler = new IFluidHandler() {
+    private final IFluidHandler inventoryFluidHandler = new IFluidHandler() {
         @Override
         public int getTanks() {
             return 1;

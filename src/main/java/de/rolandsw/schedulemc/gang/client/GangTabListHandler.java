@@ -36,7 +36,7 @@ public class GangTabListHandler {
             // Gang-Tag mit Sternen
             if (info.isInGang()) {
                 sb.append(info.getFormattedGangTag());
-                sb.append(" ");
+                sb.append(' ');
                 sb.append(info.getRankColorCode()).append(info.getRankName());
                 sb.append("  ");
             }

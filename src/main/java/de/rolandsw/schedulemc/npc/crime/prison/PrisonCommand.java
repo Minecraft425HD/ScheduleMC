@@ -263,7 +263,7 @@ public class PrisonCommand {
         source.sendSuccess(() -> Component.translatable("message.prison.player_label", data.playerName), false);
         source.sendSuccess(() -> Component.translatable("command.prison.status_cell", data.cellNumber), false);
         source.sendSuccess(() -> Component.translatable("command.prison.status_remaining", minutes, seconds), false);
-        source.sendSuccess(() -> Component.translatable("command.prison.status_bail", (int)data.bailAmount), false);
+        source.sendSuccess(() -> Component.translatable("command.prison.status_bail", String.format("%.2f", data.bailAmount)), false);
         source.sendSuccess(() -> Component.translatable("command.prison.status_wantedlevel", data.originalWantedLevel), false);
 
         return 1;

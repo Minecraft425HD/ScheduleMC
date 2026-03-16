@@ -122,7 +122,7 @@ public class CoffeePlantBlock extends Block {
             if (half == DoubleBlockHalf.LOWER) {
                 potPos = pos.below();
             } else {
-                potPos = pos.below(2);
+                potPos = pos.below(2);  // NOPMD
                 super.playerWillDestroy(level, pos, state, player);
                 return;
             }

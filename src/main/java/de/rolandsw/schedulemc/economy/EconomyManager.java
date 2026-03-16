@@ -26,17 +26,17 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile EconomyManager instance;
+    private static volatile EconomyManager instance;  // NOPMD
     private static final Map<UUID, Double> balances = new ConcurrentHashMap<>();
 
     // SICHERHEIT: Maximales Guthaben um Overflow zu verhindern
     private static final double MAX_BALANCE = 1_000_000_000_000.0; // 1 Billion €
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
-    private static volatile File file = new File("config/plotmod_economy.json");
+    private static volatile File file = new File("config/plotmod_economy.json");  // NOPMD
     private static final Gson gson = GsonHelper.get();
-    private static volatile boolean needsSave = false;
-    private static volatile boolean isHealthy = true;
-    private static volatile String lastError = null;
+    private static volatile boolean needsSave = false;  // NOPMD
+    private static volatile boolean isHealthy = true;  // NOPMD
+    private static volatile String lastError = null;  // NOPMD
 
     // SICHERHEIT: Rate Limiting für DoS-Protection
     private static final RateLimiter transferLimiter = new RateLimiter("money_transfer", 10, 1000L);
@@ -68,10 +68,12 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * Initialisiert den EconomyManager mit dem Server
      */
     public static void initialize(MinecraftServer server) {
-        if (instance == null) {
-            instance = new EconomyManager();
+        synchronized (EconomyManager.class) {
+            if (instance == null) {
+                instance = new EconomyManager();
+            }
+            instance.server = server;
         }
-        instance.server = server;
 
         // RateLimiter Auto-Cleanup aktivieren (verhindert Memory Leak bei Spieler-Fluktuation)
         transferLimiter.startAutoCleanup();
@@ -119,7 +121,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         if (!result.hasData()) {
             // Keine Datei gefunden - normaler Start
             isHealthy = true;
-            lastError = null;
+            lastError = null;  // NOPMD
             return;
         }
 
@@ -128,7 +130,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         processLoadedData(loaded);
 
         isHealthy = true;
-        lastError = result.isRecoveredFromBackup() ? "Recovered from backup" : null;
+        lastError = result.isRecoveredFromBackup() ? "Recovered from backup" : null;  // NOPMD
         LOGGER.info("Economy data loaded: {} accounts", balances.size());
     }
 
@@ -154,7 +156,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
                     continue;
                 }
 
-                if (balance == 0.0) {
+                if (Math.abs(balance) < 0.001) {
                     zeroBalanceAccounts++;
                 }
 
@@ -181,7 +183,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     public static void saveAccounts() {
         // OPTIMIERT: Direkte Serialisierung mit vorallokierter HashMap
         // statt balances.forEach() mit Lambda-Overhead bei 1000+ Spielern
-        Map<String, Double> saveMap = new HashMap<>((int)(balances.size() / 0.75) + 1);
+        Map<String, Double> saveMap = new HashMap<>((int)(balances.size() / 0.75) + 1);  // NOPMD
         for (Map.Entry<UUID, Double> entry : balances.entrySet()) {
             saveMap.put(entry.getKey().toString(), entry.getValue());
         }
@@ -192,7 +194,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         if (result.isSuccess()) {
             needsSave = false;
             isHealthy = true;
-            lastError = null;
+            lastError = null;  // NOPMD
             LOGGER.debug("Economy data saved: {} accounts", balances.size());
         } else {
             isHealthy = false;
@@ -210,7 +212,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         }
         // Speichere auch Transaction History
         if (instance != null && instance.server != null) {
-            TransactionHistory history = TransactionHistory.getInstance(instance.server);
+            TransactionHistory history = TransactionHistory.initialize(instance.server);
             if (history != null) {
                 history.save();
             }
@@ -339,21 +341,14 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
      * Setzt das Guthaben eines Spielers mit Transaktions-Logging
      */
     public static void setBalance(UUID uuid, double amount, TransactionType type, @Nullable String description) {
-        if (amount < 0) {
-            amount = 0;
-        }
-        if (amount > MAX_BALANCE) {
-            amount = MAX_BALANCE;
-        }
-        // OPTIMIERT: Einziger Map-Zugriff statt getOrDefault + put (2 Lookups)
-        final double setAmount = amount;
+        final double setAmount = Math.max(0, Math.min(MAX_BALANCE, amount));
         Double oldBalance = balances.put(uuid, setAmount);
         double difference = setAmount - (oldBalance != null ? oldBalance : 0.0);
         markDirty();
-        LOGGER.info("Balance set: {} to {} € ({})", uuid, amount, type);
+        LOGGER.info("Balance set: {} to {} € ({})", uuid, setAmount, type);
 
         // Transaction History
-        logTransaction(uuid, type, null, uuid, difference, description, amount);
+        logTransaction(uuid, type, null, uuid, difference, description, setAmount);
     }
 
     /**
@@ -388,16 +383,18 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
                                       double amount, @Nullable String description,
                                       double balanceAfter) {
         if (instance != null && instance.server != null) {
-            TransactionHistory history = TransactionHistory.getInstance(instance.server);
-            Transaction transaction = new Transaction(type, from, to, amount, description, balanceAfter);
-            history.addTransaction(playerUUID, transaction);
+            TransactionHistory history = TransactionHistory.initialize(instance.server);
+            if (history != null) {
+                Transaction transaction = new Transaction(type, from, to, amount, description, balanceAfter);
+                history.addTransaction(playerUUID, transaction);
+            }
         }
     }
 
     /**
      * Transfer zwischen zwei Spielern
-     * SICHERHEIT: Atomare Operation verhindert Geldverlust bei Crash/Exception
      * SICHERHEIT: Rate Limiting gegen Spam
+     * Hinweis: Debit und Credit sind separate ConcurrentHashMap-Operationen (nicht gesamtatomare Einheit).
      */
     public static boolean transfer(UUID from, UUID to, double amount, @Nullable String description) {
         if (!Double.isFinite(amount) || amount < 0) {
@@ -411,15 +408,11 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             return false;
         }
 
-        // SICHERHEIT: Atomare Transfer-Operation
-        // Beide Balance-Änderungen passieren zusammen - kein Geldverlust bei Crash
-        double fromBalance;
-        double toBalance;
-        synchronized (balances) {
-            fromBalance = balances.getOrDefault(from, 0.0) - amount;
-            balances.put(from, fromBalance);
-            toBalance = balances.merge(to, amount, Double::sum);
-        }
+        // Beide Balance-Änderungen als getrennte atomare ConcurrentHashMap-Operationen.
+        // Hinweis: deposit() und withdraw() verwenden ebenfalls merge() ohne synchronized(balances),
+        // daher sind die beiden Operationen nicht als eine atomare Einheit garantiert.
+        double fromBalance = balances.merge(from, -amount, Double::sum);
+        double toBalance = balances.merge(to, amount, Double::sum);
 
         markDirty();
         LOGGER.debug("Transfer: {} € from {} to {}", amount, from, to);

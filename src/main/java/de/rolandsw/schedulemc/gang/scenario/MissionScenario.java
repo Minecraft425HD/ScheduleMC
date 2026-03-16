@@ -13,14 +13,14 @@ import java.util.UUID;
  */
 public class MissionScenario {
 
-    private String id;
+    private final String id;
     private String name;
     private String description;
     private int difficulty;         // 1-5
     private int minGangLevel;       // 0 = beliebig
     private boolean active;         // In Rotation fuer Gang-Auftraege
     private String missionType;     // HOURLY, DAILY, WEEKLY
-    private List<ScenarioObjective> objectives;
+    final private List<ScenarioObjective> objectives;
 
     /**
      * Neues leeres Szenario.

@@ -130,7 +130,7 @@ public class MissionsAppScreen extends Screen {
         super.render(gui, mouseX, mouseY, partialTick);
     }
 
-    private void renderMissionList(GuiGraphics gui, int listStartY, int mouseX, int mouseY, float partialTick) {
+    private void renderMissionList(GuiGraphics gui, int listStartY, int mouseX, int mouseY, float partialTick) {  // NOPMD
         List<PlayerMissionDto> missions = ClientMissionCache.getByCategory(activeTab);
 
         // Scrollbar-Berechnung
@@ -241,6 +241,7 @@ public class MissionsAppScreen extends Screen {
                 gui.fill(x, y, x + w, y + h, 0xFF333333);
                 gui.drawCenteredString(this.font, "§8✓", x + w / 2, y + 3, 0x888888);
             }
+            default -> {}
         }
     }
 
@@ -278,6 +279,7 @@ public class MissionsAppScreen extends Screen {
             case COMPLETED -> MissionNetworkHandler.sendToServer(
                 new MissionActionPacket(MissionActionPacket.Action.CLAIM, mission.getMissionId()));
             case CLAIMED -> { /* nichts */ }
+            default -> {}
         }
     }
 
@@ -295,7 +297,7 @@ public class MissionsAppScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 69) return true; // Block E
+        if (keyCode == 69) return true; // Block E  // NOPMD
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 

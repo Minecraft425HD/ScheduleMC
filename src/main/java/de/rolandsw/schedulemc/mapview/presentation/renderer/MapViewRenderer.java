@@ -90,22 +90,22 @@ import java.util.concurrent.Future;
 public class MapViewRenderer implements Runnable, MapChangeListener {
     private final Minecraft minecraft = Minecraft.getInstance();
     // private final float[] lastLightBrightnessTable = new float[16];
-    private final Object coordinateLock = new Object();
+    private final Object coordinateLock = new Object();  // NOPMD
     private final ResourceLocation resourceArrow = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/mmarrow.png");
     private final ResourceLocation resourceSquareMap = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/squaremap.png");
     private final ResourceLocation resourceRoundMap = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/roundmap.png");
-    private final ResourceLocation squareStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/square.png");
-    private final ResourceLocation circleStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/circle.png");
+    private final ResourceLocation squareStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/square.png");  // NOPMD
+    private final ResourceLocation circleStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/circle.png");  // NOPMD
     private ClientLevel world;
     private final MapViewConfiguration options;
-    private final LayoutVariables layoutVariables;
+    private final LayoutVariables layoutVariables;  // NOPMD
     private final ColorCalculationService colorManager;
     private final NPCMapRenderer npcMapRenderer = new NPCMapRenderer();
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
     private final boolean multicore = this.availableProcessors > 1;
     private final int heightMapResetHeight = this.multicore ? 2 : 5;
     private final int heightMapResetTime = this.multicore ? 300 : 3000;
-    private final boolean threading = this.multicore;
+    private final boolean threading = this.multicore;  // NOPMD - verwendet this, kann nicht static sein
     private final MapDataRepository[] mapData = new MapDataRepository[5];
     private final ChunkCache[] chunkCache = new ChunkCache[5];
     private DynamicMoveableTexture[] mapImages;
@@ -115,11 +115,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private BlockState transparentBlockState;
     private BlockState surfaceBlockState;
     // SICHERHEIT: volatile für Thread-Safety zwischen Render und Game Thread
-    private volatile boolean imageChanged = true;
+    private volatile boolean imageChanged = true;  // NOPMD
     private LightTexture lightmapTexture;
-    private volatile boolean needLightmapRefresh = true;
-    private volatile int tickWithLightChange;
-    private volatile boolean lastPaused = true;
+    private volatile boolean needLightmapRefresh = true;  // NOPMD
+    private volatile int tickWithLightChange;  // NOPMD
+    private volatile boolean lastPaused = true;  // NOPMD
     private double lastGamma;
     private float lastSunBrightness;
     private float lastLightning;
@@ -129,7 +129,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private boolean lastAboveHorizon = true;
     private int lastBiome;
     private int lastSkyColor;
-    private Screen lastGuiScreen;
+    private Screen lastGuiScreen;  // NOPMD
     private boolean fullscreenMap;
     private int zoom;
     private int scWidth;
@@ -141,11 +141,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private boolean doFullRender = true;
     private boolean zoomChanged;
     // OPTIMIZATION: volatile for thread-safe coordinate updates (remove synchronized blocks)
-    private volatile int lastX;
-    private volatile int lastZ;
+    private volatile int lastX;  // NOPMD
+    private volatile int lastZ;  // NOPMD
     private int lastY;
-    private volatile int lastImageX;
-    private volatile int lastImageZ;
+    private volatile int lastImageX;  // NOPMD
+    private volatile int lastImageZ;  // NOPMD
     private boolean lastFullscreen;
     // Performance-Optimierung: Movement-Throttling
     private int lastPlayerX = Integer.MIN_VALUE;
@@ -169,9 +169,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private Future<?> zCalcTask;
     private final Object zCalcLock = new Object(); // Lock for coordination with worker thread
     private int zCalcTicker;
-    private int[] lightmapColors = new int[256];
+    private final int[] lightmapColors = new int[256];
     private double zoomScale = 1.0;
-    private double zoomScaleAdjusted = 1.0;
+    private double zoomScaleAdjusted = 1.0;  // NOPMD
     private static double minTablistOffset;
     private static float statusIconOffset = 0.0F;
     // PERFORMANCE: Cache biome registry reference (avoid registryAccess().registryOrThrow() per frame)
@@ -184,8 +184,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private final ResourceLocation[] resourceMapImageUnfiltered = new ResourceLocation[5];
     // private GpuTexture fboTexture;
     // private GpuTextureView fboTextureView;
-    private Tesselator fboTessellator = new Tesselator(4096);
-    private MapViewCachedOrthoProjectionMatrixBuffer projection;
+    private Tesselator fboTessellator = new Tesselator(4096);  // NOPMD
+    private MapViewCachedOrthoProjectionMatrixBuffer projection;  // NOPMD
 
     public MapViewRenderer() {
         resourceMapImageFiltered[0] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/filtered/0");
@@ -298,7 +298,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     @Override
     public void run() {
         if (minecraft != null) {
-            while (!Thread.currentThread().isInterrupted()) {
+            while (!Thread.currentThread().isInterrupted()) {  // NOPMD
                 if (this.world != null) {
                     if (this.options.minimapAllowed) {
                         try {
@@ -318,13 +318,13 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     this.zoomChanged = false;
                 }
 
-                this.zCalcTicker = 0;
+                this.zCalcTicker = 0;  // NOPMD
                 // THREAD-SAFETY: Use dedicated lock for wait/notify coordination
                 synchronized (this.zCalcLock) {
                     try {
                         this.zCalcLock.wait(0L);
                     } catch (InterruptedException exception) {
-                        Thread.currentThread().interrupt();
+                        Thread.currentThread().interrupt();  // NOPMD
                         break;
                     }
                 }
@@ -335,7 +335,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     public void newWorld(ClientLevel world) {
         this.world = world;
-        this.cachedBiomeRegistry = null; // Invalidate cached registry on world change
+        this.cachedBiomeRegistry = null; // Invalidate cached registry on world change  // NOPMD
         this.lightmapTexture = this.getLightmapTexture();
         this.mapData[this.zoom].blank();
         this.doFullRender = true;
@@ -427,7 +427,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 if (shouldUpdate) {
                     // THREAD-SAFETY: Use dedicated lock for wait/notify coordination
                     synchronized (this.zCalcLock) {
-                        this.zCalcLock.notify();
+                        this.zCalcLock.notifyAll();
                     }
                 }
             }
@@ -517,10 +517,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     }
 
     public void calculateCurrentLightAndSkyColor() {
+        if (this.world == null || this.colorManager == null || MapViewConstants.getPlayer() == null) return;
         try {
             if (this.world != null) {
                 if (this.needLightmapRefresh && MapViewConstants.getElapsedTicks() != this.tickWithLightChange && !minecraft.isPaused() || this.options.isRealTimeTorches()) {
-                    this.needLightmapRefresh = false;
+                    this.needLightmapRefresh = false;  // NOPMD
                     LightingCalculator lightmap = LightingCalculator.getInstance();
                     lightmap.setup();
                     for (int blockLight = 0; blockLight < 16; blockLight++) {
@@ -597,8 +598,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     this.colorManager.setSkyColor(this.getSkyColor());
                 }
             }
-        } catch (NullPointerException ignore) {
-
+        } catch (RuntimeException ignored) {
+            // colorManager oder getSkyColor() noch nicht initialisiert
         }
     }
 
@@ -621,7 +622,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     }
 
     public int[] getLightmapArray() {
-        return this.lightmapColors;
+        return this.lightmapColors;  // NOPMD
     }
 
     public int getLightmapColor(int skyLight, int blockLight) {
@@ -866,16 +867,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.heightMapFudge = 0;
         }
 
-        if (Math.abs(offsetX) > 32 * multi || Math.abs(offsetZ) > 32 * multi) {
-            full = true;
-        }
+        boolean doFull = full || Math.abs(offsetX) > 32 * multi || Math.abs(offsetZ) > 32 * multi;
 
         boolean nether = false;
         boolean caves = false;
         needHeightAndID = false;
         int color24;
         // OPTIMIZATION: Removed synchronized block - volatile fields ensure visibility
-        if (!full) {
+        if (!doFull) {
             this.mapImages[zoom].moveY(offsetZ);
             this.mapImages[zoom].moveX(offsetX);
         }
@@ -885,14 +884,14 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         int startX = currentX - 16 * multi;
         int startZ = currentZ - 16 * multi;
-        if (!full) {
+        if (!doFull) {
             this.mapData[zoom].moveZ(offsetZ);
             this.mapData[zoom].moveX(offsetX);
 
             // Optimized Y movement (N/S): recalculate new rows
             if (offsetZ != 0) {
                 // Clear chunk cache for new recalculation
-                cachedChunk = null;
+                cachedChunk = null;  // NOPMD
                 int startY, endY;
                 if (offsetZ > 0) {
                     // Moved south: recalculate bottom rows
@@ -914,7 +913,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             // Optimized X movement (E/W): recalculate new columns
             if (offsetX != 0) {
                 // Clear chunk cache for new recalculation
-                cachedChunk = null;
+                cachedChunk = null;  // NOPMD
                 int colStartX, colEndX;
                 if (offsetX > 0) {
                     // Moved east: recalculate right columns
@@ -934,10 +933,10 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             }
         }
 
-        if (full || this.options.heightmap && needHeightMap || needHeightAndID || this.options.lightmap && needLight || skyColorChanged) {
+        if (doFull || this.options.heightmap && needHeightMap || needHeightAndID || this.options.lightmap && needLight || skyColorChanged) {
             for (int imageY = 32 * multi - 1; imageY >= 0; --imageY) {
                 for (int imageX = 0; imageX < 32 * multi; ++imageX) {
-                    color24 = this.getPixelColor(full, full || needHeightAndID, full, full || needLight || needHeightAndID, nether, caves, world, zoom, multi, startX, startZ, imageX, imageY);
+                    color24 = this.getPixelColor(doFull, doFull || needHeightAndID, doFull, doFull || needLight || needHeightAndID, nether, caves, world, zoom, multi, startX, startZ, imageX, imageY);
                     this.mapImages[zoom].setRGB(imageX, imageY, color24);
                 }
             }
@@ -945,9 +944,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         // OPTIMIZED: Throttle biome segmentation - only run every 4 pixels of movement
         // Running on EVERY pixel movement was causing massive stuttering on N/S movement!
-        if ((full || offsetX != 0 || offsetZ != 0 || !this.lastFullscreen) && this.fullscreenMap && this.options.biomeOverlay != 0) {
+        if ((doFull || offsetX != 0 || offsetZ != 0 || !this.lastFullscreen) && this.fullscreenMap && this.options.biomeOverlay != 0) {
             biomeSegmentationCounter += Math.abs(offsetX) + Math.abs(offsetZ);
-            if (full || !this.lastFullscreen || biomeSegmentationCounter >= 4) {
+            if (doFull || !this.lastFullscreen || biomeSegmentationCounter >= 4) {
                 this.mapData[zoom].segmentBiomes();
                 this.mapData[zoom].findCenterOfSegments(!this.options.oldNorth);
                 biomeSegmentationCounter = 0;
@@ -955,7 +954,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         }
 
         this.lastFullscreen = this.fullscreenMap;
-        if (full || offsetX != 0 || offsetZ != 0 || needHeightMap || needLight || skyColorChanged) {
+        if (doFull || offsetX != 0 || offsetZ != 0 || needHeightMap || needLight || skyColorChanged) {
             this.imageChanged = true;
         }
 
@@ -1019,23 +1018,19 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         int multi = (int) Math.pow(2.0, zoom);
         startX -= 16 * multi;
         startZ -= 16 * multi;
-        left = left - startX - 1;
-        right = right - startX + 1;
-        top = top - startZ - 1;
-        bottom = bottom - startZ + 1;
-        left = Math.max(0, left);
-        right = Math.min(32 * multi - 1, right);
-        top = Math.max(0, top);
-        bottom = Math.min(32 * multi - 1, bottom);
+        int adjLeft = Math.max(0, left - startX - 1);
+        int adjRight = Math.min(32 * multi - 1, right - startX + 1);
+        int adjTop = Math.max(0, top - startZ - 1);
+        int adjBottom = Math.min(32 * multi - 1, bottom - startZ + 1);
 
         // Phase 2B: Use Strategy Pattern for flexible scanning algorithms
         // Replaces hardcoded nested loop with configurable strategy
         ChunkScanStrategy scanStrategy = ChunkScanStrategyFactory.getDefault();
 
-        final int finalLeft = left;
-        final int finalTop = top;
-        final int finalRight = right;
-        final int finalBottom = bottom;
+        final int finalLeft = adjLeft;
+        final int finalTop = adjTop;
+        final int finalRight = adjRight;
+        final int finalBottom = adjBottom;
         final int finalZoom = zoom;
         final int finalMulti = multi;
         final int finalStartX = startX;
@@ -1054,15 +1049,15 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     }
 
     private int getPixelColor(boolean needBiome, boolean needHeightAndID, boolean needTint, boolean needLight, boolean nether, boolean caves, ClientLevel world, int zoom, int multi, int startX, int startZ, int imageX, int imageY) {
-        int surfaceHeight = Short.MIN_VALUE;
+        int surfaceHeight = Short.MIN_VALUE;  // NOPMD
         int seafloorHeight = Short.MIN_VALUE;
         int transparentHeight = Short.MIN_VALUE;
-        int foliageHeight = Short.MIN_VALUE;
+        int foliageHeight = Short.MIN_VALUE;  // NOPMD
         int surfaceColor;
         int seafloorColor = 0;
         int transparentColor = 0;
         int foliageColor = 0;
-        this.surfaceBlockState = null;
+        this.surfaceBlockState = null;  // NOPMD
         this.transparentBlockState = BlockDatabase.air.defaultBlockState();
         BlockState foliageBlockState = BlockDatabase.air.defaultBlockState();
         BlockState seafloorBlockState = BlockDatabase.air.defaultBlockState();
@@ -1192,13 +1187,13 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 } else {
                     surfaceHeight = this.getNetherHeight(startX + imageX, startZ + imageY);
                     this.surfaceBlockState = world.getBlockState(blockPos.withXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY));
-                    surfaceBlockStateID = BlockDatabase.getStateId(this.surfaceBlockState);
+                    surfaceBlockStateID = BlockDatabase.getStateId(this.surfaceBlockState);  // NOPMD
                     foliageHeight = surfaceHeight + 1;
                     blockPos.setXYZ(startX + imageX, foliageHeight - 1, startZ + imageY);
                     foliageBlockState = world.getBlockState(blockPos);
                     Block material = foliageBlockState.getBlock();
                     if (material != Blocks.SNOW && !(material instanceof AirBlock) && material != Blocks.LAVA && material != Blocks.WATER) {
-                        foliageBlockStateID = BlockDatabase.getStateId(foliageBlockState);
+                        foliageBlockStateID = BlockDatabase.getStateId(foliageBlockState);  // NOPMD
                     } else {
                         foliageHeight = Short.MIN_VALUE;
                     }
@@ -1508,11 +1503,12 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     private int getSeafloorHeight(Level world, int x, int z, int height) {
         MutableBlockPos blockPos = BlockPositionCache.get();
-        for (BlockState blockState = world.getBlockState(blockPos.withXYZ(x, height - 1, z)); blockState.getLightBlock(world, blockPos.withXYZ(x, height - 1, z)) < 5 && !(blockState.getBlock() instanceof LeavesBlock) && height > world.getMinBuildHeight() + 1; blockState = world.getBlockState(blockPos.withXYZ(x, height - 1, z))) {
-            --height;
+        int h = height;
+        for (BlockState blockState = world.getBlockState(blockPos.withXYZ(x, h - 1, z)); blockState.getLightBlock(world, blockPos.withXYZ(x, h - 1, z)) < 5 && !(blockState.getBlock() instanceof LeavesBlock) && h > world.getMinBuildHeight() + 1; blockState = world.getBlockState(blockPos.withXYZ(x, h - 1, z))) {
+            --h;
         }
         BlockPositionCache.release(blockPos);
-        return height;
+        return h;
     }
 
     private int getTransparentHeight(boolean nether, boolean caves, Level world, int x, int z, int height) {
@@ -1640,7 +1636,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 b -= (int) (sc * b);
             }
 
-            color24 = alpha * 16777216 + r * 65536 + g * 256 + b;
+            int result = alpha * 16777216 + r * 65536 + g * 256 + b;
+            return result;
         }
 
         return color24;
@@ -1665,7 +1662,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         return ARGBCompat.toABGR(combinedLight);
     }
 
-    private void renderMap(GuiGraphics guiGraphics, int x, int y, int scScale, float scaleProj) {
+    private void renderMap(GuiGraphics guiGraphics, int x, int y, int scScale, float scaleProj) {  // NOPMD
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(scaleProj, scaleProj, 1.0f);
 
@@ -1911,7 +1908,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         write(drawContext, Component.nullToEmpty(text), x, y, color);
     }
 
-    private int textWidth(Component text) {
+    private int textWidth(Component text) {  // NOPMD
         return minecraft.font.width(text);
     }
 

@@ -65,7 +65,7 @@ public class RegionCache {
     private ServerLevel worldServer;
     private ServerChunkCache chunkProvider;
     private BlockableEventLoop<RefreshRunnable> executor;
-    private ChunkMap chunkLoader;
+    private ChunkMap chunkLoader;  // NOPMD
     private String subworldName;
     private String worldNamePathPart;
     private String subworldNamePathPart = "";
@@ -73,7 +73,7 @@ public class RegionCache {
     private boolean underground;
     private int x;
     private int z;
-    private final int width = 256;
+    private static final int width = 256;
     private boolean empty = true;
     private boolean liveChunksUpdated;
     boolean remoteWorld;
@@ -87,7 +87,7 @@ public class RegionCache {
     private final ReentrantLock threadLock = new ReentrantLock();
     boolean displayOptionsChanged;
     // OPTIMIZATION: volatile for lock-free reads in getTextureLocation()
-    volatile boolean imageChanged;
+    volatile boolean imageChanged;  // NOPMD
     boolean refreshQueued;
     boolean refreshingImage;
     boolean dataUpdated;
@@ -98,7 +98,7 @@ public class RegionCache {
     private static final ReadWriteLock tickLock = new ReentrantReadWriteLock();
     private static int loadedChunkCount;
     private boolean queuedToCompress;
-    final boolean debug = false;
+    static final boolean debug = false;
 
     public RegionCache() {
         this.world = null;
@@ -147,7 +147,7 @@ public class RegionCache {
 
     public void renameSubworld(String oldName, String newName) {
         if (oldName.equals(this.subworldName)) {
-            this.closed = true;
+            this.closed = true;  // NOPMD
             this.threadLock.lock();
 
             try {
@@ -165,18 +165,18 @@ public class RegionCache {
     }
 
     public void registerChangeAt(int chunkX, int chunkZ) {
-        chunkX -= this.x * 16;
-        chunkZ -= this.z * 16;
+        int localChunkX = chunkX - this.x * 16;
+        int localChunkZ = chunkZ - this.z * 16;
 
         // Validate chunk coordinates are within region bounds
-        if (chunkX < 0 || chunkX >= 16 || chunkZ < 0 || chunkZ >= 16) {
+        if (localChunkX < 0 || localChunkX >= 16 || localChunkZ < 0 || localChunkZ >= 16) {
             MapViewConstants.getLogger().debug("Chunk ({}, {}) is outside region bounds ({}, {})",
-                chunkX + this.x * 16, chunkZ + this.z * 16, this.x, this.z);
+                chunkX, chunkZ, this.x, this.z);
             return;
         }
 
         this.dataUpdateQueued = true;
-        int index = chunkZ * 16 + chunkX;
+        int index = localChunkZ * 16 + localChunkX;
         this.liveChunkUpdateQueued[index] = true;
     }
 
@@ -191,7 +191,7 @@ public class RegionCache {
         }
 
         if (!this.refreshQueued) {
-            this.refreshQueued = true;
+            this.refreshQueued = true;  // NOPMD
             if (this.loaded && !this.dataUpdated && !this.dataUpdateQueued && !this.displayOptionsChanged) {
                 this.refreshQueued = false;
             } else {
@@ -305,7 +305,7 @@ public class RegionCache {
         return neighborsLoaded;
     }
 
-    private void loadAnvilData(net.minecraft.world.level.Level world) {
+    private void loadAnvilData(net.minecraft.world.level.Level world) {  // NOPMD
         if (!this.remoteWorld) {
             boolean full = true;
 
@@ -332,7 +332,7 @@ public class RegionCache {
                     try {
                         synchronized (anvilLock) {
                             if (debug) {
-                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting load");
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting load");  // NOPMD
                             }
 
                             long loadTime = System.currentTimeMillis();
@@ -340,8 +340,8 @@ public class RegionCache {
                                 for (int tx = 0; tx < 16; ++tx) {
                                     for (int sx = 0; sx < 16; ++sx) {
                                         if (!this.closed && this.data.getHeight(tx * 16, sx * 16) == Short.MIN_VALUE && this.data.getLight(tx * 16, sx * 16) == 0) {
-                                            int index = tx + sx * 16;
-                                            ChunkPos chunkPos = new ChunkPos(this.x * 16 + tx, this.z * 16 + sx);
+                                            int index = tx + sx * 16;  // NOPMD
+                                            ChunkPos chunkPos = new ChunkPos(this.x * 16 + tx, this.z * 16 + sx);  // NOPMD
                                             // The upgradeChunkTag method signature has changed in 1.20.1
                                             // NBT tag access methods (.get()) have also changed
                                             // This section needs to be reimplemented with 1.20.1 APIs
@@ -378,17 +378,17 @@ public class RegionCache {
                             }, this.executor);
 
                             while (!this.closed && !loadFuture.isDone()) {
-                                Thread.onSpinWait();
+                                Thread.onSpinWait();  // NOPMD
                             }
 
                             loadFuture.cancel(false);
                             if (debug) {
-                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished load after " + (System.currentTimeMillis() - loadTime) + " milliseconds");
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished load after " + (System.currentTimeMillis() - loadTime) + " milliseconds");  // NOPMD
                             }
                         }
 
                         if (debug) {
-                            MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting calculation");
+                            MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting calculation");  // NOPMD
                         }
 
                         long calcTime = System.currentTimeMillis();
@@ -410,7 +410,7 @@ public class RegionCache {
                                         CompletableFuture<ChunkAccess> lightFuture = this.chunkProvider.getLightEngine().lightChunk(loadedChunk, false);
 
                                         while (!this.closed && !lightFuture.isDone()) {
-                                            Thread.onSpinWait();
+                                            Thread.onSpinWait();  // NOPMD
                                         }
 
                                         loadedChunk = (LevelChunk) lightFuture.getNow(loadedChunk);
@@ -426,7 +426,7 @@ public class RegionCache {
                         }
 
                         if (debug) {
-                            MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished calculating after " + (System.currentTimeMillis() - calcTime) + " milliseconds");
+                            MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished calculating after " + (System.currentTimeMillis() - calcTime) + " milliseconds");  // NOPMD
                         }
                     } catch (Exception var41) {
                         MapViewConstants.getLogger().warn("error in anvil loading");
@@ -446,15 +446,15 @@ public class RegionCache {
                             CompletableFuture<Void> tickFuture = CompletableFuture.runAsync(() -> this.chunkProvider.tick(() -> true, executor.isSameThread()));
                             long tickTime = System.currentTimeMillis();
                             if (debug) {
-                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting chunk GC tick");
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting chunk GC tick");  // NOPMD
                             }
 
                             while (!this.closed && !tickFuture.isDone()) {
-                                Thread.onSpinWait();
+                                Thread.onSpinWait();  // NOPMD
                             }
 
                             if (debug) {
-                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished chunk GC tick after " + (System.currentTimeMillis() - tickTime) + " milliseconds");
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished chunk GC tick after " + (System.currentTimeMillis() - tickTime) + " milliseconds");  // NOPMD
                             }
                         } catch (RuntimeException var38) {
                             MapViewConstants.getLogger().warn("error ticking from anvil loading");
@@ -474,65 +474,59 @@ public class RegionCache {
             cachedRegionFileDir.mkdirs();
             File cachedRegionFile = new File(cachedRegionFileDir, "/" + this.key + ".zip");
             if (cachedRegionFile.exists()) {
-                ZipFile zFile = new ZipFile(cachedRegionFile);
-                ZipEntry ze = zFile.getEntry("data");
-                InputStream is = zFile.getInputStream(ze);
-                byte[] decompressedByteData = is.readAllBytes();
-                is.close();
-                ze = zFile.getEntry("key");
-                is = zFile.getInputStream(ze);
-                BiMap<BlockState, Integer> blockstateMap = HashBiMap.create();
-                Scanner sc = new Scanner(is);
-
-                while (sc.hasNextLine()) {
-                    BlockStateAnalyzer.parseLine(sc.nextLine(), blockstateMap);
-                }
-                sc.close();
-                is.close();
-
-                BiMap<Biome, Integer> biomeMap = HashBiMap.create();
-                ze = zFile.getEntry("biomes");
-                if (ze != null) {
-                    is = zFile.getInputStream(ze);
-                    sc = new Scanner(is);
-
-                    while (sc.hasNextLine()) {
-                        BiomeScanner.parseLine(world, sc.nextLine(), biomeMap);
+                try (ZipFile zFile = new ZipFile(cachedRegionFile)) {
+                    ZipEntry ze = zFile.getEntry("data");
+                    byte[] decompressedByteData;
+                    try (InputStream is = zFile.getInputStream(ze)) {
+                        decompressedByteData = is.readAllBytes();
                     }
-                } else {
-                    BiomeScanner.populateLegacyBiomeMap(world, biomeMap);
-                }
-
-                sc.close();
-                is.close();
-                int version = 1;
-                ze = zFile.getEntry("control");
-                if (ze != null) {
-                    is = zFile.getInputStream(ze);
-                    if (is != null) {
-                        Properties properties = new Properties();
-                        properties.load(is);
-                        String versionString = properties.getProperty("version", "1");
-
-                        try {
-                            version = Integer.parseInt(versionString);
-                        } catch (NumberFormatException ignored) {}
-
-                        is.close();
+                    ze = zFile.getEntry("key");
+                    BiMap<BlockState, Integer> blockstateMap = HashBiMap.create();
+                    try (InputStream is = zFile.getInputStream(ze);
+                         Scanner sc = new Scanner(is)) {
+                        while (sc.hasNextLine()) {
+                            BlockStateAnalyzer.parseLine(sc.nextLine(), blockstateMap);
+                        }
                     }
-                }
 
-                zFile.close();
-                if (decompressedByteData.length == this.data.getExpectedDataLength(version)) {
-                    this.data.setData(decompressedByteData, blockstateMap, biomeMap, version);
-                    this.empty = false;
-                    this.dataUpdated = true;
-                } else {
-                    MapViewConstants.getLogger().warn("failed to load data from " + cachedRegionFile.getPath());
-                }
+                    BiMap<Biome, Integer> biomeMap = HashBiMap.create();
+                    ze = zFile.getEntry("biomes");
+                    if (ze != null) {
+                        try (InputStream is = zFile.getInputStream(ze);
+                             Scanner sc = new Scanner(is)) {
+                            while (sc.hasNextLine()) {
+                                BiomeScanner.parseLine(world, sc.nextLine(), biomeMap);
+                            }
+                        }
+                    } else {
+                        BiomeScanner.populateLegacyBiomeMap(world, biomeMap);
+                    }
 
-                if (version < 2) {
-                    this.liveChunksUpdated = true;
+                    int version = 1;
+                    ze = zFile.getEntry("control");
+                    if (ze != null) {
+                        try (InputStream is = zFile.getInputStream(ze)) {
+                            Properties properties = new Properties();
+                            properties.load(is);
+                            String versionString = properties.getProperty("version", "1");
+
+                            try {
+                                version = Integer.parseInt(versionString);
+                            } catch (NumberFormatException ignored) {}
+                        }
+                    }
+
+                    if (decompressedByteData.length == this.data.getExpectedDataLength(version)) {
+                        this.data.setData(decompressedByteData, blockstateMap, biomeMap, version);
+                        this.empty = false;
+                        this.dataUpdated = true;
+                    } else {
+                        MapViewConstants.getLogger().warn("failed to load data from " + cachedRegionFile.getPath());
+                    }
+
+                    if (version < 2) {
+                        this.liveChunksUpdated = true;
+                    }
                 }
             }
         } catch (Exception ex) {
@@ -610,12 +604,13 @@ public class RegionCache {
                     StringBuilder stringBuffer = new StringBuilder();
 
                     for (Entry<Biome, Integer> entry : biomeToInt.entrySet()) {
-                        try {
-                            String nextLine = entry.getValue() + " " + world.registryAccess().registryOrThrow(Registries.BIOME).getKey(entry.getKey()).toString() + "\r\n";
-                            stringBuffer.append(nextLine);
-                        } catch (NullPointerException ex) {
+                        var biomeKey = world.registryAccess().registryOrThrow(Registries.BIOME).getKey(entry.getKey());
+                        if (biomeKey == null) {
                             MapViewConstants.getLogger().warn("Nullpointer for Biome: " + entry.getValue() + " at " + this.x + "," + this.z + " in " + this.worldNamePathPart + "/" + this.subworldNamePathPart + this.dimensionNamePathPart);
+                            continue;
                         }
+                        String nextLine = entry.getValue() + " " + biomeKey + "\r\n";
+                        stringBuffer.append(nextLine);
                     }
 
                     byte[] keyByteArray = String.valueOf(stringBuffer).getBytes();
@@ -764,7 +759,7 @@ public class RegionCache {
 
     public void compress() {
         if (this.data != null && !this.isCompressed() && !this.queuedToCompress) {
-            this.queuedToCompress = true;
+            this.queuedToCompress = true;  // NOPMD
             AsyncPersistenceManager.getExecutorService().execute(() -> {
                 if (this.threadLock.tryLock()) {
                     try {

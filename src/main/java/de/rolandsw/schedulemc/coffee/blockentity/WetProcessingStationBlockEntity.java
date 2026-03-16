@@ -86,8 +86,8 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            coffeeType = null;
-            quality = null;
+            coffeeType = null;  // NOPMD
+            quality = null;  // NOPMD
             currentStage = ProcessingStage.IDLE;
             processingProgress = 0;
         } else {
@@ -117,13 +117,14 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
                 processingProgress = 0;
                 changed = true;
             } else {
-                processingProgress++;
+                processingProgress = Math.min(processingProgress + 1, currentStage);
 
                 if (processingProgress >= currentStage.getDuration()) {
                     ProcessingStage nextStage = currentStage.next();
 
                     if (nextStage == ProcessingStage.IDLE) {
-                        CoffeeQuality finalQuality = quality.upgrade();
+                        if (quality == null) quality = CoffeeQuality.SEHR_GUT;
+                        CoffeeQuality finalQuality = quality.upgrade();  // NOPMD
                         int beanCount = inputStack.getCount() * 2;
                         outputStack = new ItemStack(de.rolandsw.schedulemc.coffee.items.CoffeeItems.GREEN_ARABICA_BEANS.get(), beanCount);
                         currentStage = ProcessingStage.IDLE;

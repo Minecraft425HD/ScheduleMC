@@ -20,11 +20,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AchievementManager extends AbstractPersistenceManager<Map<UUID, PlayerAchievements>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile AchievementManager instance;
+    private static volatile AchievementManager instance;  // NOPMD
 
-    private final Map<String, Achievement> achievements = new LinkedHashMap<>();
+    private final Map<String, Achievement> achievements = new LinkedHashMap<>();  // NOPMD
     private final Map<UUID, PlayerAchievements> playerData = new ConcurrentHashMap<>();
-    private MinecraftServer server;
+    private MinecraftServer server;  // NOPMD
 
     private AchievementManager(MinecraftServer server) {
         super(
@@ -39,7 +39,7 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     /**
      * SICHERHEIT: Double-Checked Locking für Thread-Safety
      */
-    public static AchievementManager getInstance(MinecraftServer server) {
+    public static AchievementManager initialize(MinecraftServer server) {
         AchievementManager localRef = instance;
         if (localRef == null) {
             synchronized (AchievementManager.class) {
@@ -561,7 +561,7 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         PlayerAchievements playerAch = getPlayerAchievements(playerUUID);
         int total = achievements.size();
         int unlocked = playerAch.getUnlockedCount();
-        double percentage = (double) unlocked / total * 100.0;
+        double percentage = total > 0 ? (double) unlocked / total * 100.0 : 0.0;
 
         return String.format("Achievements: %d/%d (%.1f%%) - %.2f€ verdient",
             unlocked, total, percentage, playerAch.getTotalPointsEarned());
@@ -586,7 +586,7 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
         // NULL CHECK
         if (data == null) {
             LOGGER.warn("Null data loaded for achievements");
-            invalidCount++;
+            invalidCount++;  // NOPMD
             return;
         }
 

@@ -41,11 +41,11 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
     // Text colors
     private static final int TEXT_DARK = 0x404040;
     private static final int TEXT_WHITE = 0xFFFFFF;
-    private static final int TEXT_LIGHT = 0xAAAAAA;
+    private static final int TEXT_LIGHT = 0xAAAAAA;  // NOPMD
     private static final int TEXT_GREEN = 0x55FF55;
     private static final int TEXT_GRAY = 0x888888;
 
-    private TileEntityFuelStation fuelStation;
+    private final TileEntityFuelStation fuelStation;
 
     protected Button buttonStart;
     protected Button buttonStop;
@@ -223,7 +223,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
     }
 
     private boolean isDaytime() {
-        if (minecraft != null && minecraft.level != null) {
+        if (minecraft != null && minecraft.level != null) {  // NOPMD
             return minecraft.level.getDayTime() % 24000 < 12000;
         }
         return true;

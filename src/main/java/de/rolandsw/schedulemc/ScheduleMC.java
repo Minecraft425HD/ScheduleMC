@@ -167,7 +167,7 @@ public class ScheduleMC {
     private IncrementalSaveManager saveManager;
 
     // Vehicle Mod integration
-    private static Main vehicleMod;
+    private static volatile Main vehicleMod;  // NOPMD
 
     public ScheduleMC() {
         this(FMLJavaModLoadingContext.get().getModEventBus());
@@ -183,7 +183,7 @@ public class ScheduleMC {
         });
 
         // Initialize Vehicle Mod
-        vehicleMod = new Main(modEventBus);
+        vehicleMod = new Main(modEventBus);  // NOPMD
 
         ModItems.ITEMS.register(modEventBus);
         TobaccoItems.ITEMS.register(modEventBus);
@@ -342,7 +342,7 @@ public class ScheduleMC {
         LOGGER.info("ScheduleMC initialized");
     }
     
-    private void commonSetup(final FMLCommonSetupEvent event) {
+    private void commonSetup(final FMLCommonSetupEvent event) {  // NOPMD
         event.enqueueWork(() -> {
             // Initialize delivery price config from main config (after config is loaded)
             DeliveryPriceConfig.setDefaultPrice(ModConfigHandler.COMMON.WAREHOUSE_DEFAULT_DELIVERY_PRICE.get());
@@ -383,7 +383,7 @@ public class ScheduleMC {
         // Vehicle Mod handles its own setup via event bus (registered in Main constructor)
     }
 
-    private void clientSetup(final net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {
+    private void clientSetup(final net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {  // NOPMD
         event.enqueueWork(() -> {
             // Register client-bound packets that reference Screen classes
             // These must be registered client-side only to avoid loading Screen classes on the server
@@ -393,7 +393,7 @@ public class ScheduleMC {
         });
     }
 
-    private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
+    private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {  // NOPMD
         event.put(NPCEntities.CUSTOM_NPC.get(), CustomNPCEntity.createAttributes().build());
     }
 
@@ -434,7 +434,7 @@ public class ScheduleMC {
             // ═══════════════════════════════════════════════════════════
             LOGGER.info("Loading persistent data in parallel...");
             long startTime = System.currentTimeMillis();
-            ExecutorService ioPool = ThreadPoolManager.getIOPool();
+            ExecutorService ioPool = ThreadPoolManager.getIOPool();  // NOPMD
 
             // OPTIMIERT: Jedes Future mit Exception-Handling wrappen
             // Vorher: Ein fehlgeschlagener Load konnte den gesamten Start blockieren
@@ -484,8 +484,8 @@ public class ScheduleMC {
             WarehouseManager.load(server);
 
             // Crime & Territory Systems - Initialize managers with persistence
-            de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance(server);
-            de.rolandsw.schedulemc.territory.TerritoryManager.getInstance(server);
+            de.rolandsw.schedulemc.npc.crime.BountyManager.initialize(server);
+            de.rolandsw.schedulemc.territory.TerritoryManager.initialize(server);
 
             // Market System - Load market data and enable simulation
             de.rolandsw.schedulemc.market.DynamicMarketManager market =
@@ -496,7 +496,7 @@ public class ScheduleMC {
 
             // Economy System - Advanced Features
             EconomyManager.initialize(server);
-            TransactionHistory.getInstance(server);
+            TransactionHistory.initialize(server);
             InterestManager.getInstance(server);
             LoanManager.getInstance(server);
             TaxManager.getInstance(server);
@@ -516,35 +516,35 @@ public class ScheduleMC {
             LOGGER.info("UDPS (Unified Dynamic Pricing System) and ProducerLevel initialized");
 
             // Achievement System
-            AchievementManager.getInstance(server);
+            AchievementManager.initialize(server);
             LOGGER.info("Achievement System initialized");
 
             // Gang System
-            de.rolandsw.schedulemc.gang.GangManager.getInstance(server);
+            de.rolandsw.schedulemc.gang.GangManager.initialize(server);
             java.nio.file.Path configDir = server.getServerDirectory().toPath().resolve("config");
-            de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance(configDir);
-            de.rolandsw.schedulemc.gang.scenario.ScenarioManager.getInstance(configDir);
+            de.rolandsw.schedulemc.gang.mission.GangMissionManager.initialize(configDir);
+            de.rolandsw.schedulemc.gang.scenario.ScenarioManager.initialize(configDir);
             LOGGER.info("Gang System initialized (incl. Mission Manager + Scenario Manager)");
 
             // Player Mission System
-            de.rolandsw.schedulemc.mission.PlayerMissionManager.getInstance(configDir);
+            de.rolandsw.schedulemc.mission.PlayerMissionManager.initialize(configDir);
             LOGGER.info("Player Mission System initialized");
 
             // Lock System - Door locks with keys, combination codes, and lock picks
-            LockManager.getInstance(configDir);
+            LockManager.initialize(configDir);
             LOGGER.info("Lock System initialized");
 
             // NPC Life System Manager - All managers with JSON persistence
             LOGGER.info("Initializing NPC Life System Managers...");
-            de.rolandsw.schedulemc.npc.life.social.FactionManager.getInstance(server);
-            de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getInstance(server);
-            de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance(server);
-            de.rolandsw.schedulemc.npc.life.companion.CompanionManager.getInstance(server);
-            de.rolandsw.schedulemc.npc.life.quest.QuestManager.getInstance(server);
-            de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.getInstance(server);
-            de.rolandsw.schedulemc.npc.life.social.NPCInteractionManager.getInstance(server);
-            de.rolandsw.schedulemc.npc.life.world.WorldEventManager.getInstance(server);
-            de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance(server);
+            de.rolandsw.schedulemc.npc.life.social.FactionManager.initialize(server);
+            de.rolandsw.schedulemc.npc.life.witness.WitnessManager.initialize(server);
+            de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.initialize(server);
+            de.rolandsw.schedulemc.npc.life.companion.CompanionManager.initialize(server);
+            de.rolandsw.schedulemc.npc.life.quest.QuestManager.initialize(server);
+            de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.initialize(server);
+            de.rolandsw.schedulemc.npc.life.social.NPCInteractionManager.initialize(server);
+            de.rolandsw.schedulemc.npc.life.world.WorldEventManager.initialize(server);
+            de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.initialize(server);
             LOGGER.info("NPC Life System Managers initialized (9/9 completed)");
 
             // Vehicle & Utility-System: Bereits parallel geladen (siehe oben)
@@ -560,8 +560,8 @@ public class ScheduleMC {
             saveManager.register(PlotManager.getInstance());
 
             // Crime & Territory Systems (Priority 2)
-            saveManager.register(de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance(server));
-            saveManager.register(de.rolandsw.schedulemc.territory.TerritoryManager.getInstance(server));
+            saveManager.register(de.rolandsw.schedulemc.npc.crime.BountyManager.initialize(server));
+            saveManager.register(de.rolandsw.schedulemc.territory.TerritoryManager.initialize(server));
 
             // Market System (Priority 3)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
@@ -676,7 +676,7 @@ public class ScheduleMC {
             ));
 
             // Gang System (Priority 3)
-            saveManager.register(de.rolandsw.schedulemc.gang.GangManager.getInstance(server));
+            saveManager.register(de.rolandsw.schedulemc.gang.GangManager.initialize(server));
 
             // Gang Mission System (Priority 4)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(

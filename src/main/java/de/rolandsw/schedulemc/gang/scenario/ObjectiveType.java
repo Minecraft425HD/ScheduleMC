@@ -383,7 +383,7 @@ public enum ObjectiveType {
     public String getIcon() { return icon; }
     public int getColor() { return color; }
     public Category getCategory() { return category; }
-    public ParamDef[] getParamDefs() { return paramDefs; }
+    public ParamDef[] getParamDefs() { return paramDefs != null ? paramDefs.clone() : null; }
 
     public int getDarkerColor() {
         int r = Math.max(0, ((color >> 16) & 0xFF) - 40);

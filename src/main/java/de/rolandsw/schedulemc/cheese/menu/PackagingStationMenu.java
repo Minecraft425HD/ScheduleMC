@@ -25,7 +25,7 @@ public class PackagingStationMenu extends AbstractContainerMenu {
     public PackagingStationMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(CheeseMenuTypes.PACKAGING_STATION_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
-        this.blockEntity = be instanceof PackagingStationBlockEntity e ? e : null;
+        this.blockEntity = be instanceof PackagingStationBlockEntity e ? e : null;  // NOPMD
         this.data = new SimpleContainerData(2);
         addDataSlots(data);
         addSlots(inv);

@@ -10,9 +10,9 @@ public class Conversation {
 
     private final UUID participantUUID;
     private final String participantName;
-    private final boolean isPlayerParticipant;
+    private final boolean isPlayerParticipant;  // NOPMD
     private final List<Message> messages;
-    private volatile long lastMessageTime;
+    private volatile long lastMessageTime;  // NOPMD
     private int reputation; // -100 bis 100, nur für NPC-Konversationen relevant
 
     public Conversation(UUID participantUUID, String participantName, boolean isPlayerParticipant) {

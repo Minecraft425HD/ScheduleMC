@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    SpotBugs Ausschlussfilter für ScheduleMC
+    Filtert generierten und framework-seitigen Code heraus, der keine
+    echten Bugs darstellt.
+-->
+<FindBugsFilter>
+
+    <!-- Generierter Forge/Minecraft-Code (Datagen, Mixin) -->
+    <Match>
+        <Class name="~de\.rolandsw\.schedulemc\..*Mixin.*"/>
+    </Match>
+
+    <!-- Client-GUI-Klassen: Zustand läuft auf dem Render-Thread, andere Threading-Regeln -->
+    <Match>
+        <Package name="~de\.rolandsw\.schedulemc\.client\..*"/>
+    </Match>
+    <Match>
+        <Package name="~de\.rolandsw\.schedulemc\.screens\..*"/>
+    </Match>
+
+    <!-- Datengenerierungs-Klassen -->
+    <Match>
+        <Package name="~de\.rolandsw\.schedulemc\.datagen\..*"/>
+    </Match>
+
+    <!-- Netzwerkpakete: Felder werden per Reflection/Codec befüllt, SpotBugs sieht sie als "uninitialized" -->
+    <Match>
+        <Package name="~de\.rolandsw\.schedulemc\.network\..*"/>
+        <Bug category="STYLE"/>
+    </Match>
+
+    <!-- Bekannte false positives: Serialisierungsklassen mit öffentlichen Feldern (z.B. GSON DTOs) -->
+    <Match>
+        <Bug pattern="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Bug pattern="UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+
+    <!-- Minecraft-Event-Handler: leere Methoden sind absichtlich (Forge-API) -->
+    <Match>
+        <Bug pattern="UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS"/>
+    </Match>
+
+</FindBugsFilter>

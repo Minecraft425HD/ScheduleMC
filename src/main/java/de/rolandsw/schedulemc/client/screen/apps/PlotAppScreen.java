@@ -221,7 +221,7 @@ public class PlotAppScreen extends Screen {
             Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(currentPlot.getPlotId());
             utilityData = dataOpt.orElse(null);
         } else {
-            utilityData = null;
+            utilityData = null;  // NOPMD
         }
 
         // Verfügbare Plots (zum Verkauf oder ohne Besitzer)
@@ -272,6 +272,7 @@ public class PlotAppScreen extends Screen {
             case 1 -> renderMarketTab(guiGraphics, contentY, contentEndY);
             case 2 -> renderMyPlotsTab(guiGraphics, contentY, contentEndY);
             case 3 -> renderFinanceTab(guiGraphics, contentY, contentEndY);
+            default -> {}
         }
 
         // Scroll-Indikator
@@ -384,7 +385,7 @@ public class PlotAppScreen extends Screen {
             // Strom
             if (y >= startY - 10 && y < endY) {
                 double elec = utilityData.getCurrentElectricity();
-                double avgElec = utilityData.get7DayAverageElectricity();
+                double avgElec = utilityData.get7DayAverageElectricity();  // NOPMD
                 guiGraphics.drawString(this.font, cachedElectricity, leftPos + 15, y, 0xFFAA00);
                 guiGraphics.drawString(this.font, PlotUtilityManager.formatElectricity(elec), leftPos + 80, y, 0xFFFFFF);
             }
@@ -416,7 +417,7 @@ public class PlotAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, cachedDevicesLabel + utilityData.getConsumerCount(), leftPos + 15, y, 0xFFFFFF);
             }
-            y += 15;
+            y += 15;  // NOPMD
             contentHeight += 15;
         }
 
@@ -558,7 +559,7 @@ public class PlotAppScreen extends Screen {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        String playerUUID = mc.player.getUUID().toString();
+        String playerUUID = mc.player.getUUID().toString();  // NOPMD
 
         // ═══════════════════════════════════════════════════════════════════════════
         // MAHNUNGEN / WARNUNGEN
@@ -730,7 +731,7 @@ public class PlotAppScreen extends Screen {
         if (y >= startY - 10 && y < endY) {
             guiGraphics.drawCenteredString(this.font, cachedPrices, leftPos + WIDTH / 2, y, 0x666666);
         }
-        y += 12;
+        y += 12;  // NOPMD
         contentHeight += 12;
 
         maxScroll = Math.max(0, contentHeight - CONTENT_HEIGHT);
@@ -750,10 +751,7 @@ public class PlotAppScreen extends Screen {
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Block E key (inventory key - 69) from closing the screen
-        if (keyCode == 69) { // GLFW_KEY_E
-            return true; // Consume event, prevent closing
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
 

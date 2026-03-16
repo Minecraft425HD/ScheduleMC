@@ -69,10 +69,7 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == ChocolateItems.COCOA_MASS.get();
-                }
-                return false;
+                return slot == 0 && stack.getItem() == ChocolateItems.COCOA_MASS.get();
             }
 
             @Override
@@ -96,14 +93,14 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
             } else {
                 quality = ChocolateQuality.GUT;
             }
             pressingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;
+            quality = null;  // NOPMD
             pressingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -130,7 +127,7 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
         boolean changed = false;
 
         if (!inputStack.isEmpty() && butterOutput.isEmpty() && powderOutput.isEmpty()) {
-            pressingProgress++;
+            pressingProgress = Math.min(pressingProgress + 1, PROCESSING_TIME);
 
             if (pressingProgress >= PROCESSING_TIME) {
                 // Pressing complete: Cocoa Mass → Cocoa Butter + Cocoa Powder
@@ -212,7 +209,7 @@ public class PressingStationBlockEntity extends BlockEntity implements IUtilityC
         pressingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
         }
         syncToHandler();
     }

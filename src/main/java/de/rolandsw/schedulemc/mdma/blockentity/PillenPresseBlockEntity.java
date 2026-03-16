@@ -49,12 +49,12 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
     private PillDesign selectedDesign = PillDesign.TESLA;
     private PillColor selectedColor = PillColor.PINK;
 
-    private boolean isMinigameActive = false;
+    private boolean isMinigameActive = false;  // NOPMD
     private int minigameTick = 0;
     private boolean waitingForPress = false;
 
     private ItemStack outputItem = ItemStack.EMPTY;
-    private int outputCount = 0;
+    private int outputCount = 0;  // NOPMD
 
     private UUID activePlayer = null;
     private double lastTimingScore = 0;
@@ -68,7 +68,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
         if (kristallCount >= 16 || !outputItem.isEmpty()) return false;
 
         inputQuality = MDMAKristallItem.getQuality(stack);
-        kristallCount++;
+        kristallCount = Math.min(kristallCount + 1, 16);
         setChanged();
         return true;
     }
@@ -77,7 +77,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
         if (!(stack.getItem() instanceof BindemittelItem)) return false;
         if (bindemittelCount >= 16) return false;
 
-        bindemittelCount++;
+        bindemittelCount = Math.min(bindemittelCount + 1, 16);
         setChanged();
         return true;
     }
@@ -182,7 +182,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
         outputCount = pillsToMake;
 
         isMinigameActive = false;
-        activePlayer = null;
+        activePlayer = null;  // NOPMD
 
         setChanged();
         if (level != null) {
@@ -207,7 +207,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
         if (level == null || level.isClientSide) return;
 
         if (isMinigameActive && waitingForPress) {
-            minigameTick++;
+            minigameTick = Math.min(minigameTick + 1, PERFECT_WINDOW_START);
 
             // Timeout - automatisch schlechte Qualität
             if (minigameTick >= PRESS_CYCLE_TICKS) {
@@ -233,7 +233,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
         isMinigameActive = false;
         waitingForPress = false;
         minigameTick = 0;
-        activePlayer = null;
+        activePlayer = null;  // NOPMD
         setChanged();
     }
 

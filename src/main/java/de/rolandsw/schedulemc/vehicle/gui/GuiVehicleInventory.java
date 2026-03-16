@@ -32,13 +32,13 @@ public class GuiVehicleInventory extends ScreenBase<ContainerVehicleInventory> {
     private static final int TEXT_WHITE = 0xFFFFFF;
     private static final int TEXT_LIGHT = 0xDDDDDD;
 
-    private EntityGenericVehicle vehicle;
-    private Inventory playerInventory;
-    private int internalSlots;
-    private int externalSlots;
-    private int internalRows;
-    private int externalRows;
-    private int invOffset;
+    private final EntityGenericVehicle vehicle;
+    private final Inventory playerInventory;
+    private final int internalSlots;
+    private final int externalSlots;
+    private final int internalRows;
+    private final int externalRows;
+    private final int invOffset;
 
     public GuiVehicleInventory(ContainerVehicleInventory vehicleInventory, Inventory playerInventory, Component title) {
         super(GUI_TEXTURE_3, vehicleInventory, playerInventory, title);

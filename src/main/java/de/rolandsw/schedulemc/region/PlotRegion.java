@@ -64,12 +64,12 @@ public class PlotRegion {
     private int visitCount;
 
     // Öffentlicher Plot?
-    private boolean isPublic;
+    private boolean isPublic;  // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // PLOT-TYPE & WAREHOUSE (NEU)
     // ═══════════════════════════════════════════════════════════
-    private PlotType type = PlotType.RESIDENTIAL; // Default: Wohngebäude
+    private PlotType type = PlotType.RESIDENTIAL; // Default: Wohngebäude  // NOPMD
     private BlockPos warehouseLocation; // Warehouse für Shop-Plots
 
     // ═══════════════════════════════════════════════════════════
@@ -84,7 +84,7 @@ public class PlotRegion {
      */
     public PlotRegion(String plotId, BlockPos min, BlockPos max, double price) {
         this.ownerUUID = "";  // Kein Besitzer bei Erstellung
-        this.ownerName = null;
+        this.ownerName = null;  // NOPMD
         this.min = min;
         this.max = max;
         this.price = price;
@@ -102,7 +102,7 @@ public class PlotRegion {
 
         // Plot-Type & Warehouse
         this.type = PlotType.RESIDENTIAL;
-        this.warehouseLocation = null;
+        this.warehouseLocation = null;  // NOPMD
 
         // Verkauf & Miete
         this.forSale = false;
@@ -302,9 +302,8 @@ public class PlotRegion {
      * Fügt ein Rating hinzu (1-5 Sterne)
      */
     public void addRating(UUID playerUUID, int stars) {
-        if (stars < 1) stars = 1;
-        if (stars > 5) stars = 5;
-        getRatings().put(playerUUID.toString(), stars);
+        int clampedStars = Math.max(1, Math.min(5, stars));
+        getRatings().put(playerUUID.toString(), clampedStars);
     }
     
     /**
@@ -400,9 +399,7 @@ public class PlotRegion {
     public boolean hasAccess(UUID uuid) {
         if (uuid == null) return false;
         if (isOwnedBy(uuid)) return true;
-        if (isTrusted(uuid)) return true;
-        if (isRented() && uuid.toString().equals(renterUUID)) return true;
-        return false;
+        return isTrusted(uuid) || isRented() && uuid.toString().equals(renterUUID);
     }
 
     /**
@@ -454,6 +451,7 @@ public class PlotRegion {
      * Prüft ob Position innerhalb des Plots liegt
      */
     public boolean contains(BlockPos pos) {
+        if (pos == null || min == null || max == null) return false;
         return pos.getX() >= min.getX() && pos.getX() <= max.getX() &&
                pos.getY() >= min.getY() && pos.getY() <= max.getY() &&
                pos.getZ() >= min.getZ() && pos.getZ() <= max.getZ();
@@ -621,9 +619,12 @@ public class PlotRegion {
      * Prüft ob dieses Plot in einem Government-Plot liegt
      */
     public boolean isInsideGovernmentPlot() {
+        // Null-Safety: min/max können nach GSON-Deserialisierung null sein
+        if (this.min == null || this.max == null) return false;
+
         // Hole alle Plots und prüfe ob ein Government-Plot dieses Plot umschließt
         for (PlotRegion other : PlotManager.getPlots()) {
-            if (other == this) continue;
+            if (other.equals(this)) continue;
             if (other.getType() == PlotType.GOVERNMENT) {
                 // Prüfe ob dieses Plot komplett im Government-Plot liegt
                 if (other.contains(this.min) && other.contains(this.max)) {

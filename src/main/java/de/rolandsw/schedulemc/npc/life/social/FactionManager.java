@@ -24,7 +24,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile FactionManager instance;
+    private static volatile FactionManager instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -32,7 +32,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
         return instance;
     }
 
-    public static FactionManager getInstance(MinecraftServer server) {
+    public static FactionManager initialize(MinecraftServer server) {
         FactionManager result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {
@@ -97,7 +97,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
      * Erstellt Standard-Beziehungen für alle Fraktionen
      */
     private Map<Faction, FactionRelation> createDefaultRelations() {
-        Map<Faction, FactionRelation> relations = new EnumMap<>(Faction.class);
+        Map<Faction, FactionRelation> relations = new EnumMap<>(Faction.class);  // NOPMD
         for (Faction faction : Faction.values()) {
             relations.put(faction, new FactionRelation(faction));
         }
@@ -144,15 +144,16 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
     public void modifyReputation(UUID playerUUID, Faction faction, int amount) {
         // Diminishing Returns bei Strafen: Je negativer die Reputation bereits ist,
         // desto weniger wirken weitere Strafen
+        int effectiveAmount = amount;
         if (amount < 0) {
             int currentRep = getReputation(playerUUID, faction);
             if (currentRep < -50) {
-                amount = (int) Math.ceil(amount * 0.5); // 50% Wirkung unter -50
+                effectiveAmount = (int) Math.ceil(amount * 0.5); // 50% Wirkung unter -50
             } else if (currentRep < -20) {
-                amount = (int) Math.ceil(amount * 0.75); // 75% Wirkung unter -20
+                effectiveAmount = (int) Math.ceil(amount * 0.75); // 75% Wirkung unter -20
             }
         }
-        getRelation(playerUUID, faction).modifyReputation(amount);
+        getRelation(playerUUID, faction).modifyReputation(effectiveAmount);
         markDirty();
 
         // Gegenwirkung auf verbündete/feindliche Fraktionen
@@ -357,7 +358,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
         for (Map.Entry<String, Map<String, FactionRelation>> entry : data.entrySet()) {
             try {
                 UUID playerUUID = UUID.fromString(entry.getKey());
-                Map<Faction, FactionRelation> relations = new EnumMap<>(Faction.class);
+                Map<Faction, FactionRelation> relations = new EnumMap<>(Faction.class);  // NOPMD
 
                 for (Map.Entry<String, FactionRelation> relEntry : entry.getValue().entrySet()) {
                     try {
@@ -421,10 +422,10 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
 
     @Override
     protected Map<String, Map<String, FactionRelation>> getCurrentData() {
-        Map<String, Map<String, FactionRelation>> data = new HashMap<>();
+        Map<String, Map<String, FactionRelation>> data = new HashMap<>();  // NOPMD
 
         for (Map.Entry<UUID, Map<Faction, FactionRelation>> entry : playerFactions.entrySet()) {
-            Map<String, FactionRelation> relations = new HashMap<>();
+            Map<String, FactionRelation> relations = new HashMap<>();  // NOPMD
             for (Map.Entry<Faction, FactionRelation> relEntry : entry.getValue().entrySet()) {
                 relations.put(relEntry.getKey().name(), relEntry.getValue());
             }

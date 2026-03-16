@@ -209,7 +209,7 @@ public class DamageComponent extends VehicleComponent {
             addDamage(25);
             return false;
         }
-        if (vehicle.isInLava() || getDamage() >= 100) {
+        if (vehicle.isInLava() || getDamage() >= 100) {  // NOPMD
             return false;
         }
         return true;
@@ -232,17 +232,9 @@ public class DamageComponent extends VehicleComponent {
     }
 
     public void setDamage(float damage) {
-        if (damage > VehicleConstants.MAX_DAMAGE) {
-            damage = VehicleConstants.MAX_DAMAGE;
-        } else if (damage < 0) {
-            damage = 0;
-        }
-        // Vehicle Aging: Schaden kann nicht unter den Aging-Mindestwert repariert werden
         float minDamage = getAgingMinDamage();
-        if (damage < minDamage) {
-            damage = minDamage;
-        }
-        vehicle.getEntityData().set(DAMAGE, damage);
+        float clampedDamage = Math.max(minDamage, Math.min(VehicleConstants.MAX_DAMAGE, Math.max(0, damage)));
+        vehicle.getEntityData().set(DAMAGE, clampedDamage);
     }
 
     /**

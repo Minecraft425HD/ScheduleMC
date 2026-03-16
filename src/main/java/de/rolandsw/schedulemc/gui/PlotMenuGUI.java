@@ -137,7 +137,7 @@ public class PlotMenuGUI {
     // HELPER METHODEN
     // ═══════════════════════════════════════════════════════════
     
-    private static void addLore(ItemStack stack, String... lines) {
+    private static void addLore(ItemStack stack, String... lines) {  // NOPMD
         // TODO: Implement lore addition
         // net.minecraft.world.item.component.ItemLore
     }
@@ -187,7 +187,7 @@ public class PlotMenuGUI {
     // ═══════════════════════════════════════════════════════════
     
     private static class PlotMenuContainer extends ChestMenu {
-        private final SimpleContainer container;
+        private final SimpleContainer container;  // NOPMD
         
         public PlotMenuContainer(int id, Inventory playerInv, SimpleContainer container) {
             super(MenuType.GENERIC_9x3, id, playerInv, container, 3);

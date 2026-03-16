@@ -196,7 +196,7 @@ public class CashItem extends Item {
                     return Component.translatable("tooltip.cash.wallet_filled", String.format("%.0f€", value));
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             // Server-Seite oder Fehler - zeige generischen Namen
         }
         return Component.translatable("item.schedulemc.cash");

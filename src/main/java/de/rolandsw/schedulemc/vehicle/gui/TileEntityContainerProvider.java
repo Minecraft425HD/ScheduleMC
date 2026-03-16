@@ -14,8 +14,8 @@ import javax.annotation.Nullable;
 
 public class TileEntityContainerProvider implements MenuProvider {
 
-    private ContainerCreator container;
-    private TileEntityBase tileEntity;
+    private final ContainerCreator container;
+    private final TileEntityBase tileEntity;
 
     public TileEntityContainerProvider(ContainerCreator container, TileEntityBase tileEntity) {
         this.container = container;

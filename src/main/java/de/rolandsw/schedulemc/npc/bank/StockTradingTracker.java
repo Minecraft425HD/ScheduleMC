@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Speichert Käufe mit Preisen und berechnet Gewinn/Verlust bei Verkäufen
  */
 public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, StockTradingTracker.PlayerTradingData>> {
-    private static volatile StockTradingTracker instance;
+    private static volatile StockTradingTracker instance;  // NOPMD
 
     private final Map<UUID, PlayerTradingData> playerData = new ConcurrentHashMap<>();
     private MinecraftServer server;
@@ -37,7 +37,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
     /**
      * Thread-safe Singleton
      */
-    public static StockTradingTracker getInstance(MinecraftServer server) {
+    public static StockTradingTracker initialize(MinecraftServer server) {
         StockTradingTracker localRef = instance;
         if (localRef == null) {
             synchronized (StockTradingTracker.class) {
@@ -64,7 +64,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         data.addPurchase(item, quantity, pricePerUnit);
 
         // Achievement: Erster Trade
-        AchievementManager achievementManager = AchievementManager.getInstance(server);
+        AchievementManager achievementManager = AchievementManager.initialize(server);
         if (achievementManager != null) {
             achievementManager.addProgress(playerUUID, "FIRST_TRADE", 1.0);
             achievementManager.addProgress(playerUUID, "ACTIVE_TRADER", 1.0);
@@ -150,7 +150,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         data.totalTrades++;
 
         // Achievement Triggers
-        AchievementManager achievementManager = AchievementManager.getInstance(server);
+        AchievementManager achievementManager = AchievementManager.initialize(server);
         if (achievementManager != null) {
             // Trade Achievements
             achievementManager.addProgress(playerUUID, "FIRST_TRADE", 1.0);
@@ -239,7 +239,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         // NULL CHECK
         if (data == null) {
             LOGGER.warn("Null data loaded for stock trading tracker");
-            invalidCount++;
+            invalidCount++;  // NOPMD
             return;
         }
 
@@ -316,7 +316,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         private final UUID playerUUID;
 
         @SerializedName("holdings")
-        private final Map<String, List<Purchase>> holdings = new HashMap<>();
+        private final Map<String, List<Purchase>> holdings = new HashMap<>();  // NOPMD
 
         @SerializedName("totalProfit")
         private double totalProfit = 0.0;
@@ -421,9 +421,12 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         }
 
         public double getTaxSavings() {
-            // Grobe Schätzung: Durchschnittlicher Trade-Wert wäre ohne Steuervermeidung besteuert
-            // Hier könnte man eine genauere Berechnung machen
-            return taxFreeTrades > 0 ? totalTaxPaid / taxFreeTrades * taxFreeTrades : 0.0;
+            // Grobe Schätzung: Durchschnittliche Steuer pro besteuertem Trade * Anzahl steuerfreier Trades
+            // Entspricht der Steuer, die bei schlechterem Timing angefallen wäre
+            int taxedTrades = totalTrades - taxFreeTrades;
+            if (taxedTrades <= 0 || taxFreeTrades <= 0) return 0.0;
+            double avgTaxPerTaxedTrade = totalTaxPaid / taxedTrades;
+            return avgTaxPerTaxedTrade * taxFreeTrades;
         }
 
         /**

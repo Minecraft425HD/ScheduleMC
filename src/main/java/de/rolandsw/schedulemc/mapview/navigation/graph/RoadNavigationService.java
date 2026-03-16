@@ -27,7 +27,7 @@ public class RoadNavigationService {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // SICHERHEIT: volatile + Lock für Thread-safe Singleton
-    private static volatile RoadNavigationService instance;
+    private static volatile RoadNavigationService instance;  // NOPMD
     private static final Object INSTANCE_LOCK = new Object();
 
     // Konfiguration
@@ -35,7 +35,7 @@ public class RoadNavigationService {
     private static final int PATH_UPDATE_INTERVAL_MS = 1000; // Pfad-Update jede Sekunde
     private static final double MOVEMENT_THRESHOLD = 10.0; // Mindestbewegung für Neuberechnung
     private static final double ARRIVAL_DISTANCE = 5.0; // Distanz für "angekommen"
-    private static final double PATH_DEVIATION_THRESHOLD = 15.0; // Pfad-Neuberechnung wenn zu weit vom Pfad
+    private static final double PATH_DEVIATION_THRESHOLD = 15.0; // Pfad-Neuberechnung wenn zu weit vom Pfad  // NOPMD
 
     // Services
     private final WorldMapData mapData;
@@ -45,7 +45,7 @@ public class RoadNavigationService {
     private NavigationTarget currentTarget;
     private List<BlockPos> currentPath;
     private List<BlockPos> simplifiedPath;
-    private boolean isNavigationActive;
+    private boolean isNavigationActive;  // NOPMD
     private long lastPathUpdate;
     private int currentPathIndex;           // Index auf simplifiedPath
     private int currentFullPathIndex;       // Index auf currentPath (für Rendering)
@@ -61,7 +61,7 @@ public class RoadNavigationService {
     /**
      * SICHERHEIT: Thread-safe Singleton mit Double-Checked Locking
      */
-    public static RoadNavigationService getInstance(WorldMapData mapData) {
+    public static RoadNavigationService initialize(WorldMapData mapData) {
         RoadNavigationService result = instance;
         if (result == null) {
             synchronized (INSTANCE_LOCK) {
@@ -235,12 +235,12 @@ public class RoadNavigationService {
         }
 
         isNavigationActive = false;
-        currentTarget = null;
+        currentTarget = null;  // NOPMD
         currentPath = Collections.emptyList();
         simplifiedPath = Collections.emptyList();
         currentPathIndex = 0;
         currentFullPathIndex = 0;
-        lastPathStartPos = null;
+        lastPathStartPos = null;  // NOPMD
 
         LOGGER.info("[RoadNavigationService] Navigation stopped");
         notifyListeners(NavigationEvent.NAVIGATION_STOPPED);
@@ -513,7 +513,7 @@ public class RoadNavigationService {
         stopNavigation();
         // ThreadPoolManager wird zentral heruntergefahren, keine lokale Aktion nötig
         synchronized (INSTANCE_LOCK) {
-            instance = null;
+            instance = null;  // NOPMD
         }
     }
 }

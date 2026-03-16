@@ -167,6 +167,7 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
                     // Replace fender part in part inventory
                     return replacePartInInventory(vehicle, PartBumper.class, getFenderByLevel(value));
                 }
+                default -> {}
             }
             return false;
         } catch (Exception e) {

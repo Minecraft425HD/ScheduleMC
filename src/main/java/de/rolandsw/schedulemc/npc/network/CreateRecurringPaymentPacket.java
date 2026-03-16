@@ -61,7 +61,7 @@ public class CreateRecurringPaymentPacket {
             }
 
             // Validierung: Empfänger nicht leer
-            if (recipientName == null || recipientName.trim().isEmpty()) {
+            if (recipientName == null || recipientName.isBlank()) {
                 player.sendSystemMessage(Component.translatable("message.bank.recipient_required")
                     .withStyle(ChatFormatting.RED));
                 return;

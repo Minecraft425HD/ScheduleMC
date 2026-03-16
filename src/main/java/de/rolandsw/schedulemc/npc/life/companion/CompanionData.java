@@ -130,7 +130,7 @@ public class CompanionData {
     public void setFollowing() {
         this.state = CompanionState.FOLLOWING;
         this.currentCommand = CompanionCommand.FOLLOW;
-        this.waitPosition = null;
+        this.waitPosition = null;  // NOPMD
     }
 
     /**
