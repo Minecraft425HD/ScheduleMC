@@ -59,7 +59,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
      * Note: Manager is server-wide, not per-level.
      */
     public static NPCInteractionManager getManager(ServerLevel level) {
-        return getInstance(level.getServer());
+        return getInstance();
     }
 
     // ═══════════════════════════════════════════════════════════

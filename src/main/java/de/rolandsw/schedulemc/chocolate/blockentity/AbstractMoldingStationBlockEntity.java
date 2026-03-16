@@ -176,7 +176,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
         boolean changed = false;
 
         if (!chocolateInput.isEmpty() && !moldInput.isEmpty() && outputStack.isEmpty()) {
-            moldingProgress = Math.min(moldingProgress + 1, getTotalMoldingTime);
+            moldingProgress = Math.min(moldingProgress + 1, getTotalMoldingTime());
 
             if (moldingProgress >= getTotalMoldingTime()) {
                 // Molding complete: Tempered Chocolate + Mold → Chocolate Bar

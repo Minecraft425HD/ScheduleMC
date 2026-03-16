@@ -111,7 +111,7 @@ public class PasteurizationStationBlockEntity extends BlockEntity implements IUt
         boolean changed = false;
 
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            pasteurizationProgress = Math.min(pasteurizationProgress + 1, getTotalPasteurizationTime);
+            pasteurizationProgress = Math.min(pasteurizationProgress + 1, getTotalPasteurizationTime());
 
             if (pasteurizationProgress >= getTotalPasteurizationTime()) {
                 // Pasteurization complete: Raw Milk → Pasteurized Milk

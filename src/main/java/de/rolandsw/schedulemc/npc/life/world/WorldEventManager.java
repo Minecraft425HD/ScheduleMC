@@ -50,7 +50,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
      * Note: Manager is server-wide, not per-level.
      */
     public static WorldEventManager getManager(ServerLevel level) {
-        return getInstance(level.getServer());
+        return getInstance();
     }
 
     public static WorldEventManager initialize(MinecraftServer server) {
