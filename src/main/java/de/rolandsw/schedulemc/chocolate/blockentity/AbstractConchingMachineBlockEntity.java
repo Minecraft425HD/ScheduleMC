@@ -189,7 +189,7 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
         }
 
         if (!cocoaMassInput.isEmpty() && hasIngredient && outputStack.isEmpty()) {
-            conchingProgress = Math.min(conchingProgress + 1, getTotalConchingTime);
+            conchingProgress = Math.min(conchingProgress + 1, getTotalConchingTime());
 
             if (conchingProgress >= getTotalConchingTime()) {
                 // Conching complete: Cocoa Mass + Ingredients → Conched Chocolate

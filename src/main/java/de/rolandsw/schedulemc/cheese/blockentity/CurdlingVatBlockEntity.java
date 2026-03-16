@@ -131,7 +131,7 @@ public class CurdlingVatBlockEntity extends BlockEntity implements IUtilityConsu
         boolean changed = false;
 
         if (!milkInput.isEmpty() && !rennetInput.isEmpty() && outputStack.isEmpty()) {
-            curdlingProgress = Math.min(curdlingProgress + 1, getTotalCurdlingTime);
+            curdlingProgress = Math.min(curdlingProgress + 1, getTotalCurdlingTime());
 
             if (curdlingProgress >= getTotalCurdlingTime()) {
                 // Determine quality once at completion

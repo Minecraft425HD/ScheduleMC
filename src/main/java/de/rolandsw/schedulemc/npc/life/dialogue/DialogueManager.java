@@ -61,7 +61,7 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
      * Note: Manager is server-wide, not per-level.
      */
     public static DialogueManager getManager(ServerLevel level) {
-        return getInstance(level.getServer());
+        return getInstance();
     }
 
     // ═══════════════════════════════════════════════════════════
