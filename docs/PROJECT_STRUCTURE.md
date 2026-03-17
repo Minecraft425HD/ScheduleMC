@@ -1,11 +1,11 @@
 # ScheduleMC - Vollstaendige Projektstruktur
 
-> Aktualisiert am 2026-03-16 | Version 3.6.9-beta
+> Aktualisiert am 2026-03-17 | Version 3.7.0-beta
 >
 > **Gesamtstatistik:**
-> - Java-Quelldateien (main): 1.448
+> - Java-Quelldateien (main): 1.494 (+46 Weapon-System)
 > - Java-Testdateien: 32
-> - Ressourcen-Dateien: 1.797
+> - Ressourcen-Dateien: 1.856 (+59 Weapon: models, textures, particles, sounds, lang)
 > - Gesamtzeilen in dieser Datei: ~3,000+
 
 ---
@@ -1717,6 +1717,62 @@ ScheduleMC/
 │   │   │               │   ├── WineProcessingMethod.java
 │   │   │               │   ├── WineQuality.java
 │   │   │               │   └── WineType.java
+│   │   │               ├── weapon
+│   │   │               │   ├── attachment
+│   │   │               │   │   ├── Attachment.java
+│   │   │               │   │   ├── BaseAttachmentItem.java
+│   │   │               │   │   ├── LaserAttachment.java
+│   │   │               │   │   ├── ScopeAttachment.java
+│   │   │               │   │   ├── SilencerAttachment.java
+│   │   │               │   │   └── WeaponAttachments.java
+│   │   │               │   ├── client
+│   │   │               │   │   └── WeaponClientSetup.java
+│   │   │               │   ├── config
+│   │   │               │   │   └── WeaponConfig.java
+│   │   │               │   ├── entity
+│   │   │               │   │   ├── ThrownWeaponGrenade.java
+│   │   │               │   │   ├── WeaponBulletEntity.java
+│   │   │               │   │   └── WeaponEntities.java
+│   │   │               │   ├── grenade
+│   │   │               │   │   ├── FlashGrenadeItem.java
+│   │   │               │   │   ├── FragGrenadeItem.java
+│   │   │               │   │   ├── GrenadeItem.java
+│   │   │               │   │   ├── GrenadeType.java
+│   │   │               │   │   └── SmokeGrenadeItem.java
+│   │   │               │   ├── gun
+│   │   │               │   │   ├── Ak47Item.java
+│   │   │               │   │   ├── GunItem.java
+│   │   │               │   │   ├── GunProperties.java
+│   │   │               │   │   ├── Mp5Item.java
+│   │   │               │   │   ├── PistolItem.java
+│   │   │               │   │   ├── RevolverItem.java
+│   │   │               │   │   ├── ShotgunItem.java
+│   │   │               │   │   └── SniperItem.java
+│   │   │               │   ├── handler
+│   │   │               │   │   ├── WeaponClientEventHandler.java
+│   │   │               │   │   └── WeaponServerEventHandler.java
+│   │   │               │   ├── item
+│   │   │               │   │   └── WeaponItems.java
+│   │   │               │   ├── melee
+│   │   │               │   │   ├── BaseballBatItem.java
+│   │   │               │   │   ├── CombatKnifeItem.java
+│   │   │               │   │   ├── MacheteItem.java
+│   │   │               │   │   └── MeleeWeaponItem.java
+│   │   │               │   ├── network
+│   │   │               │   │   ├── WeaponFirePacket.java
+│   │   │               │   │   ├── WeaponPackets.java
+│   │   │               │   │   ├── WeaponReloadPacket.java
+│   │   │               │   │   ├── WeaponSetAmmoTypePacket.java
+│   │   │               │   │   ├── WeaponStartAutoFirePacket.java
+│   │   │               │   │   └── WeaponStopAutoFirePacket.java
+│   │   │               │   ├── particle
+│   │   │               │   │   └── WeaponParticles.java
+│   │   │               │   ├── render
+│   │   │               │   │   └── WeaponBulletRenderer.java
+│   │   │               │   ├── sound
+│   │   │               │   │   └── WeaponSounds.java
+│   │   │               │   └── util
+│   │   │               │       └── WeaponNBT.java
 │   │   │               ├── ModCreativeTabs.java
 │   │   │               ├── ScheduleMC.java
 │   │   │               └── package-info.java
