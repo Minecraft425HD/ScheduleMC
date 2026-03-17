@@ -507,10 +507,13 @@ public class NPCDialogueProvider {
     }
 
     /**
-     * Registriert alle Dialoge für ein Level
+     * Registriert alle Dialoge für ein Level.
+     * Wird beim Level-Load aufgerufen, aber auch nach der Manager-Initialisierung.
+     * Ist ein No-op wenn der DialogueManager noch nicht initialisiert wurde.
      */
     public static void setupForLevel(ServerLevel level) {
         DialogueManager manager = DialogueManager.getManager(level);
+        if (manager == null) return;
         registerAllTrees(manager);
     }
 }

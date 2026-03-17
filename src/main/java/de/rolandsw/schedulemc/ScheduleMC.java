@@ -558,6 +558,11 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.life.companion.CompanionManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.quest.QuestManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.initialize(server);
+            // Dialogbäume für bereits geladene Level nachregistrieren (LevelEvent.Load feuert
+            // vor ServerStartedEvent, daher war der Manager damals noch null)
+            for (net.minecraft.server.level.ServerLevel lvl : server.getAllLevels()) {
+                de.rolandsw.schedulemc.npc.life.dialogue.NPCDialogueProvider.setupForLevel(lvl);
+            }
             de.rolandsw.schedulemc.npc.life.social.NPCInteractionManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.world.WorldEventManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.initialize(server);
