@@ -567,6 +567,12 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.life.world.WorldEventManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.initialize(server);
             LOGGER.info("NPC Life System Managers initialized (9/9 completed)");
+            // Re-initialize manager references in all existing NPCLifeSystemIntegration instances.
+            // LevelEvent.Load fires before ServerStartedEvent, so integrations created during level load
+            // stored null manager references (managers were not yet initialized at that point).
+            for (net.minecraft.server.level.ServerLevel lvl : server.getAllLevels()) {
+                de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(lvl).reinitializeManagers();
+            }
 
             // Vehicle & Utility-System: Bereits parallel geladen (siehe oben)
 

@@ -64,15 +64,15 @@ public class NPCLifeSystemIntegration {
 
     private final ServerLevel level;
 
-    private final FactionManager factionManager;
-    private final RumorNetwork rumorNetwork;
-    private final NPCInteractionManager interactionManager;
-    private final WitnessManager witnessManager;
-    private final DynamicPriceManager priceManager;
-    private final DialogueManager dialogueManager;
-    private final QuestManager questManager;
-    private final CompanionManager companionManager;
-    private final WorldEventManager worldEventManager;
+    private FactionManager factionManager;
+    private RumorNetwork rumorNetwork;
+    private NPCInteractionManager interactionManager;
+    private WitnessManager witnessManager;
+    private DynamicPriceManager priceManager;
+    private DialogueManager dialogueManager;
+    private QuestManager questManager;
+    private CompanionManager companionManager;
+    private WorldEventManager worldEventManager;
 
     /** System aktiviert? */
     private boolean enabled = true;
@@ -102,6 +102,24 @@ public class NPCLifeSystemIntegration {
         NPCDialogueProvider.setupForLevel(level);
     }
 
+    /**
+     * Re-fetches all manager references after the server has fully started.
+     * Called from onServerStarted because LevelEvent.Load fires before managers are initialized,
+     * so the constructor may store null references.
+     */
+    public void reinitializeManagers() {
+        this.factionManager = FactionManager.getManager(level);
+        this.rumorNetwork = RumorNetwork.getNetwork(level);
+        this.interactionManager = NPCInteractionManager.getManager(level);
+        this.witnessManager = WitnessManager.getManager(level);
+        this.priceManager = DynamicPriceManager.getManager(level);
+        this.dialogueManager = DialogueManager.getManager(level);
+        this.questManager = QuestManager.getManager(level);
+        this.companionManager = CompanionManager.getManager(level);
+        this.worldEventManager = WorldEventManager.getManager(level);
+        NPCDialogueProvider.setupForLevel(level);
+    }
+
     // ═══════════════════════════════════════════════════════════
     // MAIN TICK
     // ═══════════════════════════════════════════════════════════
@@ -111,6 +129,7 @@ public class NPCLifeSystemIntegration {
      */
     public void tick() {
         if (!enabled) return;
+        if (interactionManager == null) return; // managers not yet initialized (server still starting)
 
         tickCounter++;
 
