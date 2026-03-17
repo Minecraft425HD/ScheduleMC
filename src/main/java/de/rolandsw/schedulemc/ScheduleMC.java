@@ -127,6 +127,13 @@ import de.rolandsw.schedulemc.lock.items.LockItems;
 import de.rolandsw.schedulemc.lock.DoorLockHandler;
 import de.rolandsw.schedulemc.lock.LockCommand;
 import de.rolandsw.schedulemc.lock.LockManager;
+import de.rolandsw.schedulemc.weapon.item.WeaponItems;
+import de.rolandsw.schedulemc.weapon.entity.WeaponEntities;
+import de.rolandsw.schedulemc.weapon.sound.WeaponSounds;
+import de.rolandsw.schedulemc.weapon.particle.WeaponParticles;
+import de.rolandsw.schedulemc.weapon.config.WeaponConfig;
+import de.rolandsw.schedulemc.weapon.network.WeaponPackets;
+import de.rolandsw.schedulemc.weapon.handler.WeaponServerEventHandler;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import net.minecraft.core.BlockPos;
@@ -304,11 +311,18 @@ public class ScheduleMC {
         de.rolandsw.schedulemc.secretdoors.SecretDoors.ITEMS.register(modEventBus);
         de.rolandsw.schedulemc.secretdoors.SecretDoors.BLOCK_ENTITIES.register(modEventBus);
 
+        // Waffen-System registrieren
+        WeaponItems.ITEMS.register(modEventBus);
+        WeaponEntities.ENTITIES.register(modEventBus);
+        WeaponSounds.SOUNDS.register(modEventBus);
+        WeaponParticles.PARTICLES.register(modEventBus);
+
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
 
         ModLoadingContext context = ModLoadingContext.get();
         context.registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
         context.registerConfig(ModConfig.Type.CLIENT, ModConfigHandler.CLIENT_SPEC);
+        context.registerConfig(ModConfig.Type.COMMON, WeaponConfig.SPEC, "schedulemc-weapons.toml");
 
         // Register config screen (client-side only)
         net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT, () -> () -> {
@@ -338,6 +352,7 @@ public class ScheduleMC {
         MinecraftForge.EVENT_BUS.register(WarehouseManager.class);
         MinecraftForge.EVENT_BUS.register(UtilityEventHandler.class);
         MinecraftForge.EVENT_BUS.register(new DoorLockHandler());
+        MinecraftForge.EVENT_BUS.register(new WeaponServerEventHandler());
 
         LOGGER.info("ScheduleMC initialized");
     }
@@ -370,6 +385,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.gang.network.GangNetworkHandler.register();
             de.rolandsw.schedulemc.mission.network.MissionNetworkHandler.register();
             de.rolandsw.schedulemc.lock.network.LockNetworkHandler.register();
+            WeaponPackets.register();
 
             // MapView (LightMap) network packets - must be registered on both client and server
             de.rolandsw.schedulemc.mapview.integration.forge.ForgeEvents.registerNetworkPackets();
