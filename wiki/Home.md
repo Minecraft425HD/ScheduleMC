@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/Version-3.6.9--beta-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-3.7.0--beta-blue?style=for-the-badge)
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-green?style=for-the-badge)
 ![Forge](https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge)
 ![Java](https://img.shields.io/badge/Java-17-red?style=for-the-badge)
@@ -24,16 +24,17 @@
 
 | Metric | Value |
 |---|---|
-| **Version** | 3.6.9-beta |
+| **Version** | 3.7.0-beta |
 | **Minecraft** | 1.20.1 |
 | **Forge** | 47.4.0 |
 | **Java** | 17 |
-| **Lines of Code** | 219,500+ |
-| **Total Files** | 1,407 |
-| **Registered Items** | 354 |
+| **Lines of Code** | 224,000+ |
+| **Total Files** | 1,453 |
+| **Registered Items** | 383 |
 | **Registered Blocks** | 152 |
 | **Available Commands** | 139 |
 | **Production Chains** | 14 (8 illegal + 6 legal) |
+| **Weapon Types** | 13 (6 guns + 4 melee + 3 grenades) |
 | **API Modules** | 12 |
 | **Unit Tests** | 292 |
 | **GUI Screens** | 126 |
@@ -86,6 +87,7 @@ Detailed documentation for each major game system.
 | [Mission System](features/Mission-System.md) | Player Missions | Story missions (Hauptmissionen) and repeatable side missions (Nebenmissionen), four-state lifecycle (AVAILABLE → ACTIVE → COMPLETED → CLAIMED), XP and money rewards, prerequisite chains, and NPC giver support |
 | [Utility System](features/Utility-System.md) | Electricity & Water | Per-plot electricity and water consumption tracking for 40+ block types, 7-day rolling average via circular buffer, 9 consumption categories, police integration for anomaly detection |
 | [Player Settings System](features/Player-Settings-System.md) | Player Preferences | Per-player configurable utility warning thresholds, persistent player contact registry for the Contacts App, built-in service contacts (Towing, Taxi, etc.), and network sync |
+| [Weapon System](features/Weapon-System.md) | Combat & Firearms | 6 guns (AK-47, Pistol, Revolver, Shotgun, Sniper, MP5), 4 melee weapons, 3 grenade types, 3 attachments (Scope/Silencer/Laser), 3 fire-mode upgrades, NBT-based gun state, client HUD, and auto-fire loop |
 
 ---
 
@@ -275,7 +277,8 @@ These mods are not required but provide enhanced functionality when installed:
 
 | Version | Status | Highlights |
 |---|---|---|
-| **3.6.9-beta** | **Current** | Achievement system expansion, API v3.2.0, extended Messaging/Market/Achievement API methods, 32 test files, full documentation overhaul |
+| **3.7.0-beta** | **Current** | Weapon system integration (6 guns, 4 melee, 3 grenades, attachments, HUD, network packets), NPE fixes in NPC Life System |
+| 3.6.9-beta | -- | Achievement system expansion, API v3.2.0, extended Messaging/Market/Achievement API methods, 32 test files, full documentation overhaul |
 | 3.6.0-beta | -- | Towing system, gang and territory systems, legal crafting (beer, wine, coffee, chocolate, cheese, honey), map view, lock system, level system, API v3.1.0 |
 | 3.4.0-beta | -- | Vehicle system enhancements, API v3 stabilization, expanded unit test coverage |
 | 2.7.0-beta | -- | Market system, smartphone apps, messaging system, documentation overhaul |
@@ -378,6 +381,7 @@ ScheduleMC/
 |   |-- cheese/                     Cheese crafting
 |   |-- honey/                      Honey crafting
 |   |-- achievement/                Achievement system
+|   |-- weapon/                     Weapon system (guns, melee, grenades, attachments)
 |   `-- utility/                    Utility tracking (power/water)
 |-- src/main/resources/
 |   |-- META-INF/mods.toml          Mod metadata
@@ -405,7 +409,7 @@ When reporting an issue, include the following information:
 
 - Minecraft version (1.20.1)
 - Forge version
-- ScheduleMC version (3.6.9-beta)
+- ScheduleMC version (3.7.0-beta)
 - Steps to reproduce the problem
 - Relevant log output from `.minecraft/logs/latest.log`
 - Output of the `/health` command if applicable
@@ -414,7 +418,7 @@ When reporting an issue, include the following information:
 
 <div align="center">
 
-ScheduleMC v3.6.9-beta -- Minecraft 1.20.1 -- Forge 47.4.0
+ScheduleMC v3.7.0-beta -- Minecraft 1.20.1 -- Forge 47.4.0
 
 Developed by Luckas R. Schneider (Minecraft425HD)
 

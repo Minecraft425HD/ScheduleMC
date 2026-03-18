@@ -37,6 +37,7 @@ import de.rolandsw.schedulemc.honey.items.HoneyItems;
 import de.rolandsw.schedulemc.honey.blocks.HoneyBlocks;
 import de.rolandsw.schedulemc.wine.items.WineItems;
 import de.rolandsw.schedulemc.wine.blocks.WineBlocks;
+import de.rolandsw.schedulemc.weapon.item.WeaponItems;
 import de.rolandsw.schedulemc.vehicle.items.ItemDieselCanister;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -627,6 +628,51 @@ public class ModCreativeTabs {
                 output.accept(HoneyBlocks.BOTTLING_STATION_ITEM.get());
                 output.accept(HoneyBlocks.HONEY_STORAGE_BARREL_ITEM.get());
                 output.accept(HoneyBlocks.HONEY_DISPLAY_CASE_ITEM.get());
+            })
+            .build()
+    );
+
+    public static final RegistryObject<CreativeModeTab> WEAPON_TAB = CREATIVE_MODE_TABS.register("weapon_tab",
+        () -> CreativeModeTab.builder()
+            .icon(() -> new net.minecraft.world.item.ItemStack(WeaponItems.AK47.get()))
+            .title(net.minecraft.network.chat.Component.translatable("creativetab.schedulemc.weapons"))
+            .displayItems((params, output) -> {
+                // Schusswaffen
+                output.accept(WeaponItems.AK47.get());
+                output.accept(WeaponItems.PISTOL.get());
+                output.accept(WeaponItems.SHOTGUN.get());
+                output.accept(WeaponItems.SNIPER.get());
+                output.accept(WeaponItems.REVOLVER.get());
+                output.accept(WeaponItems.MP5.get());
+                // Nahkampfwaffen
+                output.accept(WeaponItems.BASEBALL_BAT.get());
+                output.accept(WeaponItems.MACHETE.get());
+                output.accept(WeaponItems.COMBAT_KNIFE.get());
+                // Granaten
+                output.accept(WeaponItems.FRAG_GRENADE.get());
+                output.accept(WeaponItems.SMOKE_GRENADE.get());
+                output.accept(WeaponItems.FLASH_GRENADE.get());
+                // Magazine & Munition
+                output.accept(WeaponItems.AK47_MAGAZINE.get());
+                output.accept(WeaponItems.PISTOL_MAGAZINE.get());
+                output.accept(WeaponItems.SHOTGUN_SHELLS.get());
+                output.accept(WeaponItems.SNIPER_MAGAZINE.get());
+                output.accept(WeaponItems.MP5_MAGAZINE.get());
+                output.accept(WeaponItems.AMMO_STANDARD.get());
+                output.accept(WeaponItems.AMMO_AP.get());
+                output.accept(WeaponItems.AMMO_TRACER.get());
+                output.accept(WeaponItems.AMMO_RUBBER.get());
+                // Attachments
+                output.accept(WeaponItems.SCOPE.get());
+                output.accept(WeaponItems.SILENCER.get());
+                output.accept(WeaponItems.LASER.get());
+                // Upgrades
+                output.accept(WeaponItems.UPGRADE_SINGLE_PRECISION.get());
+                output.accept(WeaponItems.UPGRADE_BURST.get());
+                output.accept(WeaponItems.UPGRADE_AUTO.get());
+                // Legacy-Munition
+                output.accept(WeaponItems.RIFLE_AMMO.get());
+                output.accept(WeaponItems.PISTOL_AMMO.get());
             })
             .build()
     );

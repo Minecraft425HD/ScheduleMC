@@ -6,6 +6,37 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.7.0-beta] - 2026-03-17
+
+### Added
+- **Weapon System** — Full weapon mod integration (46 new Java files, 26 item textures, 26 item models)
+  - **Guns (6):** AK-47, Pistol, Revolver, Shotgun, Sniper Rifle, MP5 — each with individual damage, accuracy, cooldown, and magazine size stats
+  - **Fire modes:** Single-shot (0), Burst (1), Auto (2) — configurable per gun via `NBT`; auto-fire loop handled server-side via `PlayerTickEvent`
+  - **Ammo magazines (6):** Pistol, Rifle, Shotgun, Sniper, SMG, and Heavy magazines as separate inventory items
+  - **Melee weapons (4):** Baseball Bat (knockback), Machete (bleed chance + fast foliage destruction), Combat Knife (fast attack speed), and a base `MeleeWeaponItem` class
+  - **Grenades (3):** Frag (explosion radius 3.0), Smoke (campfire particles), Flash (blindness + slowness in 8-block radius) — thrown via `ThrowableItemProjectile`
+  - **Attachments (3):** Scope (FOV zoom on Shift), Silencer, Laser (beam renderer); up to 2 attachments per gun stored as NBT
+  - **Fire mode upgrades (3):** Single Precision, Burst Fire, Auto Fire upgrade items
+  - **Custom entities:** `WeaponBulletEntity` (AbstractArrow-based, discards on hit/range) and `ThrownWeaponGrenade` (ThrowableItemProjectile-based)
+  - **Particle effects:** `weapon_muzzle_flash` and `weapon_blood` particle types (using vanilla texture references)
+  - **Sound events:** `weapon_gun_shot`, `weapon_empty_click`, `weapon_click`, `weapon_grenade_explode`, `weapon_reload` (registered under `schedulemc` namespace)
+  - **Network packets (5):** `WeaponFirePacket`, `WeaponReloadPacket`, `WeaponStartAutoFirePacket`, `WeaponStopAutoFirePacket`, `WeaponSetAmmoTypePacket` — channel `schedulemc:weapon`
+  - **Client HUD:** Ammo counter, fire mode indicator, cooldown bar — rendered via `RenderGuiOverlayEvent`
+  - **Laser beam renderer:** Cross-quad beam using `RenderType.lightning()`
+  - **Weapon config:** Per-gun range configuration via `schedulemc-weapons.toml` (`ForgeConfigSpec`)
+  - **Creative tab:** Dedicated `WEAPON_TAB` with all 29 weapon items
+  - Translations for all weapon items, subtitles, and creative tab label in `de_de.json` and `en_us.json`
+
+### Fixed
+- **NPE in `NPCDialogueProvider.setupForLevel`** — `LevelEvent.Load` fires before `ServerStartedEvent`; `DialogueManager.getManager()` returned `null`. Added early-return null guard; dialogue trees are re-registered in `onServerStarted` for all loaded levels after manager init.
+- **NPE in `NPCLifeSystemIntegration.tick()`** — All 9 manager fields (`interactionManager`, `factionManager`, etc.) were `final` and set in the constructor, which ran during `LevelEvent.Load` before managers were initialized — so every field was `null`. Fix:
+  - Removed `final` from all 9 manager fields
+  - Added `reinitializeManagers()` method to re-fetch all manager references
+  - Added null guard (`if (interactionManager == null) return`) in `tick()` to skip ticking during server startup
+  - `onServerStarted` calls `NPCLifeSystemIntegration.get(lvl).reinitializeManagers()` for each loaded level after all NPC Life System managers are initialized
+
+---
+
 ## [3.6.9-beta] - 2026-03-16
 
 ### Added

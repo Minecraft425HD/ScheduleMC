@@ -102,5 +102,25 @@
     "fuel_station_attendant": {
         "subtitle": "sound.vehicle.fuel_station_attendant",
         "sounds": [ "schedulemc:fuel_station_attendant_1", "schedulemc:fuel_station_attendant_2", "schedulemc:fuel_station_attendant_3" ]
+    },
+    "weapon_gun_shot": {
+        "subtitle": "subtitles.schedulemc.weapon_gun_shot",
+        "sounds": [ "schedulemc:weapon_gun_shot" ]
+    },
+    "weapon_empty_click": {
+        "subtitle": "subtitles.schedulemc.weapon_empty_click",
+        "sounds": [ "schedulemc:weapon_empty_click" ]
+    },
+    "weapon_click": {
+        "subtitle": "subtitles.schedulemc.weapon_click",
+        "sounds": [ "schedulemc:weapon_click" ]
+    },
+    "weapon_grenade_explode": {
+        "subtitle": "subtitles.schedulemc.weapon_grenade_explode",
+        "sounds": [ "schedulemc:weapon_grenade_explode" ]
+    },
+    "weapon_reload": {
+        "subtitle": "subtitles.schedulemc.weapon_reload",
+        "sounds": [ "schedulemc:weapon_reload" ]
     }
 }
