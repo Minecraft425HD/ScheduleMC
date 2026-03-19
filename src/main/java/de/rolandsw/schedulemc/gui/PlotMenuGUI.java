@@ -2,6 +2,10 @@ package de.rolandsw.schedulemc.gui;
 
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -137,9 +141,15 @@ public class PlotMenuGUI {
     // HELPER METHODEN
     // ═══════════════════════════════════════════════════════════
     
-    private static void addLore(ItemStack stack, String... lines) {  // NOPMD
-        // TODO: Implement lore addition
-        // net.minecraft.world.item.component.ItemLore
+    private static void addLore(ItemStack stack, String... lines) {
+        ListTag loreList = new ListTag();
+        for (String line : lines) {
+            if (line == null) line = "";
+            Component component = Component.literal(line).withStyle(ChatFormatting.GRAY);
+            loreList.add(StringTag.valueOf(Component.Serializer.toJson(component)));
+        }
+        CompoundTag displayTag = stack.getOrCreateTagElement("display");
+        displayTag.put("Lore", loreList);
     }
     
     // ═══════════════════════════════════════════════════════════

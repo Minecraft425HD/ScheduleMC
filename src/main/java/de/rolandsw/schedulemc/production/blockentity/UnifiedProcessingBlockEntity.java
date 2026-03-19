@@ -7,10 +7,13 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -156,17 +159,29 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
 
     /**
      * Erstellt Output-Item basierend auf Config
+     * Verbindet den konfigurierten outputItemId mit dem Forge Item-Registry.
      */
     protected ItemStack createOutput(int slotIndex, ProductionConfig.ProcessingStageConfig stageConfig) {
-        // TODO: Item-Registry Integration
-        // Aktuell Placeholder - muss mit ModItems verbunden werden
-
         String outputItemId = stageConfig.getOutputItem();
         GenericQuality quality = qualities[slotIndex];
 
-        // Erstelle ItemStack basierend auf outputItemId
-        // Dies wird in der finalen Version mit dem Item Registry verbunden
-        ItemStack output = ItemStack.EMPTY;  // Placeholder
+        ItemStack output = ItemStack.EMPTY;
+
+        if (outputItemId != null && !outputItemId.isEmpty()) {
+            // Stelle sicher, dass der ID ein Namespace hat (Standard: "schedulemc")
+            String fullId = outputItemId.contains(":") ? outputItemId : "schedulemc:" + outputItemId;
+            try {
+                ResourceLocation location = new ResourceLocation(fullId);
+                Item item = ForgeRegistries.ITEMS.getValue(location);
+                if (item != null && item != net.minecraft.world.item.Items.AIR) {
+                    output = new ItemStack(item);
+                } else {
+                    LOGGER.warn("Output item not found in registry: {}", fullId);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Invalid output item ID: {}", outputItemId, e);
+            }
+        }
 
         LOGGER.debug("Created output: {} ({})", outputItemId, quality != null ? quality.getDisplayName() : "unknown");
 
@@ -356,9 +371,11 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
                 productionIds[i] = slotTag.getString("ProductionId");
 
                 if (slotTag.contains("QualityLevel")) {
-                    int qualityLevel = slotTag.getInt("QualityLevel");  // NOPMD
-                    // TODO: Quality Lookup basierend auf Production Config
-                    // qualities[i] = config.getQualityTiers()[qualityLevel];
+                    int qualityLevel = slotTag.getInt("QualityLevel");
+                    GenericQuality[] tiers = config.getQualityTiers();
+                    if (tiers != null && tiers.length > 0) {
+                        qualities[i] = GenericQuality.getByLevel(tiers, qualityLevel);
+                    }
                 }
             }
         }

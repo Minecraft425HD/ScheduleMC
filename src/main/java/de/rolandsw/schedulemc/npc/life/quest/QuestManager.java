@@ -455,33 +455,66 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Aktualisiert die Quest-Angebote eines NPCs
+     * Aktualisiert die Quest-Angebote eines NPCs.
+     * Wählt 1-3 passende Template-IDs aus und cached sie pro NPC.
      */
     public void refreshNPCQuests(CustomNPCEntity npc) {
         UUID npcUUID = npc.getNpcData().getNpcUUID();
-        List<String> offers = new ArrayList<>();
+        NPCType npcType = npc.getNpcType();
 
-        // Generiere 1-3 Quest-Angebote
-        int numQuests = 1 + ThreadLocalRandom.current().nextInt(3);
-        // TODO: Quest-Generierungslogik ist noch nicht implementiert.
-        // Verwende stattdessen getQuestOffers(), die dynamisch via generateRandomQuest() arbeitet.
-        LOGGER.debug("refreshNPCQuests called for NPC {} — generation not yet implemented (numQuests={})",
-            npcUUID, numQuests);
+        // Passende Templates für diesen NPC-Typ sammeln
+        List<String> suitableTemplateIds = new ArrayList<>();
+        for (QuestTemplate template : questTemplates.values()) {
+            if (template.getType().canBeGivenBy(npcType)) {
+                if (template.getFaction() != null) {
+                    Faction npcFaction = Faction.forNPCType(npcType);
+                    if (template.getFaction() != npcFaction) continue;
+                }
+                suitableTemplateIds.add(template.getId());
+            }
+        }
+
+        List<String> offers;
+        if (suitableTemplateIds.isEmpty()) {
+            offers = new ArrayList<>();
+            LOGGER.debug("No suitable quest templates for NPC {} (type={})", npcUUID, npcType);
+        } else {
+            // Zufällig 1-3 Templates auswählen
+            int numQuests = Math.min(1 + ThreadLocalRandom.current().nextInt(3), suitableTemplateIds.size());
+            Collections.shuffle(suitableTemplateIds, ThreadLocalRandom.current());
+            offers = new ArrayList<>(suitableTemplateIds.subList(0, numQuests));
+            LOGGER.debug("Assigned {} quest templates to NPC {}", numQuests, npcUUID);
+        }
 
         npcQuestOffers.put(npcUUID, offers);
         markDirty();
     }
 
     /**
-     * Holt die Quest-Angebote eines NPCs
+     * Holt die Quest-Angebote eines NPCs.
+     * Nutzt gecachte Template-IDs aus refreshNPCQuests(), oder fällt auf dynamische Generierung zurück.
      */
     public List<Quest> getQuestOffers(CustomNPCEntity npc, ServerPlayer player) {
+        UUID npcUUID = npc.getNpcData().getNpcUUID();
+        List<String> templateIds = npcQuestOffers.get(npcUUID);
+
         List<Quest> quests = new ArrayList<>();
 
-        // Generiere dynamisch eine Quest wenn keine vorhanden
-        Quest randomQuest = generateRandomQuest(npc, player);
-        if (randomQuest != null) {
-            quests.add(randomQuest);
+        if (templateIds != null && !templateIds.isEmpty()) {
+            // Gecachte Template-IDs verwenden
+            for (String templateId : templateIds) {
+                Quest quest = generateQuest(templateId, npc, player);
+                if (quest != null) {
+                    quests.add(quest);
+                }
+            }
+        } else {
+            // Kein Cache vorhanden — refresh und einen zufälligen Quest als Fallback
+            refreshNPCQuests(npc);
+            Quest randomQuest = generateRandomQuest(npc, player);
+            if (randomQuest != null) {
+                quests.add(randomQuest);
+            }
         }
 
         return quests;

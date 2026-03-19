@@ -1,12 +1,14 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "de.rolandsw.schedulemc.mixin",
+  "package": "de.rolandsw.schedulemc",
   "compatibilityLevel": "JAVA_8",
   "refmap": "schedulemc.refmap.json",
   "mixins": [
   ],
   "client": [
+    "vehicle.mixins.GuiMixin",
+    "vehicle.mixins.SoundOptionsScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

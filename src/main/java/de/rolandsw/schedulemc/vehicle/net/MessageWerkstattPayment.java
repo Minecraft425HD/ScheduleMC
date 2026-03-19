@@ -148,9 +148,9 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
             vehicle.getBatteryComponent().setBatteryLevel(vehicle.getBatteryComponent().getMaxBatteryLevel());
         }
 
-        // Oil change if selected
-        if (changeOil) {  // NOPMD - intentionaler Stub
-            // TODO: Implement oil change logic when oil system is added
+        // Oil change if selected: setzt Ölstand auf Maximum zurück
+        if (changeOil) {
+            vehicle.getDamageComponent().resetOil();
         }
     }
 

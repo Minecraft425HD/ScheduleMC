@@ -288,8 +288,9 @@ public class RoadGraphBuilder {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Aktualisiert den Graph für einen geänderten Chunk
-     * (Für spätere Implementierung von Live-Updates)
+     * Aktualisiert den Graph inkrementell für einen geänderten Chunk.
+     * Entfernt alle Nodes und Segmente im Chunk-Bereich und fügt neue hinzu,
+     * ohne den restlichen Graphen neu zu bauen.
      *
      * @param graph Der bestehende Graph
      * @param chunkX Chunk X-Koordinate
@@ -297,21 +298,64 @@ public class RoadGraphBuilder {
      * @return Aktualisierter Graph
      */
     public RoadGraph updateGraphForChunk(RoadGraph graph, int chunkX, int chunkZ) {
-        // Chunk-Koordinaten zu Block-Koordinaten
         int blockX = chunkX * 16;
         int blockZ = chunkZ * 16;
 
-        // Scan nur den Chunk-Bereich plus 1 Block Rand
-        // (um Verbindungen zu Nachbar-Chunks zu erkennen)
-        int radius = 9; // 16/2 + 1  // NOPMD
-        int centerX = blockX + 8;  // NOPMD
-        int centerZ = blockZ + 8;  // NOPMD
+        // Scan-Bereich: Chunk + 1 Block Rand für Verbindungen zu Nachbar-Chunks
+        int radius = 9; // 16/2 + 1
+        int centerX = blockX + 8;
+        int centerZ = blockZ + 8;
 
-        // Entferne alte Nodes/Segments im Bereich
-        // ... (komplexe Logik für inkrementelle Updates)
+        // Chunk-Grenzen mit 1-Block-Rand (für Segment-Verbindungen)
+        int minX = blockX - 1;
+        int maxX = blockX + 16;
+        int minZ = blockZ - 1;
+        int maxZ = blockZ + 16;
 
-        // Für jetzt: kompletter Rebuild
-        // TODO: Implementiere echtes inkrementelles Update
-        return graph;
+        LOGGER.debug("[RoadGraphBuilder] Incremental update for chunk ({}, {}), blocks [{},{}]-[{},{}]",
+                chunkX, chunkZ, minX, minZ, maxX, maxZ);
+
+        // Schritt 1: Nodes außerhalb des Chunks behalten
+        Map<BlockPos, RoadNode> survivingNodes = new HashMap<>();
+        Set<RoadNode> removedNodes = new HashSet<>();
+
+        for (RoadNode node : graph.getAllNodes()) {
+            BlockPos pos = node.getPosition();
+            boolean inChunk = pos.getX() >= minX && pos.getX() <= maxX
+                           && pos.getZ() >= minZ && pos.getZ() <= maxZ;
+            if (inChunk) {
+                removedNodes.add(node);
+            } else {
+                survivingNodes.put(pos, node);
+            }
+        }
+
+        // Schritt 2: Segmente behalten, die nicht mit entfernten Nodes verbunden sind
+        List<RoadSegment> survivingSegments = new ArrayList<>();
+        for (RoadSegment seg : graph.getAllSegments()) {
+            if (!removedNodes.contains(seg.getStartNode()) && !removedNodes.contains(seg.getEndNode())) {
+                survivingSegments.add(seg);
+            }
+        }
+
+        LOGGER.debug("[RoadGraphBuilder] Removed {} nodes, {} segments in chunk area. Rebuilding chunk...",
+                removedNodes.size(), graph.getSegmentCount() - survivingSegments.size());
+
+        // Schritt 3: Chunk-Bereich neu scannen und Nodes/Segmente generieren
+        RoadGraph chunkGraph = new RoadGraphBuilder(mapData)
+                .withDiagonalConnections(useDiagonalConnections)
+                .withDefaultY(defaultY)
+                .buildGraph(centerX, centerZ, radius);
+
+        // Schritt 4: Neuen Chunk-Graphen mit bestehendem Graphen zusammenführen
+        for (RoadNode node : chunkGraph.getAllNodes()) {
+            survivingNodes.put(node.getPosition(), node);
+        }
+        survivingSegments.addAll(chunkGraph.getAllSegments());
+
+        LOGGER.debug("[RoadGraphBuilder] Incremental update complete: {} nodes, {} segments total",
+                survivingNodes.size(), survivingSegments.size());
+
+        return new RoadGraph(survivingNodes, survivingSegments);
     }
 }
