@@ -5,9 +5,6 @@ import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
-
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
@@ -25,8 +22,6 @@ import java.util.stream.StreamSupport;
  * @since 3.0.0
  */
 public class VehicleAPIImpl implements IVehicleAPI {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * {@inheritDoc}
@@ -190,7 +185,7 @@ public class VehicleAPIImpl implements IVehicleAPI {
         if (vehicle == null) {
             throw new IllegalArgumentException("vehicle cannot be null");
         }
-        LOGGER.debug("Stub: repairVehicle not fully implemented - vehicle durability system not directly accessible");
+        vehicle.getDamageComponent().setDamage(0);
     }
 
     /**
@@ -212,6 +207,6 @@ public class VehicleAPIImpl implements IVehicleAPI {
         if (vehicle == null || plate == null) {
             throw new IllegalArgumentException("vehicle and plate cannot be null");
         }
-        LOGGER.debug("Stub: setLicensePlate not fully implemented - license plate system not directly accessible");
+        vehicle.setLicensePlate(plate);
     }
 }

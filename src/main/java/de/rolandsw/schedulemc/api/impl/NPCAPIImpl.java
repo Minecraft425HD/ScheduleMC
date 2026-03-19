@@ -273,8 +273,7 @@ public class NPCAPIImpl implements INPCAPI {
         if (npc == null) {
             throw new IllegalArgumentException("npc cannot be null");
         }
-        LOGGER.debug("Stub: getNPCBalance not fully implemented - NPC wallet not directly accessible");
-        return 0;
+        return npc.getNpcData().getWallet();
     }
 
     /**
@@ -285,6 +284,6 @@ public class NPCAPIImpl implements INPCAPI {
         if (npc == null) {
             throw new IllegalArgumentException("npc cannot be null");
         }
-        LOGGER.debug("Stub: setNPCBalance not fully implemented - NPC wallet not directly accessible");
+        npc.getNpcData().setWallet((int) Math.max(0, amount));
     }
 }

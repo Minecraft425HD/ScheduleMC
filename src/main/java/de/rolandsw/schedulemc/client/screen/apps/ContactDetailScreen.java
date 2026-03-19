@@ -11,6 +11,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Date;
+
 /**
  * Contact Detail Screen - Shows options for a specific contact
  */
@@ -27,6 +29,9 @@ public class ContactDetailScreen extends Screen {
 
     // PERFORMANCE: Cache header string
     private String cachedDetailTitle;
+
+    // Favorites list (in-memory, per session)
+    private static final java.util.Set<java.util.UUID> favorites = new java.util.HashSet<>();
 
     public ContactDetailScreen(Screen parent, PlayerTracker.PlayerContact contact) {
         super(Component.translatable("gui.app.contact.detail_title"));
@@ -62,14 +67,34 @@ public class ContactDetailScreen extends Screen {
             }
         }).bounds(leftPos + 20, buttonY, buttonWidth, 30).build());
 
-        // Option 2: Spieler Info (Placeholder)
+        // Option 2: Spieler Info - zeigt zuletzt gesehen Zeitpunkt
         addRenderableWidget(Button.builder(Component.translatable("gui.app.contact.info"), button -> {
-            // Placeholder for future feature
+            if (minecraft != null && minecraft.player != null) {
+                long lastSeen = contact.getLastSeen();
+                String lastSeenStr = lastSeen > 0
+                    ? new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date(lastSeen))
+                    : "Unbekannt";
+                minecraft.player.sendSystemMessage(Component.literal(
+                    "§b" + contact.getName() + "§r - Zuletzt gesehen: §e" + lastSeenStr
+                ));
+            }
         }).bounds(leftPos + 20, buttonY + 40, buttonWidth, 30).build());
 
-        // Option 3: Zu Favoriten hinzufügen (Placeholder)
+        // Option 3: Zu Favoriten hinzufügen
         addRenderableWidget(Button.builder(Component.translatable("gui.app.contact.favorite"), button -> {
-            // Placeholder for future feature
+            if (minecraft != null && minecraft.player != null) {
+                boolean added = favorites.add(contact.getUuid());
+                if (added) {
+                    minecraft.player.sendSystemMessage(Component.literal(
+                        "§a" + contact.getName() + " zu Favoriten hinzugefügt."
+                    ));
+                } else {
+                    favorites.remove(contact.getUuid());
+                    minecraft.player.sendSystemMessage(Component.literal(
+                        "§e" + contact.getName() + " aus Favoriten entfernt."
+                    ));
+                }
+            }
         }).bounds(leftPos + 20, buttonY + 80, buttonWidth, 30).build());
 
         // Zurück-Button

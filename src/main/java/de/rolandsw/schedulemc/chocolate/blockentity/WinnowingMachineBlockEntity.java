@@ -16,7 +16,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -142,7 +141,7 @@ public class WinnowingMachineBlockEntity extends BlockEntity implements IUtility
 
                 // Byproduct: Cocoa shells (can be used as fertilizer/compost)
                 // Each roasted bean produces 1 nib and some shells
-                ItemStack shells = new ItemStack(Items.BROWN_DYE, inputStack.getCount() / 2); // Placeholder for cocoa shells
+                ItemStack shells = new ItemStack(ChocolateItems.COCOA_SHELLS.get(), inputStack.getCount() / 2);
 
                 outputStack = nibs;
                 byproductStack = shells;

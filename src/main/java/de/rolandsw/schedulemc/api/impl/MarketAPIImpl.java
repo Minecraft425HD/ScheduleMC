@@ -110,9 +110,8 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             throw new IllegalArgumentException("item cannot be null");
         }
-        // Stub: Demand level not directly exposed in DynamicMarketManager
-        // Return normalized value based on price multiplier
-        return 0;
+        de.rolandsw.schedulemc.market.MarketData data = marketManager.getMarketData(item);
+        return data != null ? data.getDemand() : 0;
     }
 
     /**
@@ -123,9 +122,8 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             throw new IllegalArgumentException("item cannot be null");
         }
-        // Stub: Supply level not directly exposed in DynamicMarketManager
-        // Return normalized value based on price multiplier
-        return 0;
+        de.rolandsw.schedulemc.market.MarketData data = marketManager.getMarketData(item);
+        return data != null ? data.getSupply() : 0;
     }
 
     /**
@@ -133,9 +131,11 @@ public class MarketAPIImpl implements IMarketAPI {
      */
     @Override
     public Map<Item, Double> getAllPrices() {
-        // Stub: getAllPrices not available in DynamicMarketManager
-        // Would need to be implemented in DynamicMarketManager if required
-        return new java.util.HashMap<>();
+        Map<Item, Double> prices = new java.util.HashMap<>();
+        for (de.rolandsw.schedulemc.market.MarketData data : marketManager.getAllMarketData()) {
+            prices.put(data.getItem(), data.getCurrentPrice());
+        }
+        return prices;
     }
 
     /**
@@ -193,8 +193,12 @@ public class MarketAPIImpl implements IMarketAPI {
         if (limit < 1) {
             throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
         }
-        LOGGER.debug("Stub: getTopDemandItems not fully implemented - demand tracking not directly accessible");
-        return Collections.emptyList();
+        List<Map.Entry<Item, Integer>> demandEntries = new ArrayList<>();
+        for (de.rolandsw.schedulemc.market.MarketData data : marketManager.getAllMarketData()) {
+            demandEntries.add(new java.util.AbstractMap.SimpleEntry<>(data.getItem(), data.getDemand()));
+        }
+        demandEntries.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+        return demandEntries.subList(0, Math.min(limit, demandEntries.size()));
     }
 
     /**

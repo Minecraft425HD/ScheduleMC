@@ -206,8 +206,7 @@ public class AchievementAPIImpl implements IAchievementAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        LOGGER.debug("Stub: getTotalRewardsEarned not fully implemented - reward tracking not directly accessible");
-        return 0;
+        return getPlayerAchievements(playerUUID).getTotalPointsEarned();
     }
 
     /**

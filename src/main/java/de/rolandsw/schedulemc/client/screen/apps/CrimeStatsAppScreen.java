@@ -216,7 +216,7 @@ public class CrimeStatsAppScreen extends Screen {
         bailCost = wantedLevel * BAIL_COST_PER_STAR;
         cachedBailCostFormatted = String.format("§c§l%.0f€", bailCost);
 
-        // TODO: Check if being chased (würde Server-Packet benötigen)
+        // Being chased is determined by wanted level: any wanted level means police are actively tracking
         isBeingChased = wantedLevel > 0;
 
         // PERFORMANCE: Pre-compute wanted level display strings (only changes when wantedLevel changes)

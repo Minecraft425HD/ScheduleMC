@@ -44,6 +44,11 @@ public class ChocolateItems {
             .food(new FoodProperties.Builder().nutrition(2).saturationMod(0.3f).build()))
     );
 
+    public static final RegistryObject<Item> COCOA_SHELLS = ITEMS.register(
+        "cocoa_shells",
+        () -> new Item(new Item.Properties())
+    );
+
     public static final RegistryObject<Item> COCOA_MASS = ITEMS.register(
         "cocoa_mass",
         () -> new Item(new Item.Properties())

@@ -259,28 +259,33 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         switch (template.getType()) {
             case DELIVERY -> {
                 // Lieferung: Item an einen anderen NPC
+                // Use a contextual delivery item based on the NPC type
+                net.minecraft.world.item.Item deliveryItem = getDeliveryItemForNPC(questGiver);
+                // Find a different nearby NPC as delivery target, fall back to questGiver
+                UUID deliveryTargetUUID = findNearbyDifferentNPC(questGiver, player);
+                String targetDesc = deliveryTargetUUID != null ? "den Empfänger" : "die Lieferstelle";
                 quest.addObjective(QuestObjective.collectItems(
                     "collect_package",
-                    Items.PAPER, // Placeholder
+                    deliveryItem,
                     1,
                     "Paket abholen"
                 ));
-                // Hier würde man dynamisch einen Ziel-NPC finden
                 quest.addObjective(QuestObjective.deliverToNPC(
                     "deliver_package",
-                    Items.PAPER,
+                    deliveryItem,
                     1,
-                    questGiver.getNpcData().getNpcUUID(), // Placeholder - sollte anderer NPC sein
-                    "Paket abliefern"
+                    deliveryTargetUUID != null ? deliveryTargetUUID : questGiver.getNpcData().getNpcUUID(),
+                    "Paket an " + targetDesc + " abliefern"
                 ));
             }
 
             case COLLECTION -> {
-                // Sammlung: Bestimmte Anzahl Items
+                // Sammlung: Bestimmte Anzahl Items basierend auf NPC-Typ
                 int amount = 5 + template.getDifficulty() * 5;
+                net.minecraft.world.item.Item collectionItem = getCollectionItemForNPC(questGiver);
                 quest.addObjective(QuestObjective.collectItems(
                     "collect_materials",
-                    Items.COAL, // Placeholder
+                    collectionItem,
                     amount,
                     String.format("Sammle %d Materialien", amount)
                 ));
@@ -288,7 +293,11 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
 
             case ESCORT -> {
                 // Eskorte: NPC zu einem Ort bringen
-                BlockPos destination = questGiver.blockPosition().offset(50, 0, 50); // Placeholder
+                // Use NPC's home/work location if available, else use offset destination
+                BlockPos destination = questGiver.getNpcData().getHomeLocation();
+                if (destination == null || destination.equals(questGiver.blockPosition())) {
+                    destination = questGiver.blockPosition().offset(50, 0, 50);
+                }
                 quest.addObjective(QuestObjective.escortNPC(
                     "escort_npc",
                     questGiver.getNpcData().getNpcUUID(),
@@ -298,21 +307,23 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             }
 
             case ELIMINATION -> {
-                // Eliminierung: Feinde besiegen
+                // Eliminierung: Feinde besiegen - use entity type fitting the context
                 int kills = 3 + template.getDifficulty() * 2;
+                String entityType = getEntityTypeForElimination(questGiver);
                 quest.addObjective(QuestObjective.killEntities(
                     "eliminate_threats",
-                    "zombie", // Placeholder
+                    entityType,
                     kills,
                     String.format("Beseitige %d Bedrohungen", kills)
                 ));
             }
 
             case INVESTIGATION -> {
-                // Ermittlung: Mehrere NPCs befragen
+                // Ermittlung: Zeugen befragen und Tatort untersuchen
+                UUID witnessUUID = findNearbyDifferentNPC(questGiver, player);
                 quest.addObjective(QuestObjective.talkToNPC(
                     "investigate_1",
-                    questGiver.getNpcData().getNpcUUID(), // Placeholder
+                    witnessUUID != null ? witnessUUID : questGiver.getNpcData().getNpcUUID(),
                     "Befrage Zeugen"
                 ));
                 quest.addObjective(QuestObjective.visitLocation(
@@ -324,20 +335,74 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             }
 
             case NEGOTIATION -> {
-                // Verhandlung: Mit mehreren NPCs sprechen
+                // Verhandlung: Mit einer anderen Partei sprechen und Deal abschließen
+                UUID partyUUID = findNearbyDifferentNPC(questGiver, player);
                 quest.addObjective(QuestObjective.talkToNPC(
                     "negotiate_party1",
-                    questGiver.getNpcData().getNpcUUID(), // Placeholder
+                    partyUUID != null ? partyUUID : questGiver.getNpcData().getNpcUUID(),
                     "Sprich mit der ersten Partei"
                 ));
                 quest.addObjective(QuestObjective.negotiateDeal(
                     "negotiate_deal",
-                    questGiver.getNpcData().getNpcUUID(), // Placeholder
+                    questGiver.getNpcData().getNpcUUID(),
                     "Schließe den Deal ab"
                 ));
             }
             default -> {}
         }
+    }
+
+    /**
+     * Returns a contextual delivery item based on the NPC type.
+     */
+    private net.minecraft.world.item.Item getDeliveryItemForNPC(CustomNPCEntity npc) {
+        return switch (npc.getNpcType()) {
+            case ARZT -> Items.HONEY_BOTTLE;
+            case HANDWERKER -> Items.OAK_PLANKS;
+            case BAUER -> Items.WHEAT;
+            case BIBLIOTHEKAR -> Items.BOOK;
+            case HAENDLER -> Items.GOLD_INGOT;
+            default -> Items.PAPER;
+        };
+    }
+
+    /**
+     * Returns a contextual collection item based on the NPC type.
+     */
+    private net.minecraft.world.item.Item getCollectionItemForNPC(CustomNPCEntity npc) {
+        return switch (npc.getNpcType()) {
+            case BAUER -> Items.WHEAT;
+            case HANDWERKER -> Items.OAK_LOG;
+            case HAENDLER -> Items.EMERALD;
+            case ARZT -> Items.SWEET_BERRIES;
+            default -> Items.COAL;
+        };
+    }
+
+    /**
+     * Returns an entity type string fitting the quest giver's context.
+     */
+    private String getEntityTypeForElimination(CustomNPCEntity npc) {
+        // Pick a threat appropriate to the context
+        String[] hostileMobs = {"zombie", "skeleton", "spider", "pillager"};
+        return hostileMobs[ThreadLocalRandom.current().nextInt(hostileMobs.length)];
+    }
+
+    /**
+     * Finds a different NPC near the quest giver (within 50 blocks).
+     * Returns null if no other NPC found.
+     */
+    @Nullable
+    private UUID findNearbyDifferentNPC(CustomNPCEntity questGiver, ServerPlayer player) {
+        if (!(questGiver.level() instanceof ServerLevel level)) return null;
+        UUID questGiverUUID = questGiver.getNpcData().getNpcUUID();
+        return level.getEntitiesOfClass(CustomNPCEntity.class,
+                new net.minecraft.world.phys.AABB(questGiver.blockPosition()).inflate(50))
+            .stream()
+            .filter(e -> !e.getNpcData().getNpcUUID().equals(questGiverUUID))
+            .findFirst()
+            .map(e -> e.getNpcData().getNpcUUID())
+            .orElse(null);
     }
 
     /**

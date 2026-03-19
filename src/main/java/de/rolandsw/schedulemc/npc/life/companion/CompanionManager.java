@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.npc.life.companion;
 
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import de.rolandsw.schedulemc.npc.entity.NPCEntities;
 import de.rolandsw.schedulemc.npc.life.social.Faction;
 import de.rolandsw.schedulemc.npc.life.social.FactionManager;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
@@ -210,16 +211,17 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
             return activeCompanionEntities.get(companionUUID);
         }
 
-        // Entity erstellen (dies würde normalerweise eine spezielle Companion-Entity sein)
-        // Für jetzt verwenden wir CustomNPCEntity mit Companion-Daten
-        // In der Praxis würde man hier die Entity spawnen
-
-        // Placeholder - Entity-Erstellung müsste hier implementiert werden
-        // CustomNPCEntity entity = createCompanionEntity(data, player);
-        // activeCompanionEntities.put(companionUUID, entity);
-        // return entity;
-
-        return null;
+        // Companion als CustomNPCEntity am Spieler-Standort spawnen
+        ServerLevel level = (ServerLevel) player.level();
+        CustomNPCEntity entity = new CustomNPCEntity(NPCEntities.CUSTOM_NPC.get(), level);
+        entity.setPos(player.getX() + 1, player.getY(), player.getZ() + 1);
+        if (data.getName() != null && !data.getName().isEmpty()) {
+            entity.setCustomName(net.minecraft.network.chat.Component.literal(data.getName()));
+            entity.setCustomNameVisible(true);
+        }
+        level.addFreshEntity(entity);
+        activeCompanionEntities.put(companionUUID, entity);
+        return entity;
     }
 
     /**
