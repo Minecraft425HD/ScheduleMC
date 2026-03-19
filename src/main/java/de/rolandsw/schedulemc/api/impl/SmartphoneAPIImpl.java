@@ -156,7 +156,7 @@ public class SmartphoneAPIImpl implements ISmartphoneAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        LOGGER.debug("Stub: hasSmartphone not fully implemented - inventory check not directly accessible");
+        // In ScheduleMC all players have a smartphone (it's a roleplay feature, not an inventory item)
         return true;
     }
 }

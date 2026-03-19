@@ -1,11 +1,17 @@
 package de.rolandsw.schedulemc.api.impl;
 
 import de.rolandsw.schedulemc.api.vehicle.IVehicleAPI;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.VehicleFactory;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartRegistry;
+import de.rolandsw.schedulemc.vehicle.items.InternalVehiclePartItem;
+import de.rolandsw.schedulemc.vehicle.items.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -32,9 +38,67 @@ public class VehicleAPIImpl implements IVehicleAPI {
         if (level == null || position == null || vehicleType == null) {
             throw new IllegalArgumentException("level, position and vehicleType cannot be null");
         }
-        // Note: Actual implementation would require VehicleRegistry and EntityType registration
-        // This is a placeholder that would need to be implemented with proper Vehicle spawning
-        return null;
+        List<ItemStack> parts = new ArrayList<>();
+        switch (vehicleType.toLowerCase()) {
+            case "limousine" -> {
+                parts.add(InternalVehiclePartItem.create(PartRegistry.LIMOUSINE_CHASSIS));
+                parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(InternalVehiclePartItem.create(PartRegistry.FENDER_BASIC));
+            }
+            case "van" -> {
+                parts.add(InternalVehiclePartItem.create(PartRegistry.VAN_CHASSIS));
+                parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(InternalVehiclePartItem.create(PartRegistry.FENDER_BASIC));
+            }
+            case "truck" -> {
+                parts.add(InternalVehiclePartItem.create(PartRegistry.TRUCK_CHASSIS));
+                parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            }
+            case "suv" -> {
+                parts.add(InternalVehiclePartItem.create(PartRegistry.OFFROAD_CHASSIS));
+                parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));
+                parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.OFFROAD_TIRE.get()));
+                parts.add(InternalVehiclePartItem.create(PartRegistry.FENDER_BASIC));
+            }
+            case "sports_car" -> {
+                parts.add(InternalVehiclePartItem.create(PartRegistry.LUXUS_CHASSIS));
+                parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+                parts.add(new ItemStack(ModItems.STANDARD_TIRE.get()));
+            }
+            default -> { return null; }
+        }
+        parts.add(InternalVehiclePartItem.create(PartRegistry.TANK_15L));
+        parts.add(InternalVehiclePartItem.create(PartRegistry.LICENSE_PLATE_HOLDER));
+
+        EntityGenericVehicle vehicle = VehicleFactory.createVehicle(level, parts);
+        if (vehicle == null) return null;
+
+        vehicle.setPos(position.getX() + 0.5, position.getY(), position.getZ() + 0.5);
+        vehicle.setFuelAmount(vehicle.getMaxFuel() / 4);
+        vehicle.setBatteryLevel(500);
+        level.addFreshEntity(vehicle);
+        vehicle.setIsSpawned(true);
+        return vehicle;
     }
 
     /**
