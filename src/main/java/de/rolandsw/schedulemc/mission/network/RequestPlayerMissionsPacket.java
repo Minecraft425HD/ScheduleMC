@@ -5,7 +5,6 @@ import de.rolandsw.schedulemc.gang.scenario.MissionScenario;
 import de.rolandsw.schedulemc.gang.scenario.ScenarioManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
@@ -64,20 +63,11 @@ public class RequestPlayerMissionsPacket {
     }
 
     private static List<String> collectNpcNames(ServerLevel level) {
-        List<String> names = new ArrayList<>();
-        // NPC names would be collected from the NPC manager here
-        // Reuse the same pattern as the gang system
         try {
-            var npcManager = de.rolandsw.schedulemc.npc.NpcManager.getInstance();
-            if (npcManager != null) {
-                for (var npc : npcManager.getAllNpcs()) {
-                    if (npc.getName() != null && !npc.getName().isEmpty()) {
-                        names.add(npc.getName());
-                    }
-                }
-            }
-        } catch (Exception ignored) {}
-        return names;
+            return de.rolandsw.schedulemc.managers.NPCNameRegistry.getAllNamesSorted();
+        } catch (Exception ignored) {
+            return new ArrayList<>();
+        }
     }
 
     private static String serializeScenarios(List<MissionScenario> scenarios) {
