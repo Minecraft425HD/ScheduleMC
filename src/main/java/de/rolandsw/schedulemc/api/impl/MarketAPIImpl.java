@@ -149,8 +149,7 @@ public class MarketAPIImpl implements IMarketAPI {
         if (basePrice < 0) {
             throw new IllegalArgumentException("basePrice must be non-negative, got: " + basePrice);
         }
-        // Stub: setBasePrice not available in DynamicMarketManager
-        // Prices are managed dynamically based on supply/demand
+        marketManager.setBasePrice(item, basePrice);
     }
 
     /**
@@ -161,9 +160,13 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             // Reset all market data
             marketManager.reset();
-        } else {  // NOPMD - intentionaler Stub
-            // Stub: Per-item reset not available in DynamicMarketManager
-            // Only full reset is supported via reset()
+        } else {
+            de.rolandsw.schedulemc.market.MarketData data = marketManager.getMarketData(item);
+            if (data != null) {
+                double base = data.getBasePrice();
+                marketManager.unregisterItem(item);
+                marketManager.registerItem(item, base);
+            }
         }
     }
 

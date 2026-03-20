@@ -555,6 +555,23 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
     }
 
     /**
+     * Setzt alle Achievements eines Spielers zurück
+     */
+    public void resetPlayerAchievements(UUID playerUUID) {
+        playerData.remove(playerUUID);
+        markDirty();
+        save();
+        LOGGER.info("Reset achievements for player {}", playerUUID);
+    }
+
+    /**
+     * Gibt alle Spieler-Daten zurück (für Leaderboard)
+     */
+    public Map<UUID, PlayerAchievements> getAllPlayerData() {
+        return Collections.unmodifiableMap(playerData);
+    }
+
+    /**
      * Gibt Statistiken zurück
      */
     public String getStatistics(UUID playerUUID) {

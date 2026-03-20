@@ -214,12 +214,7 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (newBasePrice < 0) {
             throw new IllegalArgumentException("newBasePrice must be non-negative, got: " + newBasePrice);
         }
-        ProductionConfig config = productionRegistry.get(productionId);
-        if (config == null) {  // NOPMD
-            return false;
-        }
-        // ProductionConfig is immutable - base price cannot be changed at runtime
-        return false;
+        return productionRegistry.setBasePriceOverride(productionId, newBasePrice);
     }
 
     /**

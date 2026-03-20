@@ -262,7 +262,16 @@ public class NPCAPIImpl implements INPCAPI {
         if (time < 0 || time > 2359) {
             throw new IllegalArgumentException("time must be in HHMM format (0-2359), got: " + time);
         }
-        LOGGER.debug("Stub: setNPCSchedule not fully implemented - schedule system not directly accessible via API");
+        // Convert HHMM to Minecraft ticks: 0 ticks = 6:00 AM, 24000 ticks = next 6:00 AM
+        int hours = time / 100;
+        int minutes = time % 100;
+        long mcTicks = ((long)(hours - 6 + 24) % 24) * 1000L + (long)(minutes * 1000 / 60);
+        switch (activity.toUpperCase()) {
+            case "WORK_START" -> npc.getNpcData().setWorkStartTime(mcTicks);
+            case "WORK_END"   -> npc.getNpcData().setWorkEndTime(mcTicks);
+            case "HOME"       -> npc.getNpcData().setHomeTime(mcTicks);
+            default -> LOGGER.warn("Unknown NPC schedule activity: {}", activity);
+        }
     }
 
     /**

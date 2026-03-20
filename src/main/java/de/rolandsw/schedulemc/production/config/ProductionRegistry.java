@@ -30,6 +30,9 @@ public class ProductionRegistry {
     // Kategorisierung
     private final Map<ProductionConfig.ProductionCategory, List<ProductionConfig>> byCategory = new ConcurrentHashMap<>();
 
+    // Laufzeit-Basispreis-Überschreibungen
+    private final Map<String, Double> basePriceOverrides = new ConcurrentHashMap<>();
+
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
@@ -101,6 +104,35 @@ public class ProductionRegistry {
 
     public boolean has(String id) {
         return productions.containsKey(id);
+    }
+
+    /**
+     * Setzt einen Laufzeit-Basispreis-Override für eine Production.
+     * Überschreibt den konfigurierten Wert ohne die Config zu ändern.
+     */
+    public boolean setBasePriceOverride(String id, double price) {
+        if (!productions.containsKey(id)) return false;
+        if (price <= 0) throw new IllegalArgumentException("price must be positive");
+        basePriceOverrides.put(id, price);
+        LOGGER.info("Base price override set for production '{}': {}€", id, price);
+        return true;
+    }
+
+    /**
+     * Gibt den effektiven Basispreis zurück (Override > Config-Wert)
+     */
+    public double getEffectiveBasePrice(String id) {
+        Double override = basePriceOverrides.get(id);
+        if (override != null) return override;
+        ProductionConfig config = productions.get(id);
+        return config != null ? config.getBasePrice() : 0.0;
+    }
+
+    /**
+     * Entfernt einen Basispreis-Override
+     */
+    public boolean clearBasePriceOverride(String id) {
+        return basePriceOverrides.remove(id) != null;
     }
 
     public Collection<ProductionConfig> getAll() {

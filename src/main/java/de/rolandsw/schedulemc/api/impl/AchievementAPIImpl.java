@@ -231,7 +231,10 @@ public class AchievementAPIImpl implements IAchievementAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        LOGGER.debug("Stub: resetPlayerAchievements not fully implemented - reset not directly accessible via AchievementManager");
+        AchievementManager manager = AchievementManager.getInstance();
+        if (manager != null) {
+            manager.resetPlayerAchievements(playerUUID);
+        }
     }
 
     /**
@@ -242,7 +245,12 @@ public class AchievementAPIImpl implements IAchievementAPI {
         if (limit < 1) {
             throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
         }
-        LOGGER.debug("Stub: getTopAchievers not fully implemented - player achievement enumeration not directly accessible");
-        return Collections.emptyList();
+        AchievementManager manager = AchievementManager.getInstance();
+        if (manager == null) return Collections.emptyList();
+        return manager.getAllPlayerData().entrySet().stream()
+            .map(e -> new java.util.AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().getUnlockedCount()))
+            .sorted((a, b) -> Integer.compare(b.getValue(), a.getValue()))
+            .limit(limit)
+            .collect(java.util.stream.Collectors.toList());
     }
 }

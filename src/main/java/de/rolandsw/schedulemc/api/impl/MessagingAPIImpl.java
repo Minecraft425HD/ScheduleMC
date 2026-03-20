@@ -61,9 +61,7 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        // Note: Conversation class doesn't track read/unread status
-        // This would need to be implemented in the messaging system
-        return 0;
+        return MessageManager.getUnreadCount(playerUUID);
     }
 
     /**
@@ -96,8 +94,7 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        // Note: Conversation class doesn't support marking as read
-        // This would need to be implemented in the messaging system
+        MessageManager.markAllAsRead(playerUUID);
     }
 
     /**
@@ -108,8 +105,24 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null || messageId == null) {
             throw new IllegalArgumentException("playerUUID and messageId cannot be null");
         }
-        // Stub: Message deletion not supported in current MessageManager implementation
-        return false;
+        // messageId format: "participantUUID:timestamp" or just a timestamp string
+        try {
+            String[] parts = messageId.split(":", 2);
+            if (parts.length == 2) {
+                UUID participantUUID = UUID.fromString(parts[0]);
+                long timestamp = Long.parseLong(parts[1]);
+                return MessageManager.deleteMessage(playerUUID, participantUUID, timestamp);
+            } else {
+                long timestamp = Long.parseLong(messageId);
+                // Search all conversations for this timestamp
+                for (de.rolandsw.schedulemc.messaging.Conversation conv : MessageManager.getConversations(playerUUID)) {
+                    if (MessageManager.deleteMessage(playerUUID, conv.getParticipantUUID(), timestamp)) return true;
+                }
+                return false;
+            }
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     /**
@@ -120,8 +133,9 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        // Stub: Bulk message deletion not supported in current MessageManager implementation
-        // Would need to be implemented in MessageManager if required
+        for (de.rolandsw.schedulemc.messaging.Conversation conv : MessageManager.getConversations(playerUUID)) {
+            MessageManager.deleteAllMessages(playerUUID, conv.getParticipantUUID());
+        }
     }
 
     /**
@@ -132,11 +146,7 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        // Stub: Count total messages from all conversations
-        List<de.rolandsw.schedulemc.messaging.Conversation> convs = MessageManager.getConversations(playerUUID);
-        return convs.stream()
-            .mapToInt(c -> c.getMessages().size())
-            .sum();
+        return MessageManager.getTotalMessageCount(playerUUID);
     }
 
     // ═══════════════════════════════════════════════════════════
