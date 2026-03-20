@@ -3,6 +3,13 @@ package de.rolandsw.schedulemc.client.screen.apps;
 import de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket;
 import de.rolandsw.schedulemc.gang.scenario.*;
 import de.rolandsw.schedulemc.gang.scenario.ObjectiveType.ParamWidget;
+import de.rolandsw.schedulemc.mission.MissionCategory;
+import de.rolandsw.schedulemc.mission.MissionStatus;
+import de.rolandsw.schedulemc.mission.client.ClientMissionCache;
+import de.rolandsw.schedulemc.mission.client.PlayerMissionDto;
+import de.rolandsw.schedulemc.mission.network.MissionActionPacket;
+import de.rolandsw.schedulemc.mission.network.MissionNetworkHandler;
+import de.rolandsw.schedulemc.mission.network.RequestMissionsPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -107,6 +114,19 @@ public class ScenarioEditorScreen extends Screen {
     // Palette
     private int paletteScroll = 0;
     private final Map<ObjectiveType.Category, Boolean> catExpanded = new LinkedHashMap<>();  // NOPMD
+
+    // ═══════════════════════════════════════════════════════════
+    // ANSICHTSMODUS (Gang-Editor ↔ Spieler-Missionen)
+    // ═══════════════════════════════════════════════════════════
+    private enum ViewMode { GANG_EDITOR, PLAYER_MISSIONS }
+    private ViewMode viewMode = ViewMode.GANG_EDITOR;
+
+    // Spieler-Missionen Zustand
+    private MissionCategory missionTab = MissionCategory.HAUPT;
+    private int missionScrollOffset = 0;
+    private int missionMaxScroll = 0;
+    private static final int MISSION_ENTRY_H = 56;
+    private static final int MISSION_ENTRY_PAD = 4;
 
     // Toolbar-Dropdowns
     private enum ToolbarDD { NONE, OPEN, TEMPLATES, ACTIVE, MISSION_TYPE }
@@ -221,42 +241,47 @@ public class ScenarioEditorScreen extends Screen {
         renderBackground(g);
         g.fill(0, 0, this.width, this.height, C_BG);
 
-        // Hovered Block finden
-        hoveredBlockId = null;  // NOPMD
-        if (mx >= PALETTE_W && mx < propsLeft() && my >= TOOLBAR_H && my < this.height - STATUS_H) {
-            int cL = PALETTE_W, cT = TOOLBAR_H;
-            List<ScenarioObjective> objs = currentScenario.getObjectives();
-            for (int i = objs.size() - 1; i >= 0; i--) {
-                ScenarioObjective o = objs.get(i);
-                int bx = cL + o.getEditorX() - scrollX, by = cT + o.getEditorY() - scrollY;
-                if (mx >= bx && mx < bx + BLOCK_W && my >= by && my < by + BLOCK_H) {
-                    hoveredBlockId = o.getId();
-                    break;
+        renderToolbar(g, mx, my);
+
+        if (viewMode == ViewMode.PLAYER_MISSIONS) {
+            renderPlayerMissionsView(g, mx, my);
+        } else {
+            // Hovered Block finden
+            hoveredBlockId = null;  // NOPMD
+            if (mx >= PALETTE_W && mx < propsLeft() && my >= TOOLBAR_H && my < this.height - STATUS_H) {
+                int cL = PALETTE_W, cT = TOOLBAR_H;
+                List<ScenarioObjective> objs = currentScenario.getObjectives();
+                for (int i = objs.size() - 1; i >= 0; i--) {
+                    ScenarioObjective o = objs.get(i);
+                    int bx = cL + o.getEditorX() - scrollX, by = cT + o.getEditorY() - scrollY;
+                    if (mx >= bx && mx < bx + BLOCK_W && my >= by && my < by + BLOCK_H) {
+                        hoveredBlockId = o.getId();
+                        break;
+                    }
                 }
             }
-        }
 
-        renderToolbar(g, mx, my);
-        renderPalette(g, mx, my);
-        renderCanvas(g, mx, my);
-        renderPropsPanel(g, mx, my);
-        renderStatusBar(g, mx, my);
-        renderToolbarDropdowns(g, mx, my);
-        renderParamDropdown(g, mx, my);
+            renderPalette(g, mx, my);
+            renderCanvas(g, mx, my);
+            renderPropsPanel(g, mx, my);
+            renderStatusBar(g, mx, my);
+            renderToolbarDropdowns(g, mx, my);
+            renderParamDropdown(g, mx, my);
 
-        // Connecting-Linie
-        if (connecting && connectSrcId != null) {
-            ScenarioObjective src = currentScenario.getObjective(connectSrcId);
-            if (src != null) {
-                int sx = PALETTE_W + src.getEditorX() - scrollX + BLOCK_W / 2;
-                int sy = TOOLBAR_H + src.getEditorY() - scrollY + BLOCK_H;
-                drawDashedLine(g, sx, sy, mx, my, C_CONN);
+            // Connecting-Linie
+            if (connecting && connectSrcId != null) {
+                ScenarioObjective src = currentScenario.getObjective(connectSrcId);
+                if (src != null) {
+                    int sx = PALETTE_W + src.getEditorX() - scrollX + BLOCK_W / 2;
+                    int sy = TOOLBAR_H + src.getEditorY() - scrollY + BLOCK_H;
+                    drawDashedLine(g, sx, sy, mx, my, C_CONN);
+                }
             }
-        }
 
-        // Tooltip
-        if (hoveredBlockId != null && !dragging && activeParamDD == null && toolbarDD == ToolbarDD.NONE) {
-            renderBlockTooltip(g, mx, my);
+            // Tooltip
+            if (hoveredBlockId != null && !dragging && activeParamDD == null && toolbarDD == ToolbarDD.NONE) {
+                renderBlockTooltip(g, mx, my);
+            }
         }
 
         super.render(g, mx, my, pt);
@@ -267,19 +292,57 @@ public class ScenarioEditorScreen extends Screen {
         g.fill(0, 0, this.width, TOOLBAR_H, C_TOOLBAR);
         g.fill(0, TOOLBAR_H - 1, this.width, TOOLBAR_H, 0xFF2A2A4A);
 
-        int x = 4;
-        x = tbBtn(g, x, "Oeffnen", mx, my, 0xFF3498DB);
-        x = tbBtn(g, x, "Speichern", mx, my, 0xFF2ECC71);
-        x = tbBtn(g, x, "Vorlagen", mx, my, 0xFFF39C12);
-        x = tbBtn(g, x, "Aktive", mx, my, 0xFF9B59B6);  // NOPMD
+        // Modus-Umschalter (ganz links)
+        boolean gangActive = viewMode == ViewMode.GANG_EDITOR;
+        int toggleX = 4;
+        int gangW = this.font.width("Gang") + 10;
+        int playerW = this.font.width("Spieler") + 10;
+        // Hintergrund-Leiste fuer Toggle
+        g.fill(toggleX - 1, 2, toggleX + gangW + playerW + 1, TOOLBAR_H - 2, 0xFF0A0A20);
+        // Gang-Tab
+        boolean gangHov = mx >= toggleX && mx < toggleX + gangW && my >= 2 && my < TOOLBAR_H - 2;
+        g.fill(toggleX, 2, toggleX + gangW, TOOLBAR_H - 2,
+            gangActive ? 0xFF5588FF : (gangHov ? 0xFF334466 : 0xFF1A1A3A));
+        g.drawCenteredString(this.font, "Gang", toggleX + gangW / 2, 7, gangActive ? 0xFFFFFF : 0x8888AA);
+        // Spieler-Tab
+        int playerX = toggleX + gangW;
+        boolean playerHov = mx >= playerX && mx < playerX + playerW && my >= 2 && my < TOOLBAR_H - 2;
+        g.fill(playerX, 2, playerX + playerW, TOOLBAR_H - 2,
+            !gangActive ? 0xFFFFAA00 : (playerHov ? 0xFF443300 : 0xFF2A1A00));
+        g.drawCenteredString(this.font, "Spieler", playerX + playerW / 2, 7, !gangActive ? 0xFF000000 : 0xFF886600);
 
-        // Rechts
-        int rx = this.width - 4;
-        rx = tbBtnR(g, rx, "X", mx, my, 0xFFE74C3C);
-        rx = tbBtnR(g, rx, "Neu", mx, my, 0xFF1ABC9C);
-        tbBtnR(g, rx, "Loeschen", mx, my, 0xFF7F8C8D);
+        if (gangActive) {
+            // Gang-Editor Buttons
+            int x = toggleX + gangW + playerW + 6;
+            x = tbBtn(g, x, "Oeffnen", mx, my, 0xFF3498DB);
+            x = tbBtn(g, x, "Speichern", mx, my, 0xFF2ECC71);
+            x = tbBtn(g, x, "Vorlagen", mx, my, 0xFFF39C12);
+            x = tbBtn(g, x, "Aktive", mx, my, 0xFF9B59B6);  // NOPMD
 
-        g.drawString(this.font, "\u00A78Szenario-Editor", this.width / 2 - 30, 7, 0x666666);
+            // Rechts
+            int rx = this.width - 4;
+            rx = tbBtnR(g, rx, "X", mx, my, 0xFFE74C3C);
+            rx = tbBtnR(g, rx, "Neu", mx, my, 0xFF1ABC9C);
+            tbBtnR(g, rx, "Loeschen", mx, my, 0xFF7F8C8D);
+
+            g.drawString(this.font, "\u00A78Szenario-Editor", this.width / 2 - 30, 7, 0x666666);
+        } else {
+            // Spieler-Missionen: Tabs Haupt / Neben
+            int x = toggleX + gangW + playerW + 12;
+            boolean hauptActive = missionTab == MissionCategory.HAUPT;
+            int hauptW = this.font.width("Hauptmissionen") + 10;
+            int nebenW = this.font.width("Nebenmissionen") + 10;
+            boolean hauptHov = mx >= x && mx < x + hauptW && my >= 2 && my < TOOLBAR_H - 2;
+            g.fill(x, 2, x + hauptW, TOOLBAR_H - 2, hauptActive ? 0xFF3355AA : (hauptHov ? 0xFF223366 : 0xFF111122));
+            g.drawCenteredString(this.font, "Hauptmissionen", x + hauptW / 2, 7, hauptActive ? 0xFFFFFF : 0x8888AA);
+            int nebenX = x + hauptW + 3;
+            boolean nebenHov = mx >= nebenX && mx < nebenX + nebenW && my >= 2 && my < TOOLBAR_H - 2;
+            g.fill(nebenX, 2, nebenX + nebenW, TOOLBAR_H - 2, !hauptActive ? 0xFF3355AA : (nebenHov ? 0xFF223366 : 0xFF111122));
+            g.drawCenteredString(this.font, "Nebenmissionen", nebenX + nebenW / 2, 7, !hauptActive ? 0xFFFFFF : 0x8888AA);
+
+            // Rechts: Schliessen
+            tbBtnR(g, this.width - 4, "X", mx, my, 0xFFE74C3C);
+        }
     }
 
     private int tbBtn(GuiGraphics g, int x, String l, int mx, int my, int c) {
@@ -297,6 +360,122 @@ public class ScenarioEditorScreen extends Screen {
         g.fill(x, 3, x + w, TOOLBAR_H - 3, h ? c : (c & 0x88FFFFFF));
         g.drawString(this.font, l, x + 4, 6, 0xFFFFFF);
         return x - 3;
+    }
+
+    // ─── SPIELER-MISSIONEN ANSICHT ───
+    private void renderPlayerMissionsView(GuiGraphics g, int mx, int my) {
+        int contentTop = TOOLBAR_H + 4;
+        int contentBottom = this.height - 4;
+        int contentH = contentBottom - contentTop;
+        int listX = 20;
+        int listW = this.width - 40;
+
+        g.fill(0, TOOLBAR_H, this.width, this.height, 0xFF0A0A1A);
+
+        List<PlayerMissionDto> missions = ClientMissionCache.getByCategory(missionTab);
+        int totalH = missions.size() * (MISSION_ENTRY_H + MISSION_ENTRY_PAD);
+        missionMaxScroll = Math.max(0, totalH - contentH);
+        missionScrollOffset = Math.max(0, Math.min(missionScrollOffset, missionMaxScroll));
+
+        g.enableScissor(listX, contentTop, listX + listW, contentBottom);
+
+        if (missions.isEmpty()) {
+            String hint = "\u00A77Keine Missionen vorhanden";
+            g.drawCenteredString(this.font, hint, this.width / 2, contentTop + contentH / 2 - 4, 0x555555);
+        } else {
+            int y = contentTop - missionScrollOffset;
+            for (PlayerMissionDto m : missions) {
+                renderPlayerMissionEntry(g, listX, y, listW, m, mx, my);
+                y += MISSION_ENTRY_H + MISSION_ENTRY_PAD;
+            }
+        }
+
+        g.disableScissor();
+
+        // Scrollbar
+        if (missionMaxScroll > 0) {
+            int sbX = listX + listW + 4;
+            int sbH = contentH;
+            g.fill(sbX, contentTop, sbX + 4, contentTop + sbH, 0xFF1A1A2E);
+            int thumbH = Math.max(20, sbH * contentH / Math.max(1, totalH));
+            int thumbY = contentTop + (int)((float) missionScrollOffset / missionMaxScroll * (sbH - thumbH));
+            g.fill(sbX, thumbY, sbX + 4, thumbY + thumbH, 0xFF5588FF);
+        }
+    }
+
+    private void renderPlayerMissionEntry(GuiGraphics g, int x, int y, int w, PlayerMissionDto m, int mx, int my) {
+        MissionStatus status = m.getStatus();
+        int bgAlpha = 0x33;
+        int bgColor = switch (status) {
+            case AVAILABLE -> (bgAlpha << 24) | 0x333333;
+            case ACTIVE -> (bgAlpha << 24) | 0x223355;
+            case COMPLETED -> (bgAlpha << 24) | 0x554422;
+            case CLAIMED -> (bgAlpha << 24) | 0x224422;
+        };
+        g.fill(x, y, x + w, y + MISSION_ENTRY_H, bgColor);
+
+        // Titel
+        g.drawString(this.font, "\u00A7f" + truncateMission(m.getTitle(), w - 80), x + 6, y + 5, 0xFFFFFF);
+
+        // Status-Badge
+        String badge = switch (status) {
+            case AVAILABLE -> "\u00A77\u25CB Verfuegbar";
+            case ACTIVE -> "\u00A7b\u25CF Aktiv";
+            case COMPLETED -> "\u00A7e\u2605 Abgeschlossen";
+            case CLAIMED -> "\u00A7a\u2713 Erhalten";
+        };
+        g.drawString(this.font, badge, x + w - this.font.width(badge) - 6, y + 5, 0xFFFFFF);
+
+        // Beschreibung
+        g.drawString(this.font, "\u00A77" + truncateMission(m.getDescription(), w - 12), x + 6, y + 17, 0xAAAAAA);
+
+        // NPC-Geber
+        if (!m.getNpcGiverName().isEmpty()) {
+            g.drawString(this.font, "\u00A78\u27A4 " + m.getNpcGiverName(), x + 6, y + 27, 0x777777);
+        }
+
+        // Fortschrittsbalken
+        if (m.getTargetAmount() > 1) {
+            int barY = y + 38;
+            int barW = w - 72;
+            g.fill(x + 6, barY, x + 6 + barW, barY + 5, 0xFF333333);
+            int fill = (int)(barW * m.getProgressPercent());
+            if (fill > 0) g.fill(x + 6, barY, x + 6 + fill, barY + 5, 0xFF55AA55);
+            g.drawString(this.font, "\u00A77" + m.getCurrentProgress() + "/" + m.getTargetAmount(), x + 6, barY + 7, 0xAAAAAA);
+        }
+
+        // Aktions-Button
+        int btnX = x + w - 62;
+        int btnY = y + MISSION_ENTRY_H - 18;
+        boolean btnHov = mx >= btnX && mx < btnX + 56 && my >= btnY && my < btnY + 14;
+        switch (status) {
+            case AVAILABLE -> {
+                g.fill(btnX, btnY, btnX + 56, btnY + 14, btnHov ? 0xFF336633 : 0xFF224422);
+                g.drawCenteredString(this.font, "\u00A7aAnnehmen", btnX + 28, btnY + 3, 0xFFFFFF);
+            }
+            case ACTIVE -> {
+                g.fill(btnX, btnY, btnX + 56, btnY + 14, btnHov ? 0xFF663322 : 0xFF442211);
+                g.drawCenteredString(this.font, "\u00A7cAbbrechen", btnX + 28, btnY + 3, 0xFFFFFF);
+            }
+            case COMPLETED -> {
+                g.fill(btnX, btnY, btnX + 56, btnY + 14, btnHov ? 0xFF886600 : 0xFF664400);
+                g.drawCenteredString(this.font, "\u00A7eAbholen", btnX + 28, btnY + 3, 0xFFFFFF);
+            }
+            case CLAIMED -> {
+                g.fill(btnX, btnY, btnX + 56, btnY + 14, 0xFF2A2A2A);
+                g.drawCenteredString(this.font, "\u00A78\u2713", btnX + 28, btnY + 3, 0x888888);
+            }
+            default -> {}
+        }
+    }
+
+    private String truncateMission(String text, int maxPx) {
+        if (this.font.width(text) <= maxPx) return text;
+        for (int i = text.length() - 1; i > 0; i--) {
+            String t = text.substring(0, i) + "...";
+            if (this.font.width(t) <= maxPx) return t;
+        }
+        return "...";
     }
 
     // ─── PALETTE ───
@@ -804,6 +983,19 @@ public class ScenarioEditorScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int mx = (int) mouseX, my = (int) mouseY;
 
+        // Toolbar immer zuerst (auch fuer Moduswechsel)
+        if (my < TOOLBAR_H) {
+            handleToolbar(mx);
+            return true;
+        }
+
+        if (viewMode == ViewMode.PLAYER_MISSIONS) {
+            handlePlayerMissionsClick(mx, my, button);
+            return true;
+        }
+
+        // Gang-Editor Interaktion ---
+
         // Offene Param-Dropdown behandeln
         if (activeParamDD != null) {
             boolean handled = handleParamDDClick(mx, my);
@@ -818,9 +1010,6 @@ public class ScenarioEditorScreen extends Screen {
             toolbarDD = ToolbarDD.NONE;
             if (handled) return true;
         }
-
-        // Toolbar
-        if (my < TOOLBAR_H) { handleToolbar(mx); return true; }
 
         // Status Bar — nameField bei Klick auf EditBox-Bereich Fokus geben
         if (my >= this.height - STATUS_H) {
@@ -850,8 +1039,75 @@ public class ScenarioEditorScreen extends Screen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
+    private void handlePlayerMissionsClick(int mx, int my, int button) {
+        if (button != 0) return;
+        int contentTop = TOOLBAR_H + 4;
+        int contentBottom = this.height - 4;
+        int listX = 20;
+        int listW = this.width - 40;
+
+        List<PlayerMissionDto> missions = ClientMissionCache.getByCategory(missionTab);
+        int y = contentTop - missionScrollOffset;
+        for (PlayerMissionDto m : missions) {
+            int btnX = listX + listW - 62;
+            int btnY = y + MISSION_ENTRY_H - 18;
+            if (mx >= btnX && mx < btnX + 56 && my >= btnY && my < btnY + 14
+                    && my >= contentTop && my < contentBottom) {
+                switch (m.getStatus()) {
+                    case AVAILABLE -> MissionNetworkHandler.sendToServer(
+                        new MissionActionPacket(MissionActionPacket.Action.ACCEPT, m.getDefinitionId()));
+                    case ACTIVE -> MissionNetworkHandler.sendToServer(
+                        new MissionActionPacket(MissionActionPacket.Action.ABANDON, m.getMissionId()));
+                    case COMPLETED -> MissionNetworkHandler.sendToServer(
+                        new MissionActionPacket(MissionActionPacket.Action.CLAIM, m.getMissionId()));
+                    default -> {}
+                }
+                return;
+            }
+            y += MISSION_ENTRY_H + MISSION_ENTRY_PAD;
+        }
+    }
+
     private void handleToolbar(int mx) {
-        int x = 4, w;
+        // Modus-Toggle (ganz links, immer sichtbar)
+        int toggleX = 4;
+        int gangW = this.font.width("Gang") + 10;
+        int playerW = this.font.width("Spieler") + 10;
+
+        if (mx >= toggleX && mx < toggleX + gangW) {
+            if (viewMode != ViewMode.GANG_EDITOR) {
+                viewMode = ViewMode.GANG_EDITOR;
+                toolbarDD = ToolbarDD.NONE;
+            }
+            return;
+        }
+        if (mx >= toggleX + gangW && mx < toggleX + gangW + playerW) {
+            if (viewMode != ViewMode.PLAYER_MISSIONS) {
+                viewMode = ViewMode.PLAYER_MISSIONS;
+                toolbarDD = ToolbarDD.NONE;
+                MissionNetworkHandler.sendToServer(new RequestMissionsPacket());
+            }
+            return;
+        }
+
+        // Schliessen (rechts, immer)
+        int rx = this.width - 4;
+        int xW = this.font.width("X") + 8;
+        if (mx >= rx - xW && mx < rx) { onClose(); return; }
+
+        if (viewMode == ViewMode.PLAYER_MISSIONS) {
+            // Tabs Haupt / Neben
+            int x = toggleX + gangW + playerW + 12;
+            int hauptW = this.font.width("Hauptmissionen") + 10;
+            int nebenW = this.font.width("Nebenmissionen") + 10;
+            if (mx >= x && mx < x + hauptW) { missionTab = MissionCategory.HAUPT; missionScrollOffset = 0; return; }
+            if (mx >= x + hauptW + 3 && mx < x + hauptW + 3 + nebenW) { missionTab = MissionCategory.NEBEN; missionScrollOffset = 0; }
+            return;
+        }
+
+        // Gang-Editor Buttons
+        int x = toggleX + gangW + playerW + 6;
+        int w;
         w = this.font.width("Oeffnen") + 8;
         if (mx >= x && mx < x + w) { toolbarDD = toolbarDD == ToolbarDD.OPEN ? ToolbarDD.NONE : ToolbarDD.OPEN; return; }
         x += w + 3;
@@ -864,10 +1120,7 @@ public class ScenarioEditorScreen extends Screen {
         w = this.font.width("Aktive") + 8;
         if (mx >= x && mx < x + w) { toolbarDD = toolbarDD == ToolbarDD.ACTIVE ? ToolbarDD.NONE : ToolbarDD.ACTIVE; return; }
 
-        int rx = this.width - 4;
-        w = this.font.width("X") + 8;
-        if (mx >= rx - w && mx < rx) { onClose(); return; }
-        rx -= w + 3;
+        rx -= xW + 3;
         w = this.font.width("Neu") + 8;
         if (mx >= rx - w && mx < rx) { newScenario(); return; }
         rx -= w + 3;
@@ -1134,6 +1387,11 @@ public class ScenarioEditorScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (viewMode == ViewMode.PLAYER_MISSIONS) {
+            missionScrollOffset = Math.max(0, Math.min(missionMaxScroll,
+                missionScrollOffset - (int)(delta * 15)));
+            return true;
+        }
         int mx = (int) mouseX;
         if (mx < PALETTE_W) { paletteScroll = Math.max(0, paletteScroll - (int)(delta * 10)); return true; }
         if (mx >= propsLeft() && activeParamDD != null) { paramDDScroll = Math.max(0, paramDDScroll - (int) delta); return true; }
