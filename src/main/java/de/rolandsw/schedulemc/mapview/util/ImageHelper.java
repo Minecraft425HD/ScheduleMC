@@ -39,7 +39,7 @@ public class ImageHelper {
 
     public static NativeImage createNativeImageFromIdentifier(ResourceLocation Identifier) {
         try {
-            return NativeImage.read(Minecraft.getInstance().getResourceManager().getResource(Identifier).get().open());
+            return NativeImage.read(Minecraft.getInstance().getResourceManager().getResource(Identifier).orElseThrow().open());
         } catch (Exception var5) {
             return null;
         }
@@ -104,7 +104,7 @@ public class ImageHelper {
     }
 
     public static BufferedImage blankImage(ResourceLocation Identifier, int w, int h, int imageWidth, int imageHeight, int r, int g, int b, int a) {
-        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(Identifier).get().open()) {
+        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(Identifier).orElseThrow().open()) {
             BufferedImage mobSkin = ImageIO.read(is);
             BufferedImage temp = new BufferedImage(w * mobSkin.getWidth() / imageWidth, h * mobSkin.getWidth() / imageWidth, 6);
             Graphics2D g2 = temp.createGraphics();
