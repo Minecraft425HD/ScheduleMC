@@ -415,9 +415,7 @@ public class ScenarioEditorScreen extends Screen {
         int x = toggleX + gangW + playerW + 6;
         x = tbBtn(g, x, "Oeffnen", mx, my, 0xFF3498DB);
         x = tbBtn(g, x, "Speichern", mx, my, 0xFF2ECC71);
-        if (gangActive) {
-            x = tbBtn(g, x, "Vorlagen", mx, my, 0xFFF39C12);
-        }
+        x = tbBtn(g, x, "Vorlagen", mx, my, gangActive ? 0xFFF39C12 : 0xFF00BCD4);
         x = tbBtn(g, x, "Aktive", mx, my, 0xFF9B59B6);  // NOPMD
 
         // Rechts
@@ -766,7 +764,9 @@ public class ScenarioEditorScreen extends Screen {
             renderDD(g, ddX, TOOLBAR_H, items, mx, my, 0xFF3498DB, 140);
         } else if (toolbarDD == ToolbarDD.TEMPLATES) {
             ddX = 4 + this.font.width("Oeffnen") + 8 + 3 + this.font.width("Speichern") + 8 + 3;
-            renderDD(g, ddX, TOOLBAR_H, ScenarioTemplates.getTemplateNames(), mx, my, 0xFFF39C12, 140);
+            boolean isGangTpl = viewMode == ViewMode.GANG_EDITOR;
+            String[] tplNames = isGangTpl ? ScenarioTemplates.getTemplateNames() : ScenarioTemplates.getPlayerTemplateNames();
+            renderDD(g, ddX, TOOLBAR_H, tplNames, mx, my, isGangTpl ? 0xFFF39C12 : 0xFF00BCD4, 150);
         } else if (toolbarDD == ToolbarDD.ACTIVE) {
             ddX = 4 + this.font.width("Oeffnen") + 8 + 3 + this.font.width("Speichern") + 8 + 3
                     + this.font.width("Vorlagen") + 8 + 3;
@@ -1040,11 +1040,9 @@ public class ScenarioEditorScreen extends Screen {
         w = this.font.width("Speichern") + 8;
         if (mx >= x && mx < x + w) { saveCurrentScenario(); return; }
         x += w + 3;
-        if (isGang) {
-            w = this.font.width("Vorlagen") + 8;
-            if (mx >= x && mx < x + w) { toolbarDD = toolbarDD == ToolbarDD.TEMPLATES ? ToolbarDD.NONE : ToolbarDD.TEMPLATES; return; }
-            x += w + 3;
-        }
+        w = this.font.width("Vorlagen") + 8;
+        if (mx >= x && mx < x + w) { toolbarDD = toolbarDD == ToolbarDD.TEMPLATES ? ToolbarDD.NONE : ToolbarDD.TEMPLATES; return; }
+        x += w + 3;
         w = this.font.width("Aktive") + 8;
         if (mx >= x && mx < x + w) { toolbarDD = toolbarDD == ToolbarDD.ACTIVE ? ToolbarDD.NONE : ToolbarDD.ACTIVE; return; }
 
@@ -1192,12 +1190,13 @@ public class ScenarioEditorScreen extends Screen {
             }
         }
         if (toolbarDD == ToolbarDD.TEMPLATES) {
-            List<MissionScenario> templates = ScenarioTemplates.getAll();
+            List<MissionScenario> templates = viewMode == ViewMode.GANG_EDITOR
+                    ? ScenarioTemplates.getAll() : ScenarioTemplates.getPlayerTemplates();
             int ddX = 4 + this.font.width("Oeffnen") + 8 + 3 + this.font.width("Speichern") + 8 + 3;
             int ih = 13;
             for (int i = 0; i < templates.size(); i++) {
                 int iy = TOOLBAR_H + 2 + i * ih;
-                if (mx >= ddX && mx < ddX + 130 && my >= iy && my < iy + ih) {
+                if (mx >= ddX && mx < ddX + 150 && my >= iy && my < iy + ih) {
                     loadScenario(templates.get(i)); return true;
                 }
             }
