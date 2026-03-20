@@ -48,6 +48,27 @@ public class MissionNetworkHandler {
             .encoder(MissionActionPacket::encode)
             .consumerMainThread(MissionActionPacket::handle)
             .add();
+
+        // Client → Server: Spieler-Missionsszenarien anfragen (fuer Editor)
+        INSTANCE.messageBuilder(RequestPlayerMissionsPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(RequestPlayerMissionsPacket::decode)
+            .encoder(RequestPlayerMissionsPacket::encode)
+            .consumerMainThread(RequestPlayerMissionsPacket::handle)
+            .add();
+
+        // Server → Client: Spieler-Missionsszenarien senden (Editor-Sync)
+        INSTANCE.messageBuilder(SyncPlayerMissionsPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SyncPlayerMissionsPacket::decode)
+            .encoder(SyncPlayerMissionsPacket::encode)
+            .consumerMainThread(SyncPlayerMissionsPacket::handle)
+            .add();
+
+        // Client → Server: Spieler-Missionsszenario speichern
+        INSTANCE.messageBuilder(SavePlayerMissionPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(SavePlayerMissionPacket::decode)
+            .encoder(SavePlayerMissionPacket::encode)
+            .consumerMainThread(SavePlayerMissionPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
@@ -56,5 +77,9 @@ public class MissionNetworkHandler {
 
     public static <MSG> void sendToPlayer(MSG message, ServerPlayer player) {
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
+    }
+
+    public static <MSG> void sendToAll(MSG message) {
+        INSTANCE.send(PacketDistributor.ALL.noArg(), message);
     }
 }

@@ -363,6 +363,48 @@ public enum ObjectiveType {
             new ParamDef[]{
                     new ParamDef("xp", "XP", "100", ParamWidget.NUMBER),
                     new ParamDef("money", "Geld", "5000", ParamWidget.NUMBER)
+            }),
+
+    // ═══════════════════════════════════════════════════════════
+    // STORY / SPIELER-MISSIONEN (7 Bloecke)
+    // Konfigurationsbausteine fuer Spieler-Missionen (HAUPT/NEBEN).
+    // Werden im Editor als normale Bloecke verwendet; beim Speichern
+    // extrahiert der Server die Parameter in eine MissionDefinition.
+    // ═══════════════════════════════════════════════════════════
+    MISSION_INFO("Mission-Info", "\u24D8", 0xFF00BCD4, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("description", "Beschreibung", "Beschreibung hier...", ParamWidget.TEXT),
+                    new ParamDef("npc_giver", "NPC-Geber", "", ParamWidget.DROPDOWN_NPC_NAME)
+            }),
+    MISSION_PREREQ("Voraussetzung", "\u2934", 0xFF009688, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("prereq_id", "Mission-ID", "", ParamWidget.TEXT)
+            }),
+    MISSION_TRACKING("Tracking-Event", "\u2197", 0xFF4CAF50, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("tracking_key", "Tracking-Key", "item_collected", ParamWidget.DROPDOWN_TRACKING_KEY),
+                    new ParamDef("target_amount", "Ziel-Menge", "1", ParamWidget.NUMBER)
+            }),
+    NPC_GIVE_MISSION("Auftrag annehmen", "\uD83D\uDCCB", 0xFF26C6DA, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("dialog_id", "Dialog-ID", "give_mission", ParamWidget.TEXT)
+            }),
+    NPC_COMPLETE_MISSION("Auftrag abgeben", "\u2714", 0xFF00ACC1, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("dialog_id", "Dialog-ID", "complete_mission", ParamWidget.TEXT)
+            }),
+    MISSION_FAIL_COND("Abbruch-Bedingung", "\u2715", 0xFFEF5350, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("condition_key", "Bedingung", "player_died", ParamWidget.DROPDOWN_TRACKING_KEY),
+                    new ParamDef("threshold", "Schwellenwert", "1", ParamWidget.NUMBER)
+            }),
+    PLAYER_NOTIFY("Hinweis anzeigen", "\uD83D\uDCAC", 0xFF80DEEA, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("text", "Text", "Hinweis...", ParamWidget.TEXT),
+                    new ParamDef("color", "Farbe", "GELB", ParamWidget.DROPDOWN_COLOR),
+                    new ParamDef("persistent", "Dauerhaft (0/1)", "0", ParamWidget.NUMBER)
             });
 
     private final String displayName;
@@ -414,7 +456,8 @@ public enum ObjectiveType {
         DROPDOWN_METHOD,         // Ablenkungs-Methode
         DROPDOWN_EVENT,          // Zufallsereignis-Typ
         DROPDOWN_COLOR,          // Nachrichtenfarbe
-        DROPDOWN_LOCK            // Tuer-Schloss aus Server-Daten (Lock-ID + Position)
+        DROPDOWN_LOCK,           // Tuer-Schloss aus Server-Daten (Lock-ID + Position)
+        DROPDOWN_TRACKING_KEY    // Tracking-Schluessel fuer Spieler-Missionen
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -431,7 +474,8 @@ public enum ObjectiveType {
         SONSTIGES("Sonstiges", 0xFF95A5A6),
         FAHRZEUG("Fahrzeug", 0xFF2196F3),
         STEALTH("Stealth", 0xFF607D8B),
-        SPEZIAL("Spezial", 0xFF2ECC71);
+        SPEZIAL("Spezial", 0xFF2ECC71),
+        STORY("Story / Spieler-Missionen", 0xFF00BCD4);
 
         private final String displayName;
         private final int color;

@@ -12,6 +12,9 @@ public class MissionRegistry {
 
     private static final Map<String, MissionDefinition> REGISTRY = new LinkedHashMap<>();  // NOPMD
 
+    /** IDs der dynamisch registrierten Missionen (aus Szenarien geladen). */
+    private static final java.util.Set<String> DYNAMIC_IDS = new java.util.HashSet<>();  // NOPMD
+
     static {
         // ── Hauptmissionen ──────────────────────────────────────────────
 
@@ -94,6 +97,26 @@ public class MissionRegistry {
 
     private static void register(MissionDefinition definition) {
         REGISTRY.put(definition.getId(), definition);
+    }
+
+    /**
+     * Registriert eine dynamisch geladene Mission (aus Szenario-Editor).
+     * Dynamische Missionen koennen mit {@link #clearDynamic()} entfernt werden.
+     */
+    public static synchronized void registerDynamic(MissionDefinition definition) {
+        REGISTRY.put(definition.getId(), definition);
+        DYNAMIC_IDS.add(definition.getId());
+    }
+
+    /**
+     * Entfernt alle dynamisch registrierten Missionen.
+     * Statisch (im static-Block) registrierte Missionen bleiben erhalten.
+     */
+    public static synchronized void clearDynamic() {
+        for (String id : DYNAMIC_IDS) {
+            REGISTRY.remove(id);
+        }
+        DYNAMIC_IDS.clear();
     }
 
     public static MissionDefinition getById(String id) {
