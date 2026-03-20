@@ -357,11 +357,9 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
      */
     private net.minecraft.world.item.Item getDeliveryItemForNPC(CustomNPCEntity npc) {
         return switch (npc.getNpcType()) {
-            case ARZT -> Items.HONEY_BOTTLE;
-            case HANDWERKER -> Items.OAK_PLANKS;
-            case BAUER -> Items.WHEAT;
-            case BIBLIOTHEKAR -> Items.BOOK;
-            case HAENDLER -> Items.GOLD_INGOT;
+            case BANK, BANKER -> Items.GOLD_INGOT;
+            case VERKAEUFER, MERCHANT -> Items.PAPER;
+            case POLIZEI, POLICE -> Items.IRON_INGOT;
             default -> Items.PAPER;
         };
     }
@@ -371,10 +369,9 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
      */
     private net.minecraft.world.item.Item getCollectionItemForNPC(CustomNPCEntity npc) {
         return switch (npc.getNpcType()) {
-            case BAUER -> Items.WHEAT;
-            case HANDWERKER -> Items.OAK_LOG;
-            case HAENDLER -> Items.EMERALD;
-            case ARZT -> Items.SWEET_BERRIES;
+            case VERKAEUFER, MERCHANT -> Items.EMERALD;
+            case BANK, BANKER -> Items.GOLD_NUGGET;
+            case POLIZEI, POLICE -> Items.IRON_NUGGET;
             default -> Items.COAL;
         };
     }
