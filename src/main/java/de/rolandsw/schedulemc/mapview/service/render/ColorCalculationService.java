@@ -217,7 +217,7 @@ public class ColorCalculationService {
     }
 
     private void loadColorPicker() {
-        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/colorpicker.png")).get().open()) {
+        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/colorpicker.png")).orElseThrow(() -> new IOException("Resource not found: schedulemc:mapview/images/colorpicker.png")).open()) {
             Image picker = ImageIO.read(is);
             this.colorPicker = new BufferedImage(picker.getWidth(null), picker.getHeight(null), 2);
             Graphics gfx = this.colorPicker.createGraphics();
@@ -719,7 +719,7 @@ public class ColorCalculationService {
         Properties properties = new Properties();
         ResourceLocation propertiesFile = ResourceLocation.fromNamespaceAndPath("minecraft", "optifine/renderpass.properties");
 
-        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open()) {
+        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).orElseThrow(() -> new IOException("Resource not found: " + propertiesFile)).open()) {
             properties.load(input);
             this.renderPassThreeBlendMode = properties.getProperty("blend.3", "alpha");
         } catch (IOException var9) {
@@ -753,7 +753,7 @@ public class ColorCalculationService {
             BlockModelShaper blockModelShapes = blockRendererDispatcher.getBlockModelShaper();
             Properties properties = new Properties();
 
-            try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).get().open()) {
+            try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(propertiesFile).orElseThrow(() -> new IOException("Resource not found: " + propertiesFile)).open()) {
                 properties.load(input);
             } catch (IOException var39) {
                 return;
@@ -854,7 +854,7 @@ public class ColorCalculationService {
                     try {
                         ResourceLocation pngResource = ResourceLocation.fromNamespaceAndPath(propertiesFile.getNamespace(), tilePath);
                         Image top;
-                        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(pngResource).get().open()) {
+                        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(pngResource).orElseThrow(() -> new IOException("Resource not found: " + pngResource)).open()) {
                             top = ImageIO.read(is);
                         }
                         top = top.getScaledInstance(1, 1, 4);
@@ -1078,7 +1078,7 @@ public class ColorCalculationService {
     private void processColorProperties() {
         Properties properties = new Properties();
 
-        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.parse("optifine/color.properties")).get().open()) {
+        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(ResourceLocation.parse("optifine/color.properties")).orElseThrow(() -> new IOException("Resource not found: optifine/color.properties")).open()) {
             properties.load(input);
         } catch (IOException exception) {
             MapViewConstants.getLogger().error(exception);
@@ -1115,7 +1115,7 @@ public class ColorCalculationService {
         for (ResourceLocation resource : this.findResources("minecraft", "/optifine/colormap/blocks", ".properties", true, false, true)) {
             Properties colorProperties = new Properties();
 
-            try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open()) {
+            try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).orElseThrow(() -> new IOException("Resource not found: " + resource)).open()) {
                 colorProperties.load(input);
             } catch (IOException var21) {
                 break;
@@ -1172,7 +1172,7 @@ public class ColorCalculationService {
         Properties colorProperties = new Properties();
         int yOffset = 0;
 
-        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resourceProperties).get().open()) {
+        try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resourceProperties).orElseThrow(() -> new IOException("Resource not found: " + resourceProperties)).open()) {
             colorProperties.load(input);
         } catch (IOException ignored) {
         }
@@ -1198,7 +1198,7 @@ public class ColorCalculationService {
         boolean swamp = resource.getPath().contains("/swamp");
         Image tintColors;
 
-        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).get().open()) {
+        try (InputStream is = MapViewConstants.getMinecraft().getResourceManager().getResource(resource).orElseThrow(() -> new IOException("Resource not found: " + resource)).open()) {
             tintColors = ImageIO.read(is);
         } catch (IOException var21) {
             return;

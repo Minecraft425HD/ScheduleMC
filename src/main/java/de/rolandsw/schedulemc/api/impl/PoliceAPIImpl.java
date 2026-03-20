@@ -206,7 +206,7 @@ public class PoliceAPIImpl implements IPoliceAPI {
         try {
             return de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance().isPrisoner(playerUUID);
         } catch (Exception e) {
-            LOGGER.debug("PrisonManager not available: {}", e.getMessage());
+            LOGGER.debug("PrisonManager not available: {}", e.getMessage(), e);
             return false;
         }
     }
@@ -228,7 +228,7 @@ public class PoliceAPIImpl implements IPoliceAPI {
             long remainingTicks = Math.max(0, data.releaseTime - System.currentTimeMillis() / 50);
             return remainingTicks / 20; // Ticks zu Sekunden
         } catch (Exception e) {
-            LOGGER.debug("PrisonManager not available: {}", e.getMessage());
+            LOGGER.debug("PrisonManager not available: {}", e.getMessage(), e);
             return 0;
         }
     }
@@ -252,7 +252,7 @@ public class PoliceAPIImpl implements IPoliceAPI {
             prisonManager.releasePlayer(player, de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.ReleaseReason.ADMIN_RELEASE);
             return true;
         } catch (Exception e) {
-            LOGGER.debug("PrisonManager not available: {}", e.getMessage());
+            LOGGER.debug("PrisonManager not available: {}", e.getMessage(), e);
             return false;
         }
     }

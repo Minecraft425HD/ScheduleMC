@@ -655,7 +655,7 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
     }
 
     // ═══════════════════════════════════════════════════════════
-    // DEBUG
+    // Utility
     // ═══════════════════════════════════════════════════════════
 
     @Override

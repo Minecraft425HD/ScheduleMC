@@ -119,7 +119,7 @@ public class CrimeManager {
                 bountyManager.createAutoBounty(playerUUID, newLevel);
             }
         } catch (Exception e) {
-            LOGGER.debug("BountyManager not available: {}", e.getMessage());
+            LOGGER.debug("BountyManager not available: {}", e.getMessage(), e);
         }
     }
 

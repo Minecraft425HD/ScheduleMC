@@ -461,7 +461,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
     }
 
     // ═══════════════════════════════════════════════════════════
-    // DEBUG
+    // Utility
     // ═══════════════════════════════════════════════════════════
 
     @Override

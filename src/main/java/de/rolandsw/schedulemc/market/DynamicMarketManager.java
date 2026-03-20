@@ -175,7 +175,7 @@ public class DynamicMarketManager {
                 }
             }
         } catch (Exception e) {
-            LOGGER.debug("Could not bridge sale to EconomyController: {}", e.getMessage());
+            LOGGER.debug("Could not bridge sale to EconomyController: {}", e.getMessage(), e);
         }
     }
 
@@ -208,7 +208,7 @@ public class DynamicMarketManager {
                 }
             }
         } catch (Exception e) {
-            LOGGER.debug("Could not bridge purchase to EconomyController: {}", e.getMessage());
+            LOGGER.debug("Could not bridge purchase to EconomyController: {}", e.getMessage(), e);
         }
     }
 
@@ -551,7 +551,7 @@ public class DynamicMarketManager {
                     successCount++;
 
                 } catch (Exception e) {
-                    LOGGER.error("Error deserializing market data for {}: {}", serialized.itemId, e.getMessage());
+                    LOGGER.error("Error deserializing market data for {}: {}", serialized.itemId, e.getMessage(), e);
                     failCount++;
                 }
             }
