@@ -1,15 +1,23 @@
 package de.rolandsw.schedulemc.api.impl;
 
 import de.rolandsw.schedulemc.api.messaging.IMessagingAPI;
+import de.rolandsw.schedulemc.messaging.Conversation;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.messaging.Message;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +33,9 @@ public class MessagingAPIImpl implements IMessagingAPI {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final UUID SYSTEM_UUID = new UUID(0L, 0L);
+
+    // In-memory block list: player -> set of blocked UUIDs
+    private static final Map<UUID, Set<UUID>> blockedPlayers = new ConcurrentHashMap<>();
 
     /**
      * {@inheritDoc}
@@ -50,9 +61,7 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        // Note: Conversation class doesn't track read/unread status
-        // This would need to be implemented in the messaging system
-        return 0;
+        return MessageManager.getUnreadCount(playerUUID);
     }
 
     /**
@@ -67,7 +76,6 @@ public class MessagingAPIImpl implements IMessagingAPI {
             throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
         }
 
-        // Stub: Get messages from all conversations
         List<de.rolandsw.schedulemc.messaging.Conversation> convs = MessageManager.getConversations(playerUUID);
         return convs.stream()
             .flatMap(c -> c.getMessages().stream())
@@ -85,8 +93,7 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        // Note: Conversation class doesn't support marking as read
-        // This would need to be implemented in the messaging system
+        MessageManager.markAllAsRead(playerUUID);
     }
 
     /**
@@ -97,8 +104,24 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null || messageId == null) {
             throw new IllegalArgumentException("playerUUID and messageId cannot be null");
         }
-        // Stub: Message deletion not supported in current MessageManager implementation
-        return false;
+        // messageId format: "participantUUID:timestamp" or just a timestamp string
+        try {
+            String[] parts = messageId.split(":", 2);
+            if (parts.length == 2) {
+                UUID participantUUID = UUID.fromString(parts[0]);
+                long timestamp = Long.parseLong(parts[1]);
+                return MessageManager.deleteMessage(playerUUID, participantUUID, timestamp);
+            } else {
+                long timestamp = Long.parseLong(messageId);
+                // Search all conversations for this timestamp
+                for (de.rolandsw.schedulemc.messaging.Conversation conv : MessageManager.getConversations(playerUUID)) {
+                    if (MessageManager.deleteMessage(playerUUID, conv.getParticipantUUID(), timestamp)) return true;
+                }
+                return false;
+            }
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     /**
@@ -109,8 +132,9 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        // Stub: Bulk message deletion not supported in current MessageManager implementation
-        // Would need to be implemented in MessageManager if required
+        for (de.rolandsw.schedulemc.messaging.Conversation conv : MessageManager.getConversations(playerUUID)) {
+            MessageManager.deleteAllMessages(playerUUID, conv.getParticipantUUID());
+        }
     }
 
     /**
@@ -121,11 +145,7 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        // Stub: Count total messages from all conversations
-        List<de.rolandsw.schedulemc.messaging.Conversation> convs = MessageManager.getConversations(playerUUID);
-        return convs.stream()
-            .mapToInt(c -> c.getMessages().size())
-            .sum();
+        return MessageManager.getTotalMessageCount(playerUUID);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -143,8 +163,16 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (message == null || message.isBlank()) {
             throw new IllegalArgumentException("message cannot be null or empty");
         }
-        LOGGER.debug("Stub: broadcastMessage not fully implemented - broadcast system not directly accessible");
-        return 0;
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return 0;
+        int count = 0;
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (!player.getUUID().equals(fromUUID)) {
+                sendMessage(fromUUID, player.getUUID(), message);
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
@@ -172,8 +200,13 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (limit < 1) {
             throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
         }
-        LOGGER.debug("Stub: getConversation not fully implemented - direct conversation retrieval not accessible");
-        return Collections.emptyList();
+        Conversation conv = MessageManager.getConversation(playerA, playerB);
+        if (conv == null) return Collections.emptyList();
+        return conv.getMessages().stream()
+            .sorted((a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()))
+            .limit(limit)
+            .map(Message::getContent)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -184,8 +217,8 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null || blockedUUID == null) {
             throw new IllegalArgumentException("playerUUID and blockedUUID cannot be null");
         }
-        LOGGER.debug("Stub: isBlocked not fully implemented - block system not directly accessible");
-        return false;
+        Set<UUID> blocked = blockedPlayers.get(playerUUID);
+        return blocked != null && blocked.contains(blockedUUID);
     }
 
     /**
@@ -196,7 +229,7 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null || blockedUUID == null) {
             throw new IllegalArgumentException("playerUUID and blockedUUID cannot be null");
         }
-        LOGGER.debug("Stub: blockPlayer not fully implemented - block system not directly accessible");
+        blockedPlayers.computeIfAbsent(playerUUID, k -> ConcurrentHashMap.newKeySet()).add(blockedUUID);
     }
 
     /**
@@ -207,6 +240,9 @@ public class MessagingAPIImpl implements IMessagingAPI {
         if (playerUUID == null || blockedUUID == null) {
             throw new IllegalArgumentException("playerUUID and blockedUUID cannot be null");
         }
-        LOGGER.debug("Stub: unblockPlayer not fully implemented - block system not directly accessible");
+        Set<UUID> blocked = blockedPlayers.get(playerUUID);
+        if (blocked != null) {
+            blocked.remove(blockedUUID);
+        }
     }
 }

@@ -259,28 +259,33 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         switch (template.getType()) {
             case DELIVERY -> {
                 // Lieferung: Item an einen anderen NPC
+                // Use a contextual delivery item based on the NPC type
+                net.minecraft.world.item.Item deliveryItem = getDeliveryItemForNPC(questGiver);
+                // Find a different nearby NPC as delivery target, fall back to questGiver
+                UUID deliveryTargetUUID = findNearbyDifferentNPC(questGiver, player);
+                String targetDesc = deliveryTargetUUID != null ? "den Empfänger" : "die Lieferstelle";
                 quest.addObjective(QuestObjective.collectItems(
                     "collect_package",
-                    Items.PAPER, // Placeholder
+                    deliveryItem,
                     1,
                     "Paket abholen"
                 ));
-                // Hier würde man dynamisch einen Ziel-NPC finden
                 quest.addObjective(QuestObjective.deliverToNPC(
                     "deliver_package",
-                    Items.PAPER,
+                    deliveryItem,
                     1,
-                    questGiver.getNpcData().getNpcUUID(), // Placeholder - sollte anderer NPC sein
-                    "Paket abliefern"
+                    deliveryTargetUUID != null ? deliveryTargetUUID : questGiver.getNpcData().getNpcUUID(),
+                    "Paket an " + targetDesc + " abliefern"
                 ));
             }
 
             case COLLECTION -> {
-                // Sammlung: Bestimmte Anzahl Items
+                // Sammlung: Bestimmte Anzahl Items basierend auf NPC-Typ
                 int amount = 5 + template.getDifficulty() * 5;
+                net.minecraft.world.item.Item collectionItem = getCollectionItemForNPC(questGiver);
                 quest.addObjective(QuestObjective.collectItems(
                     "collect_materials",
-                    Items.COAL, // Placeholder
+                    collectionItem,
                     amount,
                     String.format("Sammle %d Materialien", amount)
                 ));
@@ -288,7 +293,11 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
 
             case ESCORT -> {
                 // Eskorte: NPC zu einem Ort bringen
-                BlockPos destination = questGiver.blockPosition().offset(50, 0, 50); // Placeholder
+                // Use NPC's home/work location if available, else use offset destination
+                BlockPos destination = questGiver.getNpcData().getHomeLocation();
+                if (destination == null || destination.equals(questGiver.blockPosition())) {
+                    destination = questGiver.blockPosition().offset(50, 0, 50);
+                }
                 quest.addObjective(QuestObjective.escortNPC(
                     "escort_npc",
                     questGiver.getNpcData().getNpcUUID(),
@@ -298,21 +307,23 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             }
 
             case ELIMINATION -> {
-                // Eliminierung: Feinde besiegen
+                // Eliminierung: Feinde besiegen - use entity type fitting the context
                 int kills = 3 + template.getDifficulty() * 2;
+                String entityType = getEntityTypeForElimination(questGiver);
                 quest.addObjective(QuestObjective.killEntities(
                     "eliminate_threats",
-                    "zombie", // Placeholder
+                    entityType,
                     kills,
                     String.format("Beseitige %d Bedrohungen", kills)
                 ));
             }
 
             case INVESTIGATION -> {
-                // Ermittlung: Mehrere NPCs befragen
+                // Ermittlung: Zeugen befragen und Tatort untersuchen
+                UUID witnessUUID = findNearbyDifferentNPC(questGiver, player);
                 quest.addObjective(QuestObjective.talkToNPC(
                     "investigate_1",
-                    questGiver.getNpcData().getNpcUUID(), // Placeholder
+                    witnessUUID != null ? witnessUUID : questGiver.getNpcData().getNpcUUID(),
                     "Befrage Zeugen"
                 ));
                 quest.addObjective(QuestObjective.visitLocation(
@@ -324,20 +335,71 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             }
 
             case NEGOTIATION -> {
-                // Verhandlung: Mit mehreren NPCs sprechen
+                // Verhandlung: Mit einer anderen Partei sprechen und Deal abschließen
+                UUID partyUUID = findNearbyDifferentNPC(questGiver, player);
                 quest.addObjective(QuestObjective.talkToNPC(
                     "negotiate_party1",
-                    questGiver.getNpcData().getNpcUUID(), // Placeholder
+                    partyUUID != null ? partyUUID : questGiver.getNpcData().getNpcUUID(),
                     "Sprich mit der ersten Partei"
                 ));
                 quest.addObjective(QuestObjective.negotiateDeal(
                     "negotiate_deal",
-                    questGiver.getNpcData().getNpcUUID(), // Placeholder
+                    questGiver.getNpcData().getNpcUUID(),
                     "Schließe den Deal ab"
                 ));
             }
             default -> {}
         }
+    }
+
+    /**
+     * Returns a contextual delivery item based on the NPC type.
+     */
+    private net.minecraft.world.item.Item getDeliveryItemForNPC(CustomNPCEntity npc) {
+        return switch (npc.getNpcType()) {
+            case BANK, BANKER -> Items.GOLD_INGOT;
+            case VERKAEUFER, MERCHANT -> Items.PAPER;
+            case POLIZEI, POLICE -> Items.IRON_INGOT;
+            default -> Items.PAPER;
+        };
+    }
+
+    /**
+     * Returns a contextual collection item based on the NPC type.
+     */
+    private net.minecraft.world.item.Item getCollectionItemForNPC(CustomNPCEntity npc) {
+        return switch (npc.getNpcType()) {
+            case VERKAEUFER, MERCHANT -> Items.EMERALD;
+            case BANK, BANKER -> Items.GOLD_NUGGET;
+            case POLIZEI, POLICE -> Items.IRON_NUGGET;
+            default -> Items.COAL;
+        };
+    }
+
+    /**
+     * Returns an entity type string fitting the quest giver's context.
+     */
+    private String getEntityTypeForElimination(CustomNPCEntity npc) {
+        // Pick a threat appropriate to the context
+        String[] hostileMobs = {"zombie", "skeleton", "spider", "pillager"};
+        return hostileMobs[ThreadLocalRandom.current().nextInt(hostileMobs.length)];
+    }
+
+    /**
+     * Finds a different NPC near the quest giver (within 50 blocks).
+     * Returns null if no other NPC found.
+     */
+    @Nullable
+    private UUID findNearbyDifferentNPC(CustomNPCEntity questGiver, ServerPlayer player) {
+        if (!(questGiver.level() instanceof ServerLevel level)) return null;
+        UUID questGiverUUID = questGiver.getNpcData().getNpcUUID();
+        return level.getEntitiesOfClass(CustomNPCEntity.class,
+                new net.minecraft.world.phys.AABB(questGiver.blockPosition()).inflate(50))
+            .stream()
+            .filter(e -> !e.getNpcData().getNpcUUID().equals(questGiverUUID))
+            .findFirst()
+            .map(e -> e.getNpcData().getNpcUUID())
+            .orElse(null);
     }
 
     /**
@@ -455,33 +517,66 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Aktualisiert die Quest-Angebote eines NPCs
+     * Aktualisiert die Quest-Angebote eines NPCs.
+     * Wählt 1-3 passende Template-IDs aus und cached sie pro NPC.
      */
     public void refreshNPCQuests(CustomNPCEntity npc) {
         UUID npcUUID = npc.getNpcData().getNpcUUID();
-        List<String> offers = new ArrayList<>();
+        NPCType npcType = npc.getNpcType();
 
-        // Generiere 1-3 Quest-Angebote
-        int numQuests = 1 + ThreadLocalRandom.current().nextInt(3);
-        // TODO: Quest-Generierungslogik ist noch nicht implementiert.
-        // Verwende stattdessen getQuestOffers(), die dynamisch via generateRandomQuest() arbeitet.
-        LOGGER.debug("refreshNPCQuests called for NPC {} — generation not yet implemented (numQuests={})",
-            npcUUID, numQuests);
+        // Passende Templates für diesen NPC-Typ sammeln
+        List<String> suitableTemplateIds = new ArrayList<>();
+        for (QuestTemplate template : questTemplates.values()) {
+            if (template.getType().canBeGivenBy(npcType)) {
+                if (template.getFaction() != null) {
+                    Faction npcFaction = Faction.forNPCType(npcType);
+                    if (template.getFaction() != npcFaction) continue;
+                }
+                suitableTemplateIds.add(template.getId());
+            }
+        }
+
+        List<String> offers;
+        if (suitableTemplateIds.isEmpty()) {
+            offers = new ArrayList<>();
+            LOGGER.debug("No suitable quest templates for NPC {} (type={})", npcUUID, npcType);
+        } else {
+            // Zufällig 1-3 Templates auswählen
+            int numQuests = Math.min(1 + ThreadLocalRandom.current().nextInt(3), suitableTemplateIds.size());
+            Collections.shuffle(suitableTemplateIds, ThreadLocalRandom.current());
+            offers = new ArrayList<>(suitableTemplateIds.subList(0, numQuests));
+            LOGGER.debug("Assigned {} quest templates to NPC {}", numQuests, npcUUID);
+        }
 
         npcQuestOffers.put(npcUUID, offers);
         markDirty();
     }
 
     /**
-     * Holt die Quest-Angebote eines NPCs
+     * Holt die Quest-Angebote eines NPCs.
+     * Nutzt gecachte Template-IDs aus refreshNPCQuests(), oder fällt auf dynamische Generierung zurück.
      */
     public List<Quest> getQuestOffers(CustomNPCEntity npc, ServerPlayer player) {
+        UUID npcUUID = npc.getNpcData().getNpcUUID();
+        List<String> templateIds = npcQuestOffers.get(npcUUID);
+
         List<Quest> quests = new ArrayList<>();
 
-        // Generiere dynamisch eine Quest wenn keine vorhanden
-        Quest randomQuest = generateRandomQuest(npc, player);
-        if (randomQuest != null) {
-            quests.add(randomQuest);
+        if (templateIds != null && !templateIds.isEmpty()) {
+            // Gecachte Template-IDs verwenden
+            for (String templateId : templateIds) {
+                Quest quest = generateQuest(templateId, npc, player);
+                if (quest != null) {
+                    quests.add(quest);
+                }
+            }
+        } else {
+            // Kein Cache vorhanden — refresh und einen zufälligen Quest als Fallback
+            refreshNPCQuests(npc);
+            Quest randomQuest = generateRandomQuest(npc, player);
+            if (randomQuest != null) {
+                quests.add(randomQuest);
+            }
         }
 
         return quests;

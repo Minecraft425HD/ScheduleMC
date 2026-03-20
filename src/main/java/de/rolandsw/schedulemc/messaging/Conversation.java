@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Conversation {
     private static final int MAX_MESSAGES = 200;
@@ -13,6 +14,7 @@ public class Conversation {
     private final boolean isPlayerParticipant;  // NOPMD
     private final List<Message> messages;
     private volatile long lastMessageTime;  // NOPMD
+    private final AtomicLong lastReadTime = new AtomicLong(0);
     private int reputation; // -100 bis 100, nur für NPC-Konversationen relevant
 
     public Conversation(UUID participantUUID, String participantName, boolean isPlayerParticipant) {
@@ -72,5 +74,26 @@ public class Conversation {
 
     public void setReputation(int reputation) {
         this.reputation = Math.max(-100, Math.min(100, reputation));
+    }
+
+    public int getUnreadCount() {
+        long readTime = lastReadTime.get();
+        return (int) messages.stream().filter(m -> m.getTimestamp() > readTime).count();
+    }
+
+    public void markAsRead() {
+        lastReadTime.set(System.currentTimeMillis());
+    }
+
+    public boolean removeMessage(long timestamp) {
+        return messages.removeIf(m -> m.getTimestamp() == timestamp);
+    }
+
+    public void clearMessages() {
+        messages.clear();
+    }
+
+    public int getMessageCount() {
+        return messages.size();
     }
 }

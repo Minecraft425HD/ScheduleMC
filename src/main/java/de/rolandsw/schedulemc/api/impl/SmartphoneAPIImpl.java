@@ -1,11 +1,16 @@
 package de.rolandsw.schedulemc.api.impl;
 
 import de.rolandsw.schedulemc.api.smartphone.ISmartphoneAPI;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +29,9 @@ public class SmartphoneAPIImpl implements ISmartphoneAPI {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private final Set<UUID> playersWithSmartphoneOpen = ConcurrentHashMap.newKeySet();
+
+    // In-memory app registry: appId -> appName
+    private static final Map<String, String> registeredApps = new ConcurrentHashMap<>();
 
     /**
      * {@inheritDoc}
@@ -99,7 +107,8 @@ public class SmartphoneAPIImpl implements ISmartphoneAPI {
         if (appId == null || appName == null || iconColor == null) {
             throw new IllegalArgumentException("appId, appName and iconColor cannot be null");
         }
-        LOGGER.debug("Stub: registerApp not fully implemented - app registration system not directly accessible");
+        registeredApps.put(appId, appName);
+        LOGGER.debug("Registered smartphone app: {} ({})", appId, appName);
         return true;
     }
 
@@ -111,8 +120,7 @@ public class SmartphoneAPIImpl implements ISmartphoneAPI {
         if (appId == null) {
             throw new IllegalArgumentException("appId cannot be null");
         }
-        LOGGER.debug("Stub: unregisterApp not fully implemented - app registration system not directly accessible");
-        return true;
+        return registeredApps.remove(appId) != null;
     }
 
     /**
@@ -120,8 +128,7 @@ public class SmartphoneAPIImpl implements ISmartphoneAPI {
      */
     @Override
     public Set<String> getRegisteredApps() {
-        LOGGER.debug("Stub: getRegisteredApps not fully implemented - app registration system not directly accessible");
-        return Collections.emptySet();
+        return Collections.unmodifiableSet(registeredApps.keySet());
     }
 
     /**
@@ -132,7 +139,13 @@ public class SmartphoneAPIImpl implements ISmartphoneAPI {
         if (playerUUID == null || appId == null || message == null) {
             throw new IllegalArgumentException("playerUUID, appId and message cannot be null");
         }
-        LOGGER.debug("Stub: sendNotification not fully implemented - notification system not directly accessible");
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return;
+        ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
+        if (player != null) {
+            String appName = registeredApps.getOrDefault(appId, appId);
+            player.sendSystemMessage(Component.literal("[" + appName + "] " + message));
+        }
     }
 
     /**
@@ -143,7 +156,7 @@ public class SmartphoneAPIImpl implements ISmartphoneAPI {
         if (playerUUID == null) {
             throw new IllegalArgumentException("playerUUID cannot be null");
         }
-        LOGGER.debug("Stub: hasSmartphone not fully implemented - inventory check not directly accessible");
+        // In ScheduleMC all players have a smartphone (it's a roleplay feature, not an inventory item)
         return true;
     }
 }

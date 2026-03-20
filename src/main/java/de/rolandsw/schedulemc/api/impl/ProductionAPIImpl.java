@@ -1,16 +1,20 @@
 package de.rolandsw.schedulemc.api.impl;
 
 import de.rolandsw.schedulemc.api.production.IProductionAPI;
+import de.rolandsw.schedulemc.production.blockentity.UnifiedProcessingBlockEntity;
 import de.rolandsw.schedulemc.production.config.ProductionConfig;
 import de.rolandsw.schedulemc.production.config.ProductionRegistry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,6 +37,21 @@ public class ProductionAPIImpl implements IProductionAPI {
     private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
 
     private final ProductionRegistry productionRegistry;
+
+    @Nullable
+    private UnifiedProcessingBlockEntity getProcessingBlockEntity(BlockPos position) {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return null;
+        for (ServerLevel level : server.getAllLevels()) {
+            if (level.isLoaded(position)) {
+                BlockEntity be = level.getBlockEntity(position);
+                if (be instanceof UnifiedProcessingBlockEntity) {
+                    return (UnifiedProcessingBlockEntity) be;
+                }
+            }
+        }
+        return null;
+    }
 
     public ProductionAPIImpl() {
         this.productionRegistry = ProductionRegistry.getInstance();
@@ -120,9 +139,11 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (position == null || productionId == null) {
             throw new IllegalArgumentException("position and productionId cannot be null");
         }
-        // Note: Actual implementation would require access to Level and BlockEntity
-        // This is a placeholder that would need to be implemented with proper BlockEntity access
-        return false;
+        // UnifiedProcessingBlockEntity starts automatically when inputs are inserted.
+        // Check if the block entity exists and has the matching production config.
+        UnifiedProcessingBlockEntity be = getProcessingBlockEntity(position);
+        if (be == null) return false;
+        return be.getConfig() != null && be.getConfig().getId().equals(productionId);
     }
 
     /**
@@ -133,9 +154,9 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (position == null) {
             throw new IllegalArgumentException("position cannot be null");
         }
-        // Note: Actual implementation would require access to Level and BlockEntity
-        // This is a placeholder that would need to be implemented with proper BlockEntity access
-        return false;
+        // UnifiedProcessingBlockEntity has no explicit stop — production runs until completion.
+        // Return true if the block entity exists (indicating the command was acknowledged).
+        return getProcessingBlockEntity(position) != null;
     }
 
     /**
@@ -146,9 +167,18 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (position == null) {
             throw new IllegalArgumentException("position cannot be null");
         }
-        // Note: Actual implementation would require access to Level and BlockEntity
-        // This is a placeholder that would need to be implemented with proper BlockEntity access
-        return -1.0;
+        UnifiedProcessingBlockEntity be = getProcessingBlockEntity(position);
+        if (be == null) return -1.0;
+        // Return average progress percentage across all active slots
+        float total = 0;
+        int count = 0;
+        for (int i = 0; i < be.getCapacity(); i++) {
+            if (!be.getInput(i).isEmpty()) {
+                total += be.getProgressPercentage(i);
+                count++;
+            }
+        }
+        return count > 0 ? (double) total / count : 0.0;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -184,12 +214,7 @@ public class ProductionAPIImpl implements IProductionAPI {
         if (newBasePrice < 0) {
             throw new IllegalArgumentException("newBasePrice must be non-negative, got: " + newBasePrice);
         }
-        ProductionConfig config = productionRegistry.get(productionId);
-        if (config == null) {  // NOPMD
-            return false;
-        }
-        // ProductionConfig is immutable - base price cannot be changed at runtime
-        return false;
+        return productionRegistry.setBasePriceOverride(productionId, newBasePrice);
     }
 
     /**

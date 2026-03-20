@@ -8,12 +8,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// Temporarily disabled - method signature may have changed in 1.20.1
-// TODO: Find correct method name/signature for renderExperienceBar in Minecraft 1.20.1
-//@Mixin(Gui.class)
+// Method signature confirmed for Minecraft 1.20.1: renderExperienceBar(GuiGraphics, int)
+@Mixin(Gui.class)
 public class GuiMixin {
 
-    //@Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true, require = 0)
+    @Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true, require = 0, remap = false)
     public void renderExperienceBar(GuiGraphics guiGraphics, int i, CallbackInfo ci) {
         if (RenderEvents.onRenderExperienceBar(guiGraphics, i)) {
             ci.cancel();

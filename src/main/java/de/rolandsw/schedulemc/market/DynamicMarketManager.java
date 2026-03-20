@@ -109,6 +109,29 @@ public class DynamicMarketManager {
     }
 
     /**
+     * Setzt den Basis-Preis eines Items (überschreibt den registrierten Wert).
+     * Erhält aktuellen Supply/Demand-Zustand.
+     */
+    public void setBasePrice(Item item, double newBasePrice) {
+        if (newBasePrice <= 0) throw new IllegalArgumentException("basePrice must be positive");
+        MarketData existing = marketData.get(item);
+        if (existing == null) {
+            registerItem(item, newBasePrice);
+            return;
+        }
+        MarketData updated = new MarketData(
+            item, newBasePrice,
+            supplyDemandFactor, minPriceMultiplier, maxPriceMultiplier,
+            existing.getSupply(), existing.getDemand(),
+            newBasePrice * existing.getPriceMultiplier(),
+            existing.getPreviousPrice(), existing.getPreviousSupply(), existing.getPreviousDemand()
+        );
+        marketData.put(item, updated);
+        dirty = true;
+        LOGGER.info("Base price updated for {}: {}€", item, newBasePrice);
+    }
+
+    /**
      * Entfernt Item aus Markt
      */
     public void unregisterItem(Item item) {

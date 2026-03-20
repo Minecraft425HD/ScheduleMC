@@ -23,6 +23,14 @@ public class DamageComponent extends VehicleComponent {
 
     private long lastDamage;
 
+    /** Ölstand (0-100). Sinkt während der Fahrt, verursacht bei 0 Motorschäden. */
+    private float oilLevel = 100.0f;
+    private static final float OIL_MAX = 100.0f;
+    /** Ölverbrauch pro Sekunde bei laufendem Motor (voller Tank hält ~2h45min Motorlaufzeit) */
+    private static final float OIL_CONSUMPTION_PER_SECOND = 0.01f;
+    /** Schaden pro Sekunde bei leerem Ölstand */
+    private static final float OIL_EMPTY_DAMAGE_PER_SECOND = 0.1f;
+
     public DamageComponent(EntityGenericVehicle vehicle) {
         super(vehicle);
     }
@@ -53,6 +61,21 @@ public class DamageComponent extends VehicleComponent {
         int tempUpdateInterval = ModConfigHandler.VEHICLE_SERVER.temperatureUpdateInterval.get();
         if (!vehicle.level().isClientSide && vehicle.tickCount % tempUpdateInterval == 0) {
             updateTemperature();
+        }
+
+        // Oil logic: Ölverbrauch sekündlich (alle 20 Ticks) bei laufendem Motor
+        if (!vehicle.level().isClientSide && vehicle.tickCount % 20 == 0) {
+            updateOil();
+        }
+    }
+
+    private void updateOil() {
+        PhysicsComponent physics = vehicle.getPhysicsComponent();
+        if (physics != null && physics.isStarted()) {
+            oilLevel = Math.max(0.0f, oilLevel - OIL_CONSUMPTION_PER_SECOND);
+            if (oilLevel <= 0.0f) {
+                addDamage(OIL_EMPTY_DAMAGE_PER_SECOND);
+            }
         }
     }
 
@@ -269,15 +292,33 @@ public class DamageComponent extends VehicleComponent {
         setTemperature(getBiomeTemperatureCelsius());
     }
 
+    public float getOilLevel() {
+        return oilLevel;
+    }
+
+    public float getOilPercentage() {
+        return oilLevel / OIL_MAX;
+    }
+
+    public void resetOil() {
+        oilLevel = OIL_MAX;
+    }
+
+    public boolean isOilLow() {
+        return oilLevel < 20.0f;
+    }
+
     @Override
     public void saveAdditionalData(CompoundTag compound) {
         compound.putFloat("damage", getDamage());
         compound.putFloat("temperature", getTemperature());
+        compound.putFloat("oilLevel", oilLevel);
     }
 
     @Override
     public void readAdditionalData(CompoundTag compound) {
         setDamage(compound.getFloat("damage"));
         setTemperature(compound.getFloat("temperature"));
+        oilLevel = compound.contains("oilLevel") ? compound.getFloat("oilLevel") : OIL_MAX;
     }
 }

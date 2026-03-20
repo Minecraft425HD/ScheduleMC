@@ -130,6 +130,59 @@ public class MessageManager {
     }
 
     /**
+     * Returns total unread message count for a player across all conversations
+     */
+    public static int getUnreadCount(UUID playerUUID) {
+        Map<UUID, Conversation> convMap = playerConversations.get(playerUUID);
+        if (convMap == null) return 0;
+        return convMap.values().stream().mapToInt(Conversation::getUnreadCount).sum();
+    }
+
+    /**
+     * Marks all conversations for a player as read
+     */
+    public static void markAllAsRead(UUID playerUUID) {
+        Map<UUID, Conversation> convMap = playerConversations.get(playerUUID);
+        if (convMap == null) return;
+        convMap.values().forEach(Conversation::markAsRead);
+    }
+
+    /**
+     * Deletes a specific message (identified by timestamp) from a conversation
+     */
+    public static boolean deleteMessage(UUID playerUUID, UUID participantUUID, long timestamp) {
+        Map<UUID, Conversation> convMap = playerConversations.get(playerUUID);
+        if (convMap == null) return false;
+        Conversation conv = convMap.get(participantUUID);
+        if (conv == null) return false;
+        boolean removed = conv.removeMessage(timestamp);
+        if (removed) markDirty();
+        return removed;
+    }
+
+    /**
+     * Deletes all messages in a conversation
+     */
+    public static void deleteAllMessages(UUID playerUUID, UUID participantUUID) {
+        Map<UUID, Conversation> convMap = playerConversations.get(playerUUID);
+        if (convMap == null) return;
+        Conversation conv = convMap.get(participantUUID);
+        if (conv != null) {
+            conv.clearMessages();
+            markDirty();
+        }
+    }
+
+    /**
+     * Returns total message count for a player across all conversations
+     */
+    public static int getTotalMessageCount(UUID playerUUID) {
+        Map<UUID, Conversation> convMap = playerConversations.get(playerUUID);
+        if (convMap == null) return 0;
+        return convMap.values().stream().mapToInt(Conversation::getMessageCount).sum();
+    }
+
+    /**
      * Returns health status
      */
     public static boolean isHealthy() {

@@ -53,9 +53,8 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             throw new IllegalArgumentException("item cannot be null");
         }
-        // Stub: Base price not directly exposed in DynamicMarketManager
-        // Return current price as approximation
-        return marketManager.getCurrentPrice(item);
+        de.rolandsw.schedulemc.market.MarketData data = marketManager.getMarketData(item);
+        return data != null ? data.getBasePrice() : 0.0;
     }
 
     /**
@@ -96,10 +95,8 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             throw new IllegalArgumentException("item cannot be null");
         }
-        // Stub: Calculate multiplier from current price vs base price
-        double currentPrice = marketManager.getCurrentPrice(item);
-        double basePrice = currentPrice; // Approximation since base price not directly available
-        return currentPrice > 0 ? currentPrice / Math.max(1.0, basePrice) : 1.0;
+        de.rolandsw.schedulemc.market.MarketData data = marketManager.getMarketData(item);
+        return data != null ? data.getPriceMultiplier() : 1.0;
     }
 
     /**
@@ -110,9 +107,8 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             throw new IllegalArgumentException("item cannot be null");
         }
-        // Stub: Demand level not directly exposed in DynamicMarketManager
-        // Return normalized value based on price multiplier
-        return 0;
+        de.rolandsw.schedulemc.market.MarketData data = marketManager.getMarketData(item);
+        return data != null ? data.getDemand() : 0;
     }
 
     /**
@@ -123,9 +119,8 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             throw new IllegalArgumentException("item cannot be null");
         }
-        // Stub: Supply level not directly exposed in DynamicMarketManager
-        // Return normalized value based on price multiplier
-        return 0;
+        de.rolandsw.schedulemc.market.MarketData data = marketManager.getMarketData(item);
+        return data != null ? data.getSupply() : 0;
     }
 
     /**
@@ -133,9 +128,11 @@ public class MarketAPIImpl implements IMarketAPI {
      */
     @Override
     public Map<Item, Double> getAllPrices() {
-        // Stub: getAllPrices not available in DynamicMarketManager
-        // Would need to be implemented in DynamicMarketManager if required
-        return new java.util.HashMap<>();
+        Map<Item, Double> prices = new java.util.HashMap<>();
+        for (de.rolandsw.schedulemc.market.MarketData data : marketManager.getAllMarketData()) {
+            prices.put(data.getItem(), data.getCurrentPrice());
+        }
+        return prices;
     }
 
     /**
@@ -149,8 +146,7 @@ public class MarketAPIImpl implements IMarketAPI {
         if (basePrice < 0) {
             throw new IllegalArgumentException("basePrice must be non-negative, got: " + basePrice);
         }
-        // Stub: setBasePrice not available in DynamicMarketManager
-        // Prices are managed dynamically based on supply/demand
+        marketManager.setBasePrice(item, basePrice);
     }
 
     /**
@@ -161,9 +157,13 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             // Reset all market data
             marketManager.reset();
-        } else {  // NOPMD - intentionaler Stub
-            // Stub: Per-item reset not available in DynamicMarketManager
-            // Only full reset is supported via reset()
+        } else {
+            de.rolandsw.schedulemc.market.MarketData data = marketManager.getMarketData(item);
+            if (data != null) {
+                double base = data.getBasePrice();
+                marketManager.unregisterItem(item);
+                marketManager.registerItem(item, base);
+            }
         }
     }
 
@@ -193,8 +193,12 @@ public class MarketAPIImpl implements IMarketAPI {
         if (limit < 1) {
             throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
         }
-        LOGGER.debug("Stub: getTopDemandItems not fully implemented - demand tracking not directly accessible");
-        return Collections.emptyList();
+        List<Map.Entry<Item, Integer>> demandEntries = new ArrayList<>();
+        for (de.rolandsw.schedulemc.market.MarketData data : marketManager.getAllMarketData()) {
+            demandEntries.add(new java.util.AbstractMap.SimpleEntry<>(data.getItem(), data.getDemand()));
+        }
+        demandEntries.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+        return demandEntries.subList(0, Math.min(limit, demandEntries.size()));
     }
 
     /**
