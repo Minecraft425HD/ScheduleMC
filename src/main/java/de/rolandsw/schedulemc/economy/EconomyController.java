@@ -148,7 +148,7 @@ public class EconomyController {
                 ProducerLevel.getInstance().awardSaleXP(playerUUID, xpSource, amount,
                         qualityMult, afterTax);
             } catch (Exception e) {
-                LOGGER.debug("Could not award sale XP: {}", e.getMessage());
+                LOGGER.debug("Could not award sale XP: {}", e.getMessage(), e);
             }
         }
 
@@ -196,7 +196,7 @@ public class EconomyController {
                 ProducerLevel.getInstance().awardSaleXP(playerUUID, xpSource, amount,
                         qualityMultiplier, afterTax);
             } catch (Exception e) {
-                LOGGER.debug("Could not award sale XP: {}", e.getMessage());
+                LOGGER.debug("Could not award sale XP: {}", e.getMessage(), e);
             }
         }
 
@@ -464,7 +464,7 @@ public class EconomyController {
                 }
             }
         } catch (Exception e) {
-            LOGGER.debug("Error calculating event multiplier: {}", e.getMessage());
+            LOGGER.debug("Error calculating event multiplier: {}", e.getMessage(), e);
         }
 
         return 1.0f;

@@ -143,7 +143,7 @@ public class ScenarioManager {
             try {
                 result.add(fromSaved(saved));
             } catch (Exception e) {
-                LOGGER.warn("Failed to load scenario: {}", e.getMessage());
+                LOGGER.warn("Failed to load scenario: {}", e.getMessage(), e);
             }
         }
         return result;
@@ -185,7 +185,7 @@ public class ScenarioManager {
                     MissionScenario scenario = fromSaved(saved);
                     scenarios.put(scenario.getId(), scenario);
                 } catch (Exception e) {
-                    LOGGER.warn("Failed to load scenario '{}': {}", saved.name, e.getMessage());
+                    LOGGER.warn("Failed to load scenario '{}': {}", saved.name, e.getMessage(), e);
                 }
             }
             LOGGER.info("Loaded {} scenarios", scenarios.size());

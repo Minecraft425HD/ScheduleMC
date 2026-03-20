@@ -798,10 +798,10 @@ public class WorldMapScreen extends PopupScreen {
                 }
             }
 
-            // DEBUG: Raster-Overlay für Koordinaten-Debugging
+            // Raster-Overlay für Koordinaten-Debugging
             renderGridOverlay(guiGraphics);
 
-            // DEBUG: Spieler-Marker im Welt-Koordinatensystem (passt zum Raster)
+            // Spieler-Marker im Welt-Koordinatensystem (passt zum Raster)
             // Immer genau 1 Block groß
             {
                 int playerBlockX = MinecraftAccessor.xCoord();
@@ -943,7 +943,7 @@ public class WorldMapScreen extends PopupScreen {
         // Render Navigations-Overlay auf der Worldmap
         renderNavigationOverlay(guiGraphics, (int) this.mapCenterX, (int) this.mapCenterZ, this.zoom);
 
-        // DEBUG: Immer einen Spieler-Marker rendern (unabhängig von Skin)
+        // Spieler-Marker rendern (unabhängig von Skin)
         // Player-Marker und Text werden jetzt im Welt-Koordinatensystem gerendert (oben im Code)
         // Der folgende Block ist nur für den "Player:" Text neben dem Marker
         {

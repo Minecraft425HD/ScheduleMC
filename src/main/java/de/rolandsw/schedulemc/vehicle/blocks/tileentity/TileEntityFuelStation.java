@@ -265,7 +265,6 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
             // Calculate price based on time of day
             int pricePerUnit = getCurrentPrice();
 
-            // DEBUG: Log price
             Main.LOGGER.debug("[FuelStation] Current price: {}€ per 10mB (tradeAmount: {})", pricePerUnit, tradeAmount);
 
             if (tradeAmount <= 0) {
@@ -300,7 +299,6 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
                             player.sendSystemMessage(Component.translatable("message.fuel.bill_activated").withStyle(ChatFormatting.AQUA));
                             player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));
 
-                            // DEBUG LOGGING
                             Main.LOGGER.debug("[FuelStation] Player {} started fueling at station {} ({})",
                                 player.getName().getString(), stationName, fuelStationId);
                             Main.LOGGER.debug("[FuelStation] Price: {}€ per 10mB ({})", pricePerUnit, timeOfDay);
@@ -361,7 +359,6 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
      * Sends a fuel bill to the player and creates a fuel bill record
      */
     private void sendFuelBillToPlayer(UUID playerUUID, int totalFueled, double totalCost) {
-        // DEBUG LOGGING
         String stationName = FuelStationRegistry.getDisplayName(fuelStationId);
         Main.LOGGER.debug("[FuelStation] Creating bill for player {} at station {} ({})",
             playerUUID, stationName, fuelStationId);

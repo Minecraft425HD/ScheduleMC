@@ -63,7 +63,6 @@ public class InventoryComponent extends VehicleComponent {
             SimpleContainer oldInventory = (SimpleContainer) internalInventory;
             SimpleContainer newInventory = new SimpleContainer(size);
 
-            // DEBUG: Log inventory resize
             if (vehicle.level() != null && !vehicle.level().isClientSide) {
                 de.rolandsw.schedulemc.ScheduleMC.LOGGER.debug(
                     "[VEHICLE INVENTORY] Resizing INTERNAL inventory: {} -> {} slots",
@@ -105,7 +104,6 @@ public class InventoryComponent extends VehicleComponent {
             SimpleContainer oldInventory = (SimpleContainer) externalInventory;
             SimpleContainer newInventory = new SimpleContainer(size);
 
-            // DEBUG: Log inventory resize
             if (vehicle.level() != null && !vehicle.level().isClientSide) {
                 de.rolandsw.schedulemc.ScheduleMC.LOGGER.debug(
                     "[VEHICLE INVENTORY] Resizing EXTERNAL inventory: {} -> {} slots",

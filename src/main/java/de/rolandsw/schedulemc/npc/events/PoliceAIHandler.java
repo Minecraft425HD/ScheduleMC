@@ -509,7 +509,7 @@ public class PoliceAIHandler {
                 bountyManager.claimBounty(police.getUUID(), player.getUUID());
             }
         } catch (Exception e) {
-            LOGGER.debug("BountyManager claim failed: {}", e.getMessage());
+            LOGGER.debug("BountyManager claim failed: {}", e.getMessage(), e);
         }
 
         // Feature 3: Strassensperren fuer diesen Spieler entfernen

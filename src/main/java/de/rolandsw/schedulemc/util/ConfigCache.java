@@ -1,7 +1,9 @@
 package de.rolandsw.schedulemc.util;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraftforge.common.ForgeConfigSpec;
+import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * </pre>
  */
 public class ConfigCache {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     // Cache für Police-AI Werte
     private static volatile int policeDetectionRadius = -1;  // NOPMD
@@ -71,6 +75,7 @@ public class ConfigCache {
             T value = config.get();
             return value != null ? value : defaultValue;
         } catch (Exception e) {
+            LOGGER.debug("Config access failed, using default value: {}", defaultValue, e);
             return defaultValue;
         }
     }

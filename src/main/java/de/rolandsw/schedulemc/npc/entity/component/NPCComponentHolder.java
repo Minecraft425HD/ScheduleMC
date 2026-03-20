@@ -110,7 +110,7 @@ public class NPCComponentHolder {
                 try {
                     component.tick(entity);
                 } catch (Exception e) {
-                    LOGGER.error("Fehler in NPC Component '{}': {}", id, e.getMessage());
+                    LOGGER.error("Fehler in NPC Component '{}': {}", id, e.getMessage(), e);
                 }
                 counter = 0;
             }
@@ -134,7 +134,7 @@ public class NPCComponentHolder {
                     tag.put(entry.getKey(), componentTag);
                 }
             } catch (Exception e) {
-                LOGGER.error("Fehler beim Speichern von Component '{}': {}", entry.getKey(), e.getMessage());
+                LOGGER.error("Fehler beim Speichern von Component '{}': {}", entry.getKey(), e.getMessage(), e);
             }
         }
         return tag;
@@ -150,7 +150,7 @@ public class NPCComponentHolder {
                 try {
                     entry.getValue().load(tag.getCompound(id));
                 } catch (Exception e) {
-                    LOGGER.error("Fehler beim Laden von Component '{}': {}", id, e.getMessage());
+                    LOGGER.error("Fehler beim Laden von Component '{}': {}", id, e.getMessage(), e);
                 }
             }
         }

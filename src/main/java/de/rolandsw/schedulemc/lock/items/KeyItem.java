@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.lock.LockManager;
 import de.rolandsw.schedulemc.lock.LockType;
 import de.rolandsw.schedulemc.lock.network.LockNetworkHandler;
 import de.rolandsw.schedulemc.lock.network.OpenCodeEntryPacket;
+import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -18,6 +19,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+
+import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -37,6 +40,8 @@ import java.util.List;
  *   created     - Erstellungszeit
  */
 public class KeyItem extends Item {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final int blankTier;      // 0=Kupfer, 1=Eisen, 2=Netherite
     private final String tierName;
@@ -111,6 +116,7 @@ public class KeyItem extends Item {
             tag.putLong("expire_time", System.currentTimeMillis() + duration);
             tag.putInt("uses_left", lt.getKeyUses(LockType.KeyOrigin.COPY));
         } catch (Exception e) {
+            LOGGER.warn("Failed to copy key - invalid lock type '{}': {}", origTag.getString("lock_type"), e.getMessage(), e);
             return ItemStack.EMPTY;
         }
         return copy;
