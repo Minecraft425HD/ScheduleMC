@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.gang.scenario;
 /**
  * Alle verfuegbaren Baustein-Typen fuer den Szenario-Editor.
  *
- * 63 Bloecke in 10 Kategorien.
+ * 118 Bloecke in 11 Kategorien.
  * Jeder Typ hat: Anzeigename, Symbol, Farbe, Kategorie, Parameter-Definitionen.
  * Jeder Parameter hat einen Widget-Typ der bestimmt wie er im Editor dargestellt wird.
  */
@@ -42,6 +42,35 @@ public enum ObjectiveType {
     ENTER_BUILDING("Gebaeude betreten", "E", 0xFF2471A3, Category.BEWEGUNG,
             new ParamDef[]{
                     new ParamDef("plot_id", "Gebaeude", "", ParamWidget.DROPDOWN_PLOT)
+            }),
+    LEAVE_BUILDING("Gebaeude verlassen", "L", 0xFF1A6FAF, Category.BEWEGUNG,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Gebaeude", "", ParamWidget.DROPDOWN_PLOT)
+            }),
+    MEET_AT_VEHICLE("Zum Fahrzeug", "V", 0xFF1F618D, Category.BEWEGUNG,
+            new ParamDef[]{
+                    new ParamDef("vehicle_type", "Fahrzeug", "AUTO", ParamWidget.DROPDOWN_VEHICLE),
+                    new ParamDef("plot_id", "Standort", "", ParamWidget.DROPDOWN_PLOT)
+            }),
+    SWIM_TO("Zum Unterwasserort schwimmen", "~", 0xFF117A65, Category.BEWEGUNG,
+            new ParamDef[]{
+                    new ParamDef("x", "X", "0", ParamWidget.COORD),
+                    new ParamDef("y", "Y", "40", ParamWidget.COORD),
+                    new ParamDef("z", "Z", "0", ParamWidget.COORD),
+                    new ParamDef("radius", "Radius", "5", ParamWidget.NUMBER)
+            }),
+    REACH_HEIGHT("Hoehe erreichen", "^", 0xFF1A5276, Category.BEWEGUNG,
+            new ParamDef[]{
+                    new ParamDef("min_y", "Min Y", "80", ParamWidget.NUMBER),
+                    new ParamDef("plot_id", "Gebiet (optional)", "", ParamWidget.DROPDOWN_PLOT)
+            }),
+    SPRINT_TO("Zum Ziel sprinten", "S", 0xFF154360, Category.BEWEGUNG,
+            new ParamDef[]{
+                    new ParamDef("x", "X", "0", ParamWidget.COORD),
+                    new ParamDef("y", "Y", "64", ParamWidget.COORD),
+                    new ParamDef("z", "Z", "0", ParamWidget.COORD),
+                    new ParamDef("radius", "Radius", "5", ParamWidget.NUMBER),
+                    new ParamDef("time_limit", "Zeitlimit (s)", "30", ParamWidget.NUMBER)
             }),
 
     // ═══════════════════════════════════════════════════════════
@@ -110,6 +139,33 @@ public enum ObjectiveType {
                     new ParamDef("lock_id", "Schloss", "", ParamWidget.DROPDOWN_LOCK),
                     new ParamDef("npc_name", "Von NPC", "", ParamWidget.DROPDOWN_NPC_NAME)
             }),
+    SEARCH_AREA("Bereich durchsuchen", "?", 0xFFCA8A00, Category.INTERAKTION,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Bereich", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("clue_count", "Hinweise finden", "3", ParamWidget.NUMBER),
+                    new ParamDef("time_limit", "Zeitlimit (s)", "120", ParamWidget.NUMBER)
+            }),
+    PICK_POCKET("Taschendiebstahl", "\uD83D\uDC5C", 0xFFC07000, Category.INTERAKTION,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Ziel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
+    CALL_NPC("NPC anrufen", "\uD83D\uDCF1", 0xFFE5A800, Category.INTERAKTION,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("dialog_id", "Dialog-ID", "call_default", ParamWidget.TEXT)
+            }),
+    REPAIR_ITEM("Item reparieren", "\uD83D\uDD27", 0xFFB35A00, Category.INTERAKTION,
+            new ParamDef[]{
+                    new ParamDef("item_id", "Item", "minecraft:iron_sword", ParamWidget.TEXT),
+                    new ParamDef("plot_id", "Werkstatt", "", ParamWidget.DROPDOWN_PLOT)
+            }),
+    INSTALL_DEVICE("Geraet installieren", "\uD83D\uDCE1", 0xFF9E4B00, Category.INTERAKTION,
+            new ParamDef[]{
+                    new ParamDef("device_type", "Typ (WANZE/KAMERA/BOMBE)", "WANZE", ParamWidget.TEXT),
+                    new ParamDef("plot_id", "Zielort", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
 
     // ═══════════════════════════════════════════════════════════
     // UEBERFALL (11)
@@ -173,6 +229,33 @@ public enum ObjectiveType {
                     new ParamDef("plot_id", "Grundstueck", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
             }),
+    ROB_CASINO("Kasino ausrauben", "\u265E", 0xFF7B241C, Category.UEBERFALL,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Kasino", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("difficulty", "Schwierigkeit", "4", ParamWidget.DROPDOWN_DIFFICULTY),
+                    new ParamDef("time_limit", "Zeitlimit (s)", "300", ParamWidget.NUMBER)
+            }),
+    ROB_ARMORED_CAR("Geldtransporter ueberfallen", "\u26A0", 0xFF6E2C0A, Category.UEBERFALL,
+            new ParamDef[]{
+                    new ParamDef("vehicle_type", "Transporter-Typ", "LKW", ParamWidget.DROPDOWN_VEHICLE),
+                    new ParamDef("difficulty", "Schwierigkeit", "4", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
+    ROB_PHARMACY("Apotheke ausrauben", "+", 0xFF78281F, Category.UEBERFALL,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Apotheke", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY),
+                    new ParamDef("time_limit", "Zeitlimit (s)", "90", ParamWidget.NUMBER)
+            }),
+    TAKE_HOSTAGE("Geisel nehmen", "\u2620", 0xFF641E16, Category.UEBERFALL,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Geisel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("ransom", "Loesegeld", "10000", ParamWidget.NUMBER)
+            }),
+    BLOW_WALL("Wand sprengen", "\uD83D\uDCA5", 0xFF4A235A, Category.UEBERFALL,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Ziel", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("explosive_amount", "Sprengstoff-Menge", "1", ParamWidget.NUMBER)
+            }),
 
     // ═══════════════════════════════════════════════════════════
     // UEBERLEBEN (5)
@@ -199,6 +282,30 @@ public enum ObjectiveType {
     LOSE_WANTED("Fahndung verlieren", "W", 0xFF6C3483, Category.UEBERLEBEN,
             new ParamDef[]{
                     new ParamDef("target_level", "Ziellevel", "0", ParamWidget.NUMBER)
+            }),
+    HEAL_TO_FULL("Vollstaendig heilen", "+", 0xFF8E44AD, Category.UEBERLEBEN,
+            new ParamDef[]{
+                    new ParamDef("min_hearts", "Mind. Herzen", "10", ParamWidget.NUMBER)
+            }),
+    AVOID_DETECTION("Unentdeckt bleiben", "\uD83D\uDC41", 0xFF6C3483, Category.UEBERLEBEN,
+            new ParamDef[]{
+                    new ParamDef("duration", "Dauer (s)", "60", ParamWidget.NUMBER),
+                    new ParamDef("plot_id", "Gebiet", "", ParamWidget.DROPDOWN_PLOT)
+            }),
+    SURVIVE_WITH_HP("Mit HP ueberleben", "\u2665", 0xFF5B2C6F, Category.UEBERLEBEN,
+            new ParamDef[]{
+                    new ParamDef("min_hp_percent", "Mind. HP (%)", "50", ParamWidget.NUMBER),
+                    new ParamDef("duration", "Dauer (s)", "120", ParamWidget.NUMBER)
+            }),
+    TAKE_COVER("Deckung nehmen", "\u26F4", 0xFF4A235A, Category.UEBERLEBEN,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Deckungsort", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("duration", "Dauer (s)", "30", ParamWidget.NUMBER)
+            }),
+    OUTRUN_VEHICLE("Verfolger abschuetteln", "\uD83C\uDFC3", 0xFF76448A, Category.UEBERLEBEN,
+            new ParamDef[]{
+                    new ParamDef("vehicle_type", "Verfolger-Typ", "AUTO", ParamWidget.DROPDOWN_VEHICLE),
+                    new ParamDef("time_limit", "Zeitlimit (s)", "90", ParamWidget.NUMBER)
             }),
 
     // ═══════════════════════════════════════════════════════════
@@ -236,6 +343,30 @@ public enum ObjectiveType {
                     new ParamDef("duration", "Dauer (s)", "300", ParamWidget.NUMBER),
                     new ParamDef("difficulty", "Schwierigkeit", "3", ParamWidget.DROPDOWN_DIFFICULTY)
             }),
+    KILL_WITH_WEAPON("Mit Waffe toeten", "W", 0xFF273746, Category.KAMPF,
+            new ParamDef[]{
+                    new ParamDef("weapon_id", "Waffe (Item-ID)", "schedulemc:pistol", ParamWidget.TEXT),
+                    new ParamDef("count", "Anzahl", "5", ParamWidget.NUMBER)
+            }),
+    HEADSHOT("Kopfschuesse erzielen", "\uD83C\uDFAF", 0xFF212F3D, Category.KAMPF,
+            new ParamDef[]{
+                    new ParamDef("count", "Anzahl", "3", ParamWidget.NUMBER)
+            }),
+    MELEE_FIGHT("Nahkampf gewinnen", "\u2694", 0xFF1C2833, Category.KAMPF,
+            new ParamDef[]{
+                    new ParamDef("entity_type", "Gegner-Typ", "zombie", ParamWidget.DROPDOWN_ENTITY),
+                    new ParamDef("count", "Anzahl", "5", ParamWidget.NUMBER)
+            }),
+    SUPPRESS_AREA("Gebiet niederhaltend beschiessen", "~", 0xFF17202A, Category.KAMPF,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Gebiet", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("duration", "Dauer (s)", "60", ParamWidget.NUMBER)
+            }),
+    CAPTURE_ENEMY("Gegner gefangen nehmen", "\u26D3", 0xFF1A252F, Category.KAMPF,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Ziel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("difficulty", "Schwierigkeit", "3", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
 
     // ═══════════════════════════════════════════════════════════
     // WIRTSCHAFT (6)
@@ -267,6 +398,33 @@ public enum ObjectiveType {
             new ParamDef[]{
                     new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
                     new ParamDef("amount", "Betrag", "500", ParamWidget.NUMBER)
+            }),
+    INVEST_MONEY("Geld investieren", "\u25B2", 0xFFB7950B, Category.WIRTSCHAFT,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Unternehmen", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("amount", "Investition", "5000", ParamWidget.NUMBER)
+            }),
+    COLLECT_RENT("Miete kassieren", "\uD83C\uDFE0", 0xFFA0840A, Category.WIRTSCHAFT,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Immobilie", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("expected_amount", "Erwarteter Betrag", "1000", ParamWidget.NUMBER)
+            }),
+    BRIBE_NPC("NPC bestechen", "\uD83D\uDCB0", 0xFF8A7308, Category.WIRTSCHAFT,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("bribe_amount", "Bestechungsgeld", "2000", ParamWidget.NUMBER)
+            }),
+    NEGOTIATE("Verhandeln", "\uD83E\uDD1D", 0xFF756207, Category.WIRTSCHAFT,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Verhandlungspartner", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("target_price", "Zielpreis", "5000", ParamWidget.NUMBER),
+                    new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
+    EXTORT_BUSINESS("Betrieb erpressen", "\u2762", 0xFF5E5005, Category.WIRTSCHAFT,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Betrieb", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("demand_amount", "Forderung", "3000", ParamWidget.NUMBER),
+                    new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
             }),
 
     // ═══════════════════════════════════════════════════════════
@@ -317,6 +475,31 @@ public enum ObjectiveType {
                     new ParamDef("y", "Y", "64", ParamWidget.COORD),
                     new ParamDef("z", "Z", "0", ParamWidget.COORD)
             }),
+    SET_FLAG("Missions-Flag setzen", "\u2691", 0xFF7B7D7D, Category.SONSTIGES,
+            new ParamDef[]{
+                    new ParamDef("flag_key", "Flag-Name", "custom_flag", ParamWidget.TEXT),
+                    new ParamDef("flag_value", "Wert", "1", ParamWidget.TEXT)
+            }),
+    RADIO_CALL("Funk-Anruf", "\uD83D\uDCFB", 0xFF717D7E, Category.SONSTIGES,
+            new ParamDef[]{
+                    new ParamDef("caller", "Anrufer-Name", "Boss", ParamWidget.TEXT),
+                    new ParamDef("message", "Nachricht", "Gut gemacht.", ParamWidget.TEXT)
+            }),
+    TAKE_PHOTO("Foto aufnehmen", "\uD83D\uDCF7", 0xFF616A6B, Category.SONSTIGES,
+            new ParamDef[]{
+                    new ParamDef("target", "Ziel (NPC/Plot/Text)", "", ParamWidget.TEXT),
+                    new ParamDef("radius", "Maximale Entfernung", "10", ParamWidget.NUMBER)
+            }),
+    TRIGGER_ALARM("Alarm ausloesen", "\uD83D\uDEA8", 0xFF515A5A, Category.SONSTIGES,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Gebaeude", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("alarm_type", "Typ (POLIZEI/PRIVAT/BRAND)", "POLIZEI", ParamWidget.TEXT)
+            }),
+    UNLOCK_DOOR("Tuer oeffnen", "\uD83D\uDEAA", 0xFF424949, Category.SONSTIGES,
+            new ParamDef[]{
+                    new ParamDef("lock_id", "Schloss", "", ParamWidget.DROPDOWN_LOCK),
+                    new ParamDef("method", "Methode (CODE/SCHLUESSEL/HACK)", "CODE", ParamWidget.TEXT)
+            }),
 
     // ═══════════════════════════════════════════════════════════
     // FAHRZEUG (3)
@@ -336,6 +519,32 @@ public enum ObjectiveType {
                     new ParamDef("vehicle_type", "Fahrzeug", "AUTO", ParamWidget.DROPDOWN_VEHICLE),
                     new ParamDef("plot_id", "Ziel", "", ParamWidget.DROPDOWN_PLOT)
             }),
+    ESCAPE_IN_VEHICLE("Im Fahrzeug fliehen", "\uD83D\uDE97", 0xFF1565C0, Category.FAHRZEUG,
+            new ParamDef[]{
+                    new ParamDef("vehicle_type", "Fahrzeug", "AUTO", ParamWidget.DROPDOWN_VEHICLE),
+                    new ParamDef("plot_id", "Fluchtort", "", ParamWidget.DROPDOWN_PLOT)
+            }),
+    PARK_VEHICLE("Fahrzeug parken", "P", 0xFF1451A8, Category.FAHRZEUG,
+            new ParamDef[]{
+                    new ParamDef("vehicle_type", "Fahrzeug", "AUTO", ParamWidget.DROPDOWN_VEHICLE),
+                    new ParamDef("plot_id", "Parkplatz", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("radius", "Radius", "5", ParamWidget.NUMBER)
+            }),
+    HIJACK_VEHICLE("Fahrzeug kapern", "H", 0xFF123E88, Category.FAHRZEUG,
+            new ParamDef[]{
+                    new ParamDef("vehicle_type", "Fahrzeug", "AUTO", ParamWidget.DROPDOWN_VEHICLE),
+                    new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
+    REPAIR_VEHICLE("Fahrzeug reparieren", "\uD83D\uDD27", 0xFF0F3470, Category.FAHRZEUG,
+            new ParamDef[]{
+                    new ParamDef("vehicle_type", "Fahrzeug", "AUTO", ParamWidget.DROPDOWN_VEHICLE),
+                    new ParamDef("plot_id", "Werkstatt", "", ParamWidget.DROPDOWN_PLOT)
+            }),
+    FUEL_VEHICLE("Fahrzeug betanken", "\u26FD", 0xFF0D2A58, Category.FAHRZEUG,
+            new ParamDef[]{
+                    new ParamDef("vehicle_type", "Fahrzeug", "AUTO", ParamWidget.DROPDOWN_VEHICLE),
+                    new ParamDef("plot_id", "Tankstelle", "", ParamWidget.DROPDOWN_PLOT)
+            }),
 
     // ═══════════════════════════════════════════════════════════
     // STEALTH (3)
@@ -352,6 +561,32 @@ public enum ObjectiveType {
     DISTRACT_NPC("NPC ablenken", "A", 0xFF78909C, Category.STEALTH,
             new ParamDef[]{
                     new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("method", "Methode", "ABLENKUNG", ParamWidget.DROPDOWN_METHOD)
+            }),
+    TAIL_NPC("NPC beschatten", "\uD83D\uDC64", 0xFF4D6570, Category.STEALTH,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Ziel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("duration", "Dauer (s)", "120", ParamWidget.NUMBER),
+                    new ParamDef("max_distance", "Max. Entfernung", "15", ParamWidget.NUMBER)
+            }),
+    HACK_CAMERA("Sicherheitskamera hacken", "\uD83D\uDCF9", 0xFF415A65, Category.STEALTH,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Gebaeude", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
+    PLANT_BUG("Wanze platzieren", "\uD83D\uDC1B", 0xFF364F58, Category.STEALTH,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Zielraum", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
+    AVOID_GUARDS("Waechter umgehen", "\uD83D\uDEAB", 0xFF293F4A, Category.STEALTH,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Gebiet", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("guard_count", "Waechteranzahl", "3", ParamWidget.NUMBER)
+            }),
+    SILENTLY_ELIMINATE("Lautlos ausschalten", "\uD83E\uDD35", 0xFF1C2A33, Category.STEALTH,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Ziel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
                     new ParamDef("method", "Methode", "ABLENKUNG", ParamWidget.DROPDOWN_METHOD)
             }),
 
@@ -405,6 +640,33 @@ public enum ObjectiveType {
                     new ParamDef("text", "Text", "Hinweis...", ParamWidget.TEXT),
                     new ParamDef("color", "Farbe", "GELB", ParamWidget.DROPDOWN_COLOR),
                     new ParamDef("persistent", "Dauerhaft (0/1)", "0", ParamWidget.NUMBER)
+            }),
+    MISSION_TIMER("Zeitmessung", "\u23F1", 0xFF006064, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("time_limit", "Zeitlimit (s)", "300", ParamWidget.NUMBER),
+                    new ParamDef("fail_message", "Fehlermeldung", "Zeit abgelaufen!", ParamWidget.TEXT)
+            }),
+    DIALOG_CHOICE("Dialog-Entscheidung", "\uD83D\uDCAC", 0xFF00838F, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("question", "Frage", "Was moechtest du tun?", ParamWidget.TEXT),
+                    new ParamDef("choice_a", "Option A", "Annehmen", ParamWidget.TEXT),
+                    new ParamDef("choice_b", "Option B", "Ablehnen", ParamWidget.TEXT)
+            }),
+    MISSION_STAGE("Missionsabschnitt", "\u25B6\u25B6", 0xFF0097A7, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("stage_name", "Abschnittsname", "Teil 2", ParamWidget.TEXT),
+                    new ParamDef("notify_player", "Spieler benachrichtigen (0/1)", "1", ParamWidget.NUMBER)
+            }),
+    GRANT_ITEM("Item vergeben", "\uD83C\uDF81", 0xFF00ACC1, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("item_id", "Item-ID", "minecraft:diamond", ParamWidget.TEXT),
+                    new ParamDef("amount", "Menge", "1", ParamWidget.NUMBER),
+                    new ParamDef("message", "Meldung", "Du hast etwas erhalten!", ParamWidget.TEXT)
+            }),
+    SET_OBJECTIVE_TEXT("Zieltext setzen", "\u270F", 0xFF26C6DA, Category.STORY,
+            new ParamDef[]{
+                    new ParamDef("objective_text", "Aufgabentext", "Gehe zum naechsten Ziel.", ParamWidget.TEXT)
             });
 
     private final String displayName;
