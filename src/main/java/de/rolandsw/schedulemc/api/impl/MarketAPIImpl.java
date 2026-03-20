@@ -53,9 +53,8 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             throw new IllegalArgumentException("item cannot be null");
         }
-        // Stub: Base price not directly exposed in DynamicMarketManager
-        // Return current price as approximation
-        return marketManager.getCurrentPrice(item);
+        de.rolandsw.schedulemc.market.MarketData data = marketManager.getMarketData(item);
+        return data != null ? data.getBasePrice() : 0.0;
     }
 
     /**
@@ -96,10 +95,8 @@ public class MarketAPIImpl implements IMarketAPI {
         if (item == null) {
             throw new IllegalArgumentException("item cannot be null");
         }
-        // Stub: Calculate multiplier from current price vs base price
-        double currentPrice = marketManager.getCurrentPrice(item);
-        double basePrice = currentPrice; // Approximation since base price not directly available
-        return currentPrice > 0 ? currentPrice / Math.max(1.0, basePrice) : 1.0;
+        de.rolandsw.schedulemc.market.MarketData data = marketManager.getMarketData(item);
+        return data != null ? data.getPriceMultiplier() : 1.0;
     }
 
     /**

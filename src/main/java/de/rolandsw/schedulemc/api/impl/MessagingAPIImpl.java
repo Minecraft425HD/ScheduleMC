@@ -76,7 +76,6 @@ public class MessagingAPIImpl implements IMessagingAPI {
             throw new IllegalArgumentException("limit must be at least 1, got: " + limit);
         }
 
-        // Stub: Get messages from all conversations
         List<de.rolandsw.schedulemc.messaging.Conversation> convs = MessageManager.getConversations(playerUUID);
         return convs.stream()
             .flatMap(c -> c.getMessages().stream())

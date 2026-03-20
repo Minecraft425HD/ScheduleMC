@@ -245,9 +245,12 @@ public class PoliceAPIImpl implements IPoliceAPI {
         try {
             var prisonManager = de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.getInstance();
             if (!prisonManager.isPrisoner(playerUUID)) return false;
-            // Admin release - braucht ServerPlayer, API kann nur pruefen
-            LOGGER.info("API releaseFromPrison called for {} - requires server-side player reference", playerUUID);
-            return prisonManager.isPrisoner(playerUUID);
+            net.minecraft.server.MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+            if (server == null) return false;
+            net.minecraft.server.level.ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
+            if (player == null) return false;
+            prisonManager.releasePlayer(player, de.rolandsw.schedulemc.npc.crime.prison.PrisonManager.ReleaseReason.ADMIN_RELEASE);
+            return true;
         } catch (Exception e) {
             LOGGER.debug("PrisonManager not available: {}", e.getMessage());
             return false;
