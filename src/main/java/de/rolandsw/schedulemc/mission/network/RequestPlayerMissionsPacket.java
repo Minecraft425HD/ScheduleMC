@@ -48,12 +48,10 @@ public class RequestPlayerMissionsPacket {
             }
 
             // Collect server data for dropdowns (same as OpenScenarioEditorPacket)
-            List<String> npcNames = collectNpcNames(player.serverLevel());
+            List<String> npcNames = collectNpcNames();
             List<OpenScenarioEditorPacket.PlotInfo> plots = new ArrayList<>();
             List<OpenScenarioEditorPacket.LockInfo> locks = new ArrayList<>();
 
-            // Serialize scenarios
-            com.google.gson.Gson gson = new com.google.gson.GsonBuilder().create();
             String json = serializeScenarios(storyScenarios);
 
             MissionNetworkHandler.sendToPlayer(
@@ -62,7 +60,7 @@ public class RequestPlayerMissionsPacket {
         ctx.get().setPacketHandled(true);
     }
 
-    private static List<String> collectNpcNames(ServerLevel level) {
+    private static List<String> collectNpcNames() {
         try {
             return de.rolandsw.schedulemc.managers.NPCNameRegistry.getAllNamesSorted();
         } catch (Exception ignored) {
