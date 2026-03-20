@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Gui.class)
 public class GuiMixin {
 
-    @Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true, require = 0)
+    @Inject(method = "renderExperienceBar(Lnet/minecraft/client/gui/GuiGraphics;I)V", at = @At("HEAD"), cancellable = true, require = 0)
     public void renderExperienceBar(GuiGraphics guiGraphics, int i, CallbackInfo ci) {
         if (RenderEvents.onRenderExperienceBar(guiGraphics, i)) {
             ci.cancel();

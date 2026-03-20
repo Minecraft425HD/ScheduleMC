@@ -22,7 +22,7 @@ public class SoundOptionsScreenMixin extends OptionsSubScreen {
         super(screen, options, component);
     }
 
-    @Inject(method = "getAllSoundOptionsExceptMaster", at = @At("RETURN"), cancellable = true, require = 0)
+    @Inject(method = "getAllSoundOptionsExceptMaster()[Lnet/minecraft/client/OptionInstance;", at = @At("RETURN"), cancellable = true, require = 0)
     private void getAllSoundOptionsExceptMaster(CallbackInfoReturnable<OptionInstance<?>[]> cir) {  // NOPMD
         OptionInstance<?>[] returnValue = cir.getReturnValue();
         OptionInstance<?>[] newReturnValue = new OptionInstance<?>[returnValue.length + 1];
