@@ -218,6 +218,135 @@ public class MissionRegistry {
             280, 700,
             5, "bank_deposit"
         ));
+
+        // ── Weitere Hauptmissionen (Story-Arc II) ──────────────────────
+        register(new MissionDefinition(
+            "haupt_zeugenschutz",
+            "Den Zeugen schützen",
+            "Ein wichtiger Zeuge ist in Gefahr. Beschütze ihn und bringe ihn sicher weg.",
+            MissionCategory.HAUPT,
+            1800, 12000,
+            5, "enemy_killed",
+            Collections.singletonList("haupt_erster_kontakt"),
+            null, ""
+        ));
+
+        register(new MissionDefinition(
+            "haupt_korruption",
+            "Korruption aufdecken",
+            "Sammle 5 Beweise gegen korrupte Beamte und übergebe sie deinem Kontakt.",
+            MissionCategory.HAUPT,
+            2400, 18000,
+            5, "item_collected",
+            Collections.singletonList("haupt_unterwelt"),
+            null, ""
+        ));
+
+        register(new MissionDefinition(
+            "haupt_kronzeuge",
+            "Kronzeuge",
+            "Kooperiere mit 4 verschiedenen Informanten und sichere dir Immunität.",
+            MissionCategory.HAUPT,
+            2800, 22000,
+            4, "npc_talked",
+            Arrays.asList("haupt_korruption", "haupt_der_coup"),
+            null, ""
+        ));
+
+        register(new MissionDefinition(
+            "haupt_rache",
+            "Die Abrechnung",
+            "Schalte deinen Erzfeind aus und beende die Fehde ein für alle Mal.",
+            MissionCategory.HAUPT,
+            3500, 35000,
+            1, "enemy_killed",
+            Arrays.asList("haupt_stadtboss", "haupt_kronzeuge"),
+            null, ""
+        ));
+
+        register(new MissionDefinition(
+            "haupt_mafia_koenig",
+            "König der Mafia",
+            "Kassiere Tribut von 10 NPCs und sichere deine Herrschaft über die Stadt.",
+            MissionCategory.HAUPT,
+            4000, 50000,
+            10, "transaction_completed",
+            Collections.singletonList("haupt_rache"),
+            null, ""
+        ));
+
+        // ── Weitere Nebenmissionen ───────────────────────────────────────
+        register(new MissionDefinition(
+            "neben_safeknacker",
+            "Safeknacker",
+            "Knacke 3 Safes erfolgreich.",
+            MissionCategory.NEBEN,
+            420, 1200,
+            3, "robbery_completed"
+        ));
+
+        register(new MissionDefinition(
+            "neben_spion",
+            "Informant",
+            "Beschaffe 8 geheime Informationen durch NPC-Gespräche.",
+            MissionCategory.NEBEN,
+            320, 900,
+            8, "npc_talked"
+        ));
+
+        register(new MissionDefinition(
+            "neben_gebietskontrolle",
+            "Gebietskontrolle",
+            "Sichere 8 Territorien.",
+            MissionCategory.NEBEN,
+            550, 1600,
+            8, "territory_captured"
+        ));
+
+        register(new MissionDefinition(
+            "neben_haendler",
+            "Großhändler",
+            "Verkaufe 50 Waren an NPCs.",
+            MissionCategory.NEBEN,
+            480, 1400,
+            50, "item_sold_to_npc"
+        ));
+
+        register(new MissionDefinition(
+            "neben_gangchef",
+            "Gangchef",
+            "Schließe 15 Gang-Missionen erfolgreich ab.",
+            MissionCategory.NEBEN,
+            700, 2200,
+            15, "gang_mission_completed"
+        ));
+
+        register(new MissionDefinition(
+            "neben_strassenrennen",
+            "Straßenrennfahrer",
+            "Lege 100 km in Fahrzeugen zurück.",
+            MissionCategory.NEBEN,
+            600, 1800,
+            100, "km_driven"
+        ));
+
+        register(new MissionDefinition(
+            "neben_bankier",
+            "Millionär",
+            "Verdiene insgesamt 100.000 Coins.",
+            MissionCategory.NEBEN,
+            900, 3000,
+            100000, "money_earned"
+        ));
+
+        register(new MissionDefinition(
+            "neben_legende",
+            "Lebende Legende",
+            "Schließe 25 Missionen jeder Art ab.",
+            MissionCategory.NEBEN,
+            1000, 5000,
+            25, "mission_completed"
+        ));
     }
 
     private static void register(MissionDefinition definition) {

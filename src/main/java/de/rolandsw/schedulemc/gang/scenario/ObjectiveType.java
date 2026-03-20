@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.gang.scenario;
 /**
  * Alle verfuegbaren Baustein-Typen fuer den Szenario-Editor.
  *
- * 118 Bloecke in 11 Kategorien.
+ * 147 Bloecke in 14 Kategorien.
  * Jeder Typ hat: Anzeigename, Symbol, Farbe, Kategorie, Parameter-Definitionen.
  * Jeder Parameter hat einen Widget-Typ der bestimmt wie er im Editor dargestellt wird.
  */
@@ -667,6 +667,175 @@ public enum ObjectiveType {
     SET_OBJECTIVE_TEXT("Zieltext setzen", "\u270F", 0xFF26C6DA, Category.STORY,
             new ParamDef[]{
                     new ParamDef("objective_text", "Aufgabentext", "Gehe zum naechsten Ziel.", ParamWidget.TEXT)
+            }),
+
+    // ═══════════════════════════════════════════════════════════
+    // MAFIA (8) – Unterwelt-Hierarchie & Organisationsaufgaben
+    // ═══════════════════════════════════════════════════════════
+    CONTACT_BOSS("Boss kontaktieren", "\uD83D\uDC51", 0xFFAD1457, Category.MAFIA,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Boss-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("dialog_id", "Dialog-ID", "orders", ParamWidget.TEXT)
+            }),
+    GANG_MEETING("Gang-Treffen", "\uD83E\uDD1C", 0xFF9C1151, Category.MAFIA,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Treffpunkt", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("attendees", "Mind. Teilnehmer", "3", ParamWidget.NUMBER)
+            }),
+    TERRITORY_CLAIM("Territorium beanspruchen", "\uD83C\uDFF4", 0xFF880E4F, Category.MAFIA,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Gebiet", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("hold_time", "Haltezeit (s)", "300", ParamWidget.NUMBER)
+            }),
+    SEND_SOLDIER("Soldaten entsenden", "\uD83D\uDC82", 0xFF6A1140, Category.MAFIA,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Soldat-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("target_plot", "Ziel", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("task", "Aufgabe", "Bewachen", ParamWidget.TEXT)
+            }),
+    ELIMINATE_RIVAL("Rivalen ausschalten", "\u2620", 0xFF4A0E2E, Category.MAFIA,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Ziel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("difficulty", "Schwierigkeit", "3", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
+    BRIBE_OFFICIAL("Beamten bestechen", "\uD83D\uDD25", 0xFF880E4F, Category.MAFIA,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Beamter-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("bribe_amount", "Bestechungsgeld", "5000", ParamWidget.NUMBER),
+                    new ParamDef("favor", "Gegenleistung", "wanted_reduce", ParamWidget.TEXT)
+            }),
+    COLLECT_TRIBUTE("Tribut kassieren", "\uD83D\uDCB4", 0xFF9C1151, Category.MAFIA,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Tributaer-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("amount", "Betrag", "3000", ParamWidget.NUMBER)
+            }),
+    MAFIA_TRIAL("Mafia-Tribunal", "\u2696", 0xFFAD1457, Category.MAFIA,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Tribunalort", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("verdict", "Urteil (FREISPRUCH/STRAFE/TOD)", "STRAFE", ParamWidget.TEXT)
+            }),
+
+    // ═══════════════════════════════════════════════════════════
+    // TECHNOLOGIE (8) – Digital-Kriminalitaet & Ueberwachung
+    // ═══════════════════════════════════════════════════════════
+    HACK_NETWORK("Netzwerk hacken", "\uD83D\uDD78", 0xFF006064, Category.TECHNOLOGIE,
+            new ParamDef[]{
+                    new ParamDef("target_system", "Zielsystem", "polizei_db", ParamWidget.TEXT),
+                    new ParamDef("difficulty", "Schwierigkeit", "3", ParamWidget.DROPDOWN_DIFFICULTY),
+                    new ParamDef("time_limit", "Zeitlimit (s)", "120", ParamWidget.NUMBER)
+            }),
+    CLONE_PHONE("Handy klonen", "\uD83D\uDCF2", 0xFF00575B, Category.TECHNOLOGIE,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Ziel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
+    TRACK_DEVICE("Ortung einrichten", "\uD83D\uDCE1", 0xFF004D55, Category.TECHNOLOGIE,
+            new ParamDef[]{
+                    new ParamDef("target", "Ziel (NPC/Fahrzeug)", "", ParamWidget.TEXT),
+                    new ParamDef("duration", "Tracking-Dauer (s)", "600", ParamWidget.NUMBER)
+            }),
+    INTERCEPT_CALL("Kommunikation abhoeren", "\uD83D\uDCDE", 0xFF00434E, Category.TECHNOLOGIE,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Ziel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("info_type", "Gesuchte Info", "meeting_location", ParamWidget.TEXT)
+            }),
+    DECRYPT_FILE("Datei entschluesseln", "\uD83D\uDD13", 0xFF00575B, Category.TECHNOLOGIE,
+            new ParamDef[]{
+                    new ParamDef("file_id", "Datei-ID", "encrypted_data", ParamWidget.TEXT),
+                    new ParamDef("difficulty", "Schwierigkeit", "4", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
+    INSTALL_MALWARE("Schadsoftware installieren", "\uD83D\uDDA5", 0xFF006064, Category.TECHNOLOGIE,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Zielsystem-Standort", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("malware_type", "Typ (SPYWARE/RANSOMWARE/BACKDOOR)", "BACKDOOR", ParamWidget.TEXT)
+            }),
+    DISABLE_SECURITY("Sicherheitssystem deaktivieren", "\uD83D\uDEAB", 0xFF004D55, Category.TECHNOLOGIE,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Gebaeude", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("duration", "Deaktivierungsdauer (s)", "120", ParamWidget.NUMBER)
+            }),
+    DRONE_RECON("Drohnen-Aufklaerung", "\uD83D\uDE81", 0xFF00696E, Category.TECHNOLOGIE,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Aufklaerungsgebiet", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("scan_time", "Scann-Dauer (s)", "60", ParamWidget.NUMBER)
+            }),
+
+    // ═══════════════════════════════════════════════════════════
+    // SOZIALES (8) – Manipulation, Ruf & Beziehungen
+    // ═══════════════════════════════════════════════════════════
+    INTIMIDATE_NPC("NPC einschuechtern", "\uD83D\uDCAA", 0xFF4527A0, Category.SOZIALES,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Ziel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("method", "Methode", "ABLENKUNG", ParamWidget.DROPDOWN_METHOD),
+                    new ParamDef("goal", "Ziel (SCHWEIGEN/KOOPERATION/FLUCHT)", "KOOPERATION", ParamWidget.TEXT)
+            }),
+    BEFRIEND_NPC("NPC anfreunden", "\uD83E\uDD1D", 0xFF3D1A91, Category.SOZIALES,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("interactions", "Benoet. Interaktionen", "5", ParamWidget.NUMBER)
+            }),
+    SPREAD_RUMOR("Geruecht verbreiten", "\uD83D\uDDE3", 0xFF311782, Category.SOZIALES,
+            new ParamDef[]{
+                    new ParamDef("target_npc", "Ziel (ueber wen)", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("rumor_type", "Typ (VERRAT/SCHWAECHE/DIEBSTAHL)", "VERRAT", ParamWidget.TEXT),
+                    new ParamDef("spread_count", "Anzahl NPCs informieren", "3", ParamWidget.NUMBER)
+            }),
+    BUILD_REPUTATION("Ruf aufbauen", "\u2B50", 0xFF4527A0, Category.SOZIALES,
+            new ParamDef[]{
+                    new ParamDef("plot_id", "Gebiet", "", ParamWidget.DROPDOWN_PLOT),
+                    new ParamDef("rep_type", "Reputationsart (RESPEKT/ANGST/BELIEBT)", "RESPEKT", ParamWidget.TEXT),
+                    new ParamDef("target_points", "Zielpunkte", "100", ParamWidget.NUMBER)
+            }),
+    BLACKMAIL_NPC("NPC erpressen", "\uD83D\uDD0D", 0xFF37219A, Category.SOZIALES,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Ziel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("leverage", "Druckmittel (INFO/FOTO/ZEUGE)", "INFO", ParamWidget.TEXT),
+                    new ParamDef("demand", "Forderung", "5000", ParamWidget.TEXT)
+            }),
+    RECRUIT_NPC("NPC rekrutieren", "\uD83D\uDC65", 0xFF3D1A91, Category.SOZIALES,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "Kandidat-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("offer", "Angebot (Geld/Schutz/Status)", "Geld", ParamWidget.TEXT)
+            }),
+    CONVINCE_NPC("NPC ueberzeugen", "\uD83D\uDCAC", 0xFF311782, Category.SOZIALES,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("argument", "Argument", "Zusammenarbeit lohnt sich.", ParamWidget.TEXT),
+                    new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
+            }),
+    WIN_TRUST("Vertrauen gewinnen", "\uD83E\uDD1C", 0xFF4527A0, Category.SOZIALES,
+            new ParamDef[]{
+                    new ParamDef("npc_name", "NPC/Gruppe", "", ParamWidget.DROPDOWN_NPC_NAME),
+                    new ParamDef("tasks_needed", "Benoet. Aufgaben", "3", ParamWidget.NUMBER)
+            }),
+
+    // ═══════════════════════════════════════════════════════════
+    // LOGIK (5) – Editor-Steuerung & Ablauf-Kontrolle
+    // ═══════════════════════════════════════════════════════════
+    COMMENT("Kommentar", "#", 0xFF546E7A, Category.LOGIK,
+            new ParamDef[]{
+                    new ParamDef("note", "Notiz", "Hier passiert...", ParamWidget.TEXT)
+            }),
+    CONDITION_BRANCH("Bedingungsverzweigung", "\u2194", 0xFF37474F, Category.LOGIK,
+            new ParamDef[]{
+                    new ParamDef("condition_key", "Bedingung", "player_died", ParamWidget.DROPDOWN_TRACKING_KEY),
+                    new ParamDef("threshold", "Schwellenwert", "1", ParamWidget.NUMBER),
+                    new ParamDef("next_if_true", "Naechstes-ID (wahr)", "", ParamWidget.TEXT),
+                    new ParamDef("next_if_false", "Naechstes-ID (falsch)", "", ParamWidget.TEXT)
+            }),
+    LOOP_REPEAT("Schleife wiederholen", "\u21BA", 0xFF2E3F4A, Category.LOGIK,
+            new ParamDef[]{
+                    new ParamDef("target_id", "Wiederhole ab Block-ID", "", ParamWidget.TEXT),
+                    new ParamDef("count", "Wiederholungen", "3", ParamWidget.NUMBER)
+            }),
+    PARALLEL_HINT("Parallel-Aufgabe", "\u2551", 0xFF263238, Category.LOGIK,
+            new ParamDef[]{
+                    new ParamDef("parallel_ids", "Block-IDs (kommagetrennt)", "", ParamWidget.TEXT),
+                    new ParamDef("wait_all", "Alle abwarten (0/1)", "1", ParamWidget.NUMBER)
+            }),
+    SAVE_CHECKPOINT("Speicherpunkt", "\uD83D\uDCBE", 0xFF455A64, Category.LOGIK,
+            new ParamDef[]{
+                    new ParamDef("checkpoint_id", "Checkpoint-ID", "cp1", ParamWidget.TEXT)
             });
 
     private final String displayName;
@@ -737,7 +906,11 @@ public enum ObjectiveType {
         FAHRZEUG("Fahrzeug", 0xFF2196F3),
         STEALTH("Stealth", 0xFF607D8B),
         SPEZIAL("Spezial", 0xFF2ECC71),
-        STORY("Story / Spieler-Missionen", 0xFF00BCD4);
+        STORY("Story / Spieler-Missionen", 0xFF00BCD4),
+        MAFIA("Mafia / Organisation", 0xFFAD1457),
+        TECHNOLOGIE("Technologie", 0xFF006064),
+        SOZIALES("Soziales & Manipulation", 0xFF4527A0),
+        LOGIK("Logik / Editor-Steuerung", 0xFF37474F);
 
         private final String displayName;
         private final int color;
