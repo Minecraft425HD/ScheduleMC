@@ -115,6 +115,15 @@ public class CustomNPCEntity extends PathfinderMob {
     private int playerLookupCounter = 0;
     private static final int PLAYER_LOOKUP_INTERVAL = 20; // Alle 20 Ticks (1 Sekunde)
 
+    // Mission-System: Vulnerability-Toggle (Phase 4a)
+    /** Wenn true, kann dieser NPC Schaden erhalten (fuer FIGHT_NPC / PROTECT_NPC Szenarien). */
+    private boolean missionVulnerable = false;
+
+    // Mission-System: Captive/Escort-State (Phase 4b)
+    /** UUID des Spielers, dem dieser NPC folgt (Entfuehrungs-Szenario). Null = normaler Zustand. */
+    @Nullable
+    private java.util.UUID captiveFollower = null;
+
     // Activity Status Tracking für Map-Anzeige
     private int activityStatusUpdateCounter = 0;
     private static final int ACTIVITY_STATUS_UPDATE_INTERVAL = 100; // Alle 100 Ticks (5 Sekunden)
@@ -459,6 +468,11 @@ public class CustomNPCEntity extends PathfinderMob {
             tag.put("LifeData", lifeData.save());
         }
         tag.putBoolean("LifeSystemEnabled", lifeSystemEnabled);
+        // Mission-System persistieren
+        tag.putBoolean("MissionVulnerable", missionVulnerable);
+        if (captiveFollower != null) {
+            tag.putUUID("CaptiveFollower", captiveFollower);
+        }
         // Component System speichern
         CompoundTag componentTag = components.saveAll();
         if (!componentTag.isEmpty()) {
@@ -484,6 +498,13 @@ public class CustomNPCEntity extends PathfinderMob {
         }
         if (tag.contains("LifeSystemEnabled")) {
             lifeSystemEnabled = tag.getBoolean("LifeSystemEnabled");
+        }
+        // Mission-System laden
+        if (tag.contains("MissionVulnerable")) {
+            missionVulnerable = tag.getBoolean("MissionVulnerable");
+        }
+        if (tag.hasUUID("CaptiveFollower")) {
+            captiveFollower = tag.getUUID("CaptiveFollower");
         }
         // Component System laden
         if (tag.contains("Components")) {
@@ -896,7 +917,28 @@ public class CustomNPCEntity extends PathfinderMob {
     // Verhindern von Schaden (optional - kann angepasst werden)
     @Override
     public boolean isInvulnerable() {
-        return true; // NPCs sind unsterblich (kann später konfigurierbar gemacht werden)
+        // Im normalen Zustand sind NPCs unverwundbar.
+        // Fuer Kampf-/Schutz-Szenarien kann missionVulnerable=true gesetzt werden.
+        return !missionVulnerable;
+    }
+
+    /** Aktiviert oder deaktiviert die Verwundbarkeit fuer Missionsszenarien. */
+    public void setMissionVulnerable(boolean vulnerable) {
+        this.missionVulnerable = vulnerable;
+    }
+
+    public boolean isMissionVulnerable() {
+        return missionVulnerable;
+    }
+
+    /** Setzt den Spieler, dem dieser NPC als Captive folgt (null = normaler Zustand). */
+    public void setCaptiveFollower(@Nullable java.util.UUID playerUUID) {
+        this.captiveFollower = playerUUID;
+    }
+
+    @Nullable
+    public java.util.UUID getCaptiveFollower() {
+        return captiveFollower;
     }
 
     // Cleanup bei Entity-Removal

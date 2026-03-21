@@ -163,6 +163,7 @@ public class PlayerMissionManager {
                 } catch (Exception e) {
                     LOGGER.error("Fehler beim Auszahlen der Mission-Belohnung für {}", uuid, e);
                 }
+                MissionEventBridge.fireMissionCompleted(player);
                 syncToPlayer(player);
                 return true;
             }

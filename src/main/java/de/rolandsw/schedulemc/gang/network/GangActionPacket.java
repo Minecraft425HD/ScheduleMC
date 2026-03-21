@@ -323,6 +323,7 @@ public class GangActionPacket {
                 gang.deposit(reward[1]);
                 manager.markDirty();
             }
+            de.rolandsw.schedulemc.mission.MissionEventBridge.fireGangMissionCompleted(player);
             sendSuccess(player, "Belohnung: +" + reward[0] + " XP" + (reward[1] > 0 ? ", +" + reward[1] + "\u20AC in Gang-Kasse" : ""));
         } else {
             sendError(player, "Belohnung kann nicht eingeloest werden.");

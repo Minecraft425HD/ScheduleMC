@@ -862,6 +862,14 @@ public class ScheduleMC {
                 if (lockMgr != null) lockMgr.tickCodeRotation();
             }
 
+            // Player-Mission Executor + Proximity-Checker
+            try {
+                de.rolandsw.schedulemc.mission.scenario.PlayerMissionScenarioExecutor.tick(server);
+                de.rolandsw.schedulemc.mission.proximity.NPCProximityChecker.tick(server);
+            } catch (Exception e) {
+                LOGGER.error("PlayerMission: Fehler im Executor/ProximityChecker", e);
+            }
+
             if (tickCounter >= SAVE_INTERVAL) {
                 tickCounter = 0;
                 // ALLE Manager werden jetzt via IncrementalSaveManager gespeichert

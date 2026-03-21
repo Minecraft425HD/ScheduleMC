@@ -74,6 +74,10 @@ public class PlayerDisconnectHandler {
             // Cleanup Territory Tracker
             TerritoryTracker.cleanupPlayer(playerUUID);
 
+            // Cleanup Mission Scenario Executor + Proximity Checker
+            de.rolandsw.schedulemc.mission.scenario.PlayerMissionScenarioExecutor.clearPlayerState(playerUUID);
+            de.rolandsw.schedulemc.mission.proximity.NPCProximityChecker.clearPlayerState(playerUUID);
+
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("[CLEANUP] Successfully cleaned up all data for player {}", playerName);
             }
