@@ -6,21 +6,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Großes Trocknungsgestell BlockEntity
- * Kapazität: Konfigurierbar (Standard: 10 Tabakblätter)
+ * Kapazität und Trocknungszeit werden aus der Config gelesen.
  */
 public class BigDryingRackBlockEntity extends AbstractDryingRackBlockEntity {
 
     public BigDryingRackBlockEntity(BlockPos pos, BlockState state) {
-        super(TobaccoBlockEntities.BIG_DRYING_RACK.get(), pos, state);
-    }
-
-    @Override
-    protected int getCapacity() {
-        return ModConfigHandler.TOBACCO.BIG_DRYING_RACK_CAPACITY.get();
-    }
-
-    @Override
-    protected int getDryingTime() {
-        return ModConfigHandler.TOBACCO.TOBACCO_DRYING_TIME.get();
+        super(TobaccoBlockEntities.BIG_DRYING_RACK.get(), pos, state,
+                ModConfigHandler.TOBACCO.BIG_DRYING_RACK_CAPACITY::get,
+                ModConfigHandler.TOBACCO.TOBACCO_DRYING_TIME::get);
     }
 }

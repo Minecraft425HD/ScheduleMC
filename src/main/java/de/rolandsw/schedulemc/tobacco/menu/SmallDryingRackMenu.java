@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.menu;
 
-import de.rolandsw.schedulemc.tobacco.blockentity.SmallDryingRackBlockEntity;
+import de.rolandsw.schedulemc.tobacco.blockentity.AbstractDryingRackBlockEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -18,11 +18,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public class SmallDryingRackMenu extends AbstractContainerMenu {
 
-    public final SmallDryingRackBlockEntity blockEntity;
+    public final AbstractDryingRackBlockEntity blockEntity;
     private final ContainerData data;
 
     // Server-side constructor
-    public SmallDryingRackMenu(int containerId, Inventory playerInventory, SmallDryingRackBlockEntity blockEntity) {
+    public SmallDryingRackMenu(int containerId, Inventory playerInventory, AbstractDryingRackBlockEntity blockEntity) {
         super(ModMenuTypes.SMALL_DRYING_RACK_MENU.get(), containerId);
         this.blockEntity = blockEntity;
 
@@ -37,7 +37,7 @@ public class SmallDryingRackMenu extends AbstractContainerMenu {
         super(ModMenuTypes.SMALL_DRYING_RACK_MENU.get(), containerId);
 
         BlockEntity be = playerInventory.player.level().getBlockEntity(extraData.readBlockPos());
-        if (be instanceof SmallDryingRackBlockEntity dryingRack) {
+        if (be instanceof AbstractDryingRackBlockEntity dryingRack) {
             this.blockEntity = dryingRack;
         } else {
             this.blockEntity = null;
@@ -77,7 +77,7 @@ public class SmallDryingRackMenu extends AbstractContainerMenu {
     }
 
     public int getCapacity() {
-        return 6;
+        return blockEntity != null ? blockEntity.getCapacity() : 0;
     }
 
     @Override

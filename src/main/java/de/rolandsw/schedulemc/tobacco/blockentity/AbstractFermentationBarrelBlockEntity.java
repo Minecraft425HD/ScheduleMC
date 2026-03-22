@@ -18,11 +18,17 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Supplier;
+
 /**
- * Abstrakte Basisklasse für Fermentierungsfässer
- * Eliminiert Code-Duplikation zwischen Small/Medium/Big Varianten
+ * Basisklasse für Fermentierungsfässer (Small/Medium/Big).
+ * Kapazität und Fermentierungszeit werden per Supplier konfiguriert,
+ * sodass keine gesonderten Subklassen pro Größe nötig sind.
  */
-public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class AbstractFermentationBarrelBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private final Supplier<Integer> capacitySupplier;
+    private final Supplier<Integer> fermentationTimeSupplier;
 
     private boolean lastActiveState = false;
 
@@ -39,20 +45,22 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
     private int syncCycleCounter = 0;
     private static final int SYNC_EVERY_N_CYCLES = ModConstants.PROCESSING_SYNC_CYCLE;
 
-    protected AbstractFermentationBarrelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public AbstractFermentationBarrelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
+                                                  Supplier<Integer> capacitySupplier,
+                                                  Supplier<Integer> fermentationTimeSupplier) {
         super(type, pos, state);
+        this.capacitySupplier = capacitySupplier;
+        this.fermentationTimeSupplier = fermentationTimeSupplier;
         initArrays();  // NOPMD
     }
 
-    /**
-     * Muss von Subklassen implementiert werden - gibt die Kapazität zurück
-     */
-    protected abstract int getCapacity();
+    protected int getCapacity() {
+        return capacitySupplier.get();
+    }
 
-    /**
-     * Muss von Subklassen implementiert werden - gibt die Fermentierungszeit zurück
-     */
-    protected abstract int getFermentationTime();
+    protected int getFermentationTime() {
+        return fermentationTimeSupplier.get();
+    }
 
     private void initArrays() {
         int capacity = getCapacity();
