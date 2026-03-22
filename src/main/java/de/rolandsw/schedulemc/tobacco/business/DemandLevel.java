@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.tobacco.business;
 
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Nachfrage-Level für Tabak-Käufe
  */
@@ -23,6 +25,6 @@ public enum DemandLevel {
     }
 
     public Component getDisplayName() {
-        return Component.literal(prefix).append(Component.translatable("enum.demand_level." + this.name().toLowerCase()));
+        return Component.literal(prefix).append(Component.translatable("enum.demand_level." + this.name().toLowerCase(Locale.ROOT)));
     }
 }

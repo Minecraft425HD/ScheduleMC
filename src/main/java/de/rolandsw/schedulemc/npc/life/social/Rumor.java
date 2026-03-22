@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.npc.life.social;
 
 import net.minecraft.nbt.CompoundTag;
 
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -83,7 +84,7 @@ public class Rumor {
      */
     public static Rumor createPlayer(UUID playerUUID, String details, int importance, int durationDays) {
         // Bestimme den Typ basierend auf den Details (neutral als Standard)
-        RumorType type = details.toLowerCase().contains("kriminal") || details.toLowerCase().contains("verbrechen")
+        RumorType type = details.toLowerCase(Locale.ROOT).contains("kriminal") || details.toLowerCase(Locale.ROOT).contains("verbrechen")
             ? RumorType.UNRELIABLE
             : RumorType.HELPFUL;
         Rumor rumor = new Rumor(playerUUID, type, 0);

@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.economy;
 
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Typen von Transaktionen im Economy-System
  */
@@ -45,6 +47,6 @@ public enum TransactionType {
     OTHER;
 
     public String getDisplayName() {
-        return Component.translatable("enum.transaction_type." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.transaction_type." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 }

@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.production.core;
 
+import java.util.Locale;
+
 /**
  * Enum für alle Drogentypen im Mod
  * Wird für das universelle Packaging-System verwendet
@@ -37,7 +39,7 @@ public enum DrugType {
      */
     public static DrugType fromString(String name) {
         try {
-            return valueOf(name.toUpperCase());
+            return valueOf(name.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             return TOBACCO; // Fallback
         }

@@ -9,6 +9,7 @@ import de.rolandsw.schedulemc.npc.life.social.FactionRelation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiPredicate;
 
@@ -121,7 +122,7 @@ public class DialogueCondition {
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 if (life == null) return false;
-                return switch (trait.toLowerCase()) {
+                return switch (trait.toLowerCase(Locale.ROOT)) {
                     case "greed" -> life.getTraits().getGreed() >= minValue;
                     case "courage" -> life.getTraits().getCourage() >= minValue;
                     case "honesty" -> life.getTraits().getHonesty() >= minValue;
@@ -140,7 +141,7 @@ public class DialogueCondition {
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 if (life == null) return true;
-                return switch (trait.toLowerCase()) {
+                return switch (trait.toLowerCase(Locale.ROOT)) {
                     case "greed" -> life.getTraits().getGreed() < maxValue;
                     case "courage" -> life.getTraits().getCourage() < maxValue;
                     case "honesty" -> life.getTraits().getHonesty() < maxValue;

@@ -33,7 +33,7 @@ public enum LSDDosage implements ProductionQuality {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     public String getColorCode() {
@@ -53,7 +53,7 @@ public enum LSDDosage implements ProductionQuality {
     }
 
     public String getDescription() {
-        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     public String getColoredName() {

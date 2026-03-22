@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.core;
 
+import java.util.Locale;
+
 /**
  * Enum für die verschiedenen Erinnerungstypen eines NPCs.
  */
@@ -121,7 +123,7 @@ public enum MemoryType {
      * Übersetzungsschlüssel für Lokalisierung
      */
     public String getTranslationKey() {
-        return "npc.memory." + name().toLowerCase();
+        return "npc.memory." + name().toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -140,7 +142,7 @@ public enum MemoryType {
      */
     public static MemoryType fromName(String name) {
         try {
-            return valueOf(name.toUpperCase());
+            return valueOf(name.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             return CONVERSATION;
         }

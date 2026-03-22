@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.mdma;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * MDMA/Ecstasy-Qualitätsstufen
  *
@@ -29,11 +31,11 @@ public enum MDMAQuality implements ProductionQuality {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     public String getDescription() {
-        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     public String getColorCode() { return colorCode; }

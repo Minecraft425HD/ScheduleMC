@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.npc.life.witness;
 import de.rolandsw.schedulemc.npc.life.social.RumorType;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * CrimeType - Einheitliches Enum fuer alle Verbrechenstypen
  *
@@ -201,12 +203,12 @@ public enum CrimeType {
     // ═══════════════════════════════════════════════════════════
 
     public String getTranslationKey() {
-        return "crime." + name().toLowerCase();
+        return "crime." + name().toLowerCase(Locale.ROOT);
     }
 
     public static CrimeType fromName(String name) {
         try {
-            return valueOf(name.toUpperCase());
+            return valueOf(name.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             return PETTY_THEFT;
         }

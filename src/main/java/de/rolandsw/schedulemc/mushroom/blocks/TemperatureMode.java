@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.mushroom.blocks;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 
+import java.util.Locale;
+
 /**
  * Temperatur-Modi für Klimalampe
  */
@@ -25,7 +27,7 @@ public enum TemperatureMode implements StringRepresentable {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.temperature_mode." + this.name().toLowerCase());
+        return Component.translatable("enum.temperature_mode." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public Component getColoredName() {

@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -138,7 +139,7 @@ public class SeasonalPriceModifier {
     // ═══════════════════════════════════════════════════════════
 
     public void registerCategory(String category, Map<Season, Float> modifiers) {
-        seasonalModifiers.put(category.toUpperCase(), new ConcurrentHashMap<>(modifiers));
+        seasonalModifiers.put(category.toUpperCase(Locale.ROOT), new ConcurrentHashMap<>(modifiers));
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -187,7 +188,7 @@ public class SeasonalPriceModifier {
      * Interpoliert sanft zwischen Saisonen am Uebergang.
      */
     public float getModifier(String category) {
-        Map<Season, Float> mods = seasonalModifiers.get(category.toUpperCase());
+        Map<Season, Float> mods = seasonalModifiers.get(category.toUpperCase(Locale.ROOT));
         if (mods == null) return 1.0f;
 
         float currentMod = mods.getOrDefault(currentSeason, 1.0f);
@@ -215,7 +216,7 @@ public class SeasonalPriceModifier {
      * Gibt den saisonalen Preismodifikator fuer die aktuelle Saison zurueck (ohne Interpolation).
      */
     public float getRawModifier(String category) {
-        Map<Season, Float> mods = seasonalModifiers.get(category.toUpperCase());
+        Map<Season, Float> mods = seasonalModifiers.get(category.toUpperCase(Locale.ROOT));
         if (mods == null) return 1.0f;
         return mods.getOrDefault(currentSeason, 1.0f);
     }

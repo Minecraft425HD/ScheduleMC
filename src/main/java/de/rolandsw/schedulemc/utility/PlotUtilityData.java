@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 import java.util.*;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -61,7 +62,7 @@ public class PlotUtilityData {
         ResourceLocation key = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(block);
         if (key == null) {
             // Block nicht in Registry - verwende Klassennamen als Fallback
-            key = ResourceLocation.fromNamespaceAndPath("unknown", block.getClass().getSimpleName().toLowerCase());
+            key = ResourceLocation.fromNamespaceAndPath("unknown", block.getClass().getSimpleName().toLowerCase(Locale.ROOT));
         }
         consumers.put(pos, key.toString());
         activeStatus.put(pos, false); // Startet als idle

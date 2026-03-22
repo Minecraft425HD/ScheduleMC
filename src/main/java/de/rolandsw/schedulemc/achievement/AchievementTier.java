@@ -29,7 +29,7 @@ public enum AchievementTier {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.achievement_tier." + this.name().toLowerCase());
+        return Component.translatable("enum.achievement_tier." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public String getColorCode() {

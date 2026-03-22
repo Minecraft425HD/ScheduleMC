@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -1070,9 +1071,9 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         if (searchText == null || searchText.isBlank()) {
             filteredItems = new ArrayList<>(allItems);
         } else {
-            String search = searchText.toLowerCase();
+            String search = searchText.toLowerCase(Locale.ROOT);
             filteredItems = allItems.stream()
-                .filter(item -> item.getDescription().getString().toLowerCase().contains(search))
+                .filter(item -> item.getDescription().getString().toLowerCase(Locale.ROOT).contains(search))
                 .toList();
         }
         itemSelectionScrollOffset = 0;

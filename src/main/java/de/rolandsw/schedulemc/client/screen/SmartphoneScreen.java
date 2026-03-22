@@ -14,6 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Locale;
+
 /**
  * Haupt-Smartphone-GUI mit 8 Apps
  * Scrollbar mit nur 6 sichtbaren Apps (3 Reihen x 2 Spalten)
@@ -109,7 +111,7 @@ public class SmartphoneScreen extends Screen {
         cachedLabelWidths = new int[cachedAppLabels.length];
         for (int i = 0; i < cachedAppLabels.length; i++) {
             String label = cachedAppLabels[i];
-            cachedInitials[i] = label.length() >= 2 ? label.substring(0, 2).toUpperCase() : label.toUpperCase();
+            cachedInitials[i] = label.length() >= 2 ? label.substring(0, 2).toUpperCase(Locale.ROOT) : label.toUpperCase(Locale.ROOT);
             int labelWidth = this.font.width(label);
             if (labelWidth > maxLabelWidth) {
                 String truncated = label;
@@ -426,7 +428,7 @@ public class SmartphoneScreen extends Screen {
 
             // OPTIMIERT: Gecachte Initialen nutzen statt substring().toUpperCase() pro Frame
             String initials = (appIdx >= 0 && cachedInitials != null) ? cachedInitials[appIdx]
-                : (label.length() >= 2 ? label.substring(0, 2).toUpperCase() : label.toUpperCase());
+                : (label.length() >= 2 ? label.substring(0, 2).toUpperCase(Locale.ROOT) : label.toUpperCase(Locale.ROOT));
             int textWidth = this.font.width(initials);
             guiGraphics.drawString(this.font, "§f" + initials,
                 x + (APP_ICON_SIZE - textWidth) / 2,

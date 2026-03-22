@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.social;
 
+import java.util.Locale;
+
 /**
  * RumorType - Typen von Gerüchten die NPCs verbreiten können
  *
@@ -158,7 +160,7 @@ public enum RumorType {
      * Übersetzungsschlüssel für Lokalisierung
      */
     public String getTranslationKey() {
-        return "npc.rumor." + name().toLowerCase();
+        return "npc.rumor." + name().toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -166,7 +168,7 @@ public enum RumorType {
      */
     public static RumorType fromName(String name) {
         try {
-            return valueOf(name.toUpperCase());
+            return valueOf(name.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             return UNRELIABLE;
         }

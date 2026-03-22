@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.annotations.SerializedName;
 import de.rolandsw.schedulemc.util.UUIDHelper;
 
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -174,11 +175,11 @@ public class CreditLoan {
         public CreditScore.CreditRating getRequiredRating() { return requiredRating; }
 
         public net.minecraft.network.chat.Component getDisplayName() {
-            return net.minecraft.network.chat.Component.translatable("enum.credit_loan_type." + this.name().toLowerCase());
+            return net.minecraft.network.chat.Component.translatable("enum.credit_loan_type." + this.name().toLowerCase(Locale.ROOT));
         }
 
         public net.minecraft.network.chat.Component getDescription() {
-            return net.minecraft.network.chat.Component.translatable("enum.credit_loan_type.desc." + this.name().toLowerCase());
+            return net.minecraft.network.chat.Component.translatable("enum.credit_loan_type.desc." + this.name().toLowerCase(Locale.ROOT));
         }
 
         /**

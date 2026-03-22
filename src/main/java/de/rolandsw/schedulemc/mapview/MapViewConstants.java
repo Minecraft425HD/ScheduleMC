@@ -25,6 +25,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 public final class MapViewConstants {
     private static final Logger LOGGER = LogManager.getLogger("MapDataManager");
     private static final MapDataManager LIGHTMAP_INSTANCE = new MapDataManager();
@@ -41,7 +43,7 @@ public final class MapViewConstants {
     @NotNull
     public static Minecraft getMinecraft() { return Minecraft.getInstance(); }
 
-    public static boolean isSystemMacOS() { return System.getProperty("os.name").toLowerCase().contains("mac"); }
+    public static boolean isSystemMacOS() { return System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("mac"); }
 
     public static boolean isFabulousGraphicsOrBetter() { return Minecraft.useShaderTransparency(); }
 

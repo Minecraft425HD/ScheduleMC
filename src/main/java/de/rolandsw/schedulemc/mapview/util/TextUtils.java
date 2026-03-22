@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.mapview.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.minecraft.ChatFormatting;
@@ -89,7 +90,7 @@ public final class TextUtils {
 
         return Arrays
                 .stream(input.split("_"))
-                .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
+                .map(word -> word.substring(0, 1).toUpperCase(Locale.ROOT) + word.substring(1).toLowerCase(Locale.ROOT))
                 .collect(Collectors.joining(" "));
     }
 

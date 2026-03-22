@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
@@ -118,7 +119,7 @@ public class RegionCache {
         String dimensionName = MapViewConstants.getLightMapInstance().getDimensionManager().getDimensionContainerByWorld(world).getStorageName();
         this.dimensionNamePathPart = TextUtils.scrubNameFile(dimensionName);
         boolean knownUnderground;
-        knownUnderground = dimensionName.toLowerCase().contains("erebus");
+        knownUnderground = dimensionName.toLowerCase(Locale.ROOT).contains("erebus");
         this.underground = !world.dimensionType().hasSkyLight() || world.dimensionType().hasCeiling() || knownUnderground;
         this.remoteWorld = !MapViewConstants.getMinecraft().hasSingleplayerServer();
         persistentMap.getSettingsAndLightingChangeNotifier().addObserver(this);

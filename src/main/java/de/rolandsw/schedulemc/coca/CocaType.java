@@ -32,7 +32,7 @@ public enum CocaType implements ProductionType {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.coca_type." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.coca_type." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     public String getColorCode() {

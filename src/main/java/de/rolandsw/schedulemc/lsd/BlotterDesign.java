@@ -26,7 +26,7 @@ public enum BlotterDesign {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.blotter_design." + this.name().toLowerCase());
+        return Component.translatable("enum.blotter_design." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public String getColorCode() {

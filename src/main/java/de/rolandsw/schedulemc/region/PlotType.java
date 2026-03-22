@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.region;
 
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Plot-Typen für verschiedene Gebäude-Arten
  *
@@ -33,7 +35,7 @@ public enum PlotType {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.plot_type." + this.name().toLowerCase());
+        return Component.translatable("enum.plot_type." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public boolean isShop() {

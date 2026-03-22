@@ -13,6 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Supplier;
 
 /**
@@ -163,7 +164,7 @@ public class NPCActionPacket {
     private void handleRecruitNpc(ServerPlayer player, CustomNPCEntity npc) {
         CompanionType type = CompanionType.FIGHTER;
         try {
-            if (!param.isEmpty()) type = CompanionType.valueOf(param.toUpperCase());
+            if (!param.isEmpty()) type = CompanionType.valueOf(param.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ignored) {}
 
         CompanionManager mgr = CompanionManager.getInstance();

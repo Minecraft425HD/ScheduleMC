@@ -66,6 +66,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -760,14 +761,14 @@ public class ColorCalculationService {
             }
 
             String filePath = propertiesFile.getPath();
-            String method = properties.getProperty("method", "").trim().toLowerCase();
-            String faces = properties.getProperty("faces", "").trim().toLowerCase();
-            String matchBlocks = properties.getProperty("matchBlocks", "").trim().toLowerCase();
-            String matchTiles = properties.getProperty("matchTiles", "").trim().toLowerCase();
-            String metadata = properties.getProperty("metadata", "").trim().toLowerCase();
+            String method = properties.getProperty("method", "").trim().toLowerCase(Locale.ROOT);
+            String faces = properties.getProperty("faces", "").trim().toLowerCase(Locale.ROOT);
+            String matchBlocks = properties.getProperty("matchBlocks", "").trim().toLowerCase(Locale.ROOT);
+            String matchTiles = properties.getProperty("matchTiles", "").trim().toLowerCase(Locale.ROOT);
+            String metadata = properties.getProperty("metadata", "").trim().toLowerCase(Locale.ROOT);
             String tiles = properties.getProperty("tiles", "").trim();
-            String biomes = properties.getProperty("biomes", "").trim().toLowerCase();
-            String renderPass = properties.getProperty("renderPass", "").trim().toLowerCase();
+            String biomes = properties.getProperty("biomes", "").trim().toLowerCase(Locale.ROOT);
+            String renderPass = properties.getProperty("renderPass", "").trim().toLowerCase(Locale.ROOT);
             metadata = metadata.replaceAll("\\s+", ",");
             Set<BlockState> blockStates = new HashSet<>(this.parseBlocksList(matchBlocks, metadata));
             String directory = filePath.substring(0, filePath.lastIndexOf("/") + 1);
@@ -783,7 +784,7 @@ public class ColorCalculationService {
                 tilePath = directory + tilePath;  // NOPMD
             }
 
-            if (!tilePath.toLowerCase().endsWith(".png")) {
+            if (!tilePath.toLowerCase(Locale.ROOT).endsWith(".png")) {
                 tilePath = tilePath + ".png";  // NOPMD
             }
 
@@ -1249,7 +1250,7 @@ public class ColorCalculationService {
                     defaultResource = ResourceLocation.parse("textures/colormap/foliage.png");
                 }
 
-                String stateString = blockState.toString().toLowerCase();
+                String stateString = blockState.toString().toLowerCase(Locale.ROOT);
                 stateString = stateString.replaceAll("^block", "");
                 stateString = stateString.replace("{", "");
                 stateString = stateString.replace("}", "");

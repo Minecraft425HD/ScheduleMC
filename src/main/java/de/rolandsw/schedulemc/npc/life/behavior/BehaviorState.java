@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.behavior;
 
+import java.util.Locale;
+
 /**
  * BehaviorState - Aktuelle Verhaltens-Zustände eines NPCs
  *
@@ -160,6 +162,6 @@ public enum BehaviorState {
      * Übersetzungsschlüssel für Lokalisierung
      */
     public String getTranslationKey() {
-        return "npc.behavior." + name().toLowerCase();
+        return "npc.behavior." + name().toLowerCase(Locale.ROOT);
     }
 }

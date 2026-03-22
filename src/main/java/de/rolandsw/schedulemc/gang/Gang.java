@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 
 import java.util.*;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -46,7 +47,7 @@ public class Gang {
     public Gang(UUID gangId, String name, String tag, UUID founderUUID, ChatFormatting color) {
         this.gangId = gangId;
         this.name = name;
-        this.tag = tag.toUpperCase();
+        this.tag = tag.toUpperCase(Locale.ROOT);
         this.gangLevel = 1;
         this.gangXP = new AtomicInteger(0);
         this.gangBalance = new AtomicInteger(0);
@@ -299,7 +300,7 @@ public class Gang {
     public long getFoundedTimestamp() { return foundedTimestamp; }
 
     public void setName(String name) { this.name = name; }
-    public void setTag(String tag) { this.tag = tag.toUpperCase(); }
+    public void setTag(String tag) { this.tag = tag.toUpperCase(Locale.ROOT); }
     public void setColor(ChatFormatting color) { this.color = color; }
     public int getWeeklyFee() { return weeklyFee; }
     public void setWeeklyFee(int fee) { this.weeklyFee = Math.max(0, Math.min(10000, fee)); }

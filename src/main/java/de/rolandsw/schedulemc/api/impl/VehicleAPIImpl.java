@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -39,7 +40,7 @@ public class VehicleAPIImpl implements IVehicleAPI {
             throw new IllegalArgumentException("level, position and vehicleType cannot be null");
         }
         List<ItemStack> parts = new ArrayList<>();
-        switch (vehicleType.toLowerCase()) {
+        switch (vehicleType.toLowerCase(Locale.ROOT)) {
             case "limousine" -> {
                 parts.add(InternalVehiclePartItem.create(PartRegistry.LIMOUSINE_CHASSIS));
                 parts.add(InternalVehiclePartItem.create(PartRegistry.NORMAL_MOTOR));

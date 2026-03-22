@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.npc.life.social;
 
 import net.minecraft.ChatFormatting;
 
+import java.util.Locale;
+
 /**
  * Faction - Die 4 Haupt-Fraktionen in der Stadt
  *
@@ -173,7 +175,7 @@ public enum Faction {
      * Übersetzungsschlüssel für Lokalisierung
      */
     public String getTranslationKey() {
-        return "faction." + name().toLowerCase();
+        return "faction." + name().toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -192,7 +194,7 @@ public enum Faction {
      */
     public static Faction fromName(String name) {
         try {
-            return valueOf(name.toUpperCase());
+            return valueOf(name.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             return BUERGER;
         }

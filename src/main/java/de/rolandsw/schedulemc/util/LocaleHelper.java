@@ -4,6 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Locale;
+
 /**
  * Helper für Locale-basierte Textauswahl
  *
@@ -32,7 +34,7 @@ public class LocaleHelper {
      * @return true wenn Deutsch
      */
     public static boolean isGerman(String locale) {
-        return locale != null && locale.toLowerCase().startsWith("de");
+        return locale != null && locale.toLowerCase(Locale.ROOT).startsWith("de");
     }
 
     /**
@@ -42,7 +44,7 @@ public class LocaleHelper {
      * @return true wenn Englisch
      */
     public static boolean isEnglish(String locale) {
-        return locale != null && locale.toLowerCase().startsWith("en");
+        return locale != null && locale.toLowerCase(Locale.ROOT).startsWith("en");
     }
 
     /**

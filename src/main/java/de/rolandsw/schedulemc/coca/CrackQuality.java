@@ -31,7 +31,7 @@ public enum CrackQuality implements ProductionQuality {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
     public String getColorCode() { return colorCode; }
     public String getColoredName() { return colorCode + getDisplayName(); }
@@ -40,7 +40,7 @@ public enum CrackQuality implements ProductionQuality {
 
     @Override
     public String getDescription() {
-        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     @Override

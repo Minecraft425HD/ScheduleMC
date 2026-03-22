@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -99,7 +100,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         if (playerToGang.containsKey(founderUUID)) return null;
 
         // Pruefe ob Name oder Tag schon vergeben
-        String upperTag = tag.toUpperCase();
+        String upperTag = tag.toUpperCase(Locale.ROOT);
         for (Gang g : gangs.values()) {
             if (g.getName().equalsIgnoreCase(name)) return null;
             if (g.getTag().equals(upperTag)) return null;
