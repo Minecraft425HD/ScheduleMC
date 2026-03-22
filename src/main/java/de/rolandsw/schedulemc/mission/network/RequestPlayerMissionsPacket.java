@@ -72,11 +72,11 @@ public class RequestPlayerMissionsPacket {
         StringBuilder sb = new StringBuilder("[");
         boolean first = true;
         for (MissionScenario s : scenarios) {
-            if (!first) sb.append(",");
+            if (!first) sb.append(',');
             sb.append(de.rolandsw.schedulemc.gang.scenario.ScenarioManager.scenarioToJson(s));
             first = false;
         }
-        sb.append("]");
+        sb.append(']');
         return sb.toString();
     }
 }

@@ -357,20 +357,24 @@ public class MissionRegistry {
      * Registriert eine dynamisch geladene Mission (aus Szenario-Editor).
      * Dynamische Missionen koennen mit {@link #clearDynamic()} entfernt werden.
      */
-    public static synchronized void registerDynamic(MissionDefinition definition) {
-        REGISTRY.put(definition.getId(), definition);
-        DYNAMIC_IDS.add(definition.getId());
+    public static void registerDynamic(MissionDefinition definition) {
+        synchronized (MissionRegistry.class) {
+            REGISTRY.put(definition.getId(), definition);
+            DYNAMIC_IDS.add(definition.getId());
+        }
     }
 
     /**
      * Entfernt alle dynamisch registrierten Missionen.
      * Statisch (im static-Block) registrierte Missionen bleiben erhalten.
      */
-    public static synchronized void clearDynamic() {
-        for (String id : DYNAMIC_IDS) {
-            REGISTRY.remove(id);
+    public static void clearDynamic() {
+        synchronized (MissionRegistry.class) {
+            for (String id : DYNAMIC_IDS) {
+                REGISTRY.remove(id);
+            }
+            DYNAMIC_IDS.clear();
         }
-        DYNAMIC_IDS.clear();
     }
 
     public static MissionDefinition getById(String id) {
