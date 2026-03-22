@@ -891,7 +891,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             // Optimized Y movement (N/S): recalculate new rows
             if (offsetZ != 0) {
                 // Clear chunk cache for new recalculation
-                cachedChunk = null;
+                cachedChunk = null;  // NOPMD – read by getPixelColor inside the loop below
                 int startY, endY;
                 if (offsetZ > 0) {
                     // Moved south: recalculate bottom rows
@@ -1057,7 +1057,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         int seafloorColor = 0;
         int transparentColor = 0;
         int foliageColor = 0;
-        this.surfaceBlockState = null;
+        this.surfaceBlockState = null;  // NOPMD – default when needHeightAndID=false; overwritten only in conditional branches
         this.transparentBlockState = BlockDatabase.air.defaultBlockState();
         BlockState foliageBlockState = BlockDatabase.air.defaultBlockState();
         BlockState seafloorBlockState = BlockDatabase.air.defaultBlockState();

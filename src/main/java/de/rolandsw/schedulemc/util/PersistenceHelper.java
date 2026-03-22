@@ -207,7 +207,7 @@ public class PersistenceHelper {
 
     // ========== Private Hilfsmethoden ==========
 
-    private static <T> T loadFromFile(File file, Gson gson, Type type) throws Exception {
+    private static <T> T loadFromFile(File file, Gson gson, Type type) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
             T data = gson.fromJson(reader, type);
 

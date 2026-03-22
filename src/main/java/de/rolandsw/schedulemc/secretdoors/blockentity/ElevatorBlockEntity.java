@@ -181,8 +181,7 @@ public class ElevatorBlockEntity extends BlockEntity {
     }
 
     public boolean canUse(Player player) {
-        if (player instanceof ServerPlayer sp && sp.hasPermissions(2)) return true;
-        return ownerId == null || ownerId.equals(player.getUUID());
+        return (player instanceof ServerPlayer sp && sp.hasPermissions(2)) || ownerId == null || ownerId.equals(player.getUUID());
     }
 
     public String getOwnerName() {

@@ -468,7 +468,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * Lädt Plots aus einer spezifischen Datei
      * THREAD-SAFETY: Synchronized um Atomizität während des Ladevorgangs zu gewährleisten
      */
-    private static void loadPlotsFromFile(File sourceFile) throws Exception {
+    private static void loadPlotsFromFile(File sourceFile) throws IOException {
         Type mapType = new TypeToken<Map<String, PlotRegion>>(){}.getType();
 
         try (BufferedReader reader = Files.newBufferedReader(sourceFile.toPath(), StandardCharsets.UTF_8)) {

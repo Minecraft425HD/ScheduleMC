@@ -142,8 +142,7 @@ public class SecretDoorBlockEntity extends BlockEntity {
 
     public boolean canUse(Player player) {
         // OP-Level 2+ oder Besitzer
-        if (player instanceof ServerPlayer sp && sp.hasPermissions(2)) return true;
-        return ownerId == null || ownerId.equals(player.getUUID());
+        return (player instanceof ServerPlayer sp && sp.hasPermissions(2)) || ownerId == null || ownerId.equals(player.getUUID());
     }
 
     public void setOwner(Player player) {
