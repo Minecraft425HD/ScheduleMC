@@ -26,7 +26,12 @@ public class RateLimiter {
      */
     public static boolean canPerformTransaction(UUID playerUUID) {
         TransactionTracker tracker = trackers.computeIfAbsent(playerUUID, k -> new TransactionTracker());
-        return tracker.canPerformTransaction();
+        boolean result = tracker.canPerformTransaction();
+        // Leere Tracker sofort aus der Map entfernen um Memory-Leak zu verhindern
+        if (tracker.isEmpty()) {
+            trackers.remove(playerUUID, tracker);
+        }
+        return result;
     }
 
     /**
@@ -104,6 +109,11 @@ public class RateLimiter {
             long diff = nextAllowed - now;
 
             return (int) Math.ceil(diff / 1000.0);
+        }
+
+        public boolean isEmpty() {
+            cleanOldTimestamps();
+            return timestamps.isEmpty();
         }
 
         private void cleanOldTimestamps() {

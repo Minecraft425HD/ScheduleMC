@@ -48,17 +48,20 @@ public class ScheduleMCAPI {
     private static volatile ScheduleMCAPI instance;  // NOPMD
 
     // API Implementations
-    private IEconomyAPI economyAPI;
-    private IPlotAPI plotAPI;
-    private IProductionAPI productionAPI;
-    private INPCAPI npcAPI;
-    private IPoliceAPI policeAPI;
-    private IWarehouseAPI warehouseAPI;
-    private IMessagingAPI messagingAPI;
-    private ISmartphoneAPI smartphoneAPI;
-    private IVehicleAPI vehicleAPI;
-    private IAchievementAPI achievementAPI;
-    private IMarketAPI marketAPI;
+    // volatile: initialize() kann auf dem Startup-Thread aufgerufen werden,
+    // während getXxxAPI() von anderen Threads (z.B. Netzwerk-Threads) aufgerufen wird.
+    // Ohne volatile wären die Felder für andere Threads möglicherweise noch null.
+    private volatile IEconomyAPI economyAPI;       // NOPMD
+    private volatile IPlotAPI plotAPI;             // NOPMD
+    private volatile IProductionAPI productionAPI; // NOPMD
+    private volatile INPCAPI npcAPI;               // NOPMD
+    private volatile IPoliceAPI policeAPI;         // NOPMD
+    private volatile IWarehouseAPI warehouseAPI;   // NOPMD
+    private volatile IMessagingAPI messagingAPI;   // NOPMD
+    private volatile ISmartphoneAPI smartphoneAPI; // NOPMD
+    private volatile IVehicleAPI vehicleAPI;       // NOPMD
+    private volatile IAchievementAPI achievementAPI; // NOPMD
+    private volatile IMarketAPI marketAPI;         // NOPMD
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
