@@ -10,10 +10,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -223,7 +224,7 @@ public class StockMarketData {
             return;
         }
 
-        try (FileReader reader = new FileReader(saveFile)) {
+        try (BufferedReader reader = Files.newBufferedReader(saveFile.toPath(), StandardCharsets.UTF_8)) {
             Type type = new TypeToken<SaveData>(){}.getType();
             SaveData data = GSON.fromJson(reader, type);
 
@@ -278,7 +279,7 @@ public class StockMarketData {
 
             // Atomic write: temp file + move
             File tempFile = new File(saveFile.getParent(), saveFile.getName() + ".tmp");
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(data, writer);
                 writer.flush();
             }

@@ -4,10 +4,11 @@ import com.google.gson.Gson;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -274,7 +275,7 @@ public class HotReloadableConfig<T> {
             return null;
         }
 
-        try (FileReader reader = new FileReader(configFile)) {
+        try (BufferedReader reader = Files.newBufferedReader(configFile.toPath(), StandardCharsets.UTF_8)) {
             T config = GSON.fromJson(reader, configClass);
             lastModified = configFile.lastModified();
             return config;
@@ -289,7 +290,7 @@ public class HotReloadableConfig<T> {
             configFile.getParentFile().mkdirs();
             // Atomic write: temp file + move
             File tempFile = new File(configFile.getAbsolutePath() + ".tmp");
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(config, writer);
                 writer.flush();
             }

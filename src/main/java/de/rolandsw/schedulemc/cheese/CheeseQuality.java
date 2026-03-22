@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.cheese;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Käse-Qualitätsstufen
  *

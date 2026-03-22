@@ -432,7 +432,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
      * die Rang-Veraenderung berechnet werden kann.
      * Wird beim Serverstart aufgerufen und kann periodisch wiederholt werden.
      */
-    public void updateRankSnapshot() {
+    public final void updateRankSnapshot() {
         List<Gang> sorted = new ArrayList<>(gangs.values());
         sorted.sort((a, b) -> {
             int cmp = Integer.compare(b.getGangLevel(), a.getGangLevel());

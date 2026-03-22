@@ -6,11 +6,13 @@ import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 /**
@@ -94,7 +96,7 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
      * Lädt Daten aus einer Datei
      */
     private T loadFromFile(File file) throws Exception {
-        try (FileReader reader = new FileReader(file)) {
+        try (BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
             T data = gson.fromJson(reader, getDataType());
 
             if (data == null) {
@@ -145,7 +147,7 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
             // Temporary file for atomic writing
             File tempFile = new File(dataFile.getParent(), dataFile.getName() + ".tmp");
 
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 T data = getCurrentData();
                 gson.toJson(data, writer);
                 writer.flush();

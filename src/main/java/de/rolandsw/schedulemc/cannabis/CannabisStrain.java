@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.cannabis;
 
 import de.rolandsw.schedulemc.economy.ItemCategory;
 import de.rolandsw.schedulemc.production.core.ProductionType;
+
+import java.util.Locale;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
 

@@ -7,6 +7,7 @@ import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -95,7 +96,7 @@ public class StateAccount {
             try {
                 SAVE_FILE.getParentFile().mkdirs();
                 File tempFile = new File(SAVE_FILE.getParent(), SAVE_FILE.getName() + ".tmp");
-                try (FileWriter writer = new FileWriter(tempFile)) {
+                try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                     JsonObject json = new JsonObject();
                     json.addProperty("balance", currentBalance);
                     json.addProperty("lastUpdated", System.currentTimeMillis());
@@ -120,7 +121,7 @@ public class StateAccount {
             return;
         }
 
-        try (FileReader reader = new FileReader(SAVE_FILE)) {
+        try (BufferedReader reader = Files.newBufferedReader(SAVE_FILE.toPath(), StandardCharsets.UTF_8)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             balance.set(json.get("balance").getAsInt());
             LOGGER.info("State treasury: Loaded with {}€", balance.get());

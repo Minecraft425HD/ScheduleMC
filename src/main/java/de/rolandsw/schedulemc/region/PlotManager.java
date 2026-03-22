@@ -13,10 +13,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -469,7 +471,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     private static void loadPlotsFromFile(File sourceFile) throws Exception {
         Type mapType = new TypeToken<Map<String, PlotRegion>>(){}.getType();
 
-        try (FileReader reader = new FileReader(sourceFile)) {
+        try (BufferedReader reader = Files.newBufferedReader(sourceFile.toPath(), StandardCharsets.UTF_8)) {
             Map<String, PlotRegion> loaded = GSON.fromJson(reader, mapType);
 
             if (loaded == null) {
@@ -544,7 +546,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             // Temporäre Datei für atomares Schreiben
             File tempFile = new File(PLOTS_FILE.getParent(), PLOTS_FILE.getName() + ".tmp");
 
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(plots, writer);
                 writer.flush();
             }
@@ -585,7 +587,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
         try {
             File tempFile = new File(PLOTS_FILE.getParent(), PLOTS_FILE.getName() + ".tmp");
 
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(plots, writer);
                 writer.flush();
             }

@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.lsd;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * LSD-Qualitätsstufen (basierend auf Dosierung)
  *

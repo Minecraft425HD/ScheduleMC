@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.honey;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Honig-Qualitätsstufen
  *

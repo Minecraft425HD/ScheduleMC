@@ -10,10 +10,11 @@ import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -504,7 +505,7 @@ public class DynamicMarketManager {
             return;
         }
 
-        try (FileReader reader = new FileReader(MARKET_FILE)) {
+        try (BufferedReader reader = Files.newBufferedReader(MARKET_FILE.toPath(), StandardCharsets.UTF_8)) {
             List<SerializedMarketData> loaded = GSON.fromJson(
                 reader,
                 new TypeToken<List<SerializedMarketData>>(){}.getType()
@@ -597,7 +598,7 @@ public class DynamicMarketManager {
 
             // Atomic write: temp file + move
             File tempFile = new File(MARKET_FILE.getParent(), MARKET_FILE.getName() + ".tmp");
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(toSave, writer);
                 writer.flush();
             }

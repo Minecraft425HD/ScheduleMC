@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -515,7 +516,7 @@ public class PrisonManager {
 
             // Atomic write: temp file + move
             File tempFile = new File(file.getAbsolutePath() + ".tmp");
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(saveData, writer);
                 writer.flush();
             }
@@ -530,7 +531,7 @@ public class PrisonManager {
         File file = new File(SAVE_FILE);
         if (!file.exists()) return;
 
-        try (Reader reader = new FileReader(file)) {
+        try (Reader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
             Type type = new TypeToken<Map<String, PrisonerData>>(){}.getType();
             Map<String, PrisonerData> loadedData = GSON.fromJson(reader, type);
 

@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.lsd;
 
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Blotter-Design Varianten für LSD-Tabs
  */
