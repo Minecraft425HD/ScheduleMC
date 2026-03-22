@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.BackupManager;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import de.rolandsw.schedulemc.util.PersistenceHelper;
+import de.rolandsw.schedulemc.util.ModConstants;
 import de.rolandsw.schedulemc.util.RateLimiter;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
@@ -30,7 +31,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
     private static final Map<UUID, Double> balances = new ConcurrentHashMap<>();
 
     // SICHERHEIT: Maximales Guthaben um Overflow zu verhindern
-    private static final double MAX_BALANCE = 1_000_000_000_000.0; // 1 Billion €
+    private static final double MAX_BALANCE = ModConstants.MAX_ECONOMY_BALANCE;
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
     private static volatile File file = new File("config/plotmod_economy.json");  // NOPMD
     private static final Gson gson = GsonHelper.get();

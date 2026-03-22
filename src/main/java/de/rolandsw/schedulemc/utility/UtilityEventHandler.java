@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.utility;
 import de.rolandsw.schedulemc.util.EventHelper;
+import de.rolandsw.schedulemc.util.ModConstants;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import net.minecraft.core.BlockPos;
@@ -26,7 +27,7 @@ public class UtilityEventHandler {
     // Counter für periodische Updates
     private static int tickCounter = 0;
     private static final int UPDATE_INTERVAL = 1000; // Alle 1000 Ticks (~50 Sekunden)
-    private static final int SAVE_INTERVAL = 6000;   // Alle 6000 Ticks (~5 Minuten)
+    private static final int SAVE_INTERVAL = ModConstants.TICKS_SAVE_INTERVAL;
 
     // ═══════════════════════════════════════════════════════════════════════════
     // BLOCK EVENTS

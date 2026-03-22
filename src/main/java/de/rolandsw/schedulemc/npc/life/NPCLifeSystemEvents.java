@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.npc.life;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.quest.QuestEventHandler;
+import de.rolandsw.schedulemc.util.ModConstants;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -97,7 +98,7 @@ public class NPCLifeSystemEvents {
 
     /** Zähler für periodisches Auto-Save */
     private static volatile int autoSaveCounter = 0;  // NOPMD
-    private static final int AUTO_SAVE_INTERVAL = 6000; // Alle 5 Minuten
+    private static final int AUTO_SAVE_INTERVAL = ModConstants.TICKS_SAVE_INTERVAL;
 
     /**
      * Level-Tick für System-Updates

@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.util.EventHelper;
+import de.rolandsw.schedulemc.util.ModConstants;
 import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import de.rolandsw.schedulemc.commands.*;
 import de.rolandsw.schedulemc.economy.commands.HospitalCommand;
@@ -162,12 +163,9 @@ public class ScheduleMC {
 
     public static final String MOD_ID = "schedulemc";
     public static final Logger LOGGER = LogUtils.getLogger();
-    private static final int SAVE_INTERVAL = 6000; // 5 Minuten (6000 Ticks)
-    private static final int ECONOMY_UPDATE_INTERVAL = 1200; // 1 Minute (1200 Ticks)
     private int tickCounter = 0; // Für periodische Saves der noch nicht migrierten Manager
     private int economyTickCounter = 0; // Für periodische Wirtschafts-Updates
     private int gangSyncTickCounter = 0; // Für periodische Gang-Sync
-    private static final int GANG_SYNC_INTERVAL = 1200; // 60 Sekunden (1200 Ticks)
     private long lastDayTime = -1; // Für Tageswechsel-Erkennung
 
     // Incremental Save Manager - Optimized Data Persistence
@@ -829,7 +827,7 @@ public class ScheduleMC {
 
             // UDPS - Periodisches Wirtschafts-Update (alle 60 Sekunden)
             economyTickCounter++;
-            if (economyTickCounter >= ECONOMY_UPDATE_INTERVAL) {
+            if (economyTickCounter >= ModConstants.TICKS_PER_MINUTE) {
                 economyTickCounter = 0;
                 try {
                     de.rolandsw.schedulemc.economy.EconomyController.getInstance().periodicUpdate();
@@ -840,7 +838,7 @@ public class ScheduleMC {
 
             // Gang-Sync - Periodisches Broadcast (alle 60 Sekunden)
             gangSyncTickCounter++;
-            if (gangSyncTickCounter >= GANG_SYNC_INTERVAL) {
+            if (gangSyncTickCounter >= ModConstants.TICKS_PER_MINUTE) {
                 gangSyncTickCounter = 0;
                 try {
                     de.rolandsw.schedulemc.gang.network.GangSyncHelper.broadcastAllPlayerInfos(server);
@@ -857,7 +855,7 @@ public class ScheduleMC {
             }
 
             // Lock System - Code-Rotation pruefen (alle 5 Minuten reicht)
-            if (tickCounter % SAVE_INTERVAL == 100) {
+            if (tickCounter % ModConstants.TICKS_SAVE_INTERVAL == 100) {
                 LockManager lockMgr = LockManager.getInstance();
                 if (lockMgr != null) lockMgr.tickCodeRotation();
             }
@@ -870,7 +868,7 @@ public class ScheduleMC {
                 LOGGER.error("PlayerMission: Fehler im Executor/ProximityChecker", e);
             }
 
-            if (tickCounter >= SAVE_INTERVAL) {
+            if (tickCounter >= ModConstants.TICKS_SAVE_INTERVAL) {
                 tickCounter = 0;
                 // ALLE Manager werden jetzt via IncrementalSaveManager gespeichert
                 // Nur Business Logic bleibt hier

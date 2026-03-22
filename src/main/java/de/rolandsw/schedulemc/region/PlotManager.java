@@ -8,6 +8,7 @@ import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.BackupManager;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import de.rolandsw.schedulemc.util.InputValidation;
+import de.rolandsw.schedulemc.util.ModConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * Maximum plots (50000 entries)
      * Prevents unbounded growth - reasonable limit for plot management system
      */
-    private static final int MAX_PLOTS = 50000;
+    private static final int MAX_PLOTS = ModConstants.MAX_PLOTS;
 
     private static final Map<String, PlotRegion> plots = new ConcurrentHashMap<>();
     private static final File PLOTS_FILE = new File("config/plotmod_plots.json");
