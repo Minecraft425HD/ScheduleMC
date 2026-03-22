@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Speichert Verbrauchsdaten für einen einzelnen Plot
@@ -20,10 +21,10 @@ public class PlotUtilityData {
     private final String plotId;
 
     // Alle Verbraucher-Blöcke in diesem Plot: Position -> Block-ID
-    private final Map<BlockPos, String> consumers = new HashMap<>();
+    private final Map<BlockPos, String> consumers = new ConcurrentHashMap<>();
 
     // Aktiver Status jedes Blocks: Position -> isActive
-    private final Map<BlockPos, Boolean> activeStatus = new HashMap<>();
+    private final Map<BlockPos, Boolean> activeStatus = new ConcurrentHashMap<>();
 
     // OPTIMIERT: Circular Buffer statt Array-Shifting
     // Index 0..6 für Tage, historyIndex zeigt auf "heute"

@@ -1031,7 +1031,6 @@ public class ScenarioEditorScreen extends Screen {
         if (mx >= rx - xW && mx < rx) { onClose(); return; }
 
         // Gemeinsame Buttons (Oeffnen, Speichern, Vorlagen[nur Gang], Aktive)
-        boolean isGang = viewMode == ViewMode.GANG_EDITOR;
         int x = toggleX + gangW + playerW + 6;
         int w;
         w = this.font.width("Oeffnen") + 8;

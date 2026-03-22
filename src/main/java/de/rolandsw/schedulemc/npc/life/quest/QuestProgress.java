@@ -6,6 +6,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * QuestProgress - Verfolgt den Quest-Fortschritt eines Spielers
@@ -45,7 +46,7 @@ public class QuestProgress {
     private int totalQuestsAbandoned = 0;
 
     /** Cooldowns für wiederholbare Quests: Quest ID -> Tag wann wieder verfügbar */
-    private final Map<String, Long> questCooldowns = new HashMap<>();
+    private final Map<String, Long> questCooldowns = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR

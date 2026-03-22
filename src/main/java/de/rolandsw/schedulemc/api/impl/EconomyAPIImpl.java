@@ -7,9 +7,6 @@ import de.rolandsw.schedulemc.economy.TransactionHistory;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
-
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,8 +27,6 @@ import java.util.stream.Collectors;
  * @since 3.0.0
  */
 public class EconomyAPIImpl implements IEconomyAPI {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final EconomyManager economyManager;
 

@@ -5,8 +5,8 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Production Config System - Konfigurationsbasierte Produktionsdefinition
@@ -232,7 +232,7 @@ public class ProductionConfig {
         private boolean requiresWater = false;
         private boolean requiresTemperature = false;
 
-        private Map<String, ProcessingStageConfig> processingStages = new HashMap<>();
+        private Map<String, ProcessingStageConfig> processingStages = new ConcurrentHashMap<>();
         private GenericQuality[] qualityTiers = GenericQuality.createStandard4TierSystem();
 
         public Builder(String id, String displayName) {

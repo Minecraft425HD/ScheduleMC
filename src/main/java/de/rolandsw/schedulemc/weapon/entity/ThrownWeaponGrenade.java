@@ -66,6 +66,7 @@ public class ThrownWeaponGrenade extends ThrowableItemProjectile {
                 case FRAG -> explode();
                 case SMOKE -> spawnSmoke();
                 case FLASH -> flash();
+                default -> { /* unknown type: no action */ }
             }
             this.discard();
         }

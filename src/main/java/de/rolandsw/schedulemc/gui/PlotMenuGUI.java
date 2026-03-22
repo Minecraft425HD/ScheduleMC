@@ -144,8 +144,8 @@ public class PlotMenuGUI {
     private static void addLore(ItemStack stack, String... lines) {
         ListTag loreList = new ListTag();
         for (String line : lines) {
-            if (line == null) line = "";
-            Component component = Component.literal(line).withStyle(ChatFormatting.GRAY);
+            String displayLine = line != null ? line : "";
+            Component component = Component.literal(displayLine).withStyle(ChatFormatting.GRAY);
             loreList.add(StringTag.valueOf(Component.Serializer.toJson(component)));
         }
         CompoundTag displayTag = stack.getOrCreateTagElement("display");

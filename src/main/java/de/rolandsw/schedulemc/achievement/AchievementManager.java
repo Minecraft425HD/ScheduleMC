@@ -24,14 +24,12 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
 
     private final Map<String, Achievement> achievements = new LinkedHashMap<>();
     private final Map<UUID, PlayerAchievements> playerData = new ConcurrentHashMap<>();
-    private MinecraftServer server;
 
     private AchievementManager(MinecraftServer server) {
         super(
             server.getServerDirectory().toPath().resolve("config").resolve("plotmod_achievements.json").toFile(),
             GsonHelper.get() // Umgebungsabhängig: kompakt in Produktion
         );
-        this.server = server;
         registerAchievements();
         load();
     }
@@ -49,7 +47,6 @@ public class AchievementManager extends AbstractPersistenceManager<Map<UUID, Pla
                 }
             }
         }
-        localRef.server = server;
         return localRef;
     }
 

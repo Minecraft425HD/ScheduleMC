@@ -6,9 +6,6 @@ import de.rolandsw.schedulemc.achievement.AchievementCategory;
 import de.rolandsw.schedulemc.achievement.AchievementManager;
 import de.rolandsw.schedulemc.achievement.PlayerAchievements;
 
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
-
 import javax.annotation.Nullable;
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -28,8 +25,6 @@ import java.util.stream.Collectors;
  * @since 3.0.0
  */
 public class AchievementAPIImpl implements IAchievementAPI {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final AchievementManager achievementManager;
 

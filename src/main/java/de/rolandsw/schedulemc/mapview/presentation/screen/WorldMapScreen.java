@@ -55,8 +55,8 @@ import de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler;
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -145,7 +145,7 @@ public class WorldMapScreen extends PopupScreen {
     private static final int NAME_INPUT_HEIGHT = 20;
     @Nullable
     private TerritoryType selectedType = TerritoryType.COLOR_RED;
-    private final Map<TerritoryType, Button> paletteButtons = new HashMap<>();
+    private final Map<TerritoryType, Button> paletteButtons = new ConcurrentHashMap<>();
     private EditBox territoryNameInput;
     private String currentTerritoryName = "";
     private Button clearTerritoryButton;

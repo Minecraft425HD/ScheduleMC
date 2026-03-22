@@ -10,9 +10,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
-
 import javax.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -33,8 +30,6 @@ import java.util.stream.Collectors;
  * @since 3.0.0
  */
 public class ProductionAPIImpl implements IProductionAPI {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final ProductionRegistry productionRegistry;
 

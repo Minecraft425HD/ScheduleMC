@@ -100,8 +100,7 @@ public class PlotRegion {
         this.ratings = new HashMap<>();
         this.subAreas = new ArrayList<>();
 
-        // Plot-Type & Warehouse
-        this.type = PlotType.RESIDENTIAL;
+        // Plot-Type & Warehouse (type already defaults to RESIDENTIAL via field initializer)
         this.warehouseLocation = null;
 
         // Verkauf & Miete

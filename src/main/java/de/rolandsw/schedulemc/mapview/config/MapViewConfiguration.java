@@ -59,7 +59,7 @@ public class MapViewConfiguration implements SettingsManager {
     public KeyMapping keyBindMenu;
     public final KeyMapping[] keyBindings;
     private boolean somethingChanged;
-    public static MapViewConfiguration instance;
+    public static volatile MapViewConfiguration instance;
     private final List<SubSettingsManager> subSettingsManagers = new ArrayList<>();
 
     public String teleportCommand = "tp %p %x %y %z";

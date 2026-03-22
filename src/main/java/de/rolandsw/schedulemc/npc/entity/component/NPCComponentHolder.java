@@ -27,7 +27,7 @@ public class NPCComponentHolder {
 
     private final Map<String, NPCComponent> components = new LinkedHashMap<>();
     private final Map<Class<? extends NPCComponent>, NPCComponent> byType = new ConcurrentHashMap<>();
-    private final Map<String, Integer> tickCounters = new HashMap<>();
+    private final Map<String, Integer> tickCounters = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════
     // COMPONENT MANAGEMENT

@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DialogueContext - Kontext einer aktiven Dialogsitzung
@@ -37,7 +38,7 @@ public class DialogueContext {
     private final Set<String> sessionFlags = new HashSet<>();
 
     /** Variablen die in dieser Sitzung gesetzt wurden */
-    private final Map<String, Object> sessionVariables = new HashMap<>();
+    private final Map<String, Object> sessionVariables = new ConcurrentHashMap<>();
 
     /** Ob der Dialog beendet wurde */
     private boolean ended = false;

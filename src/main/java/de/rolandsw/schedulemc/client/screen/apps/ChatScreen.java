@@ -16,9 +16,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Individual chat screen for a conversation (WhatsApp-style)
@@ -45,7 +45,7 @@ public class ChatScreen extends Screen {
     private String cachedOnlineStr;
     private String cachedNoMessagesStr;
     private String cachedNowStr;
-    private final Map<String, List<String>> wrappedTextCache = new HashMap<>();
+    private final Map<String, List<String>> wrappedTextCache = new ConcurrentHashMap<>();
     private long renderFrameTime; // Einmal pro Frame statt pro Message
 
     public ChatScreen(Screen parent, Conversation conversation) {

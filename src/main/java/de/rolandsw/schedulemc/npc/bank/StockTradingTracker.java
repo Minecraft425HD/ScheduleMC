@@ -316,7 +316,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         private final UUID playerUUID;
 
         @SerializedName("holdings")
-        private final Map<String, List<Purchase>> holdings = new HashMap<>();
+        private final Map<String, List<Purchase>> holdings = new ConcurrentHashMap<>();
 
         @SerializedName("totalProfit")
         private double totalProfit = 0.0;

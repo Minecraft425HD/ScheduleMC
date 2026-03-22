@@ -9,9 +9,9 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Trackt Fahrzeug-Eigentümerschaft für Auto-LicensePlate Generierung
@@ -26,10 +26,10 @@ public class VehicleOwnershipTracker extends SavedData {
     private static final String DATA_NAME = "vehicle_ownership";
 
     // Spieler UUID -> Anzahl gekaufter Fahrzeuge
-    private final Map<UUID, Integer> vehicleCounts = new HashMap<>();
+    private final Map<UUID, Integer> vehicleCounts = new ConcurrentHashMap<>();
 
     // Präfix (z.B. "MIN") -> (Spieler UUID -> Offset)
-    private final Map<String, Map<UUID, Integer>> prefixOffsets = new HashMap<>();
+    private final Map<String, Map<UUID, Integer>> prefixOffsets = new ConcurrentHashMap<>();
 
     public VehicleOwnershipTracker() {
     }

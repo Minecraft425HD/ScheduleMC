@@ -8,14 +8,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PartRegistry {
 
-    private static final Map<String, Part> ID_TO_PART = new HashMap<>();
+    private static final Map<String, Part> ID_TO_PART = new ConcurrentHashMap<>();
     private static final Map<Part, String> PART_TO_ID = new IdentityHashMap<>();
 
     private static <T extends Part> T register(String id, T part) {

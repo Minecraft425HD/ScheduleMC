@@ -103,7 +103,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // Item selection overlay
     private boolean showItemSelection = false;
     final private List<Item> allItems = new ArrayList<>();
-    private List<Item> filteredItems = new ArrayList<>();
+    private List<Item> filteredItems;
     private int itemSelectionScrollOffset = 0;
     private static final int ITEM_SELECTION_VISIBLE_ROWS = 10;
     private EditBox itemSearchField;

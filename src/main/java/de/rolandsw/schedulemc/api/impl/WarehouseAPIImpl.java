@@ -11,9 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
-
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,8 +29,6 @@ import java.util.UUID;
  * @since 3.0.0
  */
 public class WarehouseAPIImpl implements IWarehouseAPI {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * Finds the WarehouseBlockEntity at the given position across all loaded levels.
@@ -91,8 +86,7 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
             throw new IllegalArgumentException("amount must be at least 1, got: " + amount);
         }
         WarehouseBlockEntity warehouse = getWarehouse(position);
-        if (warehouse == null) return false;
-        return warehouse.addItem(item, amount) > 0;
+        return warehouse != null && warehouse.addItem(item, amount) > 0;
     }
 
     /**
@@ -107,8 +101,7 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
             throw new IllegalArgumentException("amount must be at least 1, got: " + amount);
         }
         WarehouseBlockEntity warehouse = getWarehouse(position);
-        if (warehouse == null) return false;
-        return warehouse.removeItem(item, amount) > 0;
+        return warehouse != null && warehouse.removeItem(item, amount) > 0;
     }
 
     /**
@@ -192,8 +185,7 @@ public class WarehouseAPIImpl implements IWarehouseAPI {
             throw new IllegalArgumentException("position and sellerUUID cannot be null");
         }
         WarehouseBlockEntity warehouse = getWarehouse(position);
-        if (warehouse == null) return false;
-        return warehouse.getLinkedSellers().contains(sellerUUID);
+        return warehouse != null && warehouse.getLinkedSellers().contains(sellerUUID);
     }
 
     // ═══════════════════════════════════════════════════════════

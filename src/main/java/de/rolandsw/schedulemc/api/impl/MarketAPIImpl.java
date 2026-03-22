@@ -4,9 +4,6 @@ import de.rolandsw.schedulemc.api.market.IMarketAPI;
 import de.rolandsw.schedulemc.market.DynamicMarketManager;
 import net.minecraft.world.item.Item;
 
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
-
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,8 +22,6 @@ import java.util.stream.Collectors;
  * @since 3.0.0
  */
 public class MarketAPIImpl implements IMarketAPI {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final DynamicMarketManager marketManager;
 
@@ -128,7 +123,7 @@ public class MarketAPIImpl implements IMarketAPI {
      */
     @Override
     public Map<Item, Double> getAllPrices() {
-        Map<Item, Double> prices = new java.util.HashMap<>();
+        Map<Item, Double> prices = new java.util.concurrent.ConcurrentHashMap<>();
         for (de.rolandsw.schedulemc.market.MarketData data : marketManager.getAllMarketData()) {
             prices.put(data.getItem(), data.getCurrentPrice());
         }
