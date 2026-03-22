@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.tobacco.blockentity;
 
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
+import de.rolandsw.schedulemc.util.ModConstants;
 import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
 import de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
@@ -33,10 +34,10 @@ public abstract class AbstractFermentationBarrelBlockEntity extends BlockEntity 
 
     // Performance-Optimierung: Tick-Throttling
     private int tickCounter = 0;
-    private static final int TICK_INTERVAL = 5; // Alle 5 Ticks statt jeden Tick
-    // Sync-Throttling: Netzwerk-Update nur alle 8 Verarbeitungszyklen (~40 Ticks)
+    private static final int TICK_INTERVAL = ModConstants.PROCESSING_TICK_INTERVAL;
+    // Sync-Throttling: Netzwerk-Update nur alle PROCESSING_SYNC_CYCLE Verarbeitungszyklen (~40 Ticks)
     private int syncCycleCounter = 0;
-    private static final int SYNC_EVERY_N_CYCLES = 8;
+    private static final int SYNC_EVERY_N_CYCLES = ModConstants.PROCESSING_SYNC_CYCLE;
 
     protected AbstractFermentationBarrelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);

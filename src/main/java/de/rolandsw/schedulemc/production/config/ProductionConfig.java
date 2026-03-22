@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.production.core.GenericQuality;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,7 +108,7 @@ public class ProductionConfig {
     }
 
     public Map<String, ProcessingStageConfig> getProcessingStages() {
-        return new HashMap<>(processingStages);
+        return Collections.unmodifiableMap(processingStages);
     }
 
     public GenericQuality[] getQualityTiers() {

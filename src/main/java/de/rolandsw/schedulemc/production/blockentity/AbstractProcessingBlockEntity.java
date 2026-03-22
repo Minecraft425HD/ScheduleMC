@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.production.blockentity;
 
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.production.core.ProductionType;
+import de.rolandsw.schedulemc.util.ModConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -46,7 +47,7 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
 
     // Performance-Optimierung: Tick-Throttling
     private int tickCounter = 0;
-    private static final int TICK_INTERVAL = 5; // Alle 5 Ticks statt jeden Tick
+    private static final int TICK_INTERVAL = ModConstants.PROCESSING_TICK_INTERVAL;
     private int lastSyncedProgress = 0; // Für Progressive setChanged()
 
     // OPTIMIERUNG: Dirty-Flags für Slot-Synchronisation (verhindert unnötige ItemStack.copy())

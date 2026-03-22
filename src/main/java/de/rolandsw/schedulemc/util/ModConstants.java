@@ -42,4 +42,23 @@ public final class ModConstants {
 
     /** Maximale Einträge im Plot-LRU-Cache */
     public static final int PLOT_CACHE_MAX_SIZE = 1_000;
+
+    // ═══════════════════════════════════════════════════════════
+    // PRODUKTIONS-BLOCK-ENTITIES
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Tick-Throttling-Intervall für Verarbeitungs-BlockEntities.
+     * Verarbeitung läuft nur alle 5 Ticks statt jeden Tick (Faktor 5 weniger CPU-Last).
+     * Wird von AbstractFermentationBarrelBlockEntity, AbstractProcessingBlockEntity
+     * und UnifiedProcessingBlockEntity genutzt.
+     */
+    public static final int PROCESSING_TICK_INTERVAL = 5;
+
+    /**
+     * Netzwerk-Sync-Intervall für Verarbeitungs-BlockEntities (in Verarbeitungszyklen).
+     * Bei PROCESSING_TICK_INTERVAL=5 entspricht 8 Zyklen ~40 Ticks (2 Sekunden).
+     * Wird von AbstractFermentationBarrelBlockEntity genutzt.
+     */
+    public static final int PROCESSING_SYNC_CYCLE = 8;
 }
