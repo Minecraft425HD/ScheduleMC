@@ -31,6 +31,7 @@ public class Gang {
     private volatile ChatFormatting color;  // NOPMD
     private volatile long foundedTimestamp;  // NOPMD
     private volatile int weeklyFee; // Wochenbeitrag (0 = kein Beitrag, max 10000)  // NOPMD
+    private volatile int lastKnownRank = 0; // Rang beim letzten Snapshot (0 = noch kein Snapshot)  // NOPMD
 
     private final ConcurrentHashMap<UUID, GangMemberData> members = new ConcurrentHashMap<>();
     private final Set<String> unlockedPerks = ConcurrentHashMap.newKeySet();
@@ -302,6 +303,8 @@ public class Gang {
     public void setColor(ChatFormatting color) { this.color = color; }
     public int getWeeklyFee() { return weeklyFee; }
     public void setWeeklyFee(int fee) { this.weeklyFee = Math.max(0, Math.min(10000, fee)); }
+    public int getLastKnownRank() { return lastKnownRank; }
+    public void setLastKnownRank(int rank) { this.lastKnownRank = rank; }
 
     public GangReputation getReputation() {
         return GangReputation.getForLevel(gangLevel);

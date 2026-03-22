@@ -55,6 +55,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         );
         this.server = server;
         load();
+        updateRankSnapshot();
     }
 
     @Nullable
@@ -422,6 +423,30 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
     }
 
     // ═══════════════════════════════════════════════════════════
+    // RANG-SNAPSHOT
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Nimmt einen Rang-Snapshot aller Gangs (sortiert nach Level, dann XP).
+     * Speichert den aktuellen Rang in jeder Gang, damit beim naechsten Aufruf
+     * die Rang-Veraenderung berechnet werden kann.
+     * Wird beim Serverstart aufgerufen und kann periodisch wiederholt werden.
+     */
+    public void updateRankSnapshot() {
+        List<Gang> sorted = new ArrayList<>(gangs.values());
+        sorted.sort((a, b) -> {
+            int cmp = Integer.compare(b.getGangLevel(), a.getGangLevel());
+            if (cmp != 0) return cmp;
+            return Integer.compare(b.getGangXP(), a.getGangXP());
+        });
+        for (int i = 0; i < sorted.size(); i++) {
+            sorted.get(i).setLastKnownRank(i + 1);
+        }
+        markDirty();
+        LOGGER.info("Rang-Snapshot aktualisiert fuer {} Gangs", sorted.size());
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // PERSISTENCE
     // ═══════════════════════════════════════════════════════════
 
@@ -445,6 +470,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
 
                 Gang gang = new Gang(gangId, saved.name, saved.tag, saved.gangLevel,
                         saved.gangXP, saved.gangBalance, cf, saved.foundedTimestamp, saved.weeklyFee);
+                gang.setLastKnownRank(saved.lastKnownRank);
 
                 // Mitglieder laden
                 if (saved.members != null) {
@@ -506,6 +532,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
             saved.color = gang.getColor().getName();
             saved.foundedTimestamp = gang.getFoundedTimestamp();
             saved.weeklyFee = gang.getWeeklyFee();
+            saved.lastKnownRank = gang.getLastKnownRank();
 
             // Mitglieder
             saved.members = new HashMap<>();
@@ -566,6 +593,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         String color;
         long foundedTimestamp;
         int weeklyFee;
+        int lastKnownRank;
         Map<String, SavedMemberData> members;
         List<String> unlockedPerks;
         List<Long> territories;
