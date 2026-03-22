@@ -31,8 +31,10 @@ All registered commands organized by system, with syntax, permissions, and examp
 15. [Territory and Map Commands](#14-territory-and-map-commands) (2 commands)
 16. [Health and Diagnostics Commands](#15-health-and-diagnostics-commands) (5 commands)
 17. [Admin Commands](#16-admin-commands) (5 commands)
-18. [Permission Level Reference](#permission-level-reference)
-19. [Common Workflows](#common-workflows)
+18. [Secret Door Commands](#17-secret-door-commands) (3 commands)
+19. [Crime Record Commands](#18-crime-record-commands) (3 commands)
+20. [Permission Level Reference](#permission-level-reference)
+21. [Common Workflows](#common-workflows)
 
 ---
 
@@ -2468,6 +2470,117 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 
 ---
 
+# 17. Secret Door Commands
+
+**Base command:** `/secretdoor`
+**Description:** Configure and manage secret door blocks placed in the world. Secret doors hide behind normal-looking walls and can be linked to levers or buttons.
+
+---
+
+### `/secretdoor size <pos> <breite> <höhe>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Set the width and height of a secret door block. After placing the door block, run this command to define how many filler blocks it spans. Filler blocks are spawned automatically based on the door's facing direction. |
+| **Arguments** | `<pos>` -- Block position (x y z) of the secret door block. `<breite>` -- Width in blocks (1–20). `<höhe>` -- Height in blocks (1–20). |
+| **Prerequisites** | A secret door block must already be placed at `<pos>`. |
+| **Related System** | Secret Doors |
+
+**Example:**
+```
+/secretdoor size 100 64 200 3 4
+```
+
+---
+
+### `/secretdoor toggle <pos>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Manually open or close a secret door. Useful for testing during setup or for emergency access if a lever is inaccessible. |
+| **Arguments** | `<pos>` -- Block position of the secret door block. |
+| **Related System** | Secret Doors |
+
+**Example:**
+```
+/secretdoor toggle 100 64 200
+```
+
+---
+
+### `/secretdoor info <pos>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display debug information about a secret door: door type, dimensions, open/closed state, owner name, number of filler blocks, and number of linked switches. |
+| **Arguments** | `<pos>` -- Block position of the secret door block. |
+| **Related System** | Secret Doors |
+
+**Example:**
+```
+/secretdoor info 100 64 200
+```
+
+---
+
+# 18. Crime Record Commands
+
+**Base command:** `/crimerecord`
+**Description:** View and manage player crime histories. Shows wanted level, crime entries, and forensic evidence. Intended for server staff and police administration.
+
+---
+
+### `/crimerecord <player>`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display the crime history of a player: current wanted level (0–5 stars), total number of recorded crimes, and open (unserved) penalties. Also shows the last 10 crime entries. |
+| **Arguments** | `<player>` -- Target player (must be online). |
+| **Related System** | Crime & Police |
+
+**Example:**
+```
+/crimerecord Steve
+```
+
+---
+
+### `/crimerecord <player> evidence`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Display all forensic evidence collected against a player. Shows evidence strength (0–100%), the resulting sentence multiplier, and a list of individual evidence items with their type, description, and reliability percentage. |
+| **Arguments** | `<player>` -- Target player (must be online). |
+| **Related System** | Crime & Police |
+
+**Example:**
+```
+/crimerecord Steve evidence
+```
+
+---
+
+### `/crimerecord <player> clear`
+
+| | |
+|---|---|
+| **Permission** | Admin (OP 2) |
+| **Description** | Clear the wanted level and all forensic evidence for a player. Does not remove historical crime entries — those remain in the log. Use this to pardon a player or reset police attention after an error. |
+| **Arguments** | `<player>` -- Target player (must be online). |
+| **Related System** | Crime & Police |
+
+**Example:**
+```
+/crimerecord Steve clear
+```
+
+---
+
 # Permission Level Reference
 
 ## Player Commands (No special permission required)
@@ -2501,6 +2614,8 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 | Health (all 40) | `/health`, `economy`, `plot`, `wallet`, `loan`, `creditloan`, `creditscore`, `savings`, `tax`, `overdraft`, `recurring`, `shopaccount`, `interest`, `crime`, `bounty`, `npc`, `prison`, `witness`, `dialogue`, `quest`, `companion`, `faction`, `npcinteraction`, `relationship`, `worldevent`, `dynamicprice`, `gang`, `territory`, `achievement`, `daily`, `message`, `gangmission`, `scenario`, `lock`, `market`, `warehouse`, `towing`, `antiexploit`, `threadpool`, `backups`, `log` |
 | Player Levels | `/admin setlevel`, `addxp`, `getlevel` |
 | Admin Tools | `/admintools remover`, `help` |
+| Secret Doors | `/secretdoor size`, `toggle`, `info` |
+| Crime Records | `/crimerecord <player>`, `evidence`, `clear` |
 
 ---
 
