@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Speichert Käufe mit Preisen und berechnet Gewinn/Verlust bei Verkäufen
  */
 public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, StockTradingTracker.PlayerTradingData>> {
-    private static volatile StockTradingTracker instance;  // NOPMD
+    private static volatile StockTradingTracker instance;
 
     private final Map<UUID, PlayerTradingData> playerData = new ConcurrentHashMap<>();
     private MinecraftServer server;
@@ -316,7 +316,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
         private final UUID playerUUID;
 
         @SerializedName("holdings")
-        private final Map<String, List<Purchase>> holdings = new HashMap<>();  // NOPMD
+        private final Map<String, List<Purchase>> holdings = new HashMap<>();
 
         @SerializedName("totalProfit")
         private double totalProfit = 0.0;

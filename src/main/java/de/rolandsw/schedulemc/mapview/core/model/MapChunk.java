@@ -13,7 +13,7 @@ public class MapChunk {
     private LevelChunk chunk;
     private boolean isChanged;
     private boolean isLoaded;
-    private boolean isSurroundedByLoaded;  // NOPMD
+    private boolean isSurroundedByLoaded;
 
     public MapChunk(int x, int z) {
         this.x = x;

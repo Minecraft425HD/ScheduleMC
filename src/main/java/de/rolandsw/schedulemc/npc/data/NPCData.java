@@ -810,7 +810,7 @@ public class NPCData {
      * NPC Behavior - Verhaltenseinstellungen
      */
     public static class NPCBehavior {
-        private boolean canMove;  // NOPMD
+        private boolean canMove;
         private boolean lookAtPlayer;
         private float movementSpeed;
 

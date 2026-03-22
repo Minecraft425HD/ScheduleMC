@@ -28,12 +28,12 @@ public class ClientGangCache {
     private static final Map<UUID, PlayerGangInfo> playerInfos = new ConcurrentHashMap<>();
 
     // Vollstaendige Gang-Daten (fuer Gang-App)
-    private static volatile SyncGangDataPacket myGangData = null;  // NOPMD
+    private static volatile SyncGangDataPacket myGangData = null;
 
     // Liste aller Gangs auf dem Server (fuer "Andere Gangs" Sektion)
-    private static volatile List<SyncGangListPacket.GangListEntry> gangList = new CopyOnWriteArrayList<>();  // NOPMD
+    private static volatile List<SyncGangListPacket.GangListEntry> gangList = new CopyOnWriteArrayList<>();
 
-    private static volatile Runnable updateListener = null;  // NOPMD
+    private static volatile Runnable updateListener = null;
 
     // ═══════════════════════════════════════════════════════════
     // PLAYER INFO (Nametag + TAB)
@@ -103,9 +103,9 @@ public class ClientGangCache {
 
     public static void clear() {
         playerInfos.clear();
-        myGangData = null;  // NOPMD
+        myGangData = null;
         gangList = new CopyOnWriteArrayList<>();
-        updateListener = null;  // NOPMD
+        updateListener = null;
     }
 
     public static void setUpdateListener(Runnable listener) {
@@ -113,6 +113,6 @@ public class ClientGangCache {
     }
 
     public static void removeUpdateListener() {
-        updateListener = null;  // NOPMD
+        updateListener = null;
     }
 }

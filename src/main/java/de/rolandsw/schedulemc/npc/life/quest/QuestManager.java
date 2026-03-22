@@ -46,7 +46,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile QuestManager instance;  // NOPMD
+    private static volatile QuestManager instance;
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -79,7 +79,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;  // NOPMD
+    private MinecraftServer server;
 
     /** Registrierte Quest-Vorlagen: Template ID -> Template (TRANSIENT - nicht persistiert) */
     private final Map<String, QuestTemplate> questTemplates = new ConcurrentHashMap<>();
@@ -255,7 +255,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
     /**
      * Generiert Ziele für eine Quest
      */
-    private void generateObjectives(Quest quest, QuestTemplate template, CustomNPCEntity questGiver, ServerPlayer player) {  // NOPMD
+    private void generateObjectives(Quest quest, QuestTemplate template, CustomNPCEntity questGiver, ServerPlayer player) {
         switch (template.getType()) {
             case DELIVERY -> {
                 // Lieferung: Item an einen anderen NPC
@@ -873,15 +873,15 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
 
         public static class Builder {
             private final String id;
-            private QuestType type = QuestType.DELIVERY;  // NOPMD
-            private String title = "Quest";  // NOPMD
-            private String description = "";  // NOPMD
-            private int difficulty = 1;  // NOPMD
-            private int timeLimit = 0;  // NOPMD
-            private Faction faction = null;  // NOPMD
-            private int minFactionRep = 0;  // NOPMD
-            private boolean repeatable = true;  // NOPMD
-            private QuestReward baseReward = QuestReward.create();  // NOPMD
+            private QuestType type = QuestType.DELIVERY;
+            private String title = "Quest";
+            private String description = "";
+            private int difficulty = 1;
+            private int timeLimit = 0;
+            private Faction faction = null;
+            private int minFactionRep = 0;
+            private boolean repeatable = true;
+            private QuestReward baseReward = QuestReward.create();
 
             public Builder(String id) {
                 this.id = id;

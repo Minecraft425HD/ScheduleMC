@@ -15,8 +15,8 @@ import java.util.Map;
 
 public class PartRegistry {
 
-    private static final Map<String, Part> ID_TO_PART = new HashMap<>();  // NOPMD
-    private static final Map<Part, String> PART_TO_ID = new IdentityHashMap<>();  // NOPMD
+    private static final Map<String, Part> ID_TO_PART = new HashMap<>();
+    private static final Map<Part, String> PART_TO_ID = new IdentityHashMap<>();
 
     private static <T extends Part> T register(String id, T part) {
         ID_TO_PART.put(id, part);

@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID, List<RecurringPayment>>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile RecurringPaymentManager instance;  // NOPMD
+    private static volatile RecurringPaymentManager instance;
 
     private final Map<UUID, List<RecurringPayment>> payments = new ConcurrentHashMap<>();
     private MinecraftServer server;

@@ -28,10 +28,10 @@ public class ProductionConfig {
     private final ProductionCategory category;  // Category (PLANT, CHEMICAL, etc.)
 
     // Growth Requirements
-    private final boolean requiresLight;  // NOPMD
+    private final boolean requiresLight;
     private final int minLightLevel;
-    private final boolean requiresWater;  // NOPMD
-    private final boolean requiresTemperature;  // NOPMD
+    private final boolean requiresWater;
+    private final boolean requiresTemperature;
 
     // Processing Configuration
     private final Map<String, ProcessingStageConfig> processingStages;
@@ -112,7 +112,7 @@ public class ProductionConfig {
     }
 
     public GenericQuality[] getQualityTiers() {
-        return qualityTiers;  // NOPMD
+        return qualityTiers;
     }
 
     public GenericQuality getDefaultQuality() {
@@ -156,7 +156,7 @@ public class ProductionConfig {
         private final int processingTime;       // Ticks to complete
         private final String inputItem;         // Input item ID
         private final String outputItem;        // Output item ID
-        private final boolean preservesQuality; // Quality carries over?  // NOPMD
+        private final boolean preservesQuality; // Quality carries over?
 
         // Resource Requirements (optional)
         private final String requiredResource;  // e.g., "diesel", "water"
@@ -221,19 +221,19 @@ public class ProductionConfig {
     public static class Builder {
         private final String id;
         private final String displayName;
-        private String colorCode = "§f";  // NOPMD
-        private double basePrice = 10.0;  // NOPMD
-        private int growthTicks = 3600;  // NOPMD
-        private int baseYield = 3;  // NOPMD
-        private ProductionCategory category = ProductionCategory.PLANT;  // NOPMD
+        private String colorCode = "§f";
+        private double basePrice = 10.0;
+        private int growthTicks = 3600;
+        private int baseYield = 3;
+        private ProductionCategory category = ProductionCategory.PLANT;
 
-        private boolean requiresLight = true;  // NOPMD
-        private int minLightLevel = 8;  // NOPMD
-        private boolean requiresWater = false;  // NOPMD
-        private boolean requiresTemperature = false;  // NOPMD
+        private boolean requiresLight = true;
+        private int minLightLevel = 8;
+        private boolean requiresWater = false;
+        private boolean requiresTemperature = false;
 
-        private Map<String, ProcessingStageConfig> processingStages = new HashMap<>();  // NOPMD
-        private GenericQuality[] qualityTiers = GenericQuality.createStandard4TierSystem();  // NOPMD
+        private Map<String, ProcessingStageConfig> processingStages = new HashMap<>();
+        private GenericQuality[] qualityTiers = GenericQuality.createStandard4TierSystem();
 
         public Builder(String id, String displayName) {
             this.id = id;

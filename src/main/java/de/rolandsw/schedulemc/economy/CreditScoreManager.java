@@ -16,10 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, CreditScore>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile CreditScoreManager instance;  // NOPMD
+    private static volatile CreditScoreManager instance;
 
     private final Map<UUID, CreditScore> creditScores = new ConcurrentHashMap<>();
-    private MinecraftServer server;  // NOPMD
+    private MinecraftServer server;
     private long currentDay = 0;
 
     // Balance-Update Throttling (nicht jeden Tick updaten)

@@ -24,7 +24,7 @@ import org.lwjgl.system.MemoryUtil;
 public class CompressedImageData {
     // OPTIMIERUNG: LRU-Cache mit max. 8 ByteBuffers verhindert Memory Leaks
     private static final int MAX_BUFFER_CACHE_SIZE = 8;
-    private static final Map<Integer, ByteBuffer> byteBuffers = new LinkedHashMap<Integer, ByteBuffer>(  // NOPMD
+    private static final Map<Integer, ByteBuffer> byteBuffers = new LinkedHashMap<Integer, ByteBuffer>(
             MAX_BUFFER_CACHE_SIZE, 0.75f, true) {
         @Override
         protected boolean removeEldestEntry(Map.Entry<Integer, ByteBuffer> eldest) {
@@ -35,11 +35,11 @@ public class CompressedImageData {
     private static final ByteBuffer defaultSizeBuffer = ByteBuffer.allocateDirect(DEFAULT_SIZE * DEFAULT_SIZE * 4).order(ByteOrder.nativeOrder());
 
     // OPTIMIZATION: volatile for lock-free reads
-    private volatile byte[] bytes;  // NOPMD
+    private volatile byte[] bytes;
     private final int width;
     private final int height;
     private final Object bufferLock = new Object();
-    private volatile boolean isCompressed;  // NOPMD
+    private volatile boolean isCompressed;
     private final boolean compressNotDelete;
     private final ResourceLocation location = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/mapimage/" + UUID.randomUUID());
     private DynamicTexture texture;
@@ -78,7 +78,7 @@ public class CompressedImageData {
         }
         if (this.texture != null) {
             Minecraft.getInstance().getTextureManager().release(location);
-            this.texture = null;  // NOPMD
+            this.texture = null;
         }
     }
 
@@ -164,7 +164,7 @@ public class CompressedImageData {
                         byte[] compressedBytes = CompressionUtils.compress(this.bytes);
                         this.bytes = compressedBytes;
                     } else {
-                        this.bytes = null;  // NOPMD
+                        this.bytes = null;
                     }
                     this.isCompressed = true;
                 }

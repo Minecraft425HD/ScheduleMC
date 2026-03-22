@@ -111,7 +111,7 @@ public class MoveToLeisureGoal extends Goal {
             } while (newTarget.equals(targetLeisurePos) && leisureLocations.size() > 1);
 
             targetLeisurePos = newTarget;
-            currentWanderTarget = null; // Reset Wander-Ziel  // NOPMD
+            currentWanderTarget = null; // Reset Wander-Ziel
         }
 
         // Prüfe ob NPC im Umkreis des Freizeitortes ist
@@ -185,8 +185,8 @@ public class MoveToLeisureGoal extends Goal {
         tickCounter = 0;
         wanderCounter = 0;
         locationChangeCounter = 0;
-        targetLeisurePos = null;  // NOPMD
-        currentWanderTarget = null;  // NOPMD
+        targetLeisurePos = null;
+        currentWanderTarget = null;
     }
 
     /**

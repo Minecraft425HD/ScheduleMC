@@ -74,8 +74,8 @@ public abstract class AbstractAgingBarrelBlockEntity extends BlockEntity impleme
             agingTicks = 0;
         } else if (handlerInput.isEmpty()) {
             storedWine = ItemStack.EMPTY;
-            wineType = null;  // NOPMD
-            quality = null;  // NOPMD
+            wineType = null;
+            quality = null;
             agingTicks = 0;
         }
     }

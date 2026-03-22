@@ -99,8 +99,8 @@ public abstract class AbstractAgingCaveBlockEntity extends BlockEntity implement
             }
         } else if (handlerInput.isEmpty()) {
             storedCheese = ItemStack.EMPTY;
-            cheeseType = null;  // NOPMD
-            quality = null;  // NOPMD
+            cheeseType = null;
+            quality = null;
             weightKg = 0;
             agingTicks = 0;
         }

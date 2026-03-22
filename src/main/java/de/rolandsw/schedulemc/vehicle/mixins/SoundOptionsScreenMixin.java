@@ -23,7 +23,7 @@ public class SoundOptionsScreenMixin extends OptionsSubScreen {
     }
 
     @Inject(method = "getAllSoundOptionsExceptMaster", at = @At("RETURN"), cancellable = true, require = 0, remap = false)
-    private void getAllSoundOptionsExceptMaster(CallbackInfoReturnable<OptionInstance<?>[]> cir) {  // NOPMD
+    private void getAllSoundOptionsExceptMaster(CallbackInfoReturnable<OptionInstance<?>[]> cir) {
         OptionInstance<?>[] returnValue = cir.getReturnValue();
         OptionInstance<?>[] newReturnValue = new OptionInstance<?>[returnValue.length + 1];
         System.arraycopy(returnValue, 0, newReturnValue, 0, returnValue.length);

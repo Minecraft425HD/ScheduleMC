@@ -14,9 +14,9 @@ public class PoppyPlantData {
     private TobaccoQuality quality;
     private int growthStage; // 0-7 (0 = Samen, 7 = Erntereif)
     private int ticksGrown;
-    private boolean hasFertilizer;  // NOPMD
-    private boolean hasGrowthBooster;  // NOPMD
-    private boolean hasQualityBooster;  // NOPMD
+    private boolean hasFertilizer;
+    private boolean hasGrowthBooster;
+    private boolean hasQualityBooster;
 
     public PoppyPlantData(PoppyType type) {
         this.type = type;

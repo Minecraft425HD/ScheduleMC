@@ -31,7 +31,7 @@ public class WarehouseMarketBridge {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Singleton
-    private static volatile WarehouseMarketBridge instance;  // NOPMD
+    private static volatile WarehouseMarketBridge instance;
 
     /**
      * Gecachte Füllstände pro Item (Item-Registry-Name → Füllrate 0.0-1.0)

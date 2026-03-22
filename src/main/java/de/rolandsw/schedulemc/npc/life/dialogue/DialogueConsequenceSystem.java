@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DialogueConsequenceSystem {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static volatile DialogueConsequenceSystem instance;  // NOPMD
+    private static volatile DialogueConsequenceSystem instance;
 
     // NPC-Erinnerungen an Gespraeche: NPC-UUID -> Spieler-UUID -> Letzte Themen
     private final Map<UUID, Map<UUID, ConversationMemory>> conversationHistory = new ConcurrentHashMap<>();

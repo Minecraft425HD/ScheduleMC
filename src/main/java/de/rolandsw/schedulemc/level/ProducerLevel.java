@@ -35,15 +35,15 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Singleton
-    private static volatile ProducerLevel instance;  // NOPMD
+    private static volatile ProducerLevel instance;
 
     // Daten
     private final ConcurrentHashMap<UUID, ProducerLevelData> playerData = new ConcurrentHashMap<>();
 
     // Persistenz
-    private static volatile File file = new File("config/schedulemc_producer_levels.json");  // NOPMD
+    private static volatile File file = new File("config/schedulemc_producer_levels.json");
     private static final Gson gson = GsonHelper.get();
-    private static volatile boolean needsSave = false;  // NOPMD
+    private static volatile boolean needsSave = false;
 
     @Nullable
     private MinecraftServer server;

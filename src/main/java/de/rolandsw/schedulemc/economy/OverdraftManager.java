@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OverdraftManager extends AbstractPersistenceManager<Map<String, Object>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile OverdraftManager instance;  // NOPMD
+    private static volatile OverdraftManager instance;
 
     // Tracking: Wann wurde Spieler das erste Mal negativ?
     private final Map<UUID, Long> debtStartDay = new ConcurrentHashMap<>();

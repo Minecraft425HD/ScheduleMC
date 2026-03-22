@@ -27,7 +27,7 @@ import java.util.List;
  * - Alkoholgehalt (ABV)
  */
 public class BeerBottleItem extends Item {
-    private static final double VOLUME_LITERS = 0.5;  // NOPMD
+    private static final double VOLUME_LITERS = 0.5;
 
     public BeerBottleItem(Properties properties) {
         super(properties);

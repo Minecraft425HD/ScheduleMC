@@ -34,8 +34,8 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
 
     private final File dataFile;
     private final Gson gson;
-    private volatile boolean needsSave = false;  // NOPMD
-    private boolean isHealthy = true;  // NOPMD
+    private volatile boolean needsSave = false;
+    private boolean isHealthy = true;
     private String lastError = null;
 
     /**
@@ -64,7 +64,7 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
             T data = loadFromFile(dataFile);
             onDataLoaded(data);
             isHealthy = true;  // NOPMD
-            lastError = null;  // NOPMD
+            lastError = null;
             LOGGER.info("{}: Daten erfolgreich geladen", getComponentName());
         } catch (Exception e) {
             LOGGER.error("{}: Fehler beim Laden der Daten", getComponentName(), e);
@@ -93,7 +93,7 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
     /**
      * Lädt Daten aus einer Datei
      */
-    private T loadFromFile(File file) throws Exception {  // NOPMD
+    private T loadFromFile(File file) throws Exception {
         try (FileReader reader = new FileReader(file)) {
             T data = gson.fromJson(reader, getDataType());
 
@@ -158,7 +158,7 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
 
             needsSave = false;  // NOPMD
             isHealthy = true;  // NOPMD
-            lastError = null;  // NOPMD
+            lastError = null;
             LOGGER.info("{}: Daten erfolgreich gespeichert", getComponentName());
 
         } catch (Exception e) {

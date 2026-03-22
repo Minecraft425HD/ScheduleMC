@@ -33,7 +33,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile NPCInteractionManager instance;  // NOPMD
+    private static volatile NPCInteractionManager instance;
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -79,7 +79,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;  // NOPMD
+    private MinecraftServer server;
 
     /** Aktive Interaktionen: NPC UUID -> InteractionContext (TRANSIENT - nicht persistiert) */
     private final Map<UUID, InteractionContext> activeInteractions = new ConcurrentHashMap<>();

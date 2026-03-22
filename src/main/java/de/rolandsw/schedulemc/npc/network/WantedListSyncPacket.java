@@ -80,7 +80,7 @@ public class WantedListSyncPacket {
      * Client-seitiger Cache fuer Fahndungsliste
      */
     public static class WantedListClientCache {
-        private static volatile Map<UUID, WantedPlayerInfo> cachedList = Map.of();  // NOPMD
+        private static volatile Map<UUID, WantedPlayerInfo> cachedList = Map.of();
 
         public static void updateCache(Map<UUID, WantedPlayerInfo> newList) {
             cachedList = Map.copyOf(newList);

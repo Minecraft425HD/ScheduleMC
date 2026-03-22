@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class EconomyAPIImpl implements IEconomyAPI {
 
-    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final EconomyManager economyManager;
 

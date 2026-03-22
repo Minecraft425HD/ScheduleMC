@@ -34,7 +34,7 @@ public class AdminToolsCommand {
     /**
      * Gibt dem Spieler den Entity-Remover
      */
-    private static int giveRemover(CommandContext<CommandSourceStack> context) {  // NOPMD
+    private static int giveRemover(CommandContext<CommandSourceStack> context) {
         try {
             ServerPlayer player = context.getSource().getPlayerOrException();
 
@@ -69,7 +69,7 @@ public class AdminToolsCommand {
     /**
      * Zeigt Hilfe für Admin-Tools
      */
-    private static int showHelp(CommandContext<CommandSourceStack> context) {  // NOPMD
+    private static int showHelp(CommandContext<CommandSourceStack> context) {
         context.getSource().sendSuccess(() ->
             Component.literal("=== Admin Tools ===").withStyle(ChatFormatting.GOLD)
                 .append(Component.literal("\n"))

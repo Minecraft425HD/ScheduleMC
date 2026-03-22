@@ -22,7 +22,7 @@ public class PlayerEvents {
 
     public PlayerEvents() {
         this.minecraft = Minecraft.getInstance();
-        this.lastVehicle = null;  // NOPMD
+        this.lastVehicle = null;
     }
 
     @SubscribeEvent

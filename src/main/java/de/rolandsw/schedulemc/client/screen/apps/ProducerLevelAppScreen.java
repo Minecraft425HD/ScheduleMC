@@ -106,7 +106,7 @@ public class ProducerLevelAppScreen extends Screen {
         ClientProducerLevelCache.removeUpdateListener();
     }
 
-    private void onCacheUpdated() {  // NOPMD
+    private void onCacheUpdated() {
         if (selectedCategory != null && currentView == ViewMode.CATEGORY) {
             loadCategoryUnlockables();
         }
@@ -126,13 +126,13 @@ public class ProducerLevelAppScreen extends Screen {
                 }
             } else if (currentView == ViewMode.DETAIL) {
                 currentView = ViewMode.CATEGORY;
-                selectedUnlockable = null;  // NOPMD
+                selectedUnlockable = null;
                 scrollOffset = 0;
                 initButtons();
             } else {
                 currentView = ViewMode.OVERVIEW;
-                selectedCategory = null;  // NOPMD
-                currentCategoryUnlockables = null;  // NOPMD
+                selectedCategory = null;
+                currentCategoryUnlockables = null;
                 scrollOffset = 0;
                 initButtons();
             }
@@ -154,7 +154,7 @@ public class ProducerLevelAppScreen extends Screen {
 
     private void loadCategoryUnlockables() {
         if (!ClientProducerLevelCache.isInitialized() || selectedCategory == null) {
-            currentCategoryUnlockables = null;  // NOPMD
+            currentCategoryUnlockables = null;
             return;
         }
         currentCategoryUnlockables = ClientProducerLevelCache.getUnlockablesByCategory(selectedCategory);
@@ -380,7 +380,7 @@ public class ProducerLevelAppScreen extends Screen {
     // DETAIL VIEW
     // ═══════════════════════════════════════════════════════════
 
-    private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {  // NOPMD
+    private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {
         if (selectedUnlockable == null) return;
 
         UnlockableData unlock = selectedUnlockable;

@@ -39,7 +39,7 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile WitnessManager instance;  // NOPMD
+    private static volatile WitnessManager instance;
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable

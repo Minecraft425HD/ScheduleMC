@@ -86,8 +86,8 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            coffeeType = null;  // NOPMD
-            quality = null;  // NOPMD
+            coffeeType = null;
+            quality = null;
             currentStage = ProcessingStage.IDLE;
             processingProgress = 0;
         } else {

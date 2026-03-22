@@ -120,7 +120,7 @@ public abstract class AbstractBrewKettleBlockEntity extends BlockEntity implemen
             brewingProgress = 0;
         } else if (handlerWort.isEmpty()) {
             wortStack = ItemStack.EMPTY;
-            quality = null;  // NOPMD
+            quality = null;
             brewingProgress = 0;
         } else {
             wortStack = handlerWort.copy();

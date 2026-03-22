@@ -65,7 +65,7 @@ public class RegionCache {
     private ServerLevel worldServer;
     private ServerChunkCache chunkProvider;
     private BlockableEventLoop<RefreshRunnable> executor;
-    private ChunkMap chunkLoader;  // NOPMD
+    private ChunkMap chunkLoader;
     private String subworldName;
     private String worldNamePathPart;
     private String subworldNamePathPart = "";
@@ -87,7 +87,7 @@ public class RegionCache {
     private final ReentrantLock threadLock = new ReentrantLock();
     boolean displayOptionsChanged;
     // OPTIMIZATION: volatile for lock-free reads in getTextureLocation()
-    volatile boolean imageChanged;  // NOPMD
+    volatile boolean imageChanged;
     boolean refreshQueued;
     boolean refreshingImage;
     boolean dataUpdated;
@@ -305,7 +305,7 @@ public class RegionCache {
         return neighborsLoaded;
     }
 
-    private void loadAnvilData(net.minecraft.world.level.Level world) {  // NOPMD
+    private void loadAnvilData(net.minecraft.world.level.Level world) {
         if (!this.remoteWorld) {
             boolean full = true;
 
@@ -332,7 +332,7 @@ public class RegionCache {
                     try {
                         synchronized (anvilLock) {
                             if (debug) {
-                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting load");  // NOPMD
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting load");
                             }
 
                             long loadTime = System.currentTimeMillis();
@@ -378,17 +378,17 @@ public class RegionCache {
                             }, this.executor);
 
                             while (!this.closed && !loadFuture.isDone()) {
-                                Thread.onSpinWait();  // NOPMD
+                                Thread.onSpinWait();
                             }
 
                             loadFuture.cancel(false);
                             if (debug) {
-                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished load after " + (System.currentTimeMillis() - loadTime) + " milliseconds");  // NOPMD
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished load after " + (System.currentTimeMillis() - loadTime) + " milliseconds");
                             }
                         }
 
                         if (debug) {
-                            MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting calculation");  // NOPMD
+                            MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting calculation");
                         }
 
                         long calcTime = System.currentTimeMillis();
@@ -410,7 +410,7 @@ public class RegionCache {
                                         CompletableFuture<ChunkAccess> lightFuture = this.chunkProvider.getLightEngine().lightChunk(loadedChunk, false);
 
                                         while (!this.closed && !lightFuture.isDone()) {
-                                            Thread.onSpinWait();  // NOPMD
+                                            Thread.onSpinWait();
                                         }
 
                                         loadedChunk = (LevelChunk) lightFuture.getNow(loadedChunk);
@@ -426,7 +426,7 @@ public class RegionCache {
                         }
 
                         if (debug) {
-                            MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished calculating after " + (System.currentTimeMillis() - calcTime) + " milliseconds");  // NOPMD
+                            MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished calculating after " + (System.currentTimeMillis() - calcTime) + " milliseconds");
                         }
                     } catch (Exception var41) {
                         MapViewConstants.getLogger().warn("error in anvil loading");
@@ -446,15 +446,15 @@ public class RegionCache {
                             CompletableFuture<Void> tickFuture = CompletableFuture.runAsync(() -> this.chunkProvider.tick(() -> true, executor.isSameThread()));
                             long tickTime = System.currentTimeMillis();
                             if (debug) {
-                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting chunk GC tick");  // NOPMD
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " starting chunk GC tick");
                             }
 
                             while (!this.closed && !tickFuture.isDone()) {
-                                Thread.onSpinWait();  // NOPMD
+                                Thread.onSpinWait();
                             }
 
                             if (debug) {
-                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished chunk GC tick after " + (System.currentTimeMillis() - tickTime) + " milliseconds");  // NOPMD
+                                MapViewConstants.getLogger().warn(Thread.currentThread().getName() + " finished chunk GC tick after " + (System.currentTimeMillis() - tickTime) + " milliseconds");
                             }
                         } catch (RuntimeException var38) {
                             MapViewConstants.getLogger().warn("error ticking from anvil loading");

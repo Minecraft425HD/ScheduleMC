@@ -31,7 +31,7 @@ import java.util.List;
 public class NPCDailySalaryHandler {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static volatile long lastSalaryDay = -1;  // NOPMD
+    private static volatile long lastSalaryDay = -1;
     private static final Object SALARY_LOCK = new Object();
 
     @SubscribeEvent

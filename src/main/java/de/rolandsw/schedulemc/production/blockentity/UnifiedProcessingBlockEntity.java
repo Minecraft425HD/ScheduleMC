@@ -243,7 +243,7 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
             ItemStack extracted = outputs[slot].copy();
             outputs[slot] = ItemStack.EMPTY;
             productionIds[slot] = "";
-            qualities[slot] = null;  // NOPMD
+            qualities[slot] = null;
             changed = true;
             setChanged();
             return extracted;

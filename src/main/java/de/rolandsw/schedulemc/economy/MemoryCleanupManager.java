@@ -29,7 +29,7 @@ public class MemoryCleanupManager {
     private static final long CLEANUP_INTERVAL_TICKS = 1200; // 60 Sekunden
 
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads
-    private static volatile long tickCounter = 0;  // NOPMD
+    private static volatile long tickCounter = 0;
 
     /**
      * Markiert einen Spieler als offline

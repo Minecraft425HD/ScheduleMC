@@ -128,7 +128,7 @@ public class PolicePatrolGoal extends Goal {
             tickCounter = 0;
             wanderTickCounter = 0;
             distanceCheckCounter = 0;
-            wanderTarget = null;  // NOPMD
+            wanderTarget = null;
 
             // Gehe zum Patrouillenpunkt
             npc.getNavigation().moveTo(
@@ -205,8 +205,8 @@ public class PolicePatrolGoal extends Goal {
         tickCounter = 0;
         wanderTickCounter = 0;
         distanceCheckCounter = 0;
-        currentTarget = null;  // NOPMD
-        wanderTarget = null;  // NOPMD
+        currentTarget = null;
+        wanderTarget = null;
         hasArrived = false;
     }
 

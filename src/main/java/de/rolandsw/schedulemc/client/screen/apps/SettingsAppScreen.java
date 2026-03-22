@@ -653,7 +653,7 @@ public class SettingsAppScreen extends Screen {
     // TAB 2: BENACHRICHTIGUNGEN
     // ═══════════════════════════════════════════════════════════════════════════
 
-    private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {  // NOPMD
+    private void renderNotificationsTab(GuiGraphics guiGraphics, int startY, int endY, int mouseX, int mouseY) {
         sliderRegions.clear(); // Clear slider regions before re-rendering
         int y = startY - scrollOffset;
         int contentHeight = 0;

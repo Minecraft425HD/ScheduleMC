@@ -20,7 +20,7 @@ public class PlayerSettingsNetworkHandler {
         PROTOCOL_VERSION::equals
     );
 
-    private static int id = 0;  // NOPMD
+    private static int id = 0;
     private static int id() {
         return id++;
     }

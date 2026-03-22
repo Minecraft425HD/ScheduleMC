@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile TaxManager instance;  // NOPMD
+    private static volatile TaxManager instance;
 
     // Steuerstufen
     private static final double TAX_FREE_AMOUNT = 10000.0;

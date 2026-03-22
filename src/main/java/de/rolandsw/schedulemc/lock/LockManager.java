@@ -19,13 +19,13 @@ public class LockManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("ScheduleMC-LockManager");
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile LockManager instance;  // NOPMD
+    private static volatile LockManager instance;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     // BlockPos-Key: "dim:x:y:z" (immer lower half der Tuer)
     private final ConcurrentHashMap<String, LockData> locks = new ConcurrentHashMap<>();
     private final Path saveFile;
-    private volatile boolean dirty = false;  // NOPMD
+    private volatile boolean dirty = false;
 
     private LockManager(Path configDir) {
         this.saveFile = configDir.resolve("schedulemc_locks.json");
@@ -55,7 +55,7 @@ public class LockManager {
             if (instance != null) {
                 instance.save();
             }
-            instance = null;  // NOPMD
+            instance = null;
         }
     }
 

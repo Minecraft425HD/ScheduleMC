@@ -32,7 +32,7 @@ public class VakuumTrocknerBlockEntity extends BlockEntity implements IUtilityCo
     private final int[] progress = new int[CAPACITY];
     private final MethQuality[] qualities = new MethQuality[CAPACITY];
 
-    private boolean isActive = false;  // NOPMD
+    private boolean isActive = false;
 
     public VakuumTrocknerBlockEntity(BlockPos pos, BlockState state) {
         super(MethBlockEntities.VAKUUM_TROCKNER.get(), pos, state);

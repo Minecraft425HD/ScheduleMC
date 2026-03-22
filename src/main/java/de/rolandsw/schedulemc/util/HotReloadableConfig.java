@@ -40,14 +40,14 @@ public class HotReloadableConfig<T> {
     private static final Gson GSON = GsonHelper.get();
 
     // Globale WatchService-Instanz (geteilt)
-    private static volatile WatchService watchService;  // NOPMD
+    private static volatile WatchService watchService;
     private static final AtomicBoolean watcherRunning = new AtomicBoolean(false);
     private static final Map<Path, HotReloadableConfig<?>> watchedConfigs = new ConcurrentHashMap<>();
-    private static Thread watchThread;  // NOPMD
+    private static Thread watchThread;
 
     private final File configFile;
     private final Class<T> configClass;
-    private volatile T currentConfig;  // NOPMD
+    private volatile T currentConfig;
     private long lastModified = 0;
     private long lastReloadTime = 0;
     private static final long DEBOUNCE_MS = 500; // Minimum 500ms zwischen Reloads
@@ -150,7 +150,7 @@ public class HotReloadableConfig<T> {
                     StandardWatchEventKinds.ENTRY_MODIFY,
                     StandardWatchEventKinds.ENTRY_CREATE);
 
-                watchThread = new Thread(() -> {  // NOPMD
+                watchThread = new Thread(() -> {
                     LOGGER.info("Config-WatchService gestartet");
                     while (watcherRunning.get()) {
                         try {
@@ -172,7 +172,7 @@ public class HotReloadableConfig<T> {
 
                             key.reset();
                         } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();  // NOPMD
+                            Thread.currentThread().interrupt();
                             break;
                         } catch (ClosedWatchServiceException e) {
                             break;

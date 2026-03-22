@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  */
 public class SyncGangDataPacket {
 
-    private final boolean hasGang;  // NOPMD
+    private final boolean hasGang;
     private final String gangName;
     private final String gangTag;
     private final int gangLevel;

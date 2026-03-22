@@ -108,7 +108,7 @@ public class ColorCalculationService {
 
     // Performance-Optimierung: LRU Cache für Biome Tints (reduziert 9 Biome-Lookups pro Block)
     // Cache-Size: 4096 Einträge = ~32KB Memory (genug für typische Spieler-Umgebung)
-    private final Map<Long, Integer> biomeTintCache = new LinkedHashMap<Long, Integer>(4096, 0.75f, true) {  // NOPMD
+    private final Map<Long, Integer> biomeTintCache = new LinkedHashMap<Long, Integer>(4096, 0.75f, true) {
         @Override
         protected boolean removeEldestEntry(Map.Entry<Long, Integer> eldest) {
             return size() > 4096;
@@ -367,7 +367,7 @@ public class ColorCalculationService {
         }
     }
 
-    private int getColorForBlockPosBlockStateAndFacing(BlockPos blockPos, BlockState blockState, Direction facing) {  // NOPMD
+    private int getColorForBlockPosBlockStateAndFacing(BlockPos blockPos, BlockState blockState, Direction facing) {
         int color = 0x1B000000;
 
         try {
@@ -508,7 +508,7 @@ public class ColorCalculationService {
 
     }
 
-    private int tintFromFakePlacedBlock(BlockState blockState, MutableBlockPos loopBlockPos, Biome biomeID) {  // NOPMD
+    private int tintFromFakePlacedBlock(BlockState blockState, MutableBlockPos loopBlockPos, Biome biomeID) {
         return -1;
     }
 
@@ -679,7 +679,7 @@ public class ColorCalculationService {
         return tint;
     }
 
-    private int getCustomBlockBiomeTintFromUnloadedChunk(AbstractMapData mapData, Level world, BlockState blockState, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ) {  // NOPMD
+    private int getCustomBlockBiomeTintFromUnloadedChunk(AbstractMapData mapData, Level world, BlockState blockState, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ) {
         int tint;
 
         try {
@@ -1049,7 +1049,7 @@ public class ColorCalculationService {
         return biome != null ? this.world.registryAccess().registryOrThrow(Registries.BIOME).getId(biome) : -1;
     }
 
-    private List<ResourceLocation> findResources(String namespace, String startingPath, String suffixMaybeNull, boolean recursive, boolean directories, boolean sortByFilename) {  // NOPMD
+    private List<ResourceLocation> findResources(String namespace, String startingPath, String suffixMaybeNull, boolean recursive, boolean directories, boolean sortByFilename) {
         String effectivePath = startingPath == null ? "" : startingPath;
         if (!effectivePath.isEmpty() && effectivePath.charAt(0) == '/') {
             effectivePath = effectivePath.substring(1);

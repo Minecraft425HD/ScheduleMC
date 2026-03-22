@@ -32,7 +32,7 @@ public class RoadGraphBuilder {
     };
 
     private final WorldMapData mapData;
-    private final Map<BlockPos, RoadNode> nodesByPosition = new HashMap<>();  // NOPMD
+    private final Map<BlockPos, RoadNode> nodesByPosition = new HashMap<>();
     private final List<RoadSegment> segments = new ArrayList<>();
     private final Set<BlockPos> allRoadBlocks = new HashSet<>();
     // OPTIMIERUNG: O(1) Segment-Existenz-Check statt O(n) Iteration

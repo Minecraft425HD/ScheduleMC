@@ -54,7 +54,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
     private final int transferRate;
 
     private int fuelCounter;
-    private boolean isFueling;  // NOPMD
+    private boolean isFueling;
     private boolean wasFueling;
 
     private SimpleContainer inventory;
@@ -405,9 +405,9 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         isFueling = false;
         totalCostThisSession = 0;
         totalFueledThisSession = 0;
-        currentFuelingPlayer = null;  // NOPMD
-        cachedEntityInFront = null; // Cache invalidieren für nächstes Fahrzeug  // NOPMD
-        cachedFluidHandler = null;  // NOPMD
+        currentFuelingPlayer = null;
+        cachedEntityInFront = null; // Cache invalidieren für nächstes Fahrzeug
+        cachedFluidHandler = null;
         synchronize();
         setChanged();
     }
@@ -718,7 +718,7 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
 
     final private CachedValue<AABB> detectionBox = new CachedValue<>(this::createDetectionBox);
 
-    private AABB createDetectionBox() {  // NOPMD
+    private AABB createDetectionBox() {
         BlockState ownState = level.getBlockState(worldPosition);
 
         if (!ownState.getBlock().equals(ModBlocks.FUEL_STATION.get())) {

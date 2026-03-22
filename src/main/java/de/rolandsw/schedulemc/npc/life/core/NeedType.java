@@ -21,7 +21,7 @@ public enum NeedType {
 
     private final String displayName;
     private final float decayPerHour;
-    private final boolean hasNaturalDecay;  // NOPMD
+    private final boolean hasNaturalDecay;
 
     NeedType(String displayName, float decayPerHour, boolean hasNaturalDecay) {
         this.displayName = displayName;

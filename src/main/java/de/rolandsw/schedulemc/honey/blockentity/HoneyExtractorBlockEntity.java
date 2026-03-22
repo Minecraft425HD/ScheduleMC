@@ -105,8 +105,8 @@ public class HoneyExtractorBlockEntity extends BlockEntity implements IUtilityCo
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            honeyType = null;  // NOPMD
-            quality = null;  // NOPMD
+            honeyType = null;
+            quality = null;
             processingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -149,8 +149,8 @@ public class HoneyExtractorBlockEntity extends BlockEntity implements IUtilityCo
 
                 inputStack.shrink(4); // 4 honeycombs = 1 bucket
                 if (inputStack.isEmpty()) {
-                    honeyType = null;  // NOPMD
-                    quality = null;  // NOPMD
+                    honeyType = null;
+                    quality = null;
                 }
 
                 processingProgress = 0;

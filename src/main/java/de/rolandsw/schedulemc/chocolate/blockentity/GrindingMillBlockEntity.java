@@ -98,7 +98,7 @@ public class GrindingMillBlockEntity extends BlockEntity implements IUtilityCons
             grindingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;  // NOPMD
+            quality = null;
             grindingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

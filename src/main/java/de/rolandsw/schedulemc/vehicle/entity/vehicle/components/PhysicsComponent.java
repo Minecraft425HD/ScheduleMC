@@ -218,7 +218,7 @@ public class PhysicsComponent extends VehicleComponent {
             } else if (!isSoundPlaying(startLoop)) {
                 if (startLoop != null) {
                     startLoop.setDonePlaying();
-                    startLoop = null;  // NOPMD
+                    startLoop = null;
                 }
                 checkIdleLoop();
             }

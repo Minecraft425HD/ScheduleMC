@@ -110,7 +110,7 @@ public class AchievementAppScreen extends Screen {
     /**
      * Called when achievement cache is updated from server
      */
-    private void onCacheUpdated() {  // NOPMD
+    private void onCacheUpdated() {
         LOGGER.info("AchievementAppScreen: Cache updated! Refreshing display (total: {}, unlocked: {})",
             ClientAchievementCache.getTotalAchievements(), ClientAchievementCache.getUnlockedCount());
 
@@ -140,12 +140,12 @@ public class AchievementAppScreen extends Screen {
                 }
             } else if (currentView == ViewMode.DETAIL) {
                 currentView = ViewMode.CATEGORY;
-                selectedAchievementData = null;  // NOPMD
+                selectedAchievementData = null;
                 scrollOffset = 0;
                 initButtons();
             } else {
                 currentView = ViewMode.OVERVIEW;
-                selectedCategory = null;  // NOPMD
+                selectedCategory = null;
                 scrollOffset = 0;
                 initButtons();
             }
@@ -247,7 +247,7 @@ public class AchievementAppScreen extends Screen {
     // OVERVIEW VIEW
     // ═══════════════════════════════════════════════════════════
 
-    private void renderOverviewView(GuiGraphics guiGraphics, int startY, int endY) {  // NOPMD
+    private void renderOverviewView(GuiGraphics guiGraphics, int startY, int endY) {
         // Gesamt-Fortschritt Box
         guiGraphics.fill(leftPos + 10, startY, leftPos + WIDTH - 10, startY + 55, 0x44228B22);
 
@@ -376,7 +376,7 @@ public class AchievementAppScreen extends Screen {
     // DETAIL VIEW
     // ═══════════════════════════════════════════════════════════
 
-    private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {  // NOPMD
+    private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {
         if (selectedAchievementData == null) return;
 
         AchievementData ach = selectedAchievementData;

@@ -10,10 +10,10 @@ import java.util.*;
  */
 public class MissionRegistry {
 
-    private static final Map<String, MissionDefinition> REGISTRY = new LinkedHashMap<>();  // NOPMD
+    private static final Map<String, MissionDefinition> REGISTRY = new LinkedHashMap<>();
 
     /** IDs der dynamisch registrierten Missionen (aus Szenarien geladen). */
-    private static final java.util.Set<String> DYNAMIC_IDS = new java.util.HashSet<>();  // NOPMD
+    private static final java.util.Set<String> DYNAMIC_IDS = new java.util.HashSet<>();
 
     static {
         // ── Hauptmissionen ──────────────────────────────────────────────

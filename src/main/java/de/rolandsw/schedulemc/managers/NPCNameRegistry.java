@@ -35,7 +35,7 @@ public class NPCNameRegistry {
     private static final Gson GSON = GsonHelper.get();
 
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads
-    private static volatile boolean dirty = false;  // NOPMD
+    private static volatile boolean dirty = false;
 
     // ═══════════════════════════════════════════════════════════
     // REGISTRIERUNG

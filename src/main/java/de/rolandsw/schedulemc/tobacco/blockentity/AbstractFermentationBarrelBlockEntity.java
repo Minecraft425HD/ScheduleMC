@@ -112,8 +112,8 @@ public class AbstractFermentationBarrelBlockEntity extends BlockEntity implement
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 fermentationProgress[i] = 0;
-                tobaccoTypes[i] = null;  // NOPMD
-                qualities[i] = null;  // NOPMD
+                tobaccoTypes[i] = null;
+                qualities[i] = null;
             }
         }
 

@@ -114,7 +114,7 @@ public class HealthCheckManager {
      * Registry für Health-Checks. Jeder Check wird mit Key, Kategorie und
      * Supplier registriert. Eliminiert 30+ duplizierte Methoden.
      */
-    private static final Map<String, HealthCheckEntry> checkRegistry = new LinkedHashMap<>();  // NOPMD
+    private static final Map<String, HealthCheckEntry> checkRegistry = new LinkedHashMap<>();
 
     private static class HealthCheckEntry {
         final String category;

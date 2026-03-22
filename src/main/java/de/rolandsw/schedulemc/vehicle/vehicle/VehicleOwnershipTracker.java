@@ -26,10 +26,10 @@ public class VehicleOwnershipTracker extends SavedData {
     private static final String DATA_NAME = "vehicle_ownership";
 
     // Spieler UUID -> Anzahl gekaufter Fahrzeuge
-    private final Map<UUID, Integer> vehicleCounts = new HashMap<>();  // NOPMD
+    private final Map<UUID, Integer> vehicleCounts = new HashMap<>();
 
     // Präfix (z.B. "MIN") -> (Spieler UUID -> Offset)
-    private final Map<String, Map<UUID, Integer>> prefixOffsets = new HashMap<>();  // NOPMD
+    private final Map<String, Map<UUID, Integer>> prefixOffsets = new HashMap<>();
 
     public VehicleOwnershipTracker() {
     }

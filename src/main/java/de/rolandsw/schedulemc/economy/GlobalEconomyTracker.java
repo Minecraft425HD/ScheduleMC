@@ -34,31 +34,31 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Singleton
-    private static volatile GlobalEconomyTracker instance;  // NOPMD
+    private static volatile GlobalEconomyTracker instance;
 
     // Persistenz
-    private static volatile File file = new File("config/schedulemc_economy_tracker.json");  // NOPMD
+    private static volatile File file = new File("config/schedulemc_economy_tracker.json");
     private static final Gson gson = GsonHelper.get();
-    private static volatile boolean needsSave = false;  // NOPMD
+    private static volatile boolean needsSave = false;
 
     // ═══════════════════════════════════════════════════════════
     // TRACKING DATA
     // ═══════════════════════════════════════════════════════════
 
     /** Gesamte Geldmenge aller Spieler */
-    private volatile double totalMoneySupply = 0.0;  // NOPMD
+    private volatile double totalMoneySupply = 0.0;
 
     /** Geldmenge beim letzten Check (für Inflationsberechnung) */
-    private volatile double previousMoneySupply = 0.0;  // NOPMD
+    private volatile double previousMoneySupply = 0.0;
 
     /** Gesamtes Transaktionsvolumen seit Server-Start */
-    private volatile double totalTransactionVolume = 0.0;  // NOPMD
+    private volatile double totalTransactionVolume = 0.0;
 
     /** Tägliches Transaktionsvolumen (wird täglich zurückgesetzt) */
-    private volatile double dailyTransactionVolume = 0.0;  // NOPMD
+    private volatile double dailyTransactionVolume = 0.0;
 
     /** Anzahl aktiver Spieler (mit Konten) */
-    private volatile int activePlayerCount = 0;  // NOPMD
+    private volatile int activePlayerCount = 0;
 
     /** Verkaufte Mengen pro Kategorie (für S&D Tracking) */
     private final ConcurrentHashMap<ItemCategory, Long> categorySalesVolume = new ConcurrentHashMap<>();
@@ -77,7 +77,7 @@ public class GlobalEconomyTracker implements IncrementalSaveManager.ISaveable {
     // ═══════════════════════════════════════════════════════════
 
     /** Aktuelle Inflationsrate (0.0 = stabil, >0 = Inflation, <0 = Deflation) */
-    private volatile double inflationRate = 0.0;  // NOPMD
+    private volatile double inflationRate = 0.0;
 
     /** Inflations-Zielkorridor */
     private static final double TARGET_INFLATION_MIN = -0.02; // -2% Deflation

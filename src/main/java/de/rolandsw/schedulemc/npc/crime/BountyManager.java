@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyData>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile BountyManager instance;  // NOPMD
+    private static volatile BountyManager instance;
     private static final Object INSTANCE_LOCK = new Object();
 
     private static final double AUTO_BOUNTY_PER_STAR = 2000.0; // 2000€ pro Wanted-Star
@@ -31,7 +31,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
 
     private final Map<UUID, BountyData> activeBounties = new ConcurrentHashMap<>();
     private final Map<UUID, List<BountyData>> bountyHistory = new ConcurrentHashMap<>();
-    private volatile MinecraftServer server;  // NOPMD
+    private volatile MinecraftServer server;
 
     private BountyManager(MinecraftServer server) {
         super(

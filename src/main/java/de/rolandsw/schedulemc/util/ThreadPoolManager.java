@@ -40,31 +40,31 @@ public class ThreadPoolManager {
      * IO Pool - Für File I/O Operationen (Save/Load)
      * Fixed Pool mit 4 Threads - genug für async I/O
      */
-    private static volatile ExecutorService IO_POOL;  // NOPMD
+    private static volatile ExecutorService IO_POOL;
 
     /**
      * Render Pool - Für Rendering-Tasks (MapView, etc.)
      * Fixed Pool mit 2 Threads - mehr würde GPU bottleneck
      */
-    private static volatile ExecutorService RENDER_POOL;  // NOPMD
+    private static volatile ExecutorService RENDER_POOL;
 
     /**
      * Computation Pool - Für CPU-intensive Tasks
      * Fixed Pool mit CPU-Cores - optimal für CPU-bound tasks
      */
-    private static volatile ExecutorService COMPUTATION_POOL;  // NOPMD
+    private static volatile ExecutorService COMPUTATION_POOL;
 
     /**
      * Async Pool - Für kurze async Tasks
      * Cached Pool - wächst bei Bedarf, schrumpft bei Inaktivität
      */
-    private static volatile ExecutorService ASYNC_POOL;  // NOPMD
+    private static volatile ExecutorService ASYNC_POOL;
 
     /**
      * Scheduled Pool - Für verzögerte/periodische Tasks
      * Fixed Pool mit 2 Threads
      */
-    private static volatile ScheduledExecutorService SCHEDULED_POOL;  // NOPMD
+    private static volatile ScheduledExecutorService SCHEDULED_POOL;
 
     /**
      * Lock für Thread-Pool-Initialisierung
@@ -75,8 +75,8 @@ public class ThreadPoolManager {
     // HELPER: Thread Factory
     // ═══════════════════════════════════════════════════════════
 
-    private static ExecutorService createNamedPool(int threads, String nameFormat, int priority) {  // NOPMD
-        return Executors.newFixedThreadPool(  // NOPMD
+    private static ExecutorService createNamedPool(int threads, String nameFormat, int priority) {
+        return Executors.newFixedThreadPool(
             threads,
             createThreadFactory(nameFormat, priority)
         );
@@ -85,7 +85,7 @@ public class ThreadPoolManager {
     private static ThreadFactory createThreadFactory(String nameFormat, int priority) {
         AtomicInteger threadNumber = new AtomicInteger(1);
         return runnable -> {
-            Thread thread = new Thread(runnable);  // NOPMD
+            Thread thread = new Thread(runnable);
             thread.setName(String.format(nameFormat, threadNumber.getAndIncrement()));
             thread.setPriority(priority);
             thread.setDaemon(true); // Daemon threads für sauberes Shutdown
@@ -103,7 +103,7 @@ public class ThreadPoolManager {
     /**
      * Prüft ob ein Pool shut down ist
      */
-    private static boolean isPoolShutdown(ExecutorService pool) {  // NOPMD
+    private static boolean isPoolShutdown(ExecutorService pool) {
         return pool == null || pool.isShutdown() || pool.isTerminated();  // NOPMD
     }
 
@@ -128,7 +128,7 @@ public class ThreadPoolManager {
             synchronized (INIT_LOCK) {
                 if (isPoolShutdown(IO_POOL)) {
                     LOGGER.debug("Initializing IO Pool...");
-                    IO_POOL = createNamedPool(4, "ScheduleMC-IO-%d", Thread.NORM_PRIORITY);  // NOPMD
+                    IO_POOL = createNamedPool(4, "ScheduleMC-IO-%d", Thread.NORM_PRIORITY);
                 }
             }
         }
@@ -145,7 +145,7 @@ public class ThreadPoolManager {
             synchronized (INIT_LOCK) {
                 if (isPoolShutdown(RENDER_POOL)) {
                     LOGGER.debug("Initializing Render Pool...");
-                    RENDER_POOL = createNamedPool(2, "ScheduleMC-Render-%d", Thread.NORM_PRIORITY - 1);  // NOPMD
+                    RENDER_POOL = createNamedPool(2, "ScheduleMC-Render-%d", Thread.NORM_PRIORITY - 1);
                 }
             }
         }
@@ -163,7 +163,7 @@ public class ThreadPoolManager {
                 if (isPoolShutdown(COMPUTATION_POOL)) {
                     LOGGER.debug("Initializing Computation Pool...");
                     int poolSize = Math.max(2, Runtime.getRuntime().availableProcessors() / 2);
-                    COMPUTATION_POOL = createNamedPool(poolSize, "ScheduleMC-Compute-%d", Thread.NORM_PRIORITY);  // NOPMD
+                    COMPUTATION_POOL = createNamedPool(poolSize, "ScheduleMC-Compute-%d", Thread.NORM_PRIORITY);
                 }
             }
         }
@@ -180,13 +180,13 @@ public class ThreadPoolManager {
             synchronized (INIT_LOCK) {
                 if (isPoolShutdown(ASYNC_POOL)) {
                     LOGGER.debug("Initializing Async Pool...");
-                    ASYNC_POOL = new ThreadPoolExecutor(  // NOPMD
+                    ASYNC_POOL = new ThreadPoolExecutor(
                         0,
                         20,
                         60L,
                         TimeUnit.SECONDS,
                         new SynchronousQueue<>(),
-                        createThreadFactory("ScheduleMC-Async-%d", Thread.NORM_PRIORITY)  // NOPMD
+                        createThreadFactory("ScheduleMC-Async-%d", Thread.NORM_PRIORITY)
                     );
                 }
             }
@@ -204,9 +204,9 @@ public class ThreadPoolManager {
             synchronized (INIT_LOCK) {
                 if (isPoolShutdown(SCHEDULED_POOL)) {
                     LOGGER.debug("Initializing Scheduled Pool...");
-                    SCHEDULED_POOL = new ScheduledThreadPoolExecutor(  // NOPMD
+                    SCHEDULED_POOL = new ScheduledThreadPoolExecutor(
                         2,
-                        createThreadFactory("ScheduleMC-Scheduled-%d", Thread.NORM_PRIORITY)  // NOPMD
+                        createThreadFactory("ScheduleMC-Scheduled-%d", Thread.NORM_PRIORITY)
                     );
                 }
             }
@@ -310,7 +310,7 @@ public class ThreadPoolManager {
     /**
      * Fährt einen Pool herunter mit Timeout
      */
-    private static void shutdownPool(String name, ExecutorService pool) {  // NOPMD
+    private static void shutdownPool(String name, ExecutorService pool) {
         // Skip shutdown if pool was never initialized
         if (pool == null) {
             LOGGER.debug("{} pool was never initialized, skipping shutdown", name);
@@ -338,7 +338,7 @@ public class ThreadPoolManager {
             if (pool != null) {
                 pool.shutdownNow();  // NOPMD
             }
-            Thread.currentThread().interrupt();  // NOPMD
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -352,8 +352,8 @@ public class ThreadPoolManager {
      * @return Anzahl wartender Tasks im IO Pool
      */
     public static int getIOPoolQueueSize() {
-        if (IO_POOL instanceof ThreadPoolExecutor) {  // NOPMD
-            return ((ThreadPoolExecutor) IO_POOL).getQueue().size();  // NOPMD
+        if (IO_POOL instanceof ThreadPoolExecutor) {
+            return ((ThreadPoolExecutor) IO_POOL).getQueue().size();
         }
         return 0;
     }
@@ -364,8 +364,8 @@ public class ThreadPoolManager {
      * @return Anzahl wartender Tasks im Computation Pool
      */
     public static int getComputationPoolQueueSize() {
-        if (COMPUTATION_POOL instanceof ThreadPoolExecutor) {  // NOPMD
-            return ((ThreadPoolExecutor) COMPUTATION_POOL).getQueue().size();  // NOPMD
+        if (COMPUTATION_POOL instanceof ThreadPoolExecutor) {
+            return ((ThreadPoolExecutor) COMPUTATION_POOL).getQueue().size();
         }
         return 0;
     }
@@ -376,8 +376,8 @@ public class ThreadPoolManager {
      * @return Anzahl aktiv laufender Tasks
      */
     public static int getComputationPoolActiveCount() {
-        if (COMPUTATION_POOL instanceof ThreadPoolExecutor) {  // NOPMD
-            return ((ThreadPoolExecutor) COMPUTATION_POOL).getActiveCount();  // NOPMD
+        if (COMPUTATION_POOL instanceof ThreadPoolExecutor) {
+            return ((ThreadPoolExecutor) COMPUTATION_POOL).getActiveCount();
         }
         return 0;
     }
@@ -399,9 +399,9 @@ public class ThreadPoolManager {
         return sb.toString();
     }
 
-    private static String getPoolStats(String name, ExecutorService pool) {  // NOPMD
-        if (pool instanceof ThreadPoolExecutor) {  // NOPMD
-            ThreadPoolExecutor tpe = (ThreadPoolExecutor) pool;  // NOPMD
+    private static String getPoolStats(String name, ExecutorService pool) {
+        if (pool instanceof ThreadPoolExecutor) {
+            ThreadPoolExecutor tpe = (ThreadPoolExecutor) pool;
             return String.format(
                 "%s Pool: Active=%d, Pool=%d, Queue=%d, Completed=%d\n",
                 name,

@@ -25,7 +25,7 @@ public class NPCDialogueProvider {
     // ═══════════════════════════════════════════════════════════
 
     private static final Map<NPCType, DialogueTree> TYPE_DIALOGUES = new ConcurrentHashMap<>();
-    private static volatile boolean initialized = false;  // NOPMD
+    private static volatile boolean initialized = false;
 
     /**
      * Initialisiert alle Standard-Dialogbäume

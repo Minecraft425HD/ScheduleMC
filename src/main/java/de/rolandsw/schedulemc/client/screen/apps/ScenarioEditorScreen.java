@@ -76,7 +76,7 @@ public class ScenarioEditorScreen extends Screen {
             "STROMAUSFALL", "UNWETTER"};
     private static final String[] COLOR_TYPES = {"WEISS", "ROT", "GRUEN", "BLAU", "GELB", "LILA", "ORANGE", "GRAU"};
     private static final String[] MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
-    private static final String[] MISSION_TYPE_LABELS = {"Stuendlich", "Taeglich", "Woechentlich"};  // NOPMD
+    private static final String[] MISSION_TYPE_LABELS = {"Stuendlich", "Taeglich", "Woechentlich"};
 
     // Separierte Gang- und Story-Typen fuer den zweigeteilten Selektor
     private static final String[] GANG_MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
@@ -133,7 +133,7 @@ public class ScenarioEditorScreen extends Screen {
 
     // Palette
     private int paletteScroll = 0;
-    private final Map<ObjectiveType.Category, Boolean> catExpanded = new LinkedHashMap<>();  // NOPMD
+    private final Map<ObjectiveType.Category, Boolean> catExpanded = new LinkedHashMap<>();
 
     // ═══════════════════════════════════════════════════════════
     // ANSICHTSMODUS (Gang-Editor ↔ Spieler-Missions-Editor)
@@ -347,7 +347,7 @@ public class ScenarioEditorScreen extends Screen {
                     this.width / 2, this.height / 2 - 4, 0x555555);
         } else {
             // Hovered Block finden
-            hoveredBlockId = null;  // NOPMD
+            hoveredBlockId = null;
             if (mx >= PALETTE_W && mx < propsLeft() && my >= TOOLBAR_H && my < this.height - STATUS_H) {
                 int cL = PALETTE_W, cT = TOOLBAR_H;
                 List<ScenarioObjective> objs = currentScenario.getObjectives();
@@ -479,7 +479,7 @@ public class ScenarioEditorScreen extends Screen {
     }
 
     // ─── CANVAS ───
-    private void renderCanvas(GuiGraphics g, int mx, int my) {  // NOPMD
+    private void renderCanvas(GuiGraphics g, int mx, int my) {
         int cL = PALETTE_W, cT = TOOLBAR_H, cR = propsLeft(), cB = this.height - STATUS_H;
         g.fill(cL, cT, cR, cB, C_CANVAS);
 
@@ -723,7 +723,7 @@ public class ScenarioEditorScreen extends Screen {
         g.drawCenteredString(this.font, "+", lvlX + 15, y + 3, 0xFFFFFF);
     }
 
-    private int getMissionTypeIndex() {  // NOPMD
+    private int getMissionTypeIndex() {
         String t = currentScenario.getMissionType();
         for (int i = 0; i < MISSION_TYPES.length; i++) if (MISSION_TYPES[i].equals(t)) return i;
         return 1;
@@ -963,7 +963,7 @@ public class ScenarioEditorScreen extends Screen {
         // Offene Param-Dropdown behandeln
         if (activeParamDD != null) {
             boolean handled = handleParamDDClick(mx, my);
-            activeParamDD = null;  // NOPMD
+            activeParamDD = null;
             paramDDScroll = 0;
             if (handled) return true;
         }
@@ -1099,7 +1099,7 @@ public class ScenarioEditorScreen extends Screen {
             currentScenario.setMinGangLevel(currentScenario.getMinGangLevel() + 1);
     }
 
-    private void handlePropsClick(int mx, int my, int button) {  // NOPMD
+    private void handlePropsClick(int mx, int my, int button) {
         if (selectedBlockId == null) return;
         ScenarioObjective obj = currentScenario.getObjective(selectedBlockId);
         if (obj == null) return;
@@ -1215,7 +1215,7 @@ public class ScenarioEditorScreen extends Screen {
         return false;
     }
 
-    private void handlePalette(int mx, int my) {  // NOPMD
+    private void handlePalette(int mx, int my) {
         int pB = this.height - STATUS_H;  // NOPMD
         int y = TOOLBAR_H + 14 - paletteScroll;
         for (var entry : catExpanded.entrySet()) {
@@ -1238,14 +1238,14 @@ public class ScenarioEditorScreen extends Screen {
         int cL = PALETTE_W, cT = TOOLBAR_H;
 
         if (button == 1) {
-            if (connecting) { connecting = false; connectSrcId = null; return; }  // NOPMD
+            if (connecting) { connecting = false; connectSrcId = null; return; }
             for (ScenarioObjective o : currentScenario.getObjectives()) {
                 int bx = cL + o.getEditorX() - scrollX, by = cT + o.getEditorY() - scrollY;
                 if (mx >= bx && mx < bx + BLOCK_W && my >= by && my < by + BLOCK_H) {
                     o.setNextObjectiveId(null); return;
                 }
             }
-            selectedBlockId = null; rebuildProps(); return;  // NOPMD
+            selectedBlockId = null; rebuildProps(); return;
         }
 
         if (connecting && connectSrcId != null) {
@@ -1255,10 +1255,10 @@ public class ScenarioEditorScreen extends Screen {
                 if (mx >= bx && mx < bx + BLOCK_W && my >= by && my < by + BLOCK_H) {
                     ScenarioObjective src = currentScenario.getObjective(connectSrcId);
                     if (src != null) src.setNextObjectiveId(o.getId());
-                    connecting = false; connectSrcId = null; return;  // NOPMD
+                    connecting = false; connectSrcId = null; return;
                 }
             }
-            connecting = false; connectSrcId = null; return;  // NOPMD
+            connecting = false; connectSrcId = null; return;
         }
 
         // Connector klick
@@ -1283,7 +1283,7 @@ public class ScenarioEditorScreen extends Screen {
             }
         }
 
-        selectedBlockId = null; rebuildProps();  // NOPMD
+        selectedBlockId = null; rebuildProps();
     }
 
     @Override
@@ -1324,7 +1324,7 @@ public class ScenarioEditorScreen extends Screen {
     @Override
     public boolean keyPressed(int key, int scan, int mod) {
         if (key == 261 && selectedBlockId != null) { deleteSelectedBlock(); return true; }
-        if (key == 256 && connecting) { connecting = false; connectSrcId = null; return true; }  // NOPMD
+        if (key == 256 && connecting) { connecting = false; connectSrcId = null; return true; }
         return super.keyPressed(key, scan, mod);
     }
 
@@ -1346,7 +1346,7 @@ public class ScenarioEditorScreen extends Screen {
         ScenarioObjective o = currentScenario.getObjective(selectedBlockId);
         if (o == null || o.getType() == ObjectiveType.START || o.getType() == ObjectiveType.REWARD) return;
         currentScenario.removeObjective(selectedBlockId);
-        selectedBlockId = null;  // NOPMD
+        selectedBlockId = null;
         rebuildProps();
     }
 
@@ -1356,7 +1356,7 @@ public class ScenarioEditorScreen extends Screen {
 
     private void loadScenario(MissionScenario s) {
         currentScenario = ScenarioManager.fromJson(ScenarioManager.scenarioToJson(s));
-        selectedBlockId = null; scrollX = 0; scrollY = 0;  // NOPMD
+        selectedBlockId = null; scrollX = 0; scrollY = 0;
         if (nameField != null) nameField.setValue(currentScenario.getName());
         rebuildProps();
     }
@@ -1391,7 +1391,7 @@ public class ScenarioEditorScreen extends Screen {
             currentScenario = new MissionScenario();
             savedGangScenario = currentScenario;
         }
-        selectedBlockId = null; scrollX = 0; scrollY = 0;  // NOPMD
+        selectedBlockId = null; scrollX = 0; scrollY = 0;
         if (nameField != null) nameField.setValue(currentScenario.getName());
         rebuildProps();
     }

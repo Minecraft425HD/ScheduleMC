@@ -35,7 +35,7 @@ public class PrisonManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile PrisonManager instance;  // NOPMD
+    private static volatile PrisonManager instance;
 
     public static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;
     public static final double BAIL_MULTIPLIER = 1000.0;

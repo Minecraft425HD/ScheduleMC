@@ -86,7 +86,7 @@ public class InputDialogScreen extends Screen {
         }).bounds(leftPos + 130, topPos + 80, 90, 20).build());
     }
 
-    private void onInputChanged(String text) {  // NOPMD
+    private void onInputChanged(String text) {
         // Filter ungültige Zeichen basierend auf Input-Type
         if (inputType == InputType.NUMBER || inputType == InputType.INTEGER) {
             String filtered = text.replaceAll("[^0-9.]", "");

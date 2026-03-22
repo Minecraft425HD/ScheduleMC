@@ -178,8 +178,8 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
         inputDirty = true; // OPTIMIERUNG: Markiere als dirty
         if (inputStack.getCount() <= 0) {
             inputStack = ItemStack.EMPTY;
-            productionType = null;  // NOPMD
-            quality = null;  // NOPMD
+            productionType = null;
+            quality = null;
         }
 
         // Erhöhe Output
@@ -220,8 +220,8 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            productionType = null;  // NOPMD
-            quality = null;  // NOPMD
+            productionType = null;
+            quality = null;
             processingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

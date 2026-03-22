@@ -31,7 +31,7 @@ public class NPCLifeSystemSavedData extends SavedData {
     // ═══════════════════════════════════════════════════════════
 
     private final ServerLevel level;
-    private CompoundTag cachedData;  // NOPMD
+    private CompoundTag cachedData;
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR

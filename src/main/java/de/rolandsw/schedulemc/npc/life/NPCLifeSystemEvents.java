@@ -97,7 +97,7 @@ public class NPCLifeSystemEvents {
     // ═══════════════════════════════════════════════════════════
 
     /** Zähler für periodisches Auto-Save */
-    private static volatile int autoSaveCounter = 0;  // NOPMD
+    private static volatile int autoSaveCounter = 0;
     private static final int AUTO_SAVE_INTERVAL = ModConstants.TICKS_SAVE_INTERVAL;
 
     /**

@@ -46,7 +46,7 @@ public enum Faction {
     private final String description;
     private final ChatFormatting color;
     private final int baseReputation;
-    private final boolean isLawful;  // NOPMD
+    private final boolean isLawful;
 
     Faction(String displayName, String description, ChatFormatting color,
             int baseReputation, boolean isLawful) {

@@ -35,21 +35,21 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private static final int COL_BG = 0xFFC6C6C6;
     private static final int COL_CARD_BG = 0xFFAAAAAA;
     private static final int COL_CART_BG = 0xFFB8B8B8;
-    private static final int COL_TAB_ACTIVE = 0xFF9090D0;  // NOPMD
-    private static final int COL_TAB_INACTIVE = 0xFF808080;  // NOPMD
+    private static final int COL_TAB_ACTIVE = 0xFF9090D0;
+    private static final int COL_TAB_INACTIVE = 0xFF808080;
 
     private static final int COL_TEXT = 0x404040;
     private static final int COL_TEXT_LIGHT = 0x555555;
     private static final int COL_GREEN = 0x00AA00;
     private static final int COL_RED = 0xAA0000;
-    private static final int COL_TITLE = 0xFFFFFF;  // NOPMD
+    private static final int COL_TITLE = 0xFFFFFF;
     private static final int COL_PRICE = 0x006600;
     private static final int COL_BAR_GOOD = 0xFF00CC00;
     private static final int COL_BAR_MED = 0xFFCCCC00;
     private static final int COL_BAR_BAD = 0xFFCC0000;
     private static final int COL_BAR_BG = 0xFF555555;
 
-    private Inventory playerInv;  // NOPMD
+    private Inventory playerInv;
     private final EntityGenericVehicle vehicle;
     final private VehicleUtils.VehicleRenderer vehicleRenderer;
 
@@ -61,7 +61,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private final List<WerkstattCartItem> cart = new ArrayList<>();
 
     // Tab buttons
-    private Button tabOverview, tabService, tabUpgrade, tabPaint, tabContainer;  // NOPMD
+    private Button tabOverview, tabService, tabUpgrade, tabPaint, tabContainer;
 
     // Service buttons (add to cart)
     private Button btnAddRepair, btnAddBattery, btnAddOil, btnTireSeasonSwitch;
@@ -82,7 +82,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private final List<Button> cartRemoveButtons = new ArrayList<>();
 
     // Bottom buttons
-    private Button btnCheckout, btnLeave;  // NOPMD
+    private Button btnCheckout, btnLeave;
 
     // Cart scroll offset
     private int cartScrollOffset = 0;
@@ -766,7 +766,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
     }
 
-    private void drawUpgradeCard(GuiGraphics g, int x, int y, String title, String current, String next, double cost, boolean isMax, boolean inCart) {  // NOPMD
+    private void drawUpgradeCard(GuiGraphics g, int x, int y, String title, String current, String next, double cost, boolean isMax, boolean inCart) {
         g.fill(x, y, x + 190, y + 42, 0xFF999999);
         g.fill(x + 1, y + 1, x + 189, y + 41, 0xFFBBBBBB);
 

@@ -32,16 +32,16 @@ public class DialogueOption {
     private DialogueCondition enabledCondition = DialogueCondition.always();
 
     /** Text der angezeigt wird wenn Option nicht wählbar */
-    private String disabledReason = "";  // NOPMD
+    private String disabledReason = "";
 
     /** Aktionen die bei Auswahl ausgeführt werden */
     private final List<DialogueAction> actions = new ArrayList<>();
 
     /** Priorität für Sortierung (höher = weiter oben) */
-    private int priority = 0;  // NOPMD
+    private int priority = 0;
 
     /** Tooltip/Hinweis */
-    private String tooltip = "";  // NOPMD
+    private String tooltip = "";
 
     /** Icon-ID (optional) */
     @Nullable
@@ -265,7 +265,7 @@ public class DialogueOption {
      */
     public DialogueOption setEndNode(boolean isEndNode) {
         if (isEndNode) {
-            this.targetNodeId = null;  // NOPMD
+            this.targetNodeId = null;
             this.actions.add(DialogueAction.endDialogue());
         }
         return this;

@@ -27,7 +27,7 @@ public final class BiomeColors {
     private static final ConcurrentHashMap<Biome, Integer> IDtoColor = new ConcurrentHashMap<>(256);
     private static final ConcurrentSkipListMap<String, Integer> nameToColor = new ConcurrentSkipListMap<>();
     // SICHERHEIT: volatile für Memory Visibility
-    private static volatile boolean dirty;  // NOPMD
+    private static volatile boolean dirty;
 
     private BiomeColors() {}
 

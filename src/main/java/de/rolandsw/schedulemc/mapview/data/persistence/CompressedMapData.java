@@ -41,8 +41,8 @@ public class CompressedMapData extends AbstractMapData {
     private final static byte[] compressedEmptyData = CompressionUtils.compress(generateEmptyData());
 
     // OPTIMIZATION: volatile for lock-free reads
-    private volatile byte[] data;  // NOPMD
-    private volatile boolean isCompressed;  // NOPMD
+    private volatile byte[] data;
+    private volatile boolean isCompressed;
 
     // OPTIMIZATION: Replaced BiMap with ConcurrentHashMap (lock-free!)
     private final ConcurrentHashMap<BlockState, Integer> blockStateToInt = new ConcurrentHashMap<>();

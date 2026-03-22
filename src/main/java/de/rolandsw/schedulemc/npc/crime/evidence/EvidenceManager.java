@@ -31,7 +31,7 @@ public class EvidenceManager extends AbstractPersistenceManager<EvidenceManager.
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static volatile EvidenceManager instance;  // NOPMD
+    private static volatile EvidenceManager instance;
     private static final Object INSTANCE_LOCK = new Object();
 
     /** Maximale Beweise pro Spieler */

@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GangMissionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GangMissionManager.class);
-    private static volatile GangMissionManager instance;  // NOPMD
+    private static volatile GangMissionManager instance;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     // gangId -> Liste aktiver Missionen
@@ -71,7 +71,7 @@ public class GangMissionManager {
         synchronized (GangMissionManager.class) {
             if (instance != null) {
                 instance.save();
-                instance = null;  // NOPMD
+                instance = null;
             }
         }
     }

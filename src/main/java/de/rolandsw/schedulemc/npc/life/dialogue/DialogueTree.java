@@ -20,7 +20,7 @@ public class DialogueTree {
     private final String name;
 
     /** Alle Nodes im Baum, nach ID */
-    private final Map<String, DialogueNode> nodes = new LinkedHashMap<>();  // NOPMD
+    private final Map<String, DialogueNode> nodes = new LinkedHashMap<>();
 
     /** ID des Start-Nodes */
     private String startNodeId = "start";
@@ -29,10 +29,10 @@ public class DialogueTree {
     private final List<ConditionalStart> conditionalStarts = new ArrayList<>();
 
     /** Bedingung um diesen Dialog zu starten */
-    private DialogueCondition startCondition = DialogueCondition.always();  // NOPMD
+    private DialogueCondition startCondition = DialogueCondition.always();
 
     /** Priorität wenn mehrere Dialoge verfügbar sind */
-    private int priority = 0;  // NOPMD
+    private int priority = 0;
 
     /** Tags für Kategorisierung */
     private final Set<String> tags = new HashSet<>();

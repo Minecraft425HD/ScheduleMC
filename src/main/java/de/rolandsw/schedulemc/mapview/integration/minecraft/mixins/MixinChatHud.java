@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinChatHud {
 
     // @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"))
-    private void addMessage(Component message, CallbackInfo ci) {  // NOPMD
+    private void addMessage(Component message, CallbackInfo ci) {
         MapDataManager.checkPermissionMessages(message);
     }
 }

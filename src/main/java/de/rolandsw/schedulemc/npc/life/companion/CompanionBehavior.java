@@ -180,7 +180,7 @@ public class CompanionBehavior {
 
         // Ziel validieren
         if (currentTarget != null && (currentTarget.isDeadOrDying() || companion.distanceTo(currentTarget) > 20)) {
-            currentTarget = null;  // NOPMD
+            currentTarget = null;
         }
 
         // Neues Ziel suchen
@@ -228,7 +228,7 @@ public class CompanionBehavior {
     /**
      * Heil-Verhalten: Heilt den Besitzer
      */
-    private void behaviorHeal(ServerLevel level, ServerPlayer owner) {  // NOPMD
+    private void behaviorHeal(ServerLevel level, ServerPlayer owner) {
         if (!data.getType().canHeal()) return;
 
         // Zum Besitzer gehen
@@ -378,7 +378,7 @@ public class CompanionBehavior {
     /**
      * Warnt den Besitzer vor einer Bedrohung
      */
-    private void warnOwnerAboutThreat(ServerPlayer owner, LivingEntity threat) {  // NOPMD
+    private void warnOwnerAboutThreat(ServerPlayer owner, LivingEntity threat) {
         // Hier könnte eine Nachricht oder ein Sound gesendet werden
         // Für jetzt: Companion schaut zum Besitzer
         companion.getLookControl().setLookAt(owner);

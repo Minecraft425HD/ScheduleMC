@@ -29,7 +29,7 @@ public class NPCMemory {
 
     private static final int MAX_MEMORIES_PER_PLAYER = NPCLifeConstants.Memory.MAX_MEMORIES_PER_PLAYER;
     private static final int MAX_DAILY_SUMMARIES = NPCLifeConstants.Memory.MAX_DAILY_SUMMARIES;
-    private static final int MAX_PLAYER_PROFILES = NPCLifeConstants.Memory.MAX_PLAYER_PROFILES;  // NOPMD
+    private static final int MAX_PLAYER_PROFILES = NPCLifeConstants.Memory.MAX_PLAYER_PROFILES;
 
     // ═══════════════════════════════════════════════════════════
     // DATA STRUCTURES

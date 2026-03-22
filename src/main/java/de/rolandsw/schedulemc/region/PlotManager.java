@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PlotManager implements IncrementalSaveManager.ISaveable {
 
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile PlotManager instance;  // NOPMD
+    private static volatile PlotManager instance;
 
     private PlotManager() {}
 
@@ -67,8 +67,8 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
     private static final AtomicBoolean dirty = new AtomicBoolean(false);
     // SICHERHEIT: AtomicInteger für Thread-safe Plot-ID Inkrement
     private static final AtomicInteger plotCounter = new AtomicInteger(1);
-    private static volatile boolean isHealthy = true;  // NOPMD
-    private static volatile String lastError = null;  // NOPMD
+    private static volatile boolean isHealthy = true;
+    private static volatile String lastError = null;
     
     // ═══════════════════════════════════════════════════════════
     // PLOT ERSTELLEN
@@ -434,7 +434,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
         try {
             loadPlotsFromFile(PLOTS_FILE);
             isHealthy = true;
-            lastError = null;  // NOPMD
+            lastError = null;
             dirty.set(false);
             LOGGER.info("Plots loaded successfully: {} plots", plots.size());
             LOGGER.info("Spatial Index: {}", spatialIndex.getStats());
@@ -466,7 +466,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
      * Lädt Plots aus einer spezifischen Datei
      * THREAD-SAFETY: Synchronized um Atomizität während des Ladevorgangs zu gewährleisten
      */
-    private static void loadPlotsFromFile(File sourceFile) throws Exception {  // NOPMD
+    private static void loadPlotsFromFile(File sourceFile) throws Exception {
         Type mapType = new TypeToken<Map<String, PlotRegion>>(){}.getType();
 
         try (FileReader reader = new FileReader(sourceFile)) {
@@ -556,7 +556,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
 
             dirty.set(false);
             isHealthy = true;
-            lastError = null;  // NOPMD
+            lastError = null;
             LOGGER.info("Plots saved: {} plots", plots.size());
 
         } catch (Exception e) {
@@ -567,9 +567,9 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             // OPTIMIERT: Asynchroner Retry statt Thread.sleep() (blockiert keinen I/O-Thread)
             de.rolandsw.schedulemc.util.ThreadPoolManager.getIOPool().execute(() -> {
                 try {
-                    Thread.sleep(100);  // NOPMD
+                    Thread.sleep(100);
                 } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();  // NOPMD
+                    Thread.currentThread().interrupt();
                     return;
                 }
                 retrySavePlots();
@@ -596,7 +596,7 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
 
             LOGGER.info("Retry successful - plots saved");
             isHealthy = true;
-            lastError = null;  // NOPMD
+            lastError = null;
             dirty.set(false);
 
         } catch (Exception retryError) {

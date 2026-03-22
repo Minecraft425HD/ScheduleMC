@@ -30,7 +30,7 @@ public class PlayerMissionManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(PlayerMissionManager.class);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private static volatile PlayerMissionManager instance;  // NOPMD
+    private static volatile PlayerMissionManager instance;
 
     /** playerUUID -> Liste aktiver/abgeschlossener Missionen */
     private final ConcurrentHashMap<UUID, List<PlayerMission>> playerMissions = new ConcurrentHashMap<>();
@@ -63,7 +63,7 @@ public class PlayerMissionManager {
         synchronized (PlayerMissionManager.class) {
             if (instance != null) {
                 instance.save();
-                instance = null;  // NOPMD
+                instance = null;
             }
         }
     }

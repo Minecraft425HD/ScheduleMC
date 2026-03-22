@@ -73,8 +73,8 @@ public class PlotInfoHudOverlay {
                 }
             } else {
                 // Nicht mehr auf PlotInfoBlock → Cache invalidieren
-                lastTargetPos = null;  // NOPMD
-                cachedPlot = null;  // NOPMD
+                lastTargetPos = null;
+                cachedPlot = null;
             }
         }, "onRenderGuiOverlay");
     }

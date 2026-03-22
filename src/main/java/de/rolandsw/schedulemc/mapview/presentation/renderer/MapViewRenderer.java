@@ -90,15 +90,15 @@ import java.util.concurrent.Future;
 public class MapViewRenderer implements Runnable, MapChangeListener {
     private final Minecraft minecraft = Minecraft.getInstance();
     // private final float[] lastLightBrightnessTable = new float[16];
-    private final Object coordinateLock = new Object();  // NOPMD
+    private final Object coordinateLock = new Object();
     private final ResourceLocation resourceArrow = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/mmarrow.png");
     private final ResourceLocation resourceSquareMap = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/squaremap.png");
     private final ResourceLocation resourceRoundMap = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/roundmap.png");
-    private final ResourceLocation squareStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/square.png");  // NOPMD
-    private final ResourceLocation circleStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/circle.png");  // NOPMD
+    private final ResourceLocation squareStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/square.png");
+    private final ResourceLocation circleStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/circle.png");
     private ClientLevel world;
     private final MapViewConfiguration options;
-    private final LayoutVariables layoutVariables;  // NOPMD
+    private final LayoutVariables layoutVariables;
     private final ColorCalculationService colorManager;
     private final NPCMapRenderer npcMapRenderer = new NPCMapRenderer();
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
@@ -115,11 +115,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private BlockState transparentBlockState;
     private BlockState surfaceBlockState;
     // SICHERHEIT: volatile für Thread-Safety zwischen Render und Game Thread
-    private volatile boolean imageChanged = true;  // NOPMD
+    private volatile boolean imageChanged = true;
     private LightTexture lightmapTexture;
-    private volatile boolean needLightmapRefresh = true;  // NOPMD
-    private volatile int tickWithLightChange;  // NOPMD
-    private volatile boolean lastPaused = true;  // NOPMD
+    private volatile boolean needLightmapRefresh = true;
+    private volatile int tickWithLightChange;
+    private volatile boolean lastPaused = true;
     private double lastGamma;
     private float lastSunBrightness;
     private float lastLightning;
@@ -129,7 +129,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private boolean lastAboveHorizon = true;
     private int lastBiome;
     private int lastSkyColor;
-    private Screen lastGuiScreen;  // NOPMD
+    private Screen lastGuiScreen;
     private boolean fullscreenMap;
     private int zoom;
     private int scWidth;
@@ -141,11 +141,11 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private boolean doFullRender = true;
     private boolean zoomChanged;
     // OPTIMIZATION: volatile for thread-safe coordinate updates (remove synchronized blocks)
-    private volatile int lastX;  // NOPMD
-    private volatile int lastZ;  // NOPMD
+    private volatile int lastX;
+    private volatile int lastZ;
     private int lastY;
-    private volatile int lastImageX;  // NOPMD
-    private volatile int lastImageZ;  // NOPMD
+    private volatile int lastImageX;
+    private volatile int lastImageZ;
     private boolean lastFullscreen;
     // Performance-Optimierung: Movement-Throttling
     private int lastPlayerX = Integer.MIN_VALUE;
@@ -171,7 +171,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private int zCalcTicker;
     private final int[] lightmapColors = new int[256];
     private double zoomScale = 1.0;
-    private double zoomScaleAdjusted = 1.0;  // NOPMD
+    private double zoomScaleAdjusted = 1.0;
     private static double minTablistOffset;
     private static float statusIconOffset = 0.0F;
     // PERFORMANCE: Cache biome registry reference (avoid registryAccess().registryOrThrow() per frame)
@@ -184,8 +184,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private final ResourceLocation[] resourceMapImageUnfiltered = new ResourceLocation[5];
     // private GpuTexture fboTexture;
     // private GpuTextureView fboTextureView;
-    private Tesselator fboTessellator = new Tesselator(4096);  // NOPMD
-    private MapViewCachedOrthoProjectionMatrixBuffer projection;  // NOPMD
+    private Tesselator fboTessellator = new Tesselator(4096);
+    private MapViewCachedOrthoProjectionMatrixBuffer projection;
 
     public MapViewRenderer() {
         resourceMapImageFiltered[0] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/filtered/0");
@@ -298,7 +298,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     @Override
     public void run() {
         if (minecraft != null) {
-            while (!Thread.currentThread().isInterrupted()) {  // NOPMD
+            while (!Thread.currentThread().isInterrupted()) {
                 if (this.world != null) {
                     if (this.options.minimapAllowed) {
                         try {
@@ -324,7 +324,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     try {
                         this.zCalcLock.wait(0L);
                     } catch (InterruptedException exception) {
-                        Thread.currentThread().interrupt();  // NOPMD
+                        Thread.currentThread().interrupt();
                         break;
                     }
                 }
@@ -335,7 +335,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     public void newWorld(ClientLevel world) {
         this.world = world;
-        this.cachedBiomeRegistry = null; // Invalidate cached registry on world change  // NOPMD
+        this.cachedBiomeRegistry = null; // Invalidate cached registry on world change
         this.lightmapTexture = this.getLightmapTexture();
         this.mapData[this.zoom].blank();
         this.doFullRender = true;
@@ -891,7 +891,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             // Optimized Y movement (N/S): recalculate new rows
             if (offsetZ != 0) {
                 // Clear chunk cache for new recalculation
-                cachedChunk = null;  // NOPMD
+                cachedChunk = null;
                 int startY, endY;
                 if (offsetZ > 0) {
                     // Moved south: recalculate bottom rows
@@ -913,7 +913,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             // Optimized X movement (E/W): recalculate new columns
             if (offsetX != 0) {
                 // Clear chunk cache for new recalculation
-                cachedChunk = null;  // NOPMD
+                cachedChunk = null;
                 int colStartX, colEndX;
                 if (offsetX > 0) {
                     // Moved east: recalculate right columns
@@ -1057,7 +1057,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         int seafloorColor = 0;
         int transparentColor = 0;
         int foliageColor = 0;
-        this.surfaceBlockState = null;  // NOPMD
+        this.surfaceBlockState = null;
         this.transparentBlockState = BlockDatabase.air.defaultBlockState();
         BlockState foliageBlockState = BlockDatabase.air.defaultBlockState();
         BlockState seafloorBlockState = BlockDatabase.air.defaultBlockState();
@@ -1662,7 +1662,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         return ARGBCompat.toABGR(combinedLight);
     }
 
-    private void renderMap(GuiGraphics guiGraphics, int x, int y, int scScale, float scaleProj) {  // NOPMD
+    private void renderMap(GuiGraphics guiGraphics, int x, int y, int scScale, float scaleProj) {
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(scaleProj, scaleProj, 1.0f);
 
@@ -1908,7 +1908,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         write(drawContext, Component.nullToEmpty(text), x, y, color);
     }
 
-    private int textWidth(Component text) {  // NOPMD
+    private int textWidth(Component text) {
         return minecraft.font.width(text);
     }
 

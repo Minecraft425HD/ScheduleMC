@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class EconomicEvent {
     private final String name;
-    private final Map<Item, Float> itemMultipliers = new HashMap<>();  // NOPMD
+    private final Map<Item, Float> itemMultipliers = new HashMap<>();
     private final long expiryTime;
 
     /**

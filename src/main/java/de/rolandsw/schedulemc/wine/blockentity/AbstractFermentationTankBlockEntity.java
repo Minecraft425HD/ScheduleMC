@@ -105,8 +105,8 @@ public abstract class AbstractFermentationTankBlockEntity extends BlockEntity im
             fermentationProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            wineType = null;  // NOPMD
-            quality = null;  // NOPMD
+            wineType = null;
+            quality = null;
             fermentationProgress = 0;
         } else {
             inputStack = handlerInput.copy();

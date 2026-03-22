@@ -20,11 +20,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AchievementManager extends AbstractPersistenceManager<Map<UUID, PlayerAchievements>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile AchievementManager instance;  // NOPMD
+    private static volatile AchievementManager instance;
 
-    private final Map<String, Achievement> achievements = new LinkedHashMap<>();  // NOPMD
+    private final Map<String, Achievement> achievements = new LinkedHashMap<>();
     private final Map<UUID, PlayerAchievements> playerData = new ConcurrentHashMap<>();
-    private MinecraftServer server;  // NOPMD
+    private MinecraftServer server;
 
     private AchievementManager(MinecraftServer server) {
         super(

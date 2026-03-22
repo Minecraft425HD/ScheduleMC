@@ -34,7 +34,7 @@ public class NPCBehaviorEngine {
     // Verfügbare Aktionen (sortiert nach Priorität, höchste zuerst)
     private final List<BehaviorAction> availableActions = new ArrayList<>();
     /** Index: BehaviorState → Aktionen für schnellen Lookup statt linearer Suche */
-    private final Map<BehaviorState, List<BehaviorAction>> actionsByState = new EnumMap<>(BehaviorState.class);  // NOPMD
+    private final Map<BehaviorState, List<BehaviorAction>> actionsByState = new EnumMap<>(BehaviorState.class);
 
     // Aktion-History (für Debug)
     private final Deque<String> actionHistory = new ArrayDeque<>();
@@ -250,7 +250,7 @@ public class NPCBehaviorEngine {
     private void finishCurrentAction(boolean interrupted) {
         if (currentAction != null) {
             currentAction.end(npc, interrupted);
-            currentAction = null;  // NOPMD
+            currentAction = null;
         }
         currentState = BehaviorState.IDLE;
     }

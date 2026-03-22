@@ -45,8 +45,8 @@ public class TowingYardParkingSpot {
      */
     public void clear() {
         this.occupied = false;
-        this.vehicleEntityId = null;  // NOPMD
-        this.ownerPlayerId = null;  // NOPMD
+        this.vehicleEntityId = null;
+        this.ownerPlayerId = null;
         this.owedAmount = 0;
         this.originalDamage = 0;
         this.towedTimestamp = 0;

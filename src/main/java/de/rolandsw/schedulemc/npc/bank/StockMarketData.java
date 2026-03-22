@@ -27,15 +27,15 @@ import java.util.concurrent.ThreadLocalRandom;
 public class StockMarketData {
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile StockMarketData instance;  // NOPMD
+    private static volatile StockMarketData instance;
 
     private final Map<Item, StockPrice> prices = new ConcurrentHashMap<>();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File saveFile;
-    private volatile boolean dirty = false;  // NOPMD
+    private volatile boolean dirty = false;
 
     private long currentDay = 0;
-    private long lastPriceUpdate = 0;  // NOPMD
+    private long lastPriceUpdate = 0;
 
     private StockMarketData(MinecraftServer server) {
         this.saveFile = new File(server.getServerDirectory(), "config/plotmod_stock_market.json");

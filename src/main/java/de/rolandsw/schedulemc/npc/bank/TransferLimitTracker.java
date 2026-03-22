@@ -25,12 +25,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TransferLimitTracker {
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile TransferLimitTracker instance;  // NOPMD
+    private static volatile TransferLimitTracker instance;
 
     private final Map<UUID, DailyTransferData> dailyTransfers = new ConcurrentHashMap<>();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File saveFile;
-    private volatile boolean dirty = false;  // NOPMD
+    private volatile boolean dirty = false;
 
     private long currentDay = 0;
 

@@ -139,10 +139,10 @@ public class AbstractDryingRackBlockEntity extends BlockEntity implements IUtili
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
             contentType = ContentType.NONE;
-            tobaccoType = null;  // NOPMD
-            tobaccoQuality = null;  // NOPMD
-            cannabisStrain = null;  // NOPMD
-            cannabisQuality = null;  // NOPMD
+            tobaccoType = null;
+            tobaccoQuality = null;
+            cannabisStrain = null;
+            cannabisQuality = null;
             dryingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -214,10 +214,10 @@ public class AbstractDryingRackBlockEntity extends BlockEntity implements IUtili
             inputStack = ItemStack.EMPTY;
             dryingProgress = 0;
             contentType = ContentType.NONE;
-            tobaccoType = null;  // NOPMD
-            tobaccoQuality = null;  // NOPMD
-            cannabisStrain = null;  // NOPMD
-            cannabisQuality = null;  // NOPMD
+            tobaccoType = null;
+            tobaccoQuality = null;
+            cannabisStrain = null;
+            cannabisQuality = null;
             syncToHandler();
             setChanged();
             return result;

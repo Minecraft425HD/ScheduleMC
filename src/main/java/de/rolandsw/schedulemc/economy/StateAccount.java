@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StateAccount {
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile StateAccount instance;  // NOPMD
+    private static volatile StateAccount instance;
     private static final AtomicInteger balance = new AtomicInteger(100000); // Start: 100,000€
     private static final File SAVE_FILE = new File("config/state_account.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();

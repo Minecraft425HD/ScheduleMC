@@ -137,7 +137,7 @@ public abstract class AbstractConchingMachineBlockEntity extends BlockEntity imp
             conchingProgress = 0;
         } else if (handlerCocoaMass.isEmpty()) {
             cocoaMassInput = ItemStack.EMPTY;
-            quality = null;  // NOPMD
+            quality = null;
             conchingProgress = 0;
         } else {
             cocoaMassInput = handlerCocoaMass.copy();

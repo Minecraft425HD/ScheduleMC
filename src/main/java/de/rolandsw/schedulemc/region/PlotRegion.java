@@ -64,12 +64,12 @@ public class PlotRegion {
     private int visitCount;
 
     // Öffentlicher Plot?
-    private boolean isPublic;  // NOPMD
+    private boolean isPublic;
 
     // ═══════════════════════════════════════════════════════════
     // PLOT-TYPE & WAREHOUSE (NEU)
     // ═══════════════════════════════════════════════════════════
-    private PlotType type = PlotType.RESIDENTIAL; // Default: Wohngebäude  // NOPMD
+    private PlotType type = PlotType.RESIDENTIAL; // Default: Wohngebäude
     private BlockPos warehouseLocation; // Warehouse für Shop-Plots
 
     // ═══════════════════════════════════════════════════════════
@@ -84,7 +84,7 @@ public class PlotRegion {
      */
     public PlotRegion(String plotId, BlockPos min, BlockPos max, double price) {
         this.ownerUUID = "";  // Kein Besitzer bei Erstellung
-        this.ownerName = null;  // NOPMD
+        this.ownerName = null;
         this.min = min;
         this.max = max;
         this.price = price;
@@ -102,7 +102,7 @@ public class PlotRegion {
 
         // Plot-Type & Warehouse
         this.type = PlotType.RESIDENTIAL;
-        this.warehouseLocation = null;  // NOPMD
+        this.warehouseLocation = null;
 
         // Verkauf & Miete
         this.forSale = false;

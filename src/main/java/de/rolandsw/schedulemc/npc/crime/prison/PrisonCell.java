@@ -22,7 +22,7 @@ public class PrisonCell extends PlotArea {
 
         this.cellNumber = cellNumber;
         this.securityLevel = Math.min(5, Math.max(1, securityLevel));
-        this.currentInmate = null;  // NOPMD
+        this.currentInmate = null;
         this.inmateSince = 0;
         this.releaseTime = 0;
 
@@ -44,7 +44,7 @@ public class PrisonCell extends PlotArea {
     }
 
     public void releaseInmate() {
-        this.currentInmate = null;  // NOPMD
+        this.currentInmate = null;
         this.inmateSince = 0;
         this.releaseTime = 0;
     }

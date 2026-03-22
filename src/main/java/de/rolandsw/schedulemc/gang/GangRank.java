@@ -19,11 +19,11 @@ public enum GangRank {
     private final String displayName;
     private final String colorCode;
     private final int priority;
-    private final boolean canInvite;  // NOPMD
-    private final boolean canKick;  // NOPMD
-    private final boolean canClaimTerritory;  // NOPMD
-    private final boolean canManagePerks;  // NOPMD
-    private final boolean canDisband;  // NOPMD
+    private final boolean canInvite;
+    private final boolean canKick;
+    private final boolean canClaimTerritory;
+    private final boolean canManagePerks;
+    private final boolean canDisband;
 
     GangRank(String displayName, String colorCode, int priority,
              boolean canInvite, boolean canKick, boolean canClaimTerritory,

@@ -32,7 +32,7 @@ public class ReaktionsKesselBlockEntity extends BlockEntity implements IUtilityC
     private int synthesisProgress = 0;
     private int outputCount = 0;
     private MDMAQuality outputQuality = MDMAQuality.SCHLECHT;
-    private boolean isActive = false;  // NOPMD
+    private boolean isActive = false;
 
     public ReaktionsKesselBlockEntity(BlockPos pos, BlockState state) {
         super(MDMABlockEntities.REAKTIONS_KESSEL.get(), pos, state);

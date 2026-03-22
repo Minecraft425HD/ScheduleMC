@@ -95,8 +95,8 @@ public class CrushingStationBlockEntity extends BlockEntity implements IUtilityC
             crushingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            wineType = null;  // NOPMD
-            quality = null;  // NOPMD
+            wineType = null;
+            quality = null;
             crushingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

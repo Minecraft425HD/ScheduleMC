@@ -19,7 +19,7 @@ public class PopupComponent {
     private final int clickedDirectY;
     private final int clickedWorldX;
     private final int clickedWorldZ;
-    private boolean shouldClose;  // NOPMD
+    private boolean shouldClose;
     private final PopupScreen parentGui;
     private static final int padding = 6;
 

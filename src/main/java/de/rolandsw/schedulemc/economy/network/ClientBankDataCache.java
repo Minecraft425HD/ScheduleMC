@@ -85,7 +85,7 @@ public class ClientBankDataCache {
     private static double emeraldAvg = 100.0;
 
     // Status
-    private static boolean hasData = false;  // NOPMD
+    private static boolean hasData = false;
     private static long lastUpdateTime = 0;
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -408,7 +408,7 @@ public class ClientBankDataCache {
         emeraldHistory.clear();
 
         // Clear complex objects
-        activeLoan = null;  // NOPMD
+        activeLoan = null;
 
         // Clear overdraft data
         overdraftAmount = 0.0;

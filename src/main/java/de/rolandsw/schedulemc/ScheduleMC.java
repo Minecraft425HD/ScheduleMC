@@ -172,7 +172,7 @@ public class ScheduleMC {
     private IncrementalSaveManager saveManager;
 
     // Vehicle Mod integration
-    private static volatile Main vehicleMod;  // NOPMD
+    private static volatile Main vehicleMod;
 
     public ScheduleMC() {
         this(FMLJavaModLoadingContext.get().getModEventBus());
@@ -355,7 +355,7 @@ public class ScheduleMC {
         LOGGER.info("ScheduleMC initialized");
     }
     
-    private void commonSetup(final FMLCommonSetupEvent event) {  // NOPMD
+    private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             // Initialize delivery price config from main config (after config is loaded)
             DeliveryPriceConfig.setDefaultPrice(ModConfigHandler.COMMON.WAREHOUSE_DEFAULT_DELIVERY_PRICE.get());
@@ -397,7 +397,7 @@ public class ScheduleMC {
         // Vehicle Mod handles its own setup via event bus (registered in Main constructor)
     }
 
-    private void clientSetup(final net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {  // NOPMD
+    private void clientSetup(final net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             // Register client-bound packets that reference Screen classes
             // These must be registered client-side only to avoid loading Screen classes on the server
@@ -407,7 +407,7 @@ public class ScheduleMC {
         });
     }
 
-    private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {  // NOPMD
+    private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         event.put(NPCEntities.CUSTOM_NPC.get(), CustomNPCEntity.createAttributes().build());
     }
 

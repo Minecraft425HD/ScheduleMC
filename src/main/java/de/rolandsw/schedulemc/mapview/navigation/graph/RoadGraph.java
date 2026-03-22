@@ -21,7 +21,7 @@ public class RoadGraph {
     private final Map<UUID, RoadNode> nodesById;
 
     // Cache für häufige Routen
-    private final Map<String, List<BlockPos>> pathCache = new LinkedHashMap<String, List<BlockPos>>(100, 0.75f, true) {  // NOPMD
+    private final Map<String, List<BlockPos>> pathCache = new LinkedHashMap<String, List<BlockPos>>(100, 0.75f, true) {
         @Override
         protected boolean removeEldestEntry(Map.Entry<String, List<BlockPos>> eldest) {
             return size() > 100;

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class PlotAPIImpl implements IPlotAPI {
 
-    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private final PlotManager plotManager;
 

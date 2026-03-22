@@ -172,7 +172,7 @@ public class RateLimiter {
      * Operation Window für Sliding Window Rate Limiting
      */
     private static class OperationWindow {
-        volatile long windowStart;  // NOPMD
+        volatile long windowStart;
         final AtomicInteger count;
 
         OperationWindow(long windowStart) {

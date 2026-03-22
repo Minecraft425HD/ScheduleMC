@@ -13,8 +13,8 @@ public class WorldMapConfiguration implements SubSettingsManager {
     protected int mapX;
     protected int mapZ;
     protected float zoom = 4.0F;
-    private float minZoomPower = -1.0F;  // NOPMD
-    private float maxZoomPower = 4.0F;  // NOPMD
+    private float minZoomPower = -1.0F;
+    private float maxZoomPower = 4.0F;
     protected float minZoom = 0.5F;
     protected float maxZoom = 16.0F;
     protected int cacheSize = 500;

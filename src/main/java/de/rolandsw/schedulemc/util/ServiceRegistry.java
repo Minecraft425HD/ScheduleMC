@@ -227,8 +227,8 @@ public final class ServiceRegistry {
 
     private static class ServiceEntry<T> {
         final Supplier<T> factory;
-        volatile T instance;  // NOPMD
-        volatile boolean initialized;  // NOPMD
+        volatile T instance;
+        volatile boolean initialized;
 
         ServiceEntry(Supplier<T> factory) {
             this.factory = factory;
