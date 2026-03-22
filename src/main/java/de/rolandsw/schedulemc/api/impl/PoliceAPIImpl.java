@@ -3,11 +3,6 @@ package de.rolandsw.schedulemc.api.impl;
 import de.rolandsw.schedulemc.api.police.IPoliceAPI;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
-
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -23,8 +18,6 @@ import java.util.stream.Collectors;
  * @since 3.0.0
  */
 public class PoliceAPIImpl implements IPoliceAPI {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * {@inheritDoc}
@@ -164,12 +157,7 @@ public class PoliceAPIImpl implements IPoliceAPI {
      */
     @Override
     public Map<UUID, Integer> getAllWantedPlayers() {
-        Map<UUID, Integer> wantedPlayers = CrimeManager.getAllWantedPlayers();
-        if (wantedPlayers != null) {
-            return Collections.unmodifiableMap(wantedPlayers);
-        }
-        LOGGER.debug("Stub: getAllWantedPlayers - CrimeManager.getAllWantedPlayers() not available, returning empty map");
-        return Collections.emptyMap();
+        return CrimeManager.getAllWantedPlayers();
     }
 
     /**

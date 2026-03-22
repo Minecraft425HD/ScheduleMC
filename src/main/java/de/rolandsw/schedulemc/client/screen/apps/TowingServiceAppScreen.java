@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
+import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.towing.MembershipManager;
 import de.rolandsw.schedulemc.towing.MembershipData;
 import de.rolandsw.schedulemc.towing.MembershipTier;
@@ -294,9 +295,13 @@ public class TowingServiceAppScreen extends Screen {
             return 0;
         }
 
-        // Calculate distance to nearest towing yard
-        // For now, use a dummy distance (this will be improved with towing yard selection)
-        double distance = 100.0;
+        // Calculate distance to nearest configured towing yard
+        double distance = TowingYardManager.getAllTowingYards().stream()
+            .map(PlotManager::getPlot)
+            .filter(plot -> plot != null)
+            .mapToDouble(plot -> Math.sqrt(minecraft.player.blockPosition().distSqr(plot.getCenter())))
+            .min()
+            .orElse(100.0); // fallback if no yards are configured yet
 
         double totalCost = TowingYardManager.calculateTowingCost(distance);
 

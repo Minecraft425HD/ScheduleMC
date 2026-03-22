@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.coffee.blockentity;
 import de.rolandsw.schedulemc.coffee.CoffeeQuality;
 import de.rolandsw.schedulemc.coffee.CoffeeType;
 import de.rolandsw.schedulemc.coffee.items.CoffeeCherryItem;
+import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
 import de.rolandsw.schedulemc.coffee.items.GreenCoffeeBeanItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
@@ -101,10 +102,8 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
         ItemStack handlerInput = itemHandler.getStackInSlot(0);
         if (!handlerInput.isEmpty() && inputStack.isEmpty()) {
             inputStack = handlerInput.copy();
-            // Note: CoffeeCherries would need NBT tracking from harvest to preserve variety/quality
-            // For now using defaults - proper implementation needs CoffeePlantBlock harvest tracking
-            coffeeType = CoffeeType.ARABICA;
-            quality = CoffeeQuality.SEHR_GUT;
+            coffeeType = CoffeeItems.getTypeFromCherry(inputStack);
+            quality = CoffeeCherryItem.getQuality(inputStack);
             dryingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
@@ -208,10 +207,8 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
                 // Trocknung abgeschlossen
                 // 2 Bohnen pro Kirsche
                 int beanCount = inputStack.getCount() * 2;
-                outputStack = new ItemStack(
-                    de.rolandsw.schedulemc.coffee.items.CoffeeItems.GREEN_ARABICA_BEANS.get(),
-                    beanCount
-                );
+                outputStack = new ItemStack(CoffeeItems.getGreenBeanForType(coffeeType != null ? coffeeType : CoffeeType.ARABICA), beanCount);
+                GreenCoffeeBeanItem.withQuality(outputStack, quality != null ? quality : CoffeeQuality.GUT);
                 changed = true;
             }
 
