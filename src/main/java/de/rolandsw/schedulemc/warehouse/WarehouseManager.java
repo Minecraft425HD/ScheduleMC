@@ -215,7 +215,7 @@ public class WarehouseManager {
             return;
         }
 
-        try (FileInputStream fis = new FileInputStream(dataFile)) {
+        try (InputStream fis = Files.newInputStream(dataFile.toPath())) {
             CompoundTag tag = net.minecraft.nbt.NbtIo.readCompressed(fis);
 
             ListTag levelsList = tag.getList("Levels", Tag.TAG_COMPOUND);
@@ -252,7 +252,7 @@ public class WarehouseManager {
         File dataFile = getDataFile(server);
         dataFile.getParentFile().mkdirs();
 
-        try (FileOutputStream fos = new FileOutputStream(dataFile)) {
+        try (OutputStream fos = Files.newOutputStream(dataFile.toPath())) {
             CompoundTag tag = new CompoundTag();
 
             ListTag levelsList = new ListTag();
