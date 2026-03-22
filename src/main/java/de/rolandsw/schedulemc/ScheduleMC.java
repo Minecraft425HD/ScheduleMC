@@ -150,6 +150,9 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import de.rolandsw.schedulemc.util.ConfigCache;
+import de.rolandsw.schedulemc.npc.pathfinding.NPCPathNavigation;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -181,6 +184,7 @@ public class ScheduleMC {
     public ScheduleMC(IEventBus modEventBus) {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
+        modEventBus.addListener(this::onConfigReload);
 
         // Register client-side packet handlers only on client
         net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT, () -> () -> {
@@ -409,6 +413,11 @@ public class ScheduleMC {
 
     private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         event.put(NPCEntities.CUSTOM_NPC.get(), CustomNPCEntity.createAttributes().build());
+    }
+
+    private void onConfigReload(ModConfigEvent event) {
+        ConfigCache.invalidate();
+        NPCPathNavigation.reloadConfig();
     }
 
     @SubscribeEvent
