@@ -31,3 +31,23 @@ die Subklassen auch nach dem Refactoring bestehen (nur kürzer). Der Basiskonstr
 würde durch ein `String`-Argument und eine `TriFunction`-Fabrik aufgebläht. Der
 Aufwand überwiegt den Nutzen bei weitem. Die ~43-zeiligen Subklassen sind klar und
 wartbar — so sollen sie bleiben.
+
+---
+
+### NPC God-Class Aufteilung (NPCData + CustomNPCEntity)
+**Status:** ZURÜCKGESTELLT — gewünscht, aber noch nicht umsetzen
+
+**Betrifft:**
+- `npc/data/NPCData.java` (971 Zeilen, 108 public Methoden)
+- `npc/entity/CustomNPCEntity.java` (968 Zeilen)
+
+**Geplante Aufteilung von NPCData:**
+- `NPCLocationData` — home, work, leisure (bis 10), assignedWarehouse
+- `NPCShopData` — buyShop, sellShop, merchantCategory
+- `NPCScheduleData` — workStartTime, workEndTime, homeTime
+- `NPCPoliceData` — policeStation, patrolPoints (bis 16), currentPatrolIndex, Timing
+
+**Begründung für Zurückstellung:**
+Alle ~97 NPC-Dateien rufen direkt `npcData.getXxx()` auf. Das Refactoring erfordert
+einen vollständigen Massen-Callsite-Update durch das gesamte NPC-Paket. Hohes
+Fehlerrisiko, daher explizit auf einen dedizierten Sprint verschoben.
