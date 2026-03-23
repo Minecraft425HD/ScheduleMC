@@ -49,6 +49,10 @@ public class NPCRelationship {
     private static final int HELP_BONUS = 10;         // +10 bei Hilfe
     private static final int ATTACK_PENALTY = -50;    // -50 bei Angriff
 
+    // Purchase/Sale bonus thresholds
+    private static final double LARGE_PURCHASE_THRESHOLD = 1000.0;     // ab 1000€ extra Bonus
+    private static final double VERY_LARGE_PURCHASE_THRESHOLD = 5000.0; // ab 5000€ nochmal extra Bonus
+
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
@@ -75,8 +79,8 @@ public class NPCRelationship {
 
         // Größere Käufe = mehr Relationship
         int bonus = PURCHASE_BONUS;
-        if (amount >= 1000) bonus += 2;  // +4 für große Käufe
-        if (amount >= 5000) bonus += 3;  // +7 für sehr große Käufe
+        if (amount >= LARGE_PURCHASE_THRESHOLD) bonus += 2;       // +4 für große Käufe
+        if (amount >= VERY_LARGE_PURCHASE_THRESHOLD) bonus += 3;  // +7 für sehr große Käufe
 
         changeRelationship(bonus);
         LOGGER.debug("NPC {} relationship with {} improved by {} (purchase)", npcId, playerId, bonus);
@@ -89,7 +93,7 @@ public class NPCRelationship {
         totalSales++;
 
         int bonus = SALE_BONUS;
-        if (amount >= 1000) bonus += 1;  // +2 für große Verkäufe
+        if (amount >= LARGE_PURCHASE_THRESHOLD) bonus += 1;  // +2 für große Verkäufe
 
         changeRelationship(bonus);
         LOGGER.debug("NPC {} relationship with {} improved by {} (sale)", npcId, playerId, bonus);

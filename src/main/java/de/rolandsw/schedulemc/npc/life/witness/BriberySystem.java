@@ -33,6 +33,27 @@ public class BriberySystem {
     /** Basis-Erfolgschance bei fairem Angebot */
     public static final float BASE_SUCCESS_CHANCE = 0.5f;
 
+    /** Ehrlichkeits-Schwelle: NPCs über diesem Wert sind generell nicht bestechlich */
+    private static final int HONESTY_UNBRIBEABLE_THRESHOLD = 80;
+
+    /** Ehrlichkeits-Schwelle für Polizei: Polizei-NPCs über diesem Wert sind nicht bestechlich */
+    private static final int POLICE_HONESTY_THRESHOLD = 30;
+
+    /** Ehrlichkeits-Schwelle für Hinweistext: sehr rechtschaffene NPCs */
+    private static final int HONESTY_RIGHTEOUS_THRESHOLD = 60;
+
+    /** Bestechungs-Hinweis: unter diesem Betrag gilt es als "kleiner Betrag" */
+    private static final int BRIBE_HINT_LOW_THRESHOLD = 200;
+
+    /** Bestechungs-Hinweis: unter diesem Betrag gilt es als "nicht billig" */
+    private static final int BRIBE_HINT_MEDIUM_THRESHOLD = 500;
+
+    /** Bestechungs-Hinweis: unter diesem Betrag gilt es als "sehr teuer" */
+    private static final int BRIBE_HINT_HIGH_THRESHOLD = 1000;
+
+    /** Polizei-Faktor: Polizei verlangt X-fachen Bestechungsbetrag */
+    private static final float POLICE_BRIBE_FACTOR = 3.0f;
+
     // ═══════════════════════════════════════════════════════════
     // BRIBERY ATTEMPT
     // ═══════════════════════════════════════════════════════════
@@ -153,13 +174,13 @@ public class BriberySystem {
         NPCTraits traits = lifeData.getTraits();
 
         // Sehr ehrliche NPCs sind nicht bestechlich
-        if (traits.getHonesty() > 80) {
+        if (traits.getHonesty() > HONESTY_UNBRIBEABLE_THRESHOLD) {
             return false;
         }
 
         // Polizei ist schwerer zu bestechen
         if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
-            if (traits.getHonesty() > 30) {
+            if (traits.getHonesty() > POLICE_HONESTY_THRESHOLD) {
                 return false;
             }
         }
@@ -202,7 +223,7 @@ public class BriberySystem {
         // Polizei-Faktor
         float policeFactor = 1.0f;
         if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
-            policeFactor = 3.0f; // Polizei will 3x so viel
+            policeFactor = POLICE_BRIBE_FACTOR; // Polizei will 3x so viel
         }
 
         int minimum = (int) (base * greedFactor * honestyFactor * severityFactor * policeFactor);
@@ -254,15 +275,15 @@ public class BriberySystem {
 
         NPCTraits traits = lifeData.getTraits();
 
-        if (traits.getHonesty() > 60) {
+        if (traits.getHonesty() > HONESTY_RIGHTEOUS_THRESHOLD) {
             return "Der NPC wirkt sehr rechtschaffen...";
         }
 
-        if (minimum < 200) {
+        if (minimum < BRIBE_HINT_LOW_THRESHOLD) {
             return "Ein kleiner Betrag könnte helfen.";
-        } else if (minimum < 500) {
+        } else if (minimum < BRIBE_HINT_MEDIUM_THRESHOLD) {
             return "Das wird nicht billig...";
-        } else if (minimum < 1000) {
+        } else if (minimum < BRIBE_HINT_HIGH_THRESHOLD) {
             return "Das wird sehr teuer.";
         } else {
             return "Das wird ein Vermögen kosten!";
