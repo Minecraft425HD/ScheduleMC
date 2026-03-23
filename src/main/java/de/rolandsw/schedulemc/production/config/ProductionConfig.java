@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

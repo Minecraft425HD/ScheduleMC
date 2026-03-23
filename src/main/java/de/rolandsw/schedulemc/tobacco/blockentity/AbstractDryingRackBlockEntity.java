@@ -71,7 +71,7 @@ public class AbstractDryingRackBlockEntity extends BlockEntity implements IUtili
         createItemHandler();  // NOPMD
     }
 
-    protected int getCapacity() {
+    public int getCapacity() {
         return capacitySupplier.get();
     }
 
