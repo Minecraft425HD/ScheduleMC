@@ -28,6 +28,13 @@
         <!-- DoubleCheckedLocking: wird nur mit volatile-Feldern verwendet,
              was das Muster seit Java 5 thread-sicher macht -->
         <exclude name="DoubleCheckedLocking"/>
+        <!-- UseConcurrentHashMap: 15 verbleibende Violations — alle false positives:
+             LRU-Caches mit eigenem Synchronisierungs-Protokoll (CompressedImageData, ColorCalculationService,
+             RoadGraph), Read-Only-Registries nach Init (AchievementManager, MissionRegistry, HealthCheckManager),
+             Single-Thread-Entity-Kontext (NPCBehaviorEngine, NPCComponentHolder),
+             Client-Screens (ScenarioEditorScreen), EnumMaps (PlotUtilityData.category*).
+             Sprint 8 hat bereits alle wirklich concurrent genutzten Maps zu ConcurrentHashMap migriert. -->
+        <exclude name="UseConcurrentHashMap"/>
     </rule>
 
     <!-- ================================================================
@@ -59,6 +66,10 @@
         <exclude name="DetachedTestCase"/>
         <exclude name="MissingStaticMethodInNonInstantiatableClass"/>
         <exclude name="AvoidDecimalLiteralsInBigDecimalConstructor"/> <!-- kein BigDecimal in Use -->
+        <!-- AvoidFieldNameMatchingMethodName: 129 Violations — ausschließlich Java-Bean-Pattern
+             (boolean isPressing; + isPressing() { return isPressing; }) und Minecraft-API-Überschattungen
+             (children, level, size). Keine echten Bug-Risiken erkannt. -->
+        <exclude name="AvoidFieldNameMatchingMethodName"/>
     </rule>
 
     <!-- ================================================================

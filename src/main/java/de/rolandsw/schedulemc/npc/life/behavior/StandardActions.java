@@ -31,7 +31,6 @@ public class StandardActions {
     public static class FleeAction extends BehaviorAction {
 
         private static final double FLEE_DISTANCE = 30.0;
-        private static final int FLEE_SPEED_BOOST = 40; // 40% schneller
 
         private Vec3 fleeDirection;
         private BlockPos fleeTarget;

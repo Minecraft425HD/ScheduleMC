@@ -37,7 +37,6 @@ public class GuiTireChange extends Screen {
     private static final int COL_COMPAT   = 0x3300BB00; // schwacher grüner Hint
     private static final int COL_WARN     = 0xFFAA0000;
     private static final int COL_TEXT     = 0x404040;
-    private static final int COL_LIGHT    = 0x555555;
 
     private final UUID vehicleUuid;
     private final TireSeasonType currentTireSeasonType;

@@ -66,7 +66,6 @@ public class MapViewConfiguration implements SettingsManager {
     public String serverTeleportCommand;
 
     public MapViewConfiguration() {
-        instance = this;
         String category = "key.categories.mapview";
 
         keyBindZoom = new KeyMapping("key.mapview.zoom", InputConstants.getKey("key.keyboard.z").getValue(), category);
@@ -74,6 +73,7 @@ public class MapViewConfiguration implements SettingsManager {
         keyBindMenu = new KeyMapping("key.mapview.menu", InputConstants.getKey("key.keyboard.m").getValue(), category);
 
         this.keyBindings = new KeyMapping[]{this.keyBindMenu, this.keyBindZoom, this.keyBindFullscreen};
+        instance = this; // NOPMD – safe publication: assigned after full construction; volatile guarantees visibility
     }
 
     public void addSecondaryOptionsManager(SubSettingsManager secondarySettingsManager) {
