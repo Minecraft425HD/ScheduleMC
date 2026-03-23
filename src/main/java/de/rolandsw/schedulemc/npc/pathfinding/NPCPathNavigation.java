@@ -43,7 +43,12 @@ public class NPCPathNavigation extends GroundPathNavigation {
     private static void loadAllowedBlocks() {
         allowedBlocks.clear();
         if (ModConfigHandler.COMMON != null && ModConfigHandler.COMMON.NPC_WALKABLE_BLOCKS != null) {
-            allowedBlocks.addAll(ModConfigHandler.COMMON.NPC_WALKABLE_BLOCKS.get());
+            try {
+                allowedBlocks.addAll(ModConfigHandler.COMMON.NPC_WALKABLE_BLOCKS.get());
+            } catch (IllegalStateException e) {
+                // Config still loading during early startup; allowedBlocks remains empty
+                // and will be populated lazily on first isBlockWalkable() call
+            }
         }
     }
 
