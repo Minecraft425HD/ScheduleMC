@@ -115,7 +115,7 @@ public class GangAppScreen extends Screen {
         ClientGangCache.removeUpdateListener();
     }
 
-    private void onCacheUpdated() {  // NOPMD
+    private void onCacheUpdated() {
         boolean wasInGang = hasGang;
         updateState();
         if (wasInGang != hasGang) {
@@ -143,10 +143,10 @@ public class GangAppScreen extends Screen {
     @Override
     protected void rebuildWidgets() {
         clearWidgets();
-        createNameInput = null;  // NOPMD
-        createTagInput = null;  // NOPMD
-        inviteInput = null;  // NOPMD
-        feeInput = null;  // NOPMD
+        createNameInput = null;
+        createTagInput = null;
+        inviteInput = null;
+        feeInput = null;
 
         if (!hasGang) {
             buildNoGangWidgets();
@@ -332,7 +332,7 @@ public class GangAppScreen extends Screen {
         };
     }
 
-    private void renderCurrentPage(GuiGraphics g, int mouseX, int mouseY) {  // NOPMD
+    private void renderCurrentPage(GuiGraphics g, int mouseX, int mouseY) {
         // Footer (dunkler Bereich mit Trennlinie)
         g.fill(leftPos, contentBottom, leftPos + WIDTH, topPos + HEIGHT, 0xFF0D0D0D);
         g.fill(leftPos, contentBottom, leftPos + WIDTH, contentBottom + 1, 0x33FFFFFF);
@@ -1058,7 +1058,7 @@ public class GangAppScreen extends Screen {
         return false;
     }
 
-    private boolean handleMissionClick(double relY, double mouseX) {  // NOPMD
+    private boolean handleMissionClick(double relY, double mouseX) {
         SyncGangDataPacket data = ClientGangCache.getMyGangData();
         if (data == null) return false;
 

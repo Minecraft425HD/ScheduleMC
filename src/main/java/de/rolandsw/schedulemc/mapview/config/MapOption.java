@@ -7,9 +7,9 @@ public enum MapOption {
     SIZE("options.minimap.size", false, false, true),
     SHOW_TERRITORIES("options.worldmap.showTerritories", false, true, false);
 
-    private final boolean isFloat;  // NOPMD
-    private final boolean isBoolean;  // NOPMD
-    private final boolean isList;  // NOPMD
+    private final boolean isFloat;
+    private final boolean isBoolean;
+    private final boolean isList;
     private final String name;
 
     MapOption(String name, boolean isFloat, boolean isBoolean, boolean isList) {

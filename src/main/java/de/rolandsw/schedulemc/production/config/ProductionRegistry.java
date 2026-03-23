@@ -22,7 +22,7 @@ public class ProductionRegistry {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile ProductionRegistry instance;  // NOPMD
+    private static volatile ProductionRegistry instance;
 
     // Registry
     private final Map<String, ProductionConfig> productions = new ConcurrentHashMap<>();

@@ -22,8 +22,8 @@ public class MessageNotificationOverlay {
     // SICHERHEIT: ConcurrentLinkedQueue für Thread-safe access von showNotification() und onRenderOverlay()
     private static final Queue<Notification> notifications = new ConcurrentLinkedQueue<>();
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads
-    private static volatile Notification currentNotification = null;  // NOPMD
-    private static volatile long notificationStartTime = 0;  // NOPMD
+    private static volatile Notification currentNotification = null;
+    private static volatile long notificationStartTime = 0;
     private static final long NOTIFICATION_DURATION = 3000; // 3 seconds
 
     public static void showNotification(String senderName, String message) {
@@ -53,7 +53,7 @@ public class MessageNotificationOverlay {
             long elapsed = currentTime - notificationStartTime;
 
             if (elapsed >= NOTIFICATION_DURATION) {
-                currentNotification = null;  // NOPMD
+                currentNotification = null;
                 return;
             }
 

@@ -27,7 +27,7 @@ public class DestillationsApparatBlockEntity extends BlockEntity implements IUti
     private int ergotCount = 0;
     private int distillationProgress = 0;
     private int outputCount = 0;
-    private boolean isActive = false;  // NOPMD
+    private boolean isActive = false;
 
     public DestillationsApparatBlockEntity(BlockPos pos, BlockState state) {
         super(LSDBlockEntities.DESTILLATIONS_APPARAT.get(), pos, state);

@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.lock;
 
+import java.util.Locale;
+
 /**
  * Schloss-Typen mit Sicherheitsstufen.
  *
@@ -51,9 +53,9 @@ public enum LockType {
     private final long keyDurationMs;
     private final int keyMaxUses;
     private final float pickChance;
-    private final boolean hasCode;  // NOPMD
+    private final boolean hasCode;
     private final long codeRotationMs;
-    private final boolean triggersAlarm;  // NOPMD
+    private final boolean triggersAlarm;
     private final int color;
 
     LockType(long keyDurationMs, int keyMaxUses, float pickChance,
@@ -69,7 +71,7 @@ public enum LockType {
 
     public String getDisplayName() {
         return net.minecraft.network.chat.Component.translatable(
-                "lock.type." + this.name().toLowerCase()).getString();
+                "lock.type." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
     public long getKeyDurationMs() { return keyDurationMs; }
     public int getKeyMaxUses() { return keyMaxUses; }
@@ -123,7 +125,7 @@ public enum LockType {
 
         public String getDisplayName() {
             return net.minecraft.network.chat.Component.translatable(
-                    "lock.origin." + this.name().toLowerCase()).getString();
+                    "lock.origin." + this.name().toLowerCase(Locale.ROOT)).getString();
         }
         public float getDurationMultiplier() { return durationMultiplier; }
         public float getUsesMultiplier() { return usesMultiplier; }

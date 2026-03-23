@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  */
 public class GangActionPacket {
 
-    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public enum ActionType {
         CREATE, INVITE, ACCEPT_INVITE, LEAVE, KICK, PROMOTE, DISBAND, UNLOCK_PERK, SET_FEE, CLAIM_MISSION
@@ -323,6 +323,7 @@ public class GangActionPacket {
                 gang.deposit(reward[1]);
                 manager.markDirty();
             }
+            de.rolandsw.schedulemc.mission.MissionEventBridge.fireGangMissionCompleted(player);
             sendSuccess(player, "Belohnung: +" + reward[0] + " XP" + (reward[1] > 0 ? ", +" + reward[1] + "\u20AC in Gang-Kasse" : ""));
         } else {
             sendError(player, "Belohnung kann nicht eingeloest werden.");

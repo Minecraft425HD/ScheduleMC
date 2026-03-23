@@ -14,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -140,12 +141,27 @@ public class WarehouseBlock extends Block implements EntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof WarehouseBlockEntity) {
-                // Unregister from WarehouseManager
-                if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
-                    WarehouseManager.unregisterWarehouse(serverLevel, pos);
+            if (be instanceof WarehouseBlockEntity warehouse) {
+                if (!level.isClientSide) {
+                    // Items aus allen Slots auf den Boden fallen lassen
+                    for (WarehouseSlot slot : warehouse.getSlots()) {
+                        Item item = slot.getAllowedItem();
+                        int stock = slot.getStock();
+                        if (item != null && stock > 0) {
+                            int maxStackSize = item.getMaxStackSize();
+                            while (stock > 0) {
+                                int dropCount = Math.min(stock, maxStackSize);
+                                Block.popResource(level, pos, new ItemStack(item, dropCount));
+                                stock -= dropCount;
+                            }
+                        }
+                    }
+
+                    // Unregister from WarehouseManager
+                    if (level instanceof ServerLevel serverLevel) {
+                        WarehouseManager.unregisterWarehouse(serverLevel, pos);
+                    }
                 }
-                // TODO: Drop items wenn gewünscht
             }
         }
         super.onRemove(state, level, pos, newState, isMoving);

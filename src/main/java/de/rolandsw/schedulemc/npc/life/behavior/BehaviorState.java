@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.behavior;
 
+import java.util.Locale;
+
 /**
  * BehaviorState - Aktuelle Verhaltens-Zustände eines NPCs
  *
@@ -84,8 +86,8 @@ public enum BehaviorState {
     DRIVING("Fährt Auto", false, false);
 
     private final String displayName;
-    private final boolean isEmergency;  // NOPMD
-    private final boolean canBeInterrupted;  // NOPMD
+    private final boolean isEmergency;
+    private final boolean canBeInterrupted;
 
     BehaviorState(String displayName, boolean isEmergency, boolean canBeInterrupted) {
         this.displayName = displayName;
@@ -160,6 +162,6 @@ public enum BehaviorState {
      * Übersetzungsschlüssel für Lokalisierung
      */
     public String getTranslationKey() {
-        return "npc.behavior." + name().toLowerCase();
+        return "npc.behavior." + name().toLowerCase(Locale.ROOT);
     }
 }

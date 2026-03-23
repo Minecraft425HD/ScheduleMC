@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.cannabis;
 
 import de.rolandsw.schedulemc.economy.ItemCategory;
 import de.rolandsw.schedulemc.production.core.ProductionType;
+
+import java.util.Locale;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
 
@@ -36,7 +38,7 @@ public enum CannabisStrain implements ProductionType {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.cannabis_strain." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.cannabis_strain." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
     public String getColorCode() { return colorCode; }
     public String getColoredName() { return colorCode + getDisplayName(); }
@@ -46,7 +48,7 @@ public enum CannabisStrain implements ProductionType {
     public double getCbdContent() { return cbdContent; }
     public int getBaseYield() { return baseYield; }
     public int getFloweringDays() { return floweringDays; }
-    public String getRegistryName() { return name().toLowerCase(); }
+    public String getRegistryName() { return name().toLowerCase(Locale.ROOT); }
 
     @Override
     public String getProductId() {

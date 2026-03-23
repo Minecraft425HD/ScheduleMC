@@ -7,9 +7,10 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -30,7 +31,7 @@ public class VehicleSpawnRegistry {
     // UUID (Dealer NPC ID) → List<VehicleSpawnPoint>
     private static Map<UUID, List<VehicleSpawnPoint>> dealerSpawnPoints = new ConcurrentHashMap<>();
     // SICHERHEIT: volatile für Memory Visibility
-    private static volatile boolean isDirty = false;  // NOPMD
+    private static volatile boolean isDirty = false;
 
     /**
      * Lädt Spawn-Punkte vom Disk
@@ -41,7 +42,7 @@ public class VehicleSpawnRegistry {
             return;
         }
 
-        try (FileReader reader = new FileReader(SPAWN_FILE)) {
+        try (BufferedReader reader = Files.newBufferedReader(SPAWN_FILE.toPath(), StandardCharsets.UTF_8)) {
             Map<String, List<VehicleSpawnPoint>> loaded = GSON.fromJson(reader,
                 new TypeToken<Map<String, List<VehicleSpawnPoint>>>(){}.getType());
 
@@ -68,7 +69,7 @@ public class VehicleSpawnRegistry {
                 toSave.put(entry.getKey().toString(), entry.getValue());
             }
             File tempFile = new File(SPAWN_FILE.getParent(), SPAWN_FILE.getName() + ".tmp");
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(toSave, writer);
                 writer.flush();
             }
@@ -168,7 +169,7 @@ public class VehicleSpawnRegistry {
             for (VehicleSpawnPoint point : points) {
                 if (vehicleId.equals(point.occupyingVehicleId)) {
                     point.occupied = false;
-                    point.occupyingVehicleId = null;  // NOPMD
+                    point.occupyingVehicleId = null;
                     isDirty = true;
                     return;
                 }
@@ -189,7 +190,7 @@ public class VehicleSpawnRegistry {
             this.position = position;
             this.yaw = yaw;
             this.occupied = false;
-            this.occupyingVehicleId = null;  // NOPMD
+            this.occupyingVehicleId = null;
         }
 
         public BlockPos getPosition() {

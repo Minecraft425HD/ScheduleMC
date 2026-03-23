@@ -59,11 +59,11 @@ public abstract class PartBody extends PartModel {
     }
 
     public Vector3d[] getWheelOffsets() {
-        return wheelOffsets;  // NOPMD
+        return wheelOffsets;
     }
 
     public Vector3d[] getPlayerOffsets() {
-        return playerOffsets;  // NOPMD
+        return playerOffsets;
     }
 
     public Vector3d getNumberPlateOffset() {

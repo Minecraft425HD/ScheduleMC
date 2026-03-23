@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.production.config.ProductionConfig;
 import de.rolandsw.schedulemc.production.core.GenericQuality;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
+import de.rolandsw.schedulemc.util.ModConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -60,6 +61,12 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
     protected int resourceLevel;               // Aktueller Resource-Stand
     protected int maxResourceLevel;
 
+    // Performance-Optimierung: Tick-Throttling (wie in AbstractFermentationBarrelBlockEntity)
+    private int tickCounter = 0;
+    private static final int TICK_INTERVAL = ModConstants.PROCESSING_TICK_INTERVAL;
+    private int syncCycleCounter = 0;
+    private static final int SYNC_EVERY_N_CYCLES = ModConstants.PROCESSING_SYNC_CYCLE;
+
     protected boolean changed = false;
 
     // ═══════════════════════════════════════════════════════════
@@ -114,8 +121,22 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
             return;
         }
 
+        // Tick-Throttling: Nur alle TICK_INTERVAL Ticks verarbeiten
+        tickCounter++;
+        if (tickCounter < TICK_INTERVAL) {
+            return;
+        }
+        tickCounter = 0;
+
         int processingTime = cachedStageConfig.getProcessingTime();
-        boolean anyProgress = false;
+        boolean anyCompleted = false;
+
+        // Sync-Throttling: Netzwerk-Update nur alle SYNC_EVERY_N_CYCLES Zyklen
+        syncCycleCounter++;
+        boolean needsSync = syncCycleCounter >= SYNC_EVERY_N_CYCLES;
+        if (needsSync) {
+            syncCycleCounter = 0;
+        }
 
         // Process alle Slots
         for (int i = 0; i < capacity; i++) {
@@ -128,8 +149,8 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
                     }
                 }
 
-                // Increment Progress
-                progress[i]++;
+                // Increment Progress (um TICK_INTERVAL — entspricht 1 pro echtem Tick)
+                progress[i] += TICK_INTERVAL;
 
                 // Consume Resources (jede Sekunde)
                 if (cachedStageConfig.requiresResource() && progress[i] % 20 == 0) {
@@ -145,14 +166,18 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
                     inputs[i] = ItemStack.EMPTY;
                     progress[i] = 0;
 
-                    anyProgress = true;
+                    anyCompleted = true;
+                    needsSync = true;
                 }
             }
         }
 
-        if (anyProgress) {
+        if (anyCompleted) {
             changed = true;
             setChanged();
+        }
+
+        if (needsSync) {
             syncToClient();
         }
     }
@@ -218,7 +243,7 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
             ItemStack extracted = outputs[slot].copy();
             outputs[slot] = ItemStack.EMPTY;
             productionIds[slot] = "";
-            qualities[slot] = null;  // NOPMD
+            qualities[slot] = null;
             changed = true;
             setChanged();
             return extracted;
@@ -414,6 +439,86 @@ public class UnifiedProcessingBlockEntity extends BlockEntity {
     // ═══════════════════════════════════════════════════════════
     // UTILITY
     // ═══════════════════════════════════════════════════════════
+
+    // ═══════════════════════════════════════════════════════════
+    // STATUS HELPERS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Prüft ob alle Slots belegt sind (kein freier Input/Output-Slot)
+     */
+    public boolean isFull() {
+        return getFreeSlots() == 0;
+    }
+
+    /**
+     * Prüft ob mindestens ein Slot aktiv verarbeitet
+     */
+    public boolean hasInput() {
+        for (int i = 0; i < capacity; i++) {
+            if (!inputs[i].isEmpty()) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Prüft ob mindestens ein fertiger Output vorhanden ist
+     */
+    public boolean hasOutput() {
+        for (int i = 0; i < capacity; i++) {
+            if (!outputs[i].isEmpty()) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Gibt Anzahl der aktiven Input-Slots zurück
+     */
+    public int getInputCount() {
+        int count = 0;
+        for (int i = 0; i < capacity; i++) {
+            if (!inputs[i].isEmpty()) count++;
+        }
+        return count;
+    }
+
+    /**
+     * Gibt Anzahl der fertigen Output-Slots zurück
+     */
+    public int getOutputCount() {
+        int count = 0;
+        for (int i = 0; i < capacity; i++) {
+            if (!outputs[i].isEmpty()) count++;
+        }
+        return count;
+    }
+
+    /**
+     * Gibt den durchschnittlichen Verarbeitungsfortschritt aller aktiven Slots zurück.
+     * @return Wert zwischen 0.0f und 1.0f; 0.0f wenn kein aktiver Slot vorhanden
+     */
+    public float getAverageProgressPercentage() {
+        if (cachedStageConfig == null) return 0.0f;
+        int activeSlots = 0;
+        float totalProgress = 0.0f;
+        for (int i = 0; i < capacity; i++) {
+            if (!inputs[i].isEmpty()) {
+                activeSlots++;
+                totalProgress += getProgressPercentage(i);
+            }
+        }
+        return activeSlots > 0 ? totalProgress / activeSlots : 0.0f;
+    }
+
+    /**
+     * Prüft ob das System aktiv verarbeitet (hat Input aber noch keinen Output)
+     */
+    public boolean isActivelyProcessing() {
+        for (int i = 0; i < capacity; i++) {
+            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) return true;
+        }
+        return false;
+    }
 
     public String getDebugInfo() {
         StringBuilder sb = new StringBuilder();

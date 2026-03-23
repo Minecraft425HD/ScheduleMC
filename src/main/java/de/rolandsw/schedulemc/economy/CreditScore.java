@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -216,7 +217,7 @@ public class CreditScore {
         }
 
         public String getDisplayName() {
-            return Component.translatable("enum.credit_rating." + this.name().toLowerCase()).getString();
+            return Component.translatable("enum.credit_rating." + this.name().toLowerCase(Locale.ROOT)).getString();
         }
         public int getStars() { return stars; }
         public double getMaxLoanAmount() { return maxLoanAmount; }

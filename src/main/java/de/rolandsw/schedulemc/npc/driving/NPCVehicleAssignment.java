@@ -9,6 +9,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -22,7 +23,7 @@ public class NPCVehicleAssignment extends SavedData {
     private static final float VEHICLE_RATIO = 0.2f;
 
     private final Set<UUID> npcsWithVehicle = new HashSet<>();
-    private final Map<UUID, Integer> vehicleColors = new HashMap<>();  // NOPMD
+    private final Map<UUID, Integer> vehicleColors = new ConcurrentHashMap<>();
 
     public NPCVehicleAssignment() {
     }

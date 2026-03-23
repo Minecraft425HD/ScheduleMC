@@ -6,11 +6,12 @@ import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.function.Consumer;
@@ -45,8 +46,8 @@ public class PersistenceHelper {
      */
     public static class LoadResult<T> {
         private final T data;
-        private final boolean success;  // NOPMD
-        private final boolean recoveredFromBackup;  // NOPMD
+        private final boolean success;
+        private final boolean recoveredFromBackup;
         private final String error;
 
         private LoadResult(T data, boolean success, boolean recoveredFromBackup, String error) {
@@ -83,7 +84,7 @@ public class PersistenceHelper {
      * Ergebnis eines Speichervorgangs
      */
     public static class SaveResult {
-        private final boolean success;  // NOPMD
+        private final boolean success;
         private final String error;
 
         private SaveResult(boolean success, String error) {
@@ -168,7 +169,7 @@ public class PersistenceHelper {
             // Temporäre Datei für atomares Schreiben
             File tempFile = new File(file.getParent(), file.getName() + ".tmp");
 
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 gson.toJson(data, writer);
                 writer.flush();
             }
@@ -206,8 +207,8 @@ public class PersistenceHelper {
 
     // ========== Private Hilfsmethoden ==========
 
-    private static <T> T loadFromFile(File file, Gson gson, Type type) throws Exception {  // NOPMD
-        try (FileReader reader = new FileReader(file)) {
+    private static <T> T loadFromFile(File file, Gson gson, Type type) throws IOException {
+        try (BufferedReader reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
             T data = gson.fromJson(reader, type);
 
             if (data == null) {
@@ -223,7 +224,7 @@ public class PersistenceHelper {
         try {
             File tempFile = new File(file.getParent(), file.getName() + ".tmp");
 
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 gson.toJson(data, writer);
                 writer.flush();
             }

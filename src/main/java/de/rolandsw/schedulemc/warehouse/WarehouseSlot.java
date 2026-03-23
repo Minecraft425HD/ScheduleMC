@@ -57,7 +57,7 @@ public class WarehouseSlot {
 
         // Slot zurücksetzen wenn leer
         if (currentStock == 0) {
-            allowedItem = null;  // NOPMD
+            allowedItem = null;
         }
 
         return toRemove;
@@ -117,7 +117,7 @@ public class WarehouseSlot {
      * Leert den Slot komplett
      */
     public void clear() {
-        this.allowedItem = null;  // NOPMD
+        this.allowedItem = null;
         this.currentStock = 0;
         this.unlimited = false;
     }

@@ -254,7 +254,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         for (ShopItemRow row : shopItemRows) {
             if (row.quantityInput != null) {
                 this.removeWidget(row.quantityInput);
-                row.quantityInput = null;  // NOPMD
+                row.quantityInput = null;
             }
         }
 
@@ -293,7 +293,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
      * Rendert eine Shop-Item Row
      * Schema: [Icon] Name | Preis | Verfügbar | [Input]
      */
-    private void renderShopItem(GuiGraphics guiGraphics, ShopItemRow row, int x, int y, int rowIndex) {  // NOPMD
+    private void renderShopItem(GuiGraphics guiGraphics, ShopItemRow row, int x, int y, int rowIndex) {
         // Item Icon (16x16)
         guiGraphics.renderItem(row.item, x, y);
 

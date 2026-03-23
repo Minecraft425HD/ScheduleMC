@@ -24,7 +24,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile FactionManager instance;  // NOPMD
+    private static volatile FactionManager instance;
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable

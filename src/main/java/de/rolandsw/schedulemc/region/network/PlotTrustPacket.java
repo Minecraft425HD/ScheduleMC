@@ -77,15 +77,11 @@ public class PlotTrustPacket {
 
             // Prüfe ob Spieler existiert (online oder offline via UserCache)
             com.mojang.authlib.GameProfile profile = player.server.getProfileCache().get(msg.playerName).orElse(null);
-            java.util.UUID targetUUID = null;  // NOPMD
-
-            if (profile != null) {
-                targetUUID = profile.getId();
-            } else {
-                // Spieler nicht gefunden
+            if (profile == null) {
                 player.sendSystemMessage(Component.translatable("message.plot.player_not_seen", msg.playerName));
                 return;
             }
+            java.util.UUID targetUUID = profile.getId();
 
             switch (msg.action) {
                 case ADD:

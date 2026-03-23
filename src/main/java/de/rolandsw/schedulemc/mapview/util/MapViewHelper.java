@@ -13,7 +13,7 @@ public class MapViewHelper {
     private static long lastSeedLong;
     private static int lastSlimeX;
     private static int lastSlimeZ;
-    private static boolean isSlimeChunk;  // NOPMD
+    private static boolean isSlimeChunk;
 
     public static void reset() {
         options = MapViewConstants.getLightMapInstance().getMapOptions();

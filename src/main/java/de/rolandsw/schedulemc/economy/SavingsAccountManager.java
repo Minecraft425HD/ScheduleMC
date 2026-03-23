@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, List<SavingsAccount>>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile SavingsAccountManager instance;  // NOPMD
+    private static volatile SavingsAccountManager instance;
 
     private final Map<UUID, List<SavingsAccount>> accounts = new ConcurrentHashMap<>();
     private MinecraftServer server;

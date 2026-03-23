@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.BackupManager;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import de.rolandsw.schedulemc.util.PersistenceHelper;
+import de.rolandsw.schedulemc.util.ModConstants;
 import de.rolandsw.schedulemc.util.RateLimiter;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.MinecraftServer;
@@ -26,17 +27,17 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile EconomyManager instance;  // NOPMD
+    private static volatile EconomyManager instance;
     private static final Map<UUID, Double> balances = new ConcurrentHashMap<>();
 
     // SICHERHEIT: Maximales Guthaben um Overflow zu verhindern
-    private static final double MAX_BALANCE = 1_000_000_000_000.0; // 1 Billion €
+    private static final double MAX_BALANCE = ModConstants.MAX_ECONOMY_BALANCE;
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads (IncrementalSaveManager)
-    private static volatile File file = new File("config/plotmod_economy.json");  // NOPMD
+    private static volatile File file = new File("config/plotmod_economy.json");
     private static final Gson gson = GsonHelper.get();
-    private static volatile boolean needsSave = false;  // NOPMD
-    private static volatile boolean isHealthy = true;  // NOPMD
-    private static volatile String lastError = null;  // NOPMD
+    private static volatile boolean needsSave = false;
+    private static volatile boolean isHealthy = true;
+    private static volatile String lastError = null;
 
     // SICHERHEIT: Rate Limiting für DoS-Protection
     private static final RateLimiter transferLimiter = new RateLimiter("money_transfer", 10, 1000L);
@@ -121,7 +122,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         if (!result.hasData()) {
             // Keine Datei gefunden - normaler Start
             isHealthy = true;
-            lastError = null;  // NOPMD
+            lastError = null;
             return;
         }
 
@@ -194,7 +195,7 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
         if (result.isSuccess()) {
             needsSave = false;
             isHealthy = true;
-            lastError = null;  // NOPMD
+            lastError = null;
             LOGGER.debug("Economy data saved: {} accounts", balances.size());
         } else {
             isHealthy = false;

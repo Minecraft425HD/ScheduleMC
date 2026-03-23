@@ -34,7 +34,7 @@ public class NPCEmotions {
     private EmotionState baselineEmotion = EmotionState.NEUTRAL;
 
     // Für sanfte Übergänge
-    private EmotionState previousEmotion = EmotionState.NEUTRAL;  // NOPMD
+    private EmotionState previousEmotion = EmotionState.NEUTRAL;
     private float transitionProgress = 1.0f; // 1.0 = vollständig gewechselt
 
     // ═══════════════════════════════════════════════════════════

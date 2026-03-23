@@ -37,7 +37,7 @@ public class DialogueNode {
     private final List<DialogueAction> entryActions = new ArrayList<>();
 
     /** Bedingung um diesen Node zu erreichen */
-    private DialogueCondition entryCondition = DialogueCondition.always();  // NOPMD
+    private DialogueCondition entryCondition = DialogueCondition.always();
 
     /** Automatischer nächster Node (wenn keine Optionen) */
     @Nullable

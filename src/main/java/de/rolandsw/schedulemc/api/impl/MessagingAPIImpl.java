@@ -9,9 +9,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +28,6 @@ import java.util.stream.Collectors;
  */
 public class MessagingAPIImpl implements IMessagingAPI {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
     private static final UUID SYSTEM_UUID = new UUID(0L, 0L);
 
     // In-memory block list: player -> set of blocked UUIDs

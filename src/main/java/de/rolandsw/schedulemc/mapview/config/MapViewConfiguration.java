@@ -29,19 +29,19 @@ public class MapViewConfiguration implements SettingsManager {
     public boolean showUnderMenus;
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
     public final boolean multicore = this.availableProcessors > 1;
-    public final boolean lightmap = true;  // NOPMD
-    public final boolean heightmap = true;  // NOPMD
-    public final boolean slopemap = true;  // NOPMD
-    public final boolean filtering = true;  // NOPMD
-    public final boolean waterTransparency = true;  // NOPMD
-    public final boolean blockTransparency = true;  // NOPMD
-    public final boolean biomes = true;  // NOPMD
-    public final int biomeOverlay = 0;  // NOPMD
-    public final boolean chunkGrid = false;  // NOPMD
-    public final boolean slimeChunks = false;  // NOPMD
-    public final boolean worldborder = true;  // NOPMD
-    public final boolean squareMap = true;  // NOPMD
-    public final boolean rotates = false;  // NOPMD
+    public static final boolean lightmap = true;
+    public static final boolean heightmap = true;
+    public static final boolean slopemap = true;
+    public static final boolean filtering = true;
+    public static final boolean waterTransparency = true;
+    public static final boolean blockTransparency = true;
+    public static final boolean biomes = true;
+    public static final int biomeOverlay = 0;
+    public static final boolean chunkGrid = false;
+    public static final boolean slimeChunks = false;
+    public static final boolean worldborder = true;
+    public static final boolean squareMap = true;
+    public static final boolean rotates = false;
     public boolean oldNorth;
     public int zoom = 2;
     public int sizeModifier = 1;
@@ -51,22 +51,21 @@ public class MapViewConfiguration implements SettingsManager {
     public boolean minimapAllowed = true;
     public boolean showTerritories = false; // Territory Overlay on worldmap for normal players
 
-    public final boolean moveMapDownWhileStatusEffect = true;  // NOPMD
-    public final boolean moveScoreBoardDown = true;  // NOPMD
+    public static final boolean moveMapDownWhileStatusEffect = true;
+    public static final boolean moveScoreBoardDown = true;
     protected boolean realTimeTorches;
     public KeyMapping keyBindZoom;
     public KeyMapping keyBindFullscreen;
     public KeyMapping keyBindMenu;
     public final KeyMapping[] keyBindings;
     private boolean somethingChanged;
-    public static MapViewConfiguration instance;
+    public static volatile MapViewConfiguration instance;
     private final List<SubSettingsManager> subSettingsManagers = new ArrayList<>();
 
     public String teleportCommand = "tp %p %x %y %z";
     public String serverTeleportCommand;
 
     public MapViewConfiguration() {
-        instance = this;
         String category = "key.categories.mapview";
 
         keyBindZoom = new KeyMapping("key.mapview.zoom", InputConstants.getKey("key.keyboard.z").getValue(), category);
@@ -74,6 +73,7 @@ public class MapViewConfiguration implements SettingsManager {
         keyBindMenu = new KeyMapping("key.mapview.menu", InputConstants.getKey("key.keyboard.m").getValue(), category);
 
         this.keyBindings = new KeyMapping[]{this.keyBindMenu, this.keyBindZoom, this.keyBindFullscreen};
+        instance = this; // NOPMD – safe publication: assigned after full construction; volatile guarantees visibility
     }
 
     public void addSecondaryOptionsManager(SubSettingsManager secondarySettingsManager) {

@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.coffee.blocks;
 
+import de.rolandsw.schedulemc.coffee.CoffeeQuality;
 import de.rolandsw.schedulemc.coffee.CoffeeType;
+import de.rolandsw.schedulemc.coffee.items.CoffeeCherryItem;
 import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
 import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -133,9 +135,11 @@ public class CoffeePlantBlock extends Block {
                 // They don't use the PlantPotData system
                 int age = state.getValue(AGE);
                 if (age >= 9) {
-                    // Harvest coffee cherries (defaults to Arabica)
+                    // Harvest type-specific coffee cherries with random quality
                     int yield = level.random.nextInt(3) + 2; // 2-4 cherries
-                    ItemStack cherries = new ItemStack(CoffeeItems.ARABICA_CHERRY.get(), yield);
+                    ItemStack cherries = new ItemStack(CoffeeItems.getCherryForType(this.coffeeType), yield);
+                    CoffeeQuality harvestQuality = randomHarvestQuality(level.random);
+                    CoffeeCherryItem.withQuality(cherries, harvestQuality);
                     Block.popResource(level, pos, cherries);
                     player.displayClientMessage(Component.translatable("message.coffee.cherries_harvested", yield), true);
                 } else {
@@ -201,6 +205,13 @@ public class CoffeePlantBlock extends Block {
                 level.setBlock(plantPos.above(), Blocks.AIR.defaultBlockState(), 3);
             }
         }
+    }
+
+    private static CoffeeQuality randomHarvestQuality(net.minecraft.util.RandomSource random) {
+        int roll = random.nextInt(10);
+        if (roll < 2) return CoffeeQuality.SCHLECHT;
+        if (roll < 7) return CoffeeQuality.GUT;
+        return CoffeeQuality.SEHR_GUT;
     }
 
     /**

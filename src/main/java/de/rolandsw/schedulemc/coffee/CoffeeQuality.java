@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.coffee;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Kaffee-Qualitätsstufen
  *
@@ -29,7 +31,7 @@ public enum CoffeeQuality implements ProductionQuality {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     public String getColorCode() {
@@ -55,7 +57,7 @@ public enum CoffeeQuality implements ProductionQuality {
 
     @Override
     public String getDescription() {
-        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     @Override

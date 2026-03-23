@@ -25,6 +25,25 @@ import java.util.UUID;
 public class CrimeEventHandler {
 
     // ═══════════════════════════════════════════════════════════
+    // CONSTANTS
+    // ═══════════════════════════════════════════════════════════
+
+    /** Schadens-Schwelle für schwere Körperverletzung */
+    private static final float DAMAGE_AGGRAVATED_ASSAULT_THRESHOLD = 5.0f;
+
+    /** Schadens-Schwelle für einfache Körperverletzung */
+    private static final float DAMAGE_ASSAULT_THRESHOLD = 2.0f;
+
+    /** Diebstahl-Schwelle: unter diesem Wert gilt es als Bagatelle */
+    private static final int THEFT_PETTY_MAX_VALUE = 100;
+
+    /** Diebstahl-Schwelle: unter diesem Wert gilt es als Ladendiebstahl */
+    private static final int THEFT_SHOPLIFTING_MAX_VALUE = 500;
+
+    /** Drogenhandel-Schwelle: ab dieser Menge gilt es als größerer Deal */
+    private static final int DRUG_DEALING_LARGE_MIN_AMOUNT = 5;
+
+    // ═══════════════════════════════════════════════════════════
     // VIOLENCE DETECTION
     // ═══════════════════════════════════════════════════════════
 
@@ -44,9 +63,9 @@ public class CrimeEventHandler {
             float damage = player.getAttackStrengthScale(0.5F);
             CrimeType crimeType;
 
-            if (damage > 5) {
+            if (damage > DAMAGE_AGGRAVATED_ASSAULT_THRESHOLD) {
                 crimeType = CrimeType.AGGRAVATED_ASSAULT;
-            } else if (damage > 2) {
+            } else if (damage > DAMAGE_ASSAULT_THRESHOLD) {
                 crimeType = CrimeType.ASSAULT;
             } else {
                 crimeType = CrimeType.THREAT;
@@ -105,9 +124,9 @@ public class CrimeEventHandler {
         if (!(player.level() instanceof ServerLevel level)) return;
 
         CrimeType crimeType;
-        if (value < 100) {
+        if (value < THEFT_PETTY_MAX_VALUE) {
             crimeType = CrimeType.PETTY_THEFT;
-        } else if (value < 500) {
+        } else if (value < THEFT_SHOPLIFTING_MAX_VALUE) {
             crimeType = CrimeType.SHOPLIFTING;
         } else {
             crimeType = CrimeType.BURGLARY;
@@ -162,7 +181,7 @@ public class CrimeEventHandler {
     public static void registerDrugDealing(ServerPlayer player, BlockPos location, int amount) {
         if (!(player.level() instanceof ServerLevel level)) return;
 
-        CrimeType crimeType = amount > 5 ? CrimeType.DRUG_DEALING_LARGE : CrimeType.DRUG_DEALING_SMALL;
+        CrimeType crimeType = amount > DRUG_DEALING_LARGE_MIN_AMOUNT ? CrimeType.DRUG_DEALING_LARGE : CrimeType.DRUG_DEALING_SMALL;
 
         WitnessManager.getManager(level).registerCrime(
             player,

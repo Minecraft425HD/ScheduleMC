@@ -55,8 +55,8 @@ import de.rolandsw.schedulemc.territory.network.TerritoryNetworkHandler;
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -112,7 +112,7 @@ public class WorldMapScreen extends PopupScreen {
     private float guiToDirectMouse = 2.0F;
     private static boolean gotSkin;
     // OPTIMIZATION: volatile for lock-free reads
-    private volatile boolean closed;  // NOPMD
+    private volatile boolean closed;
     private RegionCache[] regions = new RegionCache[0];
     private final BiomeData biomeMapData = new BiomeData(760, 360);
     private final NPCMapRenderer npcMapRenderer = new NPCMapRenderer();
@@ -145,7 +145,7 @@ public class WorldMapScreen extends PopupScreen {
     private static final int NAME_INPUT_HEIGHT = 20;
     @Nullable
     private TerritoryType selectedType = TerritoryType.COLOR_RED;
-    private final Map<TerritoryType, Button> paletteButtons = new HashMap<>();  // NOPMD
+    private final Map<TerritoryType, Button> paletteButtons = new ConcurrentHashMap<>();
     private EditBox territoryNameInput;
     private String currentTerritoryName = "";
     private Button clearTerritoryButton;
@@ -251,7 +251,7 @@ public class WorldMapScreen extends PopupScreen {
             clearTerritoryButton = Button.builder(
                 Component.literal("🗑"),
                 btn -> {
-                    selectedType = null;  // NOPMD
+                    selectedType = null;
                     currentTerritoryName = "";
                     if (territoryNameInput != null) {
                         territoryNameInput.setValue("");
@@ -604,7 +604,7 @@ public class WorldMapScreen extends PopupScreen {
         return super.charTyped(codePoint, modifiers);
     }
 
-    private boolean isAcceptable(String input) {  // NOPMD
+    private boolean isAcceptable(String input) {
         try {
             String[] xz = this.coordinates.getValue().split(",");
             Integer.valueOf(xz[0].trim());
@@ -1352,7 +1352,7 @@ public class WorldMapScreen extends PopupScreen {
      * Rendert das Navigations-Overlay auf der Worldmap
      * Zeigt Pfadlinie, Zielmarker und Distanzanzeige
      */
-    private void renderNavigationOverlay(GuiGraphics graphics, int centerX, int centerZ, float zoom) {  // NOPMD
+    private void renderNavigationOverlay(GuiGraphics graphics, int centerX, int centerZ, float zoom) {
         NavigationOverlay overlay = NavigationOverlay.getInstance();
 
         // Initialisiere falls nötig
@@ -1384,7 +1384,7 @@ public class WorldMapScreen extends PopupScreen {
      * Rendert Territory-Overlays auf der Karte
      * Opacity: 15% für View-Mode, 80% für Edit-Mode
      */
-    private void renderTerritoryOverlay(GuiGraphics guiGraphics, float cursorCoordX, float cursorCoordZ) {  // NOPMD
+    private void renderTerritoryOverlay(GuiGraphics guiGraphics, float cursorCoordX, float cursorCoordZ) {
         Map<Long, SyncTerritoriesPacket.TerritoryData> territories = SyncTerritoriesPacket.TerritoryClientCache.getCache();
 
         // Calculate visible chunk range
@@ -1495,7 +1495,7 @@ public class WorldMapScreen extends PopupScreen {
                 if (lastPaintedTerritoryName != null && !lastPaintedTerritoryName.isEmpty()) {
                     minecraft.player.sendSystemMessage(Component.translatable("gui.worldmap.leaving", lastPaintedTerritoryName));
                 }
-                lastPaintedTerritoryName = null;  // NOPMD
+                lastPaintedTerritoryName = null;
             }
         } else {
             TerritoryNetworkHandler.sendToServer(new SetTerritoryPacket(chunkX, chunkZ, selectedType, currentTerritoryName));

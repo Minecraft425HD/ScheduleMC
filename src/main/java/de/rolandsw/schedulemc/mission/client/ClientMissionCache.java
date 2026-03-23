@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @OnlyIn(Dist.CLIENT)
 public class ClientMissionCache {
 
-    private static volatile List<PlayerMissionDto> missions = Collections.emptyList();  // NOPMD
+    private static volatile List<PlayerMissionDto> missions = Collections.emptyList();
 
     public static void update(List<PlayerMissionDto> newMissions) {
         missions = new ArrayList<>(newMissions);

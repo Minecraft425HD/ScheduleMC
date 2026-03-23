@@ -35,7 +35,7 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile DialogueManager instance;  // NOPMD
+    private static volatile DialogueManager instance;
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -68,7 +68,7 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;  // NOPMD
+    private MinecraftServer server;
 
     /** Registrierte Dialogbäume: TreeID -> Tree (TRANSIENT - nicht persistiert) */
     private final Map<String, DialogueTree> registeredTrees = new ConcurrentHashMap<>();

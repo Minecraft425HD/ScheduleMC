@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.wine;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Wein-Qualitätsstufen
  *
@@ -29,7 +31,7 @@ public enum WineQuality implements ProductionQuality {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.quality." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     public String getColorCode() {
@@ -51,7 +53,7 @@ public enum WineQuality implements ProductionQuality {
 
     @Override
     public String getDescription() {
-        return Component.translatable("enum.quality.desc." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.quality.desc." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     @Override

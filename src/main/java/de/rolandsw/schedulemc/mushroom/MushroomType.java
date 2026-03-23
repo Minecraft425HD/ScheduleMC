@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.economy.ItemCategory;
 
+import java.util.Locale;
+
 /**
  * Pilz-Sorten mit unterschiedlichen Eigenschaften
  */
@@ -84,7 +86,7 @@ public enum MushroomType implements ProductionType {
     }
 
     public String getRegistryName() {
-        return name().toLowerCase();
+        return name().toLowerCase(Locale.ROOT);
     }
 
     @Override

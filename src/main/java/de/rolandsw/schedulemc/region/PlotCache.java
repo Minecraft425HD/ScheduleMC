@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.region;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.util.ModConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class PlotCache {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final int DEFAULT_MAX_SIZE = 1000;
+    private static final int DEFAULT_MAX_SIZE = ModConstants.PLOT_CACHE_MAX_SIZE;
 
     private final Map<BlockPos, CacheEntry> cache;
     private final int maxSize;

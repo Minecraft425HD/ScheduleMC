@@ -66,6 +66,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -108,7 +109,7 @@ public class ColorCalculationService {
 
     // Performance-Optimierung: LRU Cache für Biome Tints (reduziert 9 Biome-Lookups pro Block)
     // Cache-Size: 4096 Einträge = ~32KB Memory (genug für typische Spieler-Umgebung)
-    private final Map<Long, Integer> biomeTintCache = new LinkedHashMap<Long, Integer>(4096, 0.75f, true) {  // NOPMD
+    private final Map<Long, Integer> biomeTintCache = new LinkedHashMap<Long, Integer>(4096, 0.75f, true) {
         @Override
         protected boolean removeEldestEntry(Map.Entry<Long, Integer> eldest) {
             return size() > 4096;
@@ -367,7 +368,7 @@ public class ColorCalculationService {
         }
     }
 
-    private int getColorForBlockPosBlockStateAndFacing(BlockPos blockPos, BlockState blockState, Direction facing) {  // NOPMD
+    private int getColorForBlockPosBlockStateAndFacing(BlockPos blockPos, BlockState blockState, Direction facing) {
         int color = 0x1B000000;
 
         try {
@@ -508,7 +509,7 @@ public class ColorCalculationService {
 
     }
 
-    private int tintFromFakePlacedBlock(BlockState blockState, MutableBlockPos loopBlockPos, Biome biomeID) {  // NOPMD
+    private int tintFromFakePlacedBlock(BlockState blockState, MutableBlockPos loopBlockPos, Biome biomeID) {
         return -1;
     }
 
@@ -679,7 +680,7 @@ public class ColorCalculationService {
         return tint;
     }
 
-    private int getCustomBlockBiomeTintFromUnloadedChunk(AbstractMapData mapData, Level world, BlockState blockState, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ) {  // NOPMD
+    private int getCustomBlockBiomeTintFromUnloadedChunk(AbstractMapData mapData, Level world, BlockState blockState, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ) {
         int tint;
 
         try {
@@ -760,14 +761,14 @@ public class ColorCalculationService {
             }
 
             String filePath = propertiesFile.getPath();
-            String method = properties.getProperty("method", "").trim().toLowerCase();
-            String faces = properties.getProperty("faces", "").trim().toLowerCase();
-            String matchBlocks = properties.getProperty("matchBlocks", "").trim().toLowerCase();
-            String matchTiles = properties.getProperty("matchTiles", "").trim().toLowerCase();
-            String metadata = properties.getProperty("metadata", "").trim().toLowerCase();
+            String method = properties.getProperty("method", "").trim().toLowerCase(Locale.ROOT);
+            String faces = properties.getProperty("faces", "").trim().toLowerCase(Locale.ROOT);
+            String matchBlocks = properties.getProperty("matchBlocks", "").trim().toLowerCase(Locale.ROOT);
+            String matchTiles = properties.getProperty("matchTiles", "").trim().toLowerCase(Locale.ROOT);
+            String metadata = properties.getProperty("metadata", "").trim().toLowerCase(Locale.ROOT);
             String tiles = properties.getProperty("tiles", "").trim();
-            String biomes = properties.getProperty("biomes", "").trim().toLowerCase();
-            String renderPass = properties.getProperty("renderPass", "").trim().toLowerCase();
+            String biomes = properties.getProperty("biomes", "").trim().toLowerCase(Locale.ROOT);
+            String renderPass = properties.getProperty("renderPass", "").trim().toLowerCase(Locale.ROOT);
             metadata = metadata.replaceAll("\\s+", ",");
             Set<BlockState> blockStates = new HashSet<>(this.parseBlocksList(matchBlocks, metadata));
             String directory = filePath.substring(0, filePath.lastIndexOf("/") + 1);
@@ -783,7 +784,7 @@ public class ColorCalculationService {
                 tilePath = directory + tilePath;  // NOPMD
             }
 
-            if (!tilePath.toLowerCase().endsWith(".png")) {
+            if (!tilePath.toLowerCase(Locale.ROOT).endsWith(".png")) {
                 tilePath = tilePath + ".png";  // NOPMD
             }
 
@@ -1049,7 +1050,7 @@ public class ColorCalculationService {
         return biome != null ? this.world.registryAccess().registryOrThrow(Registries.BIOME).getId(biome) : -1;
     }
 
-    private List<ResourceLocation> findResources(String namespace, String startingPath, String suffixMaybeNull, boolean recursive, boolean directories, boolean sortByFilename) {  // NOPMD
+    private List<ResourceLocation> findResources(String namespace, String startingPath, String suffixMaybeNull, boolean recursive, boolean directories, boolean sortByFilename) {
         String effectivePath = startingPath == null ? "" : startingPath;
         if (!effectivePath.isEmpty() && effectivePath.charAt(0) == '/') {
             effectivePath = effectivePath.substring(1);
@@ -1249,7 +1250,7 @@ public class ColorCalculationService {
                     defaultResource = ResourceLocation.parse("textures/colormap/foliage.png");
                 }
 
-                String stateString = blockState.toString().toLowerCase();
+                String stateString = blockState.toString().toLowerCase(Locale.ROOT);
                 stateString = stateString.replaceAll("^block", "");
                 stateString = stateString.replace("{", "");
                 stateString = stateString.replace("}", "");

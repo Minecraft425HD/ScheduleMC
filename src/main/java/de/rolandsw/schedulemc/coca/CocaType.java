@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.coca;
 
 import de.rolandsw.schedulemc.economy.ItemCategory;
 import de.rolandsw.schedulemc.production.core.ProductionType;
+
+import java.util.Locale;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import net.minecraft.network.chat.Component;
@@ -30,7 +32,7 @@ public enum CocaType implements ProductionType {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.coca_type." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.coca_type." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     public String getColorCode() {

@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -161,7 +162,7 @@ public class InputValidation {
             return Result.failure("validation.skin.path_characters");
         }
         // SICHERHEIT: Blockiere System-Dateien
-        String lower = trimmed.toLowerCase();
+        String lower = trimmed.toLowerCase(Locale.ROOT);
         if ("con".equals(lower) || "prn".equals(lower) || "aux".equals(lower) ||
             "nul".equals(lower) || lower.startsWith("com") || lower.startsWith("lpt")) {
             return Result.failure("validation.skin.reserved_filename");
@@ -200,7 +201,7 @@ public class InputValidation {
      * Prüft auf Command-Injection-Versuche
      */
     private static boolean containsCommandInjection(String input) {
-        String lower = input.toLowerCase();
+        String lower = input.toLowerCase(Locale.ROOT);
         // Blockiere eingebettete Commands
         return lower.contains("/op ") || lower.contains("/gamemode") ||
             lower.contains("/execute") || lower.contains("/give") ||
@@ -276,7 +277,7 @@ public class InputValidation {
     }
 
     private static boolean containsDangerousPatterns(String input) {
-        String lower = input.toLowerCase();
+        String lower = input.toLowerCase(Locale.ROOT);
         if (lower.contains("'--") || lower.contains("'; drop") || lower.contains("1=1")) return true;
         if (lower.contains("<script") || lower.contains("javascript:")) return true;
         if (lower.contains("/op ") || lower.contains("/gamemode") || lower.contains("/execute")) return true;

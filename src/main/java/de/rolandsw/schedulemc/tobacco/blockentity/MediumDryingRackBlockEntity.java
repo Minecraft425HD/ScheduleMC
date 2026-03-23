@@ -6,21 +6,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Mittleres Trocknungsgestell BlockEntity
- * Kapazität: Konfigurierbar (Standard: 8 Tabakblätter)
+ * Kapazität und Trocknungszeit werden aus der Config gelesen.
  */
 public class MediumDryingRackBlockEntity extends AbstractDryingRackBlockEntity {
 
     public MediumDryingRackBlockEntity(BlockPos pos, BlockState state) {
-        super(TobaccoBlockEntities.MEDIUM_DRYING_RACK.get(), pos, state);
-    }
-
-    @Override
-    protected int getCapacity() {
-        return ModConfigHandler.TOBACCO.MEDIUM_DRYING_RACK_CAPACITY.get();
-    }
-
-    @Override
-    protected int getDryingTime() {
-        return ModConfigHandler.TOBACCO.TOBACCO_DRYING_TIME.get();
+        super(TobaccoBlockEntities.MEDIUM_DRYING_RACK.get(), pos, state,
+                ModConfigHandler.TOBACCO.MEDIUM_DRYING_RACK_CAPACITY::get,
+                ModConfigHandler.TOBACCO.TOBACCO_DRYING_TIME::get);
     }
 }

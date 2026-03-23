@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -266,7 +267,7 @@ public class NPCAPIImpl implements INPCAPI {
         int hours = time / 100;
         int minutes = time % 100;
         long mcTicks = ((long)(hours - 6 + 24) % 24) * 1000L + (long)(minutes * 1000 / 60);
-        switch (activity.toUpperCase()) {
+        switch (activity.toUpperCase(Locale.ROOT)) {
             case "WORK_START" -> npc.getNpcData().setWorkStartTime(mcTicks);
             case "WORK_END"   -> npc.getNpcData().setWorkEndTime(mcTicks);
             case "HOME"       -> npc.getNpcData().setHomeTime(mcTicks);

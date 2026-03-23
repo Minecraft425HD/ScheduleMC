@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -19,13 +20,13 @@ public class LockManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("ScheduleMC-LockManager");
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile LockManager instance;  // NOPMD
+    private static volatile LockManager instance;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     // BlockPos-Key: "dim:x:y:z" (immer lower half der Tuer)
     private final ConcurrentHashMap<String, LockData> locks = new ConcurrentHashMap<>();
     private final Path saveFile;
-    private volatile boolean dirty = false;  // NOPMD
+    private volatile boolean dirty = false;
 
     private LockManager(Path configDir) {
         this.saveFile = configDir.resolve("schedulemc_locks.json");
@@ -55,7 +56,7 @@ public class LockManager {
             if (instance != null) {
                 instance.save();
             }
-            instance = null;  // NOPMD
+            instance = null;
         }
     }
 
@@ -172,7 +173,7 @@ public class LockManager {
             }
             // Atomic write: temp file + move verhindert Korruption bei Crash
             File tempFile = new File(saveFile.toFile().getParent(), saveFile.getFileName() + ".tmp");
-            try (Writer w = new FileWriter(tempFile)) {
+            try (Writer w = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(arr, w);
             }
             Files.move(tempFile.toPath(), saveFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
@@ -185,7 +186,7 @@ public class LockManager {
     private void load() {
         File file = saveFile.toFile();
         if (!file.exists()) return;
-        try (Reader r = new FileReader(file)) {
+        try (Reader r = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
             JsonArray arr = JsonParser.parseReader(r).getAsJsonArray();
             int skipped = 0;
             for (JsonElement el : arr) {

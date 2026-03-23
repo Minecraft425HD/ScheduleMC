@@ -112,7 +112,7 @@ public abstract class BehaviorAction {
 
         this.isRunning = false;
         stop(npc, interrupted);
-        this.targetEntity = null;  // NOPMD
+        this.targetEntity = null;
     }
 
     // ═══════════════════════════════════════════════════════════

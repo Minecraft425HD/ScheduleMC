@@ -76,7 +76,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private boolean spawnPointReleased = false; // Track if spawn point was released when driving away
 
     // Werkstatt locking system
-    private boolean isLockedInWerkstatt;  // NOPMD
+    private boolean isLockedInWerkstatt;
     @Nullable
     private BlockPos werkstattPosition;
 
@@ -88,7 +88,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private int winterTireSwapCount = 0;   // Wie oft Winterreifen ausgebaut wurden
     private int storedSummerTireIndex = 0; // Letzte Sommer-Reifenstufe (0=Standard,1=Sport,2=Premium)
 
-    private boolean isSpawned = true;  // NOPMD
+    private boolean isSpawned = true;
 
     public EntityGenericVehicle(EntityType type, Level worldIn) {
         super(type, worldIn);
@@ -752,7 +752,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     public void unlockFromWerkstatt() {
         this.isLockedInWerkstatt = false;
-        this.werkstattPosition = null;  // NOPMD
+        this.werkstattPosition = null;
     }
 
     public boolean isLockedInWerkstatt() {

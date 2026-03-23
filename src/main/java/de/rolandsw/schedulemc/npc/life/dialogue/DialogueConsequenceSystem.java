@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -31,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DialogueConsequenceSystem {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static volatile DialogueConsequenceSystem instance;  // NOPMD
+    private static volatile DialogueConsequenceSystem instance;
 
     // NPC-Erinnerungen an Gespraeche: NPC-UUID -> Spieler-UUID -> Letzte Themen
     private final Map<UUID, Map<UUID, ConversationMemory>> conversationHistory = new ConcurrentHashMap<>();
@@ -138,7 +139,7 @@ public class DialogueConsequenceSystem {
         FactionManager fm = FactionManager.getInstance();
         if (fm != null) {
             try {
-                Faction faction = Faction.valueOf(c.getParameter().toUpperCase());
+                Faction faction = Faction.valueOf(c.getParameter().toUpperCase(Locale.ROOT));
                 fm.modifyReputation(playerUUID, faction, (int) c.getValue());
             } catch (IllegalArgumentException e) {
                 LOGGER.warn("Unknown faction in dialogue consequence: {}", c.getParameter());

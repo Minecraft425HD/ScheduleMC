@@ -67,6 +67,7 @@ public class BankDepositPacket {
             // Transaktion durchführen: Wallet → Girokonto
             if (WalletManager.removeMoney(player.getUUID(), amount)) {
                 EconomyManager.deposit(player.getUUID(), amount, TransactionType.ATM_DEPOSIT, "Bank-Einzahlung");
+                de.rolandsw.schedulemc.mission.MissionEventBridge.fireBankDeposit(player);
 
                 // Aktualisiere Client-Daten
                 de.rolandsw.schedulemc.economy.network.RequestBankDataPacket requestPacket =

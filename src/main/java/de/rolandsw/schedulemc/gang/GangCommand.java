@@ -11,6 +11,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -110,7 +111,7 @@ public class GangCommand {
         GangManager manager = GangManager.getInstance();
         if (manager == null) { sendError(player, "Gang-System nicht verfuegbar."); return 0; }
 
-        ChatFormatting color = ChatFormatting.getByName(colorName.toUpperCase());
+        ChatFormatting color = ChatFormatting.getByName(colorName.toUpperCase(Locale.ROOT));
         if (color == null || !color.isColor()) color = ChatFormatting.WHITE;
 
         Gang gang = manager.createGang(name, tag, player.getUUID(), color);
@@ -198,7 +199,7 @@ public class GangCommand {
         if (manager == null) return 0;
 
         try {
-            GangRank newRank = GangRank.valueOf(rankName.toUpperCase());
+            GangRank newRank = GangRank.valueOf(rankName.toUpperCase(Locale.ROOT));
             if (manager.promoteMember(player.getUUID(), target.getUUID(), newRank)) {
                 sendSuccess(player, target.getGameProfile().getName() + " zu " + newRank.getDisplayName() + " befoerdert.");
                 GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
@@ -286,7 +287,7 @@ public class GangCommand {
         if (rank == null || !rank.canManagePerks()) { sendError(player, "Nur Boss kann Perks freischalten."); return 0; }
 
         try {
-            GangPerk perk = GangPerk.valueOf(perkName.toUpperCase());
+            GangPerk perk = GangPerk.valueOf(perkName.toUpperCase(Locale.ROOT));
             if (gang.unlockPerk(perk)) {
                 manager.markDirty();
                 sendSuccess(player, "Perk '" + perk.getDisplayName() + "' freigeschaltet!");

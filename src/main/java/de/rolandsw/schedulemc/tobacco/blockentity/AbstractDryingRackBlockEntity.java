@@ -28,11 +28,17 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Supplier;
+
 /**
- * Abstrakte Basisklasse für Trocknungsgestelle
- * Ein Input-Slot und ein Output-Slot mit variabler Kapazität
+ * Basisklasse für Trocknungsgestelle (Small/Medium/Big).
+ * Kapazität und Trocknungszeit werden per Supplier konfiguriert,
+ * sodass keine gesonderten Subklassen pro Größe nötig sind.
  */
-public abstract class AbstractDryingRackBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class AbstractDryingRackBlockEntity extends BlockEntity implements IUtilityConsumer {
+
+    private final Supplier<Integer> capacitySupplier;
+    private final Supplier<Integer> dryingTimeSupplier;
 
     private boolean lastActiveState = false;
 
@@ -56,20 +62,22 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
     protected ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
-    protected AbstractDryingRackBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public AbstractDryingRackBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
+                                          Supplier<Integer> capacitySupplier,
+                                          Supplier<Integer> dryingTimeSupplier) {
         super(type, pos, state);
+        this.capacitySupplier = capacitySupplier;
+        this.dryingTimeSupplier = dryingTimeSupplier;
         createItemHandler();  // NOPMD
     }
 
-    /**
-     * Muss von Subklassen implementiert werden - gibt die maximale Blätteranzahl zurück
-     */
-    protected abstract int getCapacity();
+    public int getCapacity() {
+        return capacitySupplier.get();
+    }
 
-    /**
-     * Muss von Subklassen implementiert werden - gibt die Trocknungszeit pro Blatt zurück
-     */
-    protected abstract int getDryingTime();
+    protected int getDryingTime() {
+        return dryingTimeSupplier.get();
+    }
 
     private void createItemHandler() {
         int maxLeaves = getCapacity();
@@ -131,10 +139,10 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
             contentType = ContentType.NONE;
-            tobaccoType = null;  // NOPMD
-            tobaccoQuality = null;  // NOPMD
-            cannabisStrain = null;  // NOPMD
-            cannabisQuality = null;  // NOPMD
+            tobaccoType = null;
+            tobaccoQuality = null;
+            cannabisStrain = null;
+            cannabisQuality = null;
             dryingProgress = 0;
         } else {
             inputStack = handlerInput.copy();
@@ -206,10 +214,10 @@ public abstract class AbstractDryingRackBlockEntity extends BlockEntity implemen
             inputStack = ItemStack.EMPTY;
             dryingProgress = 0;
             contentType = ContentType.NONE;
-            tobaccoType = null;  // NOPMD
-            tobaccoQuality = null;  // NOPMD
-            cannabisStrain = null;  // NOPMD
-            cannabisQuality = null;  // NOPMD
+            tobaccoType = null;
+            tobaccoQuality = null;
+            cannabisStrain = null;
+            cannabisQuality = null;
             syncToHandler();
             setChanged();
             return result;

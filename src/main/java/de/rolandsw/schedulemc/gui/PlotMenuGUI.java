@@ -144,8 +144,7 @@ public class PlotMenuGUI {
     private static void addLore(ItemStack stack, String... lines) {
         ListTag loreList = new ListTag();
         for (String line : lines) {
-            if (line == null) line = "";
-            Component component = Component.literal(line).withStyle(ChatFormatting.GRAY);
+            Component component = Component.literal(line != null ? line : "").withStyle(ChatFormatting.GRAY);
             loreList.add(StringTag.valueOf(Component.Serializer.toJson(component)));
         }
         CompoundTag displayTag = stack.getOrCreateTagElement("display");
@@ -197,7 +196,7 @@ public class PlotMenuGUI {
     // ═══════════════════════════════════════════════════════════
     
     private static class PlotMenuContainer extends ChestMenu {
-        private final SimpleContainer container;  // NOPMD
+        private final SimpleContainer container;
         
         public PlotMenuContainer(int id, Inventory playerInv, SimpleContainer container) {
             super(MenuType.GENERIC_9x3, id, playerInv, container, 3);

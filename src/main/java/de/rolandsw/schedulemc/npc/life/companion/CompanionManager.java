@@ -35,7 +35,7 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
     // SINGLETON
     // ═══════════════════════════════════════════════════════════
 
-    private static volatile CompanionManager instance;  // NOPMD
+    private static volatile CompanionManager instance;
     private static final Object INSTANCE_LOCK = new Object();
 
     @Nullable
@@ -78,7 +78,7 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;  // NOPMD
+    private MinecraftServer server;
 
     /** Alle registrierten Begleiter: Companion UUID -> Data */
     private final Map<UUID, CompanionData> allCompanions = new ConcurrentHashMap<>();

@@ -27,25 +27,25 @@ public class ClientProducerLevelCache {
     private static final int MAX_UNLOCKABLES_SIZE = 500;
 
     // Level-Daten
-    private static volatile int currentLevel = 0;  // NOPMD
-    private static volatile int totalXP = 0;  // NOPMD
-    private static volatile int xpToNextLevel = 0;  // NOPMD
-    private static volatile double progress = 0.0;  // NOPMD
-    private static volatile int totalUnlocked = 0;  // NOPMD
-    private static volatile int totalUnlockables = 0;  // NOPMD
+    private static volatile int currentLevel = 0;
+    private static volatile int totalXP = 0;
+    private static volatile int xpToNextLevel = 0;
+    private static volatile double progress = 0.0;
+    private static volatile int totalUnlocked = 0;
+    private static volatile int totalUnlockables = 0;
 
     // Statistiken
-    private static volatile int totalItemsSold = 0;  // NOPMD
-    private static volatile int totalIllegalSold = 0;  // NOPMD
-    private static volatile int totalLegalSold = 0;  // NOPMD
-    private static volatile double totalRevenue = 0.0;  // NOPMD
+    private static volatile int totalItemsSold = 0;
+    private static volatile int totalIllegalSold = 0;
+    private static volatile int totalLegalSold = 0;
+    private static volatile double totalRevenue = 0.0;
 
     // Unlockable-Daten
     private static final List<UnlockableData> unlockables = new CopyOnWriteArrayList<>();
     private static final Map<UnlockCategory, List<UnlockableData>> categoryMap = new ConcurrentHashMap<>();
 
-    private static volatile boolean initialized = false;  // NOPMD
-    private static volatile Runnable updateListener = null;  // NOPMD
+    private static volatile boolean initialized = false;
+    private static volatile Runnable updateListener = null;
 
     /**
      * Aktualisiert den Cache mit neuen Daten vom Server.
@@ -111,7 +111,7 @@ public class ClientProducerLevelCache {
         totalLegalSold = 0;
         totalRevenue = 0.0;
         initialized = false;
-        updateListener = null;  // NOPMD
+        updateListener = null;
     }
 
     // === GETTERS ===
@@ -196,6 +196,6 @@ public class ClientProducerLevelCache {
     }
 
     public static void removeUpdateListener() {
-        updateListener = null;  // NOPMD
+        updateListener = null;
     }
 }

@@ -15,7 +15,7 @@ public class ScenarioTemplates {
     private static final int STEP = 55; // Vertikaler Abstand zwischen Bloecken
 
     /**
-     * Gibt alle verfuegbaren Vorlagen zurueck.
+     * Gibt alle verfuegbaren Gang-Vorlagen zurueck.
      */
     public static List<MissionScenario> getAll() {
         List<MissionScenario> templates = new ArrayList<>();
@@ -27,11 +27,27 @@ public class ScenarioTemplates {
         templates.add(tankstellenRaub());
         templates.add(gangKrieg());
         templates.add(schutzgeldEintreiben());
+        templates.add(waffenHandel());
+        templates.add(autoKlau());
+        templates.add(geldWaesche());
+        templates.add(fabrikSabotage());
+        templates.add(entfuehrung());
+        templates.add(undercoverOp());
+        templates.add(autobahnFlucht());
+        templates.add(kasino());
+        templates.add(politikerKorruption());
+        templates.add(drogenKueche());
+        templates.add(geiseldrama());
+        templates.add(netzwerkHack());
+        templates.add(reputationsaufbau());
+        templates.add(mafiaAufstieg());
+        templates.add(zeugenschutz());
+        templates.add(polizeiBestechung());
         return templates;
     }
 
     /**
-     * Gibt die Vorlagen-Namen fuer das Dropdown zurueck.
+     * Gibt die Gang-Vorlagen-Namen fuer das Dropdown zurueck.
      */
     public static String[] getTemplateNames() {
         return new String[]{
@@ -42,7 +58,65 @@ public class ScenarioTemplates {
                 "Drogen-Lieferung",
                 "Tankstellen-Raub",
                 "Gangkrieg",
-                "Schutzgeld"
+                "Schutzgeld",
+                "Waffenhandel",
+                "Auto-Klau",
+                "Geldwaesche",
+                "Fabrik-Sabotage",
+                "Entfuehrung",
+                "Undercover-Op",
+                "Autobahn-Flucht",
+                "Kasino-Raub",
+                "Politiker-Korruption",
+                "Drogen-Kueche",
+                "Geiseldrama",
+                "Netzwerk-Hack",
+                "Reputationsaufbau",
+                "Mafia-Aufstieg",
+                "Zeugenschutz",
+                "Polizei-Bestechung"
+        };
+    }
+
+    /**
+     * Gibt alle verfuegbaren Spieler-Missionsvorlagen zurueck.
+     */
+    public static List<MissionScenario> getPlayerTemplates() {
+        List<MissionScenario> templates = new ArrayList<>();
+        templates.add(playerErsterAuftrag());
+        templates.add(playerGeheimeLieferung());
+        templates.add(playerInformant());
+        templates.add(playerTerritoriumAuftrag());
+        templates.add(playerNotfallAuftrag());
+        templates.add(playerKampfAuftrag());
+        templates.add(playerSchmuggler());
+        templates.add(playerDetektiv());
+        templates.add(playerZeugenschutz());
+        templates.add(playerPolitikerSkandal());
+        templates.add(playerUntergrundnetz());
+        templates.add(playerRacheMission());
+        templates.add(playerKronzeuge());
+        return templates;
+    }
+
+    /**
+     * Gibt die Spieler-Vorlagen-Namen fuer das Dropdown zurueck.
+     */
+    public static String[] getPlayerTemplateNames() {
+        return new String[]{
+                "Erster Auftrag",
+                "Geheime Lieferung",
+                "Informant",
+                "Territorium-Auftrag",
+                "Notfall-Auftrag",
+                "Kampf-Auftrag",
+                "Schmuggler",
+                "Detektiv",
+                "Zeugenschutz",
+                "Politiker-Skandal",
+                "Untergrundnetz",
+                "Rache-Mission",
+                "Kronzeuge"
         };
     }
 
@@ -327,5 +401,748 @@ public class ScenarioTemplates {
         return new MissionScenario("tpl_extort", "Schutzgeld",
                 "Schutzgeld von Ladenbesitzern eintreiben",
                 2, 3, false, "DAILY", objs);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // NEUE GANG-VORLAGEN
+    // ═══════════════════════════════════════════════════════════
+
+    public static MissionScenario waffenHandel() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective goNPC = new ScenarioObjective("o1", ObjectiveType.GOTO_NPC, CX, y);
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "WAFFENHAENDLER"); y += STEP;
+        ScenarioObjective buy = new ScenarioObjective("o2", ObjectiveType.BUY_ITEM, CX, y);
+        buy.setParam("item_id", "schedulemc:pistol"); buy.setParam("amount", "5"); buy.setParam("price", "500"); y += STEP;
+        ScenarioObjective goto2 = new ScenarioObjective("o3", ObjectiveType.GOTO_LOCATION, CX, y);
+        goto2.setParam("x", "300"); goto2.setParam("y", "64"); goto2.setParam("z", "-200"); goto2.setParam("radius", "10"); y += STEP;
+        ScenarioObjective deliver = new ScenarioObjective("o4", ObjectiveType.DELIVER_ITEM, CX, y);
+        deliver.setParam("item_id", "schedulemc:pistol"); deliver.setParam("plot_id", ""); y += STEP;
+        ScenarioObjective earn = new ScenarioObjective("o5", ObjectiveType.EARN_MONEY, CX, y);
+        earn.setParam("amount", "5000"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "250"); reward.setParam("money", "6000");
+
+        start.setNextObjectiveId("o1"); goNPC.setNextObjectiveId("o2"); buy.setNextObjectiveId("o3");
+        goto2.setNextObjectiveId("o4"); deliver.setNextObjectiveId("o5"); earn.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(goNPC); objs.add(buy); objs.add(goto2); objs.add(deliver); objs.add(earn); objs.add(reward);
+        return new MissionScenario("tpl_weapons", "Waffenhandel",
+                "Waffen beschaffen und an Kunden liefern", 3, 6, false, "DAILY", objs);
+    }
+
+    public static MissionScenario autoKlau() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective goTo = new ScenarioObjective("o1", ObjectiveType.GOTO_LOCATION, CX, y);
+        goTo.setParam("x", "-150"); goTo.setParam("y", "64"); goTo.setParam("z", "250"); goTo.setParam("radius", "8"); y += STEP;
+        ScenarioObjective steal = new ScenarioObjective("o2", ObjectiveType.STEAL_ITEM, CX, y);
+        steal.setParam("item_id", "schedulemc:car_key"); steal.setParam("npc_name", ""); y += STEP;
+        ScenarioObjective drive = new ScenarioObjective("o3", ObjectiveType.DRIVE_TO, CX, y);
+        drive.setParam("x", "500"); drive.setParam("y", "64"); drive.setParam("z", "100"); drive.setParam("radius", "15"); y += STEP;
+        ScenarioObjective evade = new ScenarioObjective("o4", ObjectiveType.EVADE_POLICE, CX, y);
+        evade.setParam("wanted_level", "2"); evade.setParam("duration", "90"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "180"); reward.setParam("money", "7000");
+
+        start.setNextObjectiveId("o1"); goTo.setNextObjectiveId("o2"); steal.setNextObjectiveId("o3");
+        drive.setNextObjectiveId("o4"); evade.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(goTo); objs.add(steal); objs.add(drive); objs.add(evade); objs.add(reward);
+        return new MissionScenario("tpl_carjack", "Auto-Klau",
+                "Fahrzeug stehlen und zu einem geheimen Treff bringen", 2, 4, false, "DAILY", objs);
+    }
+
+    public static MissionScenario geldWaesche() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective earn = new ScenarioObjective("o1", ObjectiveType.EARN_MONEY, CX, y);
+        earn.setParam("amount", "10000"); y += STEP;
+        ScenarioObjective goNPC = new ScenarioObjective("o2", ObjectiveType.GOTO_NPC, CX, y);
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "BANKER"); y += STEP;
+        ScenarioObjective launder = new ScenarioObjective("o3", ObjectiveType.LAUNDER_MONEY, CX, y);
+        launder.setParam("amount", "10000"); launder.setParam("fee_percent", "20"); y += STEP;
+        ScenarioObjective deliver = new ScenarioObjective("o4", ObjectiveType.GOTO_LOCATION, CX, y);
+        deliver.setParam("x", "0"); deliver.setParam("y", "64"); deliver.setParam("z", "0"); deliver.setParam("radius", "5"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "300"); reward.setParam("money", "8000");
+
+        start.setNextObjectiveId("o1"); earn.setNextObjectiveId("o2"); goNPC.setNextObjectiveId("o3");
+        launder.setNextObjectiveId("o4"); deliver.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(earn); objs.add(goNPC); objs.add(launder); objs.add(deliver); objs.add(reward);
+        return new MissionScenario("tpl_launder", "Geldwaesche",
+                "Schwarzgeld durch einen Hintermann waschen", 3, 7, false, "WEEKLY", objs);
+    }
+
+    public static MissionScenario fabrikSabotage() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective goTo = new ScenarioObjective("o1", ObjectiveType.GOTO_LOCATION, CX, y);
+        goTo.setParam("x", "600"); goTo.setParam("y", "64"); goTo.setParam("z", "400"); goTo.setParam("radius", "10"); y += STEP;
+        ScenarioObjective sneak = new ScenarioObjective("o2", ObjectiveType.SNEAK_PAST, CX, y);
+        sneak.setParam("plot_id", ""); sneak.setParam("guard_count", "3"); y += STEP;
+        ScenarioObjective sabotage = new ScenarioObjective("o3", ObjectiveType.SABOTAGE, CX, y);
+        sabotage.setParam("plot_id", ""); sabotage.setParam("difficulty", "3"); y += STEP;
+        ScenarioObjective escape = new ScenarioObjective("o4", ObjectiveType.ESCAPE_ZONE, CX, y);
+        escape.setParam("plot_id", ""); escape.setParam("radius", "150"); y += STEP;
+        ScenarioObjective survive = new ScenarioObjective("o5", ObjectiveType.SURVIVE_TIME, CX, y);
+        survive.setParam("duration", "60"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "450"); reward.setParam("money", "14000");
+
+        start.setNextObjectiveId("o1"); goTo.setNextObjectiveId("o2"); sneak.setNextObjectiveId("o3");
+        sabotage.setNextObjectiveId("o4"); escape.setNextObjectiveId("o5"); survive.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(goTo); objs.add(sneak); objs.add(sabotage); objs.add(escape); objs.add(survive); objs.add(reward);
+        return new MissionScenario("tpl_sabotage", "Fabrik-Sabotage",
+                "Rivalen-Fabrik unbemerkt sabotieren und fliehen", 4, 9, false, "WEEKLY", objs);
+    }
+
+    public static MissionScenario entfuehrung() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective goNPC = new ScenarioObjective("o1", ObjectiveType.GOTO_NPC, CX, y);
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "ZIEL"); y += STEP;
+        ScenarioObjective kidnap = new ScenarioObjective("o2", ObjectiveType.KIDNAP_NPC, CX, y);
+        kidnap.setParam("npc_name", ""); kidnap.setParam("plot_id", ""); y += STEP;
+        ScenarioObjective goto2 = new ScenarioObjective("o3", ObjectiveType.GOTO_LOCATION, CX, y);
+        goto2.setParam("x", "-300"); goto2.setParam("y", "64"); goto2.setParam("z", "500"); goto2.setParam("radius", "10"); y += STEP;
+        ScenarioObjective evade = new ScenarioObjective("o4", ObjectiveType.EVADE_POLICE, CX, y);
+        evade.setParam("wanted_level", "4"); evade.setParam("duration", "150"); y += STEP;
+        ScenarioObjective earn = new ScenarioObjective("o5", ObjectiveType.EARN_MONEY, CX, y);
+        earn.setParam("amount", "20000"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "600"); reward.setParam("money", "20000");
+
+        start.setNextObjectiveId("o1"); goNPC.setNextObjectiveId("o2"); kidnap.setNextObjectiveId("o3");
+        goto2.setNextObjectiveId("o4"); evade.setNextObjectiveId("o5"); earn.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(goNPC); objs.add(kidnap); objs.add(goto2); objs.add(evade); objs.add(earn); objs.add(reward);
+        return new MissionScenario("tpl_kidnap", "Entfuehrung",
+                "Hochwertiges Ziel entfuehren und Loesegeld kassieren", 5, 15, false, "WEEKLY", objs);
+    }
+
+    public static MissionScenario undercoverOp() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective disguise = new ScenarioObjective("o1", ObjectiveType.DISGUISE, CX, y);
+        disguise.setParam("outfit", "civilian"); y += STEP;
+        ScenarioObjective goNPC = new ScenarioObjective("o2", ObjectiveType.GOTO_NPC, CX, y);
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "INFORMANT"); y += STEP;
+        ScenarioObjective talk = new ScenarioObjective("o3", ObjectiveType.TALK_TO_NPC, CX, y);
+        talk.setParam("npc_name", ""); talk.setParam("dialog_id", "undercover"); y += STEP;
+        ScenarioObjective code = new ScenarioObjective("o4", ObjectiveType.RECEIVE_CODE, CX, y);
+        code.setParam("code_id", "safehouse_code"); y += STEP;
+        ScenarioObjective enter = new ScenarioObjective("o5", ObjectiveType.ENTER_BUILDING, CX, y);
+        enter.setParam("plot_id", ""); y += STEP;
+        ScenarioObjective hack = new ScenarioObjective("o6", ObjectiveType.HACK_SYSTEM, CX, y);
+        hack.setParam("difficulty", "4"); y += STEP;
+        ScenarioObjective escape = new ScenarioObjective("o7", ObjectiveType.ESCAPE_ZONE, CX, y);
+        escape.setParam("plot_id", ""); escape.setParam("radius", "200"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "700"); reward.setParam("money", "22000");
+
+        start.setNextObjectiveId("o1"); disguise.setNextObjectiveId("o2"); goNPC.setNextObjectiveId("o3");
+        talk.setNextObjectiveId("o4"); code.setNextObjectiveId("o5"); enter.setNextObjectiveId("o6");
+        hack.setNextObjectiveId("o7"); escape.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(disguise); objs.add(goNPC); objs.add(talk);
+        objs.add(code); objs.add(enter); objs.add(hack); objs.add(escape); objs.add(reward);
+        return new MissionScenario("tpl_undercover", "Undercover-Op",
+                "Verkleidet in feindliche Organisation eindringen und Daten stehlen", 5, 14, false, "WEEKLY", objs);
+    }
+
+    public static MissionScenario autobahnFlucht() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective goTo = new ScenarioObjective("o1", ObjectiveType.GOTO_LOCATION, CX, y);
+        goTo.setParam("x", "0"); goTo.setParam("y", "64"); goTo.setParam("z", "0"); goTo.setParam("radius", "5"); y += STEP;
+        ScenarioObjective collect = new ScenarioObjective("o2", ObjectiveType.COLLECT_ITEMS, CX, y);
+        collect.setParam("item_id", "minecraft:chest"); collect.setParam("amount", "1"); y += STEP;
+        ScenarioObjective drive = new ScenarioObjective("o3", ObjectiveType.DRIVE_TO, CX, y);
+        drive.setParam("x", "1000"); drive.setParam("y", "64"); drive.setParam("z", "1000"); drive.setParam("radius", "20"); y += STEP;
+        ScenarioObjective evade = new ScenarioObjective("o4", ObjectiveType.EVADE_POLICE, CX, y);
+        evade.setParam("wanted_level", "3"); evade.setParam("duration", "120"); y += STEP;
+        ScenarioObjective lose = new ScenarioObjective("o5", ObjectiveType.LOSE_WANTED, CX, y);
+        lose.setParam("time_to_lose", "30"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "220"); reward.setParam("money", "9000");
+
+        start.setNextObjectiveId("o1"); goTo.setNextObjectiveId("o2"); collect.setNextObjectiveId("o3");
+        drive.setNextObjectiveId("o4"); evade.setNextObjectiveId("o5"); lose.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(goTo); objs.add(collect); objs.add(drive); objs.add(evade); objs.add(lose); objs.add(reward);
+        return new MissionScenario("tpl_highway", "Autobahn-Flucht",
+                "Paket abholen, auf der Flucht liefern und Polizei abhaengen", 3, 5, false, "DAILY", objs);
+    }
+
+    public static MissionScenario kasino() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective goTo = new ScenarioObjective("o1", ObjectiveType.GOTO_LOCATION, CX, y);
+        goTo.setParam("x", "200"); goTo.setParam("y", "64"); goTo.setParam("z", "-300"); goTo.setParam("radius", "8"); y += STEP;
+        ScenarioObjective disguise = new ScenarioObjective("o2", ObjectiveType.DISGUISE, CX, y);
+        disguise.setParam("outfit", "formal"); y += STEP;
+        ScenarioObjective enter = new ScenarioObjective("o3", ObjectiveType.ENTER_BUILDING, CX, y);
+        enter.setParam("plot_id", ""); y += STEP;
+        ScenarioObjective hack = new ScenarioObjective("o4", ObjectiveType.HACK_SYSTEM, CX, y);
+        hack.setParam("difficulty", "2"); y += STEP;
+        ScenarioObjective rob = new ScenarioObjective("o5", ObjectiveType.ROB_PLOT, CX, y);
+        rob.setParam("plot_id", ""); rob.setParam("difficulty", "3"); rob.setParam("time_limit", "120"); y += STEP;
+        ScenarioObjective escape = new ScenarioObjective("o6", ObjectiveType.ESCAPE_ZONE, CX, y);
+        escape.setParam("plot_id", ""); escape.setParam("radius", "100"); y += STEP;
+        ScenarioObjective evade = new ScenarioObjective("o7", ObjectiveType.EVADE_POLICE, CX, y);
+        evade.setParam("wanted_level", "3"); evade.setParam("duration", "150"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "550"); reward.setParam("money", "18000");
+
+        start.setNextObjectiveId("o1"); goTo.setNextObjectiveId("o2"); disguise.setNextObjectiveId("o3");
+        enter.setNextObjectiveId("o4"); hack.setNextObjectiveId("o5"); rob.setNextObjectiveId("o6");
+        escape.setNextObjectiveId("o7"); evade.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(goTo); objs.add(disguise); objs.add(enter);
+        objs.add(hack); objs.add(rob); objs.add(escape); objs.add(evade); objs.add(reward);
+        return new MissionScenario("tpl_casino", "Kasino-Raub",
+                "Verkleidet ins Kasino einschleichen, System hacken und Kasse rauben", 5, 11, false, "WEEKLY", objs);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // SPIELER-MISSIONSVORLAGEN (STORY)
+    // ═══════════════════════════════════════════════════════════
+
+    public static MissionScenario playerErsterAuftrag() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Erster Auftrag"); info.setParam("description", "Hol dir deinen ersten Auftrag bei einem Haendler."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o2", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Ich habe einen Job fuer dich. Interessiert?"); y += STEP;
+        ScenarioObjective tracking = new ScenarioObjective("o3", ObjectiveType.MISSION_TRACKING, CX, y);
+        tracking.setParam("tracking_key", "npc_interaction_dealer"); tracking.setParam("target_amount", "1"); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o4", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Gut gemacht. Hier ist deine Belohnung."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "500"); reward.setParam("money", "2000");
+
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); give.setNextObjectiveId("o3");
+        tracking.setNextObjectiveId("o4"); complete.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(info); objs.add(give); objs.add(tracking); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_first", "Erster Auftrag",
+                "Einfache Hauptmission: NPC gibt Auftrag, Tracking, Abgabe", 1, 0, false, "STORY_MAIN", objs);
+    }
+
+    public static MissionScenario playerGeheimeLieferung() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Geheime Lieferung"); info.setParam("description", "Bring das Paket sicher an."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective notify = new ScenarioObjective("o2", ObjectiveType.PLAYER_NOTIFY, CX, y);
+        notify.setParam("message", "Geh zum Abholort."); notify.setParam("color", "yellow"); y += STEP;
+        ScenarioObjective goTo = new ScenarioObjective("o3", ObjectiveType.GOTO_LOCATION, CX, y);
+        goTo.setParam("x", "100"); goTo.setParam("y", "64"); goTo.setParam("z", "100"); goTo.setParam("radius", "5"); y += STEP;
+        ScenarioObjective collect = new ScenarioObjective("o4", ObjectiveType.COLLECT_ITEMS, CX, y);
+        collect.setParam("item_id", "minecraft:paper"); collect.setParam("amount", "1"); y += STEP;
+        ScenarioObjective deliver = new ScenarioObjective("o5", ObjectiveType.DELIVER_ITEM, CX, y);
+        deliver.setParam("item_id", "minecraft:paper"); deliver.setParam("plot_id", ""); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o6", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Paket erhalten. Danke."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "400"); reward.setParam("money", "3000");
+
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); notify.setNextObjectiveId("o3");
+        goTo.setNextObjectiveId("o4"); collect.setNextObjectiveId("o5"); deliver.setNextObjectiveId("o6"); complete.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(info); objs.add(notify); objs.add(goTo); objs.add(collect); objs.add(deliver); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_delivery", "Geheime Lieferung",
+                "Nebenmission: Paket abholen und diskret zustellen", 1, 0, false, "STORY_SIDE", objs);
+    }
+
+    public static MissionScenario playerInformant() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Der Informant"); info.setParam("description", "Befrage drei Kontakte und beschaffe Infos."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o2", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Finde heraus was in der Stadt vorgeht."); y += STEP;
+        ScenarioObjective tracking = new ScenarioObjective("o3", ObjectiveType.MISSION_TRACKING, CX, y);
+        tracking.setParam("tracking_key", "npc_talked"); tracking.setParam("target_amount", "3"); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o4", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Gute Arbeit. Du hast mir sehr geholfen."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "350"); reward.setParam("money", "2500");
+
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); give.setNextObjectiveId("o3");
+        tracking.setNextObjectiveId("o4"); complete.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(info); objs.add(give); objs.add(tracking); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_informant", "Informant",
+                "Nebenmission: Informationen durch NPC-Gespraeche sammeln", 1, 0, false, "STORY_SIDE", objs);
+    }
+
+    public static MissionScenario playerTerritoriumAuftrag() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Territorium sichern"); info.setParam("description", "Erweitere den Einflussbereich der Gang."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective prereq = new ScenarioObjective("o2", ObjectiveType.MISSION_PREREQ, CX, y);
+        prereq.setParam("prereq_id", "haupt_erster_kontakt"); prereq.setParam("fail_message", "Schliess zuerst den ersten Kontakt ab."); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o3", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Wir brauchen mehr Kontrolle. Sichere drei Gebiete."); y += STEP;
+        ScenarioObjective tracking = new ScenarioObjective("o4", ObjectiveType.MISSION_TRACKING, CX, y);
+        tracking.setParam("tracking_key", "territory_captured"); tracking.setParam("target_amount", "3"); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o5", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Ausgezeichnet. Die Stadt gehoert uns."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "1200"); reward.setParam("money", "8000");
+
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); prereq.setNextObjectiveId("o3");
+        give.setNextObjectiveId("o4"); tracking.setNextObjectiveId("o5"); complete.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(info); objs.add(prereq); objs.add(give); objs.add(tracking); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_territory", "Territorium-Auftrag",
+                "Hauptmission mit Voraussetzung: Gebiete sichern", 2, 0, false, "STORY_MAIN", objs);
+    }
+
+    public static MissionScenario playerNotfallAuftrag() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective notify1 = new ScenarioObjective("o1", ObjectiveType.PLAYER_NOTIFY, CX, y);
+        notify1.setParam("message", "ALARM! Treffe sofort am Treffpunkt ein."); notify1.setParam("color", "red"); y += STEP;
+        ScenarioObjective goTo = new ScenarioObjective("o2", ObjectiveType.GOTO_LOCATION, CX, y);
+        goTo.setParam("x", "50"); goTo.setParam("y", "64"); goTo.setParam("z", "50"); goTo.setParam("radius", "5"); y += STEP;
+        ScenarioObjective failCond = new ScenarioObjective("o3", ObjectiveType.MISSION_FAIL_COND, CX, y);
+        failCond.setParam("condition", "player_died"); failCond.setParam("fail_message", "Du bist gefallen!"); y += STEP;
+        ScenarioObjective collect = new ScenarioObjective("o4", ObjectiveType.COLLECT_ITEMS, CX, y);
+        collect.setParam("item_id", "minecraft:diamond"); collect.setParam("amount", "3"); y += STEP;
+        ScenarioObjective notify2 = new ScenarioObjective("o5", ObjectiveType.PLAYER_NOTIFY, CX, y);
+        notify2.setParam("message", "Gut gemacht! Verschwinde schnell."); notify2.setParam("color", "green"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "600"); reward.setParam("money", "5000");
+
+        start.setNextObjectiveId("o1"); notify1.setNextObjectiveId("o2"); goTo.setNextObjectiveId("o3");
+        failCond.setNextObjectiveId("o4"); collect.setNextObjectiveId("o5"); notify2.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(notify1); objs.add(goTo); objs.add(failCond); objs.add(collect); objs.add(notify2); objs.add(reward);
+        return new MissionScenario("ptpl_emergency", "Notfall-Auftrag",
+                "Zeitkritische Nebenmission mit Abbruchbedingung und Hinweisen", 2, 0, false, "STORY_SIDE", objs);
+    }
+
+    public static MissionScenario playerKampfAuftrag() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Bedrohung ausschalten"); info.setParam("description", "Raeume das feindliche Lager aus."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o2", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Diese Kerle machen uns das Leben schwer. Kuemmer dich drum."); y += STEP;
+        ScenarioObjective tracking = new ScenarioObjective("o3", ObjectiveType.MISSION_TRACKING, CX, y);
+        tracking.setParam("tracking_key", "enemy_killed"); tracking.setParam("target_amount", "10"); y += STEP;
+        ScenarioObjective failCond = new ScenarioObjective("o4", ObjectiveType.MISSION_FAIL_COND, CX, y);
+        failCond.setParam("condition", "player_died"); failCond.setParam("fail_message", "Mission fehlgeschlagen - du wurdest ausgeschaltet."); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o5", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Sauber erledigt. Hier ist deine Auszahlung."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "900"); reward.setParam("money", "7000");
+
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); give.setNextObjectiveId("o3");
+        tracking.setNextObjectiveId("o4"); failCond.setNextObjectiveId("o5"); complete.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(info); objs.add(give); objs.add(tracking); objs.add(failCond); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_combat", "Kampf-Auftrag",
+                "Hauptmission mit Gegnern besiegen und Abbruchbedingung", 3, 0, false, "STORY_MAIN", objs);
+    }
+
+    public static MissionScenario playerSchmuggler() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Schmuggelauftrag"); info.setParam("description", "Bringe Waren unentdeckt durch die Stadt."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o2", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Fuer jeden gelieferten Auftrag gibt es Kohle."); y += STEP;
+        ScenarioObjective tracking = new ScenarioObjective("o3", ObjectiveType.MISSION_TRACKING, CX, y);
+        tracking.setParam("tracking_key", "package_delivered"); tracking.setParam("target_amount", "5"); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o4", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Alle Pakete angekommen. Sauber."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "700"); reward.setParam("money", "6000");
+
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); give.setNextObjectiveId("o3");
+        tracking.setNextObjectiveId("o4"); complete.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(info); objs.add(give); objs.add(tracking); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_smuggler", "Schmuggler",
+                "Nebenmission: Pakete liefern und Belohnung kassieren", 2, 0, false, "STORY_SIDE", objs);
+    }
+
+    public static MissionScenario playerDetektiv() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Spurensuche"); info.setParam("description", "Finde den Verraeter in der Gang."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective prereq = new ScenarioObjective("o2", ObjectiveType.MISSION_PREREQ, CX, y);
+        prereq.setParam("prereq_id", "haupt_lieferung_01"); prereq.setParam("fail_message", "Du musst zuerst beweisen, dass du vertrauenswuerdig bist."); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o3", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Jemand hat uns verraten. Finde raus wer."); y += STEP;
+        ScenarioObjective talk = new ScenarioObjective("o4", ObjectiveType.MISSION_TRACKING, CX, y);
+        talk.setParam("tracking_key", "npc_talked"); talk.setParam("target_amount", "5"); y += STEP;
+        ScenarioObjective notify = new ScenarioObjective("o5", ObjectiveType.PLAYER_NOTIFY, CX, y);
+        notify.setParam("message", "Du hast genug Informationen gesammelt."); notify.setParam("color", "aqua"); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o6", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Das wusste ich nicht. Du bist unser Mann."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "1500"); reward.setParam("money", "12000");
+
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); prereq.setNextObjectiveId("o3");
+        give.setNextObjectiveId("o4"); talk.setNextObjectiveId("o5"); notify.setNextObjectiveId("o6"); complete.setNextObjectiveId("r0");
+
+        objs.add(start); objs.add(info); objs.add(prereq); objs.add(give); objs.add(talk); objs.add(notify); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_detective", "Detektiv",
+                "Komplexe Hauptmission: Verraeter aufdecken mit Voraussetzung und Hinweisen", 3, 0, false, "STORY_MAIN", objs);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // NEUE GANG-VORLAGEN II
+    // ═══════════════════════════════════════════════════════════
+
+    public static MissionScenario politikerKorruption() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective track = new ScenarioObjective("o1", ObjectiveType.TRACK_DEVICE, CX, y);
+        track.setParam("target", "Buergermeister"); track.setParam("duration", "300"); y += STEP;
+        ScenarioObjective photo = new ScenarioObjective("o2", ObjectiveType.TAKE_PHOTO, CX, y);
+        photo.setParam("target", "Buergermeister"); photo.setParam("radius", "8"); y += STEP;
+        ScenarioObjective goNPC = new ScenarioObjective("o3", ObjectiveType.GOTO_NPC, CX, y);
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "INFORMANT"); y += STEP;
+        ScenarioObjective bribe = new ScenarioObjective("o4", ObjectiveType.BRIBE_OFFICIAL, CX, y);
+        bribe.setParam("npc_name", ""); bribe.setParam("bribe_amount", "10000"); bribe.setParam("favor", "wanted_reduce"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "600"); reward.setParam("money", "20000");
+        start.setNextObjectiveId("o1"); track.setNextObjectiveId("o2"); photo.setNextObjectiveId("o3");
+        goNPC.setNextObjectiveId("o4"); bribe.setNextObjectiveId("r0");
+        objs.add(start); objs.add(track); objs.add(photo); objs.add(goNPC); objs.add(bribe); objs.add(reward);
+        return new MissionScenario("tpl_corrupt", "Politiker-Korruption",
+                "Politiker beschatten, Material sammeln und erpressen", 4, 10, false, "WEEKLY", objs);
+    }
+
+    public static MissionScenario drogenKueche() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective enter = new ScenarioObjective("o1", ObjectiveType.ENTER_BUILDING, CX, y);
+        enter.setParam("plot_id", ""); y += STEP;
+        ScenarioObjective collect = new ScenarioObjective("o2", ObjectiveType.COLLECT_ITEMS, CX, y);
+        collect.setParam("item_id", "minecraft:sugar"); collect.setParam("amount", "20"); y += STEP;
+        ScenarioObjective use = new ScenarioObjective("o3", ObjectiveType.USE_ITEM, CX, y);
+        use.setParam("item_id", "schedulemc:lab_equipment"); y += STEP;
+        ScenarioObjective produce = new ScenarioObjective("o4", ObjectiveType.COLLECT_ITEMS, CX, y);
+        produce.setParam("item_id", "schedulemc:product"); produce.setParam("amount", "10"); y += STEP;
+        ScenarioObjective deliver = new ScenarioObjective("o5", ObjectiveType.DELIVER_ITEM, CX, y);
+        deliver.setParam("item_id", "schedulemc:product"); deliver.setParam("plot_id", ""); y += STEP;
+        ScenarioObjective evade = new ScenarioObjective("o6", ObjectiveType.EVADE_POLICE, CX, y);
+        evade.setParam("wanted_level", "3"); evade.setParam("duration", "120"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "500"); reward.setParam("money", "18000");
+        start.setNextObjectiveId("o1"); enter.setNextObjectiveId("o2"); collect.setNextObjectiveId("o3");
+        use.setNextObjectiveId("o4"); produce.setNextObjectiveId("o5"); deliver.setNextObjectiveId("o6"); evade.setNextObjectiveId("r0");
+        objs.add(start); objs.add(enter); objs.add(collect); objs.add(use); objs.add(produce); objs.add(deliver); objs.add(evade); objs.add(reward);
+        return new MissionScenario("tpl_druglab", "Drogen-Kueche",
+                "Labor betreten, Produkt herstellen und liefern", 4, 8, false, "WEEKLY", objs);
+    }
+
+    public static MissionScenario geiseldrama() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective goTo = new ScenarioObjective("o1", ObjectiveType.GOTO_LOCATION, CX, y);
+        goTo.setParam("x", "100"); goTo.setParam("y", "64"); goTo.setParam("z", "100"); goTo.setParam("radius", "5"); y += STEP;
+        ScenarioObjective kidnap = new ScenarioObjective("o2", ObjectiveType.KIDNAP_NPC, CX, y);
+        kidnap.setParam("npc_name", ""); kidnap.setParam("plot_id", ""); y += STEP;
+        ScenarioObjective hostage = new ScenarioObjective("o3", ObjectiveType.TAKE_HOSTAGE, CX, y);
+        hostage.setParam("npc_name", ""); hostage.setParam("ransom", "25000"); y += STEP;
+        ScenarioObjective defend = new ScenarioObjective("o4", ObjectiveType.DEFEND_AREA, CX, y);
+        defend.setParam("plot_id", ""); defend.setParam("duration", "180"); y += STEP;
+        ScenarioObjective earn = new ScenarioObjective("o5", ObjectiveType.EARN_MONEY, CX, y);
+        earn.setParam("amount", "25000"); y += STEP;
+        ScenarioObjective escape = new ScenarioObjective("o6", ObjectiveType.ESCAPE_ZONE, CX, y);
+        escape.setParam("plot_id", ""); escape.setParam("radius", "200"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "700"); reward.setParam("money", "25000");
+        start.setNextObjectiveId("o1"); goTo.setNextObjectiveId("o2"); kidnap.setNextObjectiveId("o3");
+        hostage.setNextObjectiveId("o4"); defend.setNextObjectiveId("o5"); earn.setNextObjectiveId("o6"); escape.setNextObjectiveId("r0");
+        objs.add(start); objs.add(goTo); objs.add(kidnap); objs.add(hostage); objs.add(defend); objs.add(earn); objs.add(escape); objs.add(reward);
+        return new MissionScenario("tpl_hostage", "Geiseldrama",
+                "Geisel nehmen, Loesegeld fordern, Gebiet halten und fliehen", 5, 12, false, "WEEKLY", objs);
+    }
+
+    public static MissionScenario netzwerkHack() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective goTo = new ScenarioObjective("o1", ObjectiveType.GOTO_LOCATION, CX, y);
+        goTo.setParam("x", "0"); goTo.setParam("y", "64"); goTo.setParam("z", "0"); goTo.setParam("radius", "5"); y += STEP;
+        ScenarioObjective disable = new ScenarioObjective("o2", ObjectiveType.DISABLE_SECURITY, CX, y);
+        disable.setParam("plot_id", ""); disable.setParam("duration", "180"); y += STEP;
+        ScenarioObjective hack = new ScenarioObjective("o3", ObjectiveType.HACK_NETWORK, CX, y);
+        hack.setParam("target_system", "polizei_db"); hack.setParam("difficulty", "4"); hack.setParam("time_limit", "120"); y += STEP;
+        ScenarioObjective decrypt = new ScenarioObjective("o4", ObjectiveType.DECRYPT_FILE, CX, y);
+        decrypt.setParam("file_id", "geheimdaten"); decrypt.setParam("difficulty", "3"); y += STEP;
+        ScenarioObjective escape = new ScenarioObjective("o5", ObjectiveType.ESCAPE_ZONE, CX, y);
+        escape.setParam("plot_id", ""); escape.setParam("radius", "100"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "650"); reward.setParam("money", "22000");
+        start.setNextObjectiveId("o1"); goTo.setNextObjectiveId("o2"); disable.setNextObjectiveId("o3");
+        hack.setNextObjectiveId("o4"); decrypt.setNextObjectiveId("o5"); escape.setNextObjectiveId("r0");
+        objs.add(start); objs.add(goTo); objs.add(disable); objs.add(hack); objs.add(decrypt); objs.add(escape); objs.add(reward);
+        return new MissionScenario("tpl_nethack", "Netzwerk-Hack",
+                "Sicherheit deaktivieren, Netzwerk hacken, Daten entschluesseln", 5, 11, false, "WEEKLY", objs);
+    }
+
+    public static MissionScenario reputationsaufbau() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective rep = new ScenarioObjective("o1", ObjectiveType.BUILD_REPUTATION, CX, y);
+        rep.setParam("plot_id", ""); rep.setParam("rep_type", "RESPEKT"); rep.setParam("target_points", "100"); y += STEP;
+        ScenarioObjective recruit = new ScenarioObjective("o2", ObjectiveType.RECRUIT_NPC, CX, y);
+        recruit.setParam("npc_name", ""); recruit.setParam("offer", "Schutz"); y += STEP;
+        ScenarioObjective territory = new ScenarioObjective("o3", ObjectiveType.TERRITORY_CLAIM, CX, y);
+        territory.setParam("plot_id", ""); territory.setParam("hold_time", "300"); y += STEP;
+        ScenarioObjective earn = new ScenarioObjective("o4", ObjectiveType.EARN_MONEY, CX, y);
+        earn.setParam("amount", "15000"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "450"); reward.setParam("money", "12000");
+        start.setNextObjectiveId("o1"); rep.setNextObjectiveId("o2"); recruit.setNextObjectiveId("o3");
+        territory.setNextObjectiveId("o4"); earn.setNextObjectiveId("r0");
+        objs.add(start); objs.add(rep); objs.add(recruit); objs.add(territory); objs.add(earn); objs.add(reward);
+        return new MissionScenario("tpl_reputation", "Reputationsaufbau",
+                "Ruf aufbauen, NPC rekrutieren, Territorium sichern", 3, 6, false, "WEEKLY", objs);
+    }
+
+    public static MissionScenario mafiaAufstieg() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective meeting = new ScenarioObjective("o1", ObjectiveType.GANG_MEETING, CX, y);
+        meeting.setParam("plot_id", ""); meeting.setParam("attendees", "3"); y += STEP;
+        ScenarioObjective boss = new ScenarioObjective("o2", ObjectiveType.CONTACT_BOSS, CX, y);
+        boss.setParam("npc_name", ""); boss.setParam("dialog_id", "aufstieg"); y += STEP;
+        ScenarioObjective tribute = new ScenarioObjective("o3", ObjectiveType.COLLECT_TRIBUTE, CX, y);
+        tribute.setParam("npc_name", ""); tribute.setParam("amount", "5000"); y += STEP;
+        ScenarioObjective rival = new ScenarioObjective("o4", ObjectiveType.ELIMINATE_RIVAL, CX, y);
+        rival.setParam("npc_name", ""); rival.setParam("difficulty", "4"); y += STEP;
+        ScenarioObjective trial = new ScenarioObjective("o5", ObjectiveType.MAFIA_TRIAL, CX, y);
+        trial.setParam("plot_id", ""); trial.setParam("verdict", "FREISPRUCH"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "900"); reward.setParam("money", "30000");
+        start.setNextObjectiveId("o1"); meeting.setNextObjectiveId("o2"); boss.setNextObjectiveId("o3");
+        tribute.setNextObjectiveId("o4"); rival.setNextObjectiveId("o5"); trial.setNextObjectiveId("r0");
+        objs.add(start); objs.add(meeting); objs.add(boss); objs.add(tribute); objs.add(rival); objs.add(trial); objs.add(reward);
+        return new MissionScenario("tpl_mafiarise", "Mafia-Aufstieg",
+                "Meeting, Boss-Kontakt, Tribut kassieren, Rivalen ausschalten, Tribunal", 5, 15, false, "WEEKLY", objs);
+    }
+
+    public static MissionScenario zeugenschutz() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective goNPC = new ScenarioObjective("o1", ObjectiveType.GOTO_NPC, CX, y);
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "INFORMANT"); y += STEP;
+        ScenarioObjective protect = new ScenarioObjective("o2", ObjectiveType.PROTECT_NPC, CX, y);
+        protect.setParam("npc_name", ""); protect.setParam("duration", "300"); y += STEP;
+        ScenarioObjective drive = new ScenarioObjective("o3", ObjectiveType.DRIVE_TO, CX, y);
+        drive.setParam("plot_id", ""); drive.setParam("vehicle_type", "AUTO"); y += STEP;
+        ScenarioObjective evade = new ScenarioObjective("o4", ObjectiveType.EVADE_POLICE, CX, y);
+        evade.setParam("wanted_level", "3"); evade.setParam("duration", "120"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "400"); reward.setParam("money", "14000");
+        start.setNextObjectiveId("o1"); goNPC.setNextObjectiveId("o2"); protect.setNextObjectiveId("o3");
+        drive.setNextObjectiveId("o4"); evade.setNextObjectiveId("r0");
+        objs.add(start); objs.add(goNPC); objs.add(protect); objs.add(drive); objs.add(evade); objs.add(reward);
+        return new MissionScenario("tpl_witness", "Zeugenschutz",
+                "Zeugen aufsuchen, sichern, eskorieren und Verfolger abschuetteln", 3, 7, false, "DAILY", objs);
+    }
+
+    public static MissionScenario polizeiBestechung() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective earn = new ScenarioObjective("o1", ObjectiveType.EARN_MONEY, CX, y);
+        earn.setParam("amount", "8000"); y += STEP;
+        ScenarioObjective tail = new ScenarioObjective("o2", ObjectiveType.TAIL_NPC, CX, y);
+        tail.setParam("npc_name", ""); tail.setParam("duration", "120"); tail.setParam("max_distance", "12"); y += STEP;
+        ScenarioObjective photo = new ScenarioObjective("o3", ObjectiveType.TAKE_PHOTO, CX, y);
+        photo.setParam("target", "Polizist"); photo.setParam("radius", "5"); y += STEP;
+        ScenarioObjective bribe = new ScenarioObjective("o4", ObjectiveType.BRIBE_NPC, CX, y);
+        bribe.setParam("npc_name", ""); bribe.setParam("bribe_amount", "8000"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "350"); reward.setParam("money", "10000");
+        start.setNextObjectiveId("o1"); earn.setNextObjectiveId("o2"); tail.setNextObjectiveId("o3");
+        photo.setNextObjectiveId("o4"); bribe.setNextObjectiveId("r0");
+        objs.add(start); objs.add(earn); objs.add(tail); objs.add(photo); objs.add(bribe); objs.add(reward);
+        return new MissionScenario("tpl_copbribe", "Polizei-Bestechung",
+                "Polizisten beschatten, Material sammeln und bestechen", 3, 6, false, "DAILY", objs);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // NEUE SPIELER-VORLAGEN II
+    // ═══════════════════════════════════════════════════════════
+
+    public static MissionScenario playerZeugenschutz() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Zeugenschutz"); info.setParam("description", "Schuetze den Zeugen vor Angreifern und bring ihn sicher weg."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o2", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Der Zeuge ist in Gefahr. Wir brauchen dich."); y += STEP;
+        ScenarioObjective fail = new ScenarioObjective("o3", ObjectiveType.MISSION_FAIL_COND, CX, y);
+        fail.setParam("condition_key", "player_died"); fail.setParam("threshold", "1"); y += STEP;
+        ScenarioObjective tracking = new ScenarioObjective("o4", ObjectiveType.MISSION_TRACKING, CX, y);
+        tracking.setParam("tracking_key", "enemy_killed"); tracking.setParam("target_amount", "5"); y += STEP;
+        ScenarioObjective notify = new ScenarioObjective("o5", ObjectiveType.PLAYER_NOTIFY, CX, y);
+        notify.setParam("text", "Zeuge in Sicherheit gebracht!"); notify.setParam("color", "GRUEN"); notify.setParam("persistent", "0"); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o6", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Du hast ihn gerettet. Wir stehen in deiner Schuld."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "1100"); reward.setParam("money", "9000");
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); give.setNextObjectiveId("o3");
+        fail.setNextObjectiveId("o4"); tracking.setNextObjectiveId("o5"); notify.setNextObjectiveId("o6"); complete.setNextObjectiveId("r0");
+        objs.add(start); objs.add(info); objs.add(give); objs.add(fail); objs.add(tracking); objs.add(notify); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_witness", "Zeugenschutz",
+                "Hauptmission: Zeugen schuetzen, Angreifer besiegen, FAIL-Bedingung", 3, 0, false, "STORY_MAIN", objs);
+    }
+
+    public static MissionScenario playerPolitikerSkandal() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Politiker-Skandal"); info.setParam("description", "Enthuelle die Korruption des Buergermeisters."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective stage1 = new ScenarioObjective("o2", ObjectiveType.MISSION_STAGE, CX, y);
+        stage1.setParam("stage_name", "Phase 1: Beweise sammeln"); stage1.setParam("notify_player", "1"); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o3", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Sammel drei Beweise gegen den Buergermeister."); y += STEP;
+        ScenarioObjective tracking = new ScenarioObjective("o4", ObjectiveType.MISSION_TRACKING, CX, y);
+        tracking.setParam("tracking_key", "item_collected"); tracking.setParam("target_amount", "3"); y += STEP;
+        ScenarioObjective stage2 = new ScenarioObjective("o5", ObjectiveType.MISSION_STAGE, CX, y);
+        stage2.setParam("stage_name", "Phase 2: Uebergabe"); stage2.setParam("notify_player", "1"); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o6", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Mit diesen Beweisen bringen wir ihn zu Fall!"); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "1400"); reward.setParam("money", "11000");
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); stage1.setNextObjectiveId("o3");
+        give.setNextObjectiveId("o4"); tracking.setNextObjectiveId("o5"); stage2.setNextObjectiveId("o6"); complete.setNextObjectiveId("r0");
+        objs.add(start); objs.add(info); objs.add(stage1); objs.add(give); objs.add(tracking); objs.add(stage2); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_scandal", "Politiker-Skandal",
+                "Hauptmission: Zwei Phasen mit MISSION_STAGE und Beweise sammeln", 3, 0, false, "STORY_MAIN", objs);
+    }
+
+    public static MissionScenario playerUntergrundnetz() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Untergrundnetz"); info.setParam("description", "Baue ein Netzwerk aus Kontakten auf."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o2", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Knuepf Verbindungen in der Unterwelt."); y += STEP;
+        ScenarioObjective track1 = new ScenarioObjective("o3", ObjectiveType.MISSION_TRACKING, CX, y);
+        track1.setParam("tracking_key", "npc_interaction_dealer"); track1.setParam("target_amount", "5"); y += STEP;
+        ScenarioObjective notify = new ScenarioObjective("o4", ObjectiveType.PLAYER_NOTIFY, CX, y);
+        notify.setParam("text", "Du hast genug Kontakte geknuepft."); notify.setParam("color", "GELB"); notify.setParam("persistent", "0"); y += STEP;
+        ScenarioObjective track2 = new ScenarioObjective("o5", ObjectiveType.MISSION_TRACKING, CX, y);
+        track2.setParam("tracking_key", "transaction_completed"); track2.setParam("target_amount", "3"); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o6", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Du bist jetzt Teil des Netzwerks."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "1000"); reward.setParam("money", "8000");
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); give.setNextObjectiveId("o3");
+        track1.setNextObjectiveId("o4"); notify.setNextObjectiveId("o5"); track2.setNextObjectiveId("o6"); complete.setNextObjectiveId("r0");
+        objs.add(start); objs.add(info); objs.add(give); objs.add(track1); objs.add(notify); objs.add(track2); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_network", "Untergrundnetz",
+                "Nebenmission: Zwei Tracking-Phasen mit Hinweis dazwischen", 2, 0, false, "STORY_SIDE", objs);
+    }
+
+    public static MissionScenario playerRacheMission() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Rache"); info.setParam("description", "Sie haben jemanden getroffen, den du liebst. Jetzt bist du dran."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective prereq = new ScenarioObjective("o2", ObjectiveType.MISSION_PREREQ, CX, y);
+        prereq.setParam("prereq_id", "haupt_grossauftrag"); prereq.setParam("fail_message", "Du musst erst beweisen, dass du es ernst meinst."); y += STEP;
+        ScenarioObjective timer = new ScenarioObjective("o3", ObjectiveType.MISSION_TIMER, CX, y);
+        timer.setParam("time_limit", "600"); timer.setParam("fail_message", "Zu langsam! Sie sind entkommen."); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o4", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Ich kenne ihren Aufenthaltsort. Los."); y += STEP;
+        ScenarioObjective tracking = new ScenarioObjective("o5", ObjectiveType.MISSION_TRACKING, CX, y);
+        tracking.setParam("tracking_key", "enemy_killed"); tracking.setParam("target_amount", "1"); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o6", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Es ist vollbracht."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "2000"); reward.setParam("money", "15000");
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); prereq.setNextObjectiveId("o3");
+        timer.setNextObjectiveId("o4"); give.setNextObjectiveId("o5"); tracking.setNextObjectiveId("o6"); complete.setNextObjectiveId("r0");
+        objs.add(start); objs.add(info); objs.add(prereq); objs.add(timer); objs.add(give); objs.add(tracking); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_revenge", "Rache-Mission",
+                "Dramatische Hauptmission: Voraussetzung, Zeitlimit, ein Ziel", 4, 0, false, "STORY_MAIN", objs);
+    }
+
+    public static MissionScenario playerKronzeuge() {
+        List<ScenarioObjective> objs = new ArrayList<>();
+        int y = 20;
+        ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
+        ScenarioObjective info = new ScenarioObjective("o1", ObjectiveType.MISSION_INFO, CX, y);
+        info.setParam("title", "Kronzeuge"); info.setParam("description", "Du hast die Chance auszusteigen. Kooperiere mit den Behoerden."); info.setParam("npc_giver", ""); y += STEP;
+        ScenarioObjective stage = new ScenarioObjective("o2", ObjectiveType.MISSION_STAGE, CX, y);
+        stage.setParam("stage_name", "Verhandlung mit Staatsanwalt"); stage.setParam("notify_player", "1"); y += STEP;
+        ScenarioObjective give = new ScenarioObjective("o3", ObjectiveType.NPC_GIVE_MISSION, CX, y);
+        give.setParam("npc_name", ""); give.setParam("dialog", "Erzaehl uns alles. Dann lassen wir dich gehen."); y += STEP;
+        ScenarioObjective track1 = new ScenarioObjective("o4", ObjectiveType.MISSION_TRACKING, CX, y);
+        track1.setParam("tracking_key", "npc_talked"); track1.setParam("target_amount", "4"); y += STEP;
+        ScenarioObjective grant = new ScenarioObjective("o5", ObjectiveType.GRANT_ITEM, CX, y);
+        grant.setParam("item_id", "schedulemc:immunity_letter"); grant.setParam("amount", "1"); grant.setParam("message", "Immunitaet gewaehrt!"); y += STEP;
+        ScenarioObjective complete = new ScenarioObjective("o6", ObjectiveType.NPC_COMPLETE_MISSION, CX, y);
+        complete.setParam("npc_name", ""); complete.setParam("dialog", "Du bist frei. Verschwinde aus der Stadt."); y += STEP;
+        ScenarioObjective reward = new ScenarioObjective("r0", ObjectiveType.REWARD, CX, y);
+        reward.setParam("xp", "1800"); reward.setParam("money", "20000");
+        start.setNextObjectiveId("o1"); info.setNextObjectiveId("o2"); stage.setNextObjectiveId("o3");
+        give.setNextObjectiveId("o4"); track1.setNextObjectiveId("o5"); grant.setNextObjectiveId("o6"); complete.setNextObjectiveId("r0");
+        objs.add(start); objs.add(info); objs.add(stage); objs.add(give); objs.add(track1); objs.add(grant); objs.add(complete); objs.add(reward);
+        return new MissionScenario("ptpl_statewitness", "Kronzeuge",
+                "Hauptmission mit GRANT_ITEM und Dialog-Phase", 3, 0, false, "STORY_MAIN", objs);
     }
 }

@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.mdma;
 
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Pillen-Designs für Ecstasy
  */
@@ -24,7 +26,7 @@ public enum PillDesign {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.pill_design." + this.name().toLowerCase());
+        return Component.translatable("enum.pill_design." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public String getColorCode() { return colorCode; }

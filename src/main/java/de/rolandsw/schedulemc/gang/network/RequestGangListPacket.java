@@ -56,6 +56,10 @@ public class RequestGangListPacket {
                 // Eigene Gang wird mitgesendet (fuer Rangposition)
                 GangReputation rep = GangReputation.getForLevel(gang.getGangLevel());
 
+                // Rang-Veraenderung seit letztem Snapshot (positiv = aufgestiegen, negativ = abgestiegen)
+                int lastRank = gang.getLastKnownRank();
+                int rankChange = lastRank > 0 ? lastRank - rank : 0;
+
                 int threatLevel = 0; // niedrig
                 if (myGang != null && !gang.getGangId().equals(myGang.getGangId())) {
                     int levelDiff = gang.getGangLevel() - myLevel;
@@ -77,7 +81,7 @@ public class RequestGangListPacket {
                         gang.getColor().ordinal(),
                         rep.getDisplayName(),
                         rank,
-                        0, // rankChange - TODO: persistentes Tracking
+                        rankChange,
                         threatLevel,
                         gang.getGangBalance()
                 ));

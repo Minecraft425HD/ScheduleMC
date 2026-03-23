@@ -9,10 +9,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -35,7 +36,7 @@ public class NPCNameRegistry {
     private static final Gson GSON = GsonHelper.get();
 
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads
-    private static volatile boolean dirty = false;  // NOPMD
+    private static volatile boolean dirty = false;
 
     // ═══════════════════════════════════════════════════════════
     // REGISTRIERUNG
@@ -193,7 +194,7 @@ public class NPCNameRegistry {
 
             Type mapType = new TypeToken<Map<String, Integer>>(){}.getType();
 
-            try (FileReader reader = new FileReader(REGISTRY_FILE)) {
+            try (BufferedReader reader = Files.newBufferedReader(REGISTRY_FILE.toPath(), StandardCharsets.UTF_8)) {
                 Map<String, Integer> loaded = GSON.fromJson(reader, mapType);
 
                 if (loaded != null) {
@@ -221,7 +222,7 @@ public class NPCNameRegistry {
 
             // Atomic write: temp file + move
             File tempFile = new File(REGISTRY_FILE.getParent(), REGISTRY_FILE.getName() + ".tmp");
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(nameToEntityId, writer);
                 writer.flush();
             }

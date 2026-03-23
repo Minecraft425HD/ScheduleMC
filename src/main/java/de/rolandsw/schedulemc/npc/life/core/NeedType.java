@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.core;
 
+import java.util.Locale;
+
 /**
  * Enum für die verschiedenen Bedürfnistypen eines NPCs.
  * Das NPC Life System verwendet 2 Kernbedürfnisse.
@@ -21,7 +23,7 @@ public enum NeedType {
 
     private final String displayName;
     private final float decayPerHour;
-    private final boolean hasNaturalDecay;  // NOPMD
+    private final boolean hasNaturalDecay;
 
     NeedType(String displayName, float decayPerHour, boolean hasNaturalDecay) {
         this.displayName = displayName;
@@ -55,6 +57,6 @@ public enum NeedType {
     }
 
     public String getTranslationKey() {
-        return "npc.need." + name().toLowerCase();
+        return "npc.need." + name().toLowerCase(Locale.ROOT);
     }
 }

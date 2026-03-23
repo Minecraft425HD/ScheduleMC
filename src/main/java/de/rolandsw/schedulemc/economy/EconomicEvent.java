@@ -2,8 +2,8 @@ package de.rolandsw.schedulemc.economy;
 
 import net.minecraft.world.item.Item;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Wirtschafts-Event das Preise beeinflusst
@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class EconomicEvent {
     private final String name;
-    private final Map<Item, Float> itemMultipliers = new HashMap<>();  // NOPMD
+    private final Map<Item, Float> itemMultipliers = new ConcurrentHashMap<>();
     private final long expiryTime;
 
     /**

@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.core;
 
+import java.util.Locale;
+
 /**
  * Enum für die 6 Emotionszustände eines NPCs.
  * Jede Emotion hat Modifikatoren für Preise und Gesprächsbereitschaft.
@@ -97,7 +99,7 @@ public enum EmotionState {
      * Übersetzungsschlüssel für Lokalisierung
      */
     public String getTranslationKey() {
-        return "npc.emotion." + name().toLowerCase();
+        return "npc.emotion." + name().toLowerCase(Locale.ROOT);
     }
 
     /**

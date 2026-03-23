@@ -9,6 +9,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Erdsack-Item - Alle Säcke geben 33 Erde (genug für 1 Pflanze)
@@ -72,7 +73,7 @@ public class SoilBagItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         return Component.literal(type.getColor())
-            .append(Component.translatable("item.soil_bag." + type.name().toLowerCase()));
+            .append(Component.translatable("item.soil_bag." + type.name().toLowerCase(Locale.ROOT)));
     }
 }
 
@@ -96,7 +97,7 @@ enum SoilBagType {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.soil_bag_type." + this.name().toLowerCase());
+        return Component.translatable("enum.soil_bag_type." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public String getColor() {

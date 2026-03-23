@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.achievement;
 
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Kategorien für Achievements
  */
@@ -23,11 +25,11 @@ public enum AchievementCategory {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.achievement_category." + this.name().toLowerCase());
+        return Component.translatable("enum.achievement_category." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public Component getDescription() {
-        return Component.translatable("enum.achievement_category.desc." + this.name().toLowerCase());
+        return Component.translatable("enum.achievement_category.desc." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public Component getFormattedName() {

@@ -6,10 +6,12 @@ import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +30,7 @@ public class PlayerSettingsManager {
 
     // SICHERHEIT: ConcurrentHashMap für Thread-safe Zugriff
     private static Map<String, PlayerSettings> settingsMap = new ConcurrentHashMap<>();
-    private static volatile boolean needsSave = false;  // NOPMD
+    private static volatile boolean needsSave = false;
 
     /**
      * Lädt alle Einstellungen aus der Datei
@@ -41,7 +43,7 @@ public class PlayerSettingsManager {
             return;
         }
 
-        try (FileReader reader = new FileReader(SETTINGS_FILE)) {
+        try (BufferedReader reader = Files.newBufferedReader(SETTINGS_FILE.toPath(), StandardCharsets.UTF_8)) {
             Type type = new TypeToken<Map<String, PlayerSettings>>(){}.getType();
             Map<String, PlayerSettings> loaded = GSON.fromJson(reader, type);
             // SICHERHEIT: Konvertiere zu ConcurrentHashMap
@@ -59,7 +61,7 @@ public class PlayerSettingsManager {
     public static void save() {
         try {
             SETTINGS_FILE.getParentFile().mkdirs();
-            try (FileWriter writer = new FileWriter(SETTINGS_FILE)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(SETTINGS_FILE.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(settingsMap, writer);
             }
             needsSave = false;

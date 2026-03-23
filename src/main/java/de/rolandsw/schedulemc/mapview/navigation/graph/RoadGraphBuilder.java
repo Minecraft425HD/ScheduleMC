@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * RoadGraphBuilder - Scannt die Welt und baut einen Straßen-Graphen auf
@@ -32,7 +33,7 @@ public class RoadGraphBuilder {
     };
 
     private final WorldMapData mapData;
-    private final Map<BlockPos, RoadNode> nodesByPosition = new HashMap<>();  // NOPMD
+    private final Map<BlockPos, RoadNode> nodesByPosition = new ConcurrentHashMap<>();
     private final List<RoadSegment> segments = new ArrayList<>();
     private final Set<BlockPos> allRoadBlocks = new HashSet<>();
     // OPTIMIERUNG: O(1) Segment-Existenz-Check statt O(n) Iteration
@@ -316,7 +317,7 @@ public class RoadGraphBuilder {
                 chunkX, chunkZ, minX, minZ, maxX, maxZ);
 
         // Schritt 1: Nodes außerhalb des Chunks behalten
-        Map<BlockPos, RoadNode> survivingNodes = new HashMap<>();
+        Map<BlockPos, RoadNode> survivingNodes = new ConcurrentHashMap<>();
         Set<RoadNode> removedNodes = new HashSet<>();
 
         for (RoadNode node : graph.getAllNodes()) {

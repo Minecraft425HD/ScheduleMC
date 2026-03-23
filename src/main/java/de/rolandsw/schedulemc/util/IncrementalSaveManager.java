@@ -91,8 +91,8 @@ public class IncrementalSaveManager {
     /**
      * Config
      */
-    private volatile int saveIntervalTicks = 1200;  // Alle 1200 ticks (1 Minute)  // NOPMD
-    private volatile int batchSize = 10;             // Max 10 Saves pro Tick  // NOPMD
+    private volatile int saveIntervalTicks = 1200;  // Alle 1200 ticks (1 Minute)
+    private volatile int batchSize = 10;             // Max 10 Saves pro Tick
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
@@ -180,7 +180,7 @@ public class IncrementalSaveManager {
      * Wird jeden saveIntervalTicks aufgerufen
      * OPTIMIERT: Single-Pass statt zwei separate Iterationen (dirty-Sammlung + Batch-Limit)
      */
-    private void incrementalSaveTick() {  // NOPMD
+    private void incrementalSaveTick() {
         if (!running.get()) {
             return;
         }

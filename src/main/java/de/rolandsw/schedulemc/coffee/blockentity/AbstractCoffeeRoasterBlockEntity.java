@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.coffee.blockentity;
 import de.rolandsw.schedulemc.coffee.CoffeeQuality;
 import de.rolandsw.schedulemc.coffee.CoffeeRoastLevel;
 import de.rolandsw.schedulemc.coffee.CoffeeType;
+import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
 import de.rolandsw.schedulemc.coffee.items.GreenCoffeeBeanItem;
 import de.rolandsw.schedulemc.coffee.items.RoastedCoffeeBeanItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
@@ -102,16 +103,13 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends BlockEntity imple
         ItemStack handlerInput = itemHandler.getStackInSlot(0);
         if (!handlerInput.isEmpty() && inputStack.isEmpty()) {
             inputStack = handlerInput.copy();
-            // Note: GreenCoffeeBeans don't have Type/Quality in NBT yet
-            // These are determined by the plant's growing conditions and set during roasting
-            // For now, use default values - proper implementation would track from harvest
-            coffeeType = CoffeeType.ARABICA;
-            quality = CoffeeQuality.SEHR_GUT;
+            coffeeType = CoffeeItems.getTypeFromGreenBean(inputStack);
+            quality = GreenCoffeeBeanItem.getQuality(inputStack);
             roastingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            coffeeType = null;  // NOPMD
-            quality = null;  // NOPMD
+            coffeeType = null;
+            quality = null;
             roastingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

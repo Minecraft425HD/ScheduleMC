@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.util.EventHelper;
+import de.rolandsw.schedulemc.util.ModConstants;
 import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import de.rolandsw.schedulemc.commands.*;
 import de.rolandsw.schedulemc.economy.commands.HospitalCommand;
@@ -149,6 +150,9 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import de.rolandsw.schedulemc.util.ConfigCache;
+import de.rolandsw.schedulemc.npc.pathfinding.NPCPathNavigation;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -162,19 +166,16 @@ public class ScheduleMC {
 
     public static final String MOD_ID = "schedulemc";
     public static final Logger LOGGER = LogUtils.getLogger();
-    private static final int SAVE_INTERVAL = 6000; // 5 Minuten (6000 Ticks)
-    private static final int ECONOMY_UPDATE_INTERVAL = 1200; // 1 Minute (1200 Ticks)
     private int tickCounter = 0; // Für periodische Saves der noch nicht migrierten Manager
     private int economyTickCounter = 0; // Für periodische Wirtschafts-Updates
     private int gangSyncTickCounter = 0; // Für periodische Gang-Sync
-    private static final int GANG_SYNC_INTERVAL = 1200; // 60 Sekunden (1200 Ticks)
     private long lastDayTime = -1; // Für Tageswechsel-Erkennung
 
     // Incremental Save Manager - Optimized Data Persistence
     private IncrementalSaveManager saveManager;
 
     // Vehicle Mod integration
-    private static volatile Main vehicleMod;  // NOPMD
+    private static volatile Main vehicleMod;
 
     public ScheduleMC() {
         this(FMLJavaModLoadingContext.get().getModEventBus());
@@ -183,6 +184,7 @@ public class ScheduleMC {
     public ScheduleMC(IEventBus modEventBus) {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::onEntityAttributeCreation);
+        modEventBus.addListener(this::onConfigReload);
 
         // Register client-side packet handlers only on client
         net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT, () -> () -> {
@@ -357,7 +359,7 @@ public class ScheduleMC {
         LOGGER.info("ScheduleMC initialized");
     }
     
-    private void commonSetup(final FMLCommonSetupEvent event) {  // NOPMD
+    private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             // Initialize delivery price config from main config (after config is loaded)
             DeliveryPriceConfig.setDefaultPrice(ModConfigHandler.COMMON.WAREHOUSE_DEFAULT_DELIVERY_PRICE.get());
@@ -399,7 +401,7 @@ public class ScheduleMC {
         // Vehicle Mod handles its own setup via event bus (registered in Main constructor)
     }
 
-    private void clientSetup(final net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {  // NOPMD
+    private void clientSetup(final net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             // Register client-bound packets that reference Screen classes
             // These must be registered client-side only to avoid loading Screen classes on the server
@@ -409,8 +411,13 @@ public class ScheduleMC {
         });
     }
 
-    private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {  // NOPMD
+    private void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         event.put(NPCEntities.CUSTOM_NPC.get(), CustomNPCEntity.createAttributes().build());
+    }
+
+    private void onConfigReload(ModConfigEvent event) {
+        ConfigCache.invalidate();
+        NPCPathNavigation.reloadConfig();
     }
 
     @SubscribeEvent
@@ -829,7 +836,7 @@ public class ScheduleMC {
 
             // UDPS - Periodisches Wirtschafts-Update (alle 60 Sekunden)
             economyTickCounter++;
-            if (economyTickCounter >= ECONOMY_UPDATE_INTERVAL) {
+            if (economyTickCounter >= ModConstants.TICKS_PER_MINUTE) {
                 economyTickCounter = 0;
                 try {
                     de.rolandsw.schedulemc.economy.EconomyController.getInstance().periodicUpdate();
@@ -840,7 +847,7 @@ public class ScheduleMC {
 
             // Gang-Sync - Periodisches Broadcast (alle 60 Sekunden)
             gangSyncTickCounter++;
-            if (gangSyncTickCounter >= GANG_SYNC_INTERVAL) {
+            if (gangSyncTickCounter >= ModConstants.TICKS_PER_MINUTE) {
                 gangSyncTickCounter = 0;
                 try {
                     de.rolandsw.schedulemc.gang.network.GangSyncHelper.broadcastAllPlayerInfos(server);
@@ -857,12 +864,20 @@ public class ScheduleMC {
             }
 
             // Lock System - Code-Rotation pruefen (alle 5 Minuten reicht)
-            if (tickCounter % SAVE_INTERVAL == 100) {
+            if (tickCounter % ModConstants.TICKS_SAVE_INTERVAL == 100) {
                 LockManager lockMgr = LockManager.getInstance();
                 if (lockMgr != null) lockMgr.tickCodeRotation();
             }
 
-            if (tickCounter >= SAVE_INTERVAL) {
+            // Player-Mission Executor + Proximity-Checker
+            try {
+                de.rolandsw.schedulemc.mission.scenario.PlayerMissionScenarioExecutor.tick(server);
+                de.rolandsw.schedulemc.mission.proximity.NPCProximityChecker.tick(server);
+            } catch (Exception e) {
+                LOGGER.error("PlayerMission: Fehler im Executor/ProximityChecker", e);
+            }
+
+            if (tickCounter >= ModConstants.TICKS_SAVE_INTERVAL) {
                 tickCounter = 0;
                 // ALLE Manager werden jetzt via IncrementalSaveManager gespeichert
                 // Nur Business Logic bleibt hier

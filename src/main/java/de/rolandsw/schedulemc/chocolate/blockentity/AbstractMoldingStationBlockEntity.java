@@ -46,7 +46,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
     private ChocolateQuality quality;
     private boolean hasMilk;
     private boolean hasVanilla;
-    private de.rolandsw.schedulemc.chocolate.ChocolateProcessingMethod processingMethod;  // NOPMD
+    private de.rolandsw.schedulemc.chocolate.ChocolateProcessingMethod processingMethod;
 
     protected ItemStackHandler itemHandler;
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
@@ -132,7 +132,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
             moldingProgress = 0;
         } else if (handlerChocolate.isEmpty()) {
             chocolateInput = ItemStack.EMPTY;
-            quality = null;  // NOPMD
+            quality = null;
             hasMilk = false;
             hasVanilla = false;
             moldingProgress = 0;
@@ -217,7 +217,7 @@ public abstract class AbstractMoldingStationBlockEntity extends BlockEntity impl
                 moldInput.shrink(1);
 
                 if (chocolateInput.isEmpty()) {
-                    quality = null;  // NOPMD
+                    quality = null;
                     hasMilk = false;
                     hasVanilla = false;
                 }

@@ -102,9 +102,7 @@ public class HiddenSwitchBlockEntity extends BlockEntity {
     // ─────────────────────────────────────────────────────────────────
 
     public boolean canEdit(Player player) {
-        if (player instanceof ServerPlayer sp && sp.hasPermissions(2)) return true;
-        if (ownerId == null) return true;
-        return ownerId.equals(player.getUUID());
+        return (player instanceof ServerPlayer sp && sp.hasPermissions(2)) || ownerId == null || ownerId.equals(player.getUUID());
     }
 
     public void setOwner(Player player) {

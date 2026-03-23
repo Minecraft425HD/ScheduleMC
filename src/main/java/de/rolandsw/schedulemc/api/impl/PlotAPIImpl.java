@@ -6,9 +6,6 @@ import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.PlotType;
 import net.minecraft.core.BlockPos;
 
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
-
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,8 +26,6 @@ import java.util.stream.Collectors;
  * @since 3.0.0
  */
 public class PlotAPIImpl implements IPlotAPI {
-
-    private static final Logger LOGGER = LogUtils.getLogger();  // NOPMD
 
     private final PlotManager plotManager;
 

@@ -114,8 +114,8 @@ public abstract class AbstractWinePressBlockEntity extends BlockEntity implement
             pressingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            wineType = null;  // NOPMD
-            quality = null;  // NOPMD
+            wineType = null;
+            quality = null;
             pressingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

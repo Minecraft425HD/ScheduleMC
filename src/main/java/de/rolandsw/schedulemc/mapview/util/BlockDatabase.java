@@ -97,7 +97,7 @@ public class BlockDatabase {
         chorusPlant = Blocks.CHORUS_PLANT;
         chorusFlower = Blocks.CHORUS_FLOWER;
         // leafLitter = Blocks.LEAF_LITTER;
-        leafLitter = null;  // NOPMD
+        leafLitter = null;
         biomeBlocksArray = new Block[]{grassBlock, oakLeaves, spruceLeaves, birchLeaves, jungleLeaves, acaciaLeaves, darkOakLeaves, mangroveLeaves, grass, fern, tallGrass, largeFern, reeds, vine, lilypad, tallFlower, water, leafLitter};
         // SICHERHEIT: Thread-Safe Set für parallele Zugriffe (null-Werte filtern!)
         biomeBlocks = ConcurrentHashMap.newKeySet();

@@ -34,7 +34,7 @@ public class HashPresseBlockEntity extends BlockEntity implements IUtilityConsum
     private CannabisQuality trimQuality = CannabisQuality.GUT;
     private CannabisStrain strain = CannabisStrain.HYBRID;
     private int pressProgress = 0;
-    private boolean isPressing = false;  // NOPMD
+    private boolean isPressing = false;
     private ItemStack outputItem = ItemStack.EMPTY;
 
     public HashPresseBlockEntity(BlockPos pos, BlockState state) {

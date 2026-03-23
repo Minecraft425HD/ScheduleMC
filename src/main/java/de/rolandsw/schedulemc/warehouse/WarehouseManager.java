@@ -19,9 +19,10 @@ import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,7 +41,7 @@ public class WarehouseManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<String, Set<BlockPos>> warehouses = new ConcurrentHashMap<>();
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads
-    private static volatile boolean dirty = false;  // NOPMD
+    private static volatile boolean dirty = false;
     private static final AtomicInteger tickCounter = new AtomicInteger(0);
     private static final int CHECK_INTERVAL = 20; // Prüfe jede Sekunde (20 ticks) für schnelle Reaktion
 
@@ -214,7 +215,7 @@ public class WarehouseManager {
             return;
         }
 
-        try (FileInputStream fis = new FileInputStream(dataFile)) {
+        try (InputStream fis = Files.newInputStream(dataFile.toPath())) {
             CompoundTag tag = net.minecraft.nbt.NbtIo.readCompressed(fis);
 
             ListTag levelsList = tag.getList("Levels", Tag.TAG_COMPOUND);
@@ -251,7 +252,7 @@ public class WarehouseManager {
         File dataFile = getDataFile(server);
         dataFile.getParentFile().mkdirs();
 
-        try (FileOutputStream fos = new FileOutputStream(dataFile)) {
+        try (OutputStream fos = Files.newOutputStream(dataFile.toPath())) {
             CompoundTag tag = new CompoundTag();
 
             ListTag levelsList = new ListTag();

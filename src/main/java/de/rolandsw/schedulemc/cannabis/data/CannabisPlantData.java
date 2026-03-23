@@ -12,9 +12,9 @@ public class CannabisPlantData {
     private CannabisQuality quality;
     private int growthStage; // 0-7 (7 = ausgewachsen)
     private int ticksGrown; // Wie lange die Pflanze bereits wächst
-    private boolean hasFertilizer; // Dünger angewendet  // NOPMD
-    private boolean hasGrowthBooster; // Wachstumsbeschleuniger angewendet  // NOPMD
-    private boolean hasQualityBooster; // Qualitätsverbesserer angewendet  // NOPMD
+    private boolean hasFertilizer; // Dünger angewendet
+    private boolean hasGrowthBooster; // Wachstumsbeschleuniger angewendet
+    private boolean hasQualityBooster; // Qualitätsverbesserer angewendet
 
     public CannabisPlantData(CannabisStrain strain) {
         this.strain = strain;

@@ -45,20 +45,23 @@ public class ScheduleMCAPI {
     private static final String VERSION = "3.2.0";
 
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile ScheduleMCAPI instance;  // NOPMD
+    private static volatile ScheduleMCAPI instance;
 
     // API Implementations
-    private IEconomyAPI economyAPI;
-    private IPlotAPI plotAPI;
-    private IProductionAPI productionAPI;
-    private INPCAPI npcAPI;
-    private IPoliceAPI policeAPI;
-    private IWarehouseAPI warehouseAPI;
-    private IMessagingAPI messagingAPI;
-    private ISmartphoneAPI smartphoneAPI;
-    private IVehicleAPI vehicleAPI;
-    private IAchievementAPI achievementAPI;
-    private IMarketAPI marketAPI;
+    // volatile: initialize() kann auf dem Startup-Thread aufgerufen werden,
+    // während getXxxAPI() von anderen Threads (z.B. Netzwerk-Threads) aufgerufen wird.
+    // Ohne volatile wären die Felder für andere Threads möglicherweise noch null.
+    private volatile IEconomyAPI economyAPI;
+    private volatile IPlotAPI plotAPI;
+    private volatile IProductionAPI productionAPI;
+    private volatile INPCAPI npcAPI;
+    private volatile IPoliceAPI policeAPI;
+    private volatile IWarehouseAPI warehouseAPI;
+    private volatile IMessagingAPI messagingAPI;
+    private volatile ISmartphoneAPI smartphoneAPI;
+    private volatile IVehicleAPI vehicleAPI;
+    private volatile IAchievementAPI achievementAPI;
+    private volatile IMarketAPI marketAPI;
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON

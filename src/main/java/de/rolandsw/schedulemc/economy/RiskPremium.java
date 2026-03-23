@@ -55,8 +55,8 @@ public class RiskPremium {
     private static final double CONFISCATION_RISK_MULTIPLIER = 1.25;
 
     // Aktuelle Razzia-Daten (werden vom PolizeiSystem gesetzt)
-    private static volatile long lastRaidTimestamp = 0;  // NOPMD
-    private static volatile int recentRaidCount = 0;  // NOPMD
+    private static volatile long lastRaidTimestamp = 0;
+    private static volatile int recentRaidCount = 0;
 
     private RiskPremium() {
         // Utility class

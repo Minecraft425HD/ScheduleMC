@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.mushroom.blocks;
 
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Klimalampe-Stufen mit verschiedenen Eigenschaften
  */
@@ -23,7 +25,7 @@ public enum KlimalampeTier {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.klimalampe_tier." + this.name().toLowerCase());
+        return Component.translatable("enum.klimalampe_tier." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public String getColorCode() {
@@ -47,6 +49,6 @@ public enum KlimalampeTier {
     }
 
     public String getRegistryName() {
-        return name().toLowerCase();
+        return name().toLowerCase(Locale.ROOT);
     }
 }

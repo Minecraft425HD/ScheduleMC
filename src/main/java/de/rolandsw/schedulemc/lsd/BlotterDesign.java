@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.lsd;
 
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Blotter-Design Varianten für LSD-Tabs
  */
@@ -24,7 +26,7 @@ public enum BlotterDesign {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.blotter_design." + this.name().toLowerCase());
+        return Component.translatable("enum.blotter_design." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public String getColorCode() {

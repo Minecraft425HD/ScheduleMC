@@ -10,18 +10,15 @@ import java.lang.reflect.Field;
 
 public class DynamicMoveableTexture extends DynamicTexture {
     private final Object bufferLock = new Object();
-    private static Field pixelsField = null;
-    private static boolean pixelsFieldInitialized = false;  // NOPMD
+    private static Field pixelsField;
 
     static {
         // Use reflection to access the private pixels field for performance
         try {
             pixelsField = NativeImage.class.getDeclaredField("pixels");
             pixelsField.setAccessible(true); // NOPMD - required to access private NativeImage field
-            pixelsFieldInitialized = true;
         } catch (Exception e) {
             MapViewConstants.getLogger().warn("Could not access NativeImage.pixels field via reflection, using slower fallback");
-            pixelsFieldInitialized = true;
         }
     }
 

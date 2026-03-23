@@ -43,7 +43,7 @@ public class TobaccoNegotiationMenu extends AbstractContainerMenu {
 
     private final int npcEntityId;
     private final Inventory playerInventory;
-    private boolean hasCooldown;  // NOPMD
+    private boolean hasCooldown;
     private int selectedSlot = -1;
 
     // ═══════════════════════════════════════════════════════════

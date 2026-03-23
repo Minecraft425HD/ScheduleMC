@@ -31,8 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class UpdateNotificationHandler {
 
-    private static volatile boolean hasChecked = false;  // NOPMD
-    private static volatile int tickCounter = 0;  // NOPMD
+    private static volatile boolean hasChecked = false;
+    private static volatile int tickCounter = 0;
     private static final int CHECK_DELAY = 100; // 5 Sekunden (20 ticks/sec)
     // SICHERHEIT: ConcurrentHashMap.newKeySet() für Thread-safe Set
     private static final Set<UUID> notifiedPlayers = ConcurrentHashMap.newKeySet();

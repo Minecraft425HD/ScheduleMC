@@ -49,12 +49,12 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
     private PillDesign selectedDesign = PillDesign.TESLA;
     private PillColor selectedColor = PillColor.PINK;
 
-    private boolean isMinigameActive = false;  // NOPMD
+    private boolean isMinigameActive = false;
     private int minigameTick = 0;
     private boolean waitingForPress = false;
 
     private ItemStack outputItem = ItemStack.EMPTY;
-    private int outputCount = 0;  // NOPMD
+    private int outputCount = 0;
 
     private UUID activePlayer = null;
     private double lastTimingScore = 0;
@@ -182,7 +182,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
         outputCount = pillsToMake;
 
         isMinigameActive = false;
-        activePlayer = null;  // NOPMD
+        activePlayer = null;
 
         setChanged();
         if (level != null) {
@@ -233,7 +233,7 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
         isMinigameActive = false;
         waitingForPress = false;
         minigameTick = 0;
-        activePlayer = null;  // NOPMD
+        activePlayer = null;
         setChanged();
     }
 

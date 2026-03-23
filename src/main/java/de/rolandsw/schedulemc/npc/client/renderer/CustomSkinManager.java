@@ -21,7 +21,7 @@ public class CustomSkinManager {
 
     // OPTIMIERUNG: LRU-Cache mit automatischer Eviction bei max. Größe
     private static final int MAX_CACHED_SKINS = 64;
-    private static final Map<String, ResourceLocation> loadedSkins = new LinkedHashMap<String, ResourceLocation>(  // NOPMD
+    private static final Map<String, ResourceLocation> loadedSkins = new LinkedHashMap<String, ResourceLocation>(
             MAX_CACHED_SKINS, 0.75f, true) {
         @Override
         protected boolean removeEldestEntry(Map.Entry<String, ResourceLocation> eldest) {

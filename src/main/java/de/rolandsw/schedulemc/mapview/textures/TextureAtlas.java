@@ -25,8 +25,8 @@ public class TextureAtlas extends AbstractTexture {
     private final Sprite missingImage;
     private final Sprite failedImage;
     private Stitcher stitcher;
-    private boolean linearFilter;  // NOPMD
-    private boolean mipmap;  // NOPMD
+    private boolean linearFilter;
+    private boolean mipmap;
     private ResourceLocation resourceLocation;
 
     public TextureAtlas(String basePath, ResourceLocation resourceLocation) {

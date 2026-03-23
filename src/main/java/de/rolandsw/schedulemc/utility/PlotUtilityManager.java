@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.slf4j.Logger;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -41,8 +42,8 @@ public class PlotUtilityManager {
     // BlockPos -> Plot-ID (Cache für schnelle Lookups)
     private static final Map<BlockPos, String> positionCache = new ConcurrentHashMap<>();
 
-    private static volatile boolean dirty = false;  // NOPMD
-    private static volatile long lastTickDay = -1;  // NOPMD
+    private static volatile boolean dirty = false;
+    private static volatile long lastTickDay = -1;
 
     // ═══════════════════════════════════════════════════════════════════════════
     // INITIALISIERUNG
@@ -60,7 +61,7 @@ public class PlotUtilityManager {
             return;
         }
 
-        try (FileReader reader = new FileReader(DATA_FILE)) {
+        try (BufferedReader reader = Files.newBufferedReader(DATA_FILE.toPath(), StandardCharsets.UTF_8)) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray plotsArray = root.getAsJsonArray("plots");
 
@@ -98,7 +99,7 @@ public class PlotUtilityManager {
 
             // Atomic write: temp file + move
             File tempFile = new File(DATA_FILE.getParent(), DATA_FILE.getName() + ".tmp");
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(root, writer);
                 writer.flush();
             }

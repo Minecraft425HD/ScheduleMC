@@ -8,6 +8,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Mist-Sack-Item für Pilzzucht (3 Stufen)
@@ -160,7 +161,7 @@ enum MistBagType {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.mist_bag_type." + this.name().toLowerCase());
+        return Component.translatable("enum.mist_bag_type." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public String getColor() {

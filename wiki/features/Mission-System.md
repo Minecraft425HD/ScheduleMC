@@ -18,12 +18,18 @@
 4. [Mission Lifecycle](#mission-lifecycle)
 5. [Network Layer](#network-layer)
 6. [Client Cache](#client-cache)
-7. [Available Missions](#available-missions)
-8. [Tracking Key System](#tracking-key-system)
-9. [Prerequisite System](#prerequisite-system)
-10. [Persistence](#persistence)
-11. [Integrating Custom Missions](#integrating-custom-missions)
-12. [Troubleshooting](#troubleshooting)
+7. [Mission Editor (Unified Editor)](#mission-editor-unified-editor)
+   - [Gang-Modus](#gang-modus)
+   - [Spieler-Modus](#spieler-modus)
+   - [Story-Blöcke](#story-blöcke)
+   - [Tracking-Keys Dropdown](#tracking-keys-dropdown)
+   - [Workflow](#workflow)
+8. [Available Missions](#available-missions)
+9. [Tracking Key System](#tracking-key-system)
+10. [Prerequisite System](#prerequisite-system)
+11. [Persistence](#persistence)
+12. [Integrating Custom Missions](#integrating-custom-missions)
+13. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -41,6 +47,7 @@ The **Mission System** provides a narrative mission structure with main story mi
 - Synchronized to client via dedicated network channel
 - Thread-safe via volatile fields + synchronized blocks
 - Persisted to `schedulemc_missions.json` with atomic writes and backup
+- **Missions are fully editable in-game** via the unified Mission Editor (same Blockly-style editor used for Gang missions)
 
 ---
 
@@ -48,8 +55,8 @@ The **Mission System** provides a narrative mission structure with main story mi
 
 ```
 mission/
-├── MissionDefinition.java         ← Static template: id, title, rewards, prerequisites
-├── MissionRegistry.java           ← Static registry of all available missions
+├── MissionDefinition.java         ← Static/dynamic template: id, title, rewards, prerequisites
+├── MissionRegistry.java           ← Registry (static built-in + dynamic from editor)
 ├── MissionCategory.java           ← Enum: HAUPT, NEBEN
 ├── MissionStatus.java             ← Enum: AVAILABLE, ACTIVE, COMPLETED, CLAIMED
 ├── PlayerMission.java             ← Per-player instance with progress + state
@@ -60,10 +67,13 @@ mission/
 │   └── PlayerMissionDto.java      ← Data transfer object for client rendering
 │
 └── network/
-    ├── MissionNetworkHandler.java  ← SimpleChannel registration
-    ├── RequestMissionsPacket.java  ← Client → Server: request sync
-    ├── SyncMissionsPacket.java     ← Server → Client: mission list
-    └── MissionActionPacket.java    ← Client → Server: accept/abandon/claim
+    ├── MissionNetworkHandler.java        ← SimpleChannel registration (6 packets)
+    ├── RequestMissionsPacket.java         ← Client → Server: request player mission sync
+    ├── SyncMissionsPacket.java            ← Server → Client: player mission list
+    ├── MissionActionPacket.java           ← Client → Server: accept/abandon/claim
+    ├── RequestPlayerMissionsPacket.java   ← Client → Server: request editor scenarios
+    ├── SyncPlayerMissionsPacket.java      ← Server → Client: story scenarios for editor
+    └── SavePlayerMissionPacket.java       ← Client → Server: save edited story mission
 ```
 
 **Data flow:**
@@ -85,6 +95,13 @@ In-game event fires (e.g., player delivers package):
     → for each ACTIVE mission with matching trackingKey: addProgress(1)
     → if completed: player receives chat notification
     → syncToPlayer() sends updated SyncMissionsPacket
+
+Admin edits a mission in the editor:
+  → SavePlayerMissionPacket sent to server
+    → ScenarioManager.saveScenario(scenario) [persists to JSON]
+    → SavePlayerMissionPacket.rebuildMissionRegistry() [reloads MissionRegistry]
+      → All STORY_* scenarios converted to MissionDefinition
+      → MissionRegistry.clearDynamic() + registerDynamic(def) per scenario
 ```
 
 ---
@@ -95,7 +112,7 @@ In-game event fires (e.g., player delivers package):
 
 **File:** `MissionDefinition.java`
 
-Static, immutable mission template. Created once at startup and stored in `MissionRegistry`.
+Static or dynamically loaded mission template. Created at startup from `MissionRegistry` static block, or dynamically from the Mission Editor.
 
 **Fields:**
 
@@ -113,47 +130,29 @@ Static, immutable mission template. Created once at startup and stored in `Missi
 | `npcGiverUUID` | `UUID?` | Optional NPC that gives this mission |
 | `npcGiverName` | `String` | Display name of the NPC giver |
 
-**Constructors:**
-
-```java
-// Full constructor:
-new MissionDefinition(
-    "haupt_grossauftrag",
-    "Der große Auftrag",
-    "Schließe 10 erfolgreiche Transaktionen ab.",
-    MissionCategory.HAUPT,
-    2000,   // XP reward
-    15000,  // Money reward
-    10,     // Target amount
-    "transaction_completed",  // Tracking key
-    List.of("haupt_lieferung_01"),  // Prerequisites
-    null,   // NPC UUID
-    ""      // NPC name
-);
-
-// Simple constructor (no NPC, no prerequisites):
-new MissionDefinition(
-    "neben_fahrzeuge_01", "Stadtfahrer", "Fahre 10 km...",
-    MissionCategory.NEBEN, 200, 500, 10, "km_driven"
-);
-```
-
 ---
 
 ### MissionRegistry
 
 **File:** `MissionRegistry.java`
 
-Static, `LinkedHashMap`-backed registry of all available mission definitions. Populated via static initializer at class load time.
+Registry of all available mission definitions. Contains **static** (built-in, hardcoded) and **dynamic** (loaded from editor/scenarios) missions.
 
 **Methods:**
 
 | Method | Return | Description |
 |--------|--------|-------------|
 | `getById(id)` | `MissionDefinition` | Get definition by ID |
-| `getAll()` | `Collection<MissionDefinition>` | All definitions (unmodifiable) |
+| `getAll()` | `Collection<MissionDefinition>` | All definitions (static + dynamic) |
 | `getByCategory(cat)` | `List<MissionDefinition>` | Filter by HAUPT or NEBEN |
 | `exists(id)` | `boolean` | Check if ID is registered |
+| `registerDynamic(def)` | `void` | Register a dynamically created mission |
+| `clearDynamic()` | `void` | Remove all dynamically registered missions (preserves static ones) |
+
+**Dynamic mission flow:**
+When the admin saves a story mission via the editor, `SavePlayerMissionPacket` calls `rebuildMissionRegistry()`:
+1. `MissionRegistry.clearDynamic()` — removes old dynamic missions
+2. For each `STORY_*` scenario in `ScenarioManager`: extract metadata from blocks → `MissionRegistry.registerDynamic(def)`
 
 ---
 
@@ -168,25 +167,16 @@ public enum MissionCategory {
 }
 ```
 
-| Value | Display Name | GUI Tab Key |
-|-------|-------------|-------------|
-| `HAUPT` | Hauptmissionen | `gui.missions.tab_haupt` |
-| `NEBEN` | Nebenmissionen | `gui.missions.tab_neben` |
+| Value | Display Name | Maps to missionType |
+|-------|-------------|---------------------|
+| `HAUPT` | Hauptmissionen | `STORY_MAIN` |
+| `NEBEN` | Nebenmissionen | `STORY_SIDE` |
 
 ---
 
 ### MissionStatus
 
 **File:** `MissionStatus.java`
-
-```java
-public enum MissionStatus {
-    AVAILABLE,   // Visible but not yet accepted
-    ACTIVE,      // Accepted, progress tracking active
-    COMPLETED,   // Target reached, reward not yet collected
-    CLAIMED      // Reward collected — mission done
-}
-```
 
 | Status | Description | Transitions to |
 |--------|-------------|----------------|
@@ -195,46 +185,21 @@ public enum MissionStatus {
 | `COMPLETED` | Done, reward pending | CLAIMED (via `claimMission`) |
 | `CLAIMED` | Fully finished | — (terminal state) |
 
-Note: AVAILABLE is not stored server-side — all definitions not yet in a player's list are implicitly available.
-
 ---
 
 ### PlayerMission
 
 **File:** `PlayerMission.java`
 
-Per-player instance of a mission. Thread-safe via `volatile` fields and `synchronized` blocks on compound operations.
-
-**Key fields:**
-
-| Field | Type | Notes |
-|-------|------|-------|
-| `missionId` | `String` | Unique instance ID: `"pm_{uuid8}_{definitionId}"` |
-| `definitionId` | `String` | References `MissionDefinition` in registry |
-| `playerUUID` | `UUID` | Owner |
-| `currentProgress` | `volatile int` | Current progress count |
-| `status` | `volatile MissionStatus` | Current status |
-| `acceptedAt` | `long` | System.currentTimeMillis() at acceptance |
-| `completedAt` | `volatile long` | Set when status → COMPLETED |
-| `claimedAt` | `volatile long` | Set when status → CLAIMED |
+Per-player instance of a mission. Thread-safe.
 
 **Key methods:**
 
 ```java
-// Increment progress (for counted events):
-boolean completed = mission.addProgress(1);
-// Returns true if this call completed the mission
-
-// Set absolute progress (for threshold events):
-boolean completed = mission.setProgress(newValue);
-
-// Claim reward:
-boolean success = mission.claim();
-// Returns true if was COMPLETED, transitions to CLAIMED
-
-// Utility:
-double pct = mission.getProgressPercent();  // 0.0 to 1.0
-boolean canClaim = mission.isClaimable();    // status == COMPLETED
+boolean completed = mission.addProgress(1);   // increment counter
+boolean completed = mission.setProgress(val); // set absolute progress
+boolean success   = mission.claim();          // claim reward (COMPLETED → CLAIMED)
+double  pct       = mission.getProgressPercent(); // 0.0 to 1.0
 ```
 
 ---
@@ -243,61 +208,34 @@ boolean canClaim = mission.isClaimable();    // status == COMPLETED
 
 **File:** `PlayerMissionManager.java`
 
-Singleton (double-checked locking) managing all player missions. Handles acceptance, abandonment, reward claiming, progress tracking, and persistence.
+Singleton managing all player missions.
 
-**Initialization:**
-```java
-// On server start:
-PlayerMissionManager manager = PlayerMissionManager.initialize(configDir);
-
-// On server stop:
-PlayerMissionManager.resetInstance();  // saves and nulls the instance
-```
-
-**Core methods:**
-
-| Method | Return | Description |
-|--------|--------|-------------|
-| `getPlayerMissions(uuid)` | `List<PlayerMission>` | All missions for a player |
-| `acceptMission(player, definitionId)` | `boolean` | Accept if not already active and prerequisites met |
-| `abandonMission(player, missionId)` | `boolean` | Remove if ACTIVE |
-| `claimMission(player, missionId)` | `boolean` | Award XP + money if COMPLETED |
-| `trackProgress(player, key, amount)` | `void` | Increment all ACTIVE missions matching the key |
-| `syncToPlayer(player)` | `void` | Send `SyncMissionsPacket` with current state |
-| `save()` | `void` | Save all data to JSON |
+| Method | Description |
+|--------|-------------|
+| `acceptMission(player, definitionId)` | Accept if prerequisites met |
+| `abandonMission(player, missionId)` | Remove if ACTIVE |
+| `claimMission(player, missionId)` | Award XP + money if COMPLETED |
+| `trackProgress(player, key, amount)` | Increment matching ACTIVE missions |
+| `syncToPlayer(player)` | Send `SyncMissionsPacket` |
 
 ---
 
 ## Mission Lifecycle
 
 ```
-     Available
-     (in MissionRegistry, not yet in player list)
-          │
+     Available (in MissionRegistry)
           │ acceptMission(player, definitionId)
-          │ - checks: not already ACTIVE/COMPLETED
-          │ - checks: prerequisites are all CLAIMED
           ▼
-       ACTIVE
-     (PlayerMission created, progress = 0)
-          │
+       ACTIVE (progress tracking starts)
           │ trackProgress(player, trackingKey, amount)
-          │ - addProgress(amount) on all matching missions
           ▼
-     COMPLETED
-     (progress >= targetAmount, completedAt set)
-     (player receives chat notification)
-          │
+     COMPLETED (target reached)
           │ claimMission(player, missionId)
-          │ - player.giveExperiencePoints(xpReward)
-          │ - EconomyManager.deposit(uuid, moneyReward)
-          │ - claimedAt set
           ▼
-      CLAIMED
-     (terminal, stays in player list for history)
+      CLAIMED (terminal, kept for history)
 ```
 
-**Abandon path:** ACTIVE → removed from list (no history kept)
+**Abandon path:** ACTIVE → removed from list (no history)
 
 ---
 
@@ -305,19 +243,14 @@ PlayerMissionManager.resetInstance();  // saves and nulls the instance
 
 **Channel:** `schedulemc:mission_network` (protocol version `"1"`)
 
-| Packet | Direction | Purpose |
-|--------|-----------|---------|
-| `RequestMissionsPacket` | Client → Server | Request a fresh mission sync (e.g., on GUI open) |
-| `SyncMissionsPacket` | Server → Client | Send full mission list as `List<PlayerMissionDto>` |
-| `MissionActionPacket` | Client → Server | Perform action: ACCEPT, ABANDON, or CLAIM |
-
-**Trigger points for `SyncMissionsPacket`:**
-- Player joins server (after login)
-- After `acceptMission()` succeeds
-- After `abandonMission()` succeeds
-- After `claimMission()` succeeds
-- After `trackProgress()` changes any mission (progress update or completion)
-- In response to `RequestMissionsPacket`
+| # | Packet | Direction | Purpose |
+|---|--------|-----------|---------|
+| 0 | `RequestMissionsPacket` | C → S | Request player mission sync (on GUI open) |
+| 1 | `SyncMissionsPacket` | S → C | Send full mission list |
+| 2 | `MissionActionPacket` | C → S | ACCEPT / ABANDON / CLAIM |
+| 3 | `RequestPlayerMissionsPacket` | C → S | Request story scenarios for editor |
+| 4 | `SyncPlayerMissionsPacket` | S → C | Send story scenarios to editor |
+| 5 | `SavePlayerMissionPacket` | C → S | Save an edited story mission (OP 2+) |
 
 ---
 
@@ -325,7 +258,7 @@ PlayerMissionManager.resetInstance();  // saves and nulls the instance
 
 **File:** `client/ClientMissionCache.java`
 
-Client-side storage of the last received `List<PlayerMissionDto>`. Used by the GUI renderer to display missions without server round-trips.
+Client-side storage of the last received `List<PlayerMissionDto>`. Used by the GUI renderer.
 
 **`PlayerMissionDto` fields:**
 
@@ -345,184 +278,232 @@ Client-side storage of the last received `List<PlayerMissionDto>`. Used by the G
 
 ---
 
+## Mission Editor (Unified Editor)
+
+The **Mission Editor** (`ScenarioEditorScreen`) is a unified Blockly-style visual editor for both **Gang missions** and **Spieler-Missionen (story missions)**. It is opened server-side via `/scenario edit` (or similar OP command).
+
+### Gang-Modus vs. Spieler-Modus
+
+The editor has a **Tab-Toggle** in the toolbar:
+
+```
+┌─[Gang][Spieler]──[Oeffnen][Speichern][Aktive]──────────────────[Neu][Loeschen][X]┐
+│ PALETTE  │            CANVAS (Drag & Drop)           │  PROPERTIES               │
+│ Bausteine│   Blöcke verbinden, platzieren             │  Parameter des Blocks     │
+│ (Kategorien│                                           │  (Dropdowns, Zahlen)     │
+│  aufklappb.)│                                          │                          │
+├──────────┴───────────────────────────────────────────┴──────────────────────────┤
+│ Name: [..........] │ 4 Phasen │ ★★☆☆☆ │ [Gang:Taeglich] │ Min-Lvl: 2          │
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**[Gang]** — Blauer Tab: Bearbeitet Gang-Missionen (HOURLY/DAILY/WEEKLY)
+- Speichern → `SaveScenarioPacket` → `ScenarioManager`
+- Vorlagen-Button verfügbar
+
+**[Spieler]** — Goldener Tab: Bearbeitet Spieler-Missionen (STORY_MAIN/STORY_SIDE)
+- Beim ersten Klick: sendet `RequestPlayerMissionsPacket` → Server antwortet mit `SyncPlayerMissionsPacket`
+- Speichern → `SavePlayerMissionPacket` → `ScenarioManager` + `MissionRegistry.rebuildFromScenarios()`
+- Status-Bar zeigt: `[Story:Hauptmission]` / `[Story:Nebenmission]` (togglebar)
+
+### Story-Blöcke
+
+Im Spieler-Modus stehen zusätzlich zur normalen Palette alle Blöcke der Kategorie **"Story / Spieler-Missionen"** zur Verfügung:
+
+| Block | Icon | Farbe | Parameter | Verwendung |
+|-------|------|-------|-----------|------------|
+| `MISSION_INFO` | ⓘ | Cyan | description (TEXT), npc_giver (NPC-Dropdown) | Beschreibung + NPC-Geber der Mission |
+| `MISSION_PREREQ` | ⤴ | Teal | prereq_id (TEXT) | Voraussetzung: andere Mission muss abgeschlossen sein |
+| `MISSION_TRACKING` | ↗ | Grün | tracking_key (Dropdown), target_amount (Zahl) | Tracking-Event definieren |
+| `NPC_GIVE_MISSION` | 📋 | Hellblau | npc_name (NPC), dialog_id (TEXT) | NPC gibt dem Spieler den Auftrag |
+| `NPC_COMPLETE_MISSION` | ✔ | Cyan | npc_name (NPC), dialog_id (TEXT) | Spieler gibt den Auftrag beim NPC ab |
+| `MISSION_FAIL_COND` | ✕ | Rot | condition_key (Dropdown), threshold (Zahl) | Abbruchbedingung (z.B. gestorben) |
+| `PLAYER_NOTIFY` | 💬 | Hellblau | text (TEXT), color (Farb-Dropdown), persistent (0/1) | Hinweis-Nachricht an den Spieler |
+
+**Metadaten-Extraktion beim Speichern:**
+
+Der Server liest beim Speichern folgende Block-Parameter aus dem Szenario und befüllt damit die `MissionDefinition`:
+
+| Quelle | MissionDefinition-Feld |
+|--------|----------------------|
+| `MISSION_INFO.description` | `description` |
+| `MISSION_INFO.npc_giver` | `npcGiverName` |
+| `MISSION_TRACKING.tracking_key` | `trackingKey` |
+| `MISSION_TRACKING.target_amount` | `targetAmount` |
+| Alle `MISSION_PREREQ.prereq_id` | `prerequisiteIds` |
+| `REWARD.xp` | `xpReward` |
+| `REWARD.money` | `moneyReward` |
+| `MissionScenario.name` | `title` |
+| `MissionScenario.missionType` == `STORY_MAIN` | `category = HAUPT` |
+| `MissionScenario.missionType` == `STORY_SIDE` | `category = NEBEN` |
+
+### Tracking-Keys Dropdown
+
+Der `MISSION_TRACKING`-Block bietet ein Dropdown mit allen bekannten Tracking-Keys:
+
+```
+item_collected, item_sold_to_npc, npc_interaction_dealer,
+package_delivered, territory_captured, transaction_completed,
+km_driven, district_visited, bank_deposit, player_died,
+enemy_killed, vehicle_driven, mission_completed, money_earned,
+robbery_completed, plot_visited, gang_mission_completed,
+item_crafted, npc_talked, item_delivered
+```
+
+### Workflow
+
+**Neue Spieler-Mission erstellen:**
+1. Editor öffnen (OP-Befehl)
+2. **[Spieler]**-Tab klicken
+3. **[Neu]** — erzeugt leere Mission mit `STORY_MAIN`
+4. `MISSION_INFO`-Block aus Palette ziehen → Beschreibung + NPC eintragen
+5. `MISSION_TRACKING`-Block ziehen → Tracking-Key + Ziel-Menge
+6. Aufgaben-Blöcke (GOTO_NPC, COLLECT_ITEMS, TALK_TO_NPC etc.) in den Canvas ziehen
+7. Blöcke durch Klick auf Konnektoren verbinden: START → INFO → TRACKING → ... → REWARD
+8. Typ in Status-Bar auf `Hauptmission` / `Nebenmission` setzen
+9. **[Speichern]** — Mission ist sofort im Spiel verfügbar
+
+**Beispiel-Szenario (Hauptmission "Erste Lieferung"):**
+```
+START ─→ MISSION_INFO (desc: "Liefere 3 Pakete", npc: "Händler Karl")
+       ─→ NPC_GIVE_MISSION (npc: "Händler Karl")
+       ─→ GOTO_PLOT (Ziel-Grundstück)
+       ─→ MISSION_TRACKING (key: "package_delivered", amount: 3)
+       ─→ NPC_COMPLETE_MISSION (npc: "Händler Karl")
+       ─→ REWARD (xp: 800, money: 5000)
+```
+
+---
+
 ## Available Missions
 
-### Hauptmissionen (Story Missions)
+### Hauptmissionen (eingebaut, statisch)
 
 | ID | Title | Target | Tracking Key | Reward (XP / $) | Prerequisites |
 |----|-------|--------|-------------|-----------------|---------------|
-| `haupt_erster_kontakt` | Erster Kontakt | 1 | `npc_interaction_dealer` | 500 XP / $2,000 | — |
-| `haupt_lieferung_01` | Die erste Lieferung | 5 | `package_delivered` | 800 XP / $5,000 | — |
-| `haupt_territorium` | Territorium sichern | 3 | `territory_captured` | 1,200 XP / $8,000 | — |
-| `haupt_grossauftrag` | Der große Auftrag | 10 | `transaction_completed` | 2,000 XP / $15,000 | `haupt_lieferung_01` |
+| `haupt_erster_kontakt` | Erster Kontakt | 1 | `npc_interaction_dealer` | 500 / $2,000 | — |
+| `haupt_lieferung_01` | Die erste Lieferung | 5 | `package_delivered` | 800 / $5,000 | — |
+| `haupt_territorium` | Territorium sichern | 3 | `territory_captured` | 1,200 / $8,000 | — |
+| `haupt_grossauftrag` | Der große Auftrag | 10 | `transaction_completed` | 2,000 / $15,000 | `haupt_lieferung_01` |
 
-### Nebenmissionen (Side Missions)
+### Nebenmissionen (eingebaut, statisch)
 
 | ID | Title | Target | Tracking Key | Reward (XP / $) |
 |----|-------|--------|-------------|-----------------|
-| `neben_fahrzeuge_01` | Stadtfahrer | 10 | `km_driven` | 200 XP / $500 |
-| `neben_handel_01` | Kleinhändler | 20 | `item_sold_to_npc` | 300 XP / $800 |
-| `neben_erkunder` | Stadterkunder | 5 | `district_visited` | 150 XP / $400 |
-| `neben_banker` | Sparsamer Bürger | 3 | `bank_deposit` | 250 XP / $600 |
+| `neben_fahrzeuge_01` | Stadtfahrer | 10 | `km_driven` | 200 / $500 |
+| `neben_handel_01` | Kleinhändler | 20 | `item_sold_to_npc` | 300 / $800 |
+| `neben_erkunder` | Stadterkunder | 5 | `district_visited` | 150 / $400 |
+| `neben_banker` | Sparsamer Bürger | 3 | `bank_deposit` | 250 / $600 |
+
+**Dynamische Missionen** (aus dem Editor erstellt) werden zusätzlich in `MissionRegistry` registriert und gespeichert in `schedulemc_scenarios.json` (gemeinsam mit Gang-Szenarien, gefiltert nach `missionType = STORY_*`).
 
 ---
 
 ## Tracking Key System
 
-The tracking key is a string that connects game events to mission progress. Any system can call `trackProgress()` with a matching key to advance missions.
+**Bekannte Tracking-Keys:**
 
-**Known tracking keys:**
+| Key | Ausgelöst durch |
+|-----|----------------|
+| `npc_interaction_dealer` | Interaktion mit Dealer-NPC |
+| `package_delivered` | Paket-Lieferung |
+| `territory_captured` | Gebiet übernommen |
+| `transaction_completed` | NPC/Markt-Transaktion |
+| `km_driven` | Gefahrene Kilometer (Vehicle System) |
+| `item_sold_to_npc` | Item an NPC verkauft |
+| `district_visited` | Neuen Stadtteil betreten |
+| `bank_deposit` | Einzahlung bei der Bank |
+| `player_died` | Spieler gestorben (für Fail-Conditions) |
+| `enemy_killed` | Gegner besiegt |
+| `vehicle_driven` | Fahrzeug benutzt |
+| `money_earned` | Geld verdient |
+| `robbery_completed` | Überfall abgeschlossen |
+| `plot_visited` | Grundstück betreten |
+| `gang_mission_completed` | Gang-Auftrag abgeschlossen |
+| `item_crafted` | Item gecraftet |
+| `npc_talked` | Mit NPC gesprochen |
+| `item_delivered` | Item geliefert |
 
-| Key | Triggered by |
-|-----|-------------|
-| `npc_interaction_dealer` | Interacting with a dealer NPC |
-| `package_delivered` | Delivering a package to a location |
-| `territory_captured` | Claiming a territory in the Territory System |
-| `transaction_completed` | Completing an NPC or market transaction |
-| `km_driven` | Driving distance (per km in a vehicle) |
-| `item_sold_to_npc` | Selling an item to any NPC |
-| `district_visited` | Entering a new city district |
-| `bank_deposit` | Depositing money at the bank |
-
-**How to fire a tracking event:**
-
+**Tracking-Event auslösen (server-seitig):**
 ```java
-// In any game event handler (server-side):
-ServerPlayer player = ...;
 PlayerMissionManager manager = PlayerMissionManager.getInstance();
 if (manager != null) {
-    manager.trackProgress(player, "package_delivered", 1);
+    manager.trackProgress(serverPlayer, "package_delivered", 1);
 }
 ```
-
-The manager will automatically:
-1. Find all of the player's ACTIVE missions with matching `trackingKey`
-2. Call `mission.addProgress(amount)` on each
-3. Send chat message if any mission completes
-4. Sync updated state to client
 
 ---
 
 ## Prerequisite System
 
-Missions can require other missions to be CLAIMED before they become acceptable:
+Missionen können andere Missionen als Voraussetzung haben (muss CLAIMED sein):
 
 ```java
-// haupt_grossauftrag requires haupt_lieferung_01 to be CLAIMED:
+// Statisch (MissionRegistry):
 new MissionDefinition(
     "haupt_grossauftrag", ...,
     List.of("haupt_lieferung_01"),  // prerequisiteIds
     null, ""
 );
-```
 
-**Prerequisite check in `acceptMission()`:**
-```java
-for (String prereqId : def.getPrerequisiteIds()) {
-    boolean fulfilled = missions.stream().anyMatch(
-        m -> m.getDefinitionId().equals(prereqId)
-          && m.getStatus() == MissionStatus.CLAIMED
-    );
-    if (!fulfilled) return false;  // block acceptance
-}
+// Dynamisch (Editor): MISSION_PREREQ-Block mit prereq_id = "haupt_lieferung_01"
 ```
-
-Prerequisites are only checked at acceptance time — if a player has all requirements CLAIMED, they can accept the mission.
 
 ---
 
 ## Persistence
 
-**Save file:** `schedulemc_missions.json` (in the configured save directory)
-**Backup file:** `schedulemc_missions.json.bak`
+**Spieler-Fortschritt:** `schedulemc_missions.json` (mit Backup `.bak`)
 
-**Save strategy:**
-1. Serialize all player missions to a temp file (`.tmp`)
-2. Copy current file to `.bak`
-3. Atomically move `.tmp` → main file (`ATOMIC_MOVE` flag)
+**Mission-Szenarien (Editor):** `schedulemc_scenarios.json` (geteilt mit Gang-Szenarien)
+- Gang-Szenarien: `missionType ∈ {HOURLY, DAILY, WEEKLY}`
+- Spieler-Missionen: `missionType ∈ {STORY_MAIN, STORY_SIDE}`
 
-**Load strategy:**
-1. Try to load the main file
-2. On `IOException`: try to restore from `.bak`
-3. On second failure: log error, start empty
-
-**JSON structure:**
-```json
-{
-  "550e8400-e29b-41d4-a716-446655440000": [
-    {
-      "missionId": "pm_550e8400_haupt_lieferung_01",
-      "definitionId": "haupt_lieferung_01",
-      "currentProgress": 3,
-      "status": "ACTIVE",
-      "acceptedAt": 1710000000000,
-      "completedAt": 0,
-      "claimedAt": 0
-    }
-  ]
-}
-```
-
-**Note:** If a `definitionId` no longer exists in `MissionRegistry` when loading, the entry is skipped with a warning log. This prevents crashes when missions are removed.
+Beim Server-Start werden alle `STORY_*`-Szenarien automatisch in die `MissionRegistry` als dynamische Missionen geladen (via `SavePlayerMissionPacket.rebuildMissionRegistry()`).
 
 ---
 
 ## Integrating Custom Missions
 
-### Step 1: Add a Mission Definition
-
-Add to the static initializer in `MissionRegistry.java`:
+### Option A: Statisch (Code)
 
 ```java
+// In MissionRegistry static block:
 register(new MissionDefinition(
-    "neben_meine_mission",           // unique ID
-    "Meine Mission",                 // title
-    "Erfülle die Aufgabe...",        // description
-    MissionCategory.NEBEN,
-    500,                             // XP reward
-    1000,                            // money reward
-    5,                               // target amount (5 completions)
-    "my_custom_tracking_key"         // tracking key
+    "neben_meine_mission", "Meine Mission", "Beschreibung...",
+    MissionCategory.NEBEN, 500, 1000, 5, "my_tracking_key"
 ));
 ```
 
-### Step 2: Fire Progress Events
+### Option B: Dynamisch (Editor, empfohlen)
 
-In the relevant game event handler:
+1. OP-Befehl → Editor öffnen → **[Spieler]**-Tab
+2. Neue Mission erstellen mit `MISSION_INFO`, `MISSION_TRACKING`, Aufgaben-Blöcken, `REWARD`
+3. **[Speichern]** — wird in `ScenarioManager` persistiert und sofort in `MissionRegistry` registriert
+
+### Option C: Progress-Event integrieren
 
 ```java
-// When the player-relevant action occurs (server-side):
+// In einem beliebigen Server-Event-Handler:
 PlayerMissionManager manager = PlayerMissionManager.getInstance();
 if (manager != null) {
-    manager.trackProgress(serverPlayer, "my_custom_tracking_key", 1);
+    manager.trackProgress(serverPlayer, "my_tracking_key", 1);
 }
-```
-
-### Step 3: (Optional) Link to an NPC
-
-```java
-register(new MissionDefinition(
-    "neben_npc_mission", "NPC Aufgabe", "...",
-    MissionCategory.NEBEN, 400, 800, 3, "npc_task_done",
-    Collections.emptyList(),
-    UUID.fromString("your-npc-uuid"),
-    "Händler Max"
-));
 ```
 
 ---
 
 ## Troubleshooting
 
-| Problem | Cause | Solution |
-|---------|-------|----------|
-| Mission not appearing in GUI | Not synced to client yet | Open GUI → `RequestMissionsPacket` fires automatically |
-| Can't accept mission | Prerequisites not CLAIMED | Check prerequisite IDs; verify they are CLAIMED for the player |
-| Progress not tracking | Wrong tracking key | Verify the key matches exactly (case-sensitive) |
-| Mission vanished after update | `definitionId` no longer in registry | Re-add the definition or clean old save entries |
-| Reward not received | Economy system unavailable | Check `EconomyManager.deposit()` logs for errors |
-| Duplicate mission entries | Mission accepted multiple times | Check that `acceptMission` returns `false` for non-CLAIMED duplicate |
+| Problem | Ursache | Lösung |
+|---------|---------|--------|
+| Mission nicht in GUI | Noch nicht sync'd | GUI öffnen → RequestMissionsPacket feuert automatisch |
+| Mission nicht im Editor | Noch nicht geladen | Im Editor **[Spieler]**-Tab klicken → lädt vom Server |
+| Speichern schlägt fehl | Kein OP Level 2 | Player braucht OP-Berechtigung |
+| Progress wird nicht getrackt | Falscher Tracking-Key | Key exakt prüfen (case-sensitive), passt zum MISSION_TRACKING-Block |
+| Mission nach Update verschwunden | `definitionId` nicht mehr in Registry | Szenario erneut speichern oder statische Definition erhalten |
+| Voraussetzung nicht erfüllt | Mission nicht CLAIMED | Voraussetzungs-Mission erst abschließen |
 
 ---
 
-*Part of the ScheduleMC v3.6.9-beta documentation. For API integration, see the [API Reference](../../docs/API_REFERENCE.md).*
+*Part of the ScheduleMC documentation. For API integration, see the [API Reference](../../docs/API_REFERENCE.md).*

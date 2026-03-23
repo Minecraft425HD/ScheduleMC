@@ -36,7 +36,7 @@ public class ChemieMixerBlockEntity extends BlockEntity implements IUtilityConsu
 
     private final int[] mixingProgress = new int[CAPACITY];
     private final boolean[] usedPseudoephedrin = new boolean[CAPACITY]; // Für Qualitätsbonus
-    private boolean isActive = false;  // NOPMD
+    private boolean isActive = false;
 
     public ChemieMixerBlockEntity(BlockPos pos, BlockState state) {
         super(MethBlockEntities.CHEMIE_MIXER.get(), pos, state);

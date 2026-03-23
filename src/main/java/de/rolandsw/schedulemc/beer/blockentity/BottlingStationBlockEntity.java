@@ -154,9 +154,9 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
             bottlingProgress = 0;
         } else if (handlerBeer.isEmpty()) {
             beerSource = ItemStack.EMPTY;
-            beerType = null;  // NOPMD
-            quality = null;  // NOPMD
-            ageLevel = null;  // NOPMD
+            beerType = null;
+            quality = null;
+            ageLevel = null;
             bottlingProgress = 0;
         } else {
             beerSource = handlerBeer.copy();

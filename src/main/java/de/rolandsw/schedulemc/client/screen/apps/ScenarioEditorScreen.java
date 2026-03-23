@@ -3,6 +3,9 @@ package de.rolandsw.schedulemc.client.screen.apps;
 import de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket;
 import de.rolandsw.schedulemc.gang.scenario.*;
 import de.rolandsw.schedulemc.gang.scenario.ObjectiveType.ParamWidget;
+import de.rolandsw.schedulemc.mission.network.MissionNetworkHandler;
+import de.rolandsw.schedulemc.mission.network.RequestPlayerMissionsPacket;
+import de.rolandsw.schedulemc.mission.network.SavePlayerMissionPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -73,7 +76,7 @@ public class ScenarioEditorScreen extends Screen {
             "STROMAUSFALL", "UNWETTER"};
     private static final String[] COLOR_TYPES = {"WEISS", "ROT", "GRUEN", "BLAU", "GELB", "LILA", "ORANGE", "GRAU"};
     private static final String[] MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
-    private static final String[] MISSION_TYPE_LABELS = {"Stuendlich", "Taeglich", "Woechentlich"};  // NOPMD
+    private static final String[] MISSION_TYPE_LABELS = {"Stuendlich", "Taeglich", "Woechentlich"};
 
     // Separierte Gang- und Story-Typen fuer den zweigeteilten Selektor
     private static final String[] GANG_MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
@@ -81,10 +84,34 @@ public class ScenarioEditorScreen extends Screen {
     private static final String[] STORY_MISSION_TYPES = {"STORY_MAIN", "STORY_SIDE"};
     private static final String[] STORY_MISSION_TYPE_LABELS = {"Hauptmission", "Nebenmission"};
 
+    // Tracking-Keys fuer Spieler-Missionen
+    private static final String[] TRACKING_KEYS = {
+            "item_collected", "item_sold_to_npc", "npc_interaction_dealer",
+            "package_delivered", "territory_captured", "transaction_completed",
+            "km_driven", "district_visited", "bank_deposit",
+            "player_died", "enemy_killed", "vehicle_driven",
+            "mission_completed", "money_earned", "robbery_completed",
+            "plot_visited", "gang_mission_completed", "item_crafted",
+            "npc_talked", "item_delivered"
+    };
+
     // ═══════════════════════════════════════════════════════════
     // ZUSTAND
     // ═══════════════════════════════════════════════════════════
+
+    /** Aktuell bearbeitetes Szenario (zeigt auf gang- oder player-Szenario je nach Modus). */
     private MissionScenario currentScenario;
+    /** Alle Gang-Szenarien (HOURLY/DAILY/WEEKLY). */
+    private List<MissionScenario> allGangScenarios;
+    /** Alle Spieler-Missionsszenarien (STORY_MAIN/STORY_SIDE). */
+    private List<MissionScenario> allPlayerScenarios;
+
+    /** Gespeicherter Gang-Editor-Zustand beim Wechsel in Spieler-Modus. */
+    private MissionScenario savedGangScenario;
+    /** Gespeicherter Spieler-Editor-Zustand beim Wechsel in Gang-Modus. */
+    private MissionScenario savedPlayerScenario;
+
+    /** Backwards-Compat: immer auf die aktive Szenarien-Liste zeigen. */
     private List<MissionScenario> allScenarios;
 
     // Server-Daten fuer Dropdowns
@@ -106,7 +133,16 @@ public class ScenarioEditorScreen extends Screen {
 
     // Palette
     private int paletteScroll = 0;
-    private final Map<ObjectiveType.Category, Boolean> catExpanded = new LinkedHashMap<>();  // NOPMD
+    private final Map<ObjectiveType.Category, Boolean> catExpanded = new LinkedHashMap<>();
+
+    // ═══════════════════════════════════════════════════════════
+    // ANSICHTSMODUS (Gang-Editor ↔ Spieler-Missions-Editor)
+    // ═══════════════════════════════════════════════════════════
+    private enum ViewMode { GANG_EDITOR, PLAYER_MISSIONS }
+    private ViewMode viewMode = ViewMode.GANG_EDITOR;
+
+    /** true = Spieler-Szenarien werden gerade vom Server geladen. */
+    private boolean playerScenariosLoading = false;
 
     // Toolbar-Dropdowns
     private enum ToolbarDD { NONE, OPEN, TEMPLATES, ACTIVE, MISSION_TYPE }
@@ -125,29 +161,110 @@ public class ScenarioEditorScreen extends Screen {
     private String hoveredBlockId = null;
 
     // ═══════════════════════════════════════════════════════════
-    // KONSTRUKTOR
+    // KONSTRUKTOREN
     // ═══════════════════════════════════════════════════════════
 
+    /** Legacy: nur Gang-Szenarien (kompatibel mit OpenScenarioEditorPacket). */
     public ScenarioEditorScreen(List<MissionScenario> scenarios,
                                 List<String> npcNames,
                                 List<OpenScenarioEditorPacket.PlotInfo> plots) {
-        this(scenarios, npcNames, plots, new ArrayList<>());
+        this(scenarios, new ArrayList<>(), npcNames, plots, new ArrayList<>());
     }
 
+    /** Legacy: Gang + Locks (kompatibel mit OpenScenarioEditorPacket). */
     public ScenarioEditorScreen(List<MissionScenario> scenarios,
                                 List<String> npcNames,
                                 List<OpenScenarioEditorPacket.PlotInfo> plots,
                                 List<OpenScenarioEditorPacket.LockInfo> locks) {
-        super(Component.literal("Szenario-Editor"));
-        this.allScenarios = scenarios != null ? new ArrayList<>(scenarios) : new ArrayList<>();
+        this(scenarios, new ArrayList<>(), npcNames, plots, locks);
+    }
+
+    /**
+     * Vollstaendiger Konstruktor mit Gang- UND Spieler-Szenarien.
+     *
+     * @param gangScenarios   Gang-Szenarien (HOURLY/DAILY/WEEKLY)
+     * @param playerScenarios Spieler-Missionen (STORY_MAIN/STORY_SIDE)
+     */
+    public ScenarioEditorScreen(List<MissionScenario> gangScenarios,
+                                List<MissionScenario> playerScenarios,
+                                List<String> npcNames,
+                                List<OpenScenarioEditorPacket.PlotInfo> plots,
+                                List<OpenScenarioEditorPacket.LockInfo> locks) {
+        super(Component.literal("Mission-Editor"));
+        this.allGangScenarios = gangScenarios != null ? new ArrayList<>(gangScenarios) : new ArrayList<>();
+        this.allPlayerScenarios = playerScenarios != null ? new ArrayList<>(playerScenarios) : new ArrayList<>();
+        this.allScenarios = this.allGangScenarios; // Standard: Gang-Modus
         this.serverNpcNames = npcNames != null ? npcNames : new ArrayList<>();
         this.serverPlots = plots != null ? plots : new ArrayList<>();
         this.serverLocks = locks != null ? locks : new ArrayList<>();
+
+        // Standard-Szenario: Gang (DAILY)
         this.currentScenario = new MissionScenario();
+        this.savedGangScenario = this.currentScenario;
+        this.savedPlayerScenario = newPlayerScenario();
 
         for (ObjectiveType.Category cat : ObjectiveType.Category.values()) {
             if (cat != ObjectiveType.Category.SPEZIAL) catExpanded.put(cat, false);
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // SPIELER-SZENARIEN LADEN (von SyncPlayerMissionsPacket)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Wird von SyncPlayerMissionsPacket aufgerufen, um Spieler-Szenarien zu laden.
+     * Wechselt automatisch in den Spieler-Modus und aktualisiert den Editor.
+     */
+    public void loadPlayerScenarios(List<MissionScenario> scenarios,
+                                    List<String> npcNames,
+                                    List<OpenScenarioEditorPacket.PlotInfo> plots,
+                                    List<OpenScenarioEditorPacket.LockInfo> locks) {
+        this.allPlayerScenarios = scenarios != null ? new ArrayList<>(scenarios) : new ArrayList<>();
+        if (!npcNames.isEmpty()) this.serverNpcNames.clear();
+        this.serverNpcNames.addAll(npcNames);
+        if (!plots.isEmpty()) { this.serverPlots.clear(); this.serverPlots.addAll(plots); }
+        if (!locks.isEmpty()) { this.serverLocks.clear(); this.serverLocks.addAll(locks); }
+        this.playerScenariosLoading = false;
+
+        // In Spieler-Modus wechseln
+        if (viewMode != ViewMode.PLAYER_MISSIONS) {
+            switchToPlayerMode();
+        } else {
+            // Bereits im Spieler-Modus: Szenarien-Liste aktualisieren
+            allScenarios = allPlayerScenarios;
+        }
+    }
+
+    private MissionScenario newPlayerScenario() {
+        MissionScenario s = new MissionScenario();
+        s.setMissionType("STORY_MAIN"); // Standard: Hauptmission
+        s.setName("Neue Spieler-Mission");
+        return s;
+    }
+
+    private void switchToGangMode() {
+        savedPlayerScenario = currentScenario;
+        currentScenario = savedGangScenario;
+        allScenarios = allGangScenarios;
+        viewMode = ViewMode.GANG_EDITOR;
+        selectedBlockId = null;
+        toolbarDD = ToolbarDD.NONE;
+        scrollX = 0; scrollY = 0;
+        if (nameField != null) nameField.setValue(currentScenario.getName());
+        rebuildProps();
+    }
+
+    private void switchToPlayerMode() {
+        savedGangScenario = currentScenario;
+        currentScenario = savedPlayerScenario;
+        allScenarios = allPlayerScenarios;
+        viewMode = ViewMode.PLAYER_MISSIONS;
+        selectedBlockId = null;
+        toolbarDD = ToolbarDD.NONE;
+        scrollX = 0; scrollY = 0;
+        if (nameField != null) nameField.setValue(currentScenario.getName());
+        rebuildProps();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -221,42 +338,50 @@ public class ScenarioEditorScreen extends Screen {
         renderBackground(g);
         g.fill(0, 0, this.width, this.height, C_BG);
 
-        // Hovered Block finden
-        hoveredBlockId = null;  // NOPMD
-        if (mx >= PALETTE_W && mx < propsLeft() && my >= TOOLBAR_H && my < this.height - STATUS_H) {
-            int cL = PALETTE_W, cT = TOOLBAR_H;
-            List<ScenarioObjective> objs = currentScenario.getObjectives();
-            for (int i = objs.size() - 1; i >= 0; i--) {
-                ScenarioObjective o = objs.get(i);
-                int bx = cL + o.getEditorX() - scrollX, by = cT + o.getEditorY() - scrollY;
-                if (mx >= bx && mx < bx + BLOCK_W && my >= by && my < by + BLOCK_H) {
-                    hoveredBlockId = o.getId();
-                    break;
+        renderToolbar(g, mx, my);
+
+        // Lade-Anzeige fuer Spieler-Szenarien
+        if (viewMode == ViewMode.PLAYER_MISSIONS && playerScenariosLoading) {
+            g.fill(0, TOOLBAR_H, this.width, this.height, 0xFF0A0A1A);
+            g.drawCenteredString(this.font, "\u00A77Spieler-Missionen werden geladen...",
+                    this.width / 2, this.height / 2 - 4, 0x555555);
+        } else {
+            // Hovered Block finden
+            hoveredBlockId = null;
+            if (mx >= PALETTE_W && mx < propsLeft() && my >= TOOLBAR_H && my < this.height - STATUS_H) {
+                int cL = PALETTE_W, cT = TOOLBAR_H;
+                List<ScenarioObjective> objs = currentScenario.getObjectives();
+                for (int i = objs.size() - 1; i >= 0; i--) {
+                    ScenarioObjective o = objs.get(i);
+                    int bx = cL + o.getEditorX() - scrollX, by = cT + o.getEditorY() - scrollY;
+                    if (mx >= bx && mx < bx + BLOCK_W && my >= by && my < by + BLOCK_H) {
+                        hoveredBlockId = o.getId();
+                        break;
+                    }
                 }
             }
-        }
 
-        renderToolbar(g, mx, my);
-        renderPalette(g, mx, my);
-        renderCanvas(g, mx, my);
-        renderPropsPanel(g, mx, my);
-        renderStatusBar(g, mx, my);
-        renderToolbarDropdowns(g, mx, my);
-        renderParamDropdown(g, mx, my);
+            renderPalette(g, mx, my);
+            renderCanvas(g, mx, my);
+            renderPropsPanel(g, mx, my);
+            renderStatusBar(g, mx, my);
+            renderToolbarDropdowns(g, mx, my);
+            renderParamDropdown(g, mx, my);
 
-        // Connecting-Linie
-        if (connecting && connectSrcId != null) {
-            ScenarioObjective src = currentScenario.getObjective(connectSrcId);
-            if (src != null) {
-                int sx = PALETTE_W + src.getEditorX() - scrollX + BLOCK_W / 2;
-                int sy = TOOLBAR_H + src.getEditorY() - scrollY + BLOCK_H;
-                drawDashedLine(g, sx, sy, mx, my, C_CONN);
+            // Connecting-Linie
+            if (connecting && connectSrcId != null) {
+                ScenarioObjective src = currentScenario.getObjective(connectSrcId);
+                if (src != null) {
+                    int sx = PALETTE_W + src.getEditorX() - scrollX + BLOCK_W / 2;
+                    int sy = TOOLBAR_H + src.getEditorY() - scrollY + BLOCK_H;
+                    drawDashedLine(g, sx, sy, mx, my, C_CONN);
+                }
             }
-        }
 
-        // Tooltip
-        if (hoveredBlockId != null && !dragging && activeParamDD == null && toolbarDD == ToolbarDD.NONE) {
-            renderBlockTooltip(g, mx, my);
+            // Tooltip
+            if (hoveredBlockId != null && !dragging && activeParamDD == null && toolbarDD == ToolbarDD.NONE) {
+                renderBlockTooltip(g, mx, my);
+            }
         }
 
         super.render(g, mx, my, pt);
@@ -267,10 +392,30 @@ public class ScenarioEditorScreen extends Screen {
         g.fill(0, 0, this.width, TOOLBAR_H, C_TOOLBAR);
         g.fill(0, TOOLBAR_H - 1, this.width, TOOLBAR_H, 0xFF2A2A4A);
 
-        int x = 4;
+        // Modus-Umschalter (ganz links)
+        boolean gangActive = viewMode == ViewMode.GANG_EDITOR;
+        int toggleX = 4;
+        int gangW = this.font.width("Gang") + 10;
+        int playerW = this.font.width("Spieler") + 10;
+        // Hintergrund-Leiste fuer Toggle
+        g.fill(toggleX - 1, 2, toggleX + gangW + playerW + 1, TOOLBAR_H - 2, 0xFF0A0A20);
+        // Gang-Tab
+        boolean gangHov = mx >= toggleX && mx < toggleX + gangW && my >= 2 && my < TOOLBAR_H - 2;
+        g.fill(toggleX, 2, toggleX + gangW, TOOLBAR_H - 2,
+            gangActive ? 0xFF5588FF : (gangHov ? 0xFF334466 : 0xFF1A1A3A));
+        g.drawCenteredString(this.font, "Gang", toggleX + gangW / 2, 7, gangActive ? 0xFFFFFF : 0x8888AA);
+        // Spieler-Tab
+        int playerX = toggleX + gangW;
+        boolean playerHov = mx >= playerX && mx < playerX + playerW && my >= 2 && my < TOOLBAR_H - 2;
+        g.fill(playerX, 2, playerX + playerW, TOOLBAR_H - 2,
+            !gangActive ? 0xFFFFAA00 : (playerHov ? 0xFF443300 : 0xFF2A1A00));
+        g.drawCenteredString(this.font, "Spieler", playerX + playerW / 2, 7, !gangActive ? 0xFF000000 : 0xFF886600);
+
+        // Gemeinsamer Bereich: Oeffnen, Speichern, Vorlagen, Aktive (fuer beide Modi)
+        int x = toggleX + gangW + playerW + 6;
         x = tbBtn(g, x, "Oeffnen", mx, my, 0xFF3498DB);
         x = tbBtn(g, x, "Speichern", mx, my, 0xFF2ECC71);
-        x = tbBtn(g, x, "Vorlagen", mx, my, 0xFFF39C12);
+        x = tbBtn(g, x, "Vorlagen", mx, my, gangActive ? 0xFFF39C12 : 0xFF00BCD4);
         x = tbBtn(g, x, "Aktive", mx, my, 0xFF9B59B6);  // NOPMD
 
         // Rechts
@@ -279,7 +424,8 @@ public class ScenarioEditorScreen extends Screen {
         rx = tbBtnR(g, rx, "Neu", mx, my, 0xFF1ABC9C);
         tbBtnR(g, rx, "Loeschen", mx, my, 0xFF7F8C8D);
 
-        g.drawString(this.font, "\u00A78Szenario-Editor", this.width / 2 - 30, 7, 0x666666);
+        String editorLabel = gangActive ? "\u00A78Gang-Editor" : "\u00A78Spieler-Missionen-Editor";
+        g.drawCenteredString(this.font, editorLabel, this.width / 2, 7, 0x666666);
     }
 
     private int tbBtn(GuiGraphics g, int x, String l, int mx, int my, int c) {
@@ -333,7 +479,7 @@ public class ScenarioEditorScreen extends Screen {
     }
 
     // ─── CANVAS ───
-    private void renderCanvas(GuiGraphics g, int mx, int my) {  // NOPMD
+    private void renderCanvas(GuiGraphics g, int mx, int my) {
         int cL = PALETTE_W, cT = TOOLBAR_H, cR = propsLeft(), cB = this.height - STATUS_H;
         g.fill(cL, cT, cR, cB, C_CANVAS);
 
@@ -480,6 +626,7 @@ public class ScenarioEditorScreen extends Screen {
             case DROPDOWN_EVENT -> "\u00A7c? ";
             case DROPDOWN_COLOR -> "\u00A7e\u25CF ";
             case DROPDOWN_LOCK -> "\u00A7b\uD83D\uDD12 ";
+            case DROPDOWN_TRACKING_KEY -> "\u00A7b\u21D7 ";
             default -> "\u00A77\u25AA ";
         };
     }
@@ -576,7 +723,7 @@ public class ScenarioEditorScreen extends Screen {
         g.drawCenteredString(this.font, "+", lvlX + 15, y + 3, 0xFFFFFF);
     }
 
-    private int getMissionTypeIndex() {  // NOPMD
+    private int getMissionTypeIndex() {
         String t = currentScenario.getMissionType();
         for (int i = 0; i < MISSION_TYPES.length; i++) if (MISSION_TYPES[i].equals(t)) return i;
         return 1;
@@ -617,7 +764,9 @@ public class ScenarioEditorScreen extends Screen {
             renderDD(g, ddX, TOOLBAR_H, items, mx, my, 0xFF3498DB, 140);
         } else if (toolbarDD == ToolbarDD.TEMPLATES) {
             ddX = 4 + this.font.width("Oeffnen") + 8 + 3 + this.font.width("Speichern") + 8 + 3;
-            renderDD(g, ddX, TOOLBAR_H, ScenarioTemplates.getTemplateNames(), mx, my, 0xFFF39C12, 140);
+            boolean isGangTpl = viewMode == ViewMode.GANG_EDITOR;
+            String[] tplNames = isGangTpl ? ScenarioTemplates.getTemplateNames() : ScenarioTemplates.getPlayerTemplateNames();
+            renderDD(g, ddX, TOOLBAR_H, tplNames, mx, my, isGangTpl ? 0xFFF39C12 : 0xFF00BCD4, 150);
         } else if (toolbarDD == ToolbarDD.ACTIVE) {
             ddX = 4 + this.font.width("Oeffnen") + 8 + 3 + this.font.width("Speichern") + 8 + 3
                     + this.font.width("Vorlagen") + 8 + 3;
@@ -713,6 +862,7 @@ public class ScenarioEditorScreen extends Screen {
             case DROPDOWN_EVENT -> EVENT_TYPES;
             case DROPDOWN_COLOR -> COLOR_TYPES;
             case DROPDOWN_LOCK -> serverLocks.stream().map(l -> l.lockId() + "|" + l.lockType() + " @ " + l.x() + "," + l.y() + "," + l.z()).toArray(String[]::new);
+            case DROPDOWN_TRACKING_KEY -> TRACKING_KEYS;
             default -> new String[]{};
         };
     }
@@ -804,10 +954,16 @@ public class ScenarioEditorScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int mx = (int) mouseX, my = (int) mouseY;
 
+        // Toolbar immer zuerst (auch fuer Moduswechsel)
+        if (my < TOOLBAR_H) {
+            handleToolbar(mx);
+            return true;
+        }
+
         // Offene Param-Dropdown behandeln
         if (activeParamDD != null) {
             boolean handled = handleParamDDClick(mx, my);
-            activeParamDD = null;  // NOPMD
+            activeParamDD = null;
             paramDDScroll = 0;
             if (handled) return true;
         }
@@ -819,14 +975,11 @@ public class ScenarioEditorScreen extends Screen {
             if (handled) return true;
         }
 
-        // Toolbar
-        if (my < TOOLBAR_H) { handleToolbar(mx); return true; }
-
         // Status Bar — nameField bei Klick auf EditBox-Bereich Fokus geben
         if (my >= this.height - STATUS_H) {
             int nfy = this.height - STATUS_H + 3;
             if (mx >= 44 && mx < 134 && my >= nfy && my < nfy + 10) {
-                return super.mouseClicked(mouseX, mouseY, button); // EditBox bekommt Fokus
+                return super.mouseClicked(mouseX, mouseY, button);
             }
             handleStatusBar(mx, my);
             return true;
@@ -851,7 +1004,35 @@ public class ScenarioEditorScreen extends Screen {
     }
 
     private void handleToolbar(int mx) {
-        int x = 4, w;
+        // Modus-Toggle (ganz links, immer sichtbar)
+        int toggleX = 4;
+        int gangW = this.font.width("Gang") + 10;
+        int playerW = this.font.width("Spieler") + 10;
+
+        if (mx >= toggleX && mx < toggleX + gangW) {
+            if (viewMode != ViewMode.GANG_EDITOR) {
+                switchToGangMode();
+            }
+            return;
+        }
+        if (mx >= toggleX + gangW && mx < toggleX + gangW + playerW) {
+            if (viewMode != ViewMode.PLAYER_MISSIONS) {
+                // Spieler-Szenarien vom Server laden
+                playerScenariosLoading = true;
+                switchToPlayerMode();
+                MissionNetworkHandler.sendToServer(new RequestPlayerMissionsPacket());
+            }
+            return;
+        }
+
+        // Schliessen (rechts, immer)
+        int rx = this.width - 4;
+        int xW = this.font.width("X") + 8;
+        if (mx >= rx - xW && mx < rx) { onClose(); return; }
+
+        // Gemeinsame Buttons (Oeffnen, Speichern, Vorlagen[nur Gang], Aktive)
+        int x = toggleX + gangW + playerW + 6;
+        int w;
         w = this.font.width("Oeffnen") + 8;
         if (mx >= x && mx < x + w) { toolbarDD = toolbarDD == ToolbarDD.OPEN ? ToolbarDD.NONE : ToolbarDD.OPEN; return; }
         x += w + 3;
@@ -864,10 +1045,7 @@ public class ScenarioEditorScreen extends Screen {
         w = this.font.width("Aktive") + 8;
         if (mx >= x && mx < x + w) { toolbarDD = toolbarDD == ToolbarDD.ACTIVE ? ToolbarDD.NONE : ToolbarDD.ACTIVE; return; }
 
-        int rx = this.width - 4;
-        w = this.font.width("X") + 8;
-        if (mx >= rx - w && mx < rx) { onClose(); return; }
-        rx -= w + 3;
+        rx -= xW + 3;
         w = this.font.width("Neu") + 8;
         if (mx >= rx - w && mx < rx) { newScenario(); return; }
         rx -= w + 3;
@@ -920,7 +1098,7 @@ public class ScenarioEditorScreen extends Screen {
             currentScenario.setMinGangLevel(currentScenario.getMinGangLevel() + 1);
     }
 
-    private void handlePropsClick(int mx, int my, int button) {  // NOPMD
+    private void handlePropsClick(int mx, int my, int button) {
         if (selectedBlockId == null) return;
         ScenarioObjective obj = currentScenario.getObjective(selectedBlockId);
         if (obj == null) return;
@@ -1011,12 +1189,13 @@ public class ScenarioEditorScreen extends Screen {
             }
         }
         if (toolbarDD == ToolbarDD.TEMPLATES) {
-            List<MissionScenario> templates = ScenarioTemplates.getAll();
+            List<MissionScenario> templates = viewMode == ViewMode.GANG_EDITOR
+                    ? ScenarioTemplates.getAll() : ScenarioTemplates.getPlayerTemplates();
             int ddX = 4 + this.font.width("Oeffnen") + 8 + 3 + this.font.width("Speichern") + 8 + 3;
             int ih = 13;
             for (int i = 0; i < templates.size(); i++) {
                 int iy = TOOLBAR_H + 2 + i * ih;
-                if (mx >= ddX && mx < ddX + 130 && my >= iy && my < iy + ih) {
+                if (mx >= ddX && mx < ddX + 150 && my >= iy && my < iy + ih) {
                     loadScenario(templates.get(i)); return true;
                 }
             }
@@ -1035,7 +1214,7 @@ public class ScenarioEditorScreen extends Screen {
         return false;
     }
 
-    private void handlePalette(int mx, int my) {  // NOPMD
+    private void handlePalette(int mx, int my) {
         int pB = this.height - STATUS_H;  // NOPMD
         int y = TOOLBAR_H + 14 - paletteScroll;
         for (var entry : catExpanded.entrySet()) {
@@ -1058,14 +1237,14 @@ public class ScenarioEditorScreen extends Screen {
         int cL = PALETTE_W, cT = TOOLBAR_H;
 
         if (button == 1) {
-            if (connecting) { connecting = false; connectSrcId = null; return; }  // NOPMD
+            if (connecting) { connecting = false; connectSrcId = null; return; }
             for (ScenarioObjective o : currentScenario.getObjectives()) {
                 int bx = cL + o.getEditorX() - scrollX, by = cT + o.getEditorY() - scrollY;
                 if (mx >= bx && mx < bx + BLOCK_W && my >= by && my < by + BLOCK_H) {
                     o.setNextObjectiveId(null); return;
                 }
             }
-            selectedBlockId = null; rebuildProps(); return;  // NOPMD
+            selectedBlockId = null; rebuildProps(); return;
         }
 
         if (connecting && connectSrcId != null) {
@@ -1075,10 +1254,10 @@ public class ScenarioEditorScreen extends Screen {
                 if (mx >= bx && mx < bx + BLOCK_W && my >= by && my < by + BLOCK_H) {
                     ScenarioObjective src = currentScenario.getObjective(connectSrcId);
                     if (src != null) src.setNextObjectiveId(o.getId());
-                    connecting = false; connectSrcId = null; return;  // NOPMD
+                    connecting = false; connectSrcId = null; return;
                 }
             }
-            connecting = false; connectSrcId = null; return;  // NOPMD
+            connecting = false; connectSrcId = null; return;
         }
 
         // Connector klick
@@ -1103,7 +1282,7 @@ public class ScenarioEditorScreen extends Screen {
             }
         }
 
-        selectedBlockId = null; rebuildProps();  // NOPMD
+        selectedBlockId = null; rebuildProps();
     }
 
     @Override
@@ -1144,7 +1323,7 @@ public class ScenarioEditorScreen extends Screen {
     @Override
     public boolean keyPressed(int key, int scan, int mod) {
         if (key == 261 && selectedBlockId != null) { deleteSelectedBlock(); return true; }
-        if (key == 256 && connecting) { connecting = false; connectSrcId = null; return true; }  // NOPMD
+        if (key == 256 && connecting) { connecting = false; connectSrcId = null; return true; }
         return super.keyPressed(key, scan, mod);
     }
 
@@ -1166,32 +1345,54 @@ public class ScenarioEditorScreen extends Screen {
         ScenarioObjective o = currentScenario.getObjective(selectedBlockId);
         if (o == null || o.getType() == ObjectiveType.START || o.getType() == ObjectiveType.REWARD) return;
         currentScenario.removeObjective(selectedBlockId);
-        selectedBlockId = null;  // NOPMD
+        selectedBlockId = null;
         rebuildProps();
     }
 
     private void newScenario() {
-        currentScenario = new MissionScenario();
-        selectedBlockId = null; scrollX = 0; scrollY = 0;  // NOPMD
-        if (nameField != null) nameField.setValue(currentScenario.getName());
-        rebuildProps();
+        newScenarioForMode();
     }
 
     private void loadScenario(MissionScenario s) {
         currentScenario = ScenarioManager.fromJson(ScenarioManager.scenarioToJson(s));
-        selectedBlockId = null; scrollX = 0; scrollY = 0;  // NOPMD
+        selectedBlockId = null; scrollX = 0; scrollY = 0;
         if (nameField != null) nameField.setValue(currentScenario.getName());
         rebuildProps();
     }
 
     private void saveCurrentScenario() {
+        // Szenario in lokale Liste eintragen
         boolean found = false;
         for (int i = 0; i < allScenarios.size(); i++) {
-            if (allScenarios.get(i).getId().equals(currentScenario.getId())) { allScenarios.set(i, currentScenario); found = true; break; }
+            if (allScenarios.get(i).getId().equals(currentScenario.getId())) {
+                allScenarios.set(i, currentScenario); found = true; break;
+            }
         }
         if (!found) allScenarios.add(currentScenario);
-        de.rolandsw.schedulemc.gang.network.GangNetworkHandler.sendToServer(
-                new de.rolandsw.schedulemc.gang.network.SaveScenarioPacket(ScenarioManager.scenarioToJson(currentScenario)));
+
+        String json = ScenarioManager.scenarioToJson(currentScenario);
+
+        if (viewMode == ViewMode.PLAYER_MISSIONS) {
+            // Spieler-Mission speichern
+            MissionNetworkHandler.sendToServer(new SavePlayerMissionPacket(json));
+        } else {
+            // Gang-Szenario speichern
+            de.rolandsw.schedulemc.gang.network.GangNetworkHandler.sendToServer(
+                    new de.rolandsw.schedulemc.gang.network.SaveScenarioPacket(json));
+        }
+    }
+
+    private void newScenarioForMode() {
+        if (viewMode == ViewMode.PLAYER_MISSIONS) {
+            currentScenario = newPlayerScenario();
+            savedPlayerScenario = currentScenario;
+        } else {
+            currentScenario = new MissionScenario();
+            savedGangScenario = currentScenario;
+        }
+        selectedBlockId = null; scrollX = 0; scrollY = 0;
+        if (nameField != null) nameField.setValue(currentScenario.getName());
+        rebuildProps();
     }
 
     @Override

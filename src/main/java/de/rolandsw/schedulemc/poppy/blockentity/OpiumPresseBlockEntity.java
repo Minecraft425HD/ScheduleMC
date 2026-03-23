@@ -101,8 +101,8 @@ public class OpiumPresseBlockEntity extends BlockEntity implements IUtilityConsu
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 progress[i] = 0;
-                types[i] = null;  // NOPMD
-                qualities[i] = null;  // NOPMD
+                types[i] = null;
+                qualities[i] = null;
             }
         }
 

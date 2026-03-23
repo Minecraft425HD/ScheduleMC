@@ -18,7 +18,7 @@ public class RenderCoordinationService {
 
     public RenderCoordinationService() {
         // Delay renderer initialization to avoid circular dependency during static initialization
-        this.renderer = null;  // NOPMD
+        this.renderer = null;
     }
 
     /**
@@ -45,7 +45,7 @@ public class RenderCoordinationService {
         if (pendingMessage != null) {
             MapViewConstants.getMinecraft().gui.getChat()
                 .addMessage(Component.literal(pendingMessage));
-            pendingMessage = null;  // NOPMD
+            pendingMessage = null;
         }
     }
 

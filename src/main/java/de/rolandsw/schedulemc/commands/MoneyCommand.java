@@ -92,7 +92,7 @@ public class MoneyCommand {
     // ───────────────────────────────
     // Admin: Guthaben setzen
     // ───────────────────────────────
-    private static int setBalance(CommandContext<CommandSourceStack> ctx) {  // NOPMD
+    private static int setBalance(CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executeAdminCommand(ctx, "command.money.set.error", 2,
             source -> {
                 ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
@@ -129,7 +129,7 @@ public class MoneyCommand {
     // ───────────────────────────────
     // Admin: Geld geben
     // ───────────────────────────────
-    private static int giveBalance(CommandContext<CommandSourceStack> ctx) {  // NOPMD
+    private static int giveBalance(CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executeAdminCommand(ctx, "command.money.give.error", 2,
             source -> {
                 ServerPlayer target = EntityArgument.getPlayer(ctx, "target");
@@ -164,7 +164,7 @@ public class MoneyCommand {
     // ───────────────────────────────
     // Admin: Geld nehmen
     // ───────────────────────────────
-    private static int takeBalance(CommandContext<CommandSourceStack> ctx) {  // NOPMD
+    private static int takeBalance(CommandContext<CommandSourceStack> ctx) {
         return CommandExecutor.executeAdminCommand(ctx, "command.money.take.error", 2,
             source -> {
                 ServerPlayer target = EntityArgument.getPlayer(ctx, "target");

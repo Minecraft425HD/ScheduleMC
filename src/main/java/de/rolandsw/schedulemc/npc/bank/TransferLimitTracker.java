@@ -8,10 +8,11 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
@@ -25,12 +26,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TransferLimitTracker {
     private static final Logger LOGGER = LogUtils.getLogger();
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile TransferLimitTracker instance;  // NOPMD
+    private static volatile TransferLimitTracker instance;
 
     private final Map<UUID, DailyTransferData> dailyTransfers = new ConcurrentHashMap<>();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File saveFile;
-    private volatile boolean dirty = false;  // NOPMD
+    private volatile boolean dirty = false;
 
     private long currentDay = 0;
 
@@ -132,7 +133,7 @@ public class TransferLimitTracker {
             return;
         }
 
-        try (FileReader reader = new FileReader(saveFile)) {
+        try (BufferedReader reader = Files.newBufferedReader(saveFile.toPath(), StandardCharsets.UTF_8)) {
             Type type = new TypeToken<Map<UUID, DailyTransferData>>(){}.getType();
             Map<UUID, DailyTransferData> loaded = GSON.fromJson(reader, type);
 
@@ -156,7 +157,7 @@ public class TransferLimitTracker {
 
             // Atomic write: temp file + move
             File tempFile = new File(saveFile.getParent(), saveFile.getName() + ".tmp");
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(dailyTransfers, writer);
                 writer.flush();
             }

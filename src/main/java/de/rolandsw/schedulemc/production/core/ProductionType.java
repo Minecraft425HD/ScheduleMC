@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.economy.EconomyController;
 import de.rolandsw.schedulemc.economy.ItemCategory;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -59,14 +60,14 @@ public interface ProductionType {
      * @return Registry-Name für Minecraft (lowercase)
      */
     default String getRegistryName() {
-        return toString().toLowerCase();
+        return toString().toLowerCase(Locale.ROOT);
     }
 
     /**
      * @return Produkt-Identifier für den EconomyController (z.B. "CANNABIS_INDICA")
      */
     default String getProductId() {
-        return getClass().getSimpleName().toUpperCase().replace("TYPE", "").replace("STRAIN", "")
+        return getClass().getSimpleName().toUpperCase(Locale.ROOT).replace("TYPE", "").replace("STRAIN", "")
                 + "_" + toString();
     }
 

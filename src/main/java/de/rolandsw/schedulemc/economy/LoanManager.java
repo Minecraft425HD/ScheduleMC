@@ -20,10 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile LoanManager instance;  // NOPMD
+    private static volatile LoanManager instance;
 
     private static final double MIN_BALANCE_FOR_LOAN = 1000.0;
-    private static final int MIN_PLAYTIME_DAYS = 7;  // NOPMD
+    private static final int MIN_PLAYTIME_DAYS = 7;
 
     private final Map<UUID, Loan> activeLoans = new ConcurrentHashMap<>();
     private MinecraftServer server;

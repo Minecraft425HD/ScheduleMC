@@ -221,7 +221,7 @@ public class PlotAppScreen extends Screen {
             Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(currentPlot.getPlotId());
             utilityData = dataOpt.orElse(null);
         } else {
-            utilityData = null;  // NOPMD
+            utilityData = null;
         }
 
         // Verfügbare Plots (zum Verkauf oder ohne Besitzer)

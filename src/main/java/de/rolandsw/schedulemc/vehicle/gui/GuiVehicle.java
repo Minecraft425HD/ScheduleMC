@@ -43,7 +43,6 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
     private static final int TEXT_WHITE = 0xFFFFFF;
     private static final int TEXT_LIGHT = 0xDDDDDD;
 
-    private Inventory playerInv;  // NOPMD
     private final EntityGenericVehicle vehicle;
     private final int internalRows;
     private final int externalRows;
@@ -53,7 +52,6 @@ public class GuiVehicle extends ScreenBase<ContainerVehicle> {
 
     public GuiVehicle(ContainerVehicle containerVehicle, Inventory playerInv, Component title) {
         super(TEXTURE, containerVehicle, playerInv, title);
-        this.playerInv = playerInv;
         this.vehicle = containerVehicle.getVehicle();
 
         imageWidth = 176;

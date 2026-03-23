@@ -31,37 +31,37 @@ public class EconomyCycle implements IncrementalSaveManager.ISaveable {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Singleton
-    private static volatile EconomyCycle instance;  // NOPMD
+    private static volatile EconomyCycle instance;
 
     // Persistenz
-    private static volatile File file = new File("config/schedulemc_economy_cycle.json");  // NOPMD
+    private static volatile File file = new File("config/schedulemc_economy_cycle.json");
     private static final Gson gson = GsonHelper.get();
-    private static volatile boolean needsSave = false;  // NOPMD
+    private static volatile boolean needsSave = false;
 
     // ═══════════════════════════════════════════════════════════
     // ZYKLUS-DATEN
     // ═══════════════════════════════════════════════════════════
 
     /** Aktuelle Phase */
-    private volatile EconomyCyclePhase currentPhase = EconomyCyclePhase.NORMAL;  // NOPMD
+    private volatile EconomyCyclePhase currentPhase = EconomyCyclePhase.NORMAL;
 
     /** Verbleibende Tage in der aktuellen Phase */
-    private volatile int remainingDays;  // NOPMD
+    private volatile int remainingDays;
 
     /** Gesamte vergangene Tage seit Server-Start */
-    private volatile int totalDaysElapsed = 0;  // NOPMD
+    private volatile int totalDaysElapsed = 0;
 
     /** Anzahl abgeschlossener Zyklen */
-    private volatile int completedCycles = 0;  // NOPMD
+    private volatile int completedCycles = 0;
 
     /** Aktueller interpolierter Multiplikator (smooth transition) */
-    private volatile double currentMultiplier = 1.0;  // NOPMD
+    private volatile double currentMultiplier = 1.0;
 
     /** Multiplikator der vorherigen Phase (für Interpolation) */
-    private volatile double previousMultiplier = 1.0;  // NOPMD
+    private volatile double previousMultiplier = 1.0;
 
     /** Tage die diese Phase insgesamt dauert (für Interpolation) */
-    private volatile int currentPhaseTotalDays;  // NOPMD
+    private volatile int currentPhaseTotalDays;
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON

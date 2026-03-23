@@ -4,10 +4,11 @@ import com.google.gson.Gson;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,14 +41,14 @@ public class HotReloadableConfig<T> {
     private static final Gson GSON = GsonHelper.get();
 
     // Globale WatchService-Instanz (geteilt)
-    private static volatile WatchService watchService;  // NOPMD
+    private static volatile WatchService watchService;
     private static final AtomicBoolean watcherRunning = new AtomicBoolean(false);
     private static final Map<Path, HotReloadableConfig<?>> watchedConfigs = new ConcurrentHashMap<>();
-    private static Thread watchThread;  // NOPMD
+    private static Thread watchThread;
 
     private final File configFile;
     private final Class<T> configClass;
-    private volatile T currentConfig;  // NOPMD
+    private volatile T currentConfig;
     private long lastModified = 0;
     private long lastReloadTime = 0;
     private static final long DEBOUNCE_MS = 500; // Minimum 500ms zwischen Reloads
@@ -150,7 +151,7 @@ public class HotReloadableConfig<T> {
                     StandardWatchEventKinds.ENTRY_MODIFY,
                     StandardWatchEventKinds.ENTRY_CREATE);
 
-                watchThread = new Thread(() -> {  // NOPMD
+                watchThread = new Thread(() -> {
                     LOGGER.info("Config-WatchService gestartet");
                     while (watcherRunning.get()) {
                         try {
@@ -172,7 +173,7 @@ public class HotReloadableConfig<T> {
 
                             key.reset();
                         } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();  // NOPMD
+                            Thread.currentThread().interrupt();
                             break;
                         } catch (ClosedWatchServiceException e) {
                             break;
@@ -274,7 +275,7 @@ public class HotReloadableConfig<T> {
             return null;
         }
 
-        try (FileReader reader = new FileReader(configFile)) {
+        try (BufferedReader reader = Files.newBufferedReader(configFile.toPath(), StandardCharsets.UTF_8)) {
             T config = GSON.fromJson(reader, configClass);
             lastModified = configFile.lastModified();
             return config;
@@ -289,7 +290,7 @@ public class HotReloadableConfig<T> {
             configFile.getParentFile().mkdirs();
             // Atomic write: temp file + move
             File tempFile = new File(configFile.getAbsolutePath() + ".tmp");
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(config, writer);
                 writer.flush();
             }

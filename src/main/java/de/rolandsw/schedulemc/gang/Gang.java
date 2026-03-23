@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 
 import java.util.*;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,14 +24,15 @@ public class Gang {
     public static final int MAX_WEEKLY_FEE = 10_000;
 
     private final UUID gangId;
-    private volatile String name;  // NOPMD
-    private volatile String tag; // 3-4 Buchstaben  // NOPMD
-    private volatile int gangLevel;  // NOPMD
+    private volatile String name;
+    private volatile String tag; // 3-4 Buchstaben
+    private volatile int gangLevel;
     private final AtomicInteger gangXP;
     private final AtomicInteger gangBalance;
-    private volatile ChatFormatting color;  // NOPMD
-    private volatile long foundedTimestamp;  // NOPMD
-    private volatile int weeklyFee; // Wochenbeitrag (0 = kein Beitrag, max 10000)  // NOPMD
+    private volatile ChatFormatting color;
+    private volatile long foundedTimestamp;
+    private volatile int weeklyFee; // Wochenbeitrag (0 = kein Beitrag, max 10000)
+    private volatile int lastKnownRank = 0; // Rang beim letzten Snapshot (0 = noch kein Snapshot)
 
     private final ConcurrentHashMap<UUID, GangMemberData> members = new ConcurrentHashMap<>();
     private final Set<String> unlockedPerks = ConcurrentHashMap.newKeySet();
@@ -45,7 +47,7 @@ public class Gang {
     public Gang(UUID gangId, String name, String tag, UUID founderUUID, ChatFormatting color) {
         this.gangId = gangId;
         this.name = name;
-        this.tag = tag.toUpperCase();
+        this.tag = tag.toUpperCase(Locale.ROOT);
         this.gangLevel = 1;
         this.gangXP = new AtomicInteger(0);
         this.gangBalance = new AtomicInteger(0);
@@ -298,10 +300,12 @@ public class Gang {
     public long getFoundedTimestamp() { return foundedTimestamp; }
 
     public void setName(String name) { this.name = name; }
-    public void setTag(String tag) { this.tag = tag.toUpperCase(); }
+    public void setTag(String tag) { this.tag = tag.toUpperCase(Locale.ROOT); }
     public void setColor(ChatFormatting color) { this.color = color; }
     public int getWeeklyFee() { return weeklyFee; }
     public void setWeeklyFee(int fee) { this.weeklyFee = Math.max(0, Math.min(10000, fee)); }
+    public int getLastKnownRank() { return lastKnownRank; }
+    public void setLastKnownRank(int rank) { this.lastKnownRank = rank; }
 
     public GangReputation getReputation() {
         return GangReputation.getForLevel(gangLevel);

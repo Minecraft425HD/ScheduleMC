@@ -36,19 +36,19 @@ public class PlantPotData {
     private CocaPlantData cocaPlant;
     private PoppyPlantData poppyPlant;
     private MushroomPlantData mushroomPlant;
-    private boolean hasSoil;  // NOPMD
-    private boolean hasMist;  // NOPMD
+    private boolean hasSoil;
+    private boolean hasMist;
 
     public PlantPotData(PotType potType) {
         this.potType = potType;
         this.waterLevel = 0;
         this.soilLevel = 0;
         this.soilLevelAtPlanting = 0;
-        this.plant = null;  // NOPMD
-        this.cannabisPlant = null;  // NOPMD
-        this.cocaPlant = null;  // NOPMD
-        this.poppyPlant = null;  // NOPMD
-        this.mushroomPlant = null;  // NOPMD
+        this.plant = null;
+        this.cannabisPlant = null;
+        this.cocaPlant = null;
+        this.poppyPlant = null;
+        this.mushroomPlant = null;
         this.hasSoil = false;
         this.hasMist = false;
     }
@@ -332,7 +332,7 @@ public class PlantPotData {
         }
 
         TobaccoPlantData harvested = plant;
-        plant = null;  // NOPMD
+        plant = null;
         // Resterde bleibt im Topf!
         return harvested;
     }
@@ -347,7 +347,7 @@ public class PlantPotData {
         }
 
         CannabisPlantData harvested = cannabisPlant;
-        cannabisPlant = null;  // NOPMD
+        cannabisPlant = null;
         // Resterde bleibt im Topf!
         return harvested;
     }
@@ -362,7 +362,7 @@ public class PlantPotData {
         }
 
         CocaPlantData harvested = cocaPlant;
-        cocaPlant = null;  // NOPMD
+        cocaPlant = null;
         // Resterde bleibt im Topf!
         return harvested;
     }
@@ -377,7 +377,7 @@ public class PlantPotData {
         }
 
         PoppyPlantData harvested = poppyPlant;
-        poppyPlant = null;  // NOPMD
+        poppyPlant = null;
         // Resterde bleibt im Topf!
         return harvested;
     }
@@ -397,7 +397,7 @@ public class PlantPotData {
         boolean moreFlushes = mushroomPlant.harvest();
 
         if (!moreFlushes) {
-            mushroomPlant = null;  // NOPMD
+            mushroomPlant = null;
             hasMist = false;
         }
 
@@ -408,11 +408,11 @@ public class PlantPotData {
      * Entfernt die Pflanze (ohne Ernte-Bedingungen)
      */
     public void clearPlant() {
-        this.plant = null;  // NOPMD
-        this.cannabisPlant = null;  // NOPMD
-        this.cocaPlant = null;  // NOPMD
-        this.poppyPlant = null;  // NOPMD
-        this.mushroomPlant = null;  // NOPMD
+        this.plant = null;
+        this.cannabisPlant = null;
+        this.cocaPlant = null;
+        this.poppyPlant = null;
+        this.mushroomPlant = null;
         this.soilLevelAtPlanting = 0; // Reset HUD-Basis
     }
 

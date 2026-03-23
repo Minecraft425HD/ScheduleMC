@@ -59,8 +59,6 @@ public class NegotiationScoreCalculator {
     private NPCPersonalityTrait trait;
     private int addictionLevel;
     private int walletBalance;
-    private double requiredBudget;  // NOPMD
-
     // ═══════════════════════════════════════════════════════════
     // CALCULATION
     // ═══════════════════════════════════════════════════════════
@@ -104,7 +102,6 @@ public class NegotiationScoreCalculator {
 
         // 5. Wallet Capacity (kann sich NPC das leisten?)
         walletBalance = npcData.getWallet();
-        requiredBudget = estimatedPrice;
         walletScore = calculateWalletScore(walletBalance, estimatedPrice, personality);
 
         // Gesamt-Score berechnen

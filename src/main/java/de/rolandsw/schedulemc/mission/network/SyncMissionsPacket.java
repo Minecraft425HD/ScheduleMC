@@ -46,7 +46,7 @@ public class SyncMissionsPacket {
     }
 
     @net.minecraftforge.api.distmarker.OnlyIn(Dist.CLIENT)
-    private void handleClient() {  // NOPMD
+    private void handleClient() {
         ClientMissionCache.update(missions);
     }
 

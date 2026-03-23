@@ -162,7 +162,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
     /**
      * Callback wenn der NPC-Name geändert wird
      */
-    private void onNameChanged(String newName) {  // NOPMD
+    private void onNameChanged(String newName) {
         // Update Spawn-Button Aktivierung
         boolean nameTaken = ClientNPCNameCache.isNameTaken(newName);
         spawnButton.active = !nameTaken && !newName.isBlank();

@@ -11,9 +11,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ClientPlayerSettings {
 
     // volatile für korrekte Memory Visibility zwischen Packet-Thread und Render-Thread
-    public static volatile boolean utilityWarningsEnabled = true;  // NOPMD
-    public static volatile double electricityThreshold = 100.0;  // NOPMD
-    public static volatile double waterThreshold = 500.0;  // NOPMD
+    public static volatile boolean utilityWarningsEnabled = true;
+    public static volatile double electricityThreshold = 100.0;
+    public static volatile double waterThreshold = 500.0;
 
     /**
      * Aktualisiert alle Settings atomar (verhindert teilweise Updates durch Race Conditions)

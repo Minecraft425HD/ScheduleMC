@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.economy;
 
+import java.util.Locale;
+
 /**
  * MarketCondition - Verschiedene Marktzustände die Preise beeinflussen
  *
@@ -188,7 +190,7 @@ public enum MarketCondition {
      * Übersetzungsschlüssel für Lokalisierung
      */
     public String getTranslationKey() {
-        return "market." + name().toLowerCase();
+        return "market." + name().toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -196,7 +198,7 @@ public enum MarketCondition {
      */
     public static MarketCondition fromName(String name) {
         try {
-            return valueOf(name.toUpperCase());
+            return valueOf(name.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             return NORMAL;
         }

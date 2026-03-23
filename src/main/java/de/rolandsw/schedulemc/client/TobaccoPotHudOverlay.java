@@ -360,7 +360,7 @@ public class TobaccoPotHudOverlay {
     /**
      * Gibt Pflanzen-Info als String zurück
      */
-    private static String getPlantInfo(PlantPotData potData) {  // NOPMD
+    private static String getPlantInfo(PlantPotData potData) {
         if (potData.hasTobaccoPlant()) {
             var plant = potData.getPlant();
             return plant.getType().getColoredName() + " §7| " + plant.getQuality().getColoredName();
@@ -428,7 +428,7 @@ public class TobaccoPotHudOverlay {
     /**
      * Ressourcen-Balken mit 5 Segmenten
      */
-    private static void drawResourceBar(GuiGraphics guiGraphics, int x, int y, float fillRatio, int color) {  // NOPMD
+    private static void drawResourceBar(GuiGraphics guiGraphics, int x, int y, float fillRatio, int color) {
         // Hintergrund
         guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF1A1A1A);
 
@@ -454,7 +454,7 @@ public class TobaccoPotHudOverlay {
     /**
      * Fortschritts-Balken (Wachstum)
      */
-    private static void drawProgressBar(GuiGraphics guiGraphics, int x, int y, int percent, boolean fullyGrown) {  // NOPMD
+    private static void drawProgressBar(GuiGraphics guiGraphics, int x, int y, int percent, boolean fullyGrown) {
         int color = fullyGrown ? 0xFF4CAF50 : 0xFFFDD835;
 
         // Hintergrund

@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, CreditLoan>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile CreditLoanManager instance;  // NOPMD
+    private static volatile CreditLoanManager instance;
 
     private static final double MIN_BALANCE_FOR_LOAN = 1000.0;
 

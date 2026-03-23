@@ -577,7 +577,7 @@ public class BankAppScreen extends Screen {
     // TAB 3: ÜBERWEISUNG
     // ═══════════════════════════════════════════════════════════
 
-    private void renderTransferTab(GuiGraphics guiGraphics, int startY, int endY) {  // NOPMD
+    private void renderTransferTab(GuiGraphics guiGraphics, int startY, int endY) {
         // PERFORMANCE: gecachte Strings
         guiGraphics.drawString(this.font, cachedAvailableLabel, leftPos + 15, startY, 0xAAAAAA);
         guiGraphics.drawString(this.font, cachedBalanceStr, leftPos + 110, startY, 0xFFAA00);

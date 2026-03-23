@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Rate Limiter für DoS-Protection
@@ -30,6 +31,10 @@ public class RateLimiter {
     private final int maxOperationsPerWindow;
     private final long windowSizeMs;
     private final String operationName;
+
+    // Lazy-Cleanup: alle LAZY_CLEANUP_EVERY Operationen werden veraltete Einträge entfernt
+    private final AtomicLong operationCounter = new AtomicLong(0);
+    private static final long LAZY_CLEANUP_EVERY = 5_000L;
 
     /**
      * Erstellt einen neuen Rate Limiter
@@ -86,6 +91,12 @@ public class RateLimiter {
                     playerUUID, operationName, currentCount - 1, windowSizeMs, maxOperationsPerWindow);
             }
             return false;
+        }
+
+        // Lazy-Cleanup: periodisch veraltete Einträge entfernen,
+        // auch wenn startAutoCleanup() nicht aufgerufen wurde
+        if (operationCounter.incrementAndGet() % LAZY_CLEANUP_EVERY == 0) {
+            cleanupOldEntries(windowSizeMs * 10);
         }
 
         return true;
@@ -161,7 +172,7 @@ public class RateLimiter {
      * Operation Window für Sliding Window Rate Limiting
      */
     private static class OperationWindow {
-        volatile long windowStart;  // NOPMD
+        volatile long windowStart;
         final AtomicInteger count;
 
         OperationWindow(long windowStart) {

@@ -29,7 +29,7 @@ public class MapEventBus {
     private final Map<Class<? extends MapEvent>, List<Consumer<? extends MapEvent>>> listeners;
 
     // Performance metrics
-    private volatile long totalEventsDispatched = 0;  // NOPMD
+    private volatile long totalEventsDispatched = 0;
 
     private MapEventBus() {
         this.listeners = new ConcurrentHashMap<>();

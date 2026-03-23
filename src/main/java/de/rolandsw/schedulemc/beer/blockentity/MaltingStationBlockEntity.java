@@ -104,7 +104,7 @@ public class MaltingStationBlockEntity extends BlockEntity implements IUtilityCo
             maltingProgress = 0;
         } else if (handlerInput.isEmpty()) {
             inputStack = ItemStack.EMPTY;
-            quality = null;  // NOPMD
+            quality = null;
             maltingProgress = 0;
         } else {
             inputStack = handlerInput.copy();

@@ -331,7 +331,7 @@ public class WarehouseBlockEntity extends BlockEntity {
     // ═══════════════════════════════════════════════════════════
 
     public WarehouseSlot[] getSlots() {
-        return slots;  // NOPMD
+        return slots;
     }
 
     /**

@@ -7,9 +7,10 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
@@ -31,7 +32,7 @@ public class FuelStationRegistry {
     // BlockPos → UUID (für schnelle Lookup)
     private static Map<BlockPos, UUID> positionToId = new ConcurrentHashMap<>();
     // SICHERHEIT: volatile für Memory Visibility
-    private static volatile boolean isDirty = false;  // NOPMD
+    private static volatile boolean isDirty = false;
 
     /**
      * Lädt Registry vom Disk
@@ -42,7 +43,7 @@ public class FuelStationRegistry {
             return;
         }
 
-        try (FileReader reader = new FileReader(REGISTRY_FILE)) {
+        try (BufferedReader reader = Files.newBufferedReader(REGISTRY_FILE.toPath(), StandardCharsets.UTF_8)) {
             List<FuelStationEntry> loaded = GSON.fromJson(reader,
                 new TypeToken<List<FuelStationEntry>>(){}.getType());
 
@@ -68,7 +69,7 @@ public class FuelStationRegistry {
         try {
             List<FuelStationEntry> toSave = new ArrayList<>(fuelStations.values());
             File tempFile = new File(REGISTRY_FILE.getParent(), REGISTRY_FILE.getName() + ".tmp");
-            try (FileWriter writer = new FileWriter(tempFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile.toPath(), StandardCharsets.UTF_8)) {
                 GSON.toJson(toSave, writer);
                 writer.flush();
             }

@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.coffee.items;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.coffee.CoffeeType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -122,4 +123,40 @@ public class CoffeeItems {
 
     public static final RegistryObject<Item> ESPRESSO =
         ITEMS.register("espresso", EspressoItem::new);
+
+    /** Maps CoffeeType → correct cherry Item */
+    public static Item getCherryForType(CoffeeType type) {
+        return switch (type) {
+            case ROBUSTA -> ROBUSTA_CHERRY.get();
+            case LIBERICA -> LIBERICA_CHERRY.get();
+            case EXCELSA -> EXCELSA_CHERRY.get();
+            default -> ARABICA_CHERRY.get();
+        };
+    }
+
+    /** Maps CoffeeType → correct green bean Item */
+    public static Item getGreenBeanForType(CoffeeType type) {
+        return switch (type) {
+            case ROBUSTA -> GREEN_ROBUSTA_BEANS.get();
+            case LIBERICA -> GREEN_LIBERICA_BEANS.get();
+            case EXCELSA -> GREEN_EXCELSA_BEANS.get();
+            default -> GREEN_ARABICA_BEANS.get();
+        };
+    }
+
+    /** Reads CoffeeType from a cherry ItemStack (based on which item it is) */
+    public static CoffeeType getTypeFromCherry(ItemStack stack) {
+        if (stack.is(ROBUSTA_CHERRY.get())) return CoffeeType.ROBUSTA;
+        if (stack.is(LIBERICA_CHERRY.get())) return CoffeeType.LIBERICA;
+        if (stack.is(EXCELSA_CHERRY.get())) return CoffeeType.EXCELSA;
+        return CoffeeType.ARABICA;
+    }
+
+    /** Reads CoffeeType from a green bean ItemStack (based on which item it is) */
+    public static CoffeeType getTypeFromGreenBean(ItemStack stack) {
+        if (stack.is(GREEN_ROBUSTA_BEANS.get())) return CoffeeType.ROBUSTA;
+        if (stack.is(GREEN_LIBERICA_BEANS.get())) return CoffeeType.LIBERICA;
+        if (stack.is(GREEN_EXCELSA_BEANS.get())) return CoffeeType.EXCELSA;
+        return CoffeeType.ARABICA;
+    }
 }

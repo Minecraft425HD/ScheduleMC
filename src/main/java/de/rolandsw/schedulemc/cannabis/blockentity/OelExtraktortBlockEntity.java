@@ -33,13 +33,13 @@ public class OelExtraktortBlockEntity extends BlockEntity implements IUtilityCon
     public static final float TRIM_CONVERSION_RATE = 0.08f; // 10g Trim -> 0.8ml Öl
 
     private int materialWeight = 0;
-    private boolean isFromBuds = false; // true = Buds, false = Trim  // NOPMD
+    private boolean isFromBuds = false; // true = Buds, false = Trim
     private CannabisStrain strain = CannabisStrain.HYBRID;
     private CannabisQuality baseQuality = CannabisQuality.GUT;
     private int solventCount = 0;
 
     private int extractionProgress = 0;
-    private boolean isExtracting = false;  // NOPMD
+    private boolean isExtracting = false;
     private ItemStack outputItem = ItemStack.EMPTY;
 
     public OelExtraktortBlockEntity(BlockPos pos, BlockState state) {

@@ -30,6 +30,7 @@ import java.util.UUID;
  * - NPCLeisureTool (1 Map)
  * - NPCPatrolTool (1 Map)
  * - TerritoryTracker (2 Maps: lastTerritory, lastNotificationTime)
+ * - economy.RateLimiter (1 Map: trackers)
  *
  * SICHERHEIT: Thread-safe da alle cleanup() Methoden ConcurrentHashMap verwenden
  */
@@ -73,6 +74,13 @@ public class PlayerDisconnectHandler {
 
             // Cleanup Territory Tracker
             TerritoryTracker.cleanupPlayer(playerUUID);
+
+            // Cleanup Mission Scenario Executor + Proximity Checker
+            de.rolandsw.schedulemc.mission.scenario.PlayerMissionScenarioExecutor.clearPlayerState(playerUUID);
+            de.rolandsw.schedulemc.mission.proximity.NPCProximityChecker.clearPlayerState(playerUUID);
+
+            // Cleanup Economy Rate Limiter (verhindert Memory-Leak bei vielen Spieler-Wechseln)
+            de.rolandsw.schedulemc.economy.RateLimiter.clearPlayer(playerUUID);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("[CLEANUP] Successfully cleaned up all data for player {}", playerName);

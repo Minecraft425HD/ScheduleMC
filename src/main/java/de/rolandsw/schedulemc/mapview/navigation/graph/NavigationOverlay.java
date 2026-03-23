@@ -20,17 +20,17 @@ public class NavigationOverlay {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile NavigationOverlay instance;  // NOPMD
+    private static volatile NavigationOverlay instance;
 
     private final RoadPathRenderer pathRenderer;
     private RoadNavigationService navigationService;
     // SICHERHEIT: volatile für Thread-Safety (tick() vs initialize())
-    private volatile boolean initialized = false;  // NOPMD
+    private volatile boolean initialized = false;
 
     // Letzter bekannter Pfad-Index für Change-Detection
     // SICHERHEIT: volatile für Memory Visibility zwischen Threads
-    private volatile int lastPathIndex = -1;  // NOPMD
-    private volatile int lastPathSize = 0;  // NOPMD
+    private volatile int lastPathIndex = -1;
+    private volatile int lastPathSize = 0;
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -298,6 +298,6 @@ public class NavigationOverlay {
             navigationService.shutdown();
         }
         initialized = false;
-        instance = null;  // NOPMD
+        instance = null;
     }
 }

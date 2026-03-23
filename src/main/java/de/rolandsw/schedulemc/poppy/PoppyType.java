@@ -5,6 +5,8 @@ import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
+
 /**
  * Mohn-Sorten mit unterschiedlichen Eigenschaften
  */
@@ -31,7 +33,7 @@ public enum PoppyType implements ProductionType {
     }
 
     public String getDisplayName() {
-        return Component.translatable("enum.poppy_type." + this.name().toLowerCase()).getString();
+        return Component.translatable("enum.poppy_type." + this.name().toLowerCase(Locale.ROOT)).getString();
     }
 
     public String getColorCode() {

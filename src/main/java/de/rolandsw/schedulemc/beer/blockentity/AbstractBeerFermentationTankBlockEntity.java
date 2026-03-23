@@ -120,7 +120,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends BlockEntit
             fermentationProgress = 0;
         } else if (handlerBeer.isEmpty()) {
             unfermentedBeerStack = ItemStack.EMPTY;
-            quality = null;  // NOPMD
+            quality = null;
             fermentationProgress = 0;
         } else {
             unfermentedBeerStack = handlerBeer.copy();

@@ -27,10 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NPCSocialInteractionManager {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static volatile NPCSocialInteractionManager instance;  // NOPMD
+    private static volatile NPCSocialInteractionManager instance;
 
     private static final double INTERACTION_RANGE = 8.0; // Bloecke
-    private static final int TICK_INTERVAL = 200; // 10 Sekunden  // NOPMD
 
     // NPC-Beziehungen: NPC1-UUID -> NPC2-UUID -> Beziehungswert (-100 bis 100)
     private final Map<UUID, Map<UUID, Integer>> npcRelations = new ConcurrentHashMap<>();

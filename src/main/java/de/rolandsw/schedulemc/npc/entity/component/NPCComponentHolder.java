@@ -25,9 +25,9 @@ public class NPCComponentHolder {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private final Map<String, NPCComponent> components = new LinkedHashMap<>();  // NOPMD
+    private final Map<String, NPCComponent> components = new LinkedHashMap<>();
     private final Map<Class<? extends NPCComponent>, NPCComponent> byType = new ConcurrentHashMap<>();
-    private final Map<String, Integer> tickCounters = new HashMap<>();  // NOPMD
+    private final Map<String, Integer> tickCounters = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════
     // COMPONENT MANAGEMENT

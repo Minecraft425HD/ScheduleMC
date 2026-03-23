@@ -102,9 +102,9 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
             bottlingProgress = 0;
         } else if (handlerWineInput.isEmpty()) {
             wineInput = ItemStack.EMPTY;
-            wineType = null;  // NOPMD
-            quality = null;  // NOPMD
-            ageLevel = null;  // NOPMD
+            wineType = null;
+            quality = null;
+            ageLevel = null;
             bottlingProgress = 0;
         }
 

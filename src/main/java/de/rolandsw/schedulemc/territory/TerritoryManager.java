@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TerritoryManager extends AbstractPersistenceManager<Map<Long, Territory>> {
     // SICHERHEIT: volatile für Double-Checked Locking Pattern
-    private static volatile TerritoryManager instance;  // NOPMD
+    private static volatile TerritoryManager instance;
 
     // ChunkKey -> Territory
     private final Map<Long, Territory> territories = new ConcurrentHashMap<>();
