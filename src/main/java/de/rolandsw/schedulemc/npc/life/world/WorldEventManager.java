@@ -159,7 +159,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
     /**
      * Versucht ein neues Event zu generieren
      */
-    private void tryGenerateEvent(ServerLevel level, long _currentDay) {
+    private void tryGenerateEvent(ServerLevel _level, long _currentDay) {
         if (activeEvents.size() >= MAX_ACTIVE_EVENTS) {
             return;
         }

@@ -54,7 +54,6 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
     private boolean waitingForPress = false;
 
     private ItemStack outputItem = ItemStack.EMPTY;
-    private int outputCount = 0;
 
     private UUID activePlayer = null;
     private double lastTimingScore = 0;
@@ -179,7 +178,6 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
         bindemittelCount -= pillsToMake;
 
         outputItem = EcstasyPillItem.create(finalQuality, selectedDesign, selectedColor, pillsToMake);
-        outputCount = pillsToMake;
 
         isMinigameActive = false;
         activePlayer = null;
@@ -195,7 +193,6 @@ public class PillenPresseBlockEntity extends BlockEntity implements IUtilityCons
 
         ItemStack result = outputItem.copy();
         outputItem = ItemStack.EMPTY;
-        outputCount = 0;
         setChanged();
         if (level != null) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);

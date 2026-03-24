@@ -24,8 +24,6 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
     private EditBox amountInput;
     private Button withdrawModeButton;
     private Button depositModeButton;
-    private Button confirmButton;
-
     // Quick amount buttons
     private Button[] quickButtons;
     private static final double[] QUICK_AMOUNTS = {50, 100, 200, 500, 1000, 5000};
@@ -104,7 +102,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
         addRenderableWidget(amountInput);
 
         // Confirm Button for custom amount
-        confirmButton = addRenderableWidget(Button.builder(
+        addRenderableWidget(Button.builder(
             Component.literal("OK"),
             button -> executeCustomAmount()
         ).bounds(x + 130, y + 155, 55, 18).build());

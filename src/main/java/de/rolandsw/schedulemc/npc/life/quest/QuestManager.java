@@ -79,8 +79,6 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
-
     /** Registrierte Quest-Vorlagen: Template ID -> Template (TRANSIENT - nicht persistiert) */
     private final Map<String, QuestTemplate> questTemplates = new ConcurrentHashMap<>();
 
@@ -102,7 +100,6 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             server.getServerDirectory().toPath().resolve("config").resolve("npc_life_quests.json").toFile(),
             GsonHelper.get()
         );
-        this.server = server;
         load();
         registerDefaultTemplates();  // NOPMD
     }

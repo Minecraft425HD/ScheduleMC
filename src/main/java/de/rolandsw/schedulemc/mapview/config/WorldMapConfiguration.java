@@ -13,8 +13,6 @@ public class WorldMapConfiguration implements SubSettingsManager {
     protected int mapX;
     protected int mapZ;
     protected float zoom = 4.0F;
-    private float minZoomPower = -1.0F;
-    private float maxZoomPower = 4.0F;
     protected float minZoom = 0.5F;
     protected float maxZoom = 16.0F;
     protected int cacheSize = 500;
@@ -37,16 +35,6 @@ public class WorldMapConfiguration implements SubSettingsManager {
                 sCurrentLine = in.readLine();
             }
         } catch (IOException ignored) {}
-
-        for (int power = -3; power <= 5; ++power) {
-            if (Math.pow(2.0, power) == this.minZoom) {
-                this.minZoomPower = power;  // NOPMD
-            }
-
-            if (Math.pow(2.0, power) == this.maxZoom) {
-                this.maxZoomPower = power;  // NOPMD
-            }
-        }
 
         this.bindCacheSize();
         this.bindZoom();

@@ -31,7 +31,6 @@ public class NPCLifeSystemSavedData extends SavedData {
     // ═══════════════════════════════════════════════════════════
 
     private final ServerLevel level;
-    private CompoundTag cachedData;
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
@@ -39,12 +38,10 @@ public class NPCLifeSystemSavedData extends SavedData {
 
     public NPCLifeSystemSavedData(ServerLevel level) {
         this.level = level;
-        this.cachedData = new CompoundTag();
     }
 
     private NPCLifeSystemSavedData(ServerLevel level, CompoundTag tag) {
         this.level = level;
-        this.cachedData = tag.copy();
         loadFromTag(tag);
     }
 
