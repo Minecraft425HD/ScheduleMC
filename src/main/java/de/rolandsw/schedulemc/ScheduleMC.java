@@ -416,7 +416,7 @@ public class ScheduleMC {
         event.put(NPCEntities.CUSTOM_NPC.get(), CustomNPCEntity.createAttributes().build());
     }
 
-    private void onConfigReload(ModConfigEvent event) {
+    private void onConfigReload(ModConfigEvent _event) {
         ConfigCache.invalidate();
         NPCPathNavigation.reloadConfig();
     }
