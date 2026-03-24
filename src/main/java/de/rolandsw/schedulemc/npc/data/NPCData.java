@@ -52,17 +52,10 @@ public class NPCData {
     private List<BlockPos> leisureLocations; // Bis zu 10 Freizeitorte in der Stadt
 
     // Police Patrol System (nur für POLIZEI NPCs)
-    @Nullable
-    private BlockPos policeStation;  // Polizeistation
-    private List<BlockPos> patrolPoints; // Bis zu 16 Patrouillenpunkte
-    private int currentPatrolIndex; // Aktueller Patrol-Index
-    private long patrolArrivalTime; // Letzte Ankunftszeit am Patrol-Punkt
-    private long stationArrivalTime; // Letzte Ankunftszeit an der Station
+    private NPCPoliceData policeData;
 
     // Schedule - Zeiteinstellungen (in Minecraft Ticks, 24000 = 1 Tag)
-    private long workStartTime;  // Wann geht NPC zur Arbeit (Standard: 0 = 6:00 Uhr)
-    private long workEndTime;    // Wann endet die Arbeit (Standard: 13000 = 19:00 Uhr)
-    private long homeTime;       // Wann muss NPC nach Hause (Standard: 23000 = 5:00 Uhr morgens)
+    private NPCScheduleData scheduleData;
 
     // Inventar und Geldbörse (nur für BEWOHNER und VERKAEUFER, nicht für POLIZEI)
     private NonNullList<ItemStack> inventory; // 9 Slots wie Hotbar
@@ -87,15 +80,8 @@ public class NPCData {
         this.customData = new CompoundTag();
         this.behavior = new NPCBehavior();
         this.leisureLocations = new ArrayList<>();
-        // Police Patrol System
-        this.patrolPoints = new ArrayList<>();
-        this.currentPatrolIndex = 0;
-        this.patrolArrivalTime = 0;
-        this.stationArrivalTime = 0;
-        // Standard-Zeiten (Minecraft Ticks: 0 = 6:00, 6000 = 12:00, 12000 = 18:00, 18000 = 0:00)
-        this.workStartTime = 0;      // 6:00 Uhr morgens
-        this.workEndTime = 13000;    // 19:00 Uhr abends
-        this.homeTime = 23000;       // 5:00 Uhr morgens (Zeit zum Schlafen)
+        this.policeData = new NPCPoliceData();
+        this.scheduleData = new NPCScheduleData();
         // Inventar und Geldbörse
         this.inventory = NonNullList.withSize(9, ItemStack.EMPTY); // 9 Slots wie Hotbar
         this.wallet = 0;
@@ -185,25 +171,11 @@ public class NPCData {
     }
 
     private void savePolicePatrolData(CompoundTag tag) {
-        if (policeStation != null) {
-            tag.putLong("PoliceStation", policeStation.asLong());
-        }
-        ListTag patrolList = new ListTag();
-        for (BlockPos pos : patrolPoints) {
-            CompoundTag posTag = new CompoundTag();
-            posTag.putLong("Pos", pos.asLong());
-            patrolList.add(posTag);
-        }
-        tag.put("PatrolPoints", patrolList);
-        tag.putInt("CurrentPatrolIndex", currentPatrolIndex);
-        tag.putLong("PatrolArrivalTime", patrolArrivalTime);
-        tag.putLong("StationArrivalTime", stationArrivalTime);
+        policeData.save(tag);
     }
 
     private void saveScheduleData(CompoundTag tag) {
-        tag.putLong("WorkStartTime", workStartTime);
-        tag.putLong("WorkEndTime", workEndTime);
-        tag.putLong("HomeTime", homeTime);
+        scheduleData.save(tag);
     }
 
     private void saveInventoryData(CompoundTag tag) {
@@ -291,38 +263,11 @@ public class NPCData {
     }
 
     private void loadPolicePatrolData(CompoundTag tag) {
-        if (tag.contains("PoliceStation")) {
-            policeStation = BlockPos.of(tag.getLong("PoliceStation"));
-        }
-        patrolPoints.clear();
-        if (tag.contains("PatrolPoints")) {
-            ListTag patrolList = tag.getList("PatrolPoints", Tag.TAG_COMPOUND);
-            for (int i = 0; i < patrolList.size(); i++) {
-                CompoundTag posTag = patrolList.getCompound(i);
-                patrolPoints.add(BlockPos.of(posTag.getLong("Pos")));
-            }
-        }
-        if (tag.contains("CurrentPatrolIndex")) {
-            currentPatrolIndex = tag.getInt("CurrentPatrolIndex");
-        }
-        if (tag.contains("PatrolArrivalTime")) {
-            patrolArrivalTime = tag.getLong("PatrolArrivalTime");
-        }
-        if (tag.contains("StationArrivalTime")) {
-            stationArrivalTime = tag.getLong("StationArrivalTime");
-        }
+        policeData.load(tag);
     }
 
     private void loadScheduleData(CompoundTag tag) {
-        if (tag.contains("WorkStartTime")) {
-            workStartTime = tag.getLong("WorkStartTime");
-        }
-        if (tag.contains("WorkEndTime")) {
-            workEndTime = tag.getLong("WorkEndTime");
-        }
-        if (tag.contains("HomeTime")) {
-            homeTime = tag.getLong("HomeTime");
-        }
+        scheduleData.load(tag);
     }
 
     private void loadInventoryData(CompoundTag tag) {
@@ -484,45 +429,41 @@ public class NPCData {
         leisureLocations.clear();
     }
 
+    public NPCScheduleData getScheduleData() {
+        return scheduleData;
+    }
+
     public long getWorkStartTime() {
-        return workStartTime;
+        return scheduleData.getWorkStartTime();
     }
 
     public void setWorkStartTime(long workStartTime) {
-        this.workStartTime = workStartTime;
+        scheduleData.setWorkStartTime(workStartTime);
     }
 
     public long getWorkEndTime() {
-        return workEndTime;
+        return scheduleData.getWorkEndTime();
     }
 
     public void setWorkEndTime(long workEndTime) {
-        this.workEndTime = workEndTime;
+        scheduleData.setWorkEndTime(workEndTime);
     }
 
     public long getHomeTime() {
-        return homeTime;
+        return scheduleData.getHomeTime();
     }
 
     public void setHomeTime(long homeTime) {
-        this.homeTime = homeTime;
+        scheduleData.setHomeTime(homeTime);
     }
 
     /**
-     * Prüft ob der NPC aktuell während seiner Arbeitszeit ist
+     * Prüft ob der NPC aktuell während seiner Arbeitszeit ist.
      * @param level Die Welt (für die aktuelle Zeit)
      * @return true wenn innerhalb der Arbeitszeit, sonst false
      */
     public boolean isWithinWorkingHours(net.minecraft.world.level.Level level) {
-        long currentTime = level.getDayTime() % 24000; // Aktuelle Tageszeit (0-24000)
-
-        // Spezialfall: Wenn die Arbeitszeit über Mitternacht geht (z.B. 22:00 - 6:00)
-        if (workEndTime < workStartTime) {
-            return currentTime >= workStartTime || currentTime <= workEndTime;
-        }
-
-        // Normalfall: Arbeitszeit innerhalb eines Tages
-        return currentTime >= workStartTime && currentTime <= workEndTime;
+        return scheduleData.isWithinWorkingHours(level);
     }
 
     // Inventar und Geldbörse (nur BEWOHNER und VERKAEUFER)
@@ -578,65 +519,63 @@ public class NPCData {
         return npcType == NPCType.BEWOHNER || npcType == NPCType.VERKAEUFER;
     }
 
-    // Police Patrol System Getters/Setters
+    // Police Patrol System — Getters/Setters (delegieren an NPCPoliceData)
+
+    public NPCPoliceData getPoliceData() {
+        return policeData;
+    }
+
     @Nullable
     public BlockPos getPoliceStation() {
-        return policeStation;
+        return policeData.getPoliceStation();
     }
 
     public void setPoliceStation(@Nullable BlockPos policeStation) {
-        this.policeStation = policeStation;
+        policeData.setPoliceStation(policeStation);
     }
 
     public List<BlockPos> getPatrolPoints() {
-        return patrolPoints;
+        return policeData.getPatrolPoints();
     }
 
     public void addPatrolPoint(BlockPos point) {
-        if (patrolPoints.size() < 16) {
-            patrolPoints.add(point);
-        }
+        policeData.addPatrolPoint(point);
     }
 
     public void removePatrolPoint(int index) {
-        if (index >= 0 && index < patrolPoints.size()) {
-            patrolPoints.remove(index);
-        }
+        policeData.removePatrolPoint(index);
     }
 
     public void clearPatrolPoints() {
-        patrolPoints.clear();
-        currentPatrolIndex = 0;
+        policeData.clearPatrolPoints();
     }
 
     public int getCurrentPatrolIndex() {
-        return currentPatrolIndex;
+        return policeData.getCurrentPatrolIndex();
     }
 
     public void setCurrentPatrolIndex(int index) {
-        this.currentPatrolIndex = index;
+        policeData.setCurrentPatrolIndex(index);
     }
 
     public void incrementPatrolIndex() {
-        if (!patrolPoints.isEmpty()) {
-            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.size();
-        }
+        policeData.incrementPatrolIndex();
     }
 
     public long getPatrolArrivalTime() {
-        return patrolArrivalTime;
+        return policeData.getPatrolArrivalTime();
     }
 
     public void setPatrolArrivalTime(long time) {
-        this.patrolArrivalTime = time;
+        policeData.setPatrolArrivalTime(time);
     }
 
     public long getStationArrivalTime() {
-        return stationArrivalTime;
+        return policeData.getStationArrivalTime();
     }
 
     public void setStationArrivalTime(long time) {
-        this.stationArrivalTime = time;
+        policeData.setStationArrivalTime(time);
     }
 
     /**
