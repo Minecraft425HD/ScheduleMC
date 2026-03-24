@@ -5,6 +5,8 @@ import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.ShopEntry;
+import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
@@ -60,7 +62,7 @@ public class OpenMerchantShopPacket {
                 // Prüfe ob es ein Verkäufer oder Abschlepper ist
                 if (npc.getNpcType() == NPCType.VERKAEUFER || npc.getNpcType() == NPCType.ABSCHLEPPER) {
                     // Prüfe ob NPC innerhalb der Arbeitszeiten ist
-                    if (!npc.getNpcData().isWithinWorkingHours(player.level())) {
+                    if (!npc.getNpcData().getScheduleData().isWithinWorkingHours(player.level())) {
                         player.sendSystemMessage(Component.translatable("message.npc.outside_working_hours")
                             .withStyle(ChatFormatting.RED));
                         return;
@@ -106,23 +108,23 @@ public class OpenMerchantShopPacket {
 
                     // Öffne Shop-GUI und sende Shop-Items zum Client
                     // Null-Safety: Prüfe ob BuyShop vorhanden ist
-                    if (npc.getNpcData().getBuyShop() == null) {
+                    if (npc.getNpcData().getShopData().getBuyShop() == null) {
                         player.sendSystemMessage(Component.translatable("message.npc.shop_unavailable")
                             .withStyle(ChatFormatting.RED));
                         return;
                     }
-                    List<NPCData.ShopEntry> shopItems = new ArrayList<>(npc.getNpcData().getBuyShop().getEntries());
+                    List<ShopEntry> shopItems = new ArrayList<>(npc.getNpcData().getShopData().getBuyShop().getEntries());
 
                     // Spezialbehandlung für Tankstelle: Füge unbezahlte Rechnungen hinzu
                     if (npc.getMerchantCategory() == MerchantCategory.TANKSTELLE) {
-                        List<NPCData.ShopEntry> billEntries = createFuelBillEntries(player);
+                        List<ShopEntry> billEntries = createFuelBillEntries(player);
                         shopItems.addAll(0, billEntries); // Am Anfang einfügen
                     }
 
                     // Spezialbehandlung für Abschlepper: Füge Towing-Rechnungen hinzu
                     // Slot 0 ist IMMER für Rechnungen reserviert (nur erste Rechnung anzeigen)
                     if (npc.getNpcType() == NPCType.ABSCHLEPPER) {
-                        List<NPCData.ShopEntry> towingBillEntries = createTowingBillEntries(player);
+                        List<ShopEntry> towingBillEntries = createTowingBillEntries(player);
                         // Füge nur den ersten Eintrag ein (entweder erste Rechnung oder "Keine Rechnungen")
                         if (!towingBillEntries.isEmpty()) {
                             shopItems.add(0, towingBillEntries.get(0)); // Nur Slot 0
@@ -174,8 +176,8 @@ public class OpenMerchantShopPacket {
     /**
      * Erstellt Shop-Einträge für unbezahlte Tankrechnungen
      */
-    private List<NPCData.ShopEntry> createFuelBillEntries(ServerPlayer player) {
-        List<NPCData.ShopEntry> billEntries = new ArrayList<>();
+    private List<ShopEntry> createFuelBillEntries(ServerPlayer player) {
+        List<ShopEntry> billEntries = new ArrayList<>();
 
         // Alle Tankstellen durchgehen
         for (UUID fuelStationId : FuelStationRegistry.getAllFuelStationIds()) {
@@ -205,7 +207,7 @@ public class OpenMerchantShopPacket {
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
                 // Erstelle Shop-Entry (Preis ist die Rechnungssumme)
-                NPCData.ShopEntry billEntry = new NPCData.ShopEntry(
+                ShopEntry billEntry = new ShopEntry(
                     billItem,
                     (int) Math.ceil(totalCost), // Preis aufgerundet
                     true, // Unbegrenzt verfügbar (ist ja eine Rechnung)
@@ -228,7 +230,7 @@ public class OpenMerchantShopPacket {
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
 
             // Erstelle Shop-Entry mit Preis 0
-            NPCData.ShopEntry noBillEntry = new NPCData.ShopEntry(
+            ShopEntry noBillEntry = new ShopEntry(
                 noBillItem,
                 0, // Preis: 0€
                 true,
@@ -244,8 +246,8 @@ public class OpenMerchantShopPacket {
     /**
      * Erstellt Shop-Einträge für unbezahlte Abschlepprechnungen
      */
-    private List<NPCData.ShopEntry> createTowingBillEntries(ServerPlayer player) {
-        List<NPCData.ShopEntry> billEntries = new ArrayList<>();
+    private List<ShopEntry> createTowingBillEntries(ServerPlayer player) {
+        List<ShopEntry> billEntries = new ArrayList<>();
 
         // Hole unbezahlte Abschlepprechnungen
         java.util.List<de.rolandsw.schedulemc.towing.TowingInvoiceData> unpaidInvoices =
@@ -273,7 +275,7 @@ public class OpenMerchantShopPacket {
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
                 // Erstelle Shop-Entry
-                NPCData.ShopEntry billEntry = new NPCData.ShopEntry(
+                ShopEntry billEntry = new ShopEntry(
                     billItem,
                     (int) Math.ceil(invoice.getAmount()), // Preis aufgerundet
                     true, // Unbegrenzt verfügbar
@@ -292,7 +294,7 @@ public class OpenMerchantShopPacket {
             noBillItem.setHoverName(Component.translatable("towing.no_invoices")
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
 
-            NPCData.ShopEntry noBillEntry = new NPCData.ShopEntry(
+            ShopEntry noBillEntry = new ShopEntry(
                 noBillItem,
                 0,
                 true,

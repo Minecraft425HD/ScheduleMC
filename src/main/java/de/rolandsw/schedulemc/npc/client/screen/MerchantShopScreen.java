@@ -4,6 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.ShopEntry;
+import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.menu.MerchantShopMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
@@ -150,9 +152,9 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
      */
     private void loadShopItems() {
         shopItemRows.clear();
-        List<NPCData.ShopEntry> items = menu.getShopItems();
+        List<ShopEntry> items = menu.getShopItems();
 
-        for (NPCData.ShopEntry entry : items) {
+        for (ShopEntry entry : items) {
             ShopItemRow row = new ShopItemRow();
             row.item = entry.getItem().copy(); // Kopie erstellen
             row.pricePerItem = entry.getPrice();

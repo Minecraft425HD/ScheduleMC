@@ -380,7 +380,7 @@ public class StandardActions {
             isHiding = false;
 
             // Versteck-Punkt suchen (Zuhause oder geschlossener Raum)
-            var homePos = npc.getNpcData().getHomeLocation();
+            var homePos = npc.getNpcData().getLocationData().getHomeLocation();
             if (homePos != null) {
                 hideSpot = homePos;
             } else {

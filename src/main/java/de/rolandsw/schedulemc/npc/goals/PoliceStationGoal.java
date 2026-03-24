@@ -46,14 +46,14 @@ public class PoliceStationGoal extends Goal {
         }
 
         // Nur wenn eine Polizeistation gesetzt ist
-        BlockPos station = npc.getNpcData().getPoliceStation();
+        BlockPos station = npc.getNpcData().getPoliceData().getPoliceStation();
         if (station == null) {
             return false;
         }
 
         // NUR aktiv wenn KEINE Patrouillenpunkte gesetzt sind
         // (Wenn Patrouillenpunkte existieren, übernimmt PolicePatrolGoal)
-        if (!npc.getNpcData().getPatrolPoints().isEmpty()) {
+        if (!npc.getNpcData().getPoliceData().getPatrolPoints().isEmpty()) {
             return false;
         }
 
@@ -68,19 +68,19 @@ public class PoliceStationGoal extends Goal {
         }
 
         // Prüfe ob Patrouillenpunkte hinzugefügt wurden (dann stoppen)
-        if (!npc.getNpcData().getPatrolPoints().isEmpty()) {
+        if (!npc.getNpcData().getPoliceData().getPatrolPoints().isEmpty()) {
             return false;
         }
 
         // Wenn angekommen, prüfe ob Wartezeit abgelaufen
         if (hasArrived) {
             long currentTime = npc.level().getGameTime();
-            long arrivalTime = npc.getNpcData().getStationArrivalTime();
+            long arrivalTime = npc.getNpcData().getPoliceData().getStationArrivalTime();
             long waitTimeTicks = ModConfigHandler.COMMON.POLICE_STATION_WAIT_MINUTES.get() * 60 * 20; // Minuten → Ticks
 
             if (currentTime - arrivalTime >= waitTimeTicks) {
                 // Wartezeit vorbei - erneuere Wartezeit und bleibe an Station
-                npc.getNpcData().setStationArrivalTime(currentTime);
+                npc.getNpcData().getPoliceData().setStationArrivalTime(currentTime);
             }
         }
 
@@ -122,7 +122,7 @@ public class PoliceStationGoal extends Goal {
         if (!hasArrived && distanceToStation <= ARRIVAL_THRESHOLD) {
             // Gerade angekommen - speichere Ankunftszeit
             hasArrived = true;
-            npc.getNpcData().setStationArrivalTime(npc.level().getGameTime());
+            npc.getNpcData().getPoliceData().setStationArrivalTime(npc.level().getGameTime());
             npc.getNavigation().stop();
         }
 

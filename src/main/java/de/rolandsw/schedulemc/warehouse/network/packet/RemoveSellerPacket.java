@@ -54,7 +54,7 @@ public class RemoveSellerPacket {
             // Performance-Optimierung: O(1) UUID Lookup statt O(n) getAllEntities() Iteration
             CustomNPCEntity customNpc = NPCEntityRegistry.getNPCByUUID(msg.sellerId, level);
             if (customNpc != null && customNpc.getNpcData() != null) {
-                customNpc.getNpcData().setAssignedWarehouse(null);
+                customNpc.getNpcData().getLocationData().setAssignedWarehouse(null);
             }
 
             player.sendSystemMessage(Component.translatable("message.warehouse.seller_removed"));

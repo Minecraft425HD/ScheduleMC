@@ -117,7 +117,7 @@ public class BlockProtectionHandler {
 
             // Setze Arbeitsort nur für VERKAEUFER
             if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
-                npc.getNpcData().setWorkLocation(clickedPos);
+                npc.getNpcData().getLocationData().setWorkLocation(clickedPos);
                 player.sendSystemMessage(
                     Component.translatable("message.npc.workplace_set")
                         .withStyle(ChatFormatting.GREEN)
@@ -248,7 +248,7 @@ public class BlockProtectionHandler {
                     );
 
                     // Zeige aktuellen Status
-                    int leisureCount = npc.getNpcData().getLeisureLocations().size();
+                    int leisureCount = npc.getNpcData().getLocationData().getLeisureLocations().size();
                     player.sendSystemMessage(
                         Component.translatable("message.npc.leisure_count", leisureCount)
                             .withStyle(ChatFormatting.GRAY)
@@ -287,14 +287,14 @@ public class BlockProtectionHandler {
                     );
 
                     // Zeige aktuellen Status
-                    boolean hasStation = npc.getNpcData().getPoliceStation() != null;
-                    int patrolCount = npc.getNpcData().getPatrolPoints().size();
+                    boolean hasStation = npc.getNpcData().getPoliceData().getPoliceStation() != null;
+                    int patrolCount = npc.getNpcData().getPoliceData().getPatrolPoints().size();
 
                     if (hasStation) {
                         player.sendSystemMessage(
                             Component.translatable("message.npc.station_label")
                                 .withStyle(ChatFormatting.GRAY)
-                                .append(Component.literal(npc.getNpcData().getPoliceStation().toShortString())
+                                .append(Component.literal(npc.getNpcData().getPoliceData().getPoliceStation().toShortString())
                                     .withStyle(ChatFormatting.WHITE))
                                 .append(Component.translatable("message.npc.patrol_count_suffix", patrolCount)
                                     .withStyle(ChatFormatting.GRAY))
@@ -340,7 +340,7 @@ public class BlockProtectionHandler {
         // Befülle Cache
         for (CustomNPCEntity npc : npcs) {
             if (npc.getNpcData() == null) continue;
-            BlockPos workLocation = npc.getNpcData().getWorkLocation();
+            BlockPos workLocation = npc.getNpcData().getLocationData().getWorkLocation();
             if (workLocation != null) {
                 npcWorkLocationCache.put(workLocation, npc);
             }

@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.npc.menu;
 
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.ShopEntry;
+import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -20,7 +22,7 @@ public class MerchantShopMenu extends AbstractContainerMenu {
     private final CustomNPCEntity merchant;
     private final int entityId;
     private final MerchantCategory category;
-    private final List<NPCData.ShopEntry> shopItems; // Shop-Items (Client-Side verfügbar)
+    private final List<ShopEntry> shopItems; // Shop-Items (Client-Side verfügbar)
 
     // Server-Side Constructor
     public MerchantShopMenu(int id, Inventory playerInventory, CustomNPCEntity merchant) {  // NOPMD
@@ -28,7 +30,7 @@ public class MerchantShopMenu extends AbstractContainerMenu {
         this.merchant = merchant;
         this.entityId = merchant.getId();
         this.category = merchant.getMerchantCategory();
-        this.shopItems = merchant.getNpcData().getBuyShop().getEntries();
+        this.shopItems = merchant.getNpcData().getShopData().getBuyShop().getEntries();
 
         // Kein Player-Inventar in dieser GUI - nur Shop-Anzeige
     }
@@ -49,7 +51,7 @@ public class MerchantShopMenu extends AbstractContainerMenu {
             int price = extraData.readInt();
             boolean unlimited = extraData.readBoolean();
             int stock = extraData.readInt();
-            shopItems.add(new NPCData.ShopEntry(item, price, unlimited, stock));
+            shopItems.add(new ShopEntry(item, price, unlimited, stock));
         }
     }
 
@@ -79,7 +81,7 @@ public class MerchantShopMenu extends AbstractContainerMenu {
      * Gibt die verfügbaren Shop-Items für diese Kategorie zurück
      * Diese Liste ist sowohl auf Server als auch Client verfügbar
      */
-    public List<NPCData.ShopEntry> getShopItems() {
+    public List<ShopEntry> getShopItems() {
         return shopItems;
     }
 }

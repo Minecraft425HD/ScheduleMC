@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.warehouse.network.packet;
 
 import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.ShopEntry;
+import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
@@ -63,7 +65,7 @@ public class AddSellerPacket {
             }
 
             // Prüfe ob NPC bereits mit einem Warehouse verknüpft ist
-            BlockPos existingWarehouse = npc.getNpcData().getAssignedWarehouse();
+            BlockPos existingWarehouse = npc.getNpcData().getLocationData().getAssignedWarehouse();
             if (existingWarehouse != null) {
                 // Entferne alte Verknüpfung
                 BlockEntity oldBe = level.getBlockEntity(existingWarehouse);
@@ -74,7 +76,7 @@ public class AddSellerPacket {
             }
 
             // Erstelle bidirektionale Verknüpfung
-            npc.getNpcData().setAssignedWarehouse(msg.pos);
+            npc.getNpcData().getLocationData().setAssignedWarehouse(msg.pos);
             warehouse.addSeller(msg.sellerId);
             warehouse.setChanged();
 
@@ -99,23 +101,23 @@ public class AddSellerPacket {
     private static int syncNPCShopToWarehouse(CustomNPCEntity npc, WarehouseBlockEntity warehouse) {
         // Null-Checks: NPCData oder Shop könnten nicht initialisiert sein
         if (npc.getNpcData() == null) return 0;
-        NPCData.ShopInventory shop = npc.getNpcData().getBuyShop();
+        ShopInventory shop = npc.getNpcData().getShopData().getBuyShop();
         if (shop == null) return 0;
 
         // Hole Shop-Items des NPCs
-        List<NPCData.ShopEntry> originalEntries = shop.getEntries();
+        List<ShopEntry> originalEntries = shop.getEntries();
         if (originalEntries == null || originalEntries.isEmpty()) {
             return 0;
         }
 
         // Erstelle Kopie der Entries
-        List<NPCData.ShopEntry> entriesToProcess = new ArrayList<>(originalEntries);
+        List<ShopEntry> entriesToProcess = new ArrayList<>(originalEntries);
 
         WarehouseSlot[] slots = warehouse.getSlots();
         int itemsAdded = 0;
 
         // Verarbeite jedes Item - synchronisiere mit Warehouse
-        for (NPCData.ShopEntry entry : entriesToProcess) {
+        for (ShopEntry entry : entriesToProcess) {
             if (!entry.getItem().isEmpty()) {
                 Item item = entry.getItem().getItem();
                 boolean isUnlimited = entry.isUnlimited();

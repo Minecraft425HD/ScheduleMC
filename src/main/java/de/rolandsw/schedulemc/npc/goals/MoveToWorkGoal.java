@@ -40,7 +40,7 @@ public class MoveToWorkGoal extends Goal {
         }
 
         // Nur wenn eine Work Location gesetzt ist
-        BlockPos work = npc.getNpcData().getWorkLocation();
+        BlockPos work = npc.getNpcData().getLocationData().getWorkLocation();
         if (work == null) {
             return false;
         }
@@ -48,8 +48,8 @@ public class MoveToWorkGoal extends Goal {
         // Prüfe ob Arbeitszeit ist (einstellbare Zeiten)
         Level level = npc.level();
         long dayTime = level.getDayTime() % 24000;
-        long workStart = npc.getNpcData().getWorkStartTime();
-        long workEnd = npc.getNpcData().getWorkEndTime();
+        long workStart = npc.getNpcData().getScheduleData().getWorkStartTime();
+        long workEnd = npc.getNpcData().getScheduleData().getWorkEndTime();
 
         boolean isWorkTime = isTimeBetween(dayTime, workStart, workEnd);
 
@@ -115,8 +115,8 @@ public class MoveToWorkGoal extends Goal {
             // Prüfe ob noch Arbeitszeit ist
             Level level = npc.level();
             long dayTime = level.getDayTime() % 24000;
-            long workStart = npc.getNpcData().getWorkStartTime();
-            long workEnd = npc.getNpcData().getWorkEndTime();
+            long workStart = npc.getNpcData().getScheduleData().getWorkStartTime();
+            long workEnd = npc.getNpcData().getScheduleData().getWorkEndTime();
             return isTimeBetween(dayTime, workStart, workEnd);
         }
 
@@ -130,8 +130,8 @@ public class MoveToWorkGoal extends Goal {
 
         Level level = npc.level();
         long dayTime = level.getDayTime() % 24000;
-        long workStart = npc.getNpcData().getWorkStartTime();
-        long workEnd = npc.getNpcData().getWorkEndTime();
+        long workStart = npc.getNpcData().getScheduleData().getWorkStartTime();
+        long workEnd = npc.getNpcData().getScheduleData().getWorkEndTime();
 
         boolean isWorkTime = isTimeBetween(dayTime, workStart, workEnd);
 

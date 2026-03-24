@@ -272,8 +272,8 @@ public class NPCCommand {
         );
         player.sendSystemMessage(
             Component.translatable("message.npc.home_label").withStyle(ChatFormatting.GRAY)
-                .append(data.getHomeLocation() != null ?
-                    Component.literal(data.getHomeLocation().toShortString()).withStyle(ChatFormatting.GREEN) :
+                .append(data.getLocationData().getHomeLocation() != null ?
+                    Component.literal(data.getLocationData().getHomeLocation().toShortString()).withStyle(ChatFormatting.GREEN) :
                     Component.translatable("command.npc.not_set").withStyle(ChatFormatting.RED))
         );
 
@@ -281,8 +281,8 @@ public class NPCCommand {
         if (data.getNpcType() == NPCType.VERKAEUFER) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.workplace_label").withStyle(ChatFormatting.GRAY)
-                    .append(data.getWorkLocation() != null ?
-                        Component.literal(data.getWorkLocation().toShortString()).withStyle(ChatFormatting.GREEN) :
+                    .append(data.getLocationData().getWorkLocation() != null ?
+                        Component.literal(data.getLocationData().getWorkLocation().toShortString()).withStyle(ChatFormatting.GREEN) :
                         Component.translatable("command.npc.not_set").withStyle(ChatFormatting.RED))
             );
         } else if (data.getNpcType() == NPCType.BEWOHNER) {
@@ -293,7 +293,7 @@ public class NPCCommand {
             );
             player.sendSystemMessage(
                 Component.translatable("message.npc.leisure_locations_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(data.getLeisureLocations().size() + "/10")
+                    .append(Component.literal(data.getLocationData().getLeisureLocations().size() + "/10")
                         .withStyle(ChatFormatting.WHITE))
             );
         }
@@ -305,23 +305,23 @@ public class NPCCommand {
             // Verkäufer: Vollständiger Zeitplan
             player.sendSystemMessage(
                 Component.translatable("message.npc.work_start_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ticksToTime(data.getWorkStartTime()))
+                    .append(Component.literal(ticksToTime(data.getScheduleData().getWorkStartTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.translatable("message.npc.work_end_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ticksToTime(data.getWorkEndTime()))
+                    .append(Component.literal(ticksToTime(data.getScheduleData().getWorkEndTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.translatable("message.npc.home_time_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.translatable("message.common.from_time", ticksToTime(data.getHomeTime()))
+                    .append(Component.translatable("message.common.from_time", ticksToTime(data.getScheduleData().getHomeTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
         } else if (data.getNpcType() == NPCType.BEWOHNER) {
             // Bewohner: Nur Heimzeit (Schlafenszeit)
-            String homeStart = ticksToTime(data.getHomeTime());
-            String homeEnd = ticksToTime(data.getWorkStartTime()); // Aufstehzeit
+            String homeStart = ticksToTime(data.getScheduleData().getHomeTime());
+            String homeEnd = ticksToTime(data.getScheduleData().getWorkStartTime()); // Aufstehzeit
             player.sendSystemMessage(
                 Component.translatable("message.npc.sleep_time_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(homeStart + " - " + homeEnd)
@@ -337,24 +337,24 @@ public class NPCCommand {
             // Polizei oder andere: Alte Anzeige
             player.sendSystemMessage(
                 Component.translatable("message.npc.work_start_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ticksToTime(data.getWorkStartTime()))
+                    .append(Component.literal(ticksToTime(data.getScheduleData().getWorkStartTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.translatable("message.npc.work_end_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ticksToTime(data.getWorkEndTime()))
+                    .append(Component.literal(ticksToTime(data.getScheduleData().getWorkEndTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
             player.sendSystemMessage(
                 Component.translatable("message.npc.home_time_label").withStyle(ChatFormatting.GRAY)
-                    .append(Component.literal(ticksToTime(data.getHomeTime()))
+                    .append(Component.literal(ticksToTime(data.getScheduleData().getHomeTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
         }
 
         // Freizeitorte
         player.sendSystemMessage(Component.translatable("message.npc.leisure_header").withStyle(ChatFormatting.GOLD));
-        var leisureLocations = data.getLeisureLocations();
+        var leisureLocations = data.getLocationData().getLeisureLocations();
         if (leisureLocations.isEmpty()) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.no_leisure_defined").withStyle(ChatFormatting.GRAY)
@@ -456,9 +456,9 @@ public class NPCCommand {
 
         // Setze die Zeit
         switch (timeType) {
-            case "workstart" -> npc.getNpcData().setWorkStartTime(ticks);
-            case "workend" -> npc.getNpcData().setWorkEndTime(ticks);
-            case "home" -> npc.getNpcData().setHomeTime(ticks);
+            case "workstart" -> npc.getNpcData().getScheduleData().setWorkStartTime(ticks);
+            case "workend" -> npc.getNpcData().getScheduleData().setWorkEndTime(ticks);
+            case "home" -> npc.getNpcData().getScheduleData().setHomeTime(ticks);
             default -> {}
         }
 
@@ -502,7 +502,7 @@ public class NPCCommand {
             return 0;
         }
 
-        if (npc.getNpcData().getLeisureLocations().size() >= 10) {
+        if (npc.getNpcData().getLocationData().getLeisureLocations().size() >= 10) {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.leisure_max_reached").withStyle(ChatFormatting.RED)
             );
@@ -510,7 +510,7 @@ public class NPCCommand {
         }
 
         BlockPos playerPos = player.blockPosition();
-        npc.getNpcData().addLeisureLocation(playerPos);
+        npc.getNpcData().getLocationData().addLeisureLocation(playerPos);
 
         context.getSource().sendSuccess(
             () -> Component.translatable("message.npc.leisure_added").withStyle(ChatFormatting.GREEN)
@@ -546,15 +546,15 @@ public class NPCCommand {
             return 0;
         }
 
-        if (index >= npc.getNpcData().getLeisureLocations().size()) {
+        if (index >= npc.getNpcData().getLocationData().getLeisureLocations().size()) {
             context.getSource().sendFailure(
                 Component.translatable("message.npc.invalid_leisure_index").withStyle(ChatFormatting.RED)
             );
             return 0;
         }
 
-        BlockPos removed = npc.getNpcData().getLeisureLocations().get(index);
-        npc.getNpcData().removeLeisureLocation(index);
+        BlockPos removed = npc.getNpcData().getLocationData().getLeisureLocations().get(index);
+        npc.getNpcData().getLocationData().removeLeisureLocation(index);
 
         context.getSource().sendSuccess(
             () -> Component.translatable("message.npc.leisure_removed_label").withStyle(ChatFormatting.GREEN)
@@ -589,7 +589,7 @@ public class NPCCommand {
             return 0;
         }
 
-        var leisureLocations = npc.getNpcData().getLeisureLocations();
+        var leisureLocations = npc.getNpcData().getLocationData().getLeisureLocations();
 
         player.sendSystemMessage(
             Component.translatable("message.npc.leisure_of", npc.getNpcName())
@@ -635,7 +635,7 @@ public class NPCCommand {
             return 0;
         }
 
-        npc.getNpcData().clearLeisureLocations();
+        npc.getNpcData().getLocationData().clearLeisureLocations();
 
         context.getSource().sendSuccess(
             () -> Component.translatable("message.npc.all_leisure_removed").withStyle(ChatFormatting.GREEN)
@@ -1151,7 +1151,7 @@ public class NPCCommand {
                 return 0;
             }
 
-            npc.getNpcData().setAssignedWarehouse(warehousePos);
+            npc.getNpcData().getLocationData().setAssignedWarehouse(warehousePos);
 
             context.getSource().sendSuccess(() ->
                 Component.translatable("message.warehouse.linked")
@@ -1179,7 +1179,7 @@ public class NPCCommand {
                 return 0;
             }
 
-            npc.getNpcData().setAssignedWarehouse(null);
+            npc.getNpcData().getLocationData().setAssignedWarehouse(null);
 
             context.getSource().sendSuccess(() ->
                 Component.translatable("message.warehouse.unlinked")
@@ -1206,7 +1206,7 @@ public class NPCCommand {
                 return 0;
             }
 
-            BlockPos warehousePos = npc.getNpcData().getAssignedWarehouse();
+            BlockPos warehousePos = npc.getNpcData().getLocationData().getAssignedWarehouse();
             if (warehousePos == null) {
                 context.getSource().sendSuccess(() ->
                     Component.translatable("message.warehouse.info_header")

@@ -107,7 +107,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
 
         // Deaktiviere Kaufen-Button wenn NPC außerhalb der Arbeitszeiten ist
         if (npc != null && npc.getNpcData() != null && minecraft != null && minecraft.level != null) {
-            boolean withinWorkingHours = npc.getNpcData().isWithinWorkingHours(minecraft.level);
+            boolean withinWorkingHours = npc.getNpcData().getScheduleData().isWithinWorkingHours(minecraft.level);
             shopBuyButton.active = withinWorkingHours;
         }
 

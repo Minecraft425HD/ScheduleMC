@@ -149,7 +149,7 @@ public class NPCAPIImpl implements INPCAPI {
             throw new IllegalArgumentException("npc and homePos cannot be null");
         }
         // Access through npcData
-        npc.getNpcData().setHomeLocation(homePos);
+        npc.getNpcData().getLocationData().setHomeLocation(homePos);
     }
 
     /**
@@ -161,7 +161,7 @@ public class NPCAPIImpl implements INPCAPI {
             throw new IllegalArgumentException("npc and workPos cannot be null");
         }
         // Access through npcData
-        npc.getNpcData().setWorkLocation(workPos);
+        npc.getNpcData().getLocationData().setWorkLocation(workPos);
     }
 
     /**
@@ -238,7 +238,7 @@ public class NPCAPIImpl implements INPCAPI {
         if (npc == null || leisurePos == null) {
             throw new IllegalArgumentException("npc and leisurePos cannot be null");
         }
-        npc.getNpcData().addLeisureLocation(leisurePos);
+        npc.getNpcData().getLocationData().addLeisureLocation(leisurePos);
     }
 
     /**
@@ -268,9 +268,9 @@ public class NPCAPIImpl implements INPCAPI {
         int minutes = time % 100;
         long mcTicks = ((long)(hours - 6 + 24) % 24) * 1000L + (long)(minutes * 1000 / 60);
         switch (activity.toUpperCase(Locale.ROOT)) {
-            case "WORK_START" -> npc.getNpcData().setWorkStartTime(mcTicks);
-            case "WORK_END"   -> npc.getNpcData().setWorkEndTime(mcTicks);
-            case "HOME"       -> npc.getNpcData().setHomeTime(mcTicks);
+            case "WORK_START" -> npc.getNpcData().getScheduleData().setWorkStartTime(mcTicks);
+            case "WORK_END"   -> npc.getNpcData().getScheduleData().setWorkEndTime(mcTicks);
+            case "HOME"       -> npc.getNpcData().getScheduleData().setHomeTime(mcTicks);
             default -> LOGGER.warn("Unknown NPC schedule activity: {}", activity);
         }
     }

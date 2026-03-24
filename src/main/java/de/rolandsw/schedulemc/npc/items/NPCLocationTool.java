@@ -75,7 +75,7 @@ public class NPCLocationTool extends Item {
             if (player.isCrouching()) {
                 // Arbeitsort setzen
                 if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
-                    npc.getNpcData().setWorkLocation(clickedPos);
+                    npc.getNpcData().getLocationData().setWorkLocation(clickedPos);
                     player.sendSystemMessage(
                         Component.translatable("message.npc.work_location_set")
                             .withStyle(ChatFormatting.GREEN)
@@ -101,7 +101,7 @@ public class NPCLocationTool extends Item {
                 }
             } else {
                 // Heimort setzen
-                npc.getNpcData().setHomeLocation(clickedPos);
+                npc.getNpcData().getLocationData().setHomeLocation(clickedPos);
                 player.sendSystemMessage(
                     Component.translatable("message.npc.home_set")
                         .withStyle(ChatFormatting.GREEN)
@@ -189,7 +189,7 @@ public class NPCLocationTool extends Item {
                     .withStyle(ChatFormatting.WHITE))
         );
 
-        BlockPos home = npc.getNpcData().getHomeLocation();
+        BlockPos home = npc.getNpcData().getLocationData().getHomeLocation();
         if (home != null) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.home_label")
@@ -208,7 +208,7 @@ public class NPCLocationTool extends Item {
 
         // Arbeitsort nur für Verkäufer anzeigen
         if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
-            BlockPos work = npc.getNpcData().getWorkLocation();
+            BlockPos work = npc.getNpcData().getLocationData().getWorkLocation();
             if (work != null) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.workplace_label")
@@ -226,8 +226,8 @@ public class NPCLocationTool extends Item {
             }
 
             // Zeige Arbeitszeiten
-            long workStart = npc.getNpcData().getWorkStartTime();
-            long workEnd = npc.getNpcData().getWorkEndTime();
+            long workStart = npc.getNpcData().getScheduleData().getWorkStartTime();
+            long workEnd = npc.getNpcData().getScheduleData().getWorkEndTime();
             player.sendSystemMessage(
                 Component.translatable("message.npc.work_hours_label")
                     .withStyle(ChatFormatting.GRAY)
@@ -235,7 +235,7 @@ public class NPCLocationTool extends Item {
                         .withStyle(ChatFormatting.WHITE))
             );
             // Zeige Heimzeit für Verkäufer
-            long homeTime = npc.getNpcData().getHomeTime();
+            long homeTime = npc.getNpcData().getScheduleData().getHomeTime();
             player.sendSystemMessage(
                 Component.translatable("message.npc.home_time_label")
                     .withStyle(ChatFormatting.GRAY)
@@ -249,7 +249,7 @@ public class NPCLocationTool extends Item {
                     .append(Component.translatable("message.npc.residents_dont_work")
                         .withStyle(ChatFormatting.YELLOW))
             );
-            int leisureCount = npc.getNpcData().getLeisureLocations().size();
+            int leisureCount = npc.getNpcData().getLocationData().getLeisureLocations().size();
             player.sendSystemMessage(
                 Component.translatable("message.npc.leisure_locations_label")
                     .withStyle(ChatFormatting.AQUA)
@@ -258,8 +258,8 @@ public class NPCLocationTool extends Item {
             );
 
             // Zeige Heimzeit (Schlafenszeit) als Zeitbereich
-            String homeStart = ticksToTime(npc.getNpcData().getHomeTime());
-            String homeEnd = ticksToTime(npc.getNpcData().getWorkStartTime()); // Aufstehzeit
+            String homeStart = ticksToTime(npc.getNpcData().getScheduleData().getHomeTime());
+            String homeEnd = ticksToTime(npc.getNpcData().getScheduleData().getWorkStartTime()); // Aufstehzeit
             player.sendSystemMessage(
                 Component.translatable("message.npc.sleep_time_label")
                     .withStyle(ChatFormatting.GRAY)
@@ -276,7 +276,7 @@ public class NPCLocationTool extends Item {
             );
         } else {
             // Zeige Heimzeit für andere NPC-Typen
-            long homeTime = npc.getNpcData().getHomeTime();
+            long homeTime = npc.getNpcData().getScheduleData().getHomeTime();
             player.sendSystemMessage(
                 Component.translatable("message.npc.home_time_label")
                     .withStyle(ChatFormatting.GRAY)

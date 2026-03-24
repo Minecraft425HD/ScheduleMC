@@ -51,7 +51,7 @@ public class MoveToLeisureGoal extends Goal {
         }
 
         // Nur wenn mindestens ein Freizeitort gesetzt ist
-        List<BlockPos> leisureLocations = npc.getNpcData().getLeisureLocations();
+        List<BlockPos> leisureLocations = npc.getNpcData().getLocationData().getLeisureLocations();
         if (leisureLocations.isEmpty()) {
             return false;
         }
@@ -82,7 +82,7 @@ public class MoveToLeisureGoal extends Goal {
         }
 
         // Weitermachen solange mindestens ein Freizeitort definiert ist
-        return !npc.getNpcData().getLeisureLocations().isEmpty();
+        return !npc.getNpcData().getLocationData().getLeisureLocations().isEmpty();
     }
 
     @Override
@@ -101,7 +101,7 @@ public class MoveToLeisureGoal extends Goal {
         locationChangeCounter++;
 
         // Alle 5 Minuten: Wechsle zu einem anderen Freizeitort
-        List<BlockPos> leisureLocations = npc.getNpcData().getLeisureLocations();
+        List<BlockPos> leisureLocations = npc.getNpcData().getLocationData().getLeisureLocations();
         if (locationChangeCounter >= LOCATION_CHANGE_INTERVAL && leisureLocations.size() > 1) {
             locationChangeCounter = 0;
             // Wähle einen anderen Freizeitort (nicht den aktuellen)
@@ -211,15 +211,15 @@ public class MoveToLeisureGoal extends Goal {
         Level level = npc.level();
         long dayTime = level.getDayTime() % 24000;
 
-        long workStart = npc.getNpcData().getWorkStartTime();
-        long workEnd = npc.getNpcData().getWorkEndTime();
-        long homeTime = npc.getNpcData().getHomeTime();
+        long workStart = npc.getNpcData().getScheduleData().getWorkStartTime();
+        long workEnd = npc.getNpcData().getScheduleData().getWorkEndTime();
+        long homeTime = npc.getNpcData().getScheduleData().getHomeTime();
 
         // Für BEWOHNER: Freizeit = NICHT Heimzeit (sie arbeiten nicht)
         // Für VERKAEUFER: Freizeit = NICHT Arbeitszeit UND NICHT Heimzeit
         boolean isWorkTime = false;
         if (npc.getNpcData().getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER
-            && npc.getNpcData().getWorkLocation() != null) {
+            && npc.getNpcData().getLocationData().getWorkLocation() != null) {
             isWorkTime = isTimeBetween(dayTime, workStart, workEnd);
         }
 

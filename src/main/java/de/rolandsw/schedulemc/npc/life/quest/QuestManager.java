@@ -294,7 +294,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             case ESCORT -> {
                 // Eskorte: NPC zu einem Ort bringen
                 // Use NPC's home/work location if available, else use offset destination
-                BlockPos destination = questGiver.getNpcData().getHomeLocation();
+                BlockPos destination = questGiver.getNpcData().getLocationData().getHomeLocation();
                 if (destination == null || destination.equals(questGiver.blockPosition())) {
                     destination = questGiver.blockPosition().offset(50, 0, 50);
                 }

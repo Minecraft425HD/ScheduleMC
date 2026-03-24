@@ -9,6 +9,8 @@ import de.rolandsw.schedulemc.vehicle.vehicle.VehiclePurchaseHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.ShopEntry;
+import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
@@ -96,18 +98,18 @@ public class PurchaseItemPacket {
         }
 
         // Null-Safety: Prüfe ob NPC-Daten und Shop vorhanden sind
-        if (merchant.getNpcData() == null || merchant.getNpcData().getBuyShop() == null) {
+        if (merchant.getNpcData() == null || merchant.getNpcData().getShopData().getBuyShop() == null) {
             player.sendSystemMessage(Component.translatable("message.npc.shop_unavailable")
                 .withStyle(ChatFormatting.RED));
             return;
         }
 
         // WICHTIG: Für Tankstellen müssen wir die Bill-Items auch hier hinzufügen, damit die Indizes stimmen!
-        List<NPCData.ShopEntry> shopItems = new ArrayList<>(merchant.getNpcData().getBuyShop().getEntries());
+        List<ShopEntry> shopItems = new ArrayList<>(merchant.getNpcData().getShopData().getBuyShop().getEntries());
 
         // Spezialbehandlung für Tankstelle: Füge unbezahlte Rechnungen hinzu (wie in OpenMerchantShopPacket)
         if (merchant.getMerchantCategory() == MerchantCategory.TANKSTELLE) {
-            List<NPCData.ShopEntry> billEntries = createBillEntries(player);
+            List<ShopEntry> billEntries = createBillEntries(player);
             shopItems.addAll(0, billEntries); // Am Anfang einfügen - GLEICHE LOGIK WIE BEIM ÖFFNEN!
         }
 
@@ -116,7 +118,7 @@ public class PurchaseItemPacket {
             return;
         }
 
-        NPCData.ShopEntry entry = shopItems.get(itemIndex);
+        ShopEntry entry = shopItems.get(itemIndex);
 
         // SICHERHEIT: Integer Overflow Prevention
         // Maximale Menge pro Transaktion begrenzen
@@ -317,7 +319,7 @@ public class PurchaseItemPacket {
     /**
      * Verarbeitet die Bezahlung einer Tankrechnung
      */
-    private void processFuelBillPayment(ServerPlayer player, CustomNPCEntity merchant, NPCData.ShopEntry entry, int price) {
+    private void processFuelBillPayment(ServerPlayer player, CustomNPCEntity merchant, ShopEntry entry, int price) {
         ItemStack billItem = entry.getItem();
 
         // Lese Daten aus dem Bill-Item (null-safe)
@@ -363,8 +365,8 @@ public class PurchaseItemPacket {
     /**
      * Erstellt Shop-Einträge für unbezahlte Rechnungen (kopiert von OpenMerchantShopPacket)
      */
-    private List<NPCData.ShopEntry> createBillEntries(ServerPlayer player) {
-        List<NPCData.ShopEntry> billEntries = new ArrayList<>();
+    private List<ShopEntry> createBillEntries(ServerPlayer player) {
+        List<ShopEntry> billEntries = new ArrayList<>();
 
         // Alle Tankstellen durchgehen
         for (UUID fuelStationId : FuelStationRegistry.getAllFuelStationIds()) {
@@ -394,7 +396,7 @@ public class PurchaseItemPacket {
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
                 // Erstelle Shop-Entry (Preis ist die Rechnungssumme)
-                NPCData.ShopEntry billEntry = new NPCData.ShopEntry(
+                ShopEntry billEntry = new ShopEntry(
                     billItem,
                     (int) Math.ceil(totalCost), // Preis aufgerundet
                     true, // Unbegrenzt verfügbar (ist ja eine Rechnung)
@@ -417,7 +419,7 @@ public class PurchaseItemPacket {
                 .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
 
             // Erstelle Shop-Entry mit Preis 0
-            NPCData.ShopEntry noBillEntry = new NPCData.ShopEntry(
+            ShopEntry noBillEntry = new ShopEntry(
                 noBillItem,
                 0, // Preis: 0€
                 true,

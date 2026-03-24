@@ -6,6 +6,8 @@ import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;
 import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.ShopEntry;
+import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
@@ -753,7 +755,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 // Ein NPC ist nur verfügbar wenn:
                 // 1. Er nicht mit diesem Warehouse verknüpft ist UND
                 // 2. Er kein assignedWarehouse hat (nicht mit einem anderen Warehouse verknüpft)
-                if (!linkedSellers.contains(npc.getUUID()) && npc.getNpcData().getAssignedWarehouse() == null) {
+                if (!linkedSellers.contains(npc.getUUID()) && npc.getNpcData().getLocationData().getAssignedWarehouse() == null) {
                     availableNpcs.add(npc);
                 }
             }
@@ -1305,7 +1307,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     /**
      * Gibt die Shop-Entries des ersten verknüpften Verkäufer-NPCs zurück
      */
-    private List<NPCData.ShopEntry> getLinkedNPCShopItems() {
+    private List<ShopEntry> getLinkedNPCShopItems() {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null || minecraft.level == null) return Collections.emptyList();
 
@@ -1317,7 +1319,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         for (var entity : minecraft.level.entitiesForRendering()) {
             if (entity instanceof CustomNPCEntity npc) {
                 if (npc.getUUID().equals(firstSeller)) {
-                    return npc.getNpcData().getBuyShop().getEntries();
+                    return npc.getNpcData().getShopData().getBuyShop().getEntries();
                 }
             }
         }
