@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // @Mixin(Minecraft.class)
+@SuppressWarnings("PMD.UnusedFormalParameter")
 public class APIMixinMinecraftClient {
 
     // @Inject(method = "tick()V", at = @At("RETURN"), require = 0)

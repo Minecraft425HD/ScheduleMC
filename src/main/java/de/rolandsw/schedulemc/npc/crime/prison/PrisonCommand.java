@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 /**
  * Admin-Commands für Gefängnis-System
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class PrisonCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

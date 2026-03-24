@@ -23,6 +23,7 @@ import java.util.UUID;
  * Money-Befehle für das Economy-System
  * Refactored mit CommandExecutor für einheitliches Error-Handling
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class MoneyCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

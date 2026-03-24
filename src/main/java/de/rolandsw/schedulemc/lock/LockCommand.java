@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
  * /lock list                     - Eigene Schloesser anzeigen
  * /lock admin remove <pos>       - Admin: Schloss entfernen (OP 2)
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class LockCommand {
     private static final Pattern FOUR_DIGITS = Pattern.compile("\\d{4}");
 

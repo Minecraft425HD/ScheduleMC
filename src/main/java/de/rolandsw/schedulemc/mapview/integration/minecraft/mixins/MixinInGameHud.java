@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import net.minecraft.client.gui.Gui;
 
 // @Mixin(Gui.class)
+@SuppressWarnings("PMD.UnusedFormalParameter")
 public class MixinInGameHud {
 
     // this method: private void displayScoreboardSidebar(GuiGraphics guiGraphics, Objective objective)

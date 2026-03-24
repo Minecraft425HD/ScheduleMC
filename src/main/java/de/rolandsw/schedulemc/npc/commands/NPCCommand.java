@@ -58,6 +58,7 @@ import java.util.concurrent.CompletableFuture;
  * /npc <name> wallet add <amount> - Fügt Geld hinzu
  * /npc <name> wallet remove <amount> - Entfernt Geld
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class NPCCommand {
 
     /**

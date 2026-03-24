@@ -16,6 +16,7 @@ import java.util.List;
  * - /market trends - Zeigt Trends
  * - /market stats - Zeigt Statistiken
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class MarketCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

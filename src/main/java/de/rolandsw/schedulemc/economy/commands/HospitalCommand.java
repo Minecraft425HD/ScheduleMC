@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
  * /hospital setspawn - Setzt Krankenhaus-Respawn-Position
  * /hospital setfee <amount> - Setzt Krankenhausrechnung
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class HospitalCommand {
     
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

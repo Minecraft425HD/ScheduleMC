@@ -162,6 +162,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
 @Mod(ScheduleMC.MOD_ID)
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class ScheduleMC {
 
     public static final String MOD_ID = "schedulemc";

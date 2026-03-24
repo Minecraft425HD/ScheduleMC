@@ -33,6 +33,7 @@ import java.util.UUID;
  * /gang admin setlevel <gang-name> <level>
  * /gang admin addxp <gang-name> <xp>
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class GangCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

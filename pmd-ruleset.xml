@@ -41,6 +41,8 @@
          FEHLERANFÄLLIGE KONSTRUKTE: vollständig, ohne Stil-Rauschen
          ================================================================ -->
     <rule ref="category/java/errorprone.xml">
+        <!-- EmptyCatchBlock: intentionale leere catch-Blöcke mit Kommentar (z.B. NPCPathNavigation) -->
+        <exclude name="EmptyCatchBlock"/>
         <!-- NullAssignment: null-Resets für Zustand-Reset in BlockEntities und Data-Klassen
              sind in Minecraft-Mod-Code ubiquitär und intentional (GC-Freigabe) -->
         <exclude name="NullAssignment"/>
@@ -70,6 +72,13 @@
              (boolean isPressing; + isPressing() { return isPressing; }) und Minecraft-API-Überschattungen
              (children, level, size). Keine echten Bug-Risiken erkannt. -->
         <exclude name="AvoidFieldNameMatchingMethodName"/>
+    </rule>
+
+    <!-- EmptyCatchBlock mit Kommentar erlaubt (intentionale leere Blöcke) -->
+    <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
+        <properties>
+            <property name="allowCommentedBlocks" value="true"/>
+        </properties>
     </rule>
 
     <!-- ================================================================

@@ -19,6 +19,7 @@ import java.util.List;
  * Zeigt die Crime-Historie und Beweise fuer einen Spieler.
  * Nur fuer Polizei-Beamte (OP Level 2) verfuegbar.
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class CrimeRecordCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

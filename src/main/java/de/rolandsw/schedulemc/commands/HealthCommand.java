@@ -32,6 +32,7 @@ import java.io.File;
  *   Welt: lock, market, warehouse, towing
  *   Infrastruktur: antiexploit, threadpool
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class HealthCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
