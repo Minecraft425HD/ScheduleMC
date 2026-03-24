@@ -290,7 +290,7 @@ public class TowingServiceAppScreen extends Screen {
         return 0xFF00AA00; // Green
     }
 
-    private double calculateTowingCost(VehicleInfo vehicleInfo) {
+    private double calculateTowingCost(VehicleInfo _vehicleInfo) {
         if (minecraft == null || minecraft.player == null) {
             return 0;
         }

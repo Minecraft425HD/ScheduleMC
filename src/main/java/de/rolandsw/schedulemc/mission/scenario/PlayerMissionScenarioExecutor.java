@@ -261,7 +261,7 @@ public class PlayerMissionScenarioExecutor {
 
     private static void advanceToNext(ServerPlayer player, PlayerMission mission,
                                        MissionScenario scenario, ScenarioObjective current,
-                                       String stateKey, PlayerMissionManager mgr) {
+                                       String stateKey, PlayerMissionManager _mgr) {
         String nextId = current.getNextObjectiveId();
         TICK_COUNTERS.remove(stateKey);
 

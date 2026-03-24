@@ -360,31 +360,6 @@ public class TobaccoPotHudOverlay {
     /**
      * Gibt Pflanzen-Info als String zurück
      */
-    private static String getPlantInfo(PlantPotData potData) {
-        if (potData.hasTobaccoPlant()) {
-            var plant = potData.getPlant();
-            return plant.getType().getColoredName() + " §7| " + plant.getQuality().getColoredName();
-        }
-        if (potData.hasCannabisPlant()) {
-            var plant = potData.getCannabisPlant();
-            return plant.getStrain().getColoredName() + " §7| " + plant.getQuality().getColoredName();
-        }
-        if (potData.hasCocaPlant()) {
-            var plant = potData.getCocaPlant();
-            return plant.getType().getColoredName() + " §7| " + plant.getQuality().getColoredName();
-        }
-        if (potData.hasPoppyPlant()) {
-            var plant = potData.getPoppyPlant();
-            return plant.getType().getColoredName() + " §7| " + plant.getQuality().getColoredName();
-        }
-        if (potData.hasMushroomPlant()) {
-            var plant = potData.getMushroomPlant();
-            String phase = plant.isIncubating() ? "§8Inkubation" : "§aFruchtung";
-            return plant.getType().getColoredName() + " §7| " + phase;
-        }
-        return "§7Unbekannt";
-    }
-
     /**
      * Gibt Wachstumsstufe zurück
      */
@@ -423,54 +398,6 @@ public class TobaccoPotHudOverlay {
         double visualSoil = soilAtPlanting - visualSoilConsumed;
 
         return (int) Math.ceil(Math.max(0, visualSoil));
-    }
-
-    /**
-     * Ressourcen-Balken mit 5 Segmenten
-     */
-    private static void drawResourceBar(GuiGraphics guiGraphics, int x, int y, float fillRatio, int color) {
-        // Hintergrund
-        guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF1A1A1A);
-
-        // Gefüllter Teil
-        int filledWidth = (int) (BAR_WIDTH * fillRatio);
-        if (filledWidth > 0) {
-            guiGraphics.fill(x, y, x + filledWidth, y + BAR_HEIGHT, color);
-        }
-
-        // Segment-Trennlinien (5 Einheiten)
-        for (int i = 1; i < 5; i++) {
-            int segmentX = x + (i * SEGMENT_WIDTH);
-            guiGraphics.fill(segmentX, y, segmentX + 1, y + BAR_HEIGHT, 0xAAFFFFFF);
-        }
-
-        // Rahmen
-        guiGraphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, 0xAAFFFFFF);
-        guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xAAFFFFFF);
-        guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, 0xAAFFFFFF);
-        guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, 0xAAFFFFFF);
-    }
-
-    /**
-     * Fortschritts-Balken (Wachstum)
-     */
-    private static void drawProgressBar(GuiGraphics guiGraphics, int x, int y, int percent, boolean fullyGrown) {
-        int color = fullyGrown ? 0xFF4CAF50 : 0xFFFDD835;
-
-        // Hintergrund
-        guiGraphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF1A1A1A);
-
-        // Gefüllter Teil
-        int filledWidth = (BAR_WIDTH * percent) / 100;
-        if (filledWidth > 0) {
-            guiGraphics.fill(x, y, x + filledWidth, y + BAR_HEIGHT, color);
-        }
-
-        // Rahmen
-        guiGraphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y, 0xAAFFFFFF);
-        guiGraphics.fill(x - 1, y + BAR_HEIGHT, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xAAFFFFFF);
-        guiGraphics.fill(x - 1, y, x, y + BAR_HEIGHT, 0xAAFFFFFF);
-        guiGraphics.fill(x + BAR_WIDTH, y, x + BAR_WIDTH + 1, y + BAR_HEIGHT, 0xAAFFFFFF);
     }
 
     // ═══════════════════════════════════════════════════════════

@@ -379,7 +379,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
     /**
      * Returns an entity type string fitting the quest giver's context.
      */
-    private String getEntityTypeForElimination(CustomNPCEntity npc) {
+    private String getEntityTypeForElimination(CustomNPCEntity _npc) {
         // Pick a threat appropriate to the context
         String[] hostileMobs = {"zombie", "skeleton", "spider", "pillager"};
         return hostileMobs[ThreadLocalRandom.current().nextInt(hostileMobs.length)];
@@ -390,7 +390,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
      * Returns null if no other NPC found.
      */
     @Nullable
-    private UUID findNearbyDifferentNPC(CustomNPCEntity questGiver, ServerPlayer player) {
+    private UUID findNearbyDifferentNPC(CustomNPCEntity questGiver, ServerPlayer _player) {
         if (!(questGiver.level() instanceof ServerLevel level)) return null;
         UUID questGiverUUID = questGiver.getNpcData().getNpcUUID();
         return level.getEntitiesOfClass(CustomNPCEntity.class,

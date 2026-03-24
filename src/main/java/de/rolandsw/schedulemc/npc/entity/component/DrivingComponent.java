@@ -23,7 +23,7 @@ public class DrivingComponent implements NPCComponent {
 
     // Fahrgeschwindigkeit und -richtung
     private double speed = 0;
-    private double targetX, targetY, targetZ;
+    private double targetX, targetZ;
     private boolean hasTarget = false;
 
     @Override
@@ -65,7 +65,6 @@ public class DrivingComponent implements NPCComponent {
 
     public void setDriveTarget(double x, double y, double z, double speed) {
         this.targetX = x;
-        this.targetY = y;
         this.targetZ = z;
         this.speed = speed;
         this.hasTarget = true;

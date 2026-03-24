@@ -19,7 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ElevatorBlockEntityRenderer implements BlockEntityRenderer<ElevatorBlockEntity> {
 
-    public ElevatorBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
+    public ElevatorBlockEntityRenderer(BlockEntityRendererProvider.Context _ctx) {}
 
     @Override
     public void render(ElevatorBlockEntity be, float partialTick, PoseStack poseStack,

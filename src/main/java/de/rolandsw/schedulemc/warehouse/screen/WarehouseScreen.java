@@ -771,7 +771,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // STATS TAB RENDERING
     // ═══════════════════════════════════════════════════════════
 
-    private void renderStatsTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
+    private void renderStatsTab(GuiGraphics graphics, int x, int y, int _mouseX, int _mouseY) {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
 
@@ -929,7 +929,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // SETTINGS TAB RENDERING
     // ═══════════════════════════════════════════════════════════
 
-    private void renderSettingsTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
+    private void renderSettingsTab(GuiGraphics graphics, int x, int y, int _mouseX, int _mouseY) {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
 
@@ -1303,29 +1303,6 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // ═══════════════════════════════════════════════════════════
     // HELPER METHODS
     // ═══════════════════════════════════════════════════════════
-
-    /**
-     * Gibt die Shop-Entries des ersten verknüpften Verkäufer-NPCs zurück
-     */
-    private List<ShopEntry> getLinkedNPCShopItems() {
-        WarehouseBlockEntity warehouse = menu.getWarehouse();
-        if (warehouse == null || minecraft.level == null) return Collections.emptyList();
-
-        List<UUID> sellers = warehouse.getLinkedSellers();
-        if (sellers.isEmpty()) return Collections.emptyList();
-
-        // Hole ersten Verkäufer-NPC
-        UUID firstSeller = sellers.get(0);
-        for (var entity : minecraft.level.entitiesForRendering()) {
-            if (entity instanceof CustomNPCEntity npc) {
-                if (npc.getUUID().equals(firstSeller)) {
-                    return npc.getNpcData().getShopData().getBuyShop().getEntries();
-                }
-            }
-        }
-
-        return Collections.emptyList();
-    }
 
     /**
      * Versucht den NPC-Namen aus einer UUID abzurufen

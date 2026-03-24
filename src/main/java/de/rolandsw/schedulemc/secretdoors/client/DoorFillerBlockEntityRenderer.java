@@ -25,7 +25,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class DoorFillerBlockEntityRenderer implements BlockEntityRenderer<DoorFillerBlockEntity> {
 
-    public DoorFillerBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
+    public DoorFillerBlockEntityRenderer(BlockEntityRendererProvider.Context _ctx) {}
 
     @Override
     public void render(DoorFillerBlockEntity be, float partialTick, PoseStack poseStack,

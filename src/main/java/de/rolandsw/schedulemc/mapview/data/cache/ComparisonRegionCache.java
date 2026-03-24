@@ -77,7 +77,7 @@ public class ComparisonRegionCache {
 
     }
 
-    private boolean isChunkEmpty(ClientLevel world, LevelChunk chunk) {
+    private boolean isChunkEmpty(ClientLevel _world, LevelChunk chunk) {
 
         return IntStream.range(0, 16).noneMatch(t -> IntStream.range(0, 16).anyMatch(s -> chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, t, s) != 0));
     }

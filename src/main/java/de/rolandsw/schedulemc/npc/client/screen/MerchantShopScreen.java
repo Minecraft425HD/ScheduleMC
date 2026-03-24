@@ -295,7 +295,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
      * Rendert eine Shop-Item Row
      * Schema: [Icon] Name | Preis | Verfügbar | [Input]
      */
-    private void renderShopItem(GuiGraphics guiGraphics, ShopItemRow row, int x, int y, int rowIndex) {
+    private void renderShopItem(GuiGraphics guiGraphics, ShopItemRow row, int x, int y, int _rowIndex) {
         // Item Icon (16x16)
         guiGraphics.renderItem(row.item, x, y);
 

@@ -19,7 +19,6 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     private static volatile CreditScoreManager instance;
 
     private final Map<UUID, CreditScore> creditScores = new ConcurrentHashMap<>();
-    private MinecraftServer server;
     private long currentDay = 0;
 
     // Balance-Update Throttling (nicht jeden Tick updaten)
@@ -31,7 +30,6 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
             server.getServerDirectory().toPath().resolve("config").resolve("plotmod_credit_scores.json").toFile(),
             GsonHelper.get() // Umgebungsabhängig: kompakt in Produktion
         );
-        this.server = server;
         load();
     }
 
@@ -48,7 +46,6 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
                 }
             }
         }
-        localRef.server = server;
         return localRef;
     }
 

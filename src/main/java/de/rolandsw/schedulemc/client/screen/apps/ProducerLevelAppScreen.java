@@ -380,7 +380,7 @@ public class ProducerLevelAppScreen extends Screen {
     // DETAIL VIEW
     // ═══════════════════════════════════════════════════════════
 
-    private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {
+    private void renderDetailView(GuiGraphics guiGraphics, int startY, int _endY) {
         if (selectedUnlockable == null) return;
 
         UnlockableData unlock = selectedUnlockable;

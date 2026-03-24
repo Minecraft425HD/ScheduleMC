@@ -111,7 +111,7 @@ public class TerritoryTracker {
      * Zeigt Hologramm mit Territory-Name beim Betreten/Verlassen
      * KEINE Farbanzeige mehr - nur der Name!
      */
-    private static void showTerritoryChange(ServerPlayer player, @Nullable Territory from, @Nullable Territory to) {
+    private static void showTerritoryChange(ServerPlayer player, @Nullable Territory _from, @Nullable Territory to) {
         String title;
         String subtitle = ""; // Kein Subtitle mehr
 

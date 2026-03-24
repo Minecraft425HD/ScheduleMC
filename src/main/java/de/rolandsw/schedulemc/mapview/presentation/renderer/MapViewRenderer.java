@@ -90,15 +90,11 @@ import java.util.concurrent.Future;
 public class MapViewRenderer implements Runnable, MapChangeListener {
     private final Minecraft minecraft = Minecraft.getInstance();
     // private final float[] lastLightBrightnessTable = new float[16];
-    private final Object coordinateLock = new Object();
     private final ResourceLocation resourceArrow = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/mmarrow.png");
     private final ResourceLocation resourceSquareMap = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/squaremap.png");
     private final ResourceLocation resourceRoundMap = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/roundmap.png");
-    private final ResourceLocation squareStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/square.png");
-    private final ResourceLocation circleStencil = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/images/circle.png");
     private ClientLevel world;
     private final MapViewConfiguration options;
-    private final LayoutVariables layoutVariables;
     private final ColorCalculationService colorManager;
     private final NPCMapRenderer npcMapRenderer = new NPCMapRenderer();
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
@@ -129,7 +125,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private boolean lastAboveHorizon = true;
     private int lastBiome;
     private int lastSkyColor;
-    private Screen lastGuiScreen;
     private boolean fullscreenMap;
     private int zoom;
     private int scWidth;
@@ -171,7 +166,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private int zCalcTicker;
     private final int[] lightmapColors = new int[256];
     private double zoomScale = 1.0;
-    private double zoomScaleAdjusted = 1.0;
     private static double minTablistOffset;
     private static float statusIconOffset = 0.0F;
     // PERFORMANCE: Cache biome registry reference (avoid registryAccess().registryOrThrow() per frame)
@@ -184,8 +178,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private final ResourceLocation[] resourceMapImageUnfiltered = new ResourceLocation[5];
     // private GpuTexture fboTexture;
     // private GpuTextureView fboTextureView;
-    private Tesselator fboTessellator = new Tesselator(4096);
-    private MapViewCachedOrthoProjectionMatrixBuffer projection;
 
     public MapViewRenderer() {
         resourceMapImageFiltered[0] = ResourceLocation.fromNamespaceAndPath("schedulemc", "mapview/map/filtered/0");
@@ -201,7 +193,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         this.options = MapViewConstants.getLightMapInstance().getMapOptions();
         this.colorManager = MapViewConstants.getLightMapInstance().getColorManager();
-        this.layoutVariables = new LayoutVariables();
         ArrayList<KeyMapping> tempBindings = new ArrayList<>();
         tempBindings.addAll(Arrays.asList(minecraft.options.keyMappings));
         tempBindings.addAll(Arrays.asList(this.options.keyBindings));
@@ -250,8 +241,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         this.zoom = this.options.zoom;
         this.setZoomScale();
-
-        this.projection = new MapViewCachedOrthoProjectionMatrixBuffer("MapDataManager MapViewRenderer To Screen Proj", -256.0F, 256.0F, 256.0F, -256.0F, 1000.0F, 21000.0F);
 
         try {
             var arrowResourceOpt = Minecraft.getInstance().getResourceManager().getResource(resourceArrow);
@@ -390,7 +379,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             refreshNearbyChunks();
         }
 
-        this.lastGuiScreen = minecraft.screen;
         this.calculateCurrentLightAndSkyColor();
 
         // Performance-Optimierung: Throttle map updates - nur wenn sich Player bewegt hat oder throttle-Intervall erreicht
@@ -504,11 +492,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     private void setZoomScale() {
         this.zoomScale = Math.pow(2.0, this.zoom) / 2.0;
-        if (this.options.squareMap && this.options.rotates) {
-            this.zoomScaleAdjusted = this.zoomScale / 1.4142F;
-        } else {
-            this.zoomScaleAdjusted = this.zoomScale;
-        }
+        // zoomScaleAdjusted was removed (unused)
 
     }
 
@@ -1662,7 +1646,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         return ARGBCompat.toABGR(combinedLight);
     }
 
-    private void renderMap(GuiGraphics guiGraphics, int x, int y, int scScale, float scaleProj) {
+    private void renderMap(GuiGraphics guiGraphics, int x, int y, int _scScale, float scaleProj) {
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(scaleProj, scaleProj, 1.0f);
 
@@ -1906,10 +1890,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     private void write(GuiGraphics drawContext, String text, float x, float y, int color) {
         write(drawContext, Component.nullToEmpty(text), x, y, color);
-    }
-
-    private int textWidth(Component text) {
-        return minecraft.font.width(text);
     }
 
     private void write(GuiGraphics drawContext, Component text, float x, float y, int color) {

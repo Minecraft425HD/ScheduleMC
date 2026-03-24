@@ -1,8 +1,5 @@
 package de.rolandsw.schedulemc.economy;
 
-import com.mojang.logging.LogUtils;
-import org.slf4j.Logger;
-
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,8 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Verhindert Spam und potentielle Exploits
  */
 public class RateLimiter {
-    private static final Logger LOGGER = LogUtils.getLogger();
-
     // Maximale Anzahl an Transaktionen pro Minute
     private static final int MAX_TRANSACTIONS_PER_MINUTE = 10;
     private static final long MINUTE_IN_MILLIS = 60000;

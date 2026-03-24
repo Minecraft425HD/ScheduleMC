@@ -146,7 +146,7 @@ public class NPCActionPacket {
     }
 
     /** Bestechungsversuch – delegiert an BriberySystem wenn Zeugenbericht vorhanden. */
-    private void handleInitiateBribe(ServerPlayer player, CustomNPCEntity npc) {
+    private void handleInitiateBribe(ServerPlayer player, CustomNPCEntity _npc) {
         // Bestechung ohne aktiven Zeugenbericht: einfach Transaction tracken
         MissionEventBridge.fireTransactionCompleted(player);
         player.sendSystemMessage(Component.literal(

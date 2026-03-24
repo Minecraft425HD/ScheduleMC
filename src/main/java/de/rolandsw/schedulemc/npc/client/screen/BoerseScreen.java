@@ -334,7 +334,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
     /**
      * Renders a stock row with price and trend
      */
-    private void renderStockRow(GuiGraphics guiGraphics, int x, int y, StockTradePacket.StockType stock) {
+    private void renderStockRow(GuiGraphics _guiGraphics, int _x, int _y, StockTradePacket.StockType stock) {
         double price = getCurrentPrice(stock);  // NOPMD
         int trend = getTrend(stock);
         double changePercent = getChangePercent(stock);  // NOPMD

@@ -194,19 +194,6 @@ public class RoomScanner {
                 || block instanceof net.minecraft.world.level.block.FenceGateBlock;
     }
 
-    /**
-     * PERFORMANCE: Direkte BlockPos-Offsets statt Arrays.asList() Allokation.
-     * Vermeidet 6 BlockPos-Objekte + 1 List-Wrapper pro Flood-Fill-Schritt.
-     */
-    private static final BlockPos[] NEIGHBOR_OFFSETS = {
-        new BlockPos(0, 0, -1), // north
-        new BlockPos(0, 0, 1),  // south
-        new BlockPos(1, 0, 0),  // east
-        new BlockPos(-1, 0, 0), // west
-        new BlockPos(0, 1, 0),  // above
-        new BlockPos(0, -1, 0)  // below
-    };
-
     private static List<BlockPos> get6Neighbors(BlockPos pos) {
         return Arrays.asList(
             pos.north(),

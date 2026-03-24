@@ -229,7 +229,7 @@ public class NegotiationEngine {
         }
     }
 
-    private String getCompromiseMessage(double compromiseOffer, int round) {
+    private String getCompromiseMessage(double compromiseOffer, int _round) {
         return String.format("Okay, treffen wir uns in der Mitte: %.2f€?", compromiseOffer);
     }
 

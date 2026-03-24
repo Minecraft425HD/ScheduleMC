@@ -92,14 +92,6 @@ public class ForgeEvents implements Events {
         registerNetworkPackets();
     }
 
-    private void preInitClient(final FMLClientSetupEvent event) {
-        // Initialize MapDataManager on the main thread (required for texture creation)
-        event.enqueueWork(() -> {
-            MapViewConstants.lateInit();
-            map.onConfigurationInit();
-        });
-    }
-
     private static class ForgeEventListener {
         private final MapDataManager map;
 

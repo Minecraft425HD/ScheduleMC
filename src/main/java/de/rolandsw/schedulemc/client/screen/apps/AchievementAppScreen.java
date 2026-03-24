@@ -247,7 +247,7 @@ public class AchievementAppScreen extends Screen {
     // OVERVIEW VIEW
     // ═══════════════════════════════════════════════════════════
 
-    private void renderOverviewView(GuiGraphics guiGraphics, int startY, int endY) {
+    private void renderOverviewView(GuiGraphics guiGraphics, int startY, int _endY) {
         // Gesamt-Fortschritt Box
         guiGraphics.fill(leftPos + 10, startY, leftPos + WIDTH - 10, startY + 55, 0x44228B22);
 
@@ -376,7 +376,7 @@ public class AchievementAppScreen extends Screen {
     // DETAIL VIEW
     // ═══════════════════════════════════════════════════════════
 
-    private void renderDetailView(GuiGraphics guiGraphics, int startY, int endY) {
+    private void renderDetailView(GuiGraphics guiGraphics, int startY, int _endY) {
         if (selectedAchievementData == null) return;
 
         AchievementData ach = selectedAchievementData;

@@ -306,7 +306,7 @@ public class RegionCache {
         return neighborsLoaded;
     }
 
-    private void loadAnvilData(net.minecraft.world.level.Level world) {
+    private void loadAnvilData(net.minecraft.world.level.Level _world) {
         if (!this.remoteWorld) {
             boolean full = true;
 
