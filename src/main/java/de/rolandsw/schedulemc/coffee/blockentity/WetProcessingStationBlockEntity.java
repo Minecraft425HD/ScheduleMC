@@ -4,31 +4,23 @@ import de.rolandsw.schedulemc.coffee.CoffeeQuality;
 import de.rolandsw.schedulemc.coffee.CoffeeType;
 import de.rolandsw.schedulemc.coffee.items.CoffeeCherryItem;
 import de.rolandsw.schedulemc.coffee.menu.WetProcessingStationMenu;
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WetProcessingStationBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
+public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
@@ -36,9 +28,6 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
     private ProcessingStage currentStage = ProcessingStage.IDLE;
     private CoffeeType coffeeType;
     private CoffeeQuality quality;
-    protected ItemStackHandler itemHandler;
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
-
     public enum ProcessingStage {
         IDLE(0), PULPING(200), FERMENTATION(1200), WASHING(400);
         private final int duration;
@@ -73,8 +62,6 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
             }
         };
     }
-
-    public ItemStackHandler getItemHandler() { return itemHandler; }
 
     private void syncInputFromHandler() {
         ItemStack handlerInput = itemHandler.getStackInSlot(0);
@@ -157,21 +144,6 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
         return !inputStack.isEmpty() && outputStack.isEmpty() && currentStage != ProcessingStage.IDLE;
     }
 
-    @Override public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
-    @Override public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) return lazyItemHandler.cast();
-        return super.getCapability(cap, side);
-    }
-
     @Override protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         if (!inputStack.isEmpty()) tag.put("Input", inputStack.save(new CompoundTag()));
@@ -201,16 +173,6 @@ public class WetProcessingStationBlockEntity extends BlockEntity implements IUti
             catch (IllegalArgumentException ignored) {}
         }
         syncToHandler();
-    }
-
-    @Override public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable @Override public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override public @NotNull Component getDisplayName() {

@@ -3,27 +3,19 @@ package de.rolandsw.schedulemc.beer.blockentity;
 import de.rolandsw.schedulemc.beer.BeerQuality;
 import de.rolandsw.schedulemc.beer.items.BeerItems;
 import de.rolandsw.schedulemc.beer.menu.MashTunMenu;
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  * Processing Time: 800 Ticks (40 seconds)
  * Quality: Can upgrade by 1 level (max GOOD)
  */
-public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
+public class MashTunBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
 
     private ItemStack maltedGrainStack = ItemStack.EMPTY;
@@ -44,9 +36,6 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
     private ItemStack outputStack = ItemStack.EMPTY;
     private int mashingProgress = 0;
     private BeerQuality quality;
-
-    protected ItemStackHandler itemHandler;
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     public MashTunBlockEntity(BlockPos pos, BlockState state) {
         super(BeerBlockEntities.MASH_TUN.get(), pos, state);
@@ -83,10 +72,6 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
                 return ItemStack.EMPTY;
             }
         };
-    }
-
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
     }
 
     private void syncInputsFromHandler() {
@@ -199,24 +184,6 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
     }
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) return lazyItemHandler.cast();
-        return super.getCapability(cap, side);
-    }
-
-    @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         if (!maltedGrainStack.isEmpty()) tag.put("MaltedGrain", maltedGrainStack.save(new CompoundTag()));
@@ -239,19 +206,6 @@ public class MashTunBlockEntity extends BlockEntity implements IUtilityConsumer,
             catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
         }
         syncToHandler();
-    }
-
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override

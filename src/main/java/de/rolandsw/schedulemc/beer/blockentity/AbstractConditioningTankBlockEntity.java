@@ -3,28 +3,19 @@ package de.rolandsw.schedulemc.beer.blockentity;
 import de.rolandsw.schedulemc.beer.BeerAgeLevel;
 import de.rolandsw.schedulemc.beer.BeerQuality;
 import de.rolandsw.schedulemc.beer.items.BeerItems;
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstract base class for Conditioning Tanks
@@ -36,14 +27,11 @@ import org.jetbrains.annotations.Nullable;
  * Different sizes: Small (4 slots), Medium (9 slots), Large (16 slots)
  * Speed multipliers: 1.0x, 1.5x, 2.0x
  */
-public abstract class AbstractConditioningTankBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
+public abstract class AbstractConditioningTankBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
 
     // Track aging ticks for each slot
     private int[] agingTicks;
-
-    protected ItemStackHandler itemHandler;
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     protected AbstractConditioningTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -89,10 +77,6 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
                        stack.getItem() == BeerItems.CONDITIONED_BEER.get();
             }
         };
-    }
-
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
     }
 
     public int getAgingTicks(int slot) {
@@ -188,24 +172,6 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
     }
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) return lazyItemHandler.cast();
-        return super.getCapability(cap, side);
-    }
-
-    @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("Inventory", itemHandler.serializeNBT());
@@ -241,16 +207,4 @@ public abstract class AbstractConditioningTankBlockEntity extends BlockEntity im
         }
     }
 
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
 }

@@ -4,26 +4,18 @@ import de.rolandsw.schedulemc.honey.HoneyQuality;
 import de.rolandsw.schedulemc.honey.HoneyType;
 import de.rolandsw.schedulemc.honey.items.HoneyItems;
 import de.rolandsw.schedulemc.honey.menu.CentrifugalExtractorMenu;
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  * Processing time: 200 ticks (10 seconds) - 2x faster than basic extractor
  * Preserves quality
  */
-public class CentrifugalExtractorBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
+public class CentrifugalExtractorBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
 
     private ItemStack inputStack = ItemStack.EMPTY;
@@ -45,9 +37,6 @@ public class CentrifugalExtractorBlockEntity extends BlockEntity implements IUti
     private int processingProgress = 0;
     private HoneyType honeyType;
     private HoneyQuality quality;
-
-    protected ItemStackHandler itemHandler;
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     private static final int PROCESSING_TIME = 200; // 10 seconds
 

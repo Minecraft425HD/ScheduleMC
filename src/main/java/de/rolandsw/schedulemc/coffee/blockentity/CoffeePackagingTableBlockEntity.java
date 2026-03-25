@@ -3,27 +3,19 @@ package de.rolandsw.schedulemc.coffee.blockentity;
 import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
 import de.rolandsw.schedulemc.coffee.items.GroundCoffeeItem;
 import de.rolandsw.schedulemc.coffee.menu.CoffeePackagingTableMenu;
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  * Slot 1: Packaging Material (Coffee Bags)
  * Slot 2: Output (Packaged Coffee)
  */
-public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
+public class CoffeePackagingTableBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
 
     private boolean lastActiveState = false;
 
@@ -44,10 +36,6 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
     private ItemStack outputStack = ItemStack.EMPTY;    // Packaged Coffee
     private int packagingProgress = 0;
     private PackageSize selectedSize = PackageSize.MEDIUM; // Player-wählbar
-
-    // ItemHandler (3 Slots)
-    protected ItemStackHandler itemHandler;
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     // ContainerData for syncing with client
     protected final ContainerData data = new ContainerData() {
@@ -154,10 +142,6 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
         };
     }
 
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
-    }
-
     private void syncFromHandler() {
         coffeeInput = itemHandler.getStackInSlot(0).copy();
         packageInput = itemHandler.getStackInSlot(1).copy();
@@ -251,26 +235,6 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
     }
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
 
@@ -306,19 +270,6 @@ public class CoffeePackagingTableBlockEntity extends BlockEntity implements IUti
         } else { selectedSize = PackageSize.MEDIUM; }
 
         syncToHandler();
-    }
-
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override

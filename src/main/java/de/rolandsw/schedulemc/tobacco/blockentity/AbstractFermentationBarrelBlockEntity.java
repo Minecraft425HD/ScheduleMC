@@ -7,16 +7,12 @@ import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
 import de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -25,7 +21,7 @@ import java.util.function.Supplier;
  * Kapazität und Fermentierungszeit werden per Supplier konfiguriert,
  * sodass keine gesonderten Subklassen pro Größe nötig sind.
  */
-public class AbstractFermentationBarrelBlockEntity extends BlockEntity implements IUtilityConsumer {
+public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer {
 
     private final Supplier<Integer> capacitySupplier;
     private final Supplier<Integer> fermentationTimeSupplier;
@@ -314,16 +310,4 @@ public class AbstractFermentationBarrelBlockEntity extends BlockEntity implement
         }
     }
 
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
 }

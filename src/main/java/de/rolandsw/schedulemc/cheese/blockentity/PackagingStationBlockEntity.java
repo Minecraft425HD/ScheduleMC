@@ -6,25 +6,17 @@ import de.rolandsw.schedulemc.cheese.CheeseType;
 import de.rolandsw.schedulemc.cheese.items.CheeseItems;
 import de.rolandsw.schedulemc.cheese.items.CheeseWheelItem;
 import de.rolandsw.schedulemc.cheese.menu.PackagingStationMenu;
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  * Output: Cheese Wedges (basierend auf Gewicht)
  * Processing Method: Natural/Smoked/Herb
  */
-public class PackagingStationBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
+public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
     private ItemStack wheelInput = ItemStack.EMPTY;
     private ItemStack packagingInput = ItemStack.EMPTY;
     private ItemStack output = ItemStack.EMPTY;
@@ -47,9 +39,6 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
     private CheeseQuality quality;
     private CheeseAgeLevel ageLevel;
     private double wheelWeight = 0;
-
-    protected ItemStackHandler itemHandler;
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     public PackagingStationBlockEntity(BlockPos pos, BlockState state) {
         super(CheeseBlockEntities.PACKAGING_STATION.get(), pos, state);
@@ -82,10 +71,6 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
                 return slot >= 2;
             }
         };
-    }
-
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
     }
 
     private void syncInputsFromHandler() {
@@ -187,26 +172,6 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
     }
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("Inventory", itemHandler.serializeNBT());
@@ -244,19 +209,6 @@ public class PackagingStationBlockEntity extends BlockEntity implements IUtility
             catch (IllegalArgumentException e) { ageLevel = CheeseAgeLevel.FRESH; }
         }
         wheelWeight = tag.contains("WheelWeight") ? tag.getDouble("WheelWeight") : 0;
-    }
-
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override

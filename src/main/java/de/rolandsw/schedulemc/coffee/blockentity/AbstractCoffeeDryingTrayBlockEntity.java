@@ -5,31 +5,22 @@ import de.rolandsw.schedulemc.coffee.CoffeeType;
 import de.rolandsw.schedulemc.coffee.items.CoffeeCherryItem;
 import de.rolandsw.schedulemc.coffee.items.CoffeeItems;
 import de.rolandsw.schedulemc.coffee.items.GreenCoffeeBeanItem;
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstrakte Basisklasse für Kaffee-Trocknungsschalen
  * Trocknet Kaffeekirschen in der Sonne (Dry Process)
  */
-public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity implements IUtilityConsumer {
+public abstract class AbstractCoffeeDryingTrayBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer {
 
     private boolean lastActiveState = false;
 
@@ -39,10 +30,6 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
     private int dryingProgress = 0;
     private CoffeeType coffeeType;
     private CoffeeQuality quality;
-
-    // ItemHandler für GUI (Slot 0 = Input, Slot 1 = Output)
-    protected ItemStackHandler itemHandler;
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     protected AbstractCoffeeDryingTrayBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -92,10 +79,6 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
                 return ItemStack.EMPTY;
             }
         };
-    }
-
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
     }
 
     private void syncInputFromHandler() {
@@ -237,26 +220,6 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
     }
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
 
@@ -306,16 +269,4 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends BlockEntity im
         syncToHandler();
     }
 
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
 }

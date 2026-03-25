@@ -7,26 +7,18 @@ import de.rolandsw.schedulemc.beer.BeerType;
 import de.rolandsw.schedulemc.beer.items.BeerBottleItem;
 import de.rolandsw.schedulemc.beer.items.BeerItems;
 import de.rolandsw.schedulemc.beer.menu.BottlingStationMenu;
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
  * Processing Method: DRAFT/BOTTLED/CANNED
  * Final assembly: Combines all beer attributes into final product
  */
-public class BottlingStationBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
+public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
 
     private ItemStack beerSource = ItemStack.EMPTY;
@@ -59,9 +51,6 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
     private BeerAgeLevel ageLevel;
     private BeerProcessingMethod processingMethod = BeerProcessingMethod.BOTTLED;
     private double bottleSize = 0.5; // Default 500ml
-
-    protected ItemStackHandler itemHandler;
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     public BottlingStationBlockEntity(BlockPos pos, BlockState state) {
         super(BeerBlockEntities.BEER_BOTTLING_STATION.get(), pos, state);
@@ -107,10 +96,6 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
                 return ItemStack.EMPTY;
             }
         };
-    }
-
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
     }
 
     private void syncInputsFromHandler() {
@@ -285,26 +270,6 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
     }
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("Inventory", itemHandler.serializeNBT());
@@ -350,19 +315,6 @@ public class BottlingStationBlockEntity extends BlockEntity implements IUtilityC
             processingMethod = BeerProcessingMethod.BOTTLED;
         }
         bottleSize = tag.contains("BottleSize") ? tag.getDouble("BottleSize") : 0.5;
-    }
-
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
