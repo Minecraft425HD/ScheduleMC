@@ -72,10 +72,6 @@ public class CentrifugalExtractorBlockEntity extends AbstractItemHandlerBlockEnt
         };
     }
 
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
-    }
-
     private void syncInputFromHandler() {
         ItemStack handlerInput = itemHandler.getStackInSlot(0);
         if (!handlerInput.isEmpty() && inputStack.isEmpty()) {
@@ -170,24 +166,6 @@ public class CentrifugalExtractorBlockEntity extends AbstractItemHandlerBlockEnt
     }
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) return lazyItemHandler.cast();
-        return super.getCapability(cap, side);
-    }
-
-    @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         if (!inputStack.isEmpty()) tag.put("Input", inputStack.save(new CompoundTag()));
@@ -215,19 +193,6 @@ public class CentrifugalExtractorBlockEntity extends AbstractItemHandlerBlockEnt
             catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
         }
         syncToHandler();
-    }
-
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override

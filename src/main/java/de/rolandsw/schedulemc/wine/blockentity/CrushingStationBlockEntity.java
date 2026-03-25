@@ -188,19 +188,6 @@ public class CrushingStationBlockEntity extends AbstractItemHandlerBlockEntity i
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
     public @NotNull Component getDisplayName() {
         return Component.translatable("block.schedulemc.crushing_station");
     }

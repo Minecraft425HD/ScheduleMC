@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.wine.blockentity;
 
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.wine.WineAgeLevel;
 import de.rolandsw.schedulemc.wine.WineProcessingMethod;
@@ -9,28 +10,19 @@ import de.rolandsw.schedulemc.wine.items.WineBottleItem;
 import de.rolandsw.schedulemc.wine.items.WineItems;
 import de.rolandsw.schedulemc.wine.menu.WineBottlingStationMenu;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WineBottlingStationBlockEntity extends BlockEntity implements IUtilityConsumer, MenuProvider {
+public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
     private ItemStack wineInput = ItemStack.EMPTY;
     private ItemStack bottleInput = ItemStack.EMPTY;
     private ItemStack output = ItemStack.EMPTY;
@@ -41,9 +33,6 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
     private WineAgeLevel ageLevel;
     private WineProcessingMethod processingMethod = WineProcessingMethod.DRY;
     private double bottleSize = 0.75; // Default 750ml
-
-    protected ItemStackHandler itemHandler;
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
 
     public WineBottlingStationBlockEntity(BlockPos pos, BlockState state) {
         super(WineBlockEntities.WINE_BOTTLING_STATION.get(), pos, state);
@@ -72,10 +61,6 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
                 return slot == 2;
             }
         };
-    }
-
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
     }
 
     private void syncInputsFromHandler() {
@@ -198,26 +183,6 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
     }
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("Inventory", itemHandler.serializeNBT());
@@ -260,19 +225,6 @@ public class WineBottlingStationBlockEntity extends BlockEntity implements IUtil
             processingMethod = WineProcessingMethod.DRY;
         }
         bottleSize = tag.contains("BottleSize") ? tag.getDouble("BottleSize") : 0.75;
-    }
-
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
