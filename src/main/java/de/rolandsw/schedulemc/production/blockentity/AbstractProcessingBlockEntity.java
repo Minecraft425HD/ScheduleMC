@@ -4,22 +4,12 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.util.ModConstants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstrakte Basis-Klasse für alle Verarbeitungs-BlockEntities
@@ -36,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  * @param <Q> Die spezifische ProductionQuality
  */
 public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q extends ProductionQuality>
-        extends BlockEntity {
+        extends AbstractItemHandlerBlockEntity {
 
     // Processing State
     protected ItemStack inputStack = ItemStack.EMPTY;
@@ -55,9 +45,6 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
     private boolean outputDirty = false;
 
     // Forge ItemHandler
-    protected ItemStackHandler itemHandler;
-    private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
-
     protected AbstractProcessingBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         createItemHandler();  // NOPMD
@@ -95,8 +82,7 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
                 return ItemStack.EMPTY;
             }
         };
-
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
+        // LazyOptional-Registrierung erfolgt in AbstractItemHandlerBlockEntity.onLoad()
     }
 
     /**
@@ -307,37 +293,6 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
     protected void saveExtraData(CompoundTag tag) {}
     protected void loadExtraData(CompoundTag tag) {}
 
-    // ========== CLIENT-SERVER SYNC ==========
-
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
-        saveAdditional(tag);
-        return tag;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    // ========== CAPABILITIES ==========
-
-    @Override
-    public @NotNull <C> LazyOptional<C> getCapability(@NotNull Capability<C> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-    }
-
     // ========== GETTERS ==========
 
     public int getProcessingProgress() {
@@ -352,7 +307,4 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
         return quality;
     }
 
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
-    }
 }
