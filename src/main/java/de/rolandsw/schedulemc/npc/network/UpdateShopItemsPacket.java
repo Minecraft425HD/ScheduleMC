@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.ShopEntry;
+import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
@@ -76,14 +78,14 @@ public class UpdateShopItemsPacket {
             Entity entity = player.level().getEntity(merchantEntityId);
             if (entity instanceof CustomNPCEntity npc) {
                 // Null-Safety: Prüfe ob NPC-Daten und Shop vorhanden sind
-                if (npc.getNpcData() == null || npc.getNpcData().getBuyShop() == null) {
+                if (npc.getNpcData() == null || npc.getNpcData().getShopData().getBuyShop() == null) {
                     player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
                         "§cFehler: NPC-Daten nicht verfügbar!"));
                     return;
                 }
 
                 // Lösche alte Shop-Items
-                npc.getNpcData().getBuyShop().clear();
+                npc.getNpcData().getShopData().getBuyShop().clear();
 
                 // Füge neue Items hinzu
                 for (int i = 0; i < items.size(); i++) {
@@ -92,8 +94,8 @@ public class UpdateShopItemsPacket {
                     boolean isUnlimited = unlimited.get(i);
                     int itemStock = stock.get(i);
                     if (!item.isEmpty() && price > 0) {
-                        npc.getNpcData().getBuyShop().addEntry(
-                            new NPCData.ShopEntry(item, price, isUnlimited, itemStock));
+                        npc.getNpcData().getShopData().getBuyShop().addEntry(
+                            new ShopEntry(item, price, isUnlimited, itemStock));
                     }
                 }
 
@@ -115,7 +117,7 @@ public class UpdateShopItemsPacket {
      * WICHTIG: Nur Lager-Items (unlimited=false) werden ins Warehouse übernommen!
      */
     private static void syncShopToWarehouse(CustomNPCEntity npc, ServerPlayer player) {
-        BlockPos warehousePos = npc.getNpcData().getAssignedWarehouse();
+        BlockPos warehousePos = npc.getNpcData().getLocationData().getAssignedWarehouse();
         if (warehousePos == null) {
             return; // Kein Warehouse verknüpft
         }
@@ -127,11 +129,11 @@ public class UpdateShopItemsPacket {
 
         // Hole Shop-Items mit unlimited Status
         // OPTIMIERUNG: HashSet für O(1) contains statt O(n) mit List
-        List<NPCData.ShopEntry> shopEntries = npc.getNpcData().getBuyShop().getEntries();
+        List<ShopEntry> shopEntries = npc.getNpcData().getShopData().getBuyShop().getEntries();
         Set<Item> allShopItems = new HashSet<>();
         Set<Item> unlimitedItems = new HashSet<>();
 
-        for (NPCData.ShopEntry entry : shopEntries) {
+        for (ShopEntry entry : shopEntries) {
             if (!entry.getItem().isEmpty()) {
                 Item item = entry.getItem().getItem();
                 allShopItems.add(item);
@@ -170,7 +172,7 @@ public class UpdateShopItemsPacket {
         int itemsAdded = 0;  // NOPMD
         int emptySlotIndex = 0;
 
-        for (NPCData.ShopEntry entry : shopEntries) {
+        for (ShopEntry entry : shopEntries) {
             if (!entry.getItem().isEmpty()) {
                 Item item = entry.getItem().getItem();
                 boolean isUnlimited = entry.isUnlimited();

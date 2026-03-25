@@ -162,6 +162,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
 @Mod(ScheduleMC.MOD_ID)
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class ScheduleMC {
 
     public static final String MOD_ID = "schedulemc";
@@ -415,7 +416,7 @@ public class ScheduleMC {
         event.put(NPCEntities.CUSTOM_NPC.get(), CustomNPCEntity.createAttributes().build());
     }
 
-    private void onConfigReload(ModConfigEvent event) {
+    private void onConfigReload(ModConfigEvent _event) {
         ConfigCache.invalidate();
         NPCPathNavigation.reloadConfig();
     }

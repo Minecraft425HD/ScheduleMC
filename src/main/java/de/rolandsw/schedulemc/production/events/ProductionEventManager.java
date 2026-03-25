@@ -90,13 +90,12 @@ public class ProductionEventManager {
         private final float speedModifier;    // Multiplikator fuer Geschwindigkeit
         private final float priceModifier;    // Multiplikator fuer Preise
         private final int qualityChange;      // +/- Qualitaetsstufen
-        private final float seasonalWeight;   // Extra-Chance in bestimmter Saison (1.0 = normal)
 
         public ProductionEventTemplate(String id, String name, String description,
                 EventSeverity severity, EventCategory category,
                 int minDuration, int maxDuration,
                 float yieldModifier, float speedModifier, float priceModifier,
-                int qualityChange, float seasonalWeight) {
+                int qualityChange, float _seasonalWeight) {
             this.id = id;
             this.name = name;
             this.description = description;
@@ -108,7 +107,6 @@ public class ProductionEventManager {
             this.speedModifier = speedModifier;
             this.priceModifier = priceModifier;
             this.qualityChange = qualityChange;
-            this.seasonalWeight = seasonalWeight;
         }
 
         public String getId() { return id; }

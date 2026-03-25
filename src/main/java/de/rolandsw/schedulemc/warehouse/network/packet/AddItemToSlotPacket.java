@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.warehouse.network.packet;
 
 import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.ShopEntry;
+import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
@@ -125,11 +127,11 @@ public class AddItemToSlotPacket {
             CustomNPCEntity npc = NPCEntityRegistry.getNPCByUUID(sellerId, level);
 
             if (npc != null) {
-                NPCData.ShopInventory shop = npc.getNpcData().getBuyShop();
+                ShopInventory shop = npc.getNpcData().getShopData().getBuyShop();
 
                 // Prüfe ob Item bereits im Shop ist
                 boolean itemExists = false;
-                for (NPCData.ShopEntry entry : shop.getEntries()) {
+                for (ShopEntry entry : shop.getEntries()) {
                     if (!entry.getItem().isEmpty() && entry.getItem().getItem() == item) {
                         itemExists = true;
                         break;
@@ -139,7 +141,7 @@ public class AddItemToSlotPacket {
                 // Füge Item hinzu wenn nicht vorhanden
                 if (!itemExists) {
                     // WICHTIG: unlimited=false damit es vom Warehouse-Stock abhängt!
-                    shop.addEntry(new NPCData.ShopEntry(
+                    shop.addEntry(new ShopEntry(
                         new ItemStack(item, 1),
                         defaultPrice,
                         false, // unlimited=false -> Lager-Item!

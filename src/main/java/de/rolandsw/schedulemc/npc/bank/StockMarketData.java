@@ -36,7 +36,6 @@ public class StockMarketData {
     private volatile boolean dirty = false;
 
     private long currentDay = 0;
-    private long lastPriceUpdate = 0;
 
     private StockMarketData(MinecraftServer server) {
         this.saveFile = new File(server.getServerDirectory(), "config/plotmod_stock_market.json");
@@ -159,7 +158,6 @@ public class StockMarketData {
 
         if (day != currentDay) {
             currentDay = day;
-            lastPriceUpdate = day;
             updatePrices();
             dirty = true;
         }

@@ -42,7 +42,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.thread.BlockableEventLoop;
@@ -66,7 +65,6 @@ public class RegionCache {
     private ServerLevel worldServer;
     private ServerChunkCache chunkProvider;
     private BlockableEventLoop<RefreshRunnable> executor;
-    private ChunkMap chunkLoader;
     private String subworldName;
     private String worldNamePathPart;
     private String subworldNamePathPart = "";
@@ -139,7 +137,6 @@ public class RegionCache {
             this.chunkProvider = worldServer.getChunkSource();
             Class<?> executorClass = chunkProvider.getClass().getDeclaredClasses()[0];
             this.executor = (BlockableEventLoop<RefreshRunnable>) ReflectionUtils.getPrivateFieldValueByType(chunkProvider, ServerChunkCache.class, executorClass);
-            this.chunkLoader = chunkProvider.chunkMap;
         }
 
         Arrays.fill(this.liveChunkUpdateQueued, false);
@@ -306,7 +303,7 @@ public class RegionCache {
         return neighborsLoaded;
     }
 
-    private void loadAnvilData(net.minecraft.world.level.Level world) {
+    private void loadAnvilData(net.minecraft.world.level.Level _world) {
         if (!this.remoteWorld) {
             boolean full = true;
 

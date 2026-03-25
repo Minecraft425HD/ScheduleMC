@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
  * - /map edit - Öffnet den Territory Map Editor (OP-only)
  * - /map info - Zeigt Territory-Statistiken
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class MapCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

@@ -228,7 +228,7 @@ public class PriceManager {
     /**
      * Erstellt ein Event mit einheitlichem Multiplikator für alle Items
      */
-    private static EconomicEvent createEvent(String name, String description, List<Item> items, float multiplier, int days) {
+    private static EconomicEvent createEvent(String name, String _description, List<Item> items, float multiplier, int days) {
         Map<Item, Float> multipliers = new HashMap<>();  // NOPMD
         for (Item item : items) {
             if (item != null) {

@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
  *
  * Erfordert OP Level 2.
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class AdminCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

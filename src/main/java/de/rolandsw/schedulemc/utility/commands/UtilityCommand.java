@@ -29,6 +29,7 @@ import java.util.Optional;
  * /utility scan - Scannt aktuellen Plot nach Verbrauchern
  * /utility stats - Server-weite Statistiken
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class UtilityCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * /secretdoor info <x> <y> <z>
  *   → Zeigt Informationen über eine Geheimtür
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class SecretDoorCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

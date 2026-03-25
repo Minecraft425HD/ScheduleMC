@@ -18,6 +18,7 @@ import org.slf4j.Logger;
  * /state withdraw <amount> <reason> - Withdraws money (logs the reason)
  * /state history - Shows recent transactions
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class StateCommand {
 
     private static final Logger LOGGER = LogUtils.getLogger();

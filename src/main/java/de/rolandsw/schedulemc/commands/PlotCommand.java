@@ -37,6 +37,7 @@ import java.util.UUID;
  * ScheduleMC 3.0 Commands - Vollständig implementiert
  * Refactored mit CommandExecutor
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class PlotCommand {
 
     // RATE LIMITING: DoS Protection

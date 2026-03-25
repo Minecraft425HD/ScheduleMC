@@ -368,7 +368,7 @@ public class ColorCalculationService {
         }
     }
 
-    private int getColorForBlockPosBlockStateAndFacing(BlockPos blockPos, BlockState blockState, Direction facing) {
+    private int getColorForBlockPosBlockStateAndFacing(BlockPos _blockPos, BlockState blockState, Direction facing) {
         int color = 0x1B000000;
 
         try {
@@ -509,7 +509,7 @@ public class ColorCalculationService {
 
     }
 
-    private int tintFromFakePlacedBlock(BlockState blockState, MutableBlockPos loopBlockPos, Biome biomeID) {
+    private int tintFromFakePlacedBlock(BlockState _blockState, MutableBlockPos _loopBlockPos, Biome _biomeID) {
         return -1;
     }
 
@@ -680,7 +680,7 @@ public class ColorCalculationService {
         return tint;
     }
 
-    private int getCustomBlockBiomeTintFromUnloadedChunk(AbstractMapData mapData, Level world, BlockState blockState, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ) {
+    private int getCustomBlockBiomeTintFromUnloadedChunk(AbstractMapData mapData, Level _world, BlockState blockState, MutableBlockPos blockPos, MutableBlockPos loopBlockPos, int startX, int startZ) {
         int tint;
 
         try {
@@ -1050,7 +1050,7 @@ public class ColorCalculationService {
         return biome != null ? this.world.registryAccess().registryOrThrow(Registries.BIOME).getId(biome) : -1;
     }
 
-    private List<ResourceLocation> findResources(String namespace, String startingPath, String suffixMaybeNull, boolean recursive, boolean directories, boolean sortByFilename) {
+    private List<ResourceLocation> findResources(String namespace, String startingPath, String suffixMaybeNull, boolean _recursive, boolean _directories, boolean sortByFilename) {
         String effectivePath = startingPath == null ? "" : startingPath;
         if (!effectivePath.isEmpty() && effectivePath.charAt(0) == '/') {
             effectivePath = effectivePath.substring(1);

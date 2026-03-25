@@ -35,19 +35,18 @@ wartbar — so sollen sie bleiben.
 ---
 
 ### NPC God-Class Aufteilung (NPCData + CustomNPCEntity)
-**Status:** ZURÜCKGESTELLT — gewünscht, aber noch nicht umsetzen
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
 
 **Betrifft:**
-- `npc/data/NPCData.java` (971 Zeilen, 108 public Methoden)
+- `npc/data/NPCData.java` (971 → 409 Zeilen)
 - `npc/entity/CustomNPCEntity.java` (968 Zeilen)
 
-**Geplante Aufteilung von NPCData:**
+**Umgesetzte Aufteilung von NPCData:**
 - `NPCLocationData` — home, work, leisure (bis 10), assignedWarehouse
-- `NPCShopData` — buyShop, sellShop, merchantCategory
-- `NPCScheduleData` — workStartTime, workEndTime, homeTime
+- `NPCShopData` — buyShop, sellShop
+- `NPCScheduleData` — workStartTime, workEndTime, homeTime + isWithinWorkingHours()
 - `NPCPoliceData` — policeStation, patrolPoints (bis 16), currentPatrolIndex, Timing
+- `ShopInventory` / `ShopEntry` — als Top-Level-Klassen ausgelagert
 
-**Begründung für Zurückstellung:**
-Alle ~97 NPC-Dateien rufen direkt `npcData.getXxx()` auf. Das Refactoring erfordert
-einen vollständigen Massen-Callsite-Update durch das gesamte NPC-Paket. Hohes
-Fehlerrisiko, daher explizit auf einen dedizierten Sprint verschoben.
+**Abgeschlossen in:** Sprint auf Branch `claude/deepscan-repository-3Vkpv` (2026-03-24)
+Alle 29 Call-Site-Dateien migriert. NBT-Keys identisch — Spielstände bleiben kompatibel.

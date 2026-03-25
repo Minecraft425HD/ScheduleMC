@@ -760,7 +760,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
     }
 
-    private void drawUpgradeCard(GuiGraphics g, int x, int y, String title, String current, String next, double cost, boolean isMax, boolean inCart) {
+    private void drawUpgradeCard(GuiGraphics g, int x, int y, String title, String current, String next, double _cost, boolean isMax, boolean inCart) {
         g.fill(x, y, x + 190, y + 42, 0xFF999999);
         g.fill(x + 1, y + 1, x + 189, y + 41, 0xFFBBBBBB);
 

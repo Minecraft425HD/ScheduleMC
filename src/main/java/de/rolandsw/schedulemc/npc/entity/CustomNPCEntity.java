@@ -287,7 +287,7 @@ public class CustomNPCEntity extends PathfinderMob {
         ), buf -> {
             buf.writeInt(this.getId()); // Entity ID
             // Sende aktuelle Shop-Items
-            var shopItems = this.getNpcData().getBuyShop().getEntries();
+            var shopItems = this.getNpcData().getShopData().getBuyShop().getEntries();
             buf.writeInt(shopItems.size());
             for (var entry : shopItems) {
                 buf.writeItem(entry.getItem());
@@ -390,7 +390,7 @@ public class CustomNPCEntity extends PathfinderMob {
         // Polizei-NPCs haben spezielle Status
         if (type == NPCType.POLIZEI) {
             // Prüfe ob an der Polizeistation oder auf Patrouille
-            if (npcData.getPatrolPoints() != null && !npcData.getPatrolPoints().isEmpty()) {
+            if (npcData.getPoliceData().getPatrolPoints() != null && !npcData.getPoliceData().getPatrolPoints().isEmpty()) {
                 return NPCActivityStatus.ON_PATROL;
             }
             return NPCActivityStatus.AT_STATION;
@@ -399,9 +399,9 @@ public class CustomNPCEntity extends PathfinderMob {
         // Für normale NPCs: Prüfe Zeitplan
         if (this.level() instanceof ServerLevel serverLevel) {
             long dayTime = serverLevel.getDayTime() % 24000;
-            long workStart = npcData.getWorkStartTime();
-            long workEnd = npcData.getWorkEndTime();
-            long homeTime = npcData.getHomeTime();
+            long workStart = npcData.getScheduleData().getWorkStartTime();
+            long workEnd = npcData.getScheduleData().getWorkEndTime();
+            long homeTime = npcData.getScheduleData().getHomeTime();
 
             // Arbeitszeit-Bereich
             boolean isWorkTime;
@@ -439,7 +439,7 @@ public class CustomNPCEntity extends PathfinderMob {
      * Prüft ob der NPC am Arbeitsort ist
      */
     private boolean isAtWorkLocation() {
-        net.minecraft.core.BlockPos workPos = npcData.getWorkLocation();
+        net.minecraft.core.BlockPos workPos = npcData.getLocationData().getWorkLocation();
         if (workPos == null) {
             return false;
         }
@@ -451,7 +451,7 @@ public class CustomNPCEntity extends PathfinderMob {
      * Prüft ob der NPC zuhause ist
      */
     private boolean isAtHomeLocation() {
-        net.minecraft.core.BlockPos homePos = npcData.getHomeLocation();
+        net.minecraft.core.BlockPos homePos = npcData.getLocationData().getHomeLocation();
         if (homePos == null) {
             return false;
         }

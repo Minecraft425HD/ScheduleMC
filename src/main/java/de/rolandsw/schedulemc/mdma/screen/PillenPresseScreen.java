@@ -104,7 +104,7 @@ public class PillenPresseScreen extends AbstractContainerScreen<PillenPresseMenu
         graphics.drawString(this.font, bindeText, x + GUI_WIDTH - 90, infoY + 16, 0xFFFFFF, false);
     }
 
-    private void renderTimingBar(GuiGraphics graphics, int x, int y, float partialTick) {
+    private void renderTimingBar(GuiGraphics graphics, int x, int y, float _partialTick) {
         // Rahmen
         graphics.fill(x - 2, y - 2, x + BAR_WIDTH + 2, y + BAR_HEIGHT + 2, 0xFF555555);
 

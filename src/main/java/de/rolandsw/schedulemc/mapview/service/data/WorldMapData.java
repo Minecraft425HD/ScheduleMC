@@ -642,7 +642,7 @@ public class WorldMapData implements MapChangeListener {
         }
     }
 
-    private int applyHeight(AbstractMapData mapData, int color24, boolean underground, int multi, int imageX, int imageY, int height, boolean solid, int layer) {
+    private int applyHeight(AbstractMapData mapData, int color24, boolean _underground, int multi, int imageX, int imageY, int height, boolean solid, int layer) {
         if (color24 != this.colorManager.getAirColor() && color24 != 0) {
             int heightComp = Short.MIN_VALUE;
             if ((mapOptions.heightmap || mapOptions.slopemap) && !solid) {
@@ -907,7 +907,7 @@ public class WorldMapData implements MapChangeListener {
 
     }
 
-    private boolean isChunkReady(ClientLevel world, LevelChunk chunk) {
+    private boolean isChunkReady(ClientLevel _world, LevelChunk chunk) {
         return this.chunkCache.isChunkSurroundedByLoaded(chunk.getPos().x, chunk.getPos().z);
     }
 

@@ -65,14 +65,12 @@ public class RedemptionQuestManager {
         private final Faction targetFaction;
         private final RedemptionQuestType type;
         private int progress;
-        private final long startTime;
 
         public RedemptionQuest(UUID playerUUID, Faction targetFaction, RedemptionQuestType type) {
             this.playerUUID = playerUUID;
             this.targetFaction = targetFaction;
             this.type = type;
             this.progress = 0;
-            this.startTime = System.currentTimeMillis();
         }
 
         public UUID getPlayerUUID() { return playerUUID; }

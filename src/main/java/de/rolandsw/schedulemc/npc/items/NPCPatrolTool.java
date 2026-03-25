@@ -77,7 +77,7 @@ public class NPCPatrolTool extends Item {
             }
 
             // Prüfe max 16 Patrouillenpunkte
-            int currentSize = npc.getNpcData().getPatrolPoints().size();
+            int currentSize = npc.getNpcData().getPoliceData().getPatrolPoints().size();
             if (currentSize >= 16) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.patrol_max_reached")
@@ -87,9 +87,9 @@ public class NPCPatrolTool extends Item {
             }
 
             // Wenn noch keine Station gesetzt ist, setze die Station UND füge als ersten Patrol Point hinzu
-            if (npc.getNpcData().getPoliceStation() == null) {
-                npc.getNpcData().setPoliceStation(clickedPos);
-                npc.getNpcData().addPatrolPoint(clickedPos); // Station ist IMMER Patrouillenpunkt 1!
+            if (npc.getNpcData().getPoliceData().getPoliceStation() == null) {
+                npc.getNpcData().getPoliceData().setPoliceStation(clickedPos);
+                npc.getNpcData().getPoliceData().addPatrolPoint(clickedPos); // Station ist IMMER Patrouillenpunkt 1!
                 player.sendSystemMessage(
                     Component.translatable("message.npc.police_station_set")
                         .withStyle(ChatFormatting.GREEN)
@@ -108,8 +108,8 @@ public class NPCPatrolTool extends Item {
                 );
             } else {
                 // Station existiert bereits - füge weiteren Patrouillenpunkt hinzu
-                npc.getNpcData().addPatrolPoint(clickedPos);
-                int newSize = npc.getNpcData().getPatrolPoints().size();
+                npc.getNpcData().getPoliceData().addPatrolPoint(clickedPos);
+                int newSize = npc.getNpcData().getPoliceData().getPatrolPoints().size();
                 player.sendSystemMessage(
                     Component.translatable("message.npc.patrol_point_set", newSize, clickedPos.toShortString())
                         .withStyle(ChatFormatting.GREEN)
@@ -157,14 +157,14 @@ public class NPCPatrolTool extends Item {
             );
 
             // Zeige aktuellen Status
-            boolean hasStation = npc.getNpcData().getPoliceStation() != null;
-            int patrolCount = npc.getNpcData().getPatrolPoints().size();
+            boolean hasStation = npc.getNpcData().getPoliceData().getPoliceStation() != null;
+            int patrolCount = npc.getNpcData().getPoliceData().getPatrolPoints().size();
 
             if (hasStation) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.station_label")
                         .withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(npc.getNpcData().getPoliceStation().toShortString())
+                        .append(Component.literal(npc.getNpcData().getPoliceData().getPoliceStation().toShortString())
                             .withStyle(ChatFormatting.WHITE))
                         .append(Component.translatable("message.npc.patrol_count_suffix", patrolCount)
                             .withStyle(ChatFormatting.GRAY))
@@ -191,7 +191,7 @@ public class NPCPatrolTool extends Item {
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
         );
 
-        BlockPos station = npc.getNpcData().getPoliceStation();
+        BlockPos station = npc.getNpcData().getPoliceData().getPoliceStation();
         if (station != null) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.police_station_label")
@@ -208,7 +208,7 @@ public class NPCPatrolTool extends Item {
             );
         }
 
-        int patrolCount = npc.getNpcData().getPatrolPoints().size();
+        int patrolCount = npc.getNpcData().getPoliceData().getPatrolPoints().size();
         player.sendSystemMessage(
             Component.translatable("message.npc.patrol_points_count", patrolCount)
                 .withStyle(ChatFormatting.AQUA)
@@ -220,7 +220,7 @@ public class NPCPatrolTool extends Item {
                     .withStyle(ChatFormatting.GRAY)
             );
             for (int i = 0; i < Math.min(patrolCount, 5); i++) {
-                BlockPos point = npc.getNpcData().getPatrolPoints().get(i);
+                BlockPos point = npc.getNpcData().getPoliceData().getPatrolPoints().get(i);
                 player.sendSystemMessage(
                     Component.translatable("message.npc.patrol_point_entry", (i + 1), point.toShortString())
                         .withStyle(ChatFormatting.WHITE)

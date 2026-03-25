@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // @Mixin(ChatComponent.class)
+@SuppressWarnings("PMD.UnusedFormalParameter")
 public class APIMixinChatListenerHud {
     // @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"), cancellable = true)
     public void postSay(Component message, CallbackInfo ci) {

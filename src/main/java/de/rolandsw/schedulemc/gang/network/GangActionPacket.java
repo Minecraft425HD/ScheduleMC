@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.gang.network;
 
-import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.gang.*;
 import de.rolandsw.schedulemc.gang.mission.GangMissionManager;
 import de.rolandsw.schedulemc.economy.EconomyManager;
@@ -10,7 +9,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
-import org.slf4j.Logger;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -19,8 +17,6 @@ import java.util.function.Supplier;
  * Client-zu-Server Packet fuer Gang-Aktionen.
  */
 public class GangActionPacket {
-
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     public enum ActionType {
         CREATE, INVITE, ACCEPT_INVITE, LEAVE, KICK, PROMOTE, DISBAND, UNLOCK_PERK, SET_FEE, CLAIM_MISSION

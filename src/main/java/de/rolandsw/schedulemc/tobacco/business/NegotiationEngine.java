@@ -23,9 +23,6 @@ public class NegotiationEngine {
     private static final String NEGOTIATION_BLOCKED_KEY = "NegotiationBlocked_";
     private static final long BLOCK_DURATION_MS = 10 * 60 * 1000; // 10 Minuten Sperre nach Abbruch
 
-    private final TobaccoType type;
-    private final TobaccoQuality quality;
-    private final int weight;
     private final NPCBusinessMetrics metrics;
     private final String playerUUID;
 
@@ -35,9 +32,6 @@ public class NegotiationEngine {
 
     public NegotiationEngine(TobaccoType type, TobaccoQuality quality, int weight,
                             NPCBusinessMetrics metrics, String playerUUID) {
-        this.type = type;
-        this.quality = quality;
-        this.weight = weight;
         this.metrics = metrics;
         this.playerUUID = playerUUID;
 
@@ -229,7 +223,7 @@ public class NegotiationEngine {
         }
     }
 
-    private String getCompromiseMessage(double compromiseOffer, int round) {
+    private String getCompromiseMessage(double compromiseOffer, int _round) {
         return String.format("Okay, treffen wir uns in der Mitte: %.2f€?", compromiseOffer);
     }
 

@@ -79,8 +79,6 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
-
     /** Aktive Interaktionen: NPC UUID -> InteractionContext (TRANSIENT - nicht persistiert) */
     private final Map<UUID, InteractionContext> activeInteractions = new ConcurrentHashMap<>();
 
@@ -96,7 +94,6 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
             server.getServerDirectory().toPath().resolve("config").resolve("npc_life_interactions.json").toFile(),
             GsonHelper.get()
         );
-        this.server = server;
         load();
     }
 

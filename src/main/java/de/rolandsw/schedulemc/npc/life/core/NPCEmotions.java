@@ -34,7 +34,6 @@ public class NPCEmotions {
     private EmotionState baselineEmotion = EmotionState.NEUTRAL;
 
     // Für sanfte Übergänge
-    private EmotionState previousEmotion = EmotionState.NEUTRAL;
     private float transitionProgress = 1.0f; // 1.0 = vollständig gewechselt
 
     // ═══════════════════════════════════════════════════════════
@@ -51,7 +50,6 @@ public class NPCEmotions {
     public void trigger(EmotionState emotion, float intensity, int durationTicks) {
         // Stärkere Emotion überschreibt schwächere
         if (emotion != this.currentEmotion || intensity > this.intensity) {
-            this.previousEmotion = this.currentEmotion;
             this.currentEmotion = emotion;
             this.intensity = Math.min(MAX_INTENSITY, Math.max(MIN_INTENSITY, intensity));
             this.remainingTicks = durationTicks;
@@ -119,7 +117,6 @@ public class NPCEmotions {
      * Wechselt zurück zur Baseline-Emotion
      */
     private void decayToBaseline() {
-        this.previousEmotion = this.currentEmotion;
         this.currentEmotion = this.baselineEmotion;
         this.intensity = 0.0f;
         this.remainingTicks = 0;

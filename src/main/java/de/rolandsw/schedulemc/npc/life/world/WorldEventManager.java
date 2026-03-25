@@ -159,7 +159,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
     /**
      * Versucht ein neues Event zu generieren
      */
-    private void tryGenerateEvent(ServerLevel level, long currentDay) {
+    private void tryGenerateEvent(ServerLevel _level, long currentDay) {
         if (activeEvents.size() >= MAX_ACTIVE_EVENTS) {
             return;
         }
@@ -301,7 +301,7 @@ public class WorldEventManager extends AbstractPersistenceManager<WorldEventMana
     /**
      * Kündigt ein Event an (z.B. via Chat)
      */
-    private void announceEvent(WorldEvent event) {
+    private void announceEvent(WorldEvent _event) {
         // Hier könnte eine Server-weite Nachricht gesendet werden
         // level.getServer().getPlayerList().broadcastSystemMessage(
         //     Component.literal("[Event] " + event.getType().getDisplayName() + ": " +

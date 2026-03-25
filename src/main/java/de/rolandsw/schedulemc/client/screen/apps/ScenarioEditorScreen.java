@@ -76,7 +76,6 @@ public class ScenarioEditorScreen extends Screen {
             "STROMAUSFALL", "UNWETTER"};
     private static final String[] COLOR_TYPES = {"WEISS", "ROT", "GRUEN", "BLAU", "GELB", "LILA", "ORANGE", "GRAU"};
     private static final String[] MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
-    private static final String[] MISSION_TYPE_LABELS = {"Stuendlich", "Taeglich", "Woechentlich"};
 
     // Separierte Gang- und Story-Typen fuer den zweigeteilten Selektor
     private static final String[] GANG_MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
@@ -479,7 +478,7 @@ public class ScenarioEditorScreen extends Screen {
     }
 
     // ─── CANVAS ───
-    private void renderCanvas(GuiGraphics g, int mx, int my) {
+    private void renderCanvas(GuiGraphics g, int _mx, int _my) {
         int cL = PALETTE_W, cT = TOOLBAR_H, cR = propsLeft(), cB = this.height - STATUS_H;
         g.fill(cL, cT, cR, cB, C_CANVAS);
 
@@ -721,12 +720,6 @@ public class ScenarioEditorScreen extends Screen {
         g.fill(lvlX + 11, y + 2, lvlX + 19, y + 13, lvlPlH ? 0xFF2ECC71 : 0xFF1A2A1A);
         g.drawCenteredString(this.font, "-", lvlX + 6, y + 3, 0xFFFFFF);
         g.drawCenteredString(this.font, "+", lvlX + 15, y + 3, 0xFFFFFF);
-    }
-
-    private int getMissionTypeIndex() {
-        String t = currentScenario.getMissionType();
-        for (int i = 0; i < MISSION_TYPES.length; i++) if (MISSION_TYPES[i].equals(t)) return i;
-        return 1;
     }
 
     private boolean isStoryMission() {
@@ -1098,7 +1091,7 @@ public class ScenarioEditorScreen extends Screen {
             currentScenario.setMinGangLevel(currentScenario.getMinGangLevel() + 1);
     }
 
-    private void handlePropsClick(int mx, int my, int button) {
+    private void handlePropsClick(int mx, int my, int _button) {
         if (selectedBlockId == null) return;
         ScenarioObjective obj = currentScenario.getObjective(selectedBlockId);
         if (obj == null) return;
@@ -1214,7 +1207,7 @@ public class ScenarioEditorScreen extends Screen {
         return false;
     }
 
-    private void handlePalette(int mx, int my) {
+    private void handlePalette(int _mx, int my) {
         int pB = this.height - STATUS_H;  // NOPMD
         int y = TOOLBAR_H + 14 - paletteScroll;
         for (var entry : catExpanded.entrySet()) {

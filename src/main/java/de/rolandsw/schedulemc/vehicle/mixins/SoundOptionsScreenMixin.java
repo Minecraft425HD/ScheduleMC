@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 // Method signature confirmed for Minecraft 1.20.1: getAllSoundOptionsExceptMaster() is private
+@SuppressWarnings({"PMD.UnusedFormalParameter", "PMD.UnusedPrivateMethod"})
 @Mixin(SoundOptionsScreen.class)
 public class SoundOptionsScreenMixin extends OptionsSubScreen {
 

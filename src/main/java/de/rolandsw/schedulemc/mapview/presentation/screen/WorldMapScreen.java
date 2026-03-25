@@ -604,7 +604,7 @@ public class WorldMapScreen extends PopupScreen {
         return super.charTyped(codePoint, modifiers);
     }
 
-    private boolean isAcceptable(String input) {
+    private boolean isAcceptable(String _input) {
         try {
             String[] xz = this.coordinates.getValue().split(",");
             Integer.valueOf(xz[0].trim());
@@ -1352,7 +1352,7 @@ public class WorldMapScreen extends PopupScreen {
      * Rendert das Navigations-Overlay auf der Worldmap
      * Zeigt Pfadlinie, Zielmarker und Distanzanzeige
      */
-    private void renderNavigationOverlay(GuiGraphics graphics, int centerX, int centerZ, float zoom) {
+    private void renderNavigationOverlay(GuiGraphics graphics, int centerX, int centerZ, float _zoom) {
         NavigationOverlay overlay = NavigationOverlay.getInstance();
 
         // Initialisiere falls nötig
@@ -1384,7 +1384,7 @@ public class WorldMapScreen extends PopupScreen {
      * Rendert Territory-Overlays auf der Karte
      * Opacity: 15% für View-Mode, 80% für Edit-Mode
      */
-    private void renderTerritoryOverlay(GuiGraphics guiGraphics, float cursorCoordX, float cursorCoordZ) {
+    private void renderTerritoryOverlay(GuiGraphics guiGraphics, float _cursorCoordX, float _cursorCoordZ) {
         Map<Long, SyncTerritoriesPacket.TerritoryData> territories = SyncTerritoriesPacket.TerritoryClientCache.getCache();
 
         // Calculate visible chunk range

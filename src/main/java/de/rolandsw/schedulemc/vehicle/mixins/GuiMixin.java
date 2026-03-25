@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // Method signature confirmed for Minecraft 1.20.1: renderExperienceBar(GuiGraphics, int)
+@SuppressWarnings("PMD.UnusedFormalParameter")
 @Mixin(Gui.class)
 public class GuiMixin {
 

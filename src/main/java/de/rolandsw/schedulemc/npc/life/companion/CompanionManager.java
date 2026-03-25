@@ -78,8 +78,6 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
-
     /** Alle registrierten Begleiter: Companion UUID -> Data */
     private final Map<UUID, CompanionData> allCompanions = new ConcurrentHashMap<>();
 
@@ -98,7 +96,6 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
             server.getServerDirectory().toPath().resolve("config").resolve("npc_life_companions.json").toFile(),
             GsonHelper.get()
         );
-        this.server = server;
         load();
     }
 

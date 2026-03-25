@@ -52,12 +52,8 @@ public class PoliceAIHandler {
 
     // Konstanten
     private static final double POLICE_SPEED = 1.2; // 20% schneller
-    private static final long TICKS_PER_SECOND = 20L;
     private static final int AI_UPDATE_INTERVAL_TICKS = 20; // Alle 1 Sekunde
-    private static final int FINE_PER_WANTED_LEVEL = 500;
-    private static final int JAIL_SECONDS_PER_WANTED_LEVEL = 60;
     private static final int MAX_ARREST_TIMER_ENTRIES = 1000;
-    private static final long ARREST_TIMER_TIMEOUT_MS = 600000; // 10 Minuten
     private static final int MAX_CACHE_ENTRIES = 500; // Max Einträge für LRU-Caches
 
     // UUID -> Arrest Start Time (in Ticks) - mit automatischem Cleanup

@@ -332,7 +332,7 @@ public class GangAppScreen extends Screen {
         };
     }
 
-    private void renderCurrentPage(GuiGraphics g, int mouseX, int mouseY) {
+    private void renderCurrentPage(GuiGraphics g, int _mouseX, int _mouseY) {
         // Footer (dunkler Bereich mit Trennlinie)
         g.fill(leftPos, contentBottom, leftPos + WIDTH, topPos + HEIGHT, 0xFF0D0D0D);
         g.fill(leftPos, contentBottom, leftPos + WIDTH, contentBottom + 1, 0x33FFFFFF);
@@ -1058,7 +1058,7 @@ public class GangAppScreen extends Screen {
         return false;
     }
 
-    private boolean handleMissionClick(double relY, double mouseX) {
+    private boolean handleMissionClick(double relY, double _mouseX) {
         SyncGangDataPacket data = ClientGangCache.getMyGangData();
         if (data == null) return false;
 

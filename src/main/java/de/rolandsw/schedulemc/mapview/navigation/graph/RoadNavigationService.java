@@ -35,8 +35,6 @@ public class RoadNavigationService {
     private static final int PATH_UPDATE_INTERVAL_MS = 1000; // Pfad-Update jede Sekunde
     private static final double MOVEMENT_THRESHOLD = 10.0; // Mindestbewegung für Neuberechnung
     private static final double ARRIVAL_DISTANCE = 5.0; // Distanz für "angekommen"
-    private static final double PATH_DEVIATION_THRESHOLD = 15.0; // Pfad-Neuberechnung wenn zu weit vom Pfad
-
     // Services
     private final WorldMapData mapData;
 

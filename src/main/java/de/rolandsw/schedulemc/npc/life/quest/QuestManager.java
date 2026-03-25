@@ -79,8 +79,6 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
-
     /** Registrierte Quest-Vorlagen: Template ID -> Template (TRANSIENT - nicht persistiert) */
     private final Map<String, QuestTemplate> questTemplates = new ConcurrentHashMap<>();
 
@@ -102,7 +100,6 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             server.getServerDirectory().toPath().resolve("config").resolve("npc_life_quests.json").toFile(),
             GsonHelper.get()
         );
-        this.server = server;
         load();
         registerDefaultTemplates();  // NOPMD
     }
@@ -294,7 +291,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             case ESCORT -> {
                 // Eskorte: NPC zu einem Ort bringen
                 // Use NPC's home/work location if available, else use offset destination
-                BlockPos destination = questGiver.getNpcData().getHomeLocation();
+                BlockPos destination = questGiver.getNpcData().getLocationData().getHomeLocation();
                 if (destination == null || destination.equals(questGiver.blockPosition())) {
                     destination = questGiver.blockPosition().offset(50, 0, 50);
                 }
@@ -379,7 +376,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
     /**
      * Returns an entity type string fitting the quest giver's context.
      */
-    private String getEntityTypeForElimination(CustomNPCEntity npc) {
+    private String getEntityTypeForElimination(CustomNPCEntity _npc) {
         // Pick a threat appropriate to the context
         String[] hostileMobs = {"zombie", "skeleton", "spider", "pillager"};
         return hostileMobs[ThreadLocalRandom.current().nextInt(hostileMobs.length)];
@@ -390,7 +387,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
      * Returns null if no other NPC found.
      */
     @Nullable
-    private UUID findNearbyDifferentNPC(CustomNPCEntity questGiver, ServerPlayer player) {
+    private UUID findNearbyDifferentNPC(CustomNPCEntity questGiver, ServerPlayer _player) {
         if (!(questGiver.level() instanceof ServerLevel level)) return null;
         UUID questGiverUUID = questGiver.getNpcData().getNpcUUID();
         return level.getEntitiesOfClass(CustomNPCEntity.class,

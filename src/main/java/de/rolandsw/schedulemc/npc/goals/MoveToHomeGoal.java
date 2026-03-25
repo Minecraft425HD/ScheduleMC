@@ -38,7 +38,7 @@ public class MoveToHomeGoal extends Goal {
         }
 
         // Nur wenn eine Home Location gesetzt ist
-        BlockPos home = npc.getNpcData().getHomeLocation();
+        BlockPos home = npc.getNpcData().getLocationData().getHomeLocation();
         if (home == null) {
             return false;
         }
@@ -46,8 +46,8 @@ public class MoveToHomeGoal extends Goal {
         // Prüfe ob Heimzeit ist (einstellbare Zeiten)
         Level level = npc.level();
         long dayTime = level.getDayTime() % 24000;
-        long homeTime = npc.getNpcData().getHomeTime();
-        long workStart = npc.getNpcData().getWorkStartTime();
+        long homeTime = npc.getNpcData().getScheduleData().getHomeTime();
+        long workStart = npc.getNpcData().getScheduleData().getWorkStartTime();
 
         // Heimzeit = ab homeTime bis workStart (kann über Mitternacht gehen)
         boolean isHomeTime = isTimeBetween(dayTime, homeTime, workStart);
@@ -71,8 +71,8 @@ public class MoveToHomeGoal extends Goal {
         if (npc.isDriving()) {
             Level level = npc.level();
             long dayTime = level.getDayTime() % 24000;
-            long homeTime = npc.getNpcData().getHomeTime();
-            long workStart = npc.getNpcData().getWorkStartTime();
+            long homeTime = npc.getNpcData().getScheduleData().getHomeTime();
+            long workStart = npc.getNpcData().getScheduleData().getWorkStartTime();
             return isTimeBetween(dayTime, homeTime, workStart);
         }
 
@@ -83,8 +83,8 @@ public class MoveToHomeGoal extends Goal {
 
         Level level = npc.level();
         long dayTime = level.getDayTime() % 24000;
-        long homeTime = npc.getNpcData().getHomeTime();
-        long workStart = npc.getNpcData().getWorkStartTime();
+        long homeTime = npc.getNpcData().getScheduleData().getHomeTime();
+        long workStart = npc.getNpcData().getScheduleData().getWorkStartTime();
 
         boolean isHomeTime = isTimeBetween(dayTime, homeTime, workStart);
 

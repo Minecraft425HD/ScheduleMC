@@ -144,7 +144,7 @@ public class NPCLifeData {
     private void updateSafety(CustomNPCEntity npc) {
         if (npc.level() instanceof ServerLevel level) {
             var npcPos = npc.blockPosition();
-            var homePos = npc.getNpcData().getHomeLocation();
+            var homePos = npc.getNpcData().getLocationData().getHomeLocation();
 
             // Spieler in der Nähe sammeln (Loop statt Stream)
             safetyNearbyPlayers.clear();

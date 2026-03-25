@@ -153,7 +153,7 @@ public class GuiTireChange extends Screen {
         }
     }
 
-    private void drawHotbar(GuiGraphics g, int gx, int ty, int mouseX, int mouseY) {
+    private void drawHotbar(GuiGraphics g, int gx, int ty, int _mouseX, int _mouseY) {
         int slotStartX = gx + (GUI_W - 9 * 18) / 2;
         for (int i = 0; i < 9; i++) {
             int sx = slotStartX + i * 18;

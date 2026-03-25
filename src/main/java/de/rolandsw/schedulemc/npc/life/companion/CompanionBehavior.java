@@ -228,7 +228,7 @@ public class CompanionBehavior {
     /**
      * Heil-Verhalten: Heilt den Besitzer
      */
-    private void behaviorHeal(ServerLevel level, ServerPlayer owner) {
+    private void behaviorHeal(ServerLevel _level, ServerPlayer owner) {
         if (!data.getType().canHeal()) return;
 
         // Zum Besitzer gehen
@@ -378,7 +378,7 @@ public class CompanionBehavior {
     /**
      * Warnt den Besitzer vor einer Bedrohung
      */
-    private void warnOwnerAboutThreat(ServerPlayer owner, LivingEntity threat) {
+    private void warnOwnerAboutThreat(ServerPlayer owner, LivingEntity _threat) {
         // Hier könnte eine Nachricht oder ein Sound gesendet werden
         // Für jetzt: Companion schaut zum Besitzer
         companion.getLookControl().setLookAt(owner);

@@ -196,11 +196,8 @@ public class PlotMenuGUI {
     // ═══════════════════════════════════════════════════════════
     
     private static class PlotMenuContainer extends ChestMenu {
-        private final SimpleContainer container;
-        
         public PlotMenuContainer(int id, Inventory playerInv, SimpleContainer container) {
             super(MenuType.GENERIC_9x3, id, playerInv, container, 3);
-            this.container = container;
         }
         
         @Override

@@ -14,8 +14,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * - REWARD: Mission automatisch abschliessen
  */
 public class PlayerMissionScenarioExecutor {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PlayerMissionScenarioExecutor.class);
 
     /** Tickzaehler pro aktiver Player-Mission (fuer zeitbasierte Objectives). */
     private static final Map<String, Integer> TICK_COUNTERS = new ConcurrentHashMap<>();
@@ -261,7 +257,7 @@ public class PlayerMissionScenarioExecutor {
 
     private static void advanceToNext(ServerPlayer player, PlayerMission mission,
                                        MissionScenario scenario, ScenarioObjective current,
-                                       String stateKey, PlayerMissionManager mgr) {
+                                       String stateKey, PlayerMissionManager _mgr) {
         String nextId = current.getNextObjectiveId();
         TICK_COUNTERS.remove(stateKey);
 

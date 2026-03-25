@@ -68,8 +68,6 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
-
     /** Registrierte Dialogbäume: TreeID -> Tree (TRANSIENT - nicht persistiert) */
     private final Map<String, DialogueTree> registeredTrees = new ConcurrentHashMap<>();
 
@@ -88,7 +86,6 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
             server.getServerDirectory().toPath().resolve("config").resolve("npc_life_dialogues.json").toFile(),
             GsonHelper.get()
         );
-        this.server = server;
         load();
     }
 

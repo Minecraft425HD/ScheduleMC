@@ -83,7 +83,7 @@ public class NPCLeisureTool extends Item {
 
             // Shift+Rechtsklick = Letzten Freizeitort entfernen
             if (player.isCrouching()) {
-                List<BlockPos> leisureLocations = npc.getNpcData().getLeisureLocations();
+                List<BlockPos> leisureLocations = npc.getNpcData().getLocationData().getLeisureLocations();
                 if (leisureLocations.isEmpty()) {
                     player.sendSystemMessage(
                         Component.translatable("message.npc.no_leisure_available")
@@ -92,13 +92,13 @@ public class NPCLeisureTool extends Item {
                 } else {
                     int lastIndex = leisureLocations.size() - 1;
                     BlockPos removed = leisureLocations.get(lastIndex);
-                    npc.getNpcData().removeLeisureLocation(lastIndex);
+                    npc.getNpcData().getLocationData().removeLeisureLocation(lastIndex);
                     player.sendSystemMessage(
                         Component.translatable("message.npc.leisure_removed", (lastIndex + 1), removed.toShortString())
                             .withStyle(ChatFormatting.YELLOW)
                     );
                     player.sendSystemMessage(
-                        Component.translatable("message.npc.remaining_locations", npc.getNpcData().getLeisureLocations().size())
+                        Component.translatable("message.npc.remaining_locations", npc.getNpcData().getLocationData().getLeisureLocations().size())
                             .withStyle(ChatFormatting.GRAY)
                     );
                 }
@@ -106,7 +106,7 @@ public class NPCLeisureTool extends Item {
             }
 
             // Normal-Rechtsklick = Freizeitort hinzufügen
-            int currentSize = npc.getNpcData().getLeisureLocations().size();
+            int currentSize = npc.getNpcData().getLocationData().getLeisureLocations().size();
             if (currentSize >= 10) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.leisure_max_reached")
@@ -119,8 +119,8 @@ public class NPCLeisureTool extends Item {
                 return InteractionResult.FAIL;
             }
 
-            npc.getNpcData().addLeisureLocation(clickedPos);
-            int newSize = npc.getNpcData().getLeisureLocations().size();
+            npc.getNpcData().getLocationData().addLeisureLocation(clickedPos);
+            int newSize = npc.getNpcData().getLocationData().getLeisureLocations().size();
             player.sendSystemMessage(
                 Component.translatable("message.npc.leisure_set", newSize, clickedPos.toShortString())
                     .withStyle(ChatFormatting.GREEN)
@@ -170,7 +170,7 @@ public class NPCLeisureTool extends Item {
             );
 
             // Zeige aktuellen Status
-            int leisureCount = npc.getNpcData().getLeisureLocations().size();
+            int leisureCount = npc.getNpcData().getLocationData().getLeisureLocations().size();
             player.sendSystemMessage(
                 Component.translatable("message.npc.leisure_count", leisureCount)
                     .withStyle(ChatFormatting.GRAY)
@@ -202,7 +202,7 @@ public class NPCLeisureTool extends Item {
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
         );
 
-        List<BlockPos> leisureLocations = npc.getNpcData().getLeisureLocations();
+        List<BlockPos> leisureLocations = npc.getNpcData().getLocationData().getLeisureLocations();
         int count = leisureLocations.size();
 
         player.sendSystemMessage(

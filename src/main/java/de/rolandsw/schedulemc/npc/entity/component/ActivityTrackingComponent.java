@@ -47,8 +47,8 @@ public class ActivityTrackingComponent implements NPCComponent {
 
         // Polizei-NPCs
         if (type == NPCType.POLIZEI) {
-            if (entity.getNpcData().getPatrolPoints() != null &&
-                !entity.getNpcData().getPatrolPoints().isEmpty()) {
+            if (entity.getNpcData().getPoliceData().getPatrolPoints() != null &&
+                !entity.getNpcData().getPoliceData().getPatrolPoints().isEmpty()) {
                 return NPCActivityStatus.ON_PATROL;
             }
             return NPCActivityStatus.AT_STATION;
@@ -57,18 +57,18 @@ public class ActivityTrackingComponent implements NPCComponent {
         // Zeitplan pruefen
         if (entity.level() instanceof ServerLevel serverLevel) {
             long dayTime = serverLevel.getDayTime() % 24000;
-            long workStart = entity.getNpcData().getWorkStartTime();
-            long workEnd = entity.getNpcData().getWorkEndTime();
-            long homeTime = entity.getNpcData().getHomeTime();
+            long workStart = entity.getNpcData().getScheduleData().getWorkStartTime();
+            long workEnd = entity.getNpcData().getScheduleData().getWorkEndTime();
+            long homeTime = entity.getNpcData().getScheduleData().getHomeTime();
 
             boolean isWorkTime = isInTimeRange(dayTime, workStart, workEnd);
             boolean isHomeTime = isInTimeRange(dayTime, homeTime, workStart);
 
-            if (isWorkTime && isNearLocation(entity, entity.getNpcData().getWorkLocation())) {
+            if (isWorkTime && isNearLocation(entity, entity.getNpcData().getLocationData().getWorkLocation())) {
                 return NPCActivityStatus.AT_WORK;
             }
 
-            if (isHomeTime && isNearLocation(entity, entity.getNpcData().getHomeLocation())) {
+            if (isHomeTime && isNearLocation(entity, entity.getNpcData().getLocationData().getHomeLocation())) {
                 return NPCActivityStatus.AT_HOME;
             }
         }

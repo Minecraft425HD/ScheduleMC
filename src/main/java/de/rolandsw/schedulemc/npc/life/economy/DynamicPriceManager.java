@@ -82,8 +82,6 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     // DATA
     // ═══════════════════════════════════════════════════════════
 
-    private MinecraftServer server;
-
     /** Globale Marktbedingung */
     private MarketCondition globalCondition = MarketCondition.NORMAL;
 
@@ -100,9 +98,6 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     /** Letzter bekannter Tag */
     private long lastKnownDay = -1;
 
-    /** Tick-Counter (TRANSIENT - nicht persistiert) */
-    private int tickCounter = 0;
-
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
@@ -112,7 +107,6 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
             server.getServerDirectory().toPath().resolve("config").resolve("npc_life_prices.json").toFile(),
             GsonHelper.get()
         );
-        this.server = server;
         load();
     }
 
@@ -124,8 +118,6 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
      * Wird jeden Tick aufgerufen
      */
     public void tick(ServerLevel level) {
-        tickCounter++;
-
         // Temporäre Modifikatoren aktualisieren
         temporaryModifiers.entrySet().removeIf(e -> {
             e.getValue().ticksRemaining--;

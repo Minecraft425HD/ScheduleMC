@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
  *
  * Erfordert OP-Level 2
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class AdminToolsCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

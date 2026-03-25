@@ -32,6 +32,7 @@ import org.slf4j.Logger;
  * /warehouse clear - Clears all items
  * /warehouse setshop <shopId> - Links warehouse to shop
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class WarehouseCommand {
 
     private static final Logger LOGGER = LogUtils.getLogger();

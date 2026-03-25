@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.npc.menu;
 
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.data.NPCData;
+import de.rolandsw.schedulemc.npc.data.ShopEntry;
+import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
@@ -96,9 +98,9 @@ public class ShopEditorMenu extends AbstractContainerMenu {
      */
     private void loadShopItems() {
         if (merchant != null) {
-            List<NPCData.ShopEntry> entries = merchant.getNpcData().getBuyShop().getEntries();
+            List<ShopEntry> entries = merchant.getNpcData().getShopData().getBuyShop().getEntries();
             for (int i = 0; i < Math.min(entries.size(), SHOP_SLOTS); i++) {
-                NPCData.ShopEntry entry = entries.get(i);
+                ShopEntry entry = entries.get(i);
                 shopContainer.setItem(i, entry.getItem().copy());
                 itemPrices[i] = entry.getPrice();
                 itemUnlimited[i] = entry.isUnlimited();

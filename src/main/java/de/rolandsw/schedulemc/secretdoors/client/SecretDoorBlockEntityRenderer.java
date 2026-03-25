@@ -20,7 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SecretDoorBlockEntityRenderer implements BlockEntityRenderer<SecretDoorBlockEntity> {
 
-    public SecretDoorBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
+    public SecretDoorBlockEntityRenderer(BlockEntityRendererProvider.Context _ctx) {}
 
     @Override
     public void render(SecretDoorBlockEntity be, float partialTick, PoseStack poseStack,

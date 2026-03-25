@@ -50,16 +50,16 @@ public class PolicePatrolGoal extends Goal {
         }
 
         // Nur wenn Patrouillenpunkte gesetzt sind
-        List<BlockPos> patrolPoints = npc.getNpcData().getPatrolPoints();
+        List<BlockPos> patrolPoints = npc.getNpcData().getPoliceData().getPatrolPoints();
         if (patrolPoints.isEmpty()) {
             return false;
         }
 
         // Hole aktuellen Patrouillenpunkt
-        int currentIndex = npc.getNpcData().getCurrentPatrolIndex();
+        int currentIndex = npc.getNpcData().getPoliceData().getCurrentPatrolIndex();
         if (currentIndex >= patrolPoints.size()) {
             // Index zurücksetzen wenn außerhalb
-            npc.getNpcData().setCurrentPatrolIndex(0);
+            npc.getNpcData().getPoliceData().setCurrentPatrolIndex(0);
             currentIndex = 0;
         }
 
@@ -73,7 +73,7 @@ public class PolicePatrolGoal extends Goal {
             return false;
         }
 
-        List<BlockPos> patrolPoints = npc.getNpcData().getPatrolPoints();
+        List<BlockPos> patrolPoints = npc.getNpcData().getPoliceData().getPatrolPoints();
         if (patrolPoints.isEmpty()) {
             return false;
         }
@@ -81,7 +81,7 @@ public class PolicePatrolGoal extends Goal {
         // Prüfe ob genug Zeit am Punkt gewartet wurde
         if (hasArrived) {
             long currentTime = npc.level().getDayTime();
-            long arrivalTime = npc.getNpcData().getPatrolArrivalTime();
+            long arrivalTime = npc.getNpcData().getPoliceData().getPatrolArrivalTime();
             long waitTimeTicks = ModConfigHandler.COMMON.POLICE_PATROL_WAIT_MINUTES.get() * 60 * 20; // Minuten → Ticks
 
             // Berechne verstrichene Zeit (mit Wrap-Around bei 24000 Ticks pro Tag)
@@ -93,12 +93,12 @@ public class PolicePatrolGoal extends Goal {
 
             if (elapsedTicks >= waitTimeTicks) {
                 // Wartezeit vorbei - gehe zum nächsten Punkt
-                npc.getNpcData().incrementPatrolIndex();
+                npc.getNpcData().getPoliceData().incrementPatrolIndex();
 
                 // Hole nächsten Punkt
-                int nextIndex = npc.getNpcData().getCurrentPatrolIndex();
+                int nextIndex = npc.getNpcData().getPoliceData().getCurrentPatrolIndex();
                 if (nextIndex >= patrolPoints.size()) {
-                    npc.getNpcData().setCurrentPatrolIndex(0);
+                    npc.getNpcData().getPoliceData().setCurrentPatrolIndex(0);
                     nextIndex = 0;
                 }
 
@@ -162,7 +162,7 @@ public class PolicePatrolGoal extends Goal {
             if (!hasArrived && distanceToTargetSqr <= ARRIVAL_THRESHOLD_SQR) {
                 // Gerade angekommen - speichere Ankunftszeit (DayTime für /time add Kompatibilität)
                 hasArrived = true;
-                npc.getNpcData().setPatrolArrivalTime(npc.level().getDayTime());
+                npc.getNpcData().getPoliceData().setPatrolArrivalTime(npc.level().getDayTime());
                 npc.getNavigation().stop();
             }
         }

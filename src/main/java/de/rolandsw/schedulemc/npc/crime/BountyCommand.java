@@ -17,6 +17,7 @@ import java.util.List;
 /**
  * Kopfgeld-Befehle
  */
+@SuppressWarnings("PMD.UnusedPrivateMethod")
 public class BountyCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
