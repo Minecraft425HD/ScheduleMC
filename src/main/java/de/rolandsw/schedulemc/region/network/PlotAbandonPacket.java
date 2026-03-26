@@ -1,5 +1,8 @@
 package de.rolandsw.schedulemc.region.network;
 
+import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.StateAccount;
+import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.util.PacketHandler;
@@ -57,6 +60,9 @@ public class PlotAbandonPacket {
             }
 
             String plotName = plot.getPlotName();
+            double originalPrice = plot.getPrice();
+            double refund = originalPrice * 0.5;
+            double stateShare = originalPrice - refund; // Rounding-sicher: Rest an den Staat
 
             // Setze Plot zurück auf Server-Besitz
             plot.setOwnerUUID(""); // Leer = Server-owned
@@ -69,9 +75,16 @@ public class PlotAbandonPacket {
 
             PlotManager.savePlots();
 
+            // 50% Rückerstattung an Spieler, 50% an Staatskasse
+            EconomyManager.deposit(player.getUUID(), refund, TransactionType.PLOT_SALE,
+                "Grundstück aufgegeben (50%): " + plotName);
+            StateAccount.deposit((int) Math.round(stateShare),
+                "Grundstücksauflösung (50%): " + plotName);
+
             player.sendSystemMessage(Component.translatable("message.plot.abandoned_prefix")
                 .append(Component.literal(plotName).withStyle(ChatFormatting.GRAY)));
-            player.sendSystemMessage(Component.translatable("message.plot.abandoned"));
+            player.sendSystemMessage(Component.translatable("message.plot.abandoned_refund",
+                String.format("%.2f", refund), String.format("%.2f", stateShare)));
         });
     }
 }

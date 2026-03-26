@@ -4045,6 +4045,7 @@
   "message.plot.abandon.success": "§a✓ Grundstück aufgegeben",
   "message.plot.abandoned": "§7Der Plot steht nun wieder zum Verkauf.",
   "message.plot.abandoned_prefix": "§c§lPlot aufgegeben: ",
+  "message.plot.abandoned_refund": "§7Rückerstattung: §a%s€ §7an dich + §e%s€ §7an die Staatskasse (jeweils 50%%).",
   "message.plot.already_trusted_suffix": " ist bereits vertrauenswürdig!",
   "message.plot.apartment_rent_command": "§c✗ Miete diese Wohnung mit /plot apartment rent %s",
   "message.plot.apartment_rented": "§c✗ Diese Wohnung ist vermietet! Du hast keine Rechte hier.",

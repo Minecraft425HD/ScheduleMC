@@ -4068,6 +4068,7 @@
   "message.plot.abandon.success": "§a✓ Plot abandoned",
   "message.plot.abandoned": "§7The plot is now available for sale again.",
   "message.plot.abandoned_prefix": "§c§lPlot abandoned: ",
+  "message.plot.abandoned_refund": "§7Refund: §a%s€ §7to you + §e%s€ §7to the state treasury (50%% each).",
   "message.plot.already_trusted_suffix": " is already trusted!",
   "message.plot.apartment_rent_command": "§c✗ Rent this apartment with /plot apartment rent %s",
   "message.plot.apartment_rented": "§c✗ This apartment is rented! You have no rights here.",

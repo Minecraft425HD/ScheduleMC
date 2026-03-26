@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.region.network;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
@@ -88,11 +89,15 @@ public class PlotPurchasePacket {
                             return;
                         }
 
-                        // Zahle an alten Besitzer (nur wenn Plot einen Besitzer hat)
+                        // Zahle an alten Besitzer oder – wenn staatseigen – in die Staatskasse
                         if (plot.hasOwner()) {
                             UUID oldOwnerUUID = UUID.fromString(plot.getOwnerUUID());
                             EconomyManager.deposit(oldOwnerUUID, salePrice, TransactionType.PLOT_SALE,
                                 "Plot-Verkauf: " + plot.getPlotName());
+                        } else {
+                            // Staatseigenes Grundstück → Kaufpreis geht an die Staatskasse
+                            StateAccount.deposit((int) Math.round(salePrice),
+                                "Grundstücksverkauf: " + plot.getPlotName());
                         }
 
                         // Übertrage Eigentum
