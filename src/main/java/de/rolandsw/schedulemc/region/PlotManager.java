@@ -136,8 +136,11 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             Math.max(pos1.getZ(), pos2.getZ())
         );
 
-        String plotId = (customName != null && !customName.isEmpty()) ? customName : generatePlotId();
+        String plotId = generatePlotId();
         PlotRegion plot = new PlotRegion(plotId, min, max, price);
+        if (customName != null && !customName.isEmpty()) {
+            plot.setPlotName(customName);
+        }
         plot.setType(type);
 
         // THREAD-SAFETY: Atomare Operation für Plot-Hinzufügung

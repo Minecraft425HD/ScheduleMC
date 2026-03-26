@@ -224,10 +224,10 @@ public class PlotAppScreen extends Screen {
             utilityData = null;
         }
 
-        // Verfügbare Plots (zum Verkauf oder ohne Besitzer)
+        // Verfügbare Plots (zum Verkauf oder ohne Besitzer - nur kaufbare/mietbare Typen)
         availablePlots = new ArrayList<>();
         for (PlotRegion plot : PlotManager.getPlots()) {
-            if (!plot.hasOwner() || plot.isForSale() || plot.isForRent()) {
+            if ((!plot.hasOwner() && plot.isPurchasable()) || plot.isForSale() || plot.isForRent()) {
                 availablePlots.add(plot);
             }
         }
@@ -338,7 +338,7 @@ public class PlotAppScreen extends Screen {
         contentHeight += 15;
 
         // Status (Verkauf/Miete)
-        if (!currentPlot.hasOwner()) {
+        if (!currentPlot.hasOwner() && currentPlot.isPurchasable()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44228B22);
                 guiGraphics.drawString(this.font, cachedForSale, leftPos + 15, y + 3, 0x00FF00);

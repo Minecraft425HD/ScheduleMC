@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -196,6 +197,12 @@ public class PlotCommand {
                                 .executes(PlotCommand::clearWarehouseLocation))
                         .then(Commands.literal("info")
                                 .executes(PlotCommand::warehouseInfo)))
+
+                // /plot setpurchasable <true|false>
+                .then(Commands.literal("setpurchasable")
+                        .requires(source -> source.hasPermission(2))
+                        .then(Commands.argument("purchasable", BoolArgumentType.bool())
+                                .executes(PlotCommand::setPlotPurchasable)))
         );
     }
 
@@ -278,8 +285,9 @@ public class PlotCommand {
                     Component.translatable("command.plot.create.price_label", String.format("%.2f", price)) :
                     Component.translatable("command.plot.create.government_owned");
 
+                String plotDisplayName = plot.getPlotName().isEmpty() ? plot.getPlotId() : plot.getPlotName();
                 ctx.getSource().sendSuccess(() -> Component.translatable("command.plot.create.success",
-                    type.getDisplayName(), plot.getPlotId(), type.getDisplayName()).append("\n").append(priceInfo).append("\n")
+                    plotDisplayName, plot.getPlotId(), type.getDisplayName()).append("\n").append(priceInfo).append("\n")
                     .append(Component.translatable("command.plot.create.size", plot.getVolume())),
                     true);
             });
@@ -1361,6 +1369,24 @@ public class PlotCommand {
                 } catch (IllegalArgumentException e) {
                     ctx.getSource().sendFailure(Component.translatable("command.plot.settype.invalid"));
                 }
+            });
+    }
+
+    private static int setPlotPurchasable(CommandContext<CommandSourceStack> ctx) {
+        return CommandExecutor.executePlayerCommand(ctx, "command.plot.setpurchasable.error",
+            player -> {
+                PlotRegion plot = PlotManager.getPlotAt(player.blockPosition());
+                if (plot == null) {
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_in_plot").getString());
+                    return;
+                }
+                boolean purchasable = BoolArgumentType.getBool(ctx, "purchasable");
+                plot.setPurchasable(purchasable);
+                PlotManager.markDirty();
+                ctx.getSource().sendSuccess(() -> Component.translatable(
+                    purchasable ? "command.plot.setpurchasable.enabled" : "command.plot.setpurchasable.disabled",
+                    plot.getPlotName().isEmpty() ? plot.getPlotId() : plot.getPlotName()
+                ), true);
             });
     }
 
