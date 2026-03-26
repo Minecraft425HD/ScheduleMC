@@ -62,6 +62,9 @@ public class PlotRegion {
     private long creationTime;
     private long lastVisited;
     private int visitCount;
+    /** Zeitpunkt (Epoch-ms) zu dem der aktuelle Besitzer das Grundstück erworben hat.
+     *  0 = staatseigen oder noch unbekannt (vor Feature-Einführung). */
+    private long purchaseTime = 0L;
 
     // Öffentlicher Plot?
     private boolean isPublic;
@@ -368,6 +371,10 @@ public class PlotRegion {
     public void setLastVisited(long time) { this.lastVisited = time; }
     
     public int getVisitCount() { return visitCount; }
+
+    public long getPurchaseTime() { return purchaseTime; }
+    public void setPurchaseTime(long time) { this.purchaseTime = time; }
+
     public void incrementVisitCount() {
         this.visitCount++;
         this.lastVisited = System.currentTimeMillis();

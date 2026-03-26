@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.region.network;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.PlotTaxService;
 import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.region.PlotManager;
@@ -77,38 +78,60 @@ public class PlotPurchasePacket {
                             return;
                         }
 
-                        // Bestimme Preis: Plot ohne Besitzer = Standardpreis, sonst Verkaufspreis
+                        // Bestimme Netto-Kaufpreis: ohne Besitzer = Basispreis, sonst Verkaufspreis
                         double salePrice = !plot.hasOwner() ? plot.getPrice() : plot.getSalePrice();
 
-                        // SICHERHEIT: Atomare Transaktion mit EconomyManager
-                        if (!EconomyManager.withdraw(playerUUID, salePrice, TransactionType.PLOT_PURCHASE,
-                                "Plot-Kauf: " + plot.getPlotName())) {
+                        // Alten Besitzer + purchaseTime VOR Eigentumsübertrag sichern
+                        boolean hadOwner = plot.hasOwner();
+                        UUID oldOwnerUUID = hadOwner ? UUID.fromString(plot.getOwnerUUID()) : null;
+                        long prevPurchaseTime = plot.getPurchaseTime();
+
+                        // MwSt. berechnen und Gesamtbetrag (Kaufpreis + MwSt.) vom Käufer abziehen
+                        PlotTaxService.BuyerCostResult taxResult =
+                            PlotTaxService.applyBuyerCosts(playerUUID, salePrice, plot.getPlotName());
+                        if (!taxResult.success) {
                             player.sendSystemMessage(Component.translatable("message.plot.insufficient_funds")
-                                .append(Component.literal(String.format("%.2f€", salePrice))
+                                .append(Component.literal(String.format("%.2f€", taxResult.totalPaid))
                                     .withStyle(ChatFormatting.GOLD)));
                             return;
                         }
 
-                        // Zahle an alten Besitzer oder – wenn staatseigen – in die Staatskasse
-                        if (plot.hasOwner()) {
-                            UUID oldOwnerUUID = UUID.fromString(plot.getOwnerUUID());
+                        // Netto-Kaufpreis an alten Besitzer oder – wenn staatseigen – an Staatskasse
+                        if (hadOwner) {
                             EconomyManager.deposit(oldOwnerUUID, salePrice, TransactionType.PLOT_SALE,
                                 "Plot-Verkauf: " + plot.getPlotName());
+                            // Spekulationssteuer prüfen: 40% wenn Weiterverkauf < 7 Tage
+                            double specTax = PlotTaxService.applySellerSpeculationTax(
+                                oldOwnerUUID, prevPurchaseTime, salePrice, plot.getPlotName());
+                            if (specTax > 0) {
+                                // Alten Besitzer über Spekulationssteuer informieren (falls online)
+                                UUID finalOldOwner = oldOwnerUUID;
+                                double finalSpecTax = specTax;
+                                player.getServer().getPlayerList().getPlayers().stream()
+                                    .filter(p -> p.getUUID().equals(finalOldOwner))
+                                    .findFirst()
+                                    .ifPresent(oldOwner -> oldOwner.sendSystemMessage(
+                                        Component.translatable("message.plot.speculation_tax_charged",
+                                            plot.getPlotName(), String.format("%.2f", finalSpecTax))));
+                            }
                         } else {
-                            // Staatseigenes Grundstück → Kaufpreis geht an die Staatskasse
+                            // Staatseigenes Grundstück → Nettokaufpreis an Staatskasse
                             StateAccount.deposit((int) Math.round(salePrice),
                                 "Grundstücksverkauf: " + plot.getPlotName());
                         }
 
-                        // Übertrage Eigentum
+                        // purchaseTime für neuen Besitzer stempeln + Eigentumsübertrag
+                        plot.setPurchaseTime(System.currentTimeMillis());
                         plot.setOwner(playerUUID, player.getName().getString());
                         plot.setForSale(false);
                         plot.setForRent(false);
                         PlotManager.savePlots();
 
-                        player.sendSystemMessage(Component.translatable("message.plot.purchased")
-                            .append(Component.literal(String.format("%.2f€", salePrice))
-                                .withStyle(ChatFormatting.GOLD)));
+                        // Käufer-Bestätigung mit Aufschlüsselung (Preis + MwSt. + Gesamt)
+                        player.sendSystemMessage(Component.translatable("message.plot.purchased_with_tax",
+                            String.format("%.2f", salePrice),
+                            String.format("%.2f", taxResult.vatAmount),
+                            String.format("%.2f", taxResult.totalPaid)));
                         break;
 
                     case RENT:

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.region.network;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.PlotTaxService;
 import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.region.PlotManager;
@@ -61,10 +62,15 @@ public class PlotAbandonPacket {
 
             String plotName = plot.getPlotName();
             double originalPrice = plot.getPrice();
-            double refund = originalPrice * 0.5;
-            double stateShare = originalPrice - refund; // Rounding-sicher: Rest an den Staat
+            long purchaseTime = plot.getPurchaseTime();
+            boolean specWindow = PlotTaxService.isInSpeculationWindow(purchaseTime);
 
-            // Setze Plot zurück auf Server-Besitz
+            // Aufteilung berechnen (50/50, ggf. mit Spekulationssteuer auf Spieleranteil)
+            double[] split = PlotTaxService.calculateAbandonSplit(purchaseTime, originalPrice);
+            double playerShare = split[0];
+            double stateShare = split[1];
+
+            // Plot zurück auf Server-Besitz setzen
             plot.setOwnerUUID(""); // Leer = Server-owned
             plot.setOwnerName(null);
             plot.setForSale(false);
@@ -72,19 +78,25 @@ public class PlotAbandonPacket {
             plot.getTrustedPlayers().clear();
             plot.setDescription("");
             plot.setPlotName("Freies Grundstück");
+            plot.setPurchaseTime(0L);
 
             PlotManager.savePlots();
 
-            // 50% Rückerstattung an Spieler, 50% an Staatskasse
-            EconomyManager.deposit(player.getUUID(), refund, TransactionType.PLOT_SALE,
-                "Grundstück aufgegeben (50%): " + plotName);
+            // Geldüberweisung
+            EconomyManager.deposit(player.getUUID(), playerShare, TransactionType.PLOT_SALE,
+                "Grundstück aufgegeben: " + plotName);
             StateAccount.deposit((int) Math.round(stateShare),
-                "Grundstücksauflösung (50%): " + plotName);
+                "Grundstücksauflösung: " + plotName);
 
             player.sendSystemMessage(Component.translatable("message.plot.abandoned_prefix")
                 .append(Component.literal(plotName).withStyle(ChatFormatting.GRAY)));
-            player.sendSystemMessage(Component.translatable("message.plot.abandoned_refund",
-                String.format("%.2f", refund), String.format("%.2f", stateShare)));
+            if (specWindow) {
+                player.sendSystemMessage(Component.translatable("message.plot.abandoned_refund_speculation",
+                    String.format("%.2f", playerShare), String.format("%.2f", stateShare)));
+            } else {
+                player.sendSystemMessage(Component.translatable("message.plot.abandoned_refund",
+                    String.format("%.2f", playerShare), String.format("%.2f", stateShare)));
+            }
         });
     }
 }
