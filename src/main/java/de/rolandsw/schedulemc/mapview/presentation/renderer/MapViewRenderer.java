@@ -1585,8 +1585,13 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         // Get the texture size for the current zoom level
         int textureSize = 32 * (int) Math.pow(2.0, this.zoom);
         int halfTextureSize = textureSize / 2;
-        int left = scWidth / 2 - halfTextureSize;
-        int top = scHeight / 2 - halfTextureSize;
+
+        // Sub-pixel tracking: compensate for player movement between mapCalc() calls,
+        // so the fullscreen map follows the player as smoothly as the corner minimap.
+        float px = (float) (MinecraftAccessor.xCoordDouble() - this.lastImageX);
+        float pz = (float) (MinecraftAccessor.zCoordDouble() - this.lastImageZ);
+        int left = (int) (scWidth / 2 - halfTextureSize - px);
+        int top  = (int) (scHeight / 2 - halfTextureSize - pz);
 
         guiGraphics.blit(mapResources[this.zoom], left, top, 0, 0, textureSize, textureSize, textureSize, textureSize);
         matrixStack.popPose();
