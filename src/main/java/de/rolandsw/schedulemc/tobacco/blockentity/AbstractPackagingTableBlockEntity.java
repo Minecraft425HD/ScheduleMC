@@ -12,24 +12,18 @@ import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Abstrakte Basisklasse für Packaging Table BlockEntities
@@ -52,10 +46,7 @@ import org.jetbrains.annotations.Nullable;
  * - createMenu()
  * - Package-Weight-spezifische Logik
  */
-public abstract class AbstractPackagingTableBlockEntity extends BlockEntity implements MenuProvider, IUtilityConsumer {
-
-    protected final ItemStackHandler itemHandler;
-    protected LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
+public abstract class AbstractPackagingTableBlockEntity extends AbstractItemHandlerBlockEntity implements MenuProvider, IUtilityConsumer {
 
     public AbstractPackagingTableBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int slots) {
         super(type, pos, state);
@@ -73,10 +64,6 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
                 setChanged();
             }
         };
-    }
-
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
     }
 
     public ItemStack getInputStack() {
@@ -363,30 +350,6 @@ public abstract class AbstractPackagingTableBlockEntity extends BlockEntity impl
                 remaining -= toAdd;
             }
         }
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // CAPABILITY SETUP (eliminiert ~25 Zeilen × 3 = 75 Zeilen)
-    // ═══════════════════════════════════════════════════════════
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
-        }
-        return super.getCapability(cap, side);
-    }
-
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        lazyItemHandler = LazyOptional.of(() -> itemHandler);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
     }
 
     // ═══════════════════════════════════════════════════════════

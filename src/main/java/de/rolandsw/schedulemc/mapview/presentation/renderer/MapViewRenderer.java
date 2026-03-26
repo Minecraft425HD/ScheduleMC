@@ -3,9 +3,7 @@ package de.rolandsw.schedulemc.mapview.presentation.renderer;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
-import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationOverlay;
 import de.rolandsw.schedulemc.mapview.navigation.graph.NavigationPathOverlay;
-import de.rolandsw.schedulemc.mapview.npc.NPCMapRenderer;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.service.render.ColorCalculationService;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
@@ -14,7 +12,6 @@ import de.rolandsw.schedulemc.mapview.integration.DebugRenderState;
 import de.rolandsw.schedulemc.mapview.presentation.screen.WorldMapScreen;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import de.rolandsw.schedulemc.mapview.util.BlockDatabase;
-import de.rolandsw.schedulemc.mapview.service.render.LightingCalculator;
 import de.rolandsw.schedulemc.mapview.service.render.ColorUtils;
 import de.rolandsw.schedulemc.mapview.service.render.strategy.ChunkScanStrategy;
 import de.rolandsw.schedulemc.mapview.service.render.strategy.ChunkScanStrategyFactory;
@@ -46,12 +43,10 @@ import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.client.gui.screens.OutOfMemoryScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
@@ -59,7 +54,6 @@ import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import net.minecraft.util.Mth;
 // EnvironmentAttributes doesn't exist in 1.20.1
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
@@ -96,7 +90,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private ClientLevel world;
     private final MapViewConfiguration options;
     private final ColorCalculationService colorManager;
-    private final NPCMapRenderer npcMapRenderer = new NPCMapRenderer();
+    private final MapLightingState lightingState;
+    private final MapOverlayRenderer overlayRenderer;
     private final int availableProcessors = Runtime.getRuntime().availableProcessors();
     private final boolean multicore = this.availableProcessors > 1;
     private final int heightMapResetHeight = this.multicore ? 2 : 5;
@@ -112,19 +107,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private BlockState surfaceBlockState;
     // SICHERHEIT: volatile für Thread-Safety zwischen Render und Game Thread
     private volatile boolean imageChanged = true;
-    private LightTexture lightmapTexture;
-    private volatile boolean needLightmapRefresh = true;
-    private volatile int tickWithLightChange;
-    private volatile boolean lastPaused = true;
-    private double lastGamma;
-    private float lastSunBrightness;
-    private float lastLightning;
-    private float lastPotion;
-    private final int[] lastLightmapValues = { -16777216, -16777216, -16777216, -16777216, -16777216, -16777216, -16777216, -16777216, -16777216, -16777216, -16777216, -16777216, -16777216, -16777216, -16777216, -16777216 };
-    private boolean needSkyColor;
-    private boolean lastAboveHorizon = true;
-    private int lastBiome;
-    private int lastSkyColor;
+    private int lastSkyColor; // tracks colorManager.getAirColor() changes in mapCalc
+    private final int[] lastLightmapValues = new int[16];
     private boolean fullscreenMap;
     private int zoom;
     private int scWidth;
@@ -164,12 +148,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private Future<?> zCalcTask;
     private final Object zCalcLock = new Object(); // Lock for coordination with worker thread
     private int zCalcTicker;
-    private final int[] lightmapColors = new int[256];
     private double zoomScale = 1.0;
     private static double minTablistOffset;
     private static float statusIconOffset = 0.0F;
-    // PERFORMANCE: Cache biome registry reference (avoid registryAccess().registryOrThrow() per frame)
-    private net.minecraft.core.Registry<Biome> cachedBiomeRegistry;
     // PERFORMANCE: Cache status effect offset to avoid iterator creation per frame
     private int lastEffectCount = -1;
     private float cachedEffectOffset = 0.0F;
@@ -193,6 +174,8 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         this.options = MapViewConstants.getLightMapInstance().getMapOptions();
         this.colorManager = MapViewConstants.getLightMapInstance().getColorManager();
+        this.lightingState = new MapLightingState(this.options, this.colorManager);
+        this.overlayRenderer = new MapOverlayRenderer(this.options);
         ArrayList<KeyMapping> tempBindings = new ArrayList<>();
         tempBindings.addAll(Arrays.asList(minecraft.options.keyMappings));
         tempBindings.addAll(Arrays.asList(this.options.keyBindings));
@@ -324,8 +307,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     public void newWorld(ClientLevel world) {
         this.world = world;
-        this.cachedBiomeRegistry = null; // Invalidate cached registry on world change
-        this.lightmapTexture = this.getLightmapTexture();
+        this.lightingState.setWorld(world);
         this.mapData[this.zoom].blank();
         this.doFullRender = true;
         MapViewConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier().notifyOfChanges();
@@ -338,10 +320,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     public void onTickInGame(GuiGraphics drawContext) {
         this.northRotate = this.options.oldNorth ? 90 : 0;
-
-        if (this.lightmapTexture == null) {
-            this.lightmapTexture = this.getLightmapTexture();
-        }
 
         // M-Taste deaktiviert - Map kann nicht mit M geöffnet werden
         // if (minecraft.screen == null && this.options.keyBindMenu.consumeClick()) {
@@ -379,7 +357,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             refreshNearbyChunks();
         }
 
-        this.calculateCurrentLightAndSkyColor();
+        this.lightingState.calculateCurrentLightAndSkyColor(this.timer);
 
         // Performance-Optimierung: Throttle map updates - nur wenn sich Player bewegt hat oder throttle-Intervall erreicht
         int currentX = MinecraftAccessor.xCoord();
@@ -496,124 +474,12 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     }
 
-    private LightTexture getLightmapTexture() {
-        return minecraft.gameRenderer.lightTexture();
-    }
-
-    public void calculateCurrentLightAndSkyColor() {
-        if (this.world == null || this.colorManager == null || MapViewConstants.getPlayer() == null) return;
-        try {
-            if (this.world != null) {
-                if (this.needLightmapRefresh && MapViewConstants.getElapsedTicks() != this.tickWithLightChange && !minecraft.isPaused() || this.options.isRealTimeTorches()) {
-                    this.needLightmapRefresh = false;  // NOPMD
-                    LightingCalculator lightmap = LightingCalculator.getInstance();
-                    lightmap.setup();
-                    for (int blockLight = 0; blockLight < 16; blockLight++) {
-                        for (int skyLight = 0; skyLight < 16; skyLight++) {
-                            this.lightmapColors[blockLight + skyLight * 16] = lightmap.getLight(blockLight, skyLight);
-                        }
-                    }
-                }
-
-                boolean lightChanged = false;
-                if (minecraft.options.gamma().get() != this.lastGamma) {
-                    lightChanged = true;
-                    this.lastGamma = minecraft.options.gamma().get();
-                }
-
-                float sunBrightness = 1 - (this.world.getSkyDarken() / 15f);
-                if (Math.abs(this.lastSunBrightness - sunBrightness) > 0.01 || sunBrightness == 1.0 && sunBrightness != this.lastSunBrightness || sunBrightness == 0.0 && sunBrightness != this.lastSunBrightness) {
-                    lightChanged = true;
-                    this.needSkyColor = true;
-                    this.lastSunBrightness = sunBrightness;
-                }
-
-                float potionEffect = 0.0F;
-                if (MapViewConstants.getPlayer().hasEffect(MobEffects.NIGHT_VISION)) {
-                    int duration = MapViewConstants.getPlayer().getEffect(MobEffects.NIGHT_VISION).getDuration();
-                    potionEffect = duration > 200 ? 1.0F : 0.7F + Mth.sin((duration - 1.0F) * (float) Math.PI * 0.2F) * 0.3F;
-                }
-
-                if (this.lastPotion != potionEffect) {
-                    this.lastPotion = potionEffect;
-                    lightChanged = true;
-                }
-
-                int lastLightningBolt = this.world.getSkyFlashTime();
-                if (this.lastLightning != lastLightningBolt) {
-                    this.lastLightning = lastLightningBolt;
-                    lightChanged = true;
-                }
-
-                if (this.lastPaused != minecraft.isPaused()) {
-                    this.lastPaused = !this.lastPaused;
-                    lightChanged = true;
-                }
-
-                boolean scheduledUpdate = (this.timer - 50) % 50 == 0;
-                if (lightChanged || scheduledUpdate) {
-                    this.tickWithLightChange = MapViewConstants.getElapsedTicks();
-                    this.needLightmapRefresh = true;
-                }
-
-                boolean aboveHorizon = MapViewConstants.getPlayer().getEyePosition(0.0F).y >= this.world.getLevelData().getHorizonHeight(this.world);
-                if (this.world.dimension().location().toString().toLowerCase().contains("ether")) {
-                    aboveHorizon = true;
-                }
-
-                if (aboveHorizon != this.lastAboveHorizon) {
-                    this.needSkyColor = true;
-                    this.lastAboveHorizon = aboveHorizon;
-                }
-
-                MutableBlockPos blockPos = BlockPositionCache.get();
-                // PERFORMANCE: Cache biome registry reference instead of looking it up every frame
-                if (cachedBiomeRegistry == null) {
-                    cachedBiomeRegistry = this.world.registryAccess().registryOrThrow(Registries.BIOME);
-                }
-                int biomeID = cachedBiomeRegistry.getId(this.world.getBiome(blockPos.withXYZ(MinecraftAccessor.xCoord(), MinecraftAccessor.yCoord(), MinecraftAccessor.zCoord())).value());
-                BlockPositionCache.release(blockPos);
-                if (biomeID != this.lastBiome) {
-                    this.needSkyColor = true;
-                    this.lastBiome = biomeID;
-                }
-
-                if (this.needSkyColor || scheduledUpdate) {
-                    this.colorManager.setSkyColor(this.getSkyColor());
-                }
-            }
-        } catch (RuntimeException ignored) {
-            // colorManager oder getSkyColor() noch nicht initialisiert
-        }
-    }
-
-    private int getSkyColor() {
-        this.needSkyColor = false;
-        boolean aboveHorizon = this.lastAboveHorizon;
-        // OPTIMIERT: Direkte float-Berechnung statt Vector4f-Allokation
-        // Vorher: new Vector4f() + int→float→int Doppelkonvertierung
-        net.minecraft.world.phys.Vec3 skyColorVec = this.world.getSkyColor(minecraft.gameRenderer.getMainCamera().getPosition(), 0.0F);
-        float r = (float) skyColorVec.x;
-        float g = (float) skyColorVec.y;
-        float b = (float) skyColorVec.z;
-        if (!aboveHorizon) {
-            return 0x0A000000 + (int) (r * 255.0F) * 65536 + (int) (g * 255.0F) * 256 + (int) (b * 255.0F);
-        } else {
-            int backgroundColor = 0xFF000000 + (int) (r * 255.0F) * 65536 + (int) (g * 255.0F) * 256 + (int) (b * 255.0F);
-            // In 1.20.1, EnvironmentAttributes doesn't exist - skipping sunset color overlay
-            return backgroundColor;
-        }
-    }
-
     public int[] getLightmapArray() {
-        return this.lightmapColors;  // NOPMD
+        return this.lightingState.getLightmapArray();
     }
 
     public int getLightmapColor(int skyLight, int blockLight) {
-        if (this.lightmapColors == null) {
-            return 0;
-        }
-        return ARGBCompat.toABGR(this.lightmapColors[blockLight + skyLight * 16]);
+        return this.lightingState.getLightmapColor(skyLight, blockLight);
     }
 
     public void drawMinimap(GuiGraphics drawContext) {
@@ -677,105 +543,24 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         if (this.fullscreenMap) {
             this.renderMapFull(drawContext, this.scWidth, this.scHeight, scaleProj);
             // Render Navigation Overlay für Fullscreen
-            renderNavigationOverlay(drawContext, this.scWidth / 2, this.scHeight / 2,
-                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true, scaleProj);
+            this.overlayRenderer.renderNavigationOverlay(drawContext, this.scWidth / 2, this.scHeight / 2,
+                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true, scaleProj,
+                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ);
             // Render NPCs auf Fullscreen-Karte
-            renderNPCMarkers(drawContext, this.scWidth / 2, this.scHeight / 2,
-                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true);
+            this.overlayRenderer.renderNPCMarkers(drawContext, this.scWidth / 2, this.scHeight / 2,
+                    Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true,
+                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ);
             this.drawArrow(drawContext, this.scWidth / 2, this.scHeight / 2, scaleProj);
         } else {
             this.renderMap(drawContext, mapX, mapY, scScale, scaleProj);
             this.drawDirections(drawContext, mapX, mapY, scaleProj);
             // Render Navigation Overlay für Minimap (mit scaleProj Transformation)
-            renderNavigationOverlay(drawContext, mapX, mapY, 64, (float) this.zoomScale, false, scaleProj);
+            this.overlayRenderer.renderNavigationOverlay(drawContext, mapX, mapY, 64, (float) this.zoomScale, false, scaleProj,
+                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ);
             // Render NPCs auf Minimap
-            renderNPCMarkers(drawContext, mapX, mapY, 64, (float) this.zoomScale, false);
+            this.overlayRenderer.renderNPCMarkers(drawContext, mapX, mapY, 64, (float) this.zoomScale, false,
+                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ);
             this.drawArrow(drawContext, mapX, mapY, scaleProj);
-        }
-    }
-
-    /**
-     * Rendert das Navigations-Overlay (Pfad zum Ziel) auf der Karte
-     */
-    private void renderNavigationOverlay(GuiGraphics graphics, int mapX, int mapY,
-                                          int mapSize, float zoom, boolean fullscreen, float scaleProj) {
-        NavigationOverlay overlay = NavigationOverlay.getInstance();
-
-        // Initialisiere falls nötig
-        if (!overlay.isInitialized()) {
-            var mapData = MapViewConstants.getLightMapInstance().getWorldMapData();
-            if (mapData != null) {
-                overlay.initialize(mapData);
-            }
-        }
-
-        // Tick für Updates (Position, Pfad-Neuberechnung) - IMMER aufrufen, auch wenn nicht navigiert wird
-        // damit der Pfad gelöscht werden kann wenn Navigation beendet wurde
-        if (overlay.isInitialized()) {
-            overlay.tick();
-        }
-
-        if (!overlay.isInitialized() || !overlay.isNavigating()) {
-            return;
-        }
-
-        // Berechne Kartenrotation
-        float rotation = 0;
-        if (this.options.rotates && !fullscreen) {
-            rotation = this.direction;
-        }
-
-        // Wende scaleProj Transformation an (wie bei drawArrow)
-        graphics.pose().pushPose();
-        graphics.pose().scale(scaleProj, scaleProj, 1.0f);
-
-        if (fullscreen) {
-            // Für Fullscreen: Nutze pixelgenaue Positionierung
-            // screenCenter = Bildschirmmitte, zoom = Pixel pro Block
-            int screenCenterX = this.scWidth / 2;
-            int screenCenterY = this.scHeight / 2;
-            overlay.renderFullscreenAccurate(graphics, this.lastX, this.lastZ,
-                    screenCenterX, screenCenterY, zoom);
-        } else {
-            // Für Minimap: Scissor-Clipping aktivieren damit Overlay nicht über Minimap hinausragt
-            int halfSize = mapSize / 2;
-            // Berechne Scissor-Koordinaten in GUI-Koordinaten (scaleProj bereits angewendet)
-            int scissorX1 = (int) ((mapX - halfSize) * scaleProj);
-            int scissorY1 = (int) ((mapY - halfSize) * scaleProj);
-            int scissorX2 = (int) ((mapX + halfSize) * scaleProj);
-            int scissorY2 = (int) ((mapY + halfSize) * scaleProj);
-
-            graphics.enableScissor(scissorX1, scissorY1, scissorX2, scissorY2);
-
-            // Für Minimap: Nutze pixelgenaue Positionierung
-            float scale = zoom;
-            overlay.renderMinimapAccurate(graphics, this.lastX, this.lastZ,
-                    mapX, mapY, mapSize, scale, rotation);
-
-            graphics.disableScissor();
-        }
-
-        graphics.pose().popPose();
-    }
-
-    /**
-     * Rendert NPC-Marker auf der Karte
-     * Filtert automatisch Polizei-NPCs und NPCs auf Arbeit/Zuhause
-     */
-    private void renderNPCMarkers(GuiGraphics graphics, int mapX, int mapY,
-                                   int mapSize, float zoom, boolean fullscreen) {
-        // Berechne Kartenrotation (nur für Minimap)
-        float rotation = 0;
-        if (this.options.rotates && !fullscreen) {
-            rotation = this.direction;
-        }
-
-        if (fullscreen) {
-            npcMapRenderer.renderOnWorldmap(graphics, this.lastX, this.lastZ,
-                    this.scWidth, this.scHeight, zoom, 0, 0);
-        } else {
-            npcMapRenderer.renderOnMinimap(graphics, this.lastX, this.lastZ,
-                    mapSize, zoom, mapX, mapY, rotation);
         }
     }
 
@@ -828,7 +613,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         if (this.options.lightmap) {
             int torchOffset = this.options.isRealTimeTorches() ? 8 : 0;
             for (int t = 0; t < 16; ++t) {
-                int newValue = getLightmapColor(t, torchOffset);
+                int newValue = lightingState.getLightmapColor(t, torchOffset);
                 if (this.lastLightmapValues[t] != newValue) {
                     needLight = true;
                     this.lastLightmapValues[t] = newValue;
@@ -1640,7 +1425,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 blockLight = 14;
             }
             BlockPositionCache.release(blockPos);
-            combinedLight = getLightmapColor(skyLight, blockLight);
+            combinedLight = lightingState.getLightmapColor(skyLight, blockLight);
         }
 
         return ARGBCompat.toABGR(combinedLight);
@@ -1800,8 +1585,13 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         // Get the texture size for the current zoom level
         int textureSize = 32 * (int) Math.pow(2.0, this.zoom);
         int halfTextureSize = textureSize / 2;
-        int left = scWidth / 2 - halfTextureSize;
-        int top = scHeight / 2 - halfTextureSize;
+
+        // Sub-pixel tracking: compensate for player movement between mapCalc() calls,
+        // so the fullscreen map follows the player as smoothly as the corner minimap.
+        float px = (float) (MinecraftAccessor.xCoordDouble() - this.lastImageX);
+        float pz = (float) (MinecraftAccessor.zCoordDouble() - this.lastImageZ);
+        int left = (int) (scWidth / 2 - halfTextureSize - px);
+        int top  = (int) (scHeight / 2 - halfTextureSize - pz);
 
         guiGraphics.blit(mapResources[this.zoom], left, top, 0, 0, textureSize, textureSize, textureSize, textureSize);
         matrixStack.popPose();
