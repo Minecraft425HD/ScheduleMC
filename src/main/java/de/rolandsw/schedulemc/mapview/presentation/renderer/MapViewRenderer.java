@@ -108,6 +108,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     // SICHERHEIT: volatile für Thread-Safety zwischen Render und Game Thread
     private volatile boolean imageChanged = true;
     private int lastSkyColor; // tracks colorManager.getAirColor() changes in mapCalc
+    private final int[] lastLightmapValues = new int[16];
     private boolean fullscreenMap;
     private int zoom;
     private int scWidth;
