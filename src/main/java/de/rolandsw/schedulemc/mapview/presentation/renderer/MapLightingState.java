@@ -29,7 +29,7 @@ public class MapLightingState {
 
     // SICHERHEIT: volatile für Thread-Safety zwischen Render und Game Thread
     private volatile boolean needLightmapRefresh = true;
-    private volatile int tickWithLightChange;
+    private volatile int tickWithLightChange = -1;
     private volatile boolean lastPaused = true;
     private double lastGamma;
     private float lastSunBrightness;
