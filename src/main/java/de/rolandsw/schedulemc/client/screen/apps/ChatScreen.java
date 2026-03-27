@@ -354,7 +354,7 @@ public class ChatScreen extends Screen {
             totalH += bubbleHeight(m.getContent()) + MSG_GAP;
         }
         if (totalH > MESSAGES_H) {
-            scrollOffset -= (int) (delta * 12);
+            scrollOffset += (int) (delta * 12);
             scrollOffset = Math.max(0, Math.min(scrollOffset, totalH - MESSAGES_H));
             return true;
         }
