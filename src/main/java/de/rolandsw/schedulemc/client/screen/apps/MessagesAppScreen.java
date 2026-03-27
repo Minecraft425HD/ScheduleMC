@@ -3,12 +3,15 @@ package de.rolandsw.schedulemc.client.screen.apps;
 import de.rolandsw.schedulemc.messaging.Conversation;
 import de.rolandsw.schedulemc.messaging.HeadRenderer;
 import de.rolandsw.schedulemc.messaging.MessageManager;
+import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
+import de.rolandsw.schedulemc.npc.network.StartDialoguePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -198,9 +201,30 @@ public class MessagesAppScreen extends Screen {
                 if (mouseX >= itemX && mouseX <= itemX + itemWidth &&
                     mouseY >= itemY && mouseY <= itemY + CHAT_ITEM_HEIGHT) {
 
-                    // Open chat screen for this conversation
                     if (minecraft != null) {
-                        minecraft.setScreen(new ChatScreen(this, conversations.get(i)));
+                        Conversation conv = conversations.get(i);
+                        // For NPC conversations, find the entity by UUID so we can
+                        // send StartDialoguePacket and show dialogue option buttons.
+                        if (!conv.isPlayerParticipant() && minecraft.level != null) {
+                            Entity npcEntity = null;
+                            for (Entity e : minecraft.level.entitiesForRendering()) {
+                                if (e.getUUID().equals(conv.getParticipantUUID())) {
+                                    npcEntity = e;
+                                    break;
+                                }
+                            }
+                            if (npcEntity != null) {
+                                NPCNetworkHandler.sendToServer(
+                                    new StartDialoguePacket(npcEntity.getId()));
+                                minecraft.setScreen(
+                                    new ChatScreen(this, conv, npcEntity.getId()));
+                            } else {
+                                // NPC out of range — open history-only chat
+                                minecraft.setScreen(new ChatScreen(this, conv));
+                            }
+                        } else {
+                            minecraft.setScreen(new ChatScreen(this, conv));
+                        }
                     }
                     return true;
                 }
@@ -213,7 +237,7 @@ public class MessagesAppScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (conversations != null && conversations.size() * CHAT_ITEM_HEIGHT > HEIGHT - 80) {
-            scrollOffset -= (int)(delta * 10);
+            scrollOffset += (int)(delta * 10);
             scrollOffset = Math.max(0, Math.min(scrollOffset, conversations.size() * CHAT_ITEM_HEIGHT - (HEIGHT - 80)));
             return true;
         }
