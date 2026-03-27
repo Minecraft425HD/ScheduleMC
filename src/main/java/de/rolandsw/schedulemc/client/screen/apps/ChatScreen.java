@@ -24,50 +24,64 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * WhatsApp-style NPC/Player chat screen.
+ * WhatsApp-style NPC/Player chat screen — Design C (Modernes Overlay).
  *
- * Layout (NPC mode, HEIGHT=300):
- *   Y   0–40   : Green header (← head name online)
- *   Y  45–212  : Scrollable message history (168px)
- *   Y 213–214  : Teal divider line
- *   Y 215–299  : Semi-transparent overlay with 4 dialogue option buttons
+ * HEIGHT is fixed at 240px (safe for all GUI scales).  topPos is centred
+ * vertically so the panel never falls off-screen.
  *
- * Layout (Player mode, HEIGHT=300):
- *   Y   0–40   : Header
- *   Y  45–199  : Scrollable message history (155px)
- *   Y 208–227  : EditBox (left 130px) + Send button (right 45px) on same row
- *   Y 234–251  : Back button
+ * NPC layout (Y relative to topPos):
+ *   0 – 40  : green header  (← clickable for back)
+ *  45 – 154 : scrollable message history (110px)
+ * 155 – 156 : teal divider
+ * 157 – 238 : dark overlay with ≤3 dialogue-option buttons
+ *
+ * Player layout:
+ *   0 – 40  : green header
+ *  45 – 154 : scrollable message history (110px)
+ * 162 – 181 : EditBox (130px) + Send button (45px) on the same row
+ * 188 – 205 : Back button
  */
 @OnlyIn(Dist.CLIENT)
 public class ChatScreen extends Screen {
 
     private final Screen parentScreen;
     private final Conversation conversation;
-    /** Entity ID of NPC for dialogue packets (-1 for player chats) */
+    /** Entity ID of NPC for dialogue packets, or -1 for player chats. */
     private final int npcEntityId;
 
-    private static final int WIDTH         = 200;
-    private static final int HEIGHT        = 300;
-    private static final int MARGIN_TOP    = 5;
-    private static final int MESSAGE_HEIGHT = 30;
-    private static final int OVERLAY_START = 215;  // Y where NPC option overlay begins
-    private static final int MAX_DIALOGUE_BUTTONS = 4;
+    // ── Layout constants ─────────────────────────────────────
+    private static final int WIDTH                = 200;
+    private static final int HEIGHT               = 240;
+    private static final int HEADER_H             = 40;
+    private static final int MESSAGES_TOP         = 45;   // = HEADER_H + 5
+    private static final int MESSAGES_H           = 110;  // NPC and player share same area
+    private static final int OVERLAY_START        = 155;  // = MESSAGES_TOP + MESSAGES_H
+    private static final int MAX_DIALOGUE_BUTTONS = 3;
+    private static final int BTN_HEIGHT           = 16;
+    private static final int BTN_SPACING          = 19;   // BTN_HEIGHT + 3px gap
+    /** Minimum gap (px) between consecutive message bubbles. */
+    private static final int MSG_GAP              = 3;
+    /** Padding inside each message bubble. */
+    private static final int MSG_PADDING          = 8;
 
-    // NPC overlay: 4 buttons × 16px each, 3px gap → spacing 19
-    private static final int BTN_HEIGHT    = 16;
-    private static final int BTN_SPACING   = 19;
-
+    // ── Instance state ────────────────────────────────────────
     private int leftPos;
     private int topPos;
+    /** Scroll offset in pixels (0 = bottom-most messages visible). */
     private int scrollOffset = 0;
     private EditBox messageInput;
 
-    /** Dynamic dialogue option buttons (NPC chat only) */
+    /** Dialogue option buttons (NPC chat, filled via handleDialogueState). */
     private final List<Button> dialogueButtons = new ArrayList<>();
     private final String[] dialogueOptionIds   = new String[MAX_DIALOGUE_BUTTONS];
     private final String[] dialogueOptionTexts = new String[MAX_DIALOGUE_BUTTONS];
+    /**
+     * Last known options — persisted so init() (called on resize/fullscreen
+     * toggle) can restore button state without a server round-trip.
+     */
+    private List<DialogueStatePacket.OptionEntry> lastDialogueOptions = new ArrayList<>();
 
-    // PERFORMANCE: per-frame string cache
+    // ── Per-frame caches ──────────────────────────────────────
     private String cachedOnlineStr;
     private String cachedNoMessagesStr;
     private String cachedNowStr;
@@ -94,7 +108,7 @@ public class ChatScreen extends Screen {
     }
 
     // ─────────────────────────────────────────────────────────
-    // INIT
+    // INIT  (called on first open AND on every resize)
     // ─────────────────────────────────────────────────────────
 
     @Override
@@ -102,15 +116,15 @@ public class ChatScreen extends Screen {
         super.init();
 
         this.leftPos = (this.width - WIDTH) / 2;
-        this.topPos  = MARGIN_TOP;
+        // Centre vertically so the panel never falls off-screen
+        this.topPos  = Math.max(2, (this.height - HEIGHT) / 2);
 
-        // Cache strings once per init
         this.cachedOnlineStr    = Component.translatable("gui.app.chat.online").getString();
         this.cachedNoMessagesStr = Component.translatable("gui.app.chat.no_messages").getString();
         this.cachedNowStr       = Component.translatable("gui.app.chat.now").getString();
 
         if (!conversation.isPlayerParticipant()) {
-            // ── NPC chat: 4 invisible dialogue-option buttons in overlay ──
+            // ── NPC chat: up to 3 dialogue option buttons in overlay ─────
             dialogueButtons.clear();
             int buttonBaseY = topPos + OVERLAY_START + 2;
             for (int i = 0; i < MAX_DIALOGUE_BUTTONS; i++) {
@@ -125,12 +139,16 @@ public class ChatScreen extends Screen {
                 dialogueButtons.add(btn);
                 addRenderableWidget(btn);
             }
-            // No explicit back button — ← in header is clickable (see mouseClicked)
+            // Restore state lost during resize / fullscreen toggle
+            if (!lastDialogueOptions.isEmpty()) {
+                applyDialogueOptions(lastDialogueOptions);
+            }
+            // Back via ← in header (see mouseClicked) — no extra button needed
 
         } else {
-            // ── Player chat: EditBox + Send on same row, Back below ──
+            // ── Player chat: input row + back button ─────────────────────
             messageInput = new EditBox(this.font,
-                leftPos + 10, topPos + 208, 130, 20,
+                leftPos + 10, topPos + 162, 130, 20,
                 Component.translatable("gui.app.chat.message_hint"));
             messageInput.setMaxLength(100);
             addRenderableWidget(messageInput);
@@ -141,20 +159,25 @@ public class ChatScreen extends Screen {
                         sendMessage(messageInput.getValue());
                         messageInput.setValue("");
                     }
-                }).bounds(leftPos + 145, topPos + 208, 45, 20).build());
+                }).bounds(leftPos + 145, topPos + 162, 45, 20).build());
 
             addRenderableWidget(Button.builder(
                 Component.translatable("gui.achievement_app.back"), b -> {
                     if (minecraft != null) minecraft.setScreen(parentScreen);
-                }).bounds(leftPos + 10, topPos + 234, 80, 18).build());
+                }).bounds(leftPos + 10, topPos + 188, 80, 18).build());
         }
     }
 
     // ─────────────────────────────────────────────────────────
-    // DIALOGUE STATE (called by DialogueStatePacket handler)
+    // DIALOGUE STATE  (called by DialogueStatePacket handler)
     // ─────────────────────────────────────────────────────────
 
     public void handleDialogueState(List<DialogueStatePacket.OptionEntry> options) {
+        lastDialogueOptions = new ArrayList<>(options); // persist for resize
+        applyDialogueOptions(options);
+    }
+
+    private void applyDialogueOptions(List<DialogueStatePacket.OptionEntry> options) {
         for (int i = 0; i < dialogueButtons.size(); i++) {
             dialogueButtons.get(i).visible = false;
             dialogueOptionIds[i]   = null;
@@ -162,11 +185,11 @@ public class ChatScreen extends Screen {
         }
         int count = Math.min(options.size(), MAX_DIALOGUE_BUTTONS);
         for (int i = 0; i < count; i++) {
-            DialogueStatePacket.OptionEntry entry = options.get(i);
-            dialogueOptionIds[i]   = entry.id();
-            dialogueOptionTexts[i] = entry.text();
+            DialogueStatePacket.OptionEntry e = options.get(i);
+            dialogueOptionIds[i]   = e.id();
+            dialogueOptionTexts[i] = e.text();
             Button btn = dialogueButtons.get(i);
-            btn.setMessage(Component.literal(truncate(entry.text(), 26)));
+            btn.setMessage(Component.literal(truncate(e.text(), 26)));
             btn.visible = true;
         }
     }
@@ -179,52 +202,50 @@ public class ChatScreen extends Screen {
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         renderBackground(g);
 
-        // Smartphone outer border
+        // Smartphone border
         g.fill(leftPos - 5, topPos - 5, leftPos + WIDTH + 5, topPos + HEIGHT + 5, 0xFF1C1C1C);
-
         // Chat wallpaper (cream)
         g.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEIGHT, 0xFFE7DDD3);
-
         // WhatsApp green header
-        g.fill(leftPos, topPos, leftPos + WIDTH, topPos + 40, 0xFF075E54);
+        g.fill(leftPos, topPos, leftPos + WIDTH, topPos + HEADER_H, 0xFF075E54);
 
-        // ← back arrow (interactive area, see mouseClicked)
+        // ← back arrow  (interactive — see mouseClicked)
         g.drawString(this.font, "←", leftPos + 8, topPos + 14, 0xFFFFFFFF, false);
 
         // Profile picture
-        int headSize = 28;
-        int headX    = leftPos + 25;
-        int headY    = topPos + 6;
-        HeadRenderer.renderPlayerHead(g, headX, headY, headSize, (ResourceLocation) null);
+        int headX = leftPos + 25;
+        int headY = topPos + 6;
+        HeadRenderer.renderPlayerHead(g, headX, headY, 28, (ResourceLocation) null);
 
         // Name + online status
-        String displayName = conversation.getParticipantName();
-        g.drawString(this.font, displayName,      headX + headSize + 8, topPos + 12, 0xFFFFFFFF, false);
-        g.drawString(this.font, cachedOnlineStr,  headX + headSize + 8, topPos + 24, 0xFFCCCCCC, false);
+        g.drawString(this.font, conversation.getParticipantName(),
+            headX + 36, topPos + 12, 0xFFFFFFFF, false);
+        g.drawString(this.font, cachedOnlineStr,
+            headX + 36, topPos + 24, 0xFFCCCCCC, false);
 
         this.renderFrameTime = System.currentTimeMillis();
 
-        // ── Message area ──
-        int messagesY      = topPos + 45;
-        int messagesHeight = conversation.isPlayerParticipant() ? 155 : 168;
-        renderMessages(g, messagesY, messagesHeight);
+        // Messages
+        renderMessages(g, topPos + MESSAGES_TOP, MESSAGES_H);
 
-        // ── NPC overlay ──
+        // NPC overlay
         if (!conversation.isPlayerParticipant()) {
-            // Teal divider line
-            g.fill(leftPos, topPos + 213, leftPos + WIDTH, topPos + 215, 0xFF128C7E);
-            // Dark semi-transparent panel (≈80 % opaque dark green)
-            g.fill(leftPos, topPos + 215, leftPos + WIDTH, topPos + HEIGHT, 0xCC1B4332);
+            // Teal divider
+            g.fill(leftPos, topPos + OVERLAY_START,
+                   leftPos + WIDTH, topPos + OVERLAY_START + 2, 0xFF128C7E);
+            // Dark semi-transparent panel
+            g.fill(leftPos, topPos + OVERLAY_START + 2,
+                   leftPos + WIDTH, topPos + HEIGHT, 0xCC1B4332);
         }
 
         super.render(g, mouseX, mouseY, partialTick);
     }
 
     // ─────────────────────────────────────────────────────────
-    // MESSAGES
+    // MESSAGE RENDERING  (variable-height bubbles, no overlap)
     // ─────────────────────────────────────────────────────────
 
-    private void renderMessages(GuiGraphics g, int startY, int height) {
+    private void renderMessages(GuiGraphics g, int startY, int areaHeight) {
         List<Message> messages = conversation.getMessages();
         if (messages.isEmpty()) {
             g.drawCenteredString(this.font, cachedNoMessagesStr,
@@ -232,56 +253,76 @@ public class ChatScreen extends Screen {
             return;
         }
 
-        int currentY = startY + height - MESSAGE_HEIGHT - scrollOffset;
+        // Render newest-first from the bottom of the area upwards.
+        // Each message's bubble height is calculated on-the-fly so there
+        // is never any overlap regardless of text length.
+        int y = startY + areaHeight - scrollOffset;
         for (int i = messages.size() - 1; i >= 0; i--) {
             Message msg = messages.get(i);
-            if (currentY + MESSAGE_HEIGHT >= startY && currentY <= startY + height) {
-                renderMessage(g, msg, currentY);
+            int bubbleH = bubbleHeight(msg.getContent());
+            y -= bubbleH + MSG_GAP;
+            if (y + bubbleH >= startY && y <= startY + areaHeight) {
+                renderMessage(g, msg, y, startY, startY + areaHeight);
             }
-            currentY -= MESSAGE_HEIGHT;
+            if (y < startY - bubbleH) break; // no more visible messages above
         }
     }
 
-    private void renderMessage(GuiGraphics g, Message message, int y) {
-        boolean isSentByMe = minecraft != null && minecraft.player != null
+    /** Height in pixels of the bubble for the given message text. */
+    private int bubbleHeight(String content) {
+        List<String> lines = wrappedTextCache.computeIfAbsent(
+            content, k -> wrapText(k, WIDTH - 70));
+        return lines.size() * 10 + MSG_PADDING * 2 + 6;
+    }
+
+    private void renderMessage(GuiGraphics g, Message message,
+                               int y, int clipTop, int clipBottom) {
+        // Clip bubbles that are partially scrolled out of the area
+        if (y + bubbleHeight(message.getContent()) <= clipTop || y >= clipBottom) return;
+
+        boolean mine = minecraft != null && minecraft.player != null
             && message.getSenderUUID().equals(minecraft.player.getUUID());
 
-        String content  = message.getContent();
-        int maxWidth    = WIDTH - 70;
-        List<String> lines = wrappedTextCache.computeIfAbsent(content, k -> wrapText(k, maxWidth));
+        String content = message.getContent();
+        List<String> lines = wrappedTextCache.computeIfAbsent(
+            content, k -> wrapText(k, WIDTH - 70));
 
-        int maxLineWidth = 0;
-        for (String line : lines) maxLineWidth = Math.max(maxLineWidth, this.font.width(line));
+        int maxLineW = 0;
+        for (String l : lines) maxLineW = Math.max(maxLineW, this.font.width(l));
 
-        int padding   = 8;
-        int msgWidth  = Math.min(maxWidth, maxLineWidth + padding * 2 + 20);
+        int padding   = MSG_PADDING;
+        int msgWidth  = Math.min(WIDTH - 70, maxLineW + padding * 2 + 20);
         int msgHeight = lines.size() * 10 + padding * 2 + 6;
 
-        String timeStr  = getMessageTime(message.getTimestamp());
-        int timeWidth   = this.font.width(timeStr);
+        String timeStr = getMessageTime(message.getTimestamp());
+        int timeW      = this.font.width(timeStr);
 
-        if (isSentByMe) {
+        if (mine) {
             int msgX = leftPos + WIDTH - msgWidth - 8;
             drawRoundedBubble(g, msgX, y, msgWidth, msgHeight, 0xFFDCF8C6);
             for (int i = 0; i < lines.size(); i++)
-                g.drawString(this.font, lines.get(i), msgX + padding, y + padding + i * 10, 0xFF000000, false);
-            g.drawString(this.font, timeStr, msgX + msgWidth - timeWidth - padding, y + msgHeight - 10, 0xFF888888, false);
+                g.drawString(this.font, lines.get(i),
+                    msgX + padding, y + padding + i * 10, 0xFF000000, false);
+            g.drawString(this.font, timeStr,
+                msgX + msgWidth - timeW - padding, y + msgHeight - 10, 0xFF888888, false);
         } else {
             int msgX = leftPos + 8;
             drawRoundedBubble(g, msgX, y, msgWidth, msgHeight, 0xFFFFFFFF);
             for (int i = 0; i < lines.size(); i++)
-                g.drawString(this.font, lines.get(i), msgX + padding, y + padding + i * 10, 0xFF000000, false);
-            g.drawString(this.font, timeStr, msgX + msgWidth - timeWidth - padding, y + msgHeight - 10, 0xFF888888, false);
+                g.drawString(this.font, lines.get(i),
+                    msgX + padding, y + padding + i * 10, 0xFF000000, false);
+            g.drawString(this.font, timeStr,
+                msgX + msgWidth - timeW - padding, y + msgHeight - 10, 0xFF888888, false);
         }
     }
 
-    private void drawRoundedBubble(GuiGraphics g, int x, int y, int width, int height, int color) {
-        g.fill(x + 2, y, x + width - 2, y + height, color);
-        g.fill(x, y + 2, x + width, y + height - 2, color);
-        g.fill(x + 1, y + 1, x + 2, y + 2, color);
-        g.fill(x + width - 2, y + 1, x + width - 1, y + 2, color);
-        g.fill(x + 1, y + height - 2, x + 2, y + height - 1, color);
-        g.fill(x + width - 2, y + height - 2, x + width - 1, y + height - 1, color);
+    private void drawRoundedBubble(GuiGraphics g, int x, int y, int w, int h, int color) {
+        g.fill(x + 2, y,     x + w - 2, y + h,     color);
+        g.fill(x,     y + 2, x + w,     y + h - 2, color);
+        g.fill(x + 1, y + 1, x + 2,     y + 2,     color);
+        g.fill(x + w - 2, y + 1, x + w - 1, y + 2, color);
+        g.fill(x + 1, y + h - 2, x + 2,     y + h - 1, color);
+        g.fill(x + w - 2, y + h - 2, x + w - 1, y + h - 1, color);
     }
 
     // ─────────────────────────────────────────────────────────
@@ -289,23 +330,26 @@ public class ChatScreen extends Screen {
     // ─────────────────────────────────────────────────────────
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        // ← header area (leftPos+4..22, topPos+8..28) navigates back
-        if (mouseX >= leftPos + 4 && mouseX <= leftPos + 22
-            && mouseY >= topPos + 8 && mouseY <= topPos + 28) {
+    public boolean mouseClicked(double mx, double my, int button) {
+        // Header ← zone: navigate back
+        if (mx >= leftPos + 4 && mx <= leftPos + 24
+            && my >= topPos + 8 && my <= topPos + 28) {
             if (minecraft != null) minecraft.setScreen(parentScreen);
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(mx, my, button);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        int visibleHeight = conversation.isPlayerParticipant() ? 155 : 168;
-        int totalHeight   = conversation.getMessages().size() * MESSAGE_HEIGHT;
-        if (totalHeight > visibleHeight) {
-            scrollOffset -= (int) (delta * 10);
-            scrollOffset = Math.max(0, Math.min(scrollOffset, totalHeight - visibleHeight));
+        // Compute total pixel height of all messages
+        int totalH = 0;
+        for (Message m : conversation.getMessages()) {
+            totalH += bubbleHeight(m.getContent()) + MSG_GAP;
+        }
+        if (totalH > MESSAGES_H) {
+            scrollOffset -= (int) (delta * 12);
+            scrollOffset = Math.max(0, Math.min(scrollOffset, totalH - MESSAGES_H));
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
@@ -313,7 +357,6 @@ public class ChatScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // Block E (inventory key = 69) from closing the screen
         return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
@@ -353,18 +396,18 @@ public class ChatScreen extends Screen {
     private List<String> wrapText(String text, int maxWidth) {
         List<String> lines = new ArrayList<>();
         String[] words = text.split(" ");
-        StringBuilder current = new StringBuilder();
+        StringBuilder cur = new StringBuilder();
         for (String word : words) {
-            String test = current.length() == 0 ? word : current + " " + word;
+            String test = cur.length() == 0 ? word : cur + " " + word;
             if (this.font.width(test) <= maxWidth) {
-                if (current.length() > 0) current.append(' ');
-                current.append(word);
+                if (cur.length() > 0) cur.append(' ');
+                cur.append(word);
             } else {
-                if (current.length() > 0) { lines.add(current.toString()); current = new StringBuilder(word); }
-                else                      { lines.add(word); }
+                if (cur.length() > 0) { lines.add(cur.toString()); cur = new StringBuilder(word); }
+                else                  { lines.add(word); }
             }
         }
-        if (current.length() > 0) lines.add(current.toString());
+        if (cur.length() > 0) lines.add(cur.toString());
         return lines.isEmpty() ? List.of(text) : lines;
     }
 }
