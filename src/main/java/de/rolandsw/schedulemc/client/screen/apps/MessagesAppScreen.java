@@ -206,8 +206,13 @@ public class MessagesAppScreen extends Screen {
                         // For NPC conversations, find the entity by UUID so we can
                         // send StartDialoguePacket and show dialogue option buttons.
                         if (!conv.isPlayerParticipant() && minecraft.level != null) {
-                            Entity npcEntity = minecraft.level.getEntities()
-                                .get(conv.getParticipantUUID());
+                            Entity npcEntity = null;
+                            for (Entity e : minecraft.level.entitiesForRendering()) {
+                                if (e.getUUID().equals(conv.getParticipantUUID())) {
+                                    npcEntity = e;
+                                    break;
+                                }
+                            }
                             if (npcEntity != null) {
                                 NPCNetworkHandler.sendToServer(
                                     new StartDialoguePacket(npcEntity.getId()));
