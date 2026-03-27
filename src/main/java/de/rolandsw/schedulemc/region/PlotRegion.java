@@ -62,6 +62,9 @@ public class PlotRegion {
     private long creationTime;
     private long lastVisited;
     private int visitCount;
+    /** Zeitpunkt (Epoch-ms) zu dem der aktuelle Besitzer das Grundstück erworben hat.
+     *  0 = staatseigen oder noch unbekannt (vor Feature-Einführung). */
+    private long purchaseTime = 0L;
 
     // Öffentlicher Plot?
     private boolean isPublic;
@@ -71,6 +74,8 @@ public class PlotRegion {
     // ═══════════════════════════════════════════════════════════
     private PlotType type = PlotType.RESIDENTIAL; // Default: Wohngebäude
     private BlockPos warehouseLocation; // Warehouse für Shop-Plots
+    // null = Typ-Standard verwenden; true/false = explizite Überschreibung (z.B. kaufbarer Shop)
+    private Boolean purchasable = null;
 
     // ═══════════════════════════════════════════════════════════
     // UNTERBEREICHE (APARTMENTS)
@@ -366,6 +371,10 @@ public class PlotRegion {
     public void setLastVisited(long time) { this.lastVisited = time; }
     
     public int getVisitCount() { return visitCount; }
+
+    public long getPurchaseTime() { return purchaseTime; }
+    public void setPurchaseTime(long time) { this.purchaseTime = time; }
+
     public void incrementVisitCount() {
         this.visitCount++;
         this.lastVisited = System.currentTimeMillis();
@@ -598,6 +607,24 @@ public class PlotRegion {
         this.type = type;
     }
 
+    /**
+     * Gibt zurück ob dieser Plot kaufbar ist.
+     * Verwendet explizite Überschreibung (purchasable-Feld) falls gesetzt,
+     * sonst den Typ-Standard.
+     */
+    public boolean isPurchasable() {
+        if (purchasable != null) return purchasable;
+        return type != null && type.canBePurchased();
+    }
+
+    /**
+     * Überschreibt die Kaufbarkeit des Plots unabhängig vom Typ.
+     * null = Typ-Standard verwenden; true/false = explizit setzen.
+     */
+    public void setPurchasable(Boolean purchasable) {
+        this.purchasable = purchasable;
+    }
+
     public boolean isShop() {
         return type == PlotType.SHOP;
     }
@@ -639,8 +666,8 @@ public class PlotRegion {
      * (Duplicate method - old ones commented out above)
      */
     public void setForSale(boolean forSale) {
-        if (type != null && !type.canBePurchased()) {
-            // Shop-Plots und andere nicht-kaufbare Plots können nicht verkauft werden
+        if (!isPurchasable()) {
+            // Nicht-kaufbare Plots (basierend auf Typ oder expliziter Überschreibung) können nicht verkauft werden
             return;
         }
         if (isInsideGovernmentPlot()) {

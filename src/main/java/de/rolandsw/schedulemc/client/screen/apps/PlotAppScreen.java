@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.client.screen.apps;
 
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
+import de.rolandsw.schedulemc.region.network.PlotNetworkHandler;
+import de.rolandsw.schedulemc.region.network.PlotPurchasePacket;
 import de.rolandsw.schedulemc.utility.PlotUtilityData;
 import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 import net.minecraft.client.Minecraft;
@@ -111,6 +113,10 @@ public class PlotAppScreen extends Screen {
     private String[] cachedDayLabels;
     private String cachedPrices;
 
+    // Tab-1 action buttons (buy/rent on current plot)
+    private Button buyButton;
+    private Button rentButton;
+
     public PlotAppScreen(Screen parent) {
         super(Component.translatable("gui.app.plot.title"));
         this.parentScreen = parent;
@@ -193,6 +199,7 @@ public class PlotAppScreen extends Screen {
                     currentTab = tabIndex;
                     scrollOffset = 0;
                     refreshData();
+                    updateButtonVisibility();
                 }
             ).bounds(leftPos + 10 + (i * TAB_WIDTH), topPos + 30, TAB_WIDTH - 2, TAB_HEIGHT).build());
         }
@@ -203,6 +210,35 @@ public class PlotAppScreen extends Screen {
                 minecraft.setScreen(parentScreen);
             }
         }).bounds(leftPos + 10, topPos + HEIGHT - 30, 80, 20).build());
+
+        // Tab-1: Kaufen / Mieten Buttons (Sichtbarkeit wird in updateButtonVisibility() gesetzt)
+        buyButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.app.plot.button.buy"),
+            button -> {
+                if (currentPlot != null) {
+                    PlotNetworkHandler.sendToServer(
+                        new PlotPurchasePacket(currentPlot.getPlotId(), PlotPurchasePacket.PurchaseType.BUY)
+                    );
+                    refreshData();
+                    updateButtonVisibility();
+                }
+            }
+        ).bounds(leftPos + 10, topPos + HEIGHT - 55, 85, 18).build());
+
+        rentButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.app.plot.button.rent"),
+            button -> {
+                if (currentPlot != null) {
+                    PlotNetworkHandler.sendToServer(
+                        new PlotPurchasePacket(currentPlot.getPlotId(), PlotPurchasePacket.PurchaseType.RENT)
+                    );
+                    refreshData();
+                    updateButtonVisibility();
+                }
+            }
+        ).bounds(leftPos + 105, topPos + HEIGHT - 55, 85, 18).build());
+
+        updateButtonVisibility();
     }
 
     /**
@@ -224,10 +260,10 @@ public class PlotAppScreen extends Screen {
             utilityData = null;
         }
 
-        // Verfügbare Plots (zum Verkauf oder ohne Besitzer)
+        // Verfügbare Plots (zum Verkauf oder ohne Besitzer - nur kaufbare/mietbare Typen)
         availablePlots = new ArrayList<>();
         for (PlotRegion plot : PlotManager.getPlots()) {
-            if (!plot.hasOwner() || plot.isForSale() || plot.isForRent()) {
+            if ((!plot.hasOwner() && plot.isPurchasable()) || plot.isForSale() || plot.isForRent()) {
                 availablePlots.add(plot);
             }
         }
@@ -239,6 +275,20 @@ public class PlotAppScreen extends Screen {
                 myPlots.add(plot);
             }
         }
+    }
+
+    /**
+     * Zeigt/versteckt Kauf-/Miet-Buttons je nach aktuellem Tab und Plot-Status.
+     */
+    private void updateButtonVisibility() {
+        if (buyButton == null || rentButton == null) return;
+        boolean onTab0 = currentTab == 0;
+        boolean canBuy = onTab0 && currentPlot != null
+            && ((!currentPlot.hasOwner() && currentPlot.isPurchasable()) || currentPlot.isForSale());
+        boolean canRent = onTab0 && currentPlot != null
+            && currentPlot.isForRent() && !currentPlot.isRented();
+        buyButton.visible = canBuy;
+        rentButton.visible = canRent;
     }
 
     @Override
@@ -295,8 +345,35 @@ public class PlotAppScreen extends Screen {
         int contentHeight = 0;
 
         if (currentPlot == null) {
-            guiGraphics.drawCenteredString(this.font, cachedNoPlot, leftPos + WIDTH / 2, y + 20, 0xAAAAAA);
-            guiGraphics.drawCenteredString(this.font, cachedStandOnPlot, leftPos + WIDTH / 2, y + 35, 0x666666);
+            Minecraft mcW = Minecraft.getInstance();
+            // Dimensionsname ermitteln
+            String dimName;
+            if (mcW.level != null) {
+                String path = mcW.level.dimension().location().getPath();
+                dimName = switch (path) {
+                    case "overworld" -> Component.translatable("gui.app.plot.world.overworld").getString();
+                    case "the_nether" -> Component.translatable("gui.app.plot.world.nether").getString();
+                    case "the_end" -> Component.translatable("gui.app.plot.world.end").getString();
+                    default -> path;
+                };
+            } else {
+                dimName = Component.translatable("gui.app.plot.world.overworld").getString();
+            }
+
+            guiGraphics.drawString(this.font, "§6§l" + dimName, leftPos + 15, y, 0xFFAA00);
+            y += 15;
+
+            if (mcW.player != null) {
+                BlockPos pos = mcW.player.blockPosition();
+                guiGraphics.drawString(this.font, "§8" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ(), leftPos + 15, y, 0x666666);
+                y += 12;
+            }
+
+            guiGraphics.drawString(this.font, cachedOwnerLabel + Component.translatable("gui.app.plot.world.owner").getString(), leftPos + 15, y, 0xFFFFFF);
+            y += 12;
+
+            guiGraphics.drawString(this.font, "§7" + Component.translatable("gui.app.plot.world.no_plot").getString(), leftPos + 15, y, 0x888888);
+
             maxScroll = 0;
             return;
         }
@@ -338,7 +415,7 @@ public class PlotAppScreen extends Screen {
         contentHeight += 15;
 
         // Status (Verkauf/Miete)
-        if (!currentPlot.hasOwner()) {
+        if (!currentPlot.hasOwner() && currentPlot.isPurchasable()) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44228B22);
                 guiGraphics.drawString(this.font, cachedForSale, leftPos + 15, y + 3, 0x00FF00);

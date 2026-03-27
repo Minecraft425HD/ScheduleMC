@@ -41,6 +41,8 @@ public enum TransactionType {
     PLOT_PURCHASE,
     PLOT_SALE,
     PLOT_RENT,
+    TAX_VAT,          // MwSt. auf Grundstückskauf (19%)
+    TAX_SPECULATION,  // Spekulationssteuer beim Weiterverkauf innerhalb 7 Tage (40%)
     OVERDRAFT_REPAY_WALLET,
     OVERDRAFT_REPAY_SAVINGS,
     PRISON_DEBT_CLEARED,

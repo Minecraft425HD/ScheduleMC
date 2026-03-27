@@ -95,7 +95,7 @@ public class PlotInfoHudOverlay {
         }
 
         // Verkauf/Miete Status
-        if (!plot.hasOwner()) {
+        if (!plot.hasOwner() && plot.isPurchasable()) {
             totalLines += 2; // "ZUM VERKAUF" + Preis
         } else if (plot.isForSale()) {
             totalLines += 2;
@@ -156,8 +156,8 @@ public class PlotInfoHudOverlay {
         currentY += LINE_HEIGHT + 3;
 
         // === VERKAUF/MIETE STATUS ===
-        if (!plot.hasOwner()) {
-            // Plot ohne Besitzer = zum Verkauf
+        if (!plot.hasOwner() && plot.isPurchasable()) {
+            // Plot ohne Besitzer und kaufbar = zum Verkauf
             drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.for_sale").getString(), currentY);
             currentY += LINE_HEIGHT;
             drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.price", String.format("%.2f€", plot.getPrice())).getString(), currentY);
