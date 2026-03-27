@@ -237,7 +237,7 @@ public class MessagesAppScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (conversations != null && conversations.size() * CHAT_ITEM_HEIGHT > HEIGHT - 80) {
-            scrollOffset -= (int)(delta * 10);
+            scrollOffset += (int)(delta * 10);
             scrollOffset = Math.max(0, Math.min(scrollOffset, conversations.size() * CHAT_ITEM_HEIGHT - (HEIGHT - 80)));
             return true;
         }
