@@ -62,14 +62,14 @@ public class HeadRenderer {
         int headTexHeight = 8;
 
         // Main head layer
-        guiGraphics.blit(skinTexture, x, y, size, size,
+        guiGraphics.blit(effectiveSkin, x, y, size, size,
             headTexX, headTexY, headTexWidth, headTexHeight,
             textureSize, textureSize);
 
         // Overlay layer (hat/hair)
         int overlayTexX = 40;
         int overlayTexY = 8;
-        guiGraphics.blit(skinTexture, x, y, size, size,
+        guiGraphics.blit(effectiveSkin, x, y, size, size,
             overlayTexX, overlayTexY, headTexWidth, headTexHeight,
             textureSize, textureSize);
 
