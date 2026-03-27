@@ -16,6 +16,7 @@ import de.rolandsw.schedulemc.npc.network.OpenMerchantShopPacket;
 import de.rolandsw.schedulemc.npc.network.OpenBankerMenuPacket;
 import de.rolandsw.schedulemc.npc.network.OpenBoerseMenuPacket;
 import de.rolandsw.schedulemc.npc.network.OpenCreditAdvisorMenuPacket;
+import de.rolandsw.schedulemc.npc.network.StartDialoguePacket;
 import de.rolandsw.schedulemc.client.screen.apps.MissionsAppScreen;
 import de.rolandsw.schedulemc.tobacco.network.ModNetworking;
 import de.rolandsw.schedulemc.tobacco.network.OpenTobaccoNegotiationPacket;
@@ -159,8 +160,11 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
                 false // NPC, not player
             );
 
+            // Notify server to start dialogue session
+            NPCNetworkHandler.sendToServer(new StartDialoguePacket(menu.getEntityId()));
+
             // Open chat screen
-            minecraft.setScreen(new ChatScreen(this, conversation));
+            minecraft.setScreen(new ChatScreen(this, conversation, menu.getEntityId()));
         }
     }
 

@@ -1,5 +1,8 @@
 package de.rolandsw.schedulemc.npc.life.dialogue;
 
+import de.rolandsw.schedulemc.mission.MissionEventBridge;
+import de.rolandsw.schedulemc.mission.MissionStatus;
+import de.rolandsw.schedulemc.mission.PlayerMissionManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.core.MemoryType;
@@ -484,6 +487,59 @@ public class DialogueAction {
                     ifFalse.execute(ctx, npc);
                 }
             }
+        );
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // MISSION ACTIONS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Gibt dem Spieler eine Mission (akzeptiert sie automatisch).
+     * @param definitionId ID der MissionDefinition aus MissionRegistry
+     */
+    public static DialogueAction giveMission(String definitionId) {
+        return new DialogueAction(
+            "give_mission_" + definitionId,
+            "Mission vergeben: " + definitionId,
+            (ctx, npc) -> {
+                PlayerMissionManager mgr = PlayerMissionManager.getInstance();
+                if (mgr != null) {
+                    mgr.acceptMission(ctx.getPlayer(), definitionId);
+                }
+            }
+        );
+    }
+
+    /**
+     * Zahlt die Belohnung einer abgeschlossenen Mission aus (COMPLETED → CLAIMED).
+     * @param definitionId ID der MissionDefinition
+     */
+    public static DialogueAction claimMissionReward(String definitionId) {
+        return new DialogueAction(
+            "claim_mission_" + definitionId,
+            "Missionsbelohnung auszahlen: " + definitionId,
+            (ctx, npc) -> {
+                PlayerMissionManager mgr = PlayerMissionManager.getInstance();
+                if (mgr == null) return;
+                mgr.getPlayerMissions(ctx.getPlayer().getUUID()).stream()
+                    .filter(m -> m.getDefinitionId().equals(definitionId)
+                              && m.getStatus() == MissionStatus.COMPLETED)
+                    .findFirst()
+                    .ifPresent(m -> mgr.claimMission(ctx.getPlayer(), m.getMissionId()));
+            }
+        );
+    }
+
+    /**
+     * Feuert ein Missions-Tracking-Event.
+     * @param trackingKey Schlüssel, z.B. "package_delivered", "npc_talked"
+     */
+    public static DialogueAction trackMissionEvent(String trackingKey) {
+        return new DialogueAction(
+            "track_event_" + trackingKey,
+            "Event tracken: " + trackingKey,
+            (ctx, npc) -> MissionEventBridge.fireTransactionCompleted(ctx.getPlayer())
         );
     }
 

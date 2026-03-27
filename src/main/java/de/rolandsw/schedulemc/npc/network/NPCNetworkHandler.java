@@ -244,6 +244,25 @@ public class NPCNetworkHandler {
             .encoder(de.rolandsw.schedulemc.economy.network.SyncFullBankDataPacket::encode)
             .consumerMainThread(de.rolandsw.schedulemc.economy.network.SyncFullBankDataPacket::handle)
             .add();
+
+        // Dialogue Packets
+        INSTANCE.messageBuilder(StartDialoguePacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(StartDialoguePacket::decode)
+            .encoder(StartDialoguePacket::encode)
+            .consumerMainThread(StartDialoguePacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(SelectDialogueOptionPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(SelectDialogueOptionPacket::decode)
+            .encoder(SelectDialogueOptionPacket::encode)
+            .consumerMainThread(SelectDialogueOptionPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(de.rolandsw.schedulemc.messaging.network.DialogueStatePacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(de.rolandsw.schedulemc.messaging.network.DialogueStatePacket::decode)
+            .encoder(de.rolandsw.schedulemc.messaging.network.DialogueStatePacket::encode)
+            .consumerMainThread(de.rolandsw.schedulemc.messaging.network.DialogueStatePacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
@@ -251,6 +270,10 @@ public class NPCNetworkHandler {
     }
 
     public static <MSG> void sendToPlayer(MSG message, ServerPlayer player) {
+        INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
+    }
+
+    public static <MSG> void sendToClient(MSG message, ServerPlayer player) {
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
     }
 }

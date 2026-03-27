@@ -3,9 +3,11 @@ package de.rolandsw.schedulemc.client.screen.apps;
 import de.rolandsw.schedulemc.messaging.Conversation;
 import de.rolandsw.schedulemc.messaging.HeadRenderer;
 import de.rolandsw.schedulemc.messaging.Message;
-import de.rolandsw.schedulemc.messaging.NPCMessageTemplates;
 import de.rolandsw.schedulemc.messaging.network.MessageNetworkHandler;
 import de.rolandsw.schedulemc.messaging.network.SendMessagePacket;
+import de.rolandsw.schedulemc.messaging.network.DialogueStatePacket;
+import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
+import de.rolandsw.schedulemc.npc.network.SelectDialogueOptionPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -18,6 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -28,18 +31,24 @@ public class ChatScreen extends Screen {
 
     private final Screen parentScreen;
     private final Conversation conversation;
+    /** Entity ID of NPC for dialogue packets (-1 for player chats) */
+    private final int npcEntityId;
     private static final int WIDTH = 200;
     private static final int HEIGHT = 240;
     private static final int BORDER_SIZE = 5;
     private static final int MARGIN_TOP = 5;
     private static final int MARGIN_BOTTOM = 60;
     private static final int MESSAGE_HEIGHT = 30;
+    private static final int MAX_DIALOGUE_BUTTONS = 4;
     private int leftPos;
     private int topPos;
     private int scrollOffset = 0;
     private EditBox messageInput;
-    private List<Component> npcMessageOptions;
-    private int selectedNPCMessage = -1;
+
+    /** Dynamic dialogue option buttons (NPC chat only) */
+    private final List<Button> dialogueButtons = new ArrayList<>();
+    private final String[] dialogueOptionIds = new String[MAX_DIALOGUE_BUTTONS];
+    private final String[] dialogueOptionTexts = new String[MAX_DIALOGUE_BUTTONS];
 
     // PERFORMANCE: Cache für per-Frame Allokationen
     private String cachedOnlineStr;
@@ -49,9 +58,18 @@ public class ChatScreen extends Screen {
     private long renderFrameTime; // Einmal pro Frame statt pro Message
 
     public ChatScreen(Screen parent, Conversation conversation) {
+        this(parent, conversation, -1);
+    }
+
+    public ChatScreen(Screen parent, Conversation conversation, int npcEntityId) {
         super(Component.translatable("gui.app.chat.title"));
         this.parentScreen = parent;
         this.conversation = conversation;
+        this.npcEntityId = npcEntityId;
+    }
+
+    public UUID getParticipantUUID() {
+        return conversation.getParticipantUUID();
     }
 
     @Override
@@ -68,22 +86,24 @@ public class ChatScreen extends Screen {
         this.cachedNoMessagesStr = Component.translatable("gui.app.chat.no_messages").getString();
         this.cachedNowStr = Component.translatable("gui.app.chat.now").getString();
 
-        // Check if chatting with NPC to show message templates
+        // Check if chatting with NPC to show dialogue buttons
         if (!conversation.isPlayerParticipant()) {
-            // NPC chat - show 3 message options based on reputation with this NPC
-            int reputation = conversation.getReputation();
-            npcMessageOptions = NPCMessageTemplates.getMessagesForReputation(reputation);
-
-            int buttonY = topPos + HEIGHT - 95;
-            for (int i = 0; i < npcMessageOptions.size(); i++) {
-                final int index = i;
-                Component messageComponent = npcMessageOptions.get(i);
-                String messageText = messageComponent.getString();
-
-                addRenderableWidget(Button.builder(Component.literal(truncate(messageText, 25)), button -> {
-                    selectedNPCMessage = index;
-                    sendMessage(npcMessageOptions.get(index).getString());
-                }).bounds(leftPos + 5, buttonY + (i * 22), WIDTH - 10, 20).build());
+            // NPC chat - show dynamic dialogue option buttons (filled by handleDialogueState)
+            int buttonY = topPos + HEIGHT - 120;
+            dialogueButtons.clear();
+            for (int i = 0; i < MAX_DIALOGUE_BUTTONS; i++) {
+                final int idx = i;
+                Button btn = Button.builder(Component.literal(""), button -> {
+                    if (dialogueOptionIds[idx] != null && npcEntityId != -1) {
+                        String optId = dialogueOptionIds[idx];
+                        String optText = dialogueOptionTexts[idx];
+                        NPCNetworkHandler.sendToServer(
+                            new SelectDialogueOptionPacket(npcEntityId, optId, optText));
+                    }
+                }).bounds(leftPos + 5, buttonY + (idx * 22), WIDTH - 10, 18).build();
+                btn.visible = false;
+                dialogueButtons.add(btn);
+                addRenderableWidget(btn);
             }
         } else {
             // Player chat - show text input
@@ -107,6 +127,28 @@ public class ChatScreen extends Screen {
                 minecraft.setScreen(parentScreen);
             }
         }).bounds(leftPos + 10, topPos + HEIGHT - 30, 80, 20).build());
+    }
+
+    /**
+     * Called by DialogueStatePacket to update visible dialogue option buttons.
+     */
+    public void handleDialogueState(List<DialogueStatePacket.OptionEntry> options) {
+        // Hide all buttons first
+        for (int i = 0; i < dialogueButtons.size(); i++) {
+            dialogueButtons.get(i).visible = false;
+            dialogueOptionIds[i] = null;
+            dialogueOptionTexts[i] = null;
+        }
+        // Show buttons for received options
+        int count = Math.min(options.size(), MAX_DIALOGUE_BUTTONS);
+        for (int i = 0; i < count; i++) {
+            DialogueStatePacket.OptionEntry entry = options.get(i);
+            dialogueOptionIds[i] = entry.id();
+            dialogueOptionTexts[i] = entry.text();
+            Button btn = dialogueButtons.get(i);
+            btn.setMessage(Component.literal(truncate(entry.text(), 25)));
+            btn.visible = true;
+        }
     }
 
     private String truncate(String text, int maxLength) {
@@ -161,7 +203,7 @@ public class ChatScreen extends Screen {
 
         // Messages area
         int messagesY = topPos + 45;
-        int messagesHeight = conversation.isPlayerParticipant() ? 120 : 80;
+        int messagesHeight = conversation.isPlayerParticipant() ? 120 : 70;
 
         renderMessages(guiGraphics, messagesY, messagesHeight);
 

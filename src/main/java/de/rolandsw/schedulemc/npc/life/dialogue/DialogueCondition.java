@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.dialogue;
 
+import de.rolandsw.schedulemc.mission.MissionStatus;
+import de.rolandsw.schedulemc.mission.PlayerMissionManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
@@ -329,5 +331,59 @@ public class DialogueCondition {
     public static DialogueCondition never() {
         return new DialogueCondition("never", "Nie",
             (ctx, npc) -> false);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // MISSION CONDITIONS
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Prüft ob der Spieler eine Mission mit einem bestimmten Status hat.
+     * @param definitionId ID der MissionDefinition
+     * @param status z.B. MissionStatus.ACTIVE, MissionStatus.COMPLETED
+     */
+    public static DialogueCondition hasMissionStatus(String definitionId, MissionStatus status) {
+        return new DialogueCondition(
+            "mission_status_" + definitionId + "_" + status.name(),
+            "Mission '" + definitionId + "' hat Status " + status.name(),
+            (ctx, npc) -> {
+                PlayerMissionManager mgr = PlayerMissionManager.getInstance();
+                if (mgr == null) return false;
+                return mgr.getPlayerMissions(ctx.getPlayer().getUUID()).stream()
+                    .anyMatch(m -> m.getDefinitionId().equals(definitionId)
+                               && m.getStatus() == status);
+            }
+        );
+    }
+
+    /**
+     * Prüft ob der NPC diese Mission anbietet (in NPCData.missionIds).
+     */
+    public static DialogueCondition npcHasMission(String definitionId) {
+        return new DialogueCondition(
+            "npc_has_mission_" + definitionId,
+            "NPC hat Mission: " + definitionId,
+            (ctx, npc) -> npc.getNpcData() != null
+                && npc.getNpcData().getMissionIds().contains(definitionId)
+        );
+    }
+
+    /**
+     * Prüft ob der Spieler KEINE aktive oder abgeschlossene Mission mit dieser ID hat.
+     * Nützlich um den "Mission anbieten"-Ast anzuzeigen.
+     */
+    public static DialogueCondition hasNoActiveMission(String definitionId) {
+        return new DialogueCondition(
+            "no_active_mission_" + definitionId,
+            "Keine aktive/abgeschlossene Mission: " + definitionId,
+            (ctx, npc) -> {
+                PlayerMissionManager mgr = PlayerMissionManager.getInstance();
+                if (mgr == null) return true;
+                return mgr.getPlayerMissions(ctx.getPlayer().getUUID()).stream()
+                    .noneMatch(m -> m.getDefinitionId().equals(definitionId)
+                        && (m.getStatus() == MissionStatus.ACTIVE
+                            || m.getStatus() == MissionStatus.COMPLETED));
+            }
+        );
     }
 }
