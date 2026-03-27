@@ -260,7 +260,7 @@ public class ChatScreen extends Screen {
         // Render newest-first from the bottom of the area upwards.
         // Each message's bubble height is calculated on-the-fly so there
         // is never any overlap regardless of text length.
-        int y = startY + areaHeight - scrollOffset;
+        int y = startY + areaHeight + scrollOffset;
         for (int i = messages.size() - 1; i >= 0; i--) {
             Message msg = messages.get(i);
             int bubbleH = bubbleHeight(msg.getContent());
