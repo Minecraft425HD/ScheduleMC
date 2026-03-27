@@ -253,6 +253,10 @@ public class ChatScreen extends Screen {
             return;
         }
 
+        // Scissor-clip to the message area so bubbles never bleed into the
+        // header above or the NPC overlay panel below.
+        g.enableScissor(leftPos, startY, leftPos + WIDTH, startY + areaHeight);
+
         // Render newest-first from the bottom of the area upwards.
         // Each message's bubble height is calculated on-the-fly so there
         // is never any overlap regardless of text length.
@@ -266,6 +270,8 @@ public class ChatScreen extends Screen {
             }
             if (y < startY - bubbleH) break; // no more visible messages above
         }
+
+        g.disableScissor();
     }
 
     /** Height in pixels of the bubble for the given message text. */
