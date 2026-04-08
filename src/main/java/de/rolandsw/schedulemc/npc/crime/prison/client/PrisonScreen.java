@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.npc.crime.prison.client;
 
 import de.rolandsw.schedulemc.npc.crime.prison.network.PayBailPacket;
 import de.rolandsw.schedulemc.npc.crime.prison.network.PrisonNetworkHandler;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -200,12 +201,12 @@ public class PrisonScreen extends Screen {
 
         y += 18;
         graphics.drawString(font, Component.translatable("screen.prison.bail_amount_label").getString(), leftPos + 25, y, COLOR_TEXT_GRAY, false);
-        graphics.drawString(font, String.format("%.0f€", bailAmount), leftPos + 120, y, COLOR_TEXT, false);
+        graphics.drawString(font, MoneyFormat.formatNoDecimal(bailAmount), leftPos + 120, y, COLOR_TEXT, false);
 
         y += 14;
         graphics.drawString(font, Component.translatable("screen.prison.your_account_label").getString(), leftPos + 25, y, COLOR_TEXT_GRAY, false);
         int balanceColor = playerBalance >= bailAmount ? COLOR_TEXT_GREEN : COLOR_TEXT_RED;
-        graphics.drawString(font, String.format("%.0f€", playerBalance), leftPos + 120, y, balanceColor, false);
+        graphics.drawString(font, MoneyFormat.formatNoDecimal(playerBalance), leftPos + 120, y, balanceColor, false);
 
         y += 14;
         long currentTick = getCurrentGameTime();

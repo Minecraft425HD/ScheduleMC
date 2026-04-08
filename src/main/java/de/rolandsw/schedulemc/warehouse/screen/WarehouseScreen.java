@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.ShopEntry;
@@ -845,7 +846,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             ShopAccount account = ShopAccountManager.getAccount(shopId);
             if (account != null) {
                 int netRevenue7Days = account.get7DayNetRevenue();
-                graphics.drawString(this.font, Component.translatable("gui.warehouse.net_revenue_7days").getString() + String.format("%d€", netRevenue7Days),
+                graphics.drawString(this.font, Component.translatable("gui.warehouse.net_revenue_7days").getString() + MoneyFormat.format(netRevenue7Days),
                     x + 15, contentY, netRevenue7Days >= 0 ? COLOR_SUCCESS : COLOR_DANGER, false);
                 contentY += 12;
 
@@ -856,13 +857,13 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 double avgExpensePerDelivery = warehouse.getAverageExpensePerDelivery(currentTime, 30);
 
                 graphics.drawString(this.font,
-                    Component.translatable("gui.warehouse.expenses_30days").getString() + String.format("%d€", totalExpenses30Days),
+                    Component.translatable("gui.warehouse.expenses_30days").getString() + MoneyFormat.format(totalExpenses30Days),
                     x + 15, contentY, COLOR_WARNING, false);
                 contentY += 12;
 
                 if (deliveryCount30Days > 0) {
                     graphics.drawString(this.font,
-                        Component.translatable("gui.warehouse.deliveries").getString() + deliveryCount30Days + "x | Ø " + String.format("%.0f€", avgExpensePerDelivery),
+                        Component.translatable("gui.warehouse.deliveries").getString() + deliveryCount30Days + "x | Ø " + MoneyFormat.formatNoDecimal(avgExpensePerDelivery),
                         x + 15, contentY, COLOR_TEXT_GRAY, false);
                     contentY += 12;
 
@@ -881,7 +882,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                             String ageStr = ageDays == 0 ? Component.translatable("gui.warehouse.today").getString() : Component.translatable("gui.warehouse.days_ago").getString() + ageDays + Component.translatable("gui.warehouse.days").getString();
 
                             graphics.drawString(this.font,
-                                String.format("    • %d€ (%s)", expense.getAmount(), ageStr),
+                                "    • " + MoneyFormat.format(expense.getAmount()) + " (" + ageStr + ")",
                                 x + 15, contentY, COLOR_TEXT_GRAY, false);
                             contentY += 10;
                             shown++;

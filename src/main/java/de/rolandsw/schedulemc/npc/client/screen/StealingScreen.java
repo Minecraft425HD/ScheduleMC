@@ -7,6 +7,7 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.StealingMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.StealingAttemptPacket;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import java.util.concurrent.TimeUnit;
 import net.minecraft.client.gui.GuiGraphics;
@@ -231,7 +232,7 @@ public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
             guiGraphics.drawString(this.font, Component.translatable("screen.stealing.prompt").getString(), 8, 20, 0x404040, false);
         } else {
             // Minigame-Modus
-            String valueLabel = Component.translatable("screen.stealing.estimated_value").getString() + String.format("%.0f€", inventoryValue);
+            String valueLabel = Component.translatable("screen.stealing.estimated_value").getString() + MoneyFormat.formatNoDecimal(inventoryValue);
             guiGraphics.drawString(this.font, valueLabel, 8, 20, 0x404040, false);
 
             String attemptsLabel = Component.translatable("screen.stealing.attempts").getString() + attempts + "/" + maxAttempts;

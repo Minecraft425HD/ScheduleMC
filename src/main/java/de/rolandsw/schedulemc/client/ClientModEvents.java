@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.secretdoors.SecretDoors;
 import de.rolandsw.schedulemc.secretdoors.client.DoorFillerBlockEntityRenderer;
 import de.rolandsw.schedulemc.secretdoors.client.ElevatorBlockEntityRenderer;
+import de.rolandsw.schedulemc.secretdoors.client.HiddenSwitchBlockEntityRenderer;
 import de.rolandsw.schedulemc.secretdoors.client.SecretDoorBlockEntityRenderer;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.integration.forge.ForgeEvents;
@@ -193,5 +194,6 @@ public class ClientModEvents {
         event.registerBlockEntityRenderer(SecretDoors.SECRET_DOOR_BE.get(), SecretDoorBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(SecretDoors.DOOR_FILLER_BE.get(), DoorFillerBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(SecretDoors.ELEVATOR_BE.get(), ElevatorBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(SecretDoors.HIDDEN_SWITCH_BE.get(), HiddenSwitchBlockEntityRenderer::new);
     }
 }

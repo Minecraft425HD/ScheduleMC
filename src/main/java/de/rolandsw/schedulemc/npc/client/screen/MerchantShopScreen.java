@@ -10,6 +10,7 @@ import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.menu.MerchantShopMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.PurchaseItemPacket;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.vehicle.items.ItemSpawnVehicle;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -288,7 +289,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         // Render Kostenaufstellung unten
         int totalCost = calculateTotalCost();
         guiGraphics.drawString(this.font, cachedTotalCostLabel, x + 10, y + imageHeight - 22, 0x404040, false);
-        guiGraphics.drawString(this.font, totalCost + "$", x + 90, y + imageHeight - 22, totalCost > 0 ? 0xFFFF55 : 0x888888, false);
+        guiGraphics.drawString(this.font, MoneyFormat.format(totalCost), x + 90, y + imageHeight - 22, totalCost > 0 ? 0xFFFF55 : 0x888888, false);
     }
 
     /**
@@ -307,7 +308,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         guiGraphics.drawString(this.font, itemName, x + 18, y + 4, 0xFFFFFF, false);
 
         // Preis pro Item
-        guiGraphics.drawString(this.font, row.pricePerItem + "$", x + 102, y + 4, 0x55FF55, false);
+        guiGraphics.drawString(this.font, MoneyFormat.format(row.pricePerItem), x + 102, y + 4, 0x55FF55, false);
 
         // Verfügbare Menge im Lager (∞ für unlimited, Zahl für limited)
         String stockDisplay = row.unlimited ? "∞" : String.valueOf(row.availableQuantity);

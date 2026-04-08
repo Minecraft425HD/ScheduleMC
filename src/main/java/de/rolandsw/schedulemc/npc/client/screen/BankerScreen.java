@@ -22,6 +22,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -480,21 +481,21 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         double bargeld = ClientBankDataCache.getWalletBalance();
         g.drawString(font, cachedCash, x + 30, y + 65, 0x808080, false);
-        g.drawString(font, String.format("%.2f€", bargeld), x + 125, y + 65, 0xFFAA00, false);
+        g.drawString(font, MoneyFormat.format(bargeld), x + 125, y + 65, 0xFFAA00, false);
 
         double girokonto = ClientBankDataCache.getBalance();
         g.drawString(font, cachedCheckingBalance, x + 30, y + 85, 0x808080, false);
-        g.drawString(font, String.format("%.2f€", girokonto), x + 125, y + 85, 0x00AA00, false);
+        g.drawString(font, MoneyFormat.format(girokonto), x + 125, y + 85, 0x00AA00, false);
 
         double sparkonto = ClientBankDataCache.getSavingsBalance();
         g.drawString(font, cachedSavings, x + 30, y + 105, 0x808080, false);
-        g.drawString(font, String.format("%.2f€", sparkonto), x + 125, y + 105, 0x6666FF, false);
+        g.drawString(font, MoneyFormat.format(sparkonto), x + 125, y + 105, 0x6666FF, false);
 
         g.fill(x + 20, y + 120, x + 200, y + 121, 0x44FFFFFF);
 
         double gesamt = bargeld + girokonto + sparkonto;
         g.drawString(font, cachedTotal, x + 30, y + 130, 0x404040, false);
-        g.drawString(font, String.format("%.2f€", gesamt), x + 125, y + 130, 0xFFD700, false);
+        g.drawString(font, MoneyFormat.format(gesamt), x + 125, y + 130, 0xFFD700, false);
 
         if (!ClientBankDataCache.hasData()) {
             g.drawString(font, cachedLoading, x + 30, y + 150, 0x808080, false);
@@ -506,17 +507,17 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         double girokonto = ClientBankDataCache.getBalance();
         g.drawString(font, cachedBalance, x + 20, y + 60, 0x808080, false);
-        g.drawString(font, String.format("%.2f€", girokonto), x + 125, y + 60, 0x00AA00, false);
+        g.drawString(font, MoneyFormat.format(girokonto), x + 125, y + 60, 0x00AA00, false);
 
         double bargeld = ClientBankDataCache.getWalletBalance();
         g.drawString(font, cachedCashBalance, x + 20, y + 72, 0x808080, false);
-        g.drawString(font, String.format("%.2f€", bargeld), x + 125, y + 72, 0xFFAA00, false);
+        g.drawString(font, MoneyFormat.format(bargeld), x + 125, y + 72, 0xFFAA00, false);
 
         g.drawString(font, cachedDepositFromCash, x + 15, y + 85, 0x808080, false);
         g.drawString(font, cachedWithdrawToCash, x + 15, y + 128, 0x808080, false);
 
         double depositLimit = ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT.get();
-        g.drawString(font, cachedLimit + String.format("%.0f€", depositLimit), x + 15, y + 170, 0x606060, false);
+        g.drawString(font, cachedLimit + MoneyFormat.formatNoDecimal(depositLimit), x + 15, y + 170, 0x606060, false);
 
         // DISPO-ANZEIGE
         if (ClientBankDataCache.isOverdrawn()) {
@@ -550,11 +551,11 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         double sparkonto = ClientBankDataCache.getSavingsBalance();
         g.drawString(font, cachedBalance, x + 20, y + 60, 0x808080, false);
-        g.drawString(font, String.format("%.2f€", sparkonto), x + 125, y + 60, 0x6666FF, false);
+        g.drawString(font, MoneyFormat.format(sparkonto), x + 125, y + 60, 0x6666FF, false);
 
         double girokonto = ClientBankDataCache.getBalance();
         g.drawString(font, cachedCheckingBalance, x + 20, y + 72, 0x808080, false);
-        g.drawString(font, String.format("%.2f€", girokonto), x + 125, y + 72, 0x00AA00, false);
+        g.drawString(font, MoneyFormat.format(girokonto), x + 125, y + 72, 0x00AA00, false);
 
         g.drawString(font, cachedDepositFromChecking, x + 15, y + 85, 0x808080, false);
         g.drawString(font, cachedWithdrawToChecking, x + 15, y + 128, 0x808080, false);
@@ -574,11 +575,11 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         double balance = ClientBankDataCache.getBalance();
         g.drawString(font, cachedAvailableBalance, x + 15, y + 160, 0x606060, false);
-        g.drawString(font, String.format("%.2f€", balance), x + 140, y + 160, 0xFFD700, false);
+        g.drawString(font, MoneyFormat.format(balance), x + 140, y + 160, 0xFFD700, false);
 
         double remaining = ClientBankDataCache.getRemainingTransferLimit();
         g.drawString(font, cachedDailyLimit, x + 15, y + 172, 0x606060, false);
-        g.drawString(font, String.format("%.2f€", remaining), x + 140, y + 172, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
+        g.drawString(font, MoneyFormat.format(remaining), x + 140, y + 172, remaining > 0 ? 0x00AA00 : 0xFF5555, false);
     }
 
     private void renderHistorieTab(GuiGraphics g, int x, int y) {
@@ -604,10 +605,10 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             if (typeStr.length() > 12) typeStr = typeStr.substring(0, 11) + ".";
             g.drawString(font, typeStr, x + 15, yOffset, 0x404040, false);
 
-            String amountStr = String.format("%+.0f€", tx.getAmount());
+            String amountStr = (tx.getAmount() >= 0 ? "+" : "") + MoneyFormat.formatNoDecimal(tx.getAmount());
             g.drawString(font, amountStr, x + 100, yOffset, tx.getAmount() >= 0 ? 0x00AA00 : 0xFF5555, false);
 
-            g.drawString(font, String.format("%.0f€", tx.getBalanceAfter()), x + 155, yOffset, 0x808080, false);
+            g.drawString(font, MoneyFormat.formatNoDecimal(tx.getBalanceAfter()), x + 155, yOffset, 0x808080, false);
             yOffset += 12;
         }
 
@@ -644,7 +645,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         if (loan != null) {
             g.fill(x + 15, yOffset - 2, x + 260, yOffset + 10, 0x44004400);
             g.drawString(font, cachedCreditPayment, x + 18, yOffset, 0xFFD700, false);
-            g.drawString(font, String.format("-%.0f€", loan.dailyPayment), x + 90, yOffset, 0xFF5555, false);
+            g.drawString(font, "-" + MoneyFormat.formatNoDecimal(loan.dailyPayment), x + 90, yOffset, 0xFF5555, false);
             g.drawString(font, cachedIntervalDaily, x + 145, yOffset, 0x00AAAA, false);
             g.drawString(font, "✓", x + 195, yOffset, 0x00FF00, false);
             g.drawString(font, loan.loanType.length() > 3 ? loan.loanType.substring(0, 3) : loan.loanType, x + 210, yOffset, 0x808080, false);
@@ -658,7 +659,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             for (int i = 0; i < maxDisplay; i++) {
                 ClientBankDataCache.RecurringPaymentData p = payments.get(i);
                 g.drawString(font, p.recipientName, x + 18, yOffset, 0xFFFFFF, false);
-                g.drawString(font, String.format("%.0f€", p.amount), x + 90, yOffset, 0xFFAA00, false);
+                g.drawString(font, MoneyFormat.formatNoDecimal(p.amount), x + 90, yOffset, 0xFFAA00, false);
                 g.drawString(font, p.intervalDays + "d", x + 145, yOffset, 0x00AAAA, false);
                 g.drawString(font, p.isActive ? "✓" : "⏸", x + 195, yOffset, p.isActive ? 0x00FF00 : 0xFFAA00, false);
                 String id = p.paymentId.length() > 4 ? p.paymentId.substring(0, 4) : p.paymentId;

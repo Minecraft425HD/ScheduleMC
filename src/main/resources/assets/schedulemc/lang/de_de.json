@@ -4,6 +4,7 @@
   "_comment_coffee": "Coffee System - Vollständige Übersetzungen",
   "_comment_honey": "Honey Production System - Vollständige Übersetzungen",
   "_comment_wine": "Wine System - Vollständige Übersetzungen",
+  "currency.format": "%s€",
   "achievement.active_trader.desc": "Führe 50 Börsenhandel durch",
   "achievement.active_trader.name": "Aktiver Trader",
   "achievement.big_loser.desc": "Verliere 5.000€ beim Trading",
@@ -5990,13 +5991,10 @@
   "gui.oel_extraktor.info_quality_sep": "ml §7| Qualität: ",
   "gui.oel_extraktor.hint_solvent_needed": "§7(Lösungsmittel benötigt)",
   "gui.oel_extraktor.hint_min_material": "§7(Mindestens %dg Material benötigt)",
-
   "block.schedulemc.secret_door": "Geheimtür",
   "block.schedulemc.hatch": "Bodenluke",
-  "block.schedulemc.hidden_switch_stone": "Versteckter Steinschalter",
-  "block.schedulemc.hidden_switch_oak": "Versteckter Holzschalter",
+  "block.schedulemc.hidden_switch_stone": "Versteckter Schalter",
   "item.schedulemc.remote_control": "Fernbedienung",
-
   "item.schedulemc.ak47": "AK47",
   "item.schedulemc.pistol": "Pistole",
   "item.schedulemc.baseball_bat": "Baseballschläger",

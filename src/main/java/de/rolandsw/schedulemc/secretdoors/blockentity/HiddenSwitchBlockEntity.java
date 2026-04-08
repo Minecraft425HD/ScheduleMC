@@ -7,11 +7,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,7 @@ public class HiddenSwitchBlockEntity extends BlockEntity {
     private UUID ownerId = null;
     private String ownerName = "";
     private boolean linkingMode = false;
+    private String camoBlockId = null; // Block-ID für Tarnung (null = Standard Steinquader)
 
     public HiddenSwitchBlockEntity(BlockPos pos, BlockState state) {
         super(SecretDoors.HIDDEN_SWITCH_BE.get(), pos, state);
@@ -98,6 +103,31 @@ public class HiddenSwitchBlockEntity extends BlockEntity {
     }
 
     // ─────────────────────────────────────────────────────────────────
+    // Tarnung (Camo)
+    // ─────────────────────────────────────────────────────────────────
+
+    public void setCamoBlock(Block block) {
+        ResourceLocation key = ForgeRegistries.BLOCKS.getKey(block);
+        this.camoBlockId = key != null ? key.toString() : null;
+        setChanged();
+    }
+
+    public void clearCamoBlock() {
+        this.camoBlockId = null;
+        setChanged();
+    }
+
+    /** Gibt den Block zurück, dessen Textur als Tarnung genutzt wird (oder Steinquader als Standard). */
+    public Block getCamoBlock() {
+        if (camoBlockId == null) return Blocks.STONE_BRICKS;
+        ResourceLocation rl = new ResourceLocation(camoBlockId);
+        Block block = ForgeRegistries.BLOCKS.containsKey(rl) ? ForgeRegistries.BLOCKS.getValue(rl) : null;
+        return block != null ? block : Blocks.STONE_BRICKS;
+    }
+
+    public String getCamoBlockId() { return camoBlockId; }
+
+    // ─────────────────────────────────────────────────────────────────
     // Berechtigung / Besitzer
     // ─────────────────────────────────────────────────────────────────
 
@@ -139,6 +169,9 @@ public class HiddenSwitchBlockEntity extends BlockEntity {
             tag.putString("owner_name", ownerName);
         }
         tag.putBoolean("linking_mode", linkingMode);
+        if (camoBlockId != null) {
+            tag.putString("camo_block", camoBlockId);
+        }
     }
 
     @Override
@@ -155,6 +188,7 @@ public class HiddenSwitchBlockEntity extends BlockEntity {
             ownerName = tag.getString("owner_name");
         }
         linkingMode = tag.getBoolean("linking_mode");
+        camoBlockId = tag.contains("camo_block") ? tag.getString("camo_block") : null;
     }
 
     @Override

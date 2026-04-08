@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.towing.menu.TowingInvoiceMenu;
 import de.rolandsw.schedulemc.towing.network.PayTowingInvoicePacket;
 import de.rolandsw.schedulemc.towing.network.TowingNetworkHandler;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -68,7 +69,7 @@ public class TowingInvoiceScreen extends AbstractContainerScreen<TowingInvoiceMe
         graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
 
         // Invoice amount
-        String amountText = String.format("%.0f€", menu.getInvoice().getAmount());
+        String amountText = MoneyFormat.formatNoDecimal(menu.getInvoice().getAmount());
         int amountWidth = this.font.width(amountText);
         graphics.drawString(this.font, amountText, (imageWidth - amountWidth) / 2, 20, 0x404040, false);
 
