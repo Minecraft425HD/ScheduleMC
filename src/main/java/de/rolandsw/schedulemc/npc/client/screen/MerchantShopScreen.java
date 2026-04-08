@@ -1,23 +1,21 @@
 package de.rolandsw.schedulemc.npc.client.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.ScheduleMC;
-import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.ShopEntry;
-import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.menu.MerchantShopMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.PurchaseItemPacket;
 import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.vehicle.items.ItemSpawnVehicle;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,8 +27,14 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * GUI für Verkäufer Shop
- * Schema: [Item Icon] | Name | Preis/Stück | Verfügbar | [Eingabe] | Gesamtpreis | [Kaufen]
+ * Vollständig neu gestaltetes Merchant Shop GUI.
+ *
+ * Moderne Dark-Theme UI mit:
+ * - Mausrad-Scrolling
+ * - Hover-Highlight pro Zeile
+ * - Scroll-Indikator
+ * - Out-of-Stock-Markierung in Rot
+ * - Gesamtkosten-Anzeige
  */
 @OnlyIn(Dist.CLIENT)
 public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu> {
@@ -38,335 +42,412 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Pattern DIGITS_ONLY = Pattern.compile("\\d*");
 
-    private static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/merchant_shop.png");
+    // ─── GUI Dimensionen ─────────────────────────────────────────────
+    private static final int GUI_W = 360;
+    private static final int GUI_H = 230;
+    private static final int VISIBLE_ROWS = 7;
+    private static final int ROW_H = 22;
 
-    final private List<ShopItemRow> shopItemRows;
+    // Spalten-X-Positionen (relativ zum GUI-Ursprung)
+    private static final int COL_ICON   = 8;
+    private static final int COL_NAME   = 28;
+    private static final int COL_PRICE  = 155;
+    private static final int COL_STOCK  = 210;
+    private static final int COL_INPUT  = 260;
+    private static final int COL_TOTAL  = 310;
+
+    // Header Y
+    private static final int HEADER_Y   = 22;
+    private static final int LIST_Y     = 35;
+    private static final int FOOTER_Y_OFFSET = 25; // von unten
+
+    // ─── Dark Theme Farben ────────────────────────────────────────────
+    private static final int C_BG           = 0xFF1E1E1E;
+    private static final int C_BG_HEADER    = 0xFF2A2A2A;
+    private static final int C_BG_ROW_ODD   = 0xFF252525;
+    private static final int C_BG_ROW_EVEN  = 0xFF2B2B2B;
+    private static final int C_BG_HOVER     = 0xFF333D4A;
+    private static final int C_BG_OOS       = 0xFF3A1A1A; // out of stock
+    private static final int C_BG_FOOTER    = 0xFF212121;
+    private static final int C_BORDER       = 0xFF444444;
+    private static final int C_TEXT         = 0xFFFFFFFF;
+    private static final int C_TEXT_GRAY    = 0xFFAAAAAA;
+    private static final int C_TEXT_DARK    = 0xFF777777;
+    private static final int C_PRICE        = 0xFF55FF55;
+    private static final int C_STOCK        = 0xFFFFAA00;
+    private static final int C_STOCK_OOS    = 0xFFFF5555;
+    private static final int C_TOTAL_POS    = 0xFFFFFF55;
+    private static final int C_ACCENT       = 0xFF4A90E2;
+    private static final int C_SCROLL_BAR   = 0xFF4A90E2;
+    private static final int C_SCROLL_BG    = 0xFF333333;
+    private static final int C_BTN_BUY      = 0xFF2E7D32;
+    private static final int C_BTN_BUY_HOV  = 0xFF388E3C;
+    private static final int C_BTN_BUY_DIS  = 0xFF333333;
+
+    // ─── State ────────────────────────────────────────────────────────
+    private final List<ShopItemRow> shopItemRows = new ArrayList<>();
     private int scrollOffset = 0;
-    private static final int VISIBLE_ROWS = 6; // Wie viele Items gleichzeitig sichtbar sind
-    private Button buyButton; // Einziger Kaufen-Button unten rechts
 
-    // PERFORMANCE: Spaltenüberschriften einmal cachen statt 5x Component.translatable().getString() pro Frame
+    // Gecachte Strings
     private String cachedColItem;
     private String cachedColPrice;
     private String cachedColStock;
-    private String cachedColQuantity;
-    private String cachedTotalCostLabel;
+    private String cachedColQty;
+    private String cachedColTotal;
+    private String cachedTotalLabel;
+
+    private Button buyButton;
+
+    // ─── Konstruktor ──────────────────────────────────────────────────
 
     public MerchantShopScreen(MerchantShopMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 320; // Breitere GUI für alle Spalten
-        this.imageHeight = 200; // Höhe ohne Inventar + Platz für Kostenaufstellung
-        this.shopItemRows = new ArrayList<>();
+        this.imageWidth  = GUI_W;
+        this.imageHeight = GUI_H;
     }
+
+    // ─── Init ─────────────────────────────────────────────────────────
 
     @Override
     protected void init() {
         super.init();
 
-        // PERFORMANCE: Spaltenüberschriften einmal cachen
-        this.cachedColItem = Component.translatable("screen.merchant_shop.column_item").getString();
-        this.cachedColPrice = Component.translatable("screen.merchant_shop.column_price").getString();
-        this.cachedColStock = Component.translatable("screen.merchant_shop.column_stock").getString();
-        this.cachedColQuantity = Component.translatable("screen.merchant_shop.column_quantity").getString();
-        this.cachedTotalCostLabel = Component.translatable("screen.merchant_shop.total_cost").getString();
+        cachedColItem   = Component.translatable("screen.merchant_shop.column_item").getString();
+        cachedColPrice  = Component.translatable("screen.merchant_shop.column_price").getString();
+        cachedColStock  = Component.translatable("screen.merchant_shop.column_stock").getString();
+        cachedColQty    = Component.translatable("screen.merchant_shop.column_quantity").getString();
+        cachedColTotal  = Component.translatable("screen.merchant_shop.column_total").getString();
+        cachedTotalLabel = Component.translatable("screen.merchant_shop.total_cost").getString();
 
-        int x = (width - imageWidth) / 2;
-        int y = (height - imageHeight) / 2;
-
-        // Lade Shop-Items
         loadShopItems();
-
-        // Erstelle Input-Felder für sichtbare Rows
-        createInputFields();
-
-        // Scroll Buttons (falls mehr als VISIBLE_ROWS vorhanden)
-        if (shopItemRows.size() > VISIBLE_ROWS) {
-            addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
-                scrollUp();
-            }).bounds(x + imageWidth - 15, y + 25, 12, 12).build());
-
-            addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
-                scrollDown();
-            }).bounds(x + imageWidth - 15, y + 150, 12, 12).build());
-        }
-
-        // Großer Kaufen-Button unten rechts
-        buyButton = addRenderableWidget(Button.builder(Component.translatable("gui.common.buy"), button -> {
-            purchaseAllItems();
-        }).bounds(x + imageWidth - 70, y + imageHeight - 25, 60, 20).build());
+        rebuildInputFields();
+        addBuyButton();
     }
 
-    /**
-     * Erstellt die Input-Felder für die aktuell sichtbaren Rows
-     */
-    private void createInputFields() {
+    private void addBuyButton() {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
-
-        // Erstelle Input-Felder für sichtbare Rows
-        // Layout: Icon(18) | Name(80) | Preis(50) | Verfügbar(45) | Input(40)
-        for (int i = 0; i < Math.min(VISIBLE_ROWS, shopItemRows.size() - scrollOffset); i++) {
-            int rowIndex = i + scrollOffset;
-            ShopItemRow row = shopItemRows.get(rowIndex);
-
-            // Menge Eingabe-Feld
-            EditBox quantityInput = new EditBox(this.font, x + 230, y + 30 + i * 22, 35, 16, Component.translatable("screen.merchant_shop.quantity"));
-            quantityInput.setMaxLength(4);
-
-            // SPEZIALBEHANDLUNG: Rechnungs-Items immer auf "1" fixieren (nicht editierbar)
-            boolean isBillItem = row.item.hasTag() && row.item.getTag().contains("BillType");
-            boolean isVehicle = row.item.getItem() instanceof ItemSpawnVehicle;
-
-            if (isBillItem) {
-                // Rechnungen: Fixiert auf "1", grau, nicht editierbar
-                quantityInput.setValue("1");
-                quantityInput.setEditable(false); // Nicht editierbar
-                quantityInput.setTextColor(0xAAAAAA); // Grau = disabled
-                row.savedQuantity = "1"; // Fixiere auf 1
-            } else {
-                // Normale Items und Fahrzeuge: Zeige savedQuantity
-                quantityInput.setValue(row.savedQuantity);
-
-                // Fahrzeuge: Nur "1" oder leer erlauben (max 1 Fahrzeug pro Kauf)
-                if (isVehicle) {
-                    quantityInput.setMaxLength(1);
-                    quantityInput.setFilter(s -> s.isEmpty() || "1".equals(s)); // Nur 1 oder leer
-                } else {
-                    quantityInput.setFilter(s -> DIGITS_ONLY.matcher(s).matches()); // Nur Zahlen
-                }
-
-                // Speichere Werte beim Tippen
-                final int finalRowIndex = rowIndex;
-                quantityInput.setResponder(value -> {
-                    shopItemRows.get(finalRowIndex).savedQuantity = value;
-                });
-            }
-
-            row.quantityInput = quantityInput;
-            addRenderableWidget(quantityInput);
-        }
+        buyButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.common.buy"),
+            btn -> purchaseAllItems()
+        ).bounds(x + GUI_W - 72, y + GUI_H - FOOTER_Y_OFFSET + 2, 64, 18).build());
     }
 
-    /**
-     * Lädt die Shop-Items aus dem NPC
-     */
+    // ─── Item-Laden ───────────────────────────────────────────────────
+
     private void loadShopItems() {
         shopItemRows.clear();
-        List<ShopEntry> items = menu.getShopItems();
-
-        for (ShopEntry entry : items) {
+        for (ShopEntry entry : menu.getShopItems()) {
             ShopItemRow row = new ShopItemRow();
-            row.item = entry.getItem().copy(); // Kopie erstellen
-            row.pricePerItem = entry.getPrice();
+            row.item      = entry.getItem().copy();
+            row.price     = entry.getPrice();
             row.unlimited = entry.isUnlimited();
-            row.availableQuantity = entry.isUnlimited() ? Integer.MAX_VALUE : entry.getStock();
-
-            // SPEZIALBEHANDLUNG: Rechnungs-Items automatisch auf "1" setzen (nicht editierbar)
-            boolean isBillItem = row.item.hasTag() && row.item.getTag().contains("BillType");
-
-            if (isBillItem) {
-                row.savedQuantity = "1"; // Rechnungen fixiert auf 1
+            row.stock     = entry.isUnlimited() ? Integer.MAX_VALUE : entry.getStock();
+            if (row.item.hasTag() && row.item.getTag().contains("BillType")) {
+                row.savedQty = "1";
+                row.isBill   = true;
             }
-            // Fahrzeuge und normale Items: Default leer, Spieler muss Menge eingeben
-
             shopItemRows.add(row);
         }
-
-        ScheduleMC.LOGGER.info("Shop loaded: {} items for category {}", shopItemRows.size(), menu.getCategory());
+        LOGGER.info("[MerchantShop] Loaded {} items", shopItemRows.size());
     }
 
-    /**
-     * Kauft alle Items mit Menge > 0
-     */
-    private void purchaseAllItems() {
-        LOGGER.info("[CLIENT] purchaseAllItems() wurde aufgerufen");
+    // ─── Input-Felder ────────────────────────────────────────────────
 
-        // Speichere aktuelle Eingaben vor dem Kauf
-        saveCurrentInputValues();
-
-        // Sammle alle Items mit Menge > 0
-        int packetsSent = 0;
-        for (int i = 0; i < shopItemRows.size(); i++) {
-            ShopItemRow row = shopItemRows.get(i);
-            String quantityStr = row.savedQuantity;
-
-            LOGGER.info("[CLIENT] Item {}: {} | savedQuantity='{}' | availableQuantity={}",
-                i, row.item.getHoverName().getString(), quantityStr, row.availableQuantity);
-
-            if (!quantityStr.isEmpty() && !"0".equals(quantityStr)) {
-                try {
-                    int quantity = Integer.parseInt(quantityStr);
-                    if (quantity > 0 && quantity <= row.availableQuantity) {
-                        LOGGER.info("[CLIENT] Sende PurchaseItemPacket: Item={}, Quantity={}", row.item.getHoverName().getString(), quantity);
-                        // Sende Kauf-Packet an Server für dieses Item
-                        NPCNetworkHandler.sendToServer(new PurchaseItemPacket(
-                            menu.getEntityId(),
-                            i,
-                            quantity
-                        ));
-                        packetsSent++;
-                    } else {
-                        LOGGER.warn("[CLIENT] Item NICHT gekauft: quantity={}, availableQuantity={}", quantity, row.availableQuantity);
-                    }
-                } catch (NumberFormatException e) {
-                    LOGGER.error("[CLIENT] NumberFormatException beim Parsen von '{}'", quantityStr, e);
-                }
-            }
-        }
-
-        LOGGER.info("[CLIENT] purchaseAllItems() abgeschlossen. {} Pakete gesendet", packetsSent);
-
-        // Schließe GUI nach Kauf
-        this.onClose();
-    }
-
-    /**
-     * Speichert die aktuellen Input-Werte in savedQuantity
-     */
-    private void saveCurrentInputValues() {
+    private void rebuildInputFields() {
+        // Alte Felder entfernen
         for (ShopItemRow row : shopItemRows) {
-            if (row.quantityInput != null) {
-                row.savedQuantity = row.quantityInput.getValue();
+            if (row.input != null) { removeWidget(row.input); row.input = null; }
+        }
+
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+        int visible = Math.min(VISIBLE_ROWS, shopItemRows.size() - scrollOffset);
+
+        for (int i = 0; i < visible; i++) {
+            int idx = i + scrollOffset;
+            ShopItemRow row = shopItemRows.get(idx);
+            boolean oos = !row.unlimited && row.stock <= 0;
+
+            EditBox box = new EditBox(this.font,
+                x + COL_INPUT, y + LIST_Y + i * ROW_H + 3, 40, 15,
+                Component.translatable("screen.merchant_shop.quantity"));
+            box.setMaxLength(4);
+
+            if (row.isBill) {
+                box.setValue("1");
+                box.setEditable(false);
+                box.setTextColor(0xAAAAAA);
+            } else if (oos) {
+                box.setValue("0");
+                box.setEditable(false);
+                box.setTextColor(C_STOCK_OOS);
+            } else {
+                box.setValue(row.savedQty);
+                boolean isVehicle = row.item.getItem() instanceof ItemSpawnVehicle;
+                if (isVehicle) {
+                    box.setMaxLength(1);
+                    box.setFilter(s -> s.isEmpty() || "1".equals(s));
+                } else {
+                    box.setFilter(s -> DIGITS_ONLY.matcher(s).matches());
+                }
+                final int fi = idx;
+                box.setResponder(v -> shopItemRows.get(fi).savedQty = v);
             }
+            row.input = box;
+            addRenderableWidget(box);
         }
     }
+
+    // ─── Scrollen ─────────────────────────────────────────────────────
 
     private void scrollUp() {
-        if (scrollOffset > 0) {
-            scrollOffset--;
-            updateVisibleRows();
-        }
+        if (scrollOffset > 0) { scrollOffset--; rebuildInputFields(); }
     }
 
     private void scrollDown() {
-        if (scrollOffset < shopItemRows.size() - VISIBLE_ROWS) {
-            scrollOffset++;
-            updateVisibleRows();
-        }
-    }
-
-    /**
-     * Aktualisiert die sichtbaren Rows nach dem Scrollen
-     * Entfernt alte Input-Felder und erstellt neue für die aktuellen Items
-     */
-    private void updateVisibleRows() {
-        // Speichere die aktuellen Input-Werte (passiert automatisch via setResponder)
-
-        // Entferne alle alten Input-Felder
-        for (ShopItemRow row : shopItemRows) {
-            if (row.quantityInput != null) {
-                this.removeWidget(row.quantityInput);
-                row.quantityInput = null;
-            }
-        }
-
-        // Erstelle neue Input-Felder für die aktuell sichtbaren Items
-        createInputFields();
+        if (scrollOffset < shopItemRows.size() - VISIBLE_ROWS) { scrollOffset++; rebuildInputFields(); }
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
-
-        int x = (width - imageWidth) / 2;
-        int y = (height - imageHeight) / 2;
-
-        // Render Spaltenüberschriften - PERFORMANCE: gecachte Strings
-        guiGraphics.drawString(this.font, cachedColItem, x + 25, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, cachedColPrice, x + 110, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, cachedColStock, x + 155, y + 18, 0x404040, false);
-        guiGraphics.drawString(this.font, cachedColQuantity, x + 230, y + 18, 0x404040, false);
-
-        // Render Shop Items
-        for (int i = 0; i < Math.min(VISIBLE_ROWS, shopItemRows.size() - scrollOffset); i++) {
-            ShopItemRow row = shopItemRows.get(i + scrollOffset);
-            renderShopItem(guiGraphics, row, x + 8, y + 30 + i * 22, i);
-        }
-
-        // Render Kostenaufstellung unten
-        int totalCost = calculateTotalCost();
-        guiGraphics.drawString(this.font, cachedTotalCostLabel, x + 10, y + imageHeight - 22, 0x404040, false);
-        guiGraphics.drawString(this.font, MoneyFormat.format(totalCost), x + 90, y + imageHeight - 22, totalCost > 0 ? 0xFFFF55 : 0x888888, false);
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (delta > 0) scrollUp();
+        else if (delta < 0) scrollDown();
+        return true;
     }
 
-    /**
-     * Rendert eine Shop-Item Row
-     * Schema: [Icon] Name | Preis | Verfügbar | [Input]
-     */
-    private void renderShopItem(GuiGraphics guiGraphics, ShopItemRow row, int x, int y, int _rowIndex) {
-        // Item Icon (16x16)
-        guiGraphics.renderItem(row.item, x, y);
+    // ─── Kaufen ───────────────────────────────────────────────────────
 
-        // Item Name (gekürzt wenn zu lang)
-        String itemName = row.item.getHoverName().getString();
-        if (itemName.length() > 12) {
-            itemName = itemName.substring(0, 12) + "..";
-        }
-        guiGraphics.drawString(this.font, itemName, x + 18, y + 4, 0xFFFFFF, false);
+    private void purchaseAllItems() {
+        saveInputValues();
+        int sent = 0;
 
-        // Preis pro Item
-        guiGraphics.drawString(this.font, MoneyFormat.format(row.pricePerItem), x + 102, y + 4, 0x55FF55, false);
+        for (int i = 0; i < shopItemRows.size(); i++) {
+            ShopItemRow row = shopItemRows.get(i);
+            if (row.savedQty.isEmpty() || "0".equals(row.savedQty)) continue;
 
-        // Verfügbare Menge im Lager (∞ für unlimited, Zahl für limited)
-        String stockDisplay = row.unlimited ? "∞" : String.valueOf(row.availableQuantity);
-        guiGraphics.drawString(this.font, stockDisplay, x + 155, y + 4, row.unlimited ? 0x55FFFF : 0xAAAAAA, false);
-    }
+            try {
+                int qty = Integer.parseInt(row.savedQty);
+                if (qty <= 0) continue;
 
-    /**
-     * Berechnet die Gesamtkosten aller eingegebenen Mengen
-     */
-    private int calculateTotalCost() {
-        // Speichere zuerst die aktuellen Eingaben
-        saveCurrentInputValues();
-
-        int totalCost = 0;
-        for (ShopItemRow row : shopItemRows) {
-            if (!row.savedQuantity.isEmpty()) {
-                try {
-                    int quantity = Integer.parseInt(row.savedQuantity);
-                    if (quantity > 0) {
-                        totalCost += row.pricePerItem * quantity;
-                    }
-                } catch (NumberFormatException ignored) {
-                    // Ignoriere ungültige Eingaben
+                // Prüfe ob out of stock (clientseitig bekannte Menge)
+                if (!row.unlimited && qty > row.stock) {
+                    Minecraft.getInstance().player.sendSystemMessage(
+                        Component.translatable("message.shop.out_of_stock", row.item.getHoverName())
+                            .withStyle(ChatFormatting.RED));
+                    continue;
                 }
+
+                NPCNetworkHandler.sendToServer(new PurchaseItemPacket(menu.getEntityId(), i, qty));
+                sent++;
+            } catch (NumberFormatException e) {
+                LOGGER.error("[MerchantShop] Invalid quantity '{}'", row.savedQty, e);
             }
         }
-        return totalCost;
-    }    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // Block E key (inventory key - 69) from closing the screen
-        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
+
+        LOGGER.info("[MerchantShop] {} purchase packet(s) sent", sent);
+        this.onClose();
     }
 
+    private void saveInputValues() {
+        for (ShopItemRow row : shopItemRows) {
+            if (row.input != null) row.savedQty = row.input.getValue();
+        }
+    }
 
+    // ─── Rendering ───────────────────────────────────────────────────
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+    protected void renderBg(GuiGraphics g, float partial, int mx, int my) {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
-        guiGraphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
+
+        // Äußerer Rahmen + Hintergrund
+        g.fill(x - 1, y - 1, x + GUI_W + 1, y + GUI_H + 1, C_BORDER);
+        g.fill(x, y, x + GUI_W, y + GUI_H, C_BG);
+
+        // Header-Bereich
+        g.fill(x, y, x + GUI_W, y + HEADER_Y + 10, C_BG_HEADER);
+        g.fill(x, y + HEADER_Y + 10, x + GUI_W, y + HEADER_Y + 11, C_BORDER);
+
+        // Footer-Bereich
+        int footerY = y + GUI_H - FOOTER_Y_OFFSET;
+        g.fill(x, footerY - 1, x + GUI_W, footerY, C_BORDER);
+        g.fill(x, footerY, x + GUI_W, y + GUI_H, C_BG_FOOTER);
+
+        // Zebrastreifen für sichtbare Zeilen
+        int visible = Math.min(VISIBLE_ROWS, shopItemRows.size() - scrollOffset);
+        for (int i = 0; i < VISIBLE_ROWS; i++) {
+            int rowY = y + LIST_Y + i * ROW_H;
+            int rowColor = (i % 2 == 0) ? C_BG_ROW_EVEN : C_BG_ROW_ODD;
+
+            if (i < visible) {
+                ShopItemRow row = shopItemRows.get(i + scrollOffset);
+                boolean oos = !row.unlimited && row.stock <= 0;
+                if (oos) rowColor = C_BG_OOS;
+            }
+
+            // Hover
+            boolean hovered = my >= rowY && my < rowY + ROW_H && mx >= x && mx < x + GUI_W - (hasScrollbar() ? 8 : 0);
+            g.fill(x, rowY, x + GUI_W - (hasScrollbar() ? 8 : 0), rowY + ROW_H,
+                (hovered && i < visible) ? C_BG_HOVER : rowColor);
+        }
+
+        // Spalten-Trennlinien (leicht)
+        int lineColor = 0x33FFFFFF;
+        g.fill(x + COL_PRICE - 3,  y + LIST_Y, x + COL_PRICE - 2,  y + LIST_Y + VISIBLE_ROWS * ROW_H, lineColor);
+        g.fill(x + COL_STOCK - 3,  y + LIST_Y, x + COL_STOCK - 2,  y + LIST_Y + VISIBLE_ROWS * ROW_H, lineColor);
+        g.fill(x + COL_INPUT - 3,  y + LIST_Y, x + COL_INPUT - 2,  y + LIST_Y + VISIBLE_ROWS * ROW_H, lineColor);
+        g.fill(x + COL_TOTAL - 3,  y + LIST_Y, x + COL_TOTAL - 2,  y + LIST_Y + VISIBLE_ROWS * ROW_H, lineColor);
+
+        // Scrollbar
+        if (hasScrollbar()) {
+            renderScrollbar(g, x, y);
+        }
+    }
+
+    private boolean hasScrollbar() {
+        return shopItemRows.size() > VISIBLE_ROWS;
+    }
+
+    private void renderScrollbar(GuiGraphics g, int x, int y) {
+        int sbX = x + GUI_W - 7;
+        int sbY = y + LIST_Y;
+        int sbH = VISIBLE_ROWS * ROW_H;
+
+        // Track
+        g.fill(sbX, sbY, sbX + 5, sbY + sbH, C_SCROLL_BG);
+
+        // Thumb
+        float ratio  = (float) VISIBLE_ROWS / shopItemRows.size();
+        int thumbH   = Math.max(10, (int)(sbH * ratio));
+        float posRatio = (float) scrollOffset / (shopItemRows.size() - VISIBLE_ROWS);
+        int thumbY   = sbY + (int)((sbH - thumbH) * posRatio);
+        g.fill(sbX + 1, thumbY, sbX + 4, thumbY + thumbH, C_SCROLL_BAR);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        String categoryName = Component.translatable("screen.merchant_shop.title_prefix").getString() + menu.getCategory().getDisplayName();
-        guiGraphics.drawString(this.font, categoryName, 8, 6, 0x404040, false);
+    public void render(GuiGraphics g, int mx, int my, float partial) {
+        this.renderBackground(g);
+        super.render(g, mx, my, partial);
+        this.renderTooltip(g, mx, my);
+
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        // Spalten-Header
+        g.drawString(font, cachedColItem,   x + COL_NAME,  y + HEADER_Y, C_TEXT_DARK, false);
+        g.drawString(font, cachedColPrice,  x + COL_PRICE, y + HEADER_Y, C_TEXT_DARK, false);
+        g.drawString(font, cachedColStock,  x + COL_STOCK, y + HEADER_Y, C_TEXT_DARK, false);
+        g.drawString(font, cachedColQty,    x + COL_INPUT, y + HEADER_Y, C_TEXT_DARK, false);
+        g.drawString(font, cachedColTotal,  x + COL_TOTAL, y + HEADER_Y, C_TEXT_DARK, false);
+
+        // Shop-Zeilen
+        int visible = Math.min(VISIBLE_ROWS, shopItemRows.size() - scrollOffset);
+        for (int i = 0; i < visible; i++) {
+            ShopItemRow row = shopItemRows.get(i + scrollOffset);
+            renderRow(g, row, x, y + LIST_Y + i * ROW_H, mx, my);
+        }
+
+        // Leere Zeilen-Placeholder (für konsistentes Aussehen)
+        if (shopItemRows.isEmpty()) {
+            String empty = Component.translatable("screen.merchant_shop.empty").getString();
+            int ew = font.width(empty);
+            g.drawString(font, empty, x + (GUI_W - ew) / 2, y + LIST_Y + 3 * ROW_H, C_TEXT_GRAY, false);
+        }
+
+        // Footer: Gesamtkosten + Scroll-Indikator
+        renderFooter(g, x, y);
     }
 
-    /**
-     * Interne Klasse für Shop-Item Row
-     */
+    private void renderRow(GuiGraphics g, ShopItemRow row, int x, int rowY, int mx, int my) {
+        boolean oos = !row.unlimited && row.stock <= 0;
+        int nameColor = oos ? C_STOCK_OOS : C_TEXT;
+
+        // Icon
+        g.renderItem(row.item, x + COL_ICON, rowY + 3);
+
+        // Name
+        String name = row.item.getHoverName().getString();
+        if (font.width(name) > COL_PRICE - COL_NAME - 6) {
+            while (font.width(name + "..") > COL_PRICE - COL_NAME - 6 && !name.isEmpty())
+                name = name.substring(0, name.length() - 1);
+            name += "..";
+        }
+        g.drawString(font, name, x + COL_NAME, rowY + 7, nameColor, false);
+
+        // Preis
+        g.drawString(font, MoneyFormat.format(row.price), x + COL_PRICE, rowY + 7, C_PRICE, false);
+
+        // Vorrat
+        String stockStr = row.unlimited ? "∞" : (oos ? "✗" : String.valueOf(row.stock));
+        int stockColor  = row.unlimited ? C_ACCENT : (oos ? C_STOCK_OOS : C_STOCK);
+        g.drawString(font, stockStr, x + COL_STOCK, rowY + 7, stockColor, false);
+
+        // Gesamtpreis dieser Zeile (live berechnet aus Input)
+        if (row.input != null) {
+            try {
+                int qty = Integer.parseInt(row.input.getValue());
+                if (qty > 0) {
+                    String rowTotal = MoneyFormat.format((long) row.price * qty);
+                    g.drawString(font, rowTotal, x + COL_TOTAL, rowY + 7, C_TOTAL_POS, false);
+                }
+            } catch (NumberFormatException ignored) {}
+        }
+    }
+
+    private void renderFooter(GuiGraphics g, int x, int y) {
+        saveInputValues(); // aktuellen Stand für Berechnung sichern
+        int footerY = y + GUI_H - FOOTER_Y_OFFSET;
+
+        // Gesamtkosten
+        long total = 0;
+        for (ShopItemRow row : shopItemRows) {
+            if (!row.savedQty.isEmpty()) {
+                try {
+                    long q = Long.parseLong(row.savedQty);
+                    if (q > 0) total += (long) row.price * q;
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        g.drawString(font, cachedTotalLabel, x + 8, footerY + 5, C_TEXT_GRAY, false);
+        int tw = font.width(cachedTotalLabel);
+        g.drawString(font, MoneyFormat.format(total), x + 12 + tw, footerY + 5, total > 0 ? C_TOTAL_POS : C_TEXT_DARK, false);
+
+        // Scroll-Indikator (Mitte)
+        if (shopItemRows.size() > VISIBLE_ROWS) {
+            int end  = Math.min(scrollOffset + VISIBLE_ROWS, shopItemRows.size());
+            String indicator = (scrollOffset + 1) + "-" + end + " / " + shopItemRows.size();
+            int iw = font.width(indicator);
+            g.drawString(font, indicator, x + (GUI_W - iw) / 2, footerY + 5, C_TEXT_DARK, false);
+        }
+    }
+
+    // ─── Labels ───────────────────────────────────────────────────────
+
+    @Override
+    protected void renderLabels(GuiGraphics g, int mx, int my) {
+        String cat = Component.translatable("screen.merchant_shop.title_prefix").getString()
+            + menu.getCategory().getDisplayName();
+        g.drawString(font, cat, 8, 7, C_ACCENT, false);
+    }
+
+    // ─── Keys ─────────────────────────────────────────────────────────
+
+    @Override
+    public boolean keyPressed(int keyCode, int scan, int mods) {
+        return keyCode == 69 || super.keyPressed(keyCode, scan, mods);
+    }
+
+    // ─── Interne Datenklasse ──────────────────────────────────────────
+
     private static class ShopItemRow {
         ItemStack item;
-        int pricePerItem;
-        boolean unlimited; // True = unbegrenzte Menge, False = begrenzter Lagerbestand
-        int availableQuantity;
-        EditBox quantityInput;
-        String savedQuantity = ""; // Gespeicherte Eingabe (persistent beim Scrollen) - Default leer
+        int       price;
+        boolean   unlimited;
+        int       stock;
+        boolean   isBill;
+        EditBox   input;
+        String    savedQty = "";
     }
 }
