@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.economy.network.ATMTransactionPacket;
 import de.rolandsw.schedulemc.economy.network.ClientBankDataCache;
 import de.rolandsw.schedulemc.economy.network.EconomyNetworkHandler;
 import de.rolandsw.schedulemc.economy.network.RequestATMDataPacket;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -79,7 +80,7 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
             int bx = startX + col * (btnWidth + gap);
             int by = startY + row * (btnHeight + gap);
 
-            String label = amount >= 1000 ? String.format("%.0fk€", amount / 1000) : String.format("%.0f€", amount);
+            String label = amount >= 1000 ? MoneyFormat.formatNoDecimal(amount / 1000) + "k" : MoneyFormat.formatNoDecimal(amount);
             quickButtons[i] = addRenderableWidget(Button.builder(
                 Component.literal(label),
                 button -> executeTransaction(amount)

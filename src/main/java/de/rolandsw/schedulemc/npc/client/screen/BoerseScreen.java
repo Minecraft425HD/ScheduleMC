@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.network.ClientBankDataCache;
 import de.rolandsw.schedulemc.npc.menu.BoerseMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.npc.network.RequestStockDataPacket;
 import de.rolandsw.schedulemc.npc.network.StockTradePacket;
 import net.minecraft.client.gui.GuiGraphics;
@@ -275,7 +276,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         int playerStock = countItems(selectedStock);
 
         guiGraphics.drawString(this.font, stockName, x + 137, y + 38, 0x404040, false);
-        guiGraphics.drawString(this.font, String.format("%.0f€", currentPrice), x + 210, y + 38, 0xFFAA00, false);
+        guiGraphics.drawString(this.font, MoneyFormat.formatNoDecimal(currentPrice), x + 210, y + 38, 0xFFAA00, false);
 
         // Statistics
         double high = getHighPrice(selectedStock);

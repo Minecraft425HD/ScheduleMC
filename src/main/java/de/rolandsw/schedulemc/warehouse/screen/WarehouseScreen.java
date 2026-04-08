@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.ShopEntry;
@@ -136,6 +137,23 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     final private List<ClickableNPC> clickableNPCs = new ArrayList<>();
 
+    // Clickable slot areas (Items Tab) — neu aufgebaut beim Rendern
+    private static class ClickableSlot {
+        final int slotIndex;
+        final int x, y, w, h;
+
+        ClickableSlot(int slotIndex, int x, int y, int w, int h) {
+            this.slotIndex = slotIndex;
+            this.x = x; this.y = y; this.w = w; this.h = h;
+        }
+
+        boolean contains(int mx, int my) {
+            return mx >= x && mx <= x + w && my >= y && my <= y + h;
+        }
+    }
+
+    private final List<ClickableSlot> clickableSlots = new ArrayList<>();
+
     public WarehouseScreen(WarehouseMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = GUI_WIDTH;
@@ -233,24 +251,6 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         int nonEmptySlots = 0;
         for (WarehouseSlot slot : slots) {
             if (!slot.isEmpty()) nonEmptySlots++;
-        }
-
-        // Scroll Buttons (wenn mehr als ITEMS_VISIBLE_ROWS)
-        final int finalNonEmptySlots = nonEmptySlots;
-        if (nonEmptySlots > ITEMS_VISIBLE_ROWS) {
-            addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
-                if (itemScrollOffset > 0) {
-                    itemScrollOffset--;
-                    initTabComponents();
-                }
-            }).bounds(x + 250, y + 35, 15, 15).build());
-
-            addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
-                if (itemScrollOffset < finalNonEmptySlots - ITEMS_VISIBLE_ROWS) {
-                    itemScrollOffset++;
-                    initTabComponents();
-                }
-            }).bounds(x + 250, y + 165, 15, 15).build());
         }
 
         // Slot Detail Buttons (wenn ein Slot ausgewählt ist)
@@ -512,6 +512,9 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
 
+        // Clickable-Slot-Liste für diesen Frame neu aufbauen
+        clickableSlots.clear();
+
         // Left Panel: Item List
         graphics.drawString(this.font, Component.translatable("gui.warehouse.item_list").getString(), x + 10, y + 35, COLOR_TEXT, false);
 
@@ -558,14 +561,8 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                             slot.getStock() < slot.getMaxCapacity() / 4 ? COLOR_DANGER : COLOR_TEXT;
             graphics.drawString(this.font, stockInfo, x + 180, renderY + 4, stockColor, false);
 
-            // Click handler for selection
-            if (mouseX >= x + 10 && mouseX <= x + 240 &&
-                mouseY >= renderY - 2 && mouseY <= renderY + 18) {
-                if (minecraft.mouseHandler.isLeftPressed()) {
-                    selectedSlotIndex = i;
-                    initTabComponents();
-                }
-            }
+            // Clickable Area für mouseClicked registrieren
+            clickableSlots.add(new ClickableSlot(i, x + 10, renderY - 2, 230, 20));
 
             renderY += 22;
             visibleCount = Math.min(visibleCount + 1, ITEMS_VISIBLE_ROWS);
@@ -845,7 +842,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             ShopAccount account = ShopAccountManager.getAccount(shopId);
             if (account != null) {
                 int netRevenue7Days = account.get7DayNetRevenue();
-                graphics.drawString(this.font, Component.translatable("gui.warehouse.net_revenue_7days").getString() + String.format("%d€", netRevenue7Days),
+                graphics.drawString(this.font, Component.translatable("gui.warehouse.net_revenue_7days").getString() + MoneyFormat.format(netRevenue7Days),
                     x + 15, contentY, netRevenue7Days >= 0 ? COLOR_SUCCESS : COLOR_DANGER, false);
                 contentY += 12;
 
@@ -856,13 +853,13 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 double avgExpensePerDelivery = warehouse.getAverageExpensePerDelivery(currentTime, 30);
 
                 graphics.drawString(this.font,
-                    Component.translatable("gui.warehouse.expenses_30days").getString() + String.format("%d€", totalExpenses30Days),
+                    Component.translatable("gui.warehouse.expenses_30days").getString() + MoneyFormat.format(totalExpenses30Days),
                     x + 15, contentY, COLOR_WARNING, false);
                 contentY += 12;
 
                 if (deliveryCount30Days > 0) {
                     graphics.drawString(this.font,
-                        Component.translatable("gui.warehouse.deliveries").getString() + deliveryCount30Days + "x | Ø " + String.format("%.0f€", avgExpensePerDelivery),
+                        Component.translatable("gui.warehouse.deliveries").getString() + deliveryCount30Days + "x | Ø " + MoneyFormat.formatNoDecimal(avgExpensePerDelivery),
                         x + 15, contentY, COLOR_TEXT_GRAY, false);
                     contentY += 12;
 
@@ -881,7 +878,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                             String ageStr = ageDays == 0 ? Component.translatable("gui.warehouse.today").getString() : Component.translatable("gui.warehouse.days_ago").getString() + ageDays + Component.translatable("gui.warehouse.days").getString();
 
                             graphics.drawString(this.font,
-                                String.format("    • %d€ (%s)", expense.getAmount(), ageStr),
+                                "    • " + MoneyFormat.format(expense.getAmount()) + " (" + ageStr + ")",
                                 x + 15, contentY, COLOR_TEXT_GRAY, false);
                             contentY += 10;
                             shown++;
@@ -1208,6 +1205,19 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
             return super.mouseClicked(mouseX, mouseY, button);
         }
 
+        // Check if we're in the ITEMS tab — Slot auswählen
+        if (currentTab == Tab.ITEMS) {
+            for (ClickableSlot slot : clickableSlots) {
+                if (slot.contains((int) mouseX, (int) mouseY)) {
+                    if (selectedSlotIndex != slot.slotIndex) {
+                        selectedSlotIndex = slot.slotIndex;
+                        initTabComponents();
+                    }
+                    return true;
+                }
+            }
+        }
+
         // Check if we're in the SELLERS tab
         if (currentTab == Tab.SELLERS) {
             // Check all clickable NPC areas
@@ -1264,6 +1274,40 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 return true;
             }
         }
+
+        // Items Tab: Haupt-Liste scrollen
+        if (currentTab == Tab.ITEMS) {
+            WarehouseBlockEntity warehouse = menu.getWarehouse();
+            if (warehouse != null) {
+                int nonEmpty = 0;
+                for (var slot : warehouse.getSlots()) if (!slot.isEmpty()) nonEmpty++;
+
+                if (delta > 0 && itemScrollOffset > 0) {
+                    itemScrollOffset--;
+                    initTabComponents();
+                    return true;
+                } else if (delta < 0 && itemScrollOffset < nonEmpty - ITEMS_VISIBLE_ROWS) {
+                    itemScrollOffset++;
+                    initTabComponents();
+                    return true;
+                }
+            }
+        }
+
+        // Sellers Tab: Scrollen
+        if (currentTab == Tab.SELLERS) {
+            if (delta > 0 && sellerScrollOffset > 0) {
+                sellerScrollOffset--;
+                return true;
+            } else if (delta < 0) {
+                WarehouseBlockEntity warehouse = menu.getWarehouse();
+                if (warehouse != null && sellerScrollOffset < warehouse.getLinkedSellers().size() - SELLER_VISIBLE_ROWS) {
+                    sellerScrollOffset++;
+                    return true;
+                }
+            }
+        }
+
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
 

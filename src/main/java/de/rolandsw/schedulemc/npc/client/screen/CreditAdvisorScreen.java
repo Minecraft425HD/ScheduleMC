@@ -5,6 +5,7 @@ import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.CreditLoan;
 import de.rolandsw.schedulemc.economy.CreditScore;
 import de.rolandsw.schedulemc.economy.network.ClientBankDataCache;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.CreditAdvisorMenu;
 import de.rolandsw.schedulemc.npc.network.ApplyCreditLoanPacket;
@@ -312,7 +313,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         guiGraphics.drawString(this.font, scoreLabel, x + 15, boxY + 18, 0xAAAAAA, false);
 
         // Max Kreditbetrag
-        String maxAmount = Component.translatable("screen.credit_advisor.max_loan", String.format("%.0f€", creditRating.getMaxLoanAmount())).getString();
+        String maxAmount = Component.translatable("screen.credit_advisor.max_loan", MoneyFormat.formatNoDecimal(creditRating.getMaxLoanAmount())).getString();
         guiGraphics.drawString(this.font, maxAmount, x + 15, boxY + 31, 0x00AA00, false);
 
         // Kontostand - from ClientBankDataCache

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy.items;
 
 import de.rolandsw.schedulemc.economy.WalletManager;
+import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.economy.blocks.CashBlock;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import net.minecraft.core.BlockPos;
@@ -193,7 +194,7 @@ public class CashItem extends Item {
                 if (value <= 0) {
                     return Component.translatable("tooltip.cash.wallet_empty");
                 } else {
-                    return Component.translatable("tooltip.cash.wallet_filled", String.format("%.0f€", value));
+                    return Component.translatable("tooltip.cash.wallet_filled", MoneyFormat.formatNoDecimal(value));
                 }
             }
         } catch (Exception ignored) {

@@ -9,6 +9,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
@@ -74,8 +76,27 @@ public class HiddenSwitchBlock extends BaseEntityBlock {
             return InteractionResult.PASS;
         }
 
+        ItemStack heldItem = player.getItemInHand(hand);
+
+        // Shift+Rechtsklick mit Block → Tarnung entfernen
+        if (player.isShiftKeyDown() && heldItem.getItem() instanceof BlockItem) {
+            be.clearCamoBlock();
+            level.sendBlockUpdated(pos, state, state, 3);
+            player.sendSystemMessage(Component.literal("§7[Schalter] Tarnung entfernt."));
+            return InteractionResult.SUCCESS;
+        }
+
+        // Rechtsklick mit Block → Tarnung setzen
+        if (!player.isShiftKeyDown() && heldItem.getItem() instanceof BlockItem blockItem) {
+            be.setCamoBlock(blockItem.getBlock());
+            level.sendBlockUpdated(pos, state, state, 3);
+            player.sendSystemMessage(Component.literal(
+                "§a[Schalter] Tarnung gesetzt auf: §e" + heldItem.getHoverName().getString()));
+            return InteractionResult.SUCCESS;
+        }
+
+        // Shift+Rechtsklick ohne Block: Verknüpfungs-Modus
         if (player.isShiftKeyDown()) {
-            // Shift+Rechtsklick: Verknüpfungs-Modus
             if (!be.canEdit(player)) {
                 player.sendSystemMessage(Component.literal("§cKeine Berechtigung!"));
                 return InteractionResult.SUCCESS;

@@ -55,9 +55,6 @@ public class SecretDoors {
     public static final RegistryObject<Block> HIDDEN_SWITCH_STONE = BLOCKS.register("hidden_switch_stone",
         () -> new HiddenSwitchBlock(BlockBehaviour.Properties.of()
             .mapColor(MapColor.STONE).sound(SoundType.STONE).strength(3.5f, 6.0f)));
-    public static final RegistryObject<Block> HIDDEN_SWITCH_OAK = BLOCKS.register("hidden_switch_oak",
-        () -> new HiddenSwitchBlock(BlockBehaviour.Properties.of()
-            .mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(2.0f, 3.0f)));
 
     // ─────────────────────────────────────────────────────────────────
     // Interner Füller-Block (kein Item!)
@@ -80,8 +77,6 @@ public class SecretDoors {
 
     public static final RegistryObject<Item> HIDDEN_SWITCH_STONE_ITEM = ITEMS.register("hidden_switch_stone",
         () -> new BlockItem(HIDDEN_SWITCH_STONE.get(), new Item.Properties()));
-    public static final RegistryObject<Item> HIDDEN_SWITCH_OAK_ITEM = ITEMS.register("hidden_switch_oak",
-        () -> new BlockItem(HIDDEN_SWITCH_OAK.get(), new Item.Properties()));
 
     // ─────────────────────────────────────────────────────────────────
     // Fernbedienung (Remote Control Item)
@@ -101,7 +96,7 @@ public class SecretDoors {
     public static final RegistryObject<BlockEntityType<HiddenSwitchBlockEntity>> HIDDEN_SWITCH_BE =
         BLOCK_ENTITIES.register("hidden_switch_be", () -> BlockEntityType.Builder.of(
             HiddenSwitchBlockEntity::new,
-            HIDDEN_SWITCH_STONE.get(), HIDDEN_SWITCH_OAK.get()
+            HIDDEN_SWITCH_STONE.get()
         ).build(null));
 
     public static final RegistryObject<BlockEntityType<de.rolandsw.schedulemc.secretdoors.blockentity.DoorFillerBlockEntity>> DOOR_FILLER_BE =
