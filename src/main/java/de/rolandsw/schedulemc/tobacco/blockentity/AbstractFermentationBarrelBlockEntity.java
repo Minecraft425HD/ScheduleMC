@@ -13,6 +13,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Supplier;
 
@@ -22,6 +24,7 @@ import java.util.function.Supplier;
  * sodass keine gesonderten Subklassen pro Größe nötig sind.
  */
 public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFermentationBarrelBlockEntity.class);
 
     private final Supplier<Integer> capacitySupplier;
     private final Supplier<Integer> fermentationTimeSupplier;
@@ -301,11 +304,15 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
 
             if (tag.contains("Type" + i)) {
                 try { tobaccoTypes[i] = TobaccoType.valueOf(tag.getString("Type" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException exception) {
+                    LOGGER.warn("Invalid TobaccoType '{}' in AbstractFermentationBarrelBlockEntity at {} (slot {})", tag.getString("Type" + i), getBlockPos(), i, exception);
+                }
             }
             if (tag.contains("Quality" + i)) {
                 try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException exception) {
+                    LOGGER.warn("Invalid TobaccoQuality '{}' in AbstractFermentationBarrelBlockEntity at {} (slot {})", tag.getString("Quality" + i), getBlockPos(), i, exception);
+                }
             }
         }
     }
