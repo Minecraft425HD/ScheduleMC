@@ -27,17 +27,12 @@ public class HiddenSwitchBlockEntityRenderer implements BlockEntityRenderer<Hidd
                        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         BlockState renderState = be.getCamoBlock().defaultBlockState();
 
-        // Niemals den Hidden-Switch selbst (oder andere nicht-modellbasierte Blöcke)
-        // als Tarn-Renderstate verwenden, sonst kann es zu schwarzem/fehlerhaftem
-        // Rendering kommen.
-        if (renderState.getRenderShape() != RenderShape.MODEL
-            || renderState.is(SecretDoors.HIDDEN_SWITCH_STONE.get())
-            || renderState.is(SecretDoors.HIDDEN_SWITCH_OAK.get())) {
+        // Sicherheitsfallback: niemals den Hidden-Switch selbst rendern (rekursiver/ungültiger State).
+        if (renderState.is(SecretDoors.HIDDEN_SWITCH_STONE.get())
+            || renderState.getRenderShape() != RenderShape.MODEL) {
             renderState = Blocks.STONE_BRICKS.defaultBlockState();
         }
 
-        // packedLight vom Renderer verwenden (wie bei den anderen Secret-Door BERs),
-        // damit keine fehlerhaften Dunkel-/Schwarzdarstellungen auftreten.
         Minecraft.getInstance().getBlockRenderer()
             .renderSingleBlock(renderState, poseStack, bufferSource, packedLight, packedOverlay);
     }
