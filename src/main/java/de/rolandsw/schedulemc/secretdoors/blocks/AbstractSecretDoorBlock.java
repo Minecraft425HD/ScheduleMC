@@ -181,6 +181,7 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
         }
         be.clearFillerOffsets();
         be.setOpen(false);
+
         be.setDoorSize(width, height);
 
         // Richtungsvektoren berechnen (seitwärts = rechts vom FACING)
@@ -192,10 +193,10 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
 
                 int dx, dy, dz;
                 if (doorType == DoorType.HATCH) {
-                    // Luke: breitet sich auf dem Boden aus
-                    dx = w * right.getStepX();
+                    // Luke: wie Door-Rechtecklogik, aber horizontal (rechts x facing).
+                    dx = (w * right.getStepX()) + (h * facing.getStepX());
                     dy = 0;
-                    dz = w * right.getStepZ() + h * facing.getStepZ();
+                    dz = (w * right.getStepZ()) + (h * facing.getStepZ());
                 } else {
                     // Wand-Türen: breitet sich seitwärts und nach oben aus
                     dx = w * right.getStepX();
@@ -222,6 +223,7 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
         level.sendBlockUpdated(controllerPos, level.getBlockState(controllerPos),
             level.getBlockState(controllerPos), 3);
     }
+
 
     // ─────────────────────────────────────────────────────────────────
     // Abbau: Alle Füller entfernen

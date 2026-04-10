@@ -54,7 +54,10 @@ public class SecretDoors {
     // ─────────────────────────────────────────────────────────────────
     public static final RegistryObject<Block> HIDDEN_SWITCH_STONE = BLOCKS.register("hidden_switch_stone",
         () -> new HiddenSwitchBlock(BlockBehaviour.Properties.of()
-            .mapColor(MapColor.STONE).sound(SoundType.STONE).strength(3.5f, 6.0f)));
+            .mapColor(MapColor.STONE)
+            .sound(SoundType.STONE)
+            .strength(3.5f, 6.0f)
+            .noOcclusion()));
 
     // ─────────────────────────────────────────────────────────────────
     // Interner Füller-Block (kein Item!)

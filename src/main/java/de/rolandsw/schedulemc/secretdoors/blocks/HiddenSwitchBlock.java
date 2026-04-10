@@ -55,6 +55,7 @@ public class HiddenSwitchBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
+        // Wie bei den anderen SecretDoor-Controllern rendert der BER die Tarnung.
         return RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
