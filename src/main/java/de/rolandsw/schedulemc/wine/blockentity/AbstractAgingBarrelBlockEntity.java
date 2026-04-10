@@ -13,8 +13,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgingBarrelBlockEntity.class);
     private ItemStack storedWine = ItemStack.EMPTY;
     private int agingTicks = 0;
     private WineType wineType;
@@ -50,7 +53,9 @@ public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandler
             if (tag != null) {
                 if (tag.contains("WineType")) {
                     try { wineType = WineType.valueOf(tag.getString("WineType")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException exception) {
+                        LOGGER.warn("Invalid WineType '{}' while syncing barrel input at {}", tag.getString("WineType"), getBlockPos(), exception);
+                    }
                 }
                 if (tag.contains("Quality")) {
                     try { quality = WineQuality.valueOf(tag.getString("Quality")); }
@@ -97,7 +102,9 @@ public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandler
         agingTicks = tag.getInt("AgingTicks");
         if (tag.contains("WineType")) {
             try { wineType = WineType.valueOf(tag.getString("WineType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid WineType '{}' in aging barrel at {}", tag.getString("WineType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }

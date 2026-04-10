@@ -3,6 +3,8 @@ package de.rolandsw.schedulemc.gang.scenario;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Ein vollstaendiges Mission-Szenario bestehend aus mehreren Bausteinen (Objectives).
@@ -12,6 +14,7 @@ import java.util.UUID;
  * geordnete Liste von Objectives mit visuellen Positionen und Verbindungen.
  */
 public class MissionScenario {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MissionScenario.class);
 
     private final String id;
     private String name;
@@ -114,7 +117,9 @@ public class MissionScenario {
                 try {
                     int num = Integer.parseInt(id.substring(1));
                     if (num > max) max = num;
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException exception) {
+                    LOGGER.debug("Skipping invalid objective id '{}'", id, exception);
+                }
             }
         }
         return "o" + (max + 1);

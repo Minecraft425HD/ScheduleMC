@@ -71,7 +71,8 @@ class OptiFineColorLoader {
         Field ofProfiler = null;
         try {
             ofProfiler = Options.class.getDeclaredField("ofProfiler");
-        } catch (SecurityException | NoSuchFieldException ignored) {
+        } catch (SecurityException | NoSuchFieldException exception) {
+            MapViewConstants.getLogger().debug("OptiFine profiler field not accessible; OptiFine integration disabled", exception);
         } finally {
             if (ofProfiler != null) {
                 installed = true;
@@ -124,7 +125,8 @@ class OptiFineColorLoader {
         for (ResourceLocation s : this.findResources(namespace, "/optifine/ctm", ".properties", true, false, true)) {
             try {
                 this.loadCTM(s);
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException exception) {
+                MapViewConstants.getLogger().debug("Skipping invalid CTM definition {}", s, exception);
             }
         }
 
@@ -223,7 +225,8 @@ class OptiFineColorLoader {
                                             }
                                         }
                                     }
-                                } catch (Exception ignored) {
+                                } catch (Exception exception) {
+                                    MapViewConstants.getLogger().debug("Failed collecting baked quads for state {}", blockState, exception);
                                 }
                             }
                         }
@@ -331,7 +334,8 @@ class OptiFineColorLoader {
                 } else if (!token.isEmpty()) {
                     tmpList.add(token);
                 }
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException exception) {
+                MapViewConstants.getLogger().debug("Ignoring invalid token '{}' in metadata list", token, exception);
             }
         }
         return tmpList.toArray(String[]::new);
@@ -535,7 +539,8 @@ class OptiFineColorLoader {
 
         try (InputStream input = MapViewConstants.getMinecraft().getResourceManager().getResource(resourceProperties).orElseThrow(() -> new IOException("Resource not found: " + resourceProperties)).open()) {
             colorProperties.load(input);
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            MapViewConstants.getLogger().debug("No OptiFine color properties found for {}", resourceProperties, exception);
         }
 
         String format = colorProperties.getProperty("format");

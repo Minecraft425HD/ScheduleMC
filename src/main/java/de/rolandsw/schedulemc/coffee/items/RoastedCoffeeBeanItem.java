@@ -9,6 +9,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ import java.util.List;
  * Kann direkt verkauft oder gemahlen werden
  */
 public class RoastedCoffeeBeanItem extends Item {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoastedCoffeeBeanItem.class);
 
     public RoastedCoffeeBeanItem() {
         super(new Properties().stacksTo(64));
@@ -43,7 +46,9 @@ public class RoastedCoffeeBeanItem extends Item {
         if (tag != null && tag.contains("CoffeeType")) {
             try {
                 return CoffeeType.valueOf(tag.getString("CoffeeType"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid CoffeeType '{}' on RoastedCoffeeBeanItem", tag.getString("CoffeeType"), exception);
+            }
         }
         return CoffeeType.ARABICA;
     }
@@ -56,7 +61,9 @@ public class RoastedCoffeeBeanItem extends Item {
         if (tag != null && tag.contains("Quality")) {
             try {
                 return CoffeeQuality.valueOf(tag.getString("Quality"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid Quality '{}' on RoastedCoffeeBeanItem", tag.getString("Quality"), exception);
+            }
         }
         return CoffeeQuality.SEHR_GUT;
     }
@@ -69,7 +76,9 @@ public class RoastedCoffeeBeanItem extends Item {
         if (tag != null && tag.contains("RoastLevel")) {
             try {
                 return CoffeeRoastLevel.valueOf(tag.getString("RoastLevel"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid RoastLevel '{}' on RoastedCoffeeBeanItem", tag.getString("RoastLevel"), exception);
+            }
         }
         return CoffeeRoastLevel.MEDIUM;
     }

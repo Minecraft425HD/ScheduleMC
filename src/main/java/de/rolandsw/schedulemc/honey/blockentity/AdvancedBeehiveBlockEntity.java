@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Advanced Beehive BlockEntity - Extended Beehive with better production
@@ -29,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
  * Output: 1 slot with increased capacity
  */
 public class AdvancedBeehiveBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdvancedBeehiveBlockEntity.class);
     private boolean lastActiveState = false;
 
     private int tickCount = 0;
@@ -163,7 +166,9 @@ public class AdvancedBeehiveBlockEntity extends AbstractItemHandlerBlockEntity i
         tickCount = tag.getInt("TickCount");
         if (tag.contains("HoneyType")) {
             try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid HoneyType '{}' in AdvancedBeehiveBlockEntity at {}", tag.getString("HoneyType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }

@@ -7,6 +7,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
  * Enthalten 2 Kaffeebohnen pro Kirsche
  */
 public class CoffeeCherryItem extends Item {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoffeeCherryItem.class);
 
     private static final String NBT_QUALITY = "Quality";
 
@@ -26,7 +29,9 @@ public class CoffeeCherryItem extends Item {
         CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains(NBT_QUALITY)) {
             try { return CoffeeQuality.valueOf(tag.getString(NBT_QUALITY)); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid coffee quality '{}' on CoffeeCherryItem", tag.getString(NBT_QUALITY), exception);
+            }
         }
         return CoffeeQuality.GUT;
     }

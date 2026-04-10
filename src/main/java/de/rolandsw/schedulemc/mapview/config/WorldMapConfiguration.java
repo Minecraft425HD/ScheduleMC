@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.mapview.config;
 
 import de.rolandsw.schedulemc.mapview.config.MapOption;
 import de.rolandsw.schedulemc.mapview.core.event.SubSettingsManager;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -34,7 +35,9 @@ public class WorldMapConfiguration implements SubSettingsManager {
                 }
                 sCurrentLine = in.readLine();
             }
-        } catch (IOException ignored) {}
+        } catch (IOException exception) {
+            MapViewConstants.getLogger().warn("Could not load world map settings from {}", settingsFile.getAbsolutePath(), exception);
+        }
 
         this.bindCacheSize();
         this.bindZoom();

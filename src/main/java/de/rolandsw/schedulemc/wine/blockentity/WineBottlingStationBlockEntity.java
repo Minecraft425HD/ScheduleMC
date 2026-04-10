@@ -21,8 +21,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WineBottlingStationBlockEntity.class);
     private ItemStack wineInput = ItemStack.EMPTY;
     private ItemStack bottleInput = ItemStack.EMPTY;
     private ItemStack output = ItemStack.EMPTY;
@@ -73,7 +76,9 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
             if (tag != null) {
                 if (tag.contains("WineType")) {
                     try { wineType = WineType.valueOf(tag.getString("WineType")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException exception) {
+                        LOGGER.warn("Invalid WineType '{}' while syncing bottling input at {}", tag.getString("WineType"), getBlockPos(), exception);
+                    }
                 }
                 if (tag.contains("Quality")) {
                     try { quality = WineQuality.valueOf(tag.getString("Quality")); }
@@ -208,7 +213,9 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
         bottlingProgress = tag.getInt("BottlingProgress");
         if (tag.contains("WineType")) {
             try { wineType = WineType.valueOf(tag.getString("WineType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid WineType '{}' in bottling station at {}", tag.getString("WineType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }

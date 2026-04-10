@@ -13,12 +13,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstrakte Basis für Fermentationstanks
  * Vergärt Traubensaft zu jungem Wein
  */
 public abstract class AbstractFermentationTankBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFermentationTankBlockEntity.class);
     private boolean lastActiveState = false;
 
     private ItemStack inputStack = ItemStack.EMPTY;
@@ -185,7 +188,9 @@ public abstract class AbstractFermentationTankBlockEntity extends AbstractItemHa
         fermentationProgress = tag.getInt("Progress");
         if (tag.contains("WineType")) {
             try { wineType = WineType.valueOf(tag.getString("WineType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid WineType '{}' in fermentation tank at {}", tag.getString("WineType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
