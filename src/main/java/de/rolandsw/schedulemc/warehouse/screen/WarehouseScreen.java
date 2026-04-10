@@ -452,11 +452,22 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     }
 
     private void sendUpdateSettingsPacket() {
+        WarehouseBlockEntity warehouse = menu.getWarehouse();
+        if (warehouse == null) return;
+
         String shopId = shopIdInput.getValue().trim();
         if (shopId.isEmpty()) shopId = null;
 
         WarehouseNetworkHandler.INSTANCE.sendToServer(
-            new UpdateSettingsPacket(menu.getBlockPos(), shopId)
+            new UpdateSettingsPacket(
+                menu.getBlockPos(),
+                shopId,
+                warehouse.isAutoDeliveryEnabled(),
+                warehouse.getDeliveryIntervalDays(),
+                warehouse.getDefaultSlotCapacity(),
+                warehouse.isAdminOnly(),
+                warehouse.isSellersCanView()
+            )
         );
 
         minecraft.player.sendSystemMessage(Component.translatable("message.warehouse.settings_saved"));
