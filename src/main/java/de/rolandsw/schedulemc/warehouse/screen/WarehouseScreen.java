@@ -464,7 +464,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
                 shopId,
                 warehouse.isAutoDeliveryEnabled(),
                 warehouse.getDeliveryIntervalDays(),
-                warehouse.getEffectiveDefaultSlotCapacity(),
+                warehouse.getDefaultSlotCapacity(),
                 warehouse.isAdminOnly(),
                 warehouse.isSellersCanView()
             )
