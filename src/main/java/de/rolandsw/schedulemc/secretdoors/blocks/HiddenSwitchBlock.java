@@ -55,7 +55,9 @@ public class HiddenSwitchBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.ENTITYBLOCK_ANIMATED;
+        // INVISIBLE verhindert doppeltes Rendern (Blockmodell + BER) und vermeidet
+        // die dunkle/schwarze Overlay-Schicht im Welt-Rendering.
+        return RenderShape.INVISIBLE;
     }
 
     @Override
