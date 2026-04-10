@@ -28,3 +28,7 @@ crash-reports/
 .DS_Store
 Thumbs.db
 .claude/
+
+# Repository hygiene
+*.FULL_BACKUP
+*.tmp

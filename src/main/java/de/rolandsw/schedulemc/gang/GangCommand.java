@@ -206,7 +206,10 @@ public class GangCommand {
                 GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
                 return 1;
             }
-        } catch (IllegalArgumentException ignored) {}
+        } catch (IllegalArgumentException exception) {
+            sendError(player, "Ungueltiger Rang: " + rankName);
+            return 0;
+        }
         sendError(player, "Befoerderung fehlgeschlagen. Gueltige Raenge: RECRUIT, MEMBER, UNDERBOSS, BOSS");
         return 0;
     }

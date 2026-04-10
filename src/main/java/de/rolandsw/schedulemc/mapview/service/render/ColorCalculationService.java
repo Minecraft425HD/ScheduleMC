@@ -226,7 +226,8 @@ public class ColorCalculationService {
 
             try {
                 col = this.blockColorsWithDefaultTint[blockStateID];
-            } catch (ArrayIndexOutOfBoundsException ignored) {
+            } catch (ArrayIndexOutOfBoundsException exception) {
+                MapViewConstants.getLogger().debug("Block tint index out of bounds for state {}", blockStateID, exception);
             }
             return ARGBCompat.toABGR(col != 0xFEFF00FF ? col : this.getBlockColor(blockPos, blockStateID));
         } else {
@@ -468,7 +469,8 @@ public class ColorCalculationService {
                     this.blockColorsWithDefaultTint[BlockDatabase.getStateId(blockState)] = 0x1B000000;
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
+            MapViewConstants.getLogger().debug("Failed to precompute biome tint for block {}", blockState, exception);
         }
 
     }
@@ -535,7 +537,8 @@ public class ColorCalculationService {
 
                     tint = 0xFF000000 | (r / 9 & 0xFF) << 16 | (g / 9 & 0xFF) << 8 | b / 9 & 0xFF;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception exception) {
+                MapViewConstants.getLogger().debug("Failed computing OptiFine biome tint for block {}", blockState, exception);
             }
         }
 
@@ -569,7 +572,8 @@ public class ColorCalculationService {
                     DebugRenderState.blockY = blockPos.y;
                     DebugRenderState.blockZ = blockPos.z;
                     tint = MapViewConstants.getMinecraft().getBlockColors().getColor(blockState, world, blockPos, 0) | 0xFF000000;
-                } catch (Exception ignored) {
+                } catch (Exception exception) {
+                    MapViewConstants.getLogger().debug("Failed computing live built-in biome tint for block {}", blockState, exception);
                 }
             }
 

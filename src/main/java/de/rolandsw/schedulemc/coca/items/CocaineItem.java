@@ -8,6 +8,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
  * Kann verpackt und verkauft werden
  */
 public class CocaineItem extends Item {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CocaineItem.class);
 
     public CocaineItem() {
         super(new Properties()
@@ -41,7 +44,9 @@ public class CocaineItem extends Item {
         if (tag != null && tag.contains("CocaType")) {
             try {
                 return CocaType.valueOf(tag.getString("CocaType"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid CocaType '{}' on CocaineItem", tag.getString("CocaType"), exception);
+            }
         }
         return CocaType.BOLIVIANISCH; // Default
     }
@@ -54,7 +59,9 @@ public class CocaineItem extends Item {
         if (tag != null && tag.contains("Quality")) {
             try {
                 return TobaccoQuality.valueOf(tag.getString("Quality"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid Quality '{}' on CocaineItem", tag.getString("Quality"), exception);
+            }
         }
         return TobaccoQuality.GUT; // Default
     }

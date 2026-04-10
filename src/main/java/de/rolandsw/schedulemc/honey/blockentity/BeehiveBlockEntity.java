@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Beehive BlockEntity - Produces Raw Honeycomb passively
@@ -29,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
  * Implements IUtilityConsumer for minimal power (climate control)
  */
 public class BeehiveBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BeehiveBlockEntity.class);
     private boolean lastActiveState = false;
 
     private int tickCount = 0;
@@ -165,7 +168,9 @@ public class BeehiveBlockEntity extends AbstractItemHandlerBlockEntity implement
         tickCount = tag.getInt("TickCount");
         if (tag.contains("HoneyType")) {
             try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid HoneyType '{}' in BeehiveBlockEntity at {}", tag.getString("HoneyType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }

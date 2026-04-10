@@ -510,8 +510,9 @@ public class GangMissionManager {
                                 sm.xp, sm.money, sm.createdAt,
                                 sm.progress, sm.completed, sm.claimed
                         ));
-                    } catch (IllegalArgumentException ignored) {
+                    } catch (IllegalArgumentException exception) {
                         // Template wurde entfernt, Mission ueberspringen
+                        LOGGER.warn("Skipping mission {} because template '{}' is invalid or removed", sm.id, sm.templateName, exception);
                     }
                 }
                 gangMissions.put(gangId, missions);

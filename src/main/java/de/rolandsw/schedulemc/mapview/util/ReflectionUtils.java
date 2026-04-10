@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.mapview.util;
 
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Map;
@@ -48,7 +49,9 @@ public final class ReflectionUtils {
                     try {
                         field.setAccessible(true); // NOPMD - utility class for controlled reflection access
                         return field.get(o);
-                    } catch (IllegalAccessException ignored) {}
+                    } catch (IllegalAccessException exception) {
+                        MapViewConstants.getLogger().warn("Failed to access reflected field {} on {}", field.getName(), objectClass.getName(), exception);
+                    }
                 }
 
                 ++counter;

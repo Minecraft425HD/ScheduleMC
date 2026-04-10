@@ -109,6 +109,8 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 
 ## Project Statistics
 
+> Live/aktualisierte Metriken stehen in `docs/REPO_METRICS.md` (generiert via `scripts/generate_repo_metrics.sh`).
+
 | Metric | Count |
 |---|---|
 | Lines of Java Code | 219,500+ |

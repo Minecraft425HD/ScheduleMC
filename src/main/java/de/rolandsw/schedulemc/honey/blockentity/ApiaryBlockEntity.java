@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Apiary BlockEntity - Multi-hive system with highest production
@@ -29,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
  * Output: 1 slot with increased capacity
  */
 public class ApiaryBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiaryBlockEntity.class);
     private boolean lastActiveState = false;
 
     private int tickCount = 0;
@@ -163,7 +166,9 @@ public class ApiaryBlockEntity extends AbstractItemHandlerBlockEntity implements
         tickCount = tag.getInt("TickCount");
         if (tag.contains("HoneyType")) {
             try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid HoneyType '{}' in ApiaryBlockEntity at {}", tag.getString("HoneyType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }

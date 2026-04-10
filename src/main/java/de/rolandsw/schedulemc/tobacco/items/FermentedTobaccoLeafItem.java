@@ -8,6 +8,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
  * Endprodukt - kann verkauft werden
  */
 public class FermentedTobaccoLeafItem extends Item {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FermentedTobaccoLeafItem.class);
     
     public FermentedTobaccoLeafItem() {
         super(new Properties()
@@ -49,7 +52,9 @@ public class FermentedTobaccoLeafItem extends Item {
         if (tag != null && tag.contains("TobaccoType")) {
             try {
                 return TobaccoType.valueOf(tag.getString("TobaccoType"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid TobaccoType '{}' on FermentedTobaccoLeafItem", tag.getString("TobaccoType"), exception);
+            }
         }
         return TobaccoType.VIRGINIA;
     }
@@ -62,7 +67,9 @@ public class FermentedTobaccoLeafItem extends Item {
         if (tag != null && tag.contains("Quality")) {
             try {
                 return TobaccoQuality.valueOf(tag.getString("Quality"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid Quality '{}' on FermentedTobaccoLeafItem", tag.getString("Quality"), exception);
+            }
         }
         return TobaccoQuality.GUT;
     }

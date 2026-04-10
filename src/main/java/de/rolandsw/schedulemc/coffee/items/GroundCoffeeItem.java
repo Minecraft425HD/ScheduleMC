@@ -7,6 +7,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
  * Endprodukt - bereit für Verkauf
  */
 public class GroundCoffeeItem extends Item {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GroundCoffeeItem.class);
 
     public GroundCoffeeItem() {
         super(new Properties().stacksTo(64));
@@ -43,7 +46,9 @@ public class GroundCoffeeItem extends Item {
         if (tag != null && tag.contains("CoffeeType")) {
             try {
                 return CoffeeType.valueOf(tag.getString("CoffeeType"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid CoffeeType '{}' on GroundCoffeeItem", tag.getString("CoffeeType"), exception);
+            }
         }
         return CoffeeType.ARABICA;
     }
@@ -56,7 +61,9 @@ public class GroundCoffeeItem extends Item {
         if (tag != null && tag.contains("Quality")) {
             try {
                 return CoffeeQuality.valueOf(tag.getString("Quality"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid Quality '{}' on GroundCoffeeItem", tag.getString("Quality"), exception);
+            }
         }
         return CoffeeQuality.SEHR_GUT;
     }
@@ -69,7 +76,9 @@ public class GroundCoffeeItem extends Item {
         if (tag != null && tag.contains("RoastLevel")) {
             try {
                 return CoffeeRoastLevel.valueOf(tag.getString("RoastLevel"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid RoastLevel '{}' on GroundCoffeeItem", tag.getString("RoastLevel"), exception);
+            }
         }
         return CoffeeRoastLevel.MEDIUM;
     }
@@ -82,7 +91,9 @@ public class GroundCoffeeItem extends Item {
         if (tag != null && tag.contains("GrindSize")) {
             try {
                 return CoffeeGrindSize.valueOf(tag.getString("GrindSize"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid GrindSize '{}' on GroundCoffeeItem", tag.getString("GrindSize"), exception);
+            }
         }
         return CoffeeGrindSize.MEDIUM;
     }

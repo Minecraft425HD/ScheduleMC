@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.mapview.data.persistence;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.core.model.AbstractMapData;
 import de.rolandsw.schedulemc.mapview.data.persistence.CompressionUtils;
 import java.util.Arrays;
@@ -481,8 +482,9 @@ public class CompressedMapData extends AbstractMapData {
                         byte[] decompressedData = CompressionUtils.decompress(this.data);
                         this.data = decompressedData;
                         this.isCompressed = false;
-                    } catch (DataFormatException ignored) {
+                    } catch (DataFormatException exception) {
                         // Korrupte komprimierte Daten - bleibt komprimiert
+                        MapViewConstants.getLogger().warn("Failed to decompress map data; keeping compressed representation", exception);
                     }
                 }
             }

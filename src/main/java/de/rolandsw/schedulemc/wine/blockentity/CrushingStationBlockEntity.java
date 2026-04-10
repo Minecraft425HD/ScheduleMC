@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Crushing Station - Zerdrückt Weintrauben zu Maische
@@ -29,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
  * Processing Time: 100 Ticks (5 Sekunden) pro Traube
  */
 public class CrushingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrushingStationBlockEntity.class);
     private boolean lastActiveState = false;
     
     private ItemStack inputStack = ItemStack.EMPTY;
@@ -178,7 +181,9 @@ public class CrushingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         crushingProgress = tag.getInt("Progress");
         if (tag.contains("WineType")) {
             try { wineType = WineType.valueOf(tag.getString("WineType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid WineType '{}' in crushing station at {}", tag.getString("WineType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }

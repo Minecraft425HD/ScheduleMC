@@ -27,6 +27,15 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build --no-daemon
 
+    - name: Run Repository Hygiene Check
+      run: ./scripts/repo_hygiene_check.sh
+
+    - name: Run Quality Guard (baseline regression check)
+      run: ./scripts/quality_guard.sh
+
+    - name: Generate Repository Metrics
+      run: ./scripts/generate_repo_metrics.sh
+
     - name: Run Unit Tests
       run: ./gradlew test --no-daemon
       continue-on-error: false

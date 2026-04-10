@@ -149,8 +149,9 @@ public class MapLightingState {
             if (this.needSkyColor || scheduledUpdate) {
                 this.colorManager.setSkyColor(this.getSkyColor());
             }
-        } catch (RuntimeException ignored) {
+        } catch (RuntimeException exception) {
             // colorManager oder getSkyColor() noch nicht initialisiert
+            MapViewConstants.getLogger().debug("Skipping sky/light update because map lighting state is not ready yet", exception);
         }
     }
 

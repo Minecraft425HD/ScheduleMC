@@ -13,12 +13,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstrakte Basis für Weinpressen
  * Presst Maische zu Traubensaft
  */
 public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWinePressBlockEntity.class);
     private boolean lastActiveState = false;
 
     private ItemStack inputStack = ItemStack.EMPTY;
@@ -200,7 +203,9 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
         pressingProgress = tag.getInt("Progress");
         if (tag.contains("WineType")) {
             try { wineType = WineType.valueOf(tag.getString("WineType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid WineType '{}' in wine press at {}", tag.getString("WineType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
