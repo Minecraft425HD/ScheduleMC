@@ -42,6 +42,13 @@ public class WarehouseBlockEntity extends BlockEntity {
     private String shopId; // Referenz zum Shop-Konto
     final private List<ExpenseEntry> expenses = new ArrayList<>(); // Ausgaben-Historie
 
+    // Settings
+    private boolean autoDeliveryEnabled = true;
+    private int deliveryIntervalDays = 7;
+    private int defaultSlotCapacity = -1; // -1 = use config default
+    private boolean adminOnly = true;
+    private boolean sellersCanView = true;
+
     // Performance-Optimierung: Batched Sync
     private boolean needsSync = false;
     private int syncCounter = 0;
@@ -412,6 +419,27 @@ public class WarehouseBlockEntity extends BlockEntity {
         setChanged();
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // SETTINGS
+    // ═══════════════════════════════════════════════════════════
+
+    public boolean isAutoDeliveryEnabled() { return autoDeliveryEnabled; }
+    public void setAutoDeliveryEnabled(boolean v) { this.autoDeliveryEnabled = v; setChanged(); syncToClient(); }
+
+    public int getDeliveryIntervalDays() { return deliveryIntervalDays; }
+    public void setDeliveryIntervalDays(int v) { this.deliveryIntervalDays = Math.max(1, v); setChanged(); syncToClient(); }
+
+    public int getDefaultSlotCapacity() {
+        return defaultSlotCapacity > 0 ? defaultSlotCapacity : ModConfigHandler.COMMON.WAREHOUSE_MAX_CAPACITY_PER_SLOT.get();
+    }
+    public void setDefaultSlotCapacity(int v) { this.defaultSlotCapacity = Math.max(1, v); setChanged(); syncToClient(); }
+
+    public boolean isAdminOnly() { return adminOnly; }
+    public void setAdminOnly(boolean v) { this.adminOnly = v; setChanged(); syncToClient(); }
+
+    public boolean isSellersCanView() { return sellersCanView; }
+    public void setSellersCanView(boolean v) { this.sellersCanView = v; setChanged(); syncToClient(); }
+
     /**
      * Leert alle Slots (Admin-Funktion)
      */
@@ -520,6 +548,13 @@ public class WarehouseBlockEntity extends BlockEntity {
             tag.putString("ShopId", shopId);
         }
 
+        // Speichere Settings
+        tag.putBoolean("AutoDelivery", autoDeliveryEnabled);
+        tag.putInt("DeliveryIntervalDays", deliveryIntervalDays);
+        tag.putInt("DefaultSlotCapacity", defaultSlotCapacity);
+        tag.putBoolean("AdminOnly", adminOnly);
+        tag.putBoolean("SellersCanView", sellersCanView);
+
         // Speichere Ausgaben
         if (!expenses.isEmpty()) {
             ListTag expensesList = new ListTag();
@@ -578,6 +613,13 @@ public class WarehouseBlockEntity extends BlockEntity {
         if (tag.contains("ShopId")) {
             shopId = tag.getString("ShopId");
         }
+
+        // Lade Settings
+        if (tag.contains("AutoDelivery")) autoDeliveryEnabled = tag.getBoolean("AutoDelivery");
+        if (tag.contains("DeliveryIntervalDays")) deliveryIntervalDays = Math.max(1, tag.getInt("DeliveryIntervalDays"));
+        if (tag.contains("DefaultSlotCapacity")) defaultSlotCapacity = tag.getInt("DefaultSlotCapacity");
+        if (tag.contains("AdminOnly")) adminOnly = tag.getBoolean("AdminOnly");
+        if (tag.contains("SellersCanView")) sellersCanView = tag.getBoolean("SellersCanView");
 
         // Lade Ausgaben
         if (tag.contains("Expenses")) {
