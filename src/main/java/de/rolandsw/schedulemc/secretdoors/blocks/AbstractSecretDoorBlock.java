@@ -31,10 +31,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Basis-Block für alle geheimen Türtypen.
@@ -185,14 +182,6 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
         be.clearFillerOffsets();
         be.setOpen(false);
 
-        if (doorType == DoorType.HATCH) {
-            spawnHatchFillers(level, controllerPos, be);
-            be.setChanged();
-            level.sendBlockUpdated(controllerPos, level.getBlockState(controllerPos),
-                level.getBlockState(controllerPos), 3);
-            return;
-        }
-
         be.setDoorSize(width, height);
 
         // Richtungsvektoren berechnen (seitwärts = rechts vom FACING)
@@ -202,10 +191,18 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
             for (int h = 0; h < height; h++) {
                 if (w == 0 && h == 0) continue; // Controller selbst überspringen
 
-                // Wand-Türen: breitet sich seitwärts und nach oben aus
-                int dx = w * right.getStepX();
-                int dy = h;
-                int dz = w * right.getStepZ();
+                int dx, dy, dz;
+                if (doorType == DoorType.HATCH) {
+                    // Luke: wie Door-Rechtecklogik, aber horizontal (rechts x facing).
+                    dx = (w * right.getStepX()) + (h * facing.getStepX());
+                    dy = 0;
+                    dz = (w * right.getStepZ()) + (h * facing.getStepZ());
+                } else {
+                    // Wand-Türen: breitet sich seitwärts und nach oben aus
+                    dx = w * right.getStepX();
+                    dy = h;
+                    dz = w * right.getStepZ();
+                }
 
                 BlockPos fillerPos = controllerPos.offset(dx, dy, dz);
                 // Nur spawnen wenn Platz frei
@@ -227,75 +224,6 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
             level.getBlockState(controllerPos), 3);
     }
 
-    /**
-     * HATCH: Füllt alle zusammenhängenden Luft-/Füller-Blöcke in derselben Y-Ebene
-     * um den Controller (max. 20x20 Bereich) statt nur einer Linie.
-     */
-    private void spawnHatchFillers(Level level, BlockPos controllerPos, SecretDoorBlockEntity be) {
-        final int maxRange = 19; // Controller + 19 Blöcke je Richtung => max 20 pro Achse
-        final int maxCells = 400; // 20x20
-
-        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
-        Set<BlockPos> visited = new HashSet<>();
-        Set<BlockPos> area = new HashSet<>();
-
-        queue.add(controllerPos);
-        visited.add(controllerPos);
-
-        while (!queue.isEmpty() && area.size() < maxCells) {
-            BlockPos current = queue.poll();
-
-            int dx = current.getX() - controllerPos.getX();
-            int dz = current.getZ() - controllerPos.getZ();
-            if (Math.abs(dx) > maxRange || Math.abs(dz) > maxRange || current.getY() != controllerPos.getY()) {
-                continue;
-            }
-
-            if (!current.equals(controllerPos)) {
-                BlockState currentState = level.getBlockState(current);
-                if (!(currentState.isAir() || currentState.is(SecretDoors.DOOR_FILLER.get()))) {
-                    continue;
-                }
-            }
-
-            area.add(current);
-
-            BlockPos north = current.north();
-            BlockPos south = current.south();
-            BlockPos east = current.east();
-            BlockPos west = current.west();
-
-            if (visited.add(north)) queue.add(north);
-            if (visited.add(south)) queue.add(south);
-            if (visited.add(east)) queue.add(east);
-            if (visited.add(west)) queue.add(west);
-        }
-
-        int minDx = 0, maxDx = 0, minDz = 0, maxDz = 0;
-
-        for (BlockPos fillPos : area) {
-            if (fillPos.equals(controllerPos)) continue;
-
-            int dx = fillPos.getX() - controllerPos.getX();
-            int dz = fillPos.getZ() - controllerPos.getZ();
-
-            minDx = Math.min(minDx, dx);
-            maxDx = Math.max(maxDx, dx);
-            minDz = Math.min(minDz, dz);
-            maxDz = Math.max(maxDz, dz);
-
-            level.setBlockAndUpdate(fillPos, SecretDoors.DOOR_FILLER.get().defaultBlockState());
-            if (level.getBlockEntity(fillPos) instanceof DoorFillerBlockEntity fbe) {
-                fbe.setControllerPos(controllerPos);
-                fbe.setChanged();
-            }
-            be.addFillerOffset(dx, 0, dz);
-        }
-
-        int width = Math.max(1, maxDx - minDx + 1);
-        int depth = Math.max(1, maxDz - minDz + 1);
-        be.setDoorSize(width, depth);
-    }
 
     // ─────────────────────────────────────────────────────────────────
     // Abbau: Alle Füller entfernen
