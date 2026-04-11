@@ -43,7 +43,9 @@ public class DriedMushroomItem extends Item {
         if (tag != null && tag.contains("Quality")) {
             try {
                 return TobaccoQuality.valueOf(tag.getString("Quality"));
-            } catch (IllegalArgumentException ignored) {}
+            } catch (IllegalArgumentException ignored) {
+                return TobaccoQuality.GUT;
+            }
         }
         return TobaccoQuality.GUT;
     }

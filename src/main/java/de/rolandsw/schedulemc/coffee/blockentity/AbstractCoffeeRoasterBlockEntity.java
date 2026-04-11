@@ -16,12 +16,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstrakte Basisklasse für Kaffee-Röster
  * Röstet grüne Kaffeebohnen zu verschiedenen Röstgraden
  */
 public abstract class AbstractCoffeeRoasterBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCoffeeRoasterBlockEntity.class);
 
     private boolean lastActiveState = false;
 
@@ -213,11 +216,15 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends AbstractItemHandl
 
         if (tag.contains("CoffeeType")) {
             try { coffeeType = CoffeeType.valueOf(tag.getString("CoffeeType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid CoffeeType '{}' in AbstractCoffeeRoasterBlockEntity at {}", tag.getString("CoffeeType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = CoffeeQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid CoffeeQuality '{}' in AbstractCoffeeRoasterBlockEntity at {}", tag.getString("Quality"), getBlockPos(), exception);
+            }
         }
 
         syncToHandler();

@@ -19,8 +19,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WetProcessingStationBlockEntity.class);
     private boolean lastActiveState = false;
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
@@ -166,11 +169,15 @@ public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEnt
         } else { currentStage = ProcessingStage.IDLE; }
         if (tag.contains("CoffeeType")) {
             try { coffeeType = CoffeeType.valueOf(tag.getString("CoffeeType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid CoffeeType '{}' in WetProcessingStationBlockEntity at {}", tag.getString("CoffeeType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = CoffeeQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid CoffeeQuality '{}' in WetProcessingStationBlockEntity at {}", tag.getString("Quality"), getBlockPos(), exception);
+            }
         }
         syncToHandler();
     }
