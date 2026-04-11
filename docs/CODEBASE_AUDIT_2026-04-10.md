@@ -76,6 +76,14 @@ Additionally, the hygiene script now fails fast if `AbstractSecretDoorBlock.java
   - `Thread.sleep` in main: **2** (unchanged)
   - `new Thread` in main: **2** (unchanged)
 
+### 8) Follow-up quality fixes applied (2026-04-11, continued pass)
+
+- Removed 9 additional silent parse catches in screen/item/network/quest modules by enforcing explicit fallback assignments in catch paths.
+- `quality_guard.sh` delta after this pass:
+  - Empty catches in main: **22 → 13**
+  - `Thread.sleep` in main: **2** (unchanged)
+  - `new Thread` in main: **2** (unchanged)
+
 ## Suggested Next Steps (prioritized)
 
 1. Fix Java/Gradle toolchain compatibility so tests run in CI and local environments.

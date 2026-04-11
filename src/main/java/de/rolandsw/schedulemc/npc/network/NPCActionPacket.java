@@ -165,7 +165,9 @@ public class NPCActionPacket {
         CompanionType type = CompanionType.FIGHTER;
         try {
             if (!param.isEmpty()) type = CompanionType.valueOf(param.toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException ignored) {}
+        } catch (IllegalArgumentException ignored) {
+            type = CompanionType.FIGHTER;
+        }
 
         CompanionManager mgr = CompanionManager.getInstance();
         if (mgr == null) {
