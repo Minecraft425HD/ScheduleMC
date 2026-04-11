@@ -84,8 +84,9 @@ public class ThreadPoolManager {
 
     private static ThreadFactory createThreadFactory(String nameFormat, int priority) {
         AtomicInteger threadNumber = new AtomicInteger(1);
+        ThreadFactory baseFactory = Executors.defaultThreadFactory();
         return runnable -> {
-            Thread thread = new Thread(runnable);
+            Thread thread = baseFactory.newThread(runnable);
             thread.setName(String.format(nameFormat, threadNumber.getAndIncrement()));
             thread.setPriority(priority);
             thread.setDaemon(true); // Daemon threads für sauberes Shutdown

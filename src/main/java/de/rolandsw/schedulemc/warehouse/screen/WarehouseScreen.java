@@ -303,14 +303,10 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
             // Set Max Capacity Button
             addRenderableWidget(Button.builder(Component.translatable("gui.warehouse.set"), button -> {
-                try {
-                    int newCapacity = Integer.parseInt(maxCapacityInput.getValue());
-                    if (newCapacity > 0) {
-                        sendUpdateSlotCapacityPacket(selectedSlotIndex, newCapacity);
-                        scheduleRefresh();
-                    }
-                } catch (NumberFormatException ignored) {
-                    // Invalid number, ignore
+                int newCapacity = parsePositiveInt(maxCapacityInput.getValue());
+                if (newCapacity > 0) {
+                    sendUpdateSlotCapacityPacket(selectedSlotIndex, newCapacity);
+                    scheduleRefresh();
                 }
             }).bounds(detailX + 75, detailY + 170, 30, 20).build());
 
@@ -1070,6 +1066,16 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         itemSearchField.setTextColorUneditable(0xFFAAAAAA);
         // Set focus on search field
         this.setFocused(itemSearchField);
+    }
+
+    private int parsePositiveInt(String rawValue) {
+        if (rawValue == null || rawValue.isBlank()) return -1;
+        try {
+            int parsed = Integer.parseInt(rawValue);
+            return parsed > 0 ? parsed : -1;
+        } catch (NumberFormatException ex) {
+            return -1;
+        }
     }
 
     private void closeItemSelection() {

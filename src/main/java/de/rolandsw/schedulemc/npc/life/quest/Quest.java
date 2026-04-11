@@ -364,13 +364,13 @@ public class Quest {
         Faction faction = null;
         if (tag.contains("faction")) {
             try { faction = Faction.valueOf(tag.getString("faction")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException ex) { faction = null; }
         }
 
         Quest quest = new Quest(id, title, description, type, questGiverNPC, faction);
 
         try { quest.status = QuestStatus.valueOf(tag.getString("status")); }
-        catch (IllegalArgumentException ignored) {}
+        catch (IllegalArgumentException ex) { quest.status = QuestStatus.AVAILABLE; }
         quest.timeLimitDays = tag.getInt("timeLimitDays");
         quest.startDay = tag.getLong("startDay");
         quest.difficulty = tag.getInt("difficulty");

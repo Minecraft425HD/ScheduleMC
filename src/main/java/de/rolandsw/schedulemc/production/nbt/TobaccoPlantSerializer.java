@@ -1,15 +1,18 @@
 package de.rolandsw.schedulemc.production.nbt;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.production.data.PlantPotData;
 import de.rolandsw.schedulemc.tobacco.data.TobaccoPlantData;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import net.minecraft.nbt.CompoundTag;
+import org.slf4j.Logger;
 
 /**
  * Serializer für Tabak-Pflanzen
  */
 public class TobaccoPlantSerializer implements PlantSerializer {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     @Override
     public void savePlant(PlantPotData potData, CompoundTag tag) {
@@ -49,8 +52,9 @@ public class TobaccoPlantSerializer implements PlantSerializer {
         if (plant != null) {
             try {
                 plant.setQuality(TobaccoQuality.valueOf(plantTag.getString("Quality")));
-            } catch (IllegalArgumentException ignored) {
-                // Ungueltige Qualitaet - Standard beibehalten
+            } catch (IllegalArgumentException ex) {
+                LOGGER.debug("TobaccoPlantSerializer: invalid quality '{}', keeping default",
+                        plantTag.getString("Quality"), ex);
             }
             plant.setGrowthStage(plantTag.getInt("GrowthStage"));
             plant.setTicksGrown(plantTag.getInt("TicksGrown"));

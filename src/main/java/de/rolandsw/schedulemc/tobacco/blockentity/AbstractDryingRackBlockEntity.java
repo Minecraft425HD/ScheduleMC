@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Supplier;
 
@@ -27,6 +29,7 @@ import java.util.function.Supplier;
  * sodass keine gesonderten Subklassen pro Größe nötig sind.
  */
 public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDryingRackBlockEntity.class);
 
     private final Supplier<Integer> capacitySupplier;
     private final Supplier<Integer> dryingTimeSupplier;
@@ -334,13 +337,15 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
 
         if (tag.contains("ContentType")) {
             try { contentType = ContentType.valueOf(tag.getString("ContentType")); }
-            catch (IllegalArgumentException ignored) { contentType = ContentType.NONE; }
+            catch (IllegalArgumentException ex) { contentType = ContentType.NONE; }
         }
 
         // Legacy-Support: "Type" und "Quality" für alte Saves
         if (tag.contains("Type")) {
             try { tobaccoType = TobaccoType.valueOf(tag.getString("Type")); }  // NOPMD
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid legacy TobaccoType '{}' in AbstractDryingRackBlockEntity at {}", tag.getString("Type"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("Quality")); }  // NOPMD
@@ -350,7 +355,9 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
         // Neue Felder
         if (tag.contains("TobaccoType")) {
             try { tobaccoType = TobaccoType.valueOf(tag.getString("TobaccoType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid TobaccoType '{}' in AbstractDryingRackBlockEntity at {}", tag.getString("TobaccoType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("TobaccoQuality")) {
             try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("TobaccoQuality")); }
@@ -358,7 +365,9 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
         }
         if (tag.contains("CannabisStrain")) {
             try { cannabisStrain = CannabisStrain.valueOf(tag.getString("CannabisStrain")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid CannabisStrain '{}' in AbstractDryingRackBlockEntity at {}", tag.getString("CannabisStrain"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("CannabisQuality")) {
             try { cannabisQuality = CannabisQuality.valueOf(tag.getString("CannabisQuality")); }

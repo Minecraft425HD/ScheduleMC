@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.client.network.SmartphoneNetworkHandler;
 import de.rolandsw.schedulemc.client.network.SmartphoneStatePacket;
@@ -13,8 +14,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.slf4j.Logger;
 
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Haupt-Smartphone-GUI mit 8 Apps
@@ -22,6 +26,7 @@ import java.util.Locale;
  */
 @OnlyIn(Dist.CLIENT)
 public class SmartphoneScreen extends Screen {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     // Layout-Konstanten (kompakter für ALLE Bildschirmgrößen)
     private static final int PHONE_WIDTH = 220; // Etwas breiter für mehr Label-Platz
@@ -65,6 +70,7 @@ public class SmartphoneScreen extends Screen {
     private int hoveredAppIndex = -1; // Welche App wird gerade gehovered (-1 = keine)
     private boolean isDraggingScrollbar = false; // Wird die Scrollbar gerade gezogen?
     private int dragStartY = 0; // Y-Position beim Start des Draggens
+    private final Set<String> iconRenderFailureLogged = new HashSet<>();
     private int dragStartScrollOffset = 0; // Scroll-Offset beim Start des Draggens
 
     // PERFORMANCE: App-Labels einmal in init() cachen statt 12x Component.translatable().getString() pro Frame
@@ -417,8 +423,10 @@ public class SmartphoneScreen extends Screen {
                 RenderSystem.setShaderTexture(0, iconTexture);
                 guiGraphics.blit(iconTexture, x, y, 0, 0, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE);
                 iconRendered = true;
-            } catch (Exception ignored) {
-                // Icon konnte nicht geladen werden
+            } catch (Exception ex) {
+                if (iconRenderFailureLogged.add(label)) {
+                    LOGGER.debug("SmartphoneScreen: failed to render app icon for '{}'", label, ex);
+                }
             }
         }
 

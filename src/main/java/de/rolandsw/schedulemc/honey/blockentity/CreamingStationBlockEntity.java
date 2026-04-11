@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creaming Station - Creates creamed honey specifically
@@ -30,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
  * Maintains quality
  */
 public class CreamingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreamingStationBlockEntity.class);
     private boolean lastActiveState = false;
 
     private ItemStack inputStack = ItemStack.EMPTY;
@@ -81,7 +84,9 @@ public class CreamingStationBlockEntity extends AbstractItemHandlerBlockEntity i
             if (tag != null) {
                 if (tag.contains("HoneyType")) {
                     try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException exception) {
+                        LOGGER.warn("Invalid HoneyType '{}' in CreamingStationBlockEntity at {}", tag.getString("HoneyType"), getBlockPos(), exception);
+                    }
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
@@ -189,7 +194,9 @@ public class CreamingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         processingProgress = tag.getInt("Progress");
         if (tag.contains("HoneyType")) {
             try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid HoneyType '{}' in CreamingStationBlockEntity at {}", tag.getString("HoneyType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }

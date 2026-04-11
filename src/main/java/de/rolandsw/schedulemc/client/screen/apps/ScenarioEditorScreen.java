@@ -1128,7 +1128,9 @@ public class ScenarioEditorScreen extends Screen {
         try {
             int val = Integer.parseInt(obj.getParam(key));
             obj.setParam(key, String.valueOf(val + delta));
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ex) {
+            obj.setParam(key, String.valueOf(delta));
+        }
     }
 
     private boolean handleParamDDClick(int mx, int my) {

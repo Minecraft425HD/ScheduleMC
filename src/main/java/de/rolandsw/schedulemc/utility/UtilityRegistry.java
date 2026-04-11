@@ -1,9 +1,12 @@
 package de.rolandsw.schedulemc.utility;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.world.level.block.Block;
+import org.slf4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,10 +20,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * Idle = Block steht still, ist aber eingeschaltet (50% Verbrauch)
  */
 public class UtilityRegistry {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     // SICHERHEIT: ConcurrentHashMap für Thread-safe Zugriff
     private static final Map<Block, UtilityConsumptionData> CONSUMPTION_MAP = new ConcurrentHashMap<>();
     private static final Map<String, UtilityConsumptionData> CONSUMPTION_BY_ID = new ConcurrentHashMap<>();
+    private static final Set<String> DEFERRED_RESOLVE_LOGGED = ConcurrentHashMap.newKeySet();
 
     // Keine Instanziierung
     private UtilityRegistry() {}
@@ -360,8 +365,10 @@ public class UtilityRegistry {
                     CONSUMPTION_MAP.put(registryObject.get(), data);
                 }
             }
-        } catch (Exception ignored) {
-            // Block not yet registered, will be resolved later
+        } catch (Exception ex) {
+            if (DEFERRED_RESOLVE_LOGGED.add(id)) {
+                LOGGER.debug("UtilityRegistry: block '{}' not yet resolved (deferred)", id, ex);
+            }
         }
     }
 }

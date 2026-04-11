@@ -266,7 +266,7 @@ public class CoffeePackagingTableBlockEntity extends AbstractItemHandlerBlockEnt
         packagingProgress = tag.getInt("Progress");
         if (tag.contains("PackageSize")) {
             try { selectedSize = PackageSize.valueOf(tag.getString("PackageSize")); }
-            catch (IllegalArgumentException ignored) { selectedSize = PackageSize.MEDIUM; }
+            catch (IllegalArgumentException ex) { selectedSize = PackageSize.MEDIUM; }
         } else { selectedSize = PackageSize.MEDIUM; }
 
         syncToHandler();

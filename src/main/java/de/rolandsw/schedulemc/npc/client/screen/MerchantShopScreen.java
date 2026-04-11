@@ -386,13 +386,21 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
         // Gesamtpreis dieser Zeile (live berechnet aus Input)
         if (row.input != null) {
-            try {
-                int qty = Integer.parseInt(row.input.getValue());
-                if (qty > 0) {
-                    String rowTotal = MoneyFormat.format((long) row.price * qty);
-                    g.drawString(font, rowTotal, x + COL_TOTAL, rowY + 7, C_TOTAL_POS, false);
-                }
-            } catch (NumberFormatException ignored) {}
+            int qty = parsePositiveIntOrZero(row.input.getValue());
+            if (qty > 0) {
+                String rowTotal = MoneyFormat.format((long) row.price * qty);
+                g.drawString(font, rowTotal, x + COL_TOTAL, rowY + 7, C_TOTAL_POS, false);
+            }
+        }
+    }
+
+    private int parsePositiveIntOrZero(String raw) {
+        if (raw == null || raw.isBlank()) return 0;
+        try {
+            int parsed = Integer.parseInt(raw);
+            return Math.max(0, parsed);
+        } catch (NumberFormatException ex) {
+            return 0;
         }
     }
 
@@ -407,7 +415,9 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
                 try {
                     long q = Long.parseLong(row.savedQty);
                     if (q > 0) total += (long) row.price * q;
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ex) {
+                    total += 0;
+                }
             }
         }
         g.drawString(font, cachedTotalLabel, x + 8, footerY + 5, C_TEXT_GRAY, false);

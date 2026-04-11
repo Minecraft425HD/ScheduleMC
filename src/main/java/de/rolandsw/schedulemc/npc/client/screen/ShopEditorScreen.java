@@ -136,12 +136,8 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
 
             final int finalSlotIndex = slotIndex;
             row.priceInput.setResponder(value -> {
-                try {
-                    int price = value.isEmpty() ? 0 : Integer.parseInt(value);
-                    menu.setItemPrice(finalSlotIndex, price);
-                } catch (NumberFormatException ignored) {
-                    // Ignoriere ungültige Eingaben
-                }
+                int price = parseNonNegativeInt(value);
+                menu.setItemPrice(finalSlotIndex, price);
             });
 
             // Unlimited-Toggle Button (zeigt ∞ oder ✓)
@@ -181,12 +177,8 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
             row.stockInput.setTextColor(unlimited ? 0x808080 : 0xE0E0E0);
 
             row.stockInput.setResponder(value -> {
-                try {
-                    int stock = value.isEmpty() ? 0 : Integer.parseInt(value);
-                    menu.setItemStock(finalSlotIndex, stock);
-                } catch (NumberFormatException ignored) {
-                    // Ignoriere ungültige Eingaben
-                }
+                int stock = parseNonNegativeInt(value);
+                menu.setItemStock(finalSlotIndex, stock);
             });
 
             itemRows.add(row);
@@ -207,6 +199,15 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         if (scrollOffset < ShopEditorMenu.SHOP_SLOTS - VISIBLE_ROWS) {
             scrollOffset++;
             createInputFields();
+        }
+    }
+
+    private int parseNonNegativeInt(String rawValue) {
+        if (rawValue == null || rawValue.isBlank()) return 0;
+        try {
+            return Math.max(0, Integer.parseInt(rawValue));
+        } catch (NumberFormatException ex) {
+            return 0;
         }
     }
 

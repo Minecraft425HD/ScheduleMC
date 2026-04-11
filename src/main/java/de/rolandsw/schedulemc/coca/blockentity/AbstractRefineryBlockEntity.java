@@ -348,11 +348,11 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
 
             if (tag.contains("Type" + i)) {
                 try { cocaTypes[i] = CocaType.valueOf(tag.getString("Type" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException ex) { cocaTypes[i] = null; }
             }
             if (tag.contains("Quality" + i)) {
                 try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
-                catch (IllegalArgumentException ignored) {}
+                catch (IllegalArgumentException ex) { qualities[i] = null; }
             }
         }
     }

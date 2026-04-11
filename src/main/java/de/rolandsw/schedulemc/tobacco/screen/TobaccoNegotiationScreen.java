@@ -301,7 +301,9 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
                 try {
                     String[] vParts = variantStr.split("\\.");
                     if (vParts.length >= 2) type = TobaccoType.valueOf(vParts[1]);
-                } catch (IllegalArgumentException ignored) {}
+                } catch (IllegalArgumentException ex) {
+                    type = TobaccoType.VIRGINIA;
+                }
             }
 
             String qualityStr = PackagedDrugItem.getQuality(stack);
@@ -310,7 +312,9 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
                 try {
                     String[] qParts = qualityStr.split("\\.");
                     if (qParts.length >= 2) quality = TobaccoQuality.valueOf(qParts[1]);
-                } catch (IllegalArgumentException ignored) {}
+                } catch (IllegalArgumentException ex) {
+                    quality = TobaccoQuality.GUT;
+                }
             }
 
             fairPrice = PriceCalculator.calculateFairPrice(type, quality, weight, demand, reputation, satisfaction);

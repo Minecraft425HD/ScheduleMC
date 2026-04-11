@@ -178,14 +178,20 @@ public class ATMScreen extends AbstractContainerScreen<ATMMenu> {
      * Execute transaction with custom input amount
      */
     private void executeCustomAmount() {
+        double amount = parsePositiveAmount(amountInput.getValue());
+        if (amount > 0) {
+            executeTransaction(amount);
+            amountInput.setValue("");
+        }
+    }
+
+    private double parsePositiveAmount(String rawInput) {
+        if (rawInput == null || rawInput.isBlank()) return -1;
         try {
-            double amount = Double.parseDouble(amountInput.getValue().replace(",", "."));
-            if (amount > 0) {
-                executeTransaction(amount);
-                amountInput.setValue("");
-            }
-        } catch (NumberFormatException ignored) {
-            // Invalid input - ignore
+            double parsed = Double.parseDouble(rawInput.replace(",", "."));
+            return parsed > 0 ? parsed : -1;
+        } catch (NumberFormatException ex) {
+            return -1;
         }
     }
 

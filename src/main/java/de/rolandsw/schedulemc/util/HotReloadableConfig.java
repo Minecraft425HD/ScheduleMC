@@ -151,7 +151,7 @@ public class HotReloadableConfig<T> {
                     StandardWatchEventKinds.ENTRY_MODIFY,
                     StandardWatchEventKinds.ENTRY_CREATE);
 
-                watchThread = new Thread(() -> {
+                watchThread = java.util.concurrent.Executors.defaultThreadFactory().newThread(() -> {
                     LOGGER.info("Config-WatchService gestartet");
                     while (watcherRunning.get()) {
                         try {
@@ -180,8 +180,9 @@ public class HotReloadableConfig<T> {
                         }
                     }
                     LOGGER.info("Config-WatchService gestoppt");
-                }, "ScheduleMC-ConfigWatcher");
+                });
 
+                watchThread.setName("ScheduleMC-ConfigWatcher");
                 watchThread.setDaemon(true);
                 watcherRunning.set(true);
                 watchThread.start();

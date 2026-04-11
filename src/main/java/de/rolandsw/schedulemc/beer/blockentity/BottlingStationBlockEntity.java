@@ -22,6 +22,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bottling Station - Final beer bottling with processing method selection
@@ -38,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
  * Final assembly: Combines all beer attributes into final product
  */
 public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BottlingStationBlockEntity.class);
     private boolean lastActiveState = false;
 
     private ItemStack beerSource = ItemStack.EMPTY;
@@ -111,7 +114,9 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
             if (tag != null) {
                 if (tag.contains("BeerType")) {
                     try { beerType = BeerType.valueOf(tag.getString("BeerType")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException exception) {
+                        LOGGER.warn("Invalid BeerType '{}' in BottlingStationBlockEntity at {}", tag.getString("BeerType"), getBlockPos(), exception);
+                    }
                 } else {
                     // Default beer type if not specified
                     beerType = BeerType.PILSNER;
@@ -298,7 +303,9 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         bottlingProgress = tag.getInt("BottlingProgress");
         if (tag.contains("BeerType")) {
             try { beerType = BeerType.valueOf(tag.getString("BeerType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid BeerType '{}' in BottlingStationBlockEntity at {}", tag.getString("BeerType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }

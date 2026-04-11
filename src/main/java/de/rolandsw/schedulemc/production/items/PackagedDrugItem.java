@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.production.items;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.cannabis.items.CuredBudItem;
 import de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem;
 import de.rolandsw.schedulemc.coca.items.CocaineItem;
@@ -28,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -42,6 +44,7 @@ import java.util.List;
  * - PackageDate (Minecraft-Tag)
  */
 public class PackagedDrugItem extends Item {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public PackagedDrugItem() {
         super(new Properties()
@@ -251,8 +254,8 @@ public class PackagedDrugItem extends Item {
         if (variant != null) {
             try {
                 return variant.calculateDynamicPrice(quality, weight, null);
-            } catch (Exception ignored) {
-                // Fallback auf statische Formel
+            } catch (Exception ex) {
+                LOGGER.debug("PackagedDrugItem: dynamic price calculation failed for variant {}", variant, ex);
             }
         }
 

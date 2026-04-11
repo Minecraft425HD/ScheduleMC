@@ -1,10 +1,12 @@
 package de.rolandsw.schedulemc.npc.life.core;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.npc.life.NPCLifeConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
  * - Spieler-Profile speichern aggregierte Daten permanent
  */
 public class NPCMemory {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     // ═══════════════════════════════════════════════════════════
     // CONSTANTS (via NPCLifeConstants)
@@ -369,7 +372,7 @@ public class NPCMemory {
             try {
                 int value = Integer.parseInt(details.replaceAll("[^0-9]", ""));
                 profile.recordTransaction(value);
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException ex) {
                 profile.recordTransaction(0);
             }
         } else if (type == MemoryType.CRIME_WITNESSED || type == MemoryType.CRIME_VICTIM) {
@@ -460,7 +463,9 @@ public class NPCMemory {
                     if (memory.type() == MemoryType.TRANSACTION) {
                         try {
                             tradeValue += Integer.parseInt(memory.details().replaceAll("[^0-9]", ""));
-                        } catch (NumberFormatException ignored) {}
+                        } catch (NumberFormatException ex) {
+                            LOGGER.debug("Ignoring malformed transaction detail '{}' in daily summary", memory.details());
+                        }
                     }
                 }
 
