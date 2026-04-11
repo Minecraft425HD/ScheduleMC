@@ -4229,6 +4229,7 @@
   "message.small_refinery.status": "§c═══ Kleine Raffinerie ═══\n§7Brennstoff: §e%d/%d\n§7Paste: §e%d/%d\n§7Kokain fertig: §e%d\n§7Fortschritt: §e%s%%",
   "message.smartphone.attacked_protected_player": "§c§l⚠ Du hast einen geschützten Spieler angegriffen! +1 Wanted-Stern",
   "message.smartphone.protected": "§a§l✓ Smartphone-Schutz: Du bist geschützt während du dein Smartphone benutzt!",
+  "message.smartphone.engine_running": "§cDu darfst dein Handy nur bei ausgeschaltetem Motor nutzen.",
   "message.stealing.already_stolen_today": "§c✗ Du hast heute bereits von diesem NPC gestohlen!",
   "message.stealing.attempt": "§cBestehle ",
   "message.stealing.attempt_npc": "§cBestehle %s",
