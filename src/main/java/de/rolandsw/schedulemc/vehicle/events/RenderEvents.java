@@ -10,6 +10,7 @@ import de.maxhenkel.corelib.math.MathUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -52,6 +53,11 @@ public class RenderEvents {
     public void onRender(InputEvent.MouseScrollingEvent evt) {
         EventHelper.handleEvent(() -> {
             if (getVehicle() != null && !mc.options.getCameraType().isFirstPerson()) {
+                // Keep hotbar scrolling available while driving in 3rd person.
+                // Optional zoom control is still possible with CTRL + mouse wheel.
+                if (!Screen.hasControlDown()) {
+                    return;
+                }
                 ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.set(Math.max(1D, Math.min(20D, ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.get() - evt.getScrollDelta())));
                 ModConfigHandler.VEHICLE_CLIENT.vehicleZoom.save();
                 evt.setCanceled(true);

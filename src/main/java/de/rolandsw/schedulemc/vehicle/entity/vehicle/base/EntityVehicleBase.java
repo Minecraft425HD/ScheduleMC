@@ -161,6 +161,12 @@ public abstract class EntityVehicleBase extends Entity {
     }
 
     @Override
+    public boolean canRiderInteract() {
+        // Allow riders to use and switch held items while seated in a vehicle
+        return true;
+    }
+
+    @Override
     public boolean canCollideWith(Entity entity) {
         if (!ModConfigHandler.VEHICLE_SERVER.collideWithEntities.get()) {
             if (!(entity instanceof EntityVehicleBase)) {
