@@ -14,12 +14,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstrakte Basis für Aging Caves (Reifekeller)
  * Lagert Käselaibe und lässt sie passiv reifen
  */
 public abstract class AbstractAgingCaveBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgingCaveBlockEntity.class);
     private ItemStack storedCheese = ItemStack.EMPTY;
     private int agingTicks = 0;
     private CheeseType cheeseType;
@@ -71,7 +74,9 @@ public abstract class AbstractAgingCaveBlockEntity extends AbstractItemHandlerBl
             if (tag != null) {
                 if (tag.contains("CheeseType")) {
                     try { cheeseType = CheeseType.valueOf(tag.getString("CheeseType")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException exception) {
+                        LOGGER.warn("Invalid CheeseType '{}' in AbstractAgingCaveBlockEntity at {}", tag.getString("CheeseType"), getBlockPos(), exception);
+                    }
                 }
                 if (tag.contains("Quality")) {
                     try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
@@ -140,7 +145,9 @@ public abstract class AbstractAgingCaveBlockEntity extends AbstractItemHandlerBl
         agingTicks = tag.getInt("AgingTicks");
         if (tag.contains("CheeseType")) {
             try { cheeseType = CheeseType.valueOf(tag.getString("CheeseType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid CheeseType '{}' in AbstractAgingCaveBlockEntity at {}", tag.getString("CheeseType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }

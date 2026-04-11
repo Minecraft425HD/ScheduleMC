@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Packaging Station - Schneidet Käselaibe in Wedges und verpackt sie
@@ -29,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
  * Processing Method: Natural/Smoked/Herb
  */
 public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PackagingStationBlockEntity.class);
     private ItemStack wheelInput = ItemStack.EMPTY;
     private ItemStack packagingInput = ItemStack.EMPTY;
     private ItemStack output = ItemStack.EMPTY;
@@ -83,7 +86,9 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
             if (tag != null) {
                 if (tag.contains("CheeseType")) {
                     try { cheeseType = CheeseType.valueOf(tag.getString("CheeseType")); }
-                    catch (IllegalArgumentException ignored) {}
+                    catch (IllegalArgumentException exception) {
+                        LOGGER.warn("Invalid CheeseType '{}' in PackagingStationBlockEntity at {}", tag.getString("CheeseType"), getBlockPos(), exception);
+                    }
                 }
                 if (tag.contains("Quality")) {
                     try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
@@ -198,7 +203,9 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
         packagingProgress = tag.getInt("PackagingProgress");
         if (tag.contains("CheeseType")) {
             try { cheeseType = CheeseType.valueOf(tag.getString("CheeseType")); }
-            catch (IllegalArgumentException ignored) {}
+            catch (IllegalArgumentException exception) {
+                LOGGER.warn("Invalid CheeseType '{}' in PackagingStationBlockEntity at {}", tag.getString("CheeseType"), getBlockPos(), exception);
+            }
         }
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }

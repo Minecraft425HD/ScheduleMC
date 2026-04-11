@@ -68,6 +68,14 @@ Additionally, the hygiene script now fails fast if `AbstractSecretDoorBlock.java
   - `Thread.sleep` in main: **2** (unchanged)
   - `new Thread` in main: **2** (unchanged)
 
+### 7) Follow-up quality fixes applied (2026-04-10, extended pass)
+
+- Removed 10 additional silent enum-parse catches in cheese/coffee block entities and replaced them with contextual warning logs.
+- `quality_guard.sh` delta after this pass:
+  - Empty catches in main: **32 → 22**
+  - `Thread.sleep` in main: **2** (unchanged)
+  - `new Thread` in main: **2** (unchanged)
+
 ## Suggested Next Steps (prioritized)
 
 1. Fix Java/Gradle toolchain compatibility so tests run in CI and local environments.
