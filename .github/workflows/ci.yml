@@ -24,8 +24,11 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Toolchain preflight
+      run: bash ./scripts/toolchain_check.sh
+
     - name: Build with Gradle
-      run: ./gradlew build --no-daemon
+      run: bash ./scripts/run_gradle_tests.sh build --no-daemon
 
     - name: Run Repository Hygiene Check
       run: ./scripts/repo_hygiene_check.sh
@@ -37,11 +40,11 @@ jobs:
       run: ./scripts/generate_repo_metrics.sh
 
     - name: Run Unit Tests
-      run: ./gradlew test --no-daemon
+      run: bash ./scripts/run_gradle_tests.sh test --no-daemon
       continue-on-error: false
 
     - name: Run Integration Tests
-      run: ./gradlew test --tests "*.integration.*" --no-daemon
+      run: bash ./scripts/run_gradle_tests.sh test --tests "*.integration.*" --no-daemon
       continue-on-error: true
 
     - name: Upload Test Results

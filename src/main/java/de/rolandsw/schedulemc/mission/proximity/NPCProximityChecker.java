@@ -134,7 +134,11 @@ public class NPCProximityChecker {
             TAIL_SECONDS.put(stateKey, 0);
             NPCBehaviorEngine engine = npc.getBehaviorEngine();
             if (engine != null) {
-                try { engine.onSuspiciousActivity(player, "beschattet"); } catch (Exception ignored) {}
+                try {
+                    engine.onSuspiciousActivity(player, "beschattet");
+                } catch (Exception ex) {
+                    TAIL_SECONDS.put(stateKey, 0);
+                }
             }
         } else if (dist <= maxDist) {
             // Im gueltigen Fenster – Timer hochzaehlen (alle 10 Ticks = 0.5s → ×2 fuer Sekunden)

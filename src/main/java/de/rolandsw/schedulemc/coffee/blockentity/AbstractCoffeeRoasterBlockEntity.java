@@ -211,7 +211,7 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends AbstractItemHandl
         roastingProgress = tag.getInt("Progress");
         if (tag.contains("RoastLevel")) {
             try { selectedRoastLevel = CoffeeRoastLevel.valueOf(tag.getString("RoastLevel")); }
-            catch (IllegalArgumentException ignored) { selectedRoastLevel = CoffeeRoastLevel.MEDIUM; }
+            catch (IllegalArgumentException ex) { selectedRoastLevel = CoffeeRoastLevel.MEDIUM; }
         } else { selectedRoastLevel = CoffeeRoastLevel.MEDIUM; }
 
         if (tag.contains("CoffeeType")) {

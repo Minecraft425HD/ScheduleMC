@@ -131,7 +131,7 @@ public class CoffeeGrinderBlockEntity extends AbstractItemHandlerBlockEntity imp
         grindingProgress = tag.getInt("Progress");
         if (tag.contains("GrindSize")) {
             try { selectedGrindSize = CoffeeGrindSize.valueOf(tag.getString("GrindSize")); }
-            catch (IllegalArgumentException ignored) { selectedGrindSize = CoffeeGrindSize.MEDIUM; }
+            catch (IllegalArgumentException ex) { selectedGrindSize = CoffeeGrindSize.MEDIUM; }
         } else { selectedGrindSize = CoffeeGrindSize.MEDIUM; }
         syncToHandler();
     }

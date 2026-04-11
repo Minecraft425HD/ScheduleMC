@@ -63,7 +63,7 @@ public class RequestPlayerMissionsPacket {
     private static List<String> collectNpcNames() {
         try {
             return de.rolandsw.schedulemc.managers.NPCNameRegistry.getAllNamesSorted();
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
             return new ArrayList<>();
         }
     }

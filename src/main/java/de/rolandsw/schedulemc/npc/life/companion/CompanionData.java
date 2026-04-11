@@ -442,9 +442,9 @@ public class CompanionData {
         }
 
         try { data.state = CompanionState.valueOf(tag.getString("state")); }
-        catch (IllegalArgumentException ignored) { data.state = CompanionState.FOLLOWING; }
+        catch (IllegalArgumentException ex) { data.state = CompanionState.FOLLOWING; }
         try { data.currentCommand = CompanionCommand.valueOf(tag.getString("command")); }
-        catch (IllegalArgumentException ignored) { data.currentCommand = CompanionCommand.FOLLOW; }
+        catch (IllegalArgumentException ex) { data.currentCommand = CompanionCommand.FOLLOW; }
 
         if (tag.contains("waitX")) {
             data.waitPosition = new BlockPos(

@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.economy.items;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.economy.blocks.CashBlock;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -27,6 +29,7 @@ import java.util.List;
  * - UUID-basiert (überlebt Tod!)
  */
 public class CashItem extends Item {
+    private static final Logger LOGGER = LogUtils.getLogger();
     
     private static final int PLACE_AMOUNT = 100; // 100€ pro Rechtsklick
     private static final double MAX_PER_BLOCK = 1000.0; // Max 1000€ pro Block
@@ -197,8 +200,8 @@ public class CashItem extends Item {
                     return Component.translatable("tooltip.cash.wallet_filled", MoneyFormat.formatNoDecimal(value));
                 }
             }
-        } catch (Exception ignored) {
-            // Server-Seite oder Fehler - zeige generischen Namen
+        } catch (Exception ex) {
+            LOGGER.debug("CashItem: falling back to generic name", ex);
         }
         return Component.translatable("item.schedulemc.cash");
     }

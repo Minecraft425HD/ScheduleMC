@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.pathfinding;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import net.minecraft.world.level.block.Block;
+import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.Set;
@@ -20,10 +22,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * Erlaubt nur Bewegung auf konfigurierten Blocktypen
  */
 public class NPCPathNavigation extends GroundPathNavigation {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static Set<String> allowedBlocks = ConcurrentHashMap.newKeySet();
     /** Cache: Block → Walkability-Ergebnis (vermeidet wiederholte ForgeRegistries-Lookups) */
     private static final Map<Block, Boolean> walkabilityCache = new ConcurrentHashMap<>();
+    private static volatile boolean configDeferredLogged = false;
 
     public NPCPathNavigation(Mob mob, Level level) {
         super(mob, level);
@@ -45,9 +49,12 @@ public class NPCPathNavigation extends GroundPathNavigation {
         if (ModConfigHandler.COMMON != null && ModConfigHandler.COMMON.NPC_WALKABLE_BLOCKS != null) {
             try {
                 allowedBlocks.addAll(ModConfigHandler.COMMON.NPC_WALKABLE_BLOCKS.get());
+                configDeferredLogged = false;
             } catch (IllegalStateException e) {
-                // Config still loading during early startup; allowedBlocks remains empty
-                // and will be populated lazily on first isBlockWalkable() call
+                if (!configDeferredLogged) {
+                    configDeferredLogged = true;
+                    LOGGER.debug("NPCPathNavigation: config not ready yet, deferring allowedBlocks initialization", e);
+                }
             }
         }
     }

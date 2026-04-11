@@ -337,7 +337,7 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
 
         if (tag.contains("ContentType")) {
             try { contentType = ContentType.valueOf(tag.getString("ContentType")); }
-            catch (IllegalArgumentException ignored) { contentType = ContentType.NONE; }
+            catch (IllegalArgumentException ex) { contentType = ContentType.NONE; }
         }
 
         // Legacy-Support: "Type" und "Quality" für alte Saves

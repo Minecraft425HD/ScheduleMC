@@ -37,8 +37,8 @@ ScheduleMC has a comprehensive test suite built with **JUnit 5**, **Mockito**, a
 
 | Metric | Value |
 |--------|-------|
-| Total test files | 32 |
-| Unit test files | 29 |
+| Total test files | 38 |
+| Unit test files | 35 |
 | Integration test files | 3 |
 | Minimum overall coverage | 60% |
 | Minimum utility class coverage | 80% |
@@ -72,7 +72,7 @@ test {
 
 Mockito's JUnit 5 extension is configured via:
 
-**File:** `src/test/resources/mockito-extensions/org.mockito.plugins.MockitoAnnotationProcessor.iml`
+**File:** `src/test/resources/mockito-extensions/org.mockito.plugins.MockMaker`
 
 This enables `@MockitoSettings`, `@ExtendWith(MockitoExtension.class)`, and `@Mock` annotations.
 
@@ -128,6 +128,65 @@ src/test/java/de/rolandsw/schedulemc/
 ```bash
 ./gradlew test
 ```
+
+### Run All Tests with explicit Java 17 (recommended in mixed environments)
+
+If your default JVM is newer than Java 17 (for example Java 25), Gradle script compilation can fail before tests start.
+Use the helper script below, which searches for a Java 17 installation and sets `JAVA_HOME` for the test run:
+
+```bash
+bash scripts/run_gradle_tests.sh
+```
+
+The helper searches common Java-17 locations (including SDKMAN, ASDF, Linux package paths, and Homebrew/macOS paths) before failing.
+If no Java 17 is found, it also triggers `scripts/toolchain_check.sh` output for diagnostics.
+
+Quick preflight check:
+
+```bash
+bash scripts/toolchain_check.sh
+```
+
+Optional (if Java 17 is not auto-detected):
+
+```bash
+JAVA17_HOME=/path/to/jdk17 bash scripts/run_gradle_tests.sh
+```
+
+Check-only preflight (detect Java 17 without launching Gradle):
+
+```bash
+bash scripts/run_gradle_tests.sh --check-only
+```
+
+`--check-only` is mutually exclusive with Gradle task arguments.
+
+You can also pass arbitrary Gradle args/tasks through the helper:
+
+```bash
+bash scripts/run_gradle_tests.sh test --tests "de.rolandsw.schedulemc.economy.*"
+```
+
+Optional all-in-one local preflight:
+
+```bash
+bash scripts/local_quality_pipeline.sh
+```
+
+By default this pipeline continues with static checks if Java 17 is missing.
+Set `STRICT_TOOLCHAIN=1` to fail fast instead:
+
+```bash
+STRICT_TOOLCHAIN=1 bash scripts/local_quality_pipeline.sh
+```
+
+Equivalent flag form:
+
+```bash
+bash scripts/local_quality_pipeline.sh --strict-toolchain
+```
+
+Unknown flags are treated as errors to avoid silent typo-misconfiguration.
 
 ### Run Specific Test Class
 
@@ -614,9 +673,45 @@ Rules configured in: `pmd-ruleset.xml`
 ./gradlew checkstyleMain
 ```
 
+### Repository Quality Guard (custom)
+
+For lightweight preflight checks before full Gradle runs:
+
+```bash
+bash scripts/quality_guard.sh
+```
+
+This guard currently tracks:
+- empty catch blocks in `src/main/java`
+- `catch (... ignored)` bindings in `src/main/java` (regression baseline)
+- comment-only catch handlers in `src/main/java` (regression baseline)
+- `Thread.sleep(...)` usage in main sources
+- direct `new Thread(...)` usage in main sources
+
+Current baseline target is strict zero for all five indicators (see `scripts/quality_baseline.env`).
+
 ---
 
 ## Troubleshooting Test Failures
+
+### Gradle fails with `Unsupported class file major version 69`
+
+**Cause:** Gradle is being launched with a newer host JVM (e.g. Java 25), while this project/tooling path expects Java 17 runtime compatibility.
+
+**Fix:**
+
+1. Install Java 17 locally.
+2. Run tests via the helper script:
+
+```bash
+bash scripts/run_gradle_tests.sh
+```
+
+3. If auto-detection fails, set one of the env vars explicitly:
+
+```bash
+JAVA17_HOME=/path/to/jdk17 bash scripts/run_gradle_tests.sh
+```
 
 ### Tests fail with `ClassNotFoundException` for Minecraft classes
 

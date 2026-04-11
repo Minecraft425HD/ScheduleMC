@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.network;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.mission.MissionEventBridge;
 import de.rolandsw.schedulemc.mission.PlayerMissionManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
@@ -11,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
+import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +30,7 @@ import java.util.function.Supplier;
  * - alle anderen:      param leer
  */
 public class NPCActionPacket {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private final int entityId;
     private final Action action;
     private final String param;
@@ -128,7 +131,7 @@ public class NPCActionPacket {
     /** Spieler liefert Items an NPC ab (package_delivered tracking). */
     private void handleGiveItemToNpc(ServerPlayer player) {
         int count = 1;
-        try { count = Integer.parseInt(param); } catch (NumberFormatException ignored) {}
+        try { count = Integer.parseInt(param); } catch (NumberFormatException ex) { count = 1; }
         MissionEventBridge.firePackageDelivered(player);
         MissionEventBridge.fireTransactionCompleted(player);
         player.sendSystemMessage(Component.literal(
@@ -138,7 +141,7 @@ public class NPCActionPacket {
     /** Spieler bezahlt NPC (transaction_completed tracking). */
     private void handlePayNpc(ServerPlayer player) {
         int amount = 0;
-        try { amount = Integer.parseInt(param); } catch (NumberFormatException ignored) {}
+        try { amount = Integer.parseInt(param); } catch (NumberFormatException ex) { amount = 0; }
         MissionEventBridge.fireTransactionCompleted(player);
         if (amount > 0) MissionEventBridge.fireMoneyEarned(player, -amount); // negative = ausgegeben, not tracked
         player.sendSystemMessage(Component.literal(
@@ -165,7 +168,7 @@ public class NPCActionPacket {
         CompanionType type = CompanionType.FIGHTER;
         try {
             if (!param.isEmpty()) type = CompanionType.valueOf(param.toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ex) {
             type = CompanionType.FIGHTER;
         }
 
@@ -183,8 +186,8 @@ public class NPCActionPacket {
     private void handleIntimidate(ServerPlayer player, CustomNPCEntity npc) {
         try {
             npc.getBehaviorEngine().onThreatened(player, 0.8f);
-        } catch (Exception ignored) {
-            // BehaviorEngine fehlt oder nicht anwendbar
+        } catch (Exception ex) {
+            LOGGER.debug("NPCActionPacket: failed to trigger threatened behavior for NPC {}", entityId, ex);
         }
         player.sendSystemMessage(Component.literal(
             "§c[Einschuechterung] §fDu hast " + npc.getNpcData().getNpcName() + " bedroht."));

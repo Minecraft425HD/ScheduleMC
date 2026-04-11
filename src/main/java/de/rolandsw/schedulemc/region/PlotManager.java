@@ -21,7 +21,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -493,7 +495,9 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
                         try {
                             int num = Integer.parseInt(id.substring(5));
                             if (num > maxId) maxId = num;
-                        } catch (NumberFormatException ignored) {}
+                        } catch (NumberFormatException ex) {
+                            LOGGER.debug("Ignoring malformed plot id '{}' while rebuilding plotCounter", id);
+                        }
                     }
                 }
 
@@ -569,16 +573,9 @@ public class PlotManager implements IncrementalSaveManager.ISaveable {
             isHealthy = false;
             lastError = "Save failed: " + e.getMessage();
 
-            // OPTIMIERT: Asynchroner Retry statt Thread.sleep() (blockiert keinen I/O-Thread)
-            de.rolandsw.schedulemc.util.ThreadPoolManager.getIOPool().execute(() -> {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-                retrySavePlots();
-            });
+            // OPTIMIERT: Verzögerter Retry ohne blockierende Sleep-Operation
+            CompletableFuture.delayedExecutor(100, TimeUnit.MILLISECONDS, de.rolandsw.schedulemc.util.ThreadPoolManager.getIOPool())
+                .execute(PlotManager::retrySavePlots);
         }
     }
 

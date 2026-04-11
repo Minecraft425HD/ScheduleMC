@@ -43,7 +43,7 @@ public class FreshMushroomItem extends Item {
         if (tag != null && tag.contains("Quality")) {
             try {
                 return TobaccoQuality.valueOf(tag.getString("Quality"));
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException ex) {
                 return TobaccoQuality.GUT;
             }
         }

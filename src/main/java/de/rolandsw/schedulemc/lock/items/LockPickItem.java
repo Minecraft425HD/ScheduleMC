@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.lock.items;
 
+import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.lock.LockData;
 import de.rolandsw.schedulemc.lock.LockManager;
 import de.rolandsw.schedulemc.lock.LockType;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -27,6 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Bei Fehlschlag an Hochsicherheits-Schloessern: Alarm + Fahndung.
  */
 public class LockPickItem extends Item {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final int MAX_DURABILITY = 15;
 
@@ -101,8 +104,8 @@ public class LockPickItem extends Item {
         try {
             long currentDay = player.level().getDayTime() / 24000;
             de.rolandsw.schedulemc.npc.crime.CrimeManager.addWantedLevel(player.getUUID(), 1, currentDay);
-        } catch (Exception ignored) {
-            // CrimeManager nicht verfuegbar — kein Problem
+        } catch (Exception ex) {
+            LOGGER.debug("LockPickItem: CrimeManager unavailable during alarm trigger", ex);
         }
     }
 

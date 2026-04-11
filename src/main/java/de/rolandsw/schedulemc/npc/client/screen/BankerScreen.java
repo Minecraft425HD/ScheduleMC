@@ -376,50 +376,34 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     }
 
     private void handleGiroDeposit() {
-        try {
-            double amount = Double.parseDouble(giroDepositAmountInput.getValue());
-            if (amount > 0) {
-                NPCNetworkHandler.sendToServer(new BankDepositPacket(amount));
-                // GUI bleibt offen
-            }
-        } catch (NumberFormatException ignored) {
-            // Ignore
+        double amount = parsePositiveAmount(giroDepositAmountInput);
+        if (amount > 0) {
+            NPCNetworkHandler.sendToServer(new BankDepositPacket(amount));
+            // GUI bleibt offen
         }
     }
 
     private void handleGiroWithdraw() {
-        try {
-            double amount = Double.parseDouble(giroWithdrawAmountInput.getValue());
-            if (amount > 0) {
-                NPCNetworkHandler.sendToServer(new BankWithdrawPacket(amount));
-                // GUI bleibt offen
-            }
-        } catch (NumberFormatException ignored) {
-            // Ignore
+        double amount = parsePositiveAmount(giroWithdrawAmountInput);
+        if (amount > 0) {
+            NPCNetworkHandler.sendToServer(new BankWithdrawPacket(amount));
+            // GUI bleibt offen
         }
     }
 
     private void handleSavingsDeposit() {
-        try {
-            double amount = Double.parseDouble(savingsDepositAmountInput.getValue());
-            if (amount > 0) {
-                NPCNetworkHandler.sendToServer(new SavingsDepositPacket(amount));
-                // GUI bleibt offen
-            }
-        } catch (NumberFormatException ignored) {
-            // Ignore
+        double amount = parsePositiveAmount(savingsDepositAmountInput);
+        if (amount > 0) {
+            NPCNetworkHandler.sendToServer(new SavingsDepositPacket(amount));
+            // GUI bleibt offen
         }
     }
 
     private void handleSavingsWithdraw() {
-        try {
-            double amount = Double.parseDouble(savingsWithdrawAmountInput.getValue());
-            if (amount > 0) {
-                NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount, forceWithdrawEnabled));
-                // GUI bleibt offen
-            }
-        } catch (NumberFormatException ignored) {
-            // Ignore
+        double amount = parsePositiveAmount(savingsWithdrawAmountInput);
+        if (amount > 0) {
+            NPCNetworkHandler.sendToServer(new SavingsWithdrawPacket(amount, forceWithdrawEnabled));
+            // GUI bleibt offen
         }
     }
 
@@ -427,14 +411,10 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         String target = transferTargetInput.getValue();
         if (target == null || target.isBlank()) return;
 
-        try {
-            double amount = Double.parseDouble(transferAmountInput.getValue());
-            if (amount > 0) {
-                NPCNetworkHandler.sendToServer(new BankTransferPacket(target, amount));
-                // GUI bleibt offen
-            }
-        } catch (NumberFormatException ignored) {
-            // Ignore
+        double amount = parsePositiveAmount(transferAmountInput);
+        if (amount > 0) {
+            NPCNetworkHandler.sendToServer(new BankTransferPacket(target, amount));
+            // GUI bleibt offen
         }
     }
 
@@ -442,14 +422,23 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         String recipient = recurringRecipientInput.getValue();
         if (recipient == null || recipient.isBlank()) return;
 
+        double amount = parsePositiveAmount(recurringAmountInput);
+        if (amount > 0) {
+            NPCNetworkHandler.sendToServer(new CreateRecurringPaymentPacket(recipient, amount, selectedInterval));
+            // GUI bleibt offen
+        }
+    }
+
+    private double parsePositiveAmount(EditBox input) {
+        if (input == null) return -1;
+        String raw = input.getValue();
+        if (raw == null || raw.isBlank()) return -1;
+
         try {
-            double amount = Double.parseDouble(recurringAmountInput.getValue());
-            if (amount > 0) {
-                NPCNetworkHandler.sendToServer(new CreateRecurringPaymentPacket(recipient, amount, selectedInterval));
-                // GUI bleibt offen
-            }
-        } catch (NumberFormatException ignored) {
-            // Ignore
+            double amount = Double.parseDouble(raw);
+            return amount > 0 ? amount : -1;
+        } catch (NumberFormatException ex) {
+            return -1;
         }
     }
 

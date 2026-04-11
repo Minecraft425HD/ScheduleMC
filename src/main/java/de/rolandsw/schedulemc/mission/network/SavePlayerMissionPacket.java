@@ -130,7 +130,7 @@ public class SavePlayerMissionPacket {
                     String amt = obj.getParam("target_amount");
                     if (amt != null) {
                         try { targetAmount = Math.max(1, Integer.parseInt(amt)); }
-                        catch (NumberFormatException ignored) {}
+                        catch (NumberFormatException ex) { targetAmount = 1; }
                     }
                 }
                 case MISSION_PREREQ -> {
