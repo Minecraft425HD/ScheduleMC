@@ -446,6 +446,10 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
     @Override
     public boolean keyPressed(int keyCode, int scan, int mods) {
+        if (keyCode == 264 || keyCode == 265) { // NOPMD
+            return true;
+        }
+
         return keyCode == 69 || super.keyPressed(keyCode, scan, mods);
     }
 

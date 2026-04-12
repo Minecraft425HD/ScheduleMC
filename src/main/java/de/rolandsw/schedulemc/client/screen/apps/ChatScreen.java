@@ -363,6 +363,10 @@ public class ChatScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 264 || keyCode == 265) { // NOPMD
+            return true;
+        }
+
         return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
