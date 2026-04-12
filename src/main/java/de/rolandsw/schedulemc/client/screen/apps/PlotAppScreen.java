@@ -827,6 +827,10 @@ public class PlotAppScreen extends Screen {
         return super.mouseScrolled(mouseX, mouseY, delta);
     }    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 264 || keyCode == 265) { // NOPMD
+            return true;
+        }
+
         // Block E key (inventory key - 69) from closing the screen
         return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }

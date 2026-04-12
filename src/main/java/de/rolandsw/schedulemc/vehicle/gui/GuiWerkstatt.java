@@ -519,6 +519,10 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 264 || keyCode == 265) { // NOPMD
+            return true;
+        }
+
         if (keyCode == 256) { // ESC
             leaveWithoutPaying();
             super.onClose();

@@ -1317,6 +1317,10 @@ public class ScenarioEditorScreen extends Screen {
 
     @Override
     public boolean keyPressed(int key, int scan, int mod) {
+        if (key == 264 || key == 265) { // NOPMD
+            return true;
+        }
+
         if (key == 261 && selectedBlockId != null) { deleteSelectedBlock(); return true; }
         if (key == 256 && connecting) { connecting = false; connectSrcId = null; return true; }
         return super.keyPressed(key, scan, mod);

@@ -1149,6 +1149,10 @@ public class GangAppScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 264 || keyCode == 265) { // NOPMD
+            return true;
+        }
+
         if (getFocused() instanceof EditBox) {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }

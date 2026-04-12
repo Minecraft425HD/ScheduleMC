@@ -73,17 +73,6 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         // Erstelle Eingabefelder (scrollbar für alle 16 Items)
         createInputFields();
 
-        // Scroll-Buttons (falls mehr als VISIBLE_ROWS Items)
-        if (ShopEditorMenu.SHOP_SLOTS > VISIBLE_ROWS) {
-            addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
-                scrollUp();
-            }).bounds(x + 290, y + 28, 12, 12).build());
-
-            addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
-                scrollDown();
-            }).bounds(x + 290, y + 120, 12, 12).build());
-        }
-
         // Speichern-Button (groß und deutlich)
         saveButton = addRenderableWidget(Button.builder(
             Component.translatable("screen.shop_editor.save_button"),
@@ -202,6 +191,19 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         }
     }
 
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (delta > 0) {
+            scrollUp();
+            return true;
+        }
+        if (delta < 0) {
+            scrollDown();
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
     private int parseNonNegativeInt(String rawValue) {
         if (rawValue == null || rawValue.isBlank()) return 0;
         try {
@@ -288,6 +290,19 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
         // Hinweistext unten
         guiGraphics.drawString(this.font, cachedHintLine1, x + 10, y + imageHeight - 38, 0x404040, false);
         guiGraphics.drawString(this.font, cachedHintLine2, x + 10, y + imageHeight - 28, 0x404040, false);
+
+        int maxScroll = Math.max(0, ShopEditorMenu.SHOP_SLOTS - VISIBLE_ROWS);
+        if (maxScroll > 0) {
+            int trackX = x + 306;
+            int trackY = y + 30;
+            int trackHeight = 112;
+            guiGraphics.fill(trackX, trackY, trackX + 4, trackY + trackHeight, 0x88222222);
+
+            int handleHeight = Math.max(18, trackHeight * VISIBLE_ROWS / ShopEditorMenu.SHOP_SLOTS);
+            int handleRange = trackHeight - handleHeight;
+            int handleY = trackY + (int) ((scrollOffset / (double) maxScroll) * handleRange);
+            guiGraphics.fill(trackX, handleY, trackX + 4, handleY + handleHeight, 0xAAFFFFFF);
+        }
     }
 
     @Override

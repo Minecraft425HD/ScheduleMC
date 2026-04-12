@@ -519,6 +519,10 @@ public class WorldMapScreen extends PopupScreen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 264 || keyCode == 265) { // NOPMD
+            return true;
+        }
+
         if (!this.editingCoordinates && (minecraft.options.keyJump.matches(keyCode, scanCode) || minecraft.options.keyShift.matches(keyCode, scanCode))) {
             // Diskrete Zoom-Stufen: hoch oder runter schalten
             if (minecraft.options.keyJump.matches(keyCode, scanCode) && currentZoomLevel > 0) {

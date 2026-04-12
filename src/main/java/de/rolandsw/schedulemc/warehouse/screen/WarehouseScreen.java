@@ -360,45 +360,6 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     private void initSellersTab(int x, int y) {
         WarehouseBlockEntity warehouse = menu.getWarehouse();
         if (warehouse == null) return;
-
-        List<UUID> sellers = warehouse.getLinkedSellers();
-
-        // Scroll Buttons für verknüpfte Seller
-        if (sellers.size() > SELLER_VISIBLE_ROWS) {
-            addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
-                if (sellerScrollOffset > 0) {
-                    sellerScrollOffset--;
-                    initTabComponents();
-                }
-            }).bounds(x + 185, y + 35, 15, 15).build());
-
-            addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
-                if (sellerScrollOffset < sellers.size() - SELLER_VISIBLE_ROWS) {
-                    sellerScrollOffset++;
-                    initTabComponents();
-                }
-            }).bounds(x + 185, y + 165, 15, 15).build());
-        }
-
-        // Get available NPCs
-        List<CustomNPCEntity> availableNpcs = getAvailableNPCs();
-
-        // Scroll Buttons für verfügbare NPCs
-        if (availableNpcs.size() > AVAILABLE_NPC_VISIBLE_ROWS) {
-            addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
-                if (availableNpcScrollOffset > 0) {
-                    availableNpcScrollOffset--;
-                    initTabComponents();
-                }
-            }).bounds(x + imageWidth - 25, y + 35, 15, 15).build());
-
-            addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
-                if (availableNpcScrollOffset < availableNpcs.size() - AVAILABLE_NPC_VISIBLE_ROWS) {
-                    availableNpcScrollOffset++;
-                    initTabComponents();
-                }
-            }).bounds(x + imageWidth - 25, y + 165, 15, 15).build());
-        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -406,20 +367,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     // ═══════════════════════════════════════════════════════════
 
     private void initStatsTab(int x, int y) {
-        // Scroll Buttons nur anzeigen wenn Content größer als sichtbare Höhe
-        int maxScrollOffset = Math.max(0, STATS_CONTENT_HEIGHT - STATS_VISIBLE_HEIGHT);
-
-        if (maxScrollOffset > 0) {
-            // Scroll Up Button
-            addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
-                statsScrollOffset = Math.max(0, statsScrollOffset - 20);
-            }).bounds(x + imageWidth - 25, y + 35, 20, 20).build());
-
-            // Scroll Down Button
-            addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
-                statsScrollOffset = Math.min(maxScrollOffset, statsScrollOffset + 20);
-            }).bounds(x + imageWidth - 25, y + imageHeight - 30, 20, 20).build());
-        }
+        // Keine Scroll-Buttons mehr: Scrollen erfolgt per Mausrad + Scrollbar-Anzeige
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -679,6 +627,9 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         if (sellers.isEmpty()) {
             graphics.drawString(this.font, Component.translatable("gui.warehouse.no_sellers").getString(),
                 x + 15, y + 50, COLOR_TEXT_GRAY, false);
+        } else if (sellers.size() > SELLER_VISIBLE_ROWS) {
+            int maxScroll = sellers.size() - SELLER_VISIBLE_ROWS;
+            drawVerticalScrollbar(graphics, x + 188, y + 50, 90, sellerScrollOffset, maxScroll, SELLER_VISIBLE_ROWS, sellers.size());
         }
 
         // Right Panel: Verfügbare NPCs
@@ -715,6 +666,10 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
         if (availableNpcs.isEmpty()) {
             graphics.drawString(this.font, Component.translatable("gui.warehouse.all_npcs_linked").getString(),
                 x + 215, y + 50, COLOR_TEXT_GRAY, false);
+        } else if (availableNpcs.size() > AVAILABLE_NPC_VISIBLE_ROWS) {
+            int maxScroll = availableNpcs.size() - AVAILABLE_NPC_VISIBLE_ROWS;
+            drawVerticalScrollbar(graphics, x + imageWidth - 8, y + 50, 90, availableNpcScrollOffset, maxScroll,
+                AVAILABLE_NPC_VISIBLE_ROWS, availableNpcs.size());
         }
 
         // Bottom info
@@ -927,6 +882,24 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
         // Disable scissor after rendering
         graphics.disableScissor();
+
+        int maxScrollOffset = Math.max(0, STATS_CONTENT_HEIGHT - STATS_VISIBLE_HEIGHT);
+        if (maxScrollOffset > 0) {
+            int visiblePseudoRows = STATS_VISIBLE_HEIGHT / 12;
+            int totalPseudoRows = STATS_CONTENT_HEIGHT / 12;
+            drawVerticalScrollbar(graphics, x + imageWidth - 10, y + 35, STATS_VISIBLE_HEIGHT,
+                statsScrollOffset, maxScrollOffset, visiblePseudoRows, totalPseudoRows);
+        }
+    }
+
+    private void drawVerticalScrollbar(GuiGraphics graphics, int x, int y, int height, int offset,
+                                       int maxOffset, int visibleUnits, int totalUnits) {
+        graphics.fill(x, y, x + 3, y + height, 0x88222222);
+        int safeTotal = Math.max(1, totalUnits);
+        int handleHeight = Math.max(16, height * Math.max(1, visibleUnits) / safeTotal);
+        int handleRange = Math.max(1, height - handleHeight);
+        int handleY = y + (int) ((Math.max(0, offset) / (double) Math.max(1, maxOffset)) * handleRange);
+        graphics.fill(x, handleY, x + 3, handleY + handleHeight, 0xAAFFFFFF);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -1330,6 +1303,10 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 264 || keyCode == 265) { // NOPMD
+            return true;
+        }
+
         if (showItemSelection && itemSearchField != null) {
             if (keyCode == 256) { // ESC
                 closeItemSelection();

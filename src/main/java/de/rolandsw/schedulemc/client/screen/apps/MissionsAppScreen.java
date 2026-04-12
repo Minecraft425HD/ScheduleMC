@@ -297,6 +297,10 @@ public class MissionsAppScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == 264 || keyCode == 265) { // NOPMD
+            return true;
+        }
+
         if (keyCode == 69) return true; // Block E  // NOPMD
         return super.keyPressed(keyCode, scanCode, modifiers);
     }

@@ -85,8 +85,6 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     // Historie Tab Components
     private int transactionScrollOffset = 0;
-    private Button scrollUpButton;
-    private Button scrollDownButton;
 
     // Daueraufträge Tab Components
     private EditBox recurringRecipientInput;
@@ -245,22 +243,6 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             handleTransfer();
         }).bounds(x + 15, y + 135, 190, 20).build());
 
-        // Historie Tab Components
-        scrollUpButton = addRenderableWidget(Button.builder(Component.literal("▲"), button -> {
-            if (transactionScrollOffset > 0) {
-                transactionScrollOffset--;
-            }
-        }).bounds(x + 200, y + 45, 15, 18).build());
-
-        scrollDownButton = addRenderableWidget(Button.builder(Component.literal("▼"), button -> {
-            List<Transaction> transactions = ClientBankDataCache.getTransactions();
-            int maxDisplay = 8;
-            int maxScroll = Math.max(0, transactions.size() - maxDisplay);
-            if (transactionScrollOffset < maxScroll) {
-                transactionScrollOffset++;
-            }
-        }).bounds(x + 200, y + 155, 15, 18).build());
-
         // Daueraufträge Tab Components
         recurringRecipientInput = new EditBox(this.font, x + 15, y + 85, 120, 18, Component.translatable("message.bank.recipient"));
         recurringRecipientInput.setMaxLength(16);
@@ -365,9 +347,6 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         transferTargetInput.visible = isUeberweisung;
         transferAmountInput.visible = isUeberweisung;
         transferButton.visible = isUeberweisung;
-
-        scrollUpButton.visible = isHistorie;
-        scrollDownButton.visible = isHistorie;
 
         recurringRecipientInput.visible = isDauerauftraege;
         recurringAmountInput.visible = isDauerauftraege;
@@ -605,6 +584,19 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
             // Zeige "Start-Ende von Gesamt" statt "Start/Gesamt"
             String displayText = String.format("%d-%d/%d", startIndex + 1, endIndex, transactions.size());
             g.drawString(font, displayText, x + 155, y + 160, 0x808080, false);
+
+            int maxScroll = Math.max(0, transactions.size() - maxDisplay);
+            if (maxScroll > 0) {
+                int trackX = x + 268;
+                int trackY = y + 64;
+                int trackHeight = 96;
+                g.fill(trackX, trackY, trackX + 3, trackY + trackHeight, 0x88222222);
+
+                int handleHeight = Math.max(16, trackHeight * maxDisplay / transactions.size());
+                int handleRange = trackHeight - handleHeight;
+                int handleY = trackY + (int) ((transactionScrollOffset / (double) maxScroll) * handleRange);
+                g.fill(trackX, handleY, trackX + 3, handleY + handleHeight, 0xAAFFFFFF);
+            }
         }
     }
 
@@ -667,6 +659,26 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (currentTab == Tab.HISTORIE) {
+            List<Transaction> transactions = ClientBankDataCache.getTransactions();
+            int maxDisplay = 8;
+            int maxScroll = Math.max(0, transactions.size() - maxDisplay);
+            if (maxScroll > 0) {
+                if (delta > 0) {
+                    transactionScrollOffset = Math.max(0, transactionScrollOffset - 1);
+                    return true;
+                }
+                if (delta < 0) {
+                    transactionScrollOffset = Math.min(maxScroll, transactionScrollOffset + 1);
+                    return true;
+                }
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
     @Override
