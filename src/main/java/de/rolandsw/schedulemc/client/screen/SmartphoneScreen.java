@@ -29,10 +29,10 @@ public class SmartphoneScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Layout-Konstanten (kompakter für ALLE Bildschirmgrößen)
-    private static final int PHONE_WIDTH = 220; // Etwas breiter für mehr Label-Platz
+    private static final int PHONE_WIDTH = 220; // Smartphone-Breite bleibt unverändert
     private static final int PHONE_HEIGHT = 260; // Kompakt genug für alle Bildschirme
     private static final int APP_ICON_SIZE = 42; // Größer für bessere Lesbarkeit
-    private static final int APP_SPACING = 15; // Guter Abstand zwischen Apps
+    private static final int APP_SPACING = 15; // Abstand zwischen Apps
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
     private static final int MARGIN_TOP = 5; // Mindestabstand vom oberen Bildschirmrand
@@ -111,7 +111,7 @@ public class SmartphoneScreen extends Screen {
 
         // OPTIMIERT: Truncated Labels und Initialen einmalig vorberechnen
         // Vorher: StringBuilder-Loop mit substring() pro Buchstabe pro Label pro Frame
-        int maxLabelWidth = APP_ICON_SIZE + 15;
+        int maxLabelWidth = Integer.MAX_VALUE;
         cachedDisplayLabels = new String[cachedAppLabels.length];
         cachedInitials = new String[cachedAppLabels.length];
         cachedLabelWidths = new int[cachedAppLabels.length];
@@ -152,7 +152,7 @@ public class SmartphoneScreen extends Screen {
 
         // Berechne Start-Position für App-Grid (zentriert im Smartphone)
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;  // NOPMD
+        int gridStartX = getGridStartX();
         int gridStartY = topPos + 45; // Abstand von oben
 
         // Keine App-Buttons mehr - Klick-Handling erfolgt manuell in mouseClicked()
@@ -185,7 +185,7 @@ public class SmartphoneScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) { // Linksklick
             int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-            int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
+            int gridStartX = getGridStartX();
             int gridStartY = topPos + 45;
             int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
 
@@ -286,7 +286,9 @@ public class SmartphoneScreen extends Screen {
 
         // Berechne Grid-Position für App-Labels
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
+        int gridStartX = getGridStartX();
+        int scrollFieldX = getScrollFieldX();
+        int scrollFieldWidth = getScrollFieldWidth();
         int gridStartY = topPos + 45;
         int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
 
@@ -323,9 +325,9 @@ public class SmartphoneScreen extends Screen {
         // Erweitere den Bereich um Platz für Labels unter der letzten Reihe
         int scissorHeight = visibleContentHeight + 12; // +12 für Label-Platz
         guiGraphics.enableScissor(
-            gridStartX,
+            scrollFieldX,
             gridStartY,
-            gridStartX + gridWidth,
+            scrollFieldX + scrollFieldWidth,
             gridStartY + scissorHeight
         );
 
@@ -346,9 +348,9 @@ public class SmartphoneScreen extends Screen {
         // Oberer Fade-Gradient wenn nach unten gescrollt wurde
         if (scrollOffset > 0) {
             guiGraphics.fillGradient(
-                gridStartX,
+                scrollFieldX,
                 gridStartY,
-                gridStartX + gridWidth,
+                scrollFieldX + scrollFieldWidth,
                 gridStartY + 15,
                 0xAA2A2A2A,
                 0x002A2A2A
@@ -358,9 +360,9 @@ public class SmartphoneScreen extends Screen {
         // Unterer Fade-Gradient wenn noch mehr Content verfügbar ist
         if (scrollOffset < maxScrollOffset) {
             guiGraphics.fillGradient(
-                gridStartX,
+                scrollFieldX,
                 gridStartY + visibleContentHeight - 15,
-                gridStartX + gridWidth,
+                scrollFieldX + scrollFieldWidth,
                 gridStartY + visibleContentHeight,
                 0x002A2A2A,
                 0xAA2A2A2A
@@ -479,7 +481,7 @@ public class SmartphoneScreen extends Screen {
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (isDraggingScrollbar && button == 0) {
             int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-            int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;  // NOPMD
+            int gridStartX = getGridStartX();  // NOPMD
             int gridStartY = topPos + 45;  // NOPMD
             int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
 
@@ -514,7 +516,7 @@ public class SmartphoneScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         // Scroll nur, wenn Maus über dem App-Bereich ist
         int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
+        int gridStartX = getGridStartX();
         int gridStartY = topPos + 45;
         int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
 
@@ -549,6 +551,19 @@ public class SmartphoneScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false; // Spiel läuft weiter
+    }
+
+    private int getScrollFieldX() {
+        return leftPos + 10;
+    }
+
+    private int getScrollFieldWidth() {
+        return PHONE_WIDTH - 20 - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN;
+    }
+
+    private int getGridStartX() {
+        int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
+        return getScrollFieldX() + (getScrollFieldWidth() - gridWidth) / 2;
     }
 
     /**
