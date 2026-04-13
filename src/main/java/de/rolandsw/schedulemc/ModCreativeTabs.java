@@ -68,6 +68,7 @@ public class ModCreativeTabs {
                 // PLOT BLOCKS
                 // ═══════════════════════════════════════════════════════════
                 output.accept(PlotBlocks.PLOT_INFO_BLOCK.get());
+                output.accept(PlotBlocks.INDUSTRIAL_FLOOR.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // NPC TOOLS

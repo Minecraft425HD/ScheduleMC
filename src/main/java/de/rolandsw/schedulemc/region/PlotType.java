@@ -12,6 +12,7 @@ import java.util.Locale;
 public enum PlotType {
     RESIDENTIAL(true, true),
     COMMERCIAL(true, true),
+    INDUSTRIAL(true, true),
     SHOP(false, false),           // Nicht kaufbar, Staatseigentum
     PUBLIC(false, false),
     GOVERNMENT(false, false),

@@ -66,6 +66,12 @@ public class PlotCommand {
                                         .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
                                                 .executes(ctx -> createPlotWithType(ctx, PlotType.COMMERCIAL)))))
 
+                        // /plot create industrial <name> <price>
+                        .then(Commands.literal("industrial")
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .then(Commands.argument("price", DoubleArgumentType.doubleArg(0.01))
+                                                .executes(ctx -> createPlotWithType(ctx, PlotType.INDUSTRIAL)))))
+
                         // /plot create shop <name>
                         .then(Commands.literal("shop")
                                 .then(Commands.argument("name", StringArgumentType.string())

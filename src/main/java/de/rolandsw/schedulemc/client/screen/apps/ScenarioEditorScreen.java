@@ -846,7 +846,7 @@ public class ScenarioEditorScreen extends Screen {
             case DROPDOWN_BANK_CAT -> BANK_CATS;
             case DROPDOWN_SERVICE_CAT -> SERVICE_CATS;
             case DROPDOWN_PLOT -> serverPlots.stream().map(p -> p.id() + "|" + p.name()).toArray(String[]::new);
-            case DROPDOWN_PLOT_TYPE -> new String[]{"RESIDENTIAL", "COMMERCIAL", "SHOP", "PUBLIC", "GOVERNMENT", "PRISON", "TOWING_YARD"};
+            case DROPDOWN_PLOT_TYPE -> new String[]{"RESIDENTIAL", "COMMERCIAL", "INDUSTRIAL", "SHOP", "PUBLIC", "GOVERNMENT", "PRISON", "TOWING_YARD"};
             case DROPDOWN_DIFFICULTY -> DIFFICULTIES;
             case DROPDOWN_ENTITY -> ENTITY_TYPES;
             case DROPDOWN_VEHICLE -> VEHICLE_TYPES;

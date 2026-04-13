@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.events;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.items.NPCLocationTool;
 import de.rolandsw.schedulemc.npc.items.NPCLeisureTool;
@@ -7,6 +8,8 @@ import de.rolandsw.schedulemc.npc.items.NPCPatrolTool;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
+import de.rolandsw.schedulemc.region.PlotType;
+import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -21,12 +24,16 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -390,8 +397,112 @@ public class BlockProtectionHandler {
 
             if (!checkPlotPermission(player, pos, "platzieren")) {
                 event.setCanceled(true);
+                return;
+            }
+
+            if (!checkPlotTypeBlockRestrictions(player, event, pos)) {
+                event.setCanceled(true);
             }
         });
+    }
+
+    private boolean checkPlotTypeBlockRestrictions(Player player, BlockEvent.EntityPlaceEvent event, BlockPos pos) {
+        PlotRegion plot = PlotManager.getPlotAt(pos);
+        String blockId = getPlacedBlockId(event);
+        if (blockId == null) return true;
+
+        PlotType requiredType = getRequiredPlotTypeForBlock(blockId);
+        if (requiredType == null) {
+            return true;
+        }
+
+        if (plot == null || plot.getType() != requiredType) {
+            player.displayClientMessage(
+                Component.translatable("event.protection.block_requires_plot_type",
+                    requiredType.getDisplayName()),
+                true
+            );
+            return false;
+        }
+
+        // INDUSTRIAL-Sonderregel: Nur auf Factory Floor + nur in gekauft/vermietetem Plot
+        if (requiredType == PlotType.INDUSTRIAL) {
+            if (!plot.hasOwner() && !plot.isRented()) {
+                player.displayClientMessage(
+                    Component.translatable("event.protection.industrial.requires_ownership")
+                        .withStyle(ChatFormatting.RED),
+                    true
+                );
+                return false;
+            }
+
+            if (!plot.hasAccess(player.getUUID())) {
+                player.displayClientMessage(
+                    Component.translatable("event.protection.industrial.no_access")
+                        .withStyle(ChatFormatting.RED),
+                    true
+                );
+                return false;
+            }
+
+            if (!event.getLevel().getBlockState(pos.below()).is(PlotBlocks.INDUSTRIAL_FLOOR.get())) {
+                player.displayClientMessage(
+                    Component.translatable("event.protection.industrial.factory_floor_required")
+                        .withStyle(ChatFormatting.RED),
+                    true
+                );
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private PlotType getRequiredPlotTypeForBlock(String blockIdRaw) {
+        String blockId = normalizeBlockId(blockIdRaw);
+        for (PlotType type : PlotType.values()) {
+            Set<String> configuredBlocks = getConfiguredBlocksForType(type);
+            if (configuredBlocks.contains("all")) {
+                continue;
+            }
+            if (configuredBlocks.contains(blockId)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
+    private Set<String> getConfiguredBlocksForType(PlotType type) {
+        List<? extends String> rawList = switch (type) {
+            case RESIDENTIAL -> ModConfigHandler.COMMON.RESIDENTIAL_PLOT_BLOCKS.get();
+            case COMMERCIAL -> ModConfigHandler.COMMON.COMMERCIAL_PLOT_BLOCKS.get();
+            case INDUSTRIAL -> ModConfigHandler.COMMON.INDUSTRIAL_PLOT_BLOCKS.get();
+            case SHOP -> ModConfigHandler.COMMON.SHOP_PLOT_BLOCKS.get();
+            case PUBLIC -> ModConfigHandler.COMMON.PUBLIC_PLOT_BLOCKS.get();
+            case GOVERNMENT -> ModConfigHandler.COMMON.GOVERNMENT_PLOT_BLOCKS.get();
+            case PRISON -> ModConfigHandler.COMMON.PRISON_PLOT_BLOCKS.get();
+            case TOWING_YARD -> ModConfigHandler.COMMON.TOWING_YARD_PLOT_BLOCKS.get();
+        };
+
+        Set<String> normalized = new HashSet<>();
+        for (String s : rawList) {
+            normalized.add(normalizeBlockId(s));
+        }
+        return normalized;
+    }
+
+    private String getPlacedBlockId(BlockEvent.EntityPlaceEvent event) {
+        var key = ForgeRegistries.BLOCKS.getKey(event.getPlacedBlock().getBlock());
+        if (key == null) return null;
+        return key.getPath();
+    }
+
+    private String normalizeBlockId(String raw) {
+        String value = raw == null ? "" : raw.trim().toLowerCase(Locale.ROOT);
+        if (value.contains(":")) {
+            return value.substring(value.indexOf(':') + 1);
+        }
+        return value;
     }
 
     /**
