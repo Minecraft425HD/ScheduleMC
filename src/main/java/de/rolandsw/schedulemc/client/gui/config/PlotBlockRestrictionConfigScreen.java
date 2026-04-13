@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -23,9 +24,9 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
 
     private static final int LABEL_X = 24;
     private static final int FIELD_X = 150;
-    private static final int INPUT_WIDTH = 420;
     private static final int START_Y = 56;
     private static final int ROW_SPACING = 24;
+    private static final int LIST_BOTTOM_PADDING = 84;
 
     private final Screen parent;
 
@@ -37,7 +38,18 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
     private EditBox government;
     private EditBox prison;
     private EditBox towingYard;
-    private List<String> blockIdSuggestions = new ArrayList<>();
+
+    private final List<String> labels = List.of(
+        "RESIDENTIAL", "COMMERCIAL", "INDUSTRIAL", "SHOP",
+        "PUBLIC", "GOVERNMENT", "PRISON", "TOWING_YARD"
+    );
+
+    private List<EditBox> fields = new ArrayList<>();
+    private List<String> fullBlockIdSuggestions = new ArrayList<>();
+
+    private int inputWidth;
+    private int listHeight;
+    private int scrollOffset;
 
     public PlotBlockRestrictionConfigScreen(Screen parent) {
         super(Component.literal("Plot Block Restrictions"));
@@ -47,39 +59,70 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        blockIdSuggestions = ForgeRegistries.BLOCKS.getKeys().stream()
-            .map(Object::toString)
+
+        inputWidth = Math.max(220, this.width - FIELD_X - 20);
+        listHeight = Math.max(60, this.height - START_Y - LIST_BOTTOM_PADDING);
+        scrollOffset = 0;
+
+        fullBlockIdSuggestions = ForgeRegistries.BLOCKS.getKeys().stream()
+            .map(ResourceLocation::toString)
             .sorted(Comparator.naturalOrder())
             .collect(Collectors.toList());
 
-        residential = addListEditor(FIELD_X, START_Y, ModConfigHandler.COMMON.RESIDENTIAL_PLOT_BLOCKS);
-        commercial = addListEditor(FIELD_X, START_Y + ROW_SPACING, ModConfigHandler.COMMON.COMMERCIAL_PLOT_BLOCKS);
-        industrial = addListEditor(FIELD_X, START_Y + ROW_SPACING * 2, ModConfigHandler.COMMON.INDUSTRIAL_PLOT_BLOCKS);
-        shop = addListEditor(FIELD_X, START_Y + ROW_SPACING * 3, ModConfigHandler.COMMON.SHOP_PLOT_BLOCKS);
-        publicPlot = addListEditor(FIELD_X, START_Y + ROW_SPACING * 4, ModConfigHandler.COMMON.PUBLIC_PLOT_BLOCKS);
-        government = addListEditor(FIELD_X, START_Y + ROW_SPACING * 5, ModConfigHandler.COMMON.GOVERNMENT_PLOT_BLOCKS);
-        prison = addListEditor(FIELD_X, START_Y + ROW_SPACING * 6, ModConfigHandler.COMMON.PRISON_PLOT_BLOCKS);
-        towingYard = addListEditor(FIELD_X, START_Y + ROW_SPACING * 7, ModConfigHandler.COMMON.TOWING_YARD_PLOT_BLOCKS);
+        residential = addListEditor(ModConfigHandler.COMMON.RESIDENTIAL_PLOT_BLOCKS);
+        commercial = addListEditor(ModConfigHandler.COMMON.COMMERCIAL_PLOT_BLOCKS);
+        industrial = addListEditor(ModConfigHandler.COMMON.INDUSTRIAL_PLOT_BLOCKS);
+        shop = addListEditor(ModConfigHandler.COMMON.SHOP_PLOT_BLOCKS);
+        publicPlot = addListEditor(ModConfigHandler.COMMON.PUBLIC_PLOT_BLOCKS);
+        government = addListEditor(ModConfigHandler.COMMON.GOVERNMENT_PLOT_BLOCKS);
+        prison = addListEditor(ModConfigHandler.COMMON.PRISON_PLOT_BLOCKS);
+        towingYard = addListEditor(ModConfigHandler.COMMON.TOWING_YARD_PLOT_BLOCKS);
+
+        fields = List.of(residential, commercial, industrial, shop, publicPlot, government, prison, towingYard);
+        refreshFieldLayout();
 
         this.addRenderableWidget(Button.builder(
             Component.literal("Save"),
             button -> saveAndClose()
-        ).bounds(this.width / 2 - 100, this.height - 50, 98, 20).build());
+        ).bounds(this.width / 2 - 100, this.height - 34, 98, 20).build());
 
         this.addRenderableWidget(Button.builder(
             Component.literal("Back"),
             button -> this.minecraft.setScreen(parent)
-        ).bounds(this.width / 2 + 2, this.height - 50, 98, 20).build());
+        ).bounds(this.width / 2 + 2, this.height - 34, 98, 20).build());
 
         updateFocusedSuggestion();
     }
 
-    private EditBox addListEditor(int x, int y, ForgeConfigSpec.ConfigValue<List<? extends String>> configValue) {
-        EditBox box = new EditBox(this.font, x, y, INPUT_WIDTH, 18, Component.empty());
+    private EditBox addListEditor(ForgeConfigSpec.ConfigValue<List<? extends String>> configValue) {
+        EditBox box = new EditBox(this.font, FIELD_X, START_Y, inputWidth, 18, Component.empty());
         box.setMaxLength(32767);
         box.setValue(String.join(",", configValue.get()));
+        box.setResponder(_unused -> updateFocusedSuggestion());
         this.addRenderableWidget(box);
         return box;
+    }
+
+    private void refreshFieldLayout() {
+        int maxScroll = getMaxScroll();
+        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
+
+        for (int i = 0; i < fields.size(); i++) {
+            EditBox field = fields.get(i);
+            int y = START_Y + i * ROW_SPACING - scrollOffset;
+            boolean visible = y >= START_Y - 4 && y <= START_Y + listHeight - 18;
+
+            field.setX(FIELD_X);
+            field.setY(y);
+            field.setWidth(inputWidth);
+            field.visible = visible;
+            field.active = visible;
+        }
+    }
+
+    private int getMaxScroll() {
+        int contentHeight = fields.size() * ROW_SPACING;
+        return Math.max(0, contentHeight - listHeight + 8);
     }
 
     private void saveAndClose() {
@@ -103,19 +146,23 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
             return values;
         }
 
-        String[] parts = raw.split(",");
-        for (String p : parts) {
+        for (String p : raw.split(",")) {
             String trimmed = p.trim();
             if (!trimmed.isEmpty()) {
                 values.add(trimmed);
             }
         }
 
-        if (values.isEmpty()) {
-            values.add("ALL");
-        }
-
+        if (values.isEmpty()) values.add("ALL");
         return values;
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (delta == 0) return false;
+        scrollOffset -= (int) (delta * 16);
+        refreshFieldLayout();
+        return true;
     }
 
     @Override
@@ -134,34 +181,47 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
     }
 
     @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        boolean handled = super.charTyped(Character.toLowerCase(codePoint), modifiers);
+        updateFocusedSuggestion();
+        return handled;
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
 
         graphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
         graphics.drawCenteredString(this.font,
-            Component.literal("Comma-separated IDs. TAB = Autocomplete"),
+            Component.literal("Comma-separated IDs. TAB = Autocomplete / Mausrad = Scroll"),
             this.width / 2, 34, 0xAAAAAA);
 
-        drawLabel(graphics, "RESIDENTIAL", LABEL_X, START_Y + 5);
-        drawLabel(graphics, "COMMERCIAL", LABEL_X, START_Y + ROW_SPACING + 5);
-        drawLabel(graphics, "INDUSTRIAL", LABEL_X, START_Y + ROW_SPACING * 2 + 5);
-        drawLabel(graphics, "SHOP", LABEL_X, START_Y + ROW_SPACING * 3 + 5);
-        drawLabel(graphics, "PUBLIC", LABEL_X, START_Y + ROW_SPACING * 4 + 5);
-        drawLabel(graphics, "GOVERNMENT", LABEL_X, START_Y + ROW_SPACING * 5 + 5);
-        drawLabel(graphics, "PRISON", LABEL_X, START_Y + ROW_SPACING * 6 + 5);
-        drawLabel(graphics, "TOWING_YARD", LABEL_X, START_Y + ROW_SPACING * 7 + 5);
+        int listBottom = START_Y + listHeight;
+        graphics.fill(12, START_Y - 6, this.width - 12, listBottom + 6, 0x22000000);
+
+        for (int i = 0; i < labels.size(); i++) {
+            int y = START_Y + i * ROW_SPACING - scrollOffset + 5;
+            if (y >= START_Y && y <= listBottom - 8) {
+                drawLabel(graphics, labels.get(i), LABEL_X, y);
+            }
+        }
+
+        if (getMaxScroll() > 0) {
+            int trackTop = START_Y;
+            int trackBottom = listBottom - 2;
+            int trackX = this.width - 16;
+            graphics.fill(trackX, trackTop, trackX + 4, trackBottom, 0x44FFFFFF);
+
+            int trackHeight = trackBottom - trackTop;
+            int thumbHeight = Math.max(12, trackHeight * listHeight / (listHeight + getMaxScroll()));
+            int thumbY = trackTop + (trackHeight - thumbHeight) * scrollOffset / Math.max(1, getMaxScroll());
+            graphics.fill(trackX, thumbY, trackX + 4, thumbY + thumbHeight, 0xAAFFFFFF);
+        }
     }
 
     private void drawLabel(GuiGraphics graphics, String text, int x, int y) {
         graphics.drawString(this.font, Component.literal(text), x, y, 0xFFD27A, false);
-    }
-
-    @Override
-    public boolean charTyped(char codePoint, int modifiers) {
-        boolean handled = super.charTyped(Character.toLowerCase(codePoint), modifiers);
-        updateFocusedSuggestion();
-        return handled;
     }
 
     @Override
@@ -170,9 +230,7 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
     }
 
     private EditBox getFocusedEditBox() {
-        if (this.getFocused() instanceof EditBox box) {
-            return box;
-        }
+        if (this.getFocused() instanceof EditBox box) return box;
         return null;
     }
 
@@ -189,74 +247,71 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
             return;
         }
 
-        String normalized = token.toLowerCase(Locale.ROOT);
-        String match = blockIdSuggestions.stream()
-            .filter(id -> id.startsWith(normalized))
-            .findFirst()
-            .orElse("");
-
-        focused.setSuggestion(match.isEmpty() ? "" : match);
+        String match = findBestMatch(token);
+        focused.setSuggestion(match == null ? "" : match);
     }
 
     private void clearAllSuggestions() {
-        residential.setSuggestion("");
-        commercial.setSuggestion("");
-        industrial.setSuggestion("");
-        shop.setSuggestion("");
-        publicPlot.setSuggestion("");
-        government.setSuggestion("");
-        prison.setSuggestion("");
-        towingYard.setSuggestion("");
+        for (EditBox field : fields) {
+            field.setSuggestion("");
+        }
     }
 
     private boolean applyAutocomplete(EditBox box) {
-        String token = currentToken(box.getValue()).toLowerCase(Locale.ROOT);
+        String token = currentToken(box.getValue());
         if (token.isEmpty()) {
             box.setValue(appendToken(box.getValue(), "ALL"));
             return true;
         }
 
-        String match = blockIdSuggestions.stream()
-            .filter(id -> id.startsWith(token))
-            .findFirst()
-            .orElse(null);
-
-        if (match == null) {
-            return false;
-        }
+        String match = findBestMatch(token);
+        if (match == null) return false;
 
         box.setValue(replaceCurrentToken(box.getValue(), match));
         return true;
     }
 
+    private String findBestMatch(String tokenRaw) {
+        String token = tokenRaw.toLowerCase(Locale.ROOT);
+        boolean hasNamespace = token.contains(":");
+
+        for (String fullId : fullBlockIdSuggestions) {
+            String lowerFull = fullId.toLowerCase(Locale.ROOT);
+            String path = lowerFull.contains(":") ? lowerFull.substring(lowerFull.indexOf(':') + 1) : lowerFull;
+
+            if (hasNamespace) {
+                if (lowerFull.startsWith(token)) {
+                    return fullId;
+                }
+            } else if (path.startsWith(token) || lowerFull.startsWith(token)) {
+                if (lowerFull.startsWith("schedulemc:")) {
+                    return fullId.substring(fullId.indexOf(':') + 1);
+                }
+                return fullId;
+            }
+        }
+        return null;
+    }
+
     private String currentToken(String fullText) {
         int comma = fullText.lastIndexOf(',');
-        if (comma < 0) {
-            return fullText.trim();
-        }
+        if (comma < 0) return fullText.trim();
         return fullText.substring(comma + 1).trim();
     }
 
     private String replaceCurrentToken(String fullText, String replacement) {
         int comma = fullText.lastIndexOf(',');
-        if (comma < 0) {
-            return replacement;
-        }
-        String prefix = fullText.substring(0, comma + 1).trim();
-        if (!prefix.endsWith(",")) {
-            prefix = prefix + ",";
-        }
+        if (comma < 0) return replacement;
+
+        String prefix = fullText.substring(0, comma + 1);
         return prefix + replacement;
     }
 
     private String appendToken(String fullText, String token) {
-        if (fullText == null || fullText.isBlank()) {
-            return token;
-        }
+        if (fullText == null || fullText.isBlank()) return token;
+
         String trimmed = fullText.trim();
-        if (trimmed.endsWith(",")) {
-            return trimmed + token;
-        }
+        if (trimmed.endsWith(",")) return trimmed + token;
         return trimmed + "," + token;
     }
 }
