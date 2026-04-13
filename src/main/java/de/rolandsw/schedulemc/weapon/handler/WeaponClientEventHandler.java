@@ -58,6 +58,18 @@ public class WeaponClientEventHandler {
         "Gummigeschosse"
     };
 
+    private static boolean canSendToServer() {
+        Minecraft mc = Minecraft.getInstance();
+        return mc != null && mc.getConnection() != null && mc.player != null;
+    }
+
+    private static void safeSendToServer(Object packet) {
+        if (!canSendToServer()) {
+            return;
+        }
+        WeaponPackets.sendToServer(packet);
+    }
+
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
@@ -209,7 +221,7 @@ public class WeaponClientEventHandler {
             if (isLeftDown) {
                 if (fireMode == 2) {
                     if (!isMouseDown) {
-                        WeaponPackets.sendToServer(new WeaponStartAutoFirePacket(mc.player.getInventory().selected));
+                        safeSendToServer(new WeaponStartAutoFirePacket(mc.player.getInventory().selected));
                         isMouseDown = true;
                     }
                 } else {
@@ -217,7 +229,7 @@ public class WeaponClientEventHandler {
                         isMouseDown = true;
                         if (localCooldownPercent() == 0f) {
                             int shots = fireMode == 1 ? 3 : 1;
-                            WeaponPackets.sendToServer(new WeaponFirePacket(mc.player.getInventory().selected, shots));
+                            safeSendToServer(new WeaponFirePacket(mc.player.getInventory().selected, shots));
                             lastFireMs = System.currentTimeMillis();
                             cooldownMs = gun.getCurrentCooldown(mainHand) * 50L;
                         }
@@ -226,7 +238,7 @@ public class WeaponClientEventHandler {
             } else {
                 if (isMouseDown) {
                     if (fireMode == 2) {
-                        WeaponPackets.sendToServer(new WeaponStopAutoFirePacket());
+                        safeSendToServer(new WeaponStopAutoFirePacket());
                     }
                     isMouseDown = false;
                 }
@@ -237,7 +249,7 @@ public class WeaponClientEventHandler {
                 isScopeZoomed = false;
             }
             if (isMouseDown) {
-                WeaponPackets.sendToServer(new WeaponStopAutoFirePacket());
+                safeSendToServer(new WeaponStopAutoFirePacket());
                 isMouseDown = false;
             }
         }
@@ -260,9 +272,9 @@ public class WeaponClientEventHandler {
             }
         } else if (event.getAction() == GLFW.GLFW_RELEASE) {
             if (isAmmoSelectActive) {
-                WeaponPackets.sendToServer(new WeaponSetAmmoTypePacket(selectedAmmoIndex));
+                safeSendToServer(new WeaponSetAmmoTypePacket(selectedAmmoIndex));
             } else if (System.currentTimeMillis() - rPressTime < 300L) {
-                WeaponPackets.sendToServer(new WeaponReloadPacket());
+                safeSendToServer(new WeaponReloadPacket());
             }
             rIsDown = false;
             isAmmoSelectActive = false;
