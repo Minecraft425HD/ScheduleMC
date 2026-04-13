@@ -9,9 +9,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @OnlyIn(Dist.CLIENT)
 public class PlotBlockRestrictionConfigScreen extends Screen {
@@ -32,6 +37,7 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
     private EditBox government;
     private EditBox prison;
     private EditBox towingYard;
+    private List<String> blockIdSuggestions = new ArrayList<>();
 
     public PlotBlockRestrictionConfigScreen(Screen parent) {
         super(Component.literal("Plot Block Restrictions"));
@@ -41,6 +47,10 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+        blockIdSuggestions = ForgeRegistries.BLOCKS.getKeys().stream()
+            .map(Object::toString)
+            .sorted(Comparator.naturalOrder())
+            .collect(Collectors.toList());
 
         residential = addListEditor(LEFT_X, START_Y, ModConfigHandler.COMMON.RESIDENTIAL_PLOT_BLOCKS);
         commercial = addListEditor(RIGHT_X, START_Y, ModConfigHandler.COMMON.COMMERCIAL_PLOT_BLOCKS);
@@ -63,6 +73,8 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
             Component.literal("Back"),
             button -> this.minecraft.setScreen(parent)
         ).bounds(this.width / 2 + 2, this.height - 50, 98, 20).build());
+
+        updateFocusedSuggestion();
     }
 
     private EditBox addListEditor(int x, int y, ForgeConfigSpec.ConfigValue<List<? extends String>> configValue) {
@@ -110,6 +122,21 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
     }
 
     @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_TAB) {
+            EditBox focused = getFocusedEditBox();
+            if (focused != null && applyAutocomplete(focused)) {
+                updateFocusedSuggestion();
+                return true;
+            }
+        }
+
+        boolean handled = super.keyPressed(keyCode, scanCode, modifiers);
+        updateFocusedSuggestion();
+        return handled;
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
@@ -135,11 +162,104 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
-        return super.charTyped(Character.toLowerCase(codePoint), modifiers);
+        boolean handled = super.charTyped(Character.toLowerCase(codePoint), modifiers);
+        updateFocusedSuggestion();
+        return handled;
     }
 
     @Override
     public void onClose() {
         this.minecraft.setScreen(parent);
+    }
+
+    private EditBox getFocusedEditBox() {
+        if (this.getFocused() instanceof EditBox box) {
+            return box;
+        }
+        return null;
+    }
+
+    private void updateFocusedSuggestion() {
+        EditBox focused = getFocusedEditBox();
+        if (focused == null) {
+            clearAllSuggestions();
+            return;
+        }
+
+        String token = currentToken(focused.getValue());
+        if (token.isEmpty()) {
+            focused.setSuggestion("ALL");
+            return;
+        }
+
+        String normalized = token.toLowerCase(Locale.ROOT);
+        String match = blockIdSuggestions.stream()
+            .filter(id -> id.startsWith(normalized))
+            .findFirst()
+            .orElse("");
+
+        focused.setSuggestion(match.isEmpty() ? "" : match);
+    }
+
+    private void clearAllSuggestions() {
+        residential.setSuggestion("");
+        commercial.setSuggestion("");
+        industrial.setSuggestion("");
+        shop.setSuggestion("");
+        publicPlot.setSuggestion("");
+        government.setSuggestion("");
+        prison.setSuggestion("");
+        towingYard.setSuggestion("");
+    }
+
+    private boolean applyAutocomplete(EditBox box) {
+        String token = currentToken(box.getValue()).toLowerCase(Locale.ROOT);
+        if (token.isEmpty()) {
+            box.setValue(appendToken(box.getValue(), "ALL"));
+            return true;
+        }
+
+        String match = blockIdSuggestions.stream()
+            .filter(id -> id.startsWith(token))
+            .findFirst()
+            .orElse(null);
+
+        if (match == null) {
+            return false;
+        }
+
+        box.setValue(replaceCurrentToken(box.getValue(), match));
+        return true;
+    }
+
+    private String currentToken(String fullText) {
+        int comma = fullText.lastIndexOf(',');
+        if (comma < 0) {
+            return fullText.trim();
+        }
+        return fullText.substring(comma + 1).trim();
+    }
+
+    private String replaceCurrentToken(String fullText, String replacement) {
+        int comma = fullText.lastIndexOf(',');
+        if (comma < 0) {
+            return replacement;
+        }
+        String prefix = fullText.substring(0, comma + 1).trim();
+        if (!prefix.endsWith(",")) {
+            prefix = prefix + ",";
+        }
+        return prefix + replacement;
+    }
+
+    private String appendToken(String fullText, String token) {
+        if (fullText == null || fullText.isBlank()) {
+            return token;
+        }
+        String trimmed = fullText.trim();
+        if (trimmed.endsWith(",")) {
+            return trimmed + token;
+        }
+        return trimmed + "," + token;
     }
 }
