@@ -69,6 +69,11 @@ public class PlotConfigScreen extends Screen {
             }
         ).bounds(leftCol, y + s * 3, w, 20).build());
 
+        this.addRenderableWidget(Button.builder(
+            Component.literal("Block Restrictions ..."),
+            button -> this.minecraft.setScreen(new PlotBlockRestrictionConfigScreen(this))
+        ).bounds(rightCol, y + s * 3, w, 20).build());
+
         // Back Button
         this.addRenderableWidget(Button.builder(
             Component.literal("« Back"),
