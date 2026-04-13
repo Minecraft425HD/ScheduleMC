@@ -21,26 +21,26 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Haupt-Smartphone-GUI mit 8 Apps
- * Scrollbar mit nur 6 sichtbaren Apps (3 Reihen x 2 Spalten)
+ * Haupt-Smartphone-GUI als scrollbare App-Liste
+ * Scrollbar mit sichtbaren Listen-Einträgen
  */
 @OnlyIn(Dist.CLIENT)
 public class SmartphoneScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Layout-Konstanten (kompakter für ALLE Bildschirmgrößen)
-    private static final int PHONE_WIDTH = 220; // Etwas breiter für mehr Label-Platz
+    private static final int PHONE_WIDTH = 220; // Smartphone-Breite bleibt unverändert
     private static final int PHONE_HEIGHT = 260; // Kompakt genug für alle Bildschirme
     private static final int APP_ICON_SIZE = 42; // Größer für bessere Lesbarkeit
-    private static final int APP_SPACING = 15; // Guter Abstand zwischen Apps
+    private static final int APP_SPACING = 15; // Abstand zwischen Apps
     private static final int CLOSE_BUTTON_SIZE = 20;
     private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
     private static final int MARGIN_TOP = 5; // Mindestabstand vom oberen Bildschirmrand
     private static final int MARGIN_BOTTOM = 50; // Genug Platz für Hotbar und UI-Elemente
     private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
     private static final int SCROLLBAR_MARGIN = 10; // Abstand zwischen Apps und Scrollbar
-    private static final int VISIBLE_ROWS = 3; // Nur 3 Reihen sichtbar (6 Apps)
-    private static final int TOTAL_ROWS = 8; // Insgesamt 8 Reihen (15 Apps)
+    private static final int LIST_SIDE_PADDING = 24; // Schmalere Listenzeilen (horizontal)
+    private static final int TOTAL_ROWS = 15; // Insgesamt 15 Apps
 
     // App-Icons (konfigurierbar über Ressourcen)
     private static final ResourceLocation APP_MAP = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_map.png");
@@ -111,7 +111,7 @@ public class SmartphoneScreen extends Screen {
 
         // OPTIMIERT: Truncated Labels und Initialen einmalig vorberechnen
         // Vorher: StringBuilder-Loop mit substring() pro Buchstabe pro Label pro Frame
-        int maxLabelWidth = APP_ICON_SIZE + 15;
+        int maxLabelWidth = Integer.MAX_VALUE;
         cachedDisplayLabels = new String[cachedAppLabels.length];
         cachedInitials = new String[cachedAppLabels.length];
         cachedLabelWidths = new int[cachedAppLabels.length];
@@ -147,13 +147,8 @@ public class SmartphoneScreen extends Screen {
         // Berechne maximalen Scroll-Offset
         // Gesamthöhe aller Reihen - sichtbare Höhe
         int totalContentHeight = (APP_ICON_SIZE * TOTAL_ROWS) + (APP_SPACING * (TOTAL_ROWS - 1));
-        int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+        int visibleContentHeight = getVisibleContentHeight();
         this.maxScrollOffset = Math.max(0, totalContentHeight - visibleContentHeight);
-
-        // Berechne Start-Position für App-Grid (zentriert im Smartphone)
-        int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;  // NOPMD
-        int gridStartY = topPos + 45; // Abstand von oben
 
         // Keine App-Buttons mehr - Klick-Handling erfolgt manuell in mouseClicked()
 
@@ -162,11 +157,8 @@ public class SmartphoneScreen extends Screen {
             this.onClose();
         }).bounds(leftPos + PHONE_WIDTH - CLOSE_BUTTON_SIZE - 10, topPos + 10, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE).build());
 
-        // === ZURÜCK-BUTTON (zentriert zwischen Apps und unterem Rand) ===
-        // Berechne Position in der Mitte zwischen Apps und unterem Rand
-        int appsEndY = gridStartY + visibleContentHeight + 10; // Ende der Apps + etwas Puffer
-        int phoneBottomY = PHONE_HEIGHT - 5; // Unterer Rand minus Padding
-        int buttonY = topPos + (appsEndY - topPos + phoneBottomY) / 2 - 10; // Mittig positioniert
+        // === ZURÜCK-BUTTON (immer innerhalb des Smartphone-Screens) ===
+        int buttonY = getBackButtonY();
         addRenderableWidget(Button.builder(Component.translatable("gui.common.back"), button -> {
             this.onClose();
         }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, buttonY, 80, 20).build());
@@ -184,10 +176,10 @@ public class SmartphoneScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) { // Linksklick
-            int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-            int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
-            int gridStartY = topPos + 45;
-            int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+            int gridWidth = getScrollFieldWidth();
+            int gridStartX = getGridStartX();
+            int gridStartY = getListStartY();
+            int visibleContentHeight = getVisibleContentHeight();
 
             // === PRÜFE OB AUF SCROLLBAR GEKLICKT WURDE ===
             int scrollbarX = gridStartX + gridWidth + SCROLLBAR_MARGIN;
@@ -224,43 +216,31 @@ public class SmartphoneScreen extends Screen {
 
             // Prüfe ob Klick im App-Grid-Bereich war
             if (relativeX >= 0 && relativeX <= gridWidth) {
-                // Berechne Spalte (0 oder 1)
-                int col = -1;
-                if (relativeX < APP_ICON_SIZE) {
-                    col = 0;
-                } else if (relativeX >= APP_ICON_SIZE + APP_SPACING && relativeX < APP_ICON_SIZE * 2 + APP_SPACING) {
-                    col = 1;
-                }
+                int row = relativeY / (APP_ICON_SIZE + APP_SPACING);
+                int rowOffset = relativeY % (APP_ICON_SIZE + APP_SPACING);
 
-                if (col >= 0) {
-                    // Berechne Reihe (0-3)
-                    int row = relativeY / (APP_ICON_SIZE + APP_SPACING);
-                    int rowOffset = relativeY % (APP_ICON_SIZE + APP_SPACING);
+                // Klick auf Listeneintrag (nicht auf den vertikalen Abstand)
+                if (rowOffset < APP_ICON_SIZE && row >= 0 && row < APP_ICONS.length) {
+                    int appIndex = row;
 
-                    // Prüfe ob Klick auf einem Icon war (nicht im Spacing)
-                    if (rowOffset < APP_ICON_SIZE && row >= 0 && row < TOTAL_ROWS) {
-                        // Bestimme welche App
-                        int appIndex = row * 2 + col;
-
-                        switch (appIndex) {
-                            case 0: openApp(new de.rolandsw.schedulemc.mapview.presentation.screen.WorldMapScreen(this)); return true;
-                            case 1: openApp(new DealerAppScreen(this)); return true;
-                            case 2: openApp(new ProductsAppScreen(this)); return true;
-                            case 3: openApp(new OrderAppScreen(this)); return true;
-                            case 4: openApp(new ContactsAppScreen(this)); return true;
-                            case 5: openApp(new MessagesAppScreen(this)); return true;
-                            case 6: openApp(new PlotAppScreen(this)); return true;
-                            case 7: openApp(new SettingsAppScreen(this)); return true;
-                            case 8: openApp(new BankAppScreen(this)); return true;
-                            case 9: openApp(new CrimeStatsAppScreen(this)); return true;
-                            case 10: openApp(new AchievementAppScreen(this)); return true;
-                            case 11: openApp(new TowingServiceAppScreen(this)); return true;
-                            case 12: openApp(new ProducerLevelAppScreen(this)); return true;
-                            case 13: openApp(new GangAppScreen(this)); return true;
-                            case 14: openApp(new MissionsAppScreen(this)); return true;
-                            default:
-                                break;
-                        }
+                    switch (appIndex) {
+                        case 0: openApp(new de.rolandsw.schedulemc.mapview.presentation.screen.WorldMapScreen(this)); return true;
+                        case 1: openApp(new DealerAppScreen(this)); return true;
+                        case 2: openApp(new ProductsAppScreen(this)); return true;
+                        case 3: openApp(new OrderAppScreen(this)); return true;
+                        case 4: openApp(new ContactsAppScreen(this)); return true;
+                        case 5: openApp(new MessagesAppScreen(this)); return true;
+                        case 6: openApp(new PlotAppScreen(this)); return true;
+                        case 7: openApp(new SettingsAppScreen(this)); return true;
+                        case 8: openApp(new BankAppScreen(this)); return true;
+                        case 9: openApp(new CrimeStatsAppScreen(this)); return true;
+                        case 10: openApp(new AchievementAppScreen(this)); return true;
+                        case 11: openApp(new TowingServiceAppScreen(this)); return true;
+                        case 12: openApp(new ProducerLevelAppScreen(this)); return true;
+                        case 13: openApp(new GangAppScreen(this)); return true;
+                        case 14: openApp(new MissionsAppScreen(this)); return true;
+                        default:
+                            break;
                     }
                 }
             }
@@ -285,10 +265,12 @@ public class SmartphoneScreen extends Screen {
         guiGraphics.drawCenteredString(this.font, cachedTitle, leftPos + PHONE_WIDTH / 2, topPos + 12, 0xFFFFFF);
 
         // Berechne Grid-Position für App-Labels
-        int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
-        int gridStartY = topPos + 45;
-        int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+        int gridWidth = getScrollFieldWidth();
+        int gridStartX = getGridStartX();
+        int scrollFieldX = getScrollFieldX();
+        int scrollFieldWidth = getScrollFieldWidth();
+        int gridStartY = getListStartY();
+        int visibleContentHeight = getVisibleContentHeight();
 
         // === HOVER-ERKENNUNG ===
         // Berechne welche App gehovered wird
@@ -299,42 +281,29 @@ public class SmartphoneScreen extends Screen {
         if (mouseX >= gridStartX && mouseX <= gridStartX + gridWidth &&
             mouseY >= gridStartY && mouseY <= gridStartY + visibleContentHeight) {
 
-            // Berechne Spalte (0 oder 1)
-            int col = -1;
-            if (relativeX >= 0 && relativeX < APP_ICON_SIZE) {
-                col = 0;
-            } else if (relativeX >= APP_ICON_SIZE + APP_SPACING && relativeX < APP_ICON_SIZE * 2 + APP_SPACING) {
-                col = 1;
-            }
+            int row = relativeY / (APP_ICON_SIZE + APP_SPACING);
+            int rowOffset = relativeY % (APP_ICON_SIZE + APP_SPACING);
 
-            if (col >= 0) {
-                // Berechne Reihe (0-3)
-                int row = relativeY / (APP_ICON_SIZE + APP_SPACING);
-                int rowOffset = relativeY % (APP_ICON_SIZE + APP_SPACING);
-
-                // Prüfe ob Hover auf einem Icon ist (nicht im Spacing)
-                if (rowOffset >= 0 && rowOffset < APP_ICON_SIZE && row >= 0 && row < TOTAL_ROWS) {
-                    hoveredAppIndex = row * 2 + col;
-                }
+            // Prüfe ob Hover auf einem Listeneintrag ist (nicht im Spacing)
+            if (rowOffset >= 0 && rowOffset < APP_ICON_SIZE && row >= 0 && row < APP_ICONS.length) {
+                hoveredAppIndex = row;
             }
         }
 
         // Aktiviere Scissor (Clipping) für den scrollbaren Bereich
-        // Erweitere den Bereich um Platz für Labels unter der letzten Reihe
-        int scissorHeight = visibleContentHeight + 12; // +12 für Label-Platz
+        int scissorHeight = visibleContentHeight;
         guiGraphics.enableScissor(
-            gridStartX,
+            scrollFieldX,
             gridStartY,
-            gridStartX + gridWidth,
+            scrollFieldX + scrollFieldWidth,
             gridStartY + scissorHeight
         );
 
-        // App-Icons rendern mit scrollOffset (7 Reihen x 2 Spalten) - PERFORMANCE: gecachte Labels
+        // App-Liste rendern mit scrollOffset - PERFORMANCE: gecachte Labels
         int rowStep = APP_ICON_SIZE + APP_SPACING;
         for (int i = 0; i < APP_ICONS.length; i++) {
-            int col = i % 2;
-            int row = i / 2;
-            int iconX = gridStartX + col * (APP_ICON_SIZE + APP_SPACING);
+            int row = i;
+            int iconX = gridStartX;
             int iconY = gridStartY + row * rowStep - scrollOffset;
             renderAppIcon(guiGraphics, iconX, iconY, APP_ICONS[i], cachedAppLabels[i], i);
         }
@@ -346,9 +315,9 @@ public class SmartphoneScreen extends Screen {
         // Oberer Fade-Gradient wenn nach unten gescrollt wurde
         if (scrollOffset > 0) {
             guiGraphics.fillGradient(
-                gridStartX,
+                scrollFieldX,
                 gridStartY,
-                gridStartX + gridWidth,
+                scrollFieldX + scrollFieldWidth,
                 gridStartY + 15,
                 0xAA2A2A2A,
                 0x002A2A2A
@@ -358,9 +327,9 @@ public class SmartphoneScreen extends Screen {
         // Unterer Fade-Gradient wenn noch mehr Content verfügbar ist
         if (scrollOffset < maxScrollOffset) {
             guiGraphics.fillGradient(
-                gridStartX,
+                scrollFieldX,
                 gridStartY + visibleContentHeight - 15,
-                gridStartX + gridWidth,
+                scrollFieldX + scrollFieldWidth,
                 gridStartY + visibleContentHeight,
                 0x002A2A2A,
                 0xAA2A2A2A
@@ -399,18 +368,22 @@ public class SmartphoneScreen extends Screen {
      * Rendert ein App-Icon mit Label
      */
     private void renderAppIcon(GuiGraphics guiGraphics, int x, int y, ResourceLocation iconTexture, String label, int appIndex) {
-        // Icon-Hintergrund (heller wenn gehovered)
+        int listWidth = getScrollFieldWidth();
+        int iconLeft = x + 4;
+        int textX = iconLeft + APP_ICON_SIZE + 8;
+
+        // Eintrags-Hintergrund (heller wenn gehovered)
         boolean isHovered = (hoveredAppIndex == appIndex);
         int backgroundColor = isHovered ? 0xFF4A4A4A : 0xFF3A3A3A;
-        guiGraphics.fill(x, y, x + APP_ICON_SIZE, y + APP_ICON_SIZE, backgroundColor);
+        guiGraphics.fill(x, y, x + listWidth, y + APP_ICON_SIZE, backgroundColor);
 
         // Hover-Rahmen (subtiler Glow-Effekt)
         if (isHovered) {
             // Äußerer Rahmen
-            guiGraphics.fill(x - 1, y - 1, x + APP_ICON_SIZE + 1, y, 0xFF6A6A6A); // Oben
-            guiGraphics.fill(x - 1, y + APP_ICON_SIZE, x + APP_ICON_SIZE + 1, y + APP_ICON_SIZE + 1, 0xFF6A6A6A); // Unten
+            guiGraphics.fill(x - 1, y - 1, x + listWidth + 1, y, 0xFF6A6A6A); // Oben
+            guiGraphics.fill(x - 1, y + APP_ICON_SIZE, x + listWidth + 1, y + APP_ICON_SIZE + 1, 0xFF6A6A6A); // Unten
             guiGraphics.fill(x - 1, y, x, y + APP_ICON_SIZE, 0xFF6A6A6A); // Links
-            guiGraphics.fill(x + APP_ICON_SIZE, y, x + APP_ICON_SIZE + 1, y + APP_ICON_SIZE, 0xFF6A6A6A); // Rechts
+            guiGraphics.fill(x + listWidth, y, x + listWidth + 1, y + APP_ICON_SIZE, 0xFF6A6A6A); // Rechts
         }
 
         boolean iconRendered = false;
@@ -421,7 +394,7 @@ public class SmartphoneScreen extends Screen {
         if (iconTexture != null) {
             try {
                 RenderSystem.setShaderTexture(0, iconTexture);
-                guiGraphics.blit(iconTexture, x, y, 0, 0, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE);
+                guiGraphics.blit(iconTexture, iconLeft, y, 0, 0, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE, APP_ICON_SIZE);
                 iconRendered = true;
             } catch (Exception ex) {
                 if (iconRenderFailureLogged.add(label)) {
@@ -432,35 +405,21 @@ public class SmartphoneScreen extends Screen {
 
         if (!iconRendered) {
             // Platzhalter wenn Bild nicht gefunden
-            guiGraphics.fill(x + 2, y + 2, x + APP_ICON_SIZE - 2, y + APP_ICON_SIZE - 2, 0xFF505050);
+            guiGraphics.fill(iconLeft + 2, y + 2, iconLeft + APP_ICON_SIZE - 2, y + APP_ICON_SIZE - 2, 0xFF505050);
 
             // OPTIMIERT: Gecachte Initialen nutzen statt substring().toUpperCase() pro Frame
             String initials = (appIdx >= 0 && cachedInitials != null) ? cachedInitials[appIdx]
                 : (label.length() >= 2 ? label.substring(0, 2).toUpperCase(Locale.ROOT) : label.toUpperCase(Locale.ROOT));
             int textWidth = this.font.width(initials);
             guiGraphics.drawString(this.font, "§f" + initials,
-                x + (APP_ICON_SIZE - textWidth) / 2,
+                iconLeft + (APP_ICON_SIZE - textWidth) / 2,
                 y + (APP_ICON_SIZE - 8) / 2,
                 0xFFFFFF);
         }
 
-        // OPTIMIERT: Gecachte truncated Labels nutzen statt StringBuilder-Loop pro Frame
-        // Vorher: N StringBuilder + N substring() Allokationen pro Label pro Frame
-        String displayLabel;
-        int labelWidth;
-        if (appIdx >= 0 && cachedDisplayLabels != null) {
-            displayLabel = cachedDisplayLabels[appIdx];
-            labelWidth = cachedLabelWidths[appIdx];
-        } else {
-            displayLabel = label;
-            labelWidth = this.font.width(label);
-        }
-
-        // Label direkt unter dem Icon
-        guiGraphics.drawString(this.font, "§7" + displayLabel,
-            x + (APP_ICON_SIZE - labelWidth) / 2,
-            y + APP_ICON_SIZE + 4,
-            0xFFFFFF);
+        // Label rechts neben dem Icon (volle Breite des Scroll-Felds nutzbar)
+        String displayLabel = (appIdx >= 0 && cachedDisplayLabels != null) ? cachedDisplayLabels[appIdx] : label;
+        guiGraphics.drawString(this.font, "§7" + displayLabel, textX, y + (APP_ICON_SIZE - 8) / 2, 0xFFFFFF);
     }
 
     /**
@@ -478,10 +437,10 @@ public class SmartphoneScreen extends Screen {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (isDraggingScrollbar && button == 0) {
-            int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-            int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;  // NOPMD
-            int gridStartY = topPos + 45;  // NOPMD
-            int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+            int gridWidth = getScrollFieldWidth();
+            int gridStartX = getGridStartX();  // NOPMD
+            int gridStartY = getListStartY();  // NOPMD
+            int visibleContentHeight = getVisibleContentHeight();
 
             // Berechne wie viel die Maus bewegt wurde
             int deltaY = (int) mouseY - dragStartY;
@@ -513,10 +472,10 @@ public class SmartphoneScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         // Scroll nur, wenn Maus über dem App-Bereich ist
-        int gridWidth = (APP_ICON_SIZE * 2) + APP_SPACING;
-        int gridStartX = leftPos + (PHONE_WIDTH - gridWidth - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN) / 2;
-        int gridStartY = topPos + 45;
-        int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+        int gridWidth = getScrollFieldWidth();
+        int gridStartX = getGridStartX();
+        int gridStartY = getListStartY();
+        int visibleContentHeight = getVisibleContentHeight();
 
         if (mouseX >= gridStartX && mouseX <= gridStartX + gridWidth + SCROLLBAR_WIDTH + SCROLLBAR_MARGIN &&
             mouseY >= gridStartY && mouseY <= gridStartY + visibleContentHeight) {
@@ -549,6 +508,30 @@ public class SmartphoneScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false; // Spiel läuft weiter
+    }
+
+    private int getScrollFieldX() {
+        return leftPos + LIST_SIDE_PADDING;
+    }
+
+    private int getScrollFieldWidth() {
+        return PHONE_WIDTH - (LIST_SIDE_PADDING * 2) - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN;
+    }
+
+    private int getGridStartX() {
+        return getScrollFieldX();
+    }
+
+    private int getListStartY() {
+        return topPos + 45;
+    }
+
+    private int getBackButtonY() {
+        return topPos + PHONE_HEIGHT - 32;
+    }
+
+    private int getVisibleContentHeight() {
+        return getBackButtonY() - 8 - getListStartY();
     }
 
     /**
