@@ -1070,3 +1070,12 @@ Diese Platzhalter wurden erstellt, um jede im Code definierte Textur-Variante ab
 ---
 
 *Ende der Texturenliste*
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

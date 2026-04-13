@@ -257,3 +257,12 @@ Oil from trimmed buds gets +1 quality tier. Oil from trim is always Mids quality
 ---
 
 *See also: [Tobacco System](Tobacco-System.md) | [Mushroom System](Mushroom-System.md) | [Production Systems Overview](../Production-Systems.md)*
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

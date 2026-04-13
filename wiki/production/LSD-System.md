@@ -233,3 +233,12 @@ The key optimization decision is dosage: Schwach maximizes tab count, Bicycle Da
 ---
 
 *See also: [MDMA System](MDMA-System.md) | [Mushroom System](Mushroom-System.md) | [Production Systems Overview](../Production-Systems.md)*
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

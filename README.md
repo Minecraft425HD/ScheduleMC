@@ -1528,7 +1528,7 @@ cd ScheduleMC
 ./gradlew build
 
 # The compiled JAR will be located at:
-# build/libs/schedulemc-3.6.0-beta.jar
+# build/libs/schedulemc-3.7.0-beta.jar
 ```
 
 ### Running in Development
@@ -4803,3 +4803,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   &middot;
   <a href="https://github.com/Minecraft425HD/ScheduleMC/wiki">Wiki</a>
 </p>
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

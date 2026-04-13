@@ -448,3 +448,12 @@ If a player leaves the server permanently, their locks remain active. To clean u
 1. **File check** — Open `schedulemc_locks.json` to verify it is valid JSON.
 2. **Backup recovery** — Restore from `config/backups/schedulemc_locks_<timestamp>.json`.
 3. **Permission issue** — The server process must have write access to the root server directory where `schedulemc_locks.json` is stored.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

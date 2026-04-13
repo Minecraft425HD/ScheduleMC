@@ -548,3 +548,12 @@ Data saved per player:
 
 1. **Re-open the app** - The Achievements app requests fresh data from the server when opened.
 2. **Reconnect** - Achievement data is synced on join. A reconnect triggers a fresh sync.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

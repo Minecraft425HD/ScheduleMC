@@ -1,6 +1,6 @@
 # ScheduleMC Testing Guide
 
-**Version:** 3.6.9-beta | **Minecraft:** 1.20.1 | **Forge:** 47.4.0 | **Java:** 17
+**Version:** 3.7.0-beta | **Minecraft:** 1.20.1 | **Forge:** 47.4.0 | **Java:** 17
 
 Complete guide to testing the ScheduleMC mod — running tests, understanding coverage, writing new tests, and using the CI/CD pipeline.
 
@@ -770,3 +770,12 @@ handler.onPlayerJoin(mockEvent);
 
 // rather than going through MinecraftForge.EVENT_BUS
 ```
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

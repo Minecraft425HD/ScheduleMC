@@ -343,3 +343,12 @@ Erstelle `assets/schedulemc/textures/gui/towing_invoice.png`:
 5. Klicke "Bezahlen"
 6. Geld wird abgezogen
 7. Rechnung ist bezahlt
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

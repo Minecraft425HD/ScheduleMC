@@ -37,3 +37,12 @@ Die aktuellen Icons sind einfarbige Platzhalter. Sie können diese durch eigene 
 - Achten Sie auf gute Kontraste
 - Testen Sie die Icons im Spiel
 - Überlegen Sie sich ein einheitliches Design für alle Apps
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

@@ -194,3 +194,12 @@ Mögliche Features für zukünftige Versionen:
 
 **Problem:** Kein ABSCHLEPPER NPC sichtbar
 - **Lösung:** NPC mit korrektem NPCType spawnen (siehe Anleitung oben)
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

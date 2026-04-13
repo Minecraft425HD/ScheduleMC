@@ -119,3 +119,12 @@ Das Bier-System bietet einen vollstaendigen Brauprozess vom Malz bis zur fertige
 | small/medium/large_beer_fermentation_tank | Gaertank (3 Groessen) |
 | small/medium/large_conditioning_tank | Konditionierungstank (3 Groessen) |
 | beer_bottling_station | Abfuellstation |
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

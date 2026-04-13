@@ -276,3 +276,12 @@ MAJOR.MINOR.PATCH[-STAGE]
 | `-STAGE` | `alpha` (unstable), `beta` (feature-complete, testing), no suffix (stable) |
 
 Current stage: **beta** — All systems are feature-complete and tested, but balance tuning and community feedback are ongoing.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

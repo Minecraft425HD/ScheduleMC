@@ -290,3 +290,12 @@ Die **Produzenten-Level-App** zeigt:
 1. **Datei pruefen** — `config/schedulemc_producer_levels.json` auf gueltiges JSON pruefen.
 2. **Backup wiederherstellen** — Aus `config/backups/schedulemc_producer_levels_<timestamp>.json`.
 3. **Schreibrechte** — Server braucht Schreibzugriff auf das `config/`-Verzeichnis.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

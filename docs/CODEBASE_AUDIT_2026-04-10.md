@@ -174,3 +174,12 @@ Additionally, the hygiene script now fails fast if `AbstractSecretDoorBlock.java
 2. Keep `quality_guard.sh` thresholds strict (0/0/0) and reject any regression in PR validation.
 3. Gradually split monolithic hotspots (starting with mapview/ui command classes).
 4. Add targeted runtime/integration tests for persistence/serialization edge cases found during this audit series.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+
