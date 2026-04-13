@@ -46,6 +46,7 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
 
     private List<EditBox> fields = new ArrayList<>();
     private List<String> fullBlockIdSuggestions = new ArrayList<>();
+    private String currentSuggestionText = "";
 
     private int inputWidth;
     private int listHeight;
@@ -197,6 +198,12 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
             Component.literal("Comma-separated IDs. TAB = Autocomplete / Mausrad = Scroll"),
             this.width / 2, 34, 0xAAAAAA);
 
+        if (!currentSuggestionText.isEmpty()) {
+            graphics.drawCenteredString(this.font,
+                Component.literal("Suggestion: " + currentSuggestionText),
+                this.width / 2, 44, 0x77CC77);
+        }
+
         int listBottom = START_Y + listHeight;
         graphics.fill(12, START_Y - 6, this.width - 12, listBottom + 6, 0x22000000);
 
@@ -238,17 +245,20 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
         EditBox focused = getFocusedEditBox();
         if (focused == null) {
             clearAllSuggestions();
+            currentSuggestionText = "";
             return;
         }
 
         String token = currentToken(focused.getValue());
         if (token.isEmpty()) {
             focused.setSuggestion("ALL");
+            currentSuggestionText = "ALL";
             return;
         }
 
         String match = findBestMatch(token);
         focused.setSuggestion(match == null ? "" : match);
+        currentSuggestionText = match == null ? "" : match;
     }
 
     private void clearAllSuggestions() {
@@ -267,7 +277,7 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
         String match = findBestMatch(token);
         if (match == null) return false;
 
-        box.setValue(replaceCurrentToken(box.getValue(), match));
+        box.setValue(mergeCompletion(box.getValue(), token, match));
         return true;
     }
 
@@ -302,9 +312,17 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
     private String replaceCurrentToken(String fullText, String replacement) {
         int comma = fullText.lastIndexOf(',');
         if (comma < 0) return replacement;
+        return fullText.substring(0, comma + 1) + replacement;
+    }
 
-        String prefix = fullText.substring(0, comma + 1);
-        return prefix + replacement;
+    private String mergeCompletion(String fullText, String currentToken, String completion) {
+        String tokenLower = currentToken.toLowerCase(Locale.ROOT);
+        String completionLower = completion.toLowerCase(Locale.ROOT);
+
+        if (!currentToken.isEmpty() && completionLower.startsWith(tokenLower)) {
+            return fullText + completion.substring(currentToken.length());
+        }
+        return replaceCurrentToken(fullText, completion);
     }
 
     private String appendToken(String fullText, String token) {
