@@ -62,6 +62,14 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.IntValue MAX_TRUSTED_PLAYERS;
         public final ForgeConfigSpec.BooleanValue ALLOW_PLOT_TRANSFER;
         public final ForgeConfigSpec.DoubleValue REFUND_ON_ABANDON;
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> RESIDENTIAL_PLOT_BLOCKS;
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> COMMERCIAL_PLOT_BLOCKS;
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> INDUSTRIAL_PLOT_BLOCKS;
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> SHOP_PLOT_BLOCKS;
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> PUBLIC_PLOT_BLOCKS;
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> GOVERNMENT_PLOT_BLOCKS;
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> PRISON_PLOT_BLOCKS;
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> TOWING_YARD_PLOT_BLOCKS;
         
         // ═══════════════════════════════════════════════════════════
         // DAILY REWARDS
@@ -352,6 +360,83 @@ public class ModConfigHandler {
             REFUND_ON_ABANDON = builder
                     .comment("Rückerstattung beim Aufgeben (0.0-1.0, 0.5 = 50%)")
                     .defineInRange("refund_on_abandon", 0.5, 0.0, 1.0);
+
+            builder.comment("Plot-Typ Blocklisten (ALL = keine Einschränkung für diesen Typ)")
+                    .push("block_restrictions");
+
+            RESIDENTIAL_PLOT_BLOCKS = builder
+                    .comment("Blöcke für RESIDENTIAL-Plots. Default: ALL")
+                    .defineList("residential", java.util.List.of("ALL"), obj -> obj instanceof String);
+
+            COMMERCIAL_PLOT_BLOCKS = builder
+                    .comment("Blöcke für COMMERCIAL-Plots. Default: ALL")
+                    .defineList("commercial", java.util.List.of("ALL"), obj -> obj instanceof String);
+
+            INDUSTRIAL_PLOT_BLOCKS = builder
+                    .comment("Blöcke, die NUR in INDUSTRIAL-Plots erlaubt sind (Factory-Floor-Pflicht).")
+                    .defineList("industrial", java.util.Arrays.asList(
+                        "terracotta_pot", "ceramic_pot", "iron_pot", "golden_pot",
+                        "small_drying_rack", "medium_drying_rack", "big_drying_rack",
+                        "small_fermentation_barrel", "medium_fermentation_barrel", "big_fermentation_barrel",
+                        "small_packaging_table", "medium_packaging_table", "large_packaging_table",
+                        "sink", "cannabis_trimm_station", "cannabis_curing_glas", "cannabis_hash_presse",
+                        "cannabis_oel_extraktor", "crack_kocher", "ritzmaschine", "opium_presse", "kochstation",
+                        "heroin_raffinerie", "chemie_mixer", "reduktionskessel", "kristallisator",
+                        "vakuum_trockner", "fermentations_tank", "destillations_apparat", "mikro_dosierer",
+                        "perforations_presse", "reaktions_kessel", "trocknungs_ofen", "pillen_presse",
+                        "wassertank", "wet_processing_station", "coffee_grinder", "coffee_packaging_table",
+                        "crushing_station", "wine_bottling_station", "malting_station", "mash_tun",
+                        "beer_bottling_station", "pasteurization_station", "curdling_vat", "packaging_station",
+                        "honey_extractor", "centrifugal_extractor", "filtering_station", "processing_station",
+                        "creaming_station", "bottling_station", "roasting_station", "winnowing_machine",
+                        "grinding_mill", "pressing_station", "tempering_station", "cooling_tunnel",
+                        "enrobing_machine", "wrapping_station", "virginia_plant", "burley_plant",
+                        "oriental_plant", "havana_plant", "basic_grow_light_slab", "advanced_grow_light_slab",
+                        "premium_grow_light_slab", "cannabis_indica_plant", "cannabis_sativa_plant",
+                        "cannabis_hybrid_plant", "cannabis_autoflower_plant", "bolivianisch_coca_plant",
+                        "kolumbianisch_coca_plant", "small_extraction_vat", "medium_extraction_vat",
+                        "big_extraction_vat", "small_refinery", "medium_refinery", "big_refinery",
+                        "afghanisch_poppy_plant", "tuerkisch_poppy_plant", "indisch_poppy_plant",
+                        "klimalampe_small", "klimalampe_medium", "klimalampe_large", "coffee_terracotta_pot",
+                        "coffee_ceramic_pot", "coffee_iron_pot", "coffee_golden_pot", "arabica_plant",
+                        "robusta_plant", "liberica_plant", "excelsa_plant", "small_coffee_drying_tray",
+                        "medium_coffee_drying_tray", "large_coffee_drying_tray", "small_coffee_roaster",
+                        "medium_coffee_roaster", "large_coffee_roaster", "small_wine_press",
+                        "medium_wine_press", "large_wine_press", "small_fermentation_tank",
+                        "medium_fermentation_tank", "large_fermentation_tank", "small_aging_barrel",
+                        "medium_aging_barrel", "large_aging_barrel", "small_brew_kettle", "medium_brew_kettle",
+                        "large_brew_kettle", "small_beer_fermentation_tank", "medium_beer_fermentation_tank",
+                        "large_beer_fermentation_tank", "small_conditioning_tank", "medium_conditioning_tank",
+                        "large_conditioning_tank", "small_cheese_press", "medium_cheese_press",
+                        "large_cheese_press", "small_aging_cave", "medium_aging_cave", "large_aging_cave",
+                        "beehive", "advanced_beehive", "apiary", "small_aging_chamber", "medium_aging_chamber",
+                        "large_aging_chamber", "honey_storage_barrel", "honey_display_case",
+                        "small_conching_machine", "medium_conching_machine", "large_conching_machine",
+                        "small_molding_station", "medium_molding_station", "large_molding_station",
+                        "chocolate_storage_cabinet"
+                    ), obj -> obj instanceof String);
+
+            SHOP_PLOT_BLOCKS = builder
+                    .comment("Blöcke für SHOP-Plots. Default: ALL")
+                    .defineList("shop", java.util.List.of("ALL"), obj -> obj instanceof String);
+
+            PUBLIC_PLOT_BLOCKS = builder
+                    .comment("Blöcke für PUBLIC-Plots. Default: ALL")
+                    .defineList("public", java.util.List.of("ALL"), obj -> obj instanceof String);
+
+            GOVERNMENT_PLOT_BLOCKS = builder
+                    .comment("Blöcke für GOVERNMENT-Plots. Default: ALL")
+                    .defineList("government", java.util.List.of("ALL"), obj -> obj instanceof String);
+
+            PRISON_PLOT_BLOCKS = builder
+                    .comment("Blöcke für PRISON-Plots. Default: ALL")
+                    .defineList("prison", java.util.List.of("ALL"), obj -> obj instanceof String);
+
+            TOWING_YARD_PLOT_BLOCKS = builder
+                    .comment("Blöcke für TOWING_YARD-Plots. Default: ALL")
+                    .defineList("towing_yard", java.util.List.of("ALL"), obj -> obj instanceof String);
+
+            builder.pop();
 
             builder.pop();
 
