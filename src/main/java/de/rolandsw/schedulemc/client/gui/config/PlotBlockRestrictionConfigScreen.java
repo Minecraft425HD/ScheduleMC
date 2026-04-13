@@ -21,11 +21,11 @@ import java.util.stream.Collectors;
 @OnlyIn(Dist.CLIENT)
 public class PlotBlockRestrictionConfigScreen extends Screen {
 
-    private static final int INPUT_WIDTH = 220;
-    private static final int LEFT_X = 40;
-    private static final int RIGHT_X = 300;
-    private static final int START_Y = 60;
-    private static final int ROW_SPACING = 26;
+    private static final int LABEL_X = 24;
+    private static final int FIELD_X = 150;
+    private static final int INPUT_WIDTH = 420;
+    private static final int START_Y = 56;
+    private static final int ROW_SPACING = 24;
 
     private final Screen parent;
 
@@ -52,17 +52,14 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
             .sorted(Comparator.naturalOrder())
             .collect(Collectors.toList());
 
-        residential = addListEditor(LEFT_X, START_Y, ModConfigHandler.COMMON.RESIDENTIAL_PLOT_BLOCKS);
-        commercial = addListEditor(RIGHT_X, START_Y, ModConfigHandler.COMMON.COMMERCIAL_PLOT_BLOCKS);
-
-        industrial = addListEditor(LEFT_X, START_Y + ROW_SPACING, ModConfigHandler.COMMON.INDUSTRIAL_PLOT_BLOCKS);
-        shop = addListEditor(RIGHT_X, START_Y + ROW_SPACING, ModConfigHandler.COMMON.SHOP_PLOT_BLOCKS);
-
-        publicPlot = addListEditor(LEFT_X, START_Y + ROW_SPACING * 2, ModConfigHandler.COMMON.PUBLIC_PLOT_BLOCKS);
-        government = addListEditor(RIGHT_X, START_Y + ROW_SPACING * 2, ModConfigHandler.COMMON.GOVERNMENT_PLOT_BLOCKS);
-
-        prison = addListEditor(LEFT_X, START_Y + ROW_SPACING * 3, ModConfigHandler.COMMON.PRISON_PLOT_BLOCKS);
-        towingYard = addListEditor(RIGHT_X, START_Y + ROW_SPACING * 3, ModConfigHandler.COMMON.TOWING_YARD_PLOT_BLOCKS);
+        residential = addListEditor(FIELD_X, START_Y, ModConfigHandler.COMMON.RESIDENTIAL_PLOT_BLOCKS);
+        commercial = addListEditor(FIELD_X, START_Y + ROW_SPACING, ModConfigHandler.COMMON.COMMERCIAL_PLOT_BLOCKS);
+        industrial = addListEditor(FIELD_X, START_Y + ROW_SPACING * 2, ModConfigHandler.COMMON.INDUSTRIAL_PLOT_BLOCKS);
+        shop = addListEditor(FIELD_X, START_Y + ROW_SPACING * 3, ModConfigHandler.COMMON.SHOP_PLOT_BLOCKS);
+        publicPlot = addListEditor(FIELD_X, START_Y + ROW_SPACING * 4, ModConfigHandler.COMMON.PUBLIC_PLOT_BLOCKS);
+        government = addListEditor(FIELD_X, START_Y + ROW_SPACING * 5, ModConfigHandler.COMMON.GOVERNMENT_PLOT_BLOCKS);
+        prison = addListEditor(FIELD_X, START_Y + ROW_SPACING * 6, ModConfigHandler.COMMON.PRISON_PLOT_BLOCKS);
+        towingYard = addListEditor(FIELD_X, START_Y + ROW_SPACING * 7, ModConfigHandler.COMMON.TOWING_YARD_PLOT_BLOCKS);
 
         this.addRenderableWidget(Button.builder(
             Component.literal("Save"),
@@ -79,7 +76,7 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
 
     private EditBox addListEditor(int x, int y, ForgeConfigSpec.ConfigValue<List<? extends String>> configValue) {
         EditBox box = new EditBox(this.font, x, y, INPUT_WIDTH, 18, Component.empty());
-        box.setMaxLength(2048);
+        box.setMaxLength(32767);
         box.setValue(String.join(",", configValue.get()));
         this.addRenderableWidget(box);
         return box;
@@ -143,17 +140,17 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
 
         graphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
         graphics.drawCenteredString(this.font,
-            Component.literal("Comma-separated IDs, e.g. ALL or schedulemc:block_id"),
+            Component.literal("Comma-separated IDs. TAB = Autocomplete"),
             this.width / 2, 34, 0xAAAAAA);
 
-        drawLabel(graphics, "RESIDENTIAL", LEFT_X, START_Y - 10);
-        drawLabel(graphics, "COMMERCIAL", RIGHT_X, START_Y - 10);
-        drawLabel(graphics, "INDUSTRIAL", LEFT_X, START_Y + ROW_SPACING - 10);
-        drawLabel(graphics, "SHOP", RIGHT_X, START_Y + ROW_SPACING - 10);
-        drawLabel(graphics, "PUBLIC", LEFT_X, START_Y + ROW_SPACING * 2 - 10);
-        drawLabel(graphics, "GOVERNMENT", RIGHT_X, START_Y + ROW_SPACING * 2 - 10);
-        drawLabel(graphics, "PRISON", LEFT_X, START_Y + ROW_SPACING * 3 - 10);
-        drawLabel(graphics, "TOWING_YARD", RIGHT_X, START_Y + ROW_SPACING * 3 - 10);
+        drawLabel(graphics, "RESIDENTIAL", LABEL_X, START_Y + 5);
+        drawLabel(graphics, "COMMERCIAL", LABEL_X, START_Y + ROW_SPACING + 5);
+        drawLabel(graphics, "INDUSTRIAL", LABEL_X, START_Y + ROW_SPACING * 2 + 5);
+        drawLabel(graphics, "SHOP", LABEL_X, START_Y + ROW_SPACING * 3 + 5);
+        drawLabel(graphics, "PUBLIC", LABEL_X, START_Y + ROW_SPACING * 4 + 5);
+        drawLabel(graphics, "GOVERNMENT", LABEL_X, START_Y + ROW_SPACING * 5 + 5);
+        drawLabel(graphics, "PRISON", LABEL_X, START_Y + ROW_SPACING * 6 + 5);
+        drawLabel(graphics, "TOWING_YARD", LABEL_X, START_Y + ROW_SPACING * 7 + 5);
     }
 
     private void drawLabel(GuiGraphics graphics, String text, int x, int y) {
