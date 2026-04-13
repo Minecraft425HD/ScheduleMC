@@ -484,3 +484,12 @@ Use `/health mapview` to check the health status of the MapView system component
 1. **Backup recovery** — Map data is backed up periodically. Find backups in `config/backups/mapview/`.
 2. **Delete and re-explore** — Delete the `config/mapview/` folder to reset all map data. Players will need to re-explore.
 3. **Atomic writes** — The system uses atomic file writes to prevent corruption during saves. If corruption occurs despite this, investigate disk health.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

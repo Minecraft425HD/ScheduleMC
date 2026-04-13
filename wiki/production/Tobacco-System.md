@@ -316,3 +316,12 @@ To reach **Legendary** quality reliably, combine: Golden Pot + Tier 3 Grow Light
 ---
 
 *See also: [Cannabis System](Cannabis-System.md) | [Coca System](Coca-System.md) | [Production Systems Overview](../Production-Systems.md)*
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

@@ -1,7 +1,7 @@
 # ScheduleMC Architecture Documentation
 
 > Minecraft 1.20.1 Forge mod implementing a complete roleplay/economy server ecosystem.
-> **Version 3.6.9-beta** | **219,500+ LOC** across **1,448 Java files** organized into **44+ modules**.
+> **Version 3.7.0-beta** | **~249k LOC** across **1,561 Java files** organized into **44+ modules**.
 
 ---
 
@@ -1391,3 +1391,11 @@ This example traces a typical operation through the architecture:
 | market/ | 3 |
 | Other (events, managers, items, config, data, gui, network, player) | ~50 |
 | **Total** | **1,407** |
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).

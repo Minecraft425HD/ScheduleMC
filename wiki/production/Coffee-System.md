@@ -139,3 +139,12 @@ Qualitaets-Multiplikator: 1,1x
 | small/medium/large_coffee_roaster | Roester (3 Groessen) |
 | coffee_grinder | Kaffemuehle |
 | coffee_packaging_table | Verpackungstisch |
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

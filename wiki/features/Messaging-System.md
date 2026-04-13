@@ -497,3 +497,12 @@ On load, GSON deserialization applies:
 1. **Automatic trimming** - The 10,000-entry limit should prevent runaway growth.
 2. **Manual cleanup** - The `/admin purge messages` command (if enabled) can delete old conversation data for inactive players.
 3. **Backup recovery** - If the file is corrupted, restore from `config/backups/plotmod_messages_<timestamp>.json`.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

@@ -395,3 +395,12 @@ towingDistanceFeePerBlock = 0.5
 
 1. **No towing yards registered** - Revenue goes entirely to the state treasury if no yards are registered as `TOWING_YARD` plot type.
 2. **Check plot type** - Ensure the yard plot was created with `TOWING_YARD` type, not `COMMERCIAL`.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

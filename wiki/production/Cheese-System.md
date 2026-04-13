@@ -110,3 +110,12 @@ Das Kaese-System bietet eine vollstaendige Produktionskette von der Milch bis zu
 | small/medium/large_cheese_press | Kaesepresse (3 Groessen) |
 | small/medium/large_aging_cave | Reifungshoehle (3 Groessen) |
 | packaging_station | Verpackungsstation |
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

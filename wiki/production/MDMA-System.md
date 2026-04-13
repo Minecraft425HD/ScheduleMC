@@ -244,3 +244,12 @@ Final quality is the higher of the input crystal quality and the timing quality.
 ---
 
 *See also: [LSD System](LSD-System.md) | [Cannabis System](Cannabis-System.md) | [Production Systems Overview](../Production-Systems.md)*
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

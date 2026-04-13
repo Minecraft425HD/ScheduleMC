@@ -134,3 +134,12 @@ Reben werden in sortenspezifische Rebstock-Toepfe gepflanzt:
 | small/medium/large_fermentation_tank | Gaertank (3 Groessen) |
 | small/medium/large_aging_barrel | Reifungsfass (3 Groessen) |
 | wine_bottling_station | Abfuellstation |
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+
