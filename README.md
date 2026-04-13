@@ -12,10 +12,6 @@
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-1.20.1-green?style=for-the-badge&logo=mojangstudios" />
   <img alt="Forge" src="https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge" />
   <img alt="Java" src="https://img.shields.io/badge/Java-17-red?style=for-the-badge&logo=openjdk" />
-  <img alt="Lines of Code" src="https://img.shields.io/badge/Lines_of_Code-219%2C500%2B-brightgreen?style=for-the-badge" />
-  <img alt="Items" src="https://img.shields.io/badge/Items-354-purple?style=for-the-badge" />
-  <img alt="Blocks" src="https://img.shields.io/badge/Blocks-152-yellow?style=for-the-badge" />
-  <img alt="Commands" src="https://img.shields.io/badge/Commands-139-blueviolet?style=for-the-badge" />
   <img alt="License" src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" />
 </p>
 
@@ -55,7 +51,7 @@
   - [Messaging System](#messaging-system)
   - [Utility System](#utility-system)
 - [Commands Reference](#commands-reference)
-  - [Plot Commands](#Service-commands)
+  - [Plot Commands](#plot-commands-plotcommandjava)
   - [Economy Commands](#economy-commands)
   - [NPC Commands](#npc-commands)
   - [Police and Crime Commands](#police-and-crime-commands)
@@ -94,16 +90,14 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 
 ### Key Highlights
 
-- **219,500+ lines of Java code** across **1,407 source files**
-- **1,206 resource files** (textures, models, sounds, configurations)
-- **354 items**, **152 blocks**, **139 commands**
+- **~249k LOC (main + tests)** and **1,561 Java files** in the current repository snapshot
 - **12 API modules** with full external integration support
-- **292 unit tests** across **19 test files**
-- **55 manager classes**, **126 GUI screens**, **131 block entity types**, **100 network packets**
 - **16 major interconnected systems** with dozens of supporting subsystems
 - **14 production chains** (8 illegal, 6 legal) each with multi-step crafting processes
 - **137 vehicle system files** with 5 chassis types, 3 engines, 6 tire types
 - **NPC behavior engine** with 9 AI goals, 5 behavior actions, and 14 behavior states driving realistic daily life simulation
+
+> Hinweis: Detaillierte, automatisch erzeugte Metriken (Datei-/LOC-Zahlen) stehen in `docs/REPO_METRICS.md`.
 
 ---
 
@@ -111,27 +105,15 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 
 > Live/aktualisierte Metriken stehen in `docs/REPO_METRICS.md` (generiert via `scripts/generate_repo_metrics.sh`).
 
-| Metric | Count |
+| Metric | Current value |
 |---|---|
-| Lines of Java Code | 219,500+ |
-| Source Files | 1,407 |
-| Resource Files | 1,206 |
-| Items | 354 |
-| Blocks | 152 |
-| Commands | 139 |
-| API Modules | 12 |
-| Unit Tests | 292 |
-| Test Files | 19 |
-| Manager Classes | 55 |
-| GUI Screens | 126 |
-| Block Entity Types | 131 |
-| Network Packets | 100 |
-| Event Handlers | 53 files (116 @SubscribeEvent) |
-| Config Options | 228 |
-| NPC AI Goals | 9 goals + 5 behavior actions |
-| Vehicle Files | 137 |
-| MapView Files | 122 |
-| Production Chains | 14 (8 illegal + 6 legal) |
+| Main Java files | 1,522 |
+| Test Java files | 39 |
+| LOC (main + test Java) | 249,349 |
+| Largest Java file | `MapViewRenderer.java` (~1696 LOC) |
+| Auto-generated timestamp | siehe Kopfzeile in `docs/REPO_METRICS.md` |
+
+Für alle weiteren Detailzahlen (inkl. Historie) bitte `docs/REPO_METRICS.md` verwenden.
 
 ---
 
@@ -4811,4 +4793,3 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 - Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
 - Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
 - Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
-
