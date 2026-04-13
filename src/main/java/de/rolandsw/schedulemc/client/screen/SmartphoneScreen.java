@@ -39,7 +39,7 @@ public class SmartphoneScreen extends Screen {
     private static final int MARGIN_BOTTOM = 50; // Genug Platz für Hotbar und UI-Elemente
     private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
     private static final int SCROLLBAR_MARGIN = 10; // Abstand zwischen Apps und Scrollbar
-    private static final int VISIBLE_ROWS = 4; // 4 Listeneinträge sichtbar
+    private static final int LIST_SIDE_PADDING = 24; // Schmalere Listenzeilen (horizontal)
     private static final int TOTAL_ROWS = 15; // Insgesamt 15 Apps
 
     // App-Icons (konfigurierbar über Ressourcen)
@@ -147,13 +147,8 @@ public class SmartphoneScreen extends Screen {
         // Berechne maximalen Scroll-Offset
         // Gesamthöhe aller Reihen - sichtbare Höhe
         int totalContentHeight = (APP_ICON_SIZE * TOTAL_ROWS) + (APP_SPACING * (TOTAL_ROWS - 1));
-        int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+        int visibleContentHeight = getVisibleContentHeight();
         this.maxScrollOffset = Math.max(0, totalContentHeight - visibleContentHeight);
-
-        // Berechne Start-Position für App-Liste
-        int gridWidth = getScrollFieldWidth();
-        int gridStartX = getGridStartX();
-        int gridStartY = topPos + 45; // Abstand von oben
 
         // Keine App-Buttons mehr - Klick-Handling erfolgt manuell in mouseClicked()
 
@@ -162,11 +157,8 @@ public class SmartphoneScreen extends Screen {
             this.onClose();
         }).bounds(leftPos + PHONE_WIDTH - CLOSE_BUTTON_SIZE - 10, topPos + 10, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE).build());
 
-        // === ZURÜCK-BUTTON (zentriert zwischen Apps und unterem Rand) ===
-        // Berechne Position in der Mitte zwischen Apps und unterem Rand
-        int appsEndY = gridStartY + visibleContentHeight + 10; // Ende der Apps + etwas Puffer
-        int phoneBottomY = PHONE_HEIGHT - 5; // Unterer Rand minus Padding
-        int buttonY = topPos + (appsEndY - topPos + phoneBottomY) / 2 - 10; // Mittig positioniert
+        // === ZURÜCK-BUTTON (immer innerhalb des Smartphone-Screens) ===
+        int buttonY = getBackButtonY();
         addRenderableWidget(Button.builder(Component.translatable("gui.common.back"), button -> {
             this.onClose();
         }).bounds(leftPos + (PHONE_WIDTH - 80) / 2, buttonY, 80, 20).build());
@@ -186,8 +178,8 @@ public class SmartphoneScreen extends Screen {
         if (button == 0) { // Linksklick
             int gridWidth = getScrollFieldWidth();
             int gridStartX = getGridStartX();
-            int gridStartY = topPos + 45;
-            int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+            int gridStartY = getListStartY();
+            int visibleContentHeight = getVisibleContentHeight();
 
             // === PRÜFE OB AUF SCROLLBAR GEKLICKT WURDE ===
             int scrollbarX = gridStartX + gridWidth + SCROLLBAR_MARGIN;
@@ -277,8 +269,8 @@ public class SmartphoneScreen extends Screen {
         int gridStartX = getGridStartX();
         int scrollFieldX = getScrollFieldX();
         int scrollFieldWidth = getScrollFieldWidth();
-        int gridStartY = topPos + 45;
-        int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+        int gridStartY = getListStartY();
+        int visibleContentHeight = getVisibleContentHeight();
 
         // === HOVER-ERKENNUNG ===
         // Berechne welche App gehovered wird
@@ -299,8 +291,7 @@ public class SmartphoneScreen extends Screen {
         }
 
         // Aktiviere Scissor (Clipping) für den scrollbaren Bereich
-        // Erweitere den Bereich um Platz für Labels unter der letzten Reihe
-        int scissorHeight = visibleContentHeight + 12; // +12 für Label-Platz
+        int scissorHeight = visibleContentHeight;
         guiGraphics.enableScissor(
             scrollFieldX,
             gridStartY,
@@ -448,8 +439,8 @@ public class SmartphoneScreen extends Screen {
         if (isDraggingScrollbar && button == 0) {
             int gridWidth = getScrollFieldWidth();
             int gridStartX = getGridStartX();  // NOPMD
-            int gridStartY = topPos + 45;  // NOPMD
-            int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+            int gridStartY = getListStartY();  // NOPMD
+            int visibleContentHeight = getVisibleContentHeight();
 
             // Berechne wie viel die Maus bewegt wurde
             int deltaY = (int) mouseY - dragStartY;
@@ -483,8 +474,8 @@ public class SmartphoneScreen extends Screen {
         // Scroll nur, wenn Maus über dem App-Bereich ist
         int gridWidth = getScrollFieldWidth();
         int gridStartX = getGridStartX();
-        int gridStartY = topPos + 45;
-        int visibleContentHeight = (APP_ICON_SIZE * VISIBLE_ROWS) + (APP_SPACING * (VISIBLE_ROWS - 1));
+        int gridStartY = getListStartY();
+        int visibleContentHeight = getVisibleContentHeight();
 
         if (mouseX >= gridStartX && mouseX <= gridStartX + gridWidth + SCROLLBAR_WIDTH + SCROLLBAR_MARGIN &&
             mouseY >= gridStartY && mouseY <= gridStartY + visibleContentHeight) {
@@ -520,15 +511,27 @@ public class SmartphoneScreen extends Screen {
     }
 
     private int getScrollFieldX() {
-        return leftPos + 10;
+        return leftPos + LIST_SIDE_PADDING;
     }
 
     private int getScrollFieldWidth() {
-        return PHONE_WIDTH - 20 - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN;
+        return PHONE_WIDTH - (LIST_SIDE_PADDING * 2) - SCROLLBAR_WIDTH - SCROLLBAR_MARGIN;
     }
 
     private int getGridStartX() {
         return getScrollFieldX();
+    }
+
+    private int getListStartY() {
+        return topPos + 45;
+    }
+
+    private int getBackButtonY() {
+        return topPos + PHONE_HEIGHT - 32;
+    }
+
+    private int getVisibleContentHeight() {
+        return getBackButtonY() - 8 - getListStartY();
     }
 
     /**
