@@ -206,3 +206,12 @@ weapon/
 
 All 29 weapon items appear in the **Weapons** creative tab (`schedulemc.weapon_tab`), ordered as:
 magazines → guns → melee weapons → grenades → attachments → upgrades → legacy ammo items.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

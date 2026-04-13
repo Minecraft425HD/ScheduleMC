@@ -329,3 +329,12 @@ Der Szenario-Editor (OP Level 2) ermoeglicht das Erstellen komplexer Missionsabl
 1. **Datei pruefen** — `config/schedulemc_gangs.json` auf gueltiges JSON pruefen.
 2. **Backup wiederherstellen** — Aus `config/backups/schedulemc_gangs_<timestamp>.json` wiederherstellen.
 3. **Schreibrechte** — Der Server braucht Schreibzugriff auf das `config/`-Verzeichnis.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

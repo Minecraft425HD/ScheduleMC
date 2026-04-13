@@ -148,3 +148,12 @@ Für den nächsten Zyklus empfehle ich eine instrumentierte Analyse mit:
 - Baseline-Quality-Guard gegen Regressions bei Empty-Catches/Thread-Nutzung (`scripts/quality_guard.sh`)
 - Auto-generierte Metriken zur Reduktion von Dokumentationsdrift (`scripts/generate_repo_metrics.sh` -> `docs/REPO_METRICS.md`)
 - CI führt Hygiene-, Quality- und Metrics-Schritte explizit aus (`.github/workflows/ci.yml`)
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

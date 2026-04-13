@@ -866,3 +866,12 @@ Modular vehicle system with complete vehicles, individual parts, fuel, tools, an
 ---
 
 [Back to Wiki Home](Home.md) | [Blocks Reference](Blocks.md) | [Commands Reference](Commands.md)
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

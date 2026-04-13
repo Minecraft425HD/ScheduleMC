@@ -1,6 +1,6 @@
 # Getting Started with ScheduleMC
 
-The definitive beginner's guide to **ScheduleMC v3.6.0-beta** -- from installation to running your first roleplay economy server.
+The definitive beginner's guide to **ScheduleMC v3.7.0-beta** -- from installation to running your first roleplay economy server.
 
 ---
 
@@ -63,7 +63,7 @@ You should see output containing `openjdk version "17.x.x"` or similar. If not, 
 
 Download the latest ScheduleMC JAR from the [GitHub Releases page](https://github.com/Minecraft425HD/ScheduleMC/releases).
 
-The file will be named something like `ScheduleMC-3.6.0-beta.jar`.
+The file will be named something like `ScheduleMC-3.7.0-beta.jar`.
 
 ### Step 3: Place in the mods Folder
 
@@ -73,14 +73,14 @@ Copy the ScheduleMC JAR into your `mods/` directory:
 ```
 .minecraft/
   mods/
-    ScheduleMC-3.6.0-beta.jar
+    ScheduleMC-3.7.0-beta.jar
 ```
 
 **For Server Operators:**
 ```
 minecraft_server/
   mods/
-    ScheduleMC-3.6.0-beta.jar
+    ScheduleMC-3.7.0-beta.jar
 ```
 
 ### Step 4: Required Dependency -- CoreLib
@@ -958,6 +958,15 @@ Now that you have the basics, explore these resources to go deeper:
 
 ---
 
-*ScheduleMC v3.6.0-beta | Minecraft 1.20.1 | Forge 47.4.0+*
+*ScheduleMC v3.7.0-beta | Minecraft 1.20.1 | Forge 47.4.0+*
 
 [Back to Wiki Home](Home.md)
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

@@ -386,3 +386,12 @@ Territory changes are saved immediately on claim/release/modify and also during 
 1. **Check file** - Open `config/plotmod_territories.json` to verify it's valid JSON.
 2. **Backup recovery** - Restore from `config/backups/plotmod_territories_<timestamp>.json`.
 3. **Re-sync** - After restoring, use `/map info` to verify data loaded correctly.
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

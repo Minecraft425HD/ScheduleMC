@@ -1131,3 +1131,12 @@ If the UDPS system is unavailable or encounters an error, the static base price 
     plotmod_crimes.json             # Crime records
     schedulemc_economy_cycle.json   # Economic cycle state
 ```
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

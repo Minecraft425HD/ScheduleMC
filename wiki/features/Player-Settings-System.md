@@ -380,4 +380,13 @@ Future integration: Police officers may appear as `ServiceContact.ServiceType.EM
 
 ---
 
-*Part of the ScheduleMC v3.6.9-beta documentation. For API integration, see the [API Reference](../../docs/API_REFERENCE.md).*
+*Part of the ScheduleMC v3.7.0-beta documentation. For API integration, see the [API Reference](../../docs/API_REFERENCE.md).*
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

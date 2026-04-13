@@ -141,3 +141,12 @@ Das Honig-System umfasst eine vollstaendige Produktionskette von der Bienenzucht
 | bottling_station | Abfuellstation |
 | honey_storage_barrel | Honig-Lagerfass |
 | honey_display_case | Honig-Vitrine |
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

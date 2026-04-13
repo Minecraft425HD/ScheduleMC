@@ -973,3 +973,12 @@ Quick Navigation:
 ---
 
 [⬆ Back to Wiki Home](Home.md) | [Items Reference](Items.md) | [Commands Reference](Commands.md)
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+
