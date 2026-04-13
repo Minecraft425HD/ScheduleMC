@@ -8,3 +8,12 @@ Generated at: 2026-04-13 17:29:30 UTC
 - Largest main Java file: src/main/java/de/rolandsw/schedulemc/mapview/presentation/renderer/MapViewRenderer.java (~1696 LOC)
 
 > Source: scripts/generate_repo_metrics.sh
+
+---
+
+## Dokumentationsstatus
+
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+
