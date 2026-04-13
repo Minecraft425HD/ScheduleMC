@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.ScheduleMC;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.registries.DeferredRegister;
@@ -34,4 +35,10 @@ public class PlotBlocks {
 
     public static final RegistryObject<Item> PLOT_INFO_BLOCK_ITEM = ITEMS.register("plot_info_block",
         () -> new BlockItem(PLOT_INFO_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<Block> INDUSTRIAL_FLOOR = BLOCKS.register("industrial_floor",
+        () -> new Block(BlockBehaviour.Properties.copy(Blocks.POLISHED_DIORITE)));
+
+    public static final RegistryObject<Item> INDUSTRIAL_FLOOR_ITEM = ITEMS.register("industrial_floor",
+        () -> new BlockItem(INDUSTRIAL_FLOOR.get(), new Item.Properties()));
 }
