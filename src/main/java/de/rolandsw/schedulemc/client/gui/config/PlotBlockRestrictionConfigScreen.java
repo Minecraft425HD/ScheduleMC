@@ -318,11 +318,21 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
     private String mergeCompletion(String fullText, String currentToken, String completion) {
         String tokenLower = currentToken.toLowerCase(Locale.ROOT);
         String completionLower = completion.toLowerCase(Locale.ROOT);
+        int comma = fullText.lastIndexOf(',');
+        int tokenStart = comma < 0 ? 0 : comma + 1;
+        while (tokenStart < fullText.length() && Character.isWhitespace(fullText.charAt(tokenStart))) {
+            tokenStart++;
+        }
+
+        String prefix = fullText.substring(0, tokenStart);
+        String rawCurrent = fullText.substring(tokenStart);
 
         if (!currentToken.isEmpty() && completionLower.startsWith(tokenLower)) {
-            return fullText + completion.substring(currentToken.length());
+            int missing = currentToken.length();
+            String suffix = completion.substring(Math.min(missing, completion.length()));
+            return prefix + rawCurrent + suffix;
         }
-        return replaceCurrentToken(fullText, completion);
+        return prefix + completion;
     }
 
     private String appendToken(String fullText, String token) {
