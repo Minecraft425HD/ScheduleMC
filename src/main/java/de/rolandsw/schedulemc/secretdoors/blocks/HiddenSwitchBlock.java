@@ -160,6 +160,9 @@ public class HiddenSwitchBlock extends BaseEntityBlock {
             if (level.getBlockEntity(doorPos) instanceof SecretDoorBlockEntity doorBe) {
                 doorBe.addLinkedSwitch(switchPos);
                 doorBe.setChanged();
+                be.adoptCredentialsFromDoor(doorBe);
+                player.sendSystemMessage(Component.literal(
+                    "§b[Schalter] Lock-ID synchronisiert: §f" + doorBe.getLockId() + " §7(Code: " + doorBe.getAccessCode() + ")"));
             }
         } else {
             player.sendSystemMessage(Component.literal(
@@ -223,6 +226,8 @@ public class HiddenSwitchBlock extends BaseEntityBlock {
         if (!level.isClientSide && placer instanceof Player player) {
             if (level.getBlockEntity(pos) instanceof HiddenSwitchBlockEntity be) {
                 be.setOwner(player);
+                player.sendSystemMessage(Component.literal(
+                    "§a[Schalter] Neue lock_id: §f" + be.getLockId() + " §7| Code: §f" + be.getAccessCode()));
             }
         }
     }

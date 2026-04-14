@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.secretdoors.blockentity;
 
 import de.rolandsw.schedulemc.secretdoors.SecretDoors;
 import de.rolandsw.schedulemc.secretdoors.mission.SecretBlockRegistry;
+import de.rolandsw.schedulemc.secretdoors.mission.SecretCodeGenerator;
 import de.rolandsw.schedulemc.secretdoors.blocks.AbstractSecretDoorBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -34,6 +35,8 @@ public class HiddenSwitchBlockEntity extends BlockEntity {
     private final List<long[]> linkedDoors = new ArrayList<>();
     private UUID ownerId = null;
     private String ownerName = "";
+    private String lockId = "";
+    private String accessCode = "";
     private boolean linkingMode = false;
     private String camoBlockId = null; // Block-ID für Tarnung (null = Standard Steinquader)
 
@@ -155,8 +158,29 @@ public class HiddenSwitchBlockEntity extends BlockEntity {
     public void setOwner(Player player) {
         this.ownerId = player.getUUID();
         this.ownerName = player.getName().getString();
+        initializeAccessCredentials();
         setChanged();
     }
+
+    public void initializeAccessCredentials() {
+        if (lockId == null || lockId.isBlank()) {
+            lockId = SecretCodeGenerator.newLockId();
+        }
+        if (accessCode == null || accessCode.isBlank()) {
+            accessCode = SecretCodeGenerator.newAccessCode();
+        }
+        setChanged();
+    }
+
+    public void adoptCredentialsFromDoor(SecretDoorBlockEntity door) {
+        if (door == null) return;
+        this.lockId = door.getLockId();
+        this.accessCode = door.getAccessCode();
+        setChanged();
+    }
+
+    public String getLockId() { return lockId; }
+    public String getAccessCode() { return accessCode; }
 
     public boolean isLinkingMode() { return linkingMode; }
 
@@ -185,6 +209,12 @@ public class HiddenSwitchBlockEntity extends BlockEntity {
             tag.putUUID("owner_id", ownerId);
             tag.putString("owner_name", ownerName);
         }
+        if (lockId != null && !lockId.isBlank()) {
+            tag.putString("lock_id", lockId);
+        }
+        if (accessCode != null && !accessCode.isBlank()) {
+            tag.putString("access_code", accessCode);
+        }
         tag.putBoolean("linking_mode", linkingMode);
         if (camoBlockId != null) {
             tag.putString("camo_block", camoBlockId);
@@ -203,6 +233,11 @@ public class HiddenSwitchBlockEntity extends BlockEntity {
         if (tag.hasUUID("owner_id")) {
             ownerId = tag.getUUID("owner_id");
             ownerName = tag.getString("owner_name");
+        }
+        lockId = tag.contains("lock_id") ? tag.getString("lock_id") : "";
+        accessCode = tag.contains("access_code") ? tag.getString("access_code") : "";
+        if ((lockId == null || lockId.isBlank()) || (accessCode == null || accessCode.isBlank())) {
+            initializeAccessCredentials();
         }
         linkingMode = tag.getBoolean("linking_mode");
         camoBlockId = tag.contains("camo_block") ? tag.getString("camo_block") : null;

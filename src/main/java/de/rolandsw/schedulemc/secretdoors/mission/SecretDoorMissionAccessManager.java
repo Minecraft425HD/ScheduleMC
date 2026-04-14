@@ -1,9 +1,8 @@
 package de.rolandsw.schedulemc.secretdoors.mission;
 
 import de.rolandsw.schedulemc.gang.scenario.ScenarioObjective;
-import de.rolandsw.schedulemc.lock.LockData;
-import de.rolandsw.schedulemc.lock.LockManager;
 import de.rolandsw.schedulemc.mission.scenario.PlayerMissionScenarioExecutor;
+import de.rolandsw.schedulemc.secretdoors.blockentity.HiddenSwitchBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blockentity.SecretDoorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -81,17 +80,10 @@ public final class SecretDoorMissionAccessManager {
         if (player == null || pos == null) {
             return false;
         }
-        LockManager lockManager = LockManager.getInstance();
-        if (lockManager == null) {
+        String lockId = getSecretLockId(player, pos);
+        if (lockId == null || lockId.isBlank()) {
             return false;
         }
-
-        String dimension = player.serverLevel().dimension().location().toString();
-        LockData lock = lockManager.getLock(dimension, pos.getX(), pos.getY(), pos.getZ());
-        if (lock == null) {
-            return false;
-        }
-        String lockId = lock.getLockId();
 
         Set<String> tempAccess = TEMP_LOCK_ACCESS.get(player.getUUID());
         if (tempAccess != null && tempAccess.contains(lockId)) {
@@ -106,5 +98,15 @@ public final class SecretDoorMissionAccessManager {
         }
 
         return false;
+    }
+
+    private static String getSecretLockId(ServerPlayer player, BlockPos pos) {
+        if (player.serverLevel().getBlockEntity(pos) instanceof SecretDoorBlockEntity doorBe) {
+            return doorBe.getLockId();
+        }
+        if (player.serverLevel().getBlockEntity(pos) instanceof HiddenSwitchBlockEntity switchBe) {
+            return switchBe.getLockId();
+        }
+        return null;
     }
 }
