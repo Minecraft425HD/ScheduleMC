@@ -140,13 +140,13 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
             if (player != null) {
                 // Level-Up Nachricht
                 player.sendSystemMessage(Component.literal(
-                        "§6§l★ LEVEL UP! ★ §fDu bist jetzt §6Level " + newLevel + "§f!"
+                        "§6§l★ LEVEL UP! ★ §fYou are now §6Level " + newLevel + "§f!"
                 ));
 
                 // Neue Unlockables anzeigen
                 List<Unlockable> newUnlocks = getNewUnlocks(oldLevel, newLevel);
                 if (!newUnlocks.isEmpty()) {
-                    player.sendSystemMessage(Component.literal("§a§lNeu freigeschaltet:"));
+                    player.sendSystemMessage(Component.literal("§a§lNew unlocks:"));
                     for (Unlockable unlock : newUnlocks) {
                         player.sendSystemMessage(Component.literal(
                                 "  §a✔ " + unlock.getCategory().getColorCode() +

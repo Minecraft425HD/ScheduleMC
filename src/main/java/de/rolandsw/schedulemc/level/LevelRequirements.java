@@ -136,7 +136,7 @@ public class LevelRequirements {
                 "§6Level §f%d §7/ %d\n" +
                 "§7XP: §f%d §7/ §f%d\n" +
                 "%s\n" +
-                "§7Nächstes Level: §f%d XP fehlen",
+                "§7Next level: §f%d XP remaining",
                 currentLevel, MAX_LEVEL,
                 currentXP, nextLevelXP,
                 getProgressBar(currentLevel, currentXP),
