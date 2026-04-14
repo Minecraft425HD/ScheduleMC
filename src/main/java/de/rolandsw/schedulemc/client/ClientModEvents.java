@@ -20,6 +20,9 @@ import de.rolandsw.schedulemc.tobacco.screen.TobaccoNegotiationScreen;
 import de.rolandsw.schedulemc.tobacco.screen.SmallDryingRackScreen;
 import de.rolandsw.schedulemc.tobacco.screen.MediumDryingRackScreen;
 import de.rolandsw.schedulemc.tobacco.screen.BigDryingRackScreen;
+import de.rolandsw.schedulemc.tobacco.screen.SmallFermentationBarrelScreen;
+import de.rolandsw.schedulemc.tobacco.screen.MediumFermentationBarrelScreen;
+import de.rolandsw.schedulemc.tobacco.screen.BigFermentationBarrelScreen;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
 import de.rolandsw.schedulemc.warehouse.screen.WarehouseScreen;
 import de.rolandsw.schedulemc.meth.menu.MethMenuTypes;
@@ -88,6 +91,9 @@ public class ClientModEvents {
                 MenuScreens.register(ModMenuTypes.SMALL_DRYING_RACK_MENU.get(), SmallDryingRackScreen::new);
                 MenuScreens.register(ModMenuTypes.MEDIUM_DRYING_RACK_MENU.get(), MediumDryingRackScreen::new);
                 MenuScreens.register(ModMenuTypes.BIG_DRYING_RACK_MENU.get(), BigDryingRackScreen::new);
+                MenuScreens.register(ModMenuTypes.SMALL_FERMENTATION_BARREL_MENU.get(), SmallFermentationBarrelScreen::new);
+                MenuScreens.register(ModMenuTypes.MEDIUM_FERMENTATION_BARREL_MENU.get(), MediumFermentationBarrelScreen::new);
+                MenuScreens.register(ModMenuTypes.BIG_FERMENTATION_BARREL_MENU.get(), BigFermentationBarrelScreen::new);
 
                 // Meth-System
                 MenuScreens.register(MethMenuTypes.REDUCTION_KETTLE_MENU.get(), ReductionKettleScreen::new);

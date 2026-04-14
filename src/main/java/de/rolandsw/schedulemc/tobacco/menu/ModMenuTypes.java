@@ -42,4 +42,16 @@ public class ModMenuTypes {
     public static final RegistryObject<MenuType<BigDryingRackMenu>> BIG_DRYING_RACK_MENU =
         MENUS.register("big_drying_rack_menu", () ->
             IForgeMenuType.create(BigDryingRackMenu::new));
+
+    public static final RegistryObject<MenuType<SmallFermentationBarrelMenu>> SMALL_FERMENTATION_BARREL_MENU =
+        MENUS.register("small_fermentation_barrel_menu", () ->
+            IForgeMenuType.create(SmallFermentationBarrelMenu::new));
+
+    public static final RegistryObject<MenuType<MediumFermentationBarrelMenu>> MEDIUM_FERMENTATION_BARREL_MENU =
+        MENUS.register("medium_fermentation_barrel_menu", () ->
+            IForgeMenuType.create(MediumFermentationBarrelMenu::new));
+
+    public static final RegistryObject<MenuType<BigFermentationBarrelMenu>> BIG_FERMENTATION_BARREL_MENU =
+        MENUS.register("big_fermentation_barrel_menu", () ->
+            IForgeMenuType.create(BigFermentationBarrelMenu::new));
 }

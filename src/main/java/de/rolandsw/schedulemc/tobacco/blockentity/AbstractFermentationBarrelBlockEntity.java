@@ -57,6 +57,10 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
         return capacitySupplier.get();
     }
 
+    public int getCapacityValue() {
+        return getCapacity();
+    }
+
     protected int getFermentationTime() {
         return fermentationTimeSupplier.get();
     }
