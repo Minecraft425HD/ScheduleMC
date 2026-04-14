@@ -206,15 +206,6 @@ Quick Navigation:
 
 ### Processing Blocks
 
-#### Trocknungsnetz (Drying Net)
-- **ID:** `cannabis_trocknungsnetz`
-- **Function:** Dry fresh buds
-- **Capacity:** 9 slots
-- **Time:** 5 minutes
-- **Output:** Dried cannabis buds
-- **BlockEntity:** TrocknungsnetzBlockEntity
-- **Size:** 2x1x2 blocks
-
 #### Trimm Station
 - **ID:** `cannabis_trimm_station`
 - **Function:** Trim dried buds
@@ -560,14 +551,10 @@ Quick Navigation:
 
 ## Wine Blocks
 
-### Grapevine Pots (4 Varieties)
+### Cultivation
 
-| Block ID | Variety |
-|----------|---------|
-| `riesling_grapevine_pot` | Riesling (White) |
-| `spaetburgunder_grapevine_pot` | Spaetburgunder (Red) |
-| `chardonnay_grapevine_pot` | Chardonnay (White) |
-| `merlot_grapevine_pot` | Merlot (Red) |
+- **Planting:** Use grape seedlings directly on existing tobacco pots (`terracotta_pot`, `ceramic_pot`, `iron_pot`, `golden_pot`)
+- **Plant Block:** `grapevine`
 
 ### Processing Blocks
 
@@ -889,15 +876,6 @@ Quick Navigation:
 - **BlockEntity:** TileEntityGarage
 - **Size:** 3x3x3 multi-block
 
-### Bio Diesel (Fluid)
-- **ID:** `diesel`
-- **Type:** Fluid block
-- **Viscosity:** Medium
-- **Density:** 850 kg/m³
-- **Flammable:** Yes
-- **Source:** Fuel stations
-- **Use:** Vehicle fuel, coca extraction
-
 ---
 
 ## Block Categories Summary
@@ -907,7 +885,7 @@ Quick Navigation:
 | Category | Block Count | Key Features |
 |----------|-------------|--------------|
 | **Tobacco** | 23 | Pots, plants, drying, fermentation, packaging, lights |
-| **Cannabis** | 9 | Plants, drying, trimming, curing, hash, oil |
+| **Cannabis** | 8 | Plants, trimming, curing, hash, oil |
 | **Coca** | 9 | Plants, extraction vats, refineries, crack cooking |
 | **Poppy** | 7 | Plants, scoring, pressing, cooking, refining |
 | **Meth** | 4 | 4-step production, explosion risk |
@@ -920,7 +898,7 @@ Quick Navigation:
 | Category | Block Count | Key Features |
 |----------|-------------|--------------|
 | **Coffee** | 12 | 4 pots, 4 plants, wet processing, roasters, grinder, packaging |
-| **Wine** | 13 | 4 grapevine pots, crushing, pressing, fermentation, aging, bottling |
+| **Wine** | 9 | grapevine cultivation in standard pots, crushing, pressing, fermentation, aging, bottling |
 | **Beer** | 10 | Malting, mashing, brewing, fermentation, conditioning, bottling |
 | **Cheese** | 10 | Pasteurization, curdling, pressing, aging caves, packaging |
 | **Honey** | 12 | 3 hive types, 2 extractors, filtering, creaming, aging, bottling |
@@ -981,4 +959,3 @@ Quick Navigation:
 - Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
 - Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
 - Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
-

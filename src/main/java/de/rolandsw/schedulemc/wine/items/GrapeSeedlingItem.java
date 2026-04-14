@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.wine.items;
 
 import de.rolandsw.schedulemc.wine.WineType;
-import de.rolandsw.schedulemc.wine.blocks.WineBlocks;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

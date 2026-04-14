@@ -1132,7 +1132,7 @@ CoffeeSeedlingItem --> CoffeePlantBlock (AGE 0-7)
 #### Production Chain
 
 ```
-GrapeSeedlingItem --> GrapevineBlock / GrapevinePotBlock
+GrapeSeedlingItem --> GrapevineBlock (on existing tobacco pots)
     --> GrapeItem
     --> CrushingStationBlock
     --> WinePress (Small/Medium/Large)
@@ -1481,4 +1481,3 @@ The registry auto-registers these productions on initialization:
 - Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
 - Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
 - Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
-

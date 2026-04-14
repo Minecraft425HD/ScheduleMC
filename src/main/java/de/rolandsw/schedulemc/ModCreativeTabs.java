@@ -445,10 +445,6 @@ public class ModCreativeTabs {
                 output.accept(WineItems.GLASS_OF_WINE.get());
 
                 // WEIN - BLÖCKE
-                output.accept(WineBlocks.RIESLING_GRAPEVINE_POT_ITEM.get());
-                output.accept(WineBlocks.SPAETBURGUNDER_GRAPEVINE_POT_ITEM.get());
-                output.accept(WineBlocks.CHARDONNAY_GRAPEVINE_POT_ITEM.get());
-                output.accept(WineBlocks.MERLOT_GRAPEVINE_POT_ITEM.get());
                 output.accept(WineBlocks.CRUSHING_STATION_ITEM.get());
                 output.accept(WineBlocks.SMALL_WINE_PRESS_ITEM.get());
                 output.accept(WineBlocks.MEDIUM_WINE_PRESS_ITEM.get());
