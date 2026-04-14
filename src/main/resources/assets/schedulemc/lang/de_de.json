@@ -6153,5 +6153,6 @@
   "gui.oel_extractor.extracting": "§bExtrahiere...",
   "gui.oel_extractor.button_start": "Start",
   "gui.oel_extractor.hint_solvent_needed": "§7Füge Lösungsmittel hinzu, um zu starten.",
-  "gui.oel_extractor.hint_min_material": "§7Mindestens %dg Material benötigt."
+  "gui.oel_extractor.hint_min_material": "§7Mindestens %dg Material benötigt.",
+  "gui.app.level.revenue_value_pattern": "§a%.0f€"
 }

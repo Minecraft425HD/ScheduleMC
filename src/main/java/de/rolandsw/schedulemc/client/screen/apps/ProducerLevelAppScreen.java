@@ -69,6 +69,7 @@ public class ProducerLevelAppScreen extends Screen {
     private String cachedUnlockedRatioPatternStr;
     private String cachedLevelProgressPatternStr;
     private String cachedLevelsRequiredPatternStr;
+    private String cachedRevenueValuePatternStr;
 
     public ProducerLevelAppScreen(Screen parent) {
         super(Component.translatable("gui.app.level.title"));
@@ -106,6 +107,7 @@ public class ProducerLevelAppScreen extends Screen {
         cachedUnlockedRatioPatternStr = Component.translatable("gui.app.level.unlocked_ratio_pattern").getString();
         cachedLevelProgressPatternStr = Component.translatable("gui.app.level.level_progress_pattern").getString();
         cachedLevelsRequiredPatternStr = Component.translatable("gui.app.level.levels_required_pattern").getString();
+        cachedRevenueValuePatternStr = Component.translatable("gui.app.level.revenue_value_pattern").getString();
 
         initButtons();
     }
@@ -246,8 +248,9 @@ public class ProducerLevelAppScreen extends Screen {
 
         int soldTotal = ClientProducerLevelCache.getTotalItemsSold();
         double revenue = ClientProducerLevelCache.getTotalRevenue();
+        String revenueValue = String.format(cachedRevenueValuePatternStr, revenue);
         String statsText = "\u00A77" + cachedItemsSoldStr + ": \u00A7f" + soldTotal +
-                " \u00A77| " + cachedRevenueStr + ": \u00A7a" + String.format("%.0f\u20AC", revenue);
+                " \u00A77| " + cachedRevenueStr + ": " + revenueValue;
         guiGraphics.drawCenteredString(this.font, statsText, leftPos + WIDTH / 2, startY + 62, 0xFFFFFF);
 
         // ── Scrollbare Kategorien-Liste (1 pro Zeile) ──
