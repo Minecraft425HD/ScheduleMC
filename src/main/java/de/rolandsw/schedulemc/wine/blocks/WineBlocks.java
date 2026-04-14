@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.wine.blocks;
 
 import de.rolandsw.schedulemc.ScheduleMC;
-import de.rolandsw.schedulemc.wine.WineType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -23,27 +22,6 @@ public class WineBlocks {
     // Grapevine Plant
     public static final RegistryObject<Block> GRAPEVINE = BLOCKS.register("grapevine",
         () -> new GrapevineBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)));
-
-    // Grapevine Pots (4 varieties)
-    public static final RegistryObject<Block> RIESLING_GRAPEVINE_POT = BLOCKS.register("riesling_grapevine_pot",
-        () -> new GrapevinePotBlock(WineType.RIESLING, BlockBehaviour.Properties.copy(Blocks.FLOWER_POT)));
-    public static final RegistryObject<Item> RIESLING_GRAPEVINE_POT_ITEM = ITEMS.register("riesling_grapevine_pot",
-        () -> new BlockItem(RIESLING_GRAPEVINE_POT.get(), new Item.Properties()));
-
-    public static final RegistryObject<Block> SPAETBURGUNDER_GRAPEVINE_POT = BLOCKS.register("spaetburgunder_grapevine_pot",
-        () -> new GrapevinePotBlock(WineType.SPAETBURGUNDER, BlockBehaviour.Properties.copy(Blocks.FLOWER_POT)));
-    public static final RegistryObject<Item> SPAETBURGUNDER_GRAPEVINE_POT_ITEM = ITEMS.register("spaetburgunder_grapevine_pot",
-        () -> new BlockItem(SPAETBURGUNDER_GRAPEVINE_POT.get(), new Item.Properties()));
-
-    public static final RegistryObject<Block> CHARDONNAY_GRAPEVINE_POT = BLOCKS.register("chardonnay_grapevine_pot",
-        () -> new GrapevinePotBlock(WineType.CHARDONNAY, BlockBehaviour.Properties.copy(Blocks.FLOWER_POT)));
-    public static final RegistryObject<Item> CHARDONNAY_GRAPEVINE_POT_ITEM = ITEMS.register("chardonnay_grapevine_pot",
-        () -> new BlockItem(CHARDONNAY_GRAPEVINE_POT.get(), new Item.Properties()));
-
-    public static final RegistryObject<Block> MERLOT_GRAPEVINE_POT = BLOCKS.register("merlot_grapevine_pot",
-        () -> new GrapevinePotBlock(WineType.MERLOT, BlockBehaviour.Properties.copy(Blocks.FLOWER_POT)));
-    public static final RegistryObject<Item> MERLOT_GRAPEVINE_POT_ITEM = ITEMS.register("merlot_grapevine_pot",
-        () -> new BlockItem(MERLOT_GRAPEVINE_POT.get(), new Item.Properties()));
 
     // Crushing Station
     public static final RegistryObject<Block> CRUSHING_STATION = BLOCKS.register("crushing_station",

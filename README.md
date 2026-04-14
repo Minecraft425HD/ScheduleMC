@@ -3205,7 +3205,6 @@ ScheduleMC/
 │   │   │               │   ├── blocks
 │   │   │               │   │   ├── CrushingStationBlock.java
 │   │   │               │   │   ├── GrapevineBlock.java
-│   │   │               │   │   ├── GrapevinePotBlock.java
 │   │   │               │   │   ├── LargeAgingBarrelBlock.java
 │   │   │               │   │   ├── LargeFermentationTankBlock.java
 │   │   │               │   │   ├── LargeWinePressBlock.java
