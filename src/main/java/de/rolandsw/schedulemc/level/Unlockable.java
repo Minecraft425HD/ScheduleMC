@@ -16,113 +16,115 @@ package de.rolandsw.schedulemc.level;
  * Level 21-25: Experten-Sorten, Premium-Maschinen, Wirtschafts-Features
  * Level 26-30: Alles freigeschaltet, Endgame-Content
  */
+import net.minecraft.network.chat.Component;
+
 public enum Unlockable {
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 1-5: EINSTIEG
     // ═══════════════════════════════════════════════════════════
-    TOBACCO_VIRGINIA(1, UnlockCategory.PRODUCTION_CHAIN, "Tobacco: Virginia strain"),
-    CANNABIS_AUTOFLOWER(1, UnlockCategory.PRODUCTION_CHAIN, "Cannabis: Autoflower strain"),
-    BEER_PILSNER(1, UnlockCategory.PRODUCTION_CHAIN, "Beer: Pilsner"),
-    HONEY_ACACIA(1, UnlockCategory.PRODUCTION_CHAIN, "Honey: Acacia"),
-    POT_TERRACOTTA(1, UnlockCategory.POT, "Terracotta pot"),
+    TOBACCO_VIRGINIA(1, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.tobacco_virginia.desc"),
+    CANNABIS_AUTOFLOWER(1, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.cannabis_autoflower.desc"),
+    BEER_PILSNER(1, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.beer_pilsner.desc"),
+    HONEY_ACACIA(1, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.honey_acacia.desc"),
+    POT_TERRACOTTA(1, UnlockCategory.POT, "gui.app.level.unlock.pot_terracotta.desc"),
 
-    TOBACCO_BURLEY(3, UnlockCategory.STRAIN, "Tobacco: Burley strain"),
-    COFFEE_ARABICA(3, UnlockCategory.PRODUCTION_CHAIN, "Coffee: Arabica"),
-    CHEESE_GOUDA(3, UnlockCategory.PRODUCTION_CHAIN, "Cheese: Gouda"),
-    CHOCOLATE_MILK(3, UnlockCategory.PRODUCTION_CHAIN, "Chocolate: Milk"),
+    TOBACCO_BURLEY(3, UnlockCategory.STRAIN, "gui.app.level.unlock.tobacco_burley.desc"),
+    COFFEE_ARABICA(3, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.coffee_arabica.desc"),
+    CHEESE_GOUDA(3, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.cheese_gouda.desc"),
+    CHOCOLATE_MILK(3, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.chocolate_milk.desc"),
 
-    GANG_JOIN(5, UnlockCategory.GANG, "Join gang (with invitation, \u20AC2,500)"),
-    BEER_WEIZEN(5, UnlockCategory.STRAIN, "Beer: Wheat"),
-    WINE_RIESLING(5, UnlockCategory.PRODUCTION_CHAIN, "Wine: Riesling"),
-    HONEY_WILDFLOWER(5, UnlockCategory.STRAIN, "Honey: Wildflower"),
-    CANNABIS_INDICA(5, UnlockCategory.STRAIN, "Cannabis: Indica strain"),
+    GANG_JOIN(5, UnlockCategory.GANG, "gui.app.level.unlock.gang_join.desc"),
+    BEER_WEIZEN(5, UnlockCategory.STRAIN, "gui.app.level.unlock.beer_weizen.desc"),
+    WINE_RIESLING(5, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.wine_riesling.desc"),
+    HONEY_WILDFLOWER(5, UnlockCategory.STRAIN, "gui.app.level.unlock.honey_wildflower.desc"),
+    CANNABIS_INDICA(5, UnlockCategory.STRAIN, "gui.app.level.unlock.cannabis_indica.desc"),
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 6-10: ERWEITERUNG
     // ═══════════════════════════════════════════════════════════
-    POT_CERAMIC(6, UnlockCategory.POT, "Ceramic pot (4 plants)"),
-    TOBACCO_ORIENTAL(6, UnlockCategory.STRAIN, "Tobacco: Oriental strain"),
-    COFFEE_ROBUSTA(6, UnlockCategory.STRAIN, "Coffee: Robusta"),
-    CHEESE_EMMENTAL(6, UnlockCategory.STRAIN, "Cheese: Emmental"),
-    CHOCOLATE_DARK(6, UnlockCategory.STRAIN, "Chocolate: Dark"),
+    POT_CERAMIC(6, UnlockCategory.POT, "gui.app.level.unlock.pot_ceramic.desc"),
+    TOBACCO_ORIENTAL(6, UnlockCategory.STRAIN, "gui.app.level.unlock.tobacco_oriental.desc"),
+    COFFEE_ROBUSTA(6, UnlockCategory.STRAIN, "gui.app.level.unlock.coffee_robusta.desc"),
+    CHEESE_EMMENTAL(6, UnlockCategory.STRAIN, "gui.app.level.unlock.cheese_emmental.desc"),
+    CHOCOLATE_DARK(6, UnlockCategory.STRAIN, "gui.app.level.unlock.chocolate_dark.desc"),
 
-    CANNABIS_SATIVA(8, UnlockCategory.STRAIN, "Cannabis: Sativa strain"),
-    MUSHROOM_MEXICANA(8, UnlockCategory.PRODUCTION_CHAIN, "Mushroom: Mexicana"),
-    BEER_ALE(8, UnlockCategory.STRAIN, "Beer: Ale"),
-    WINE_CHARDONNAY(8, UnlockCategory.STRAIN, "Wine: Chardonnay"),
-    HONEY_FOREST(8, UnlockCategory.STRAIN, "Honey: Forest"),
+    CANNABIS_SATIVA(8, UnlockCategory.STRAIN, "gui.app.level.unlock.cannabis_sativa.desc"),
+    MUSHROOM_MEXICANA(8, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.mushroom_mexicana.desc"),
+    BEER_ALE(8, UnlockCategory.STRAIN, "gui.app.level.unlock.beer_ale.desc"),
+    WINE_CHARDONNAY(8, UnlockCategory.STRAIN, "gui.app.level.unlock.wine_chardonnay.desc"),
+    HONEY_FOREST(8, UnlockCategory.STRAIN, "gui.app.level.unlock.honey_forest.desc"),
 
-    COFFEE_ROAST_MEDIUM(10, UnlockCategory.PROCESSING, "Coffee: Medium roast"),
-    CHEESE_PROCESSING_SMOKED(10, UnlockCategory.PROCESSING, "Cheese: Smoked"),
-    WINE_SEMI_DRY(10, UnlockCategory.PROCESSING, "Wine: Semi-dry"),
+    COFFEE_ROAST_MEDIUM(10, UnlockCategory.PROCESSING, "gui.app.level.unlock.coffee_roast_medium.desc"),
+    CHEESE_PROCESSING_SMOKED(10, UnlockCategory.PROCESSING, "gui.app.level.unlock.cheese_processing_smoked.desc"),
+    WINE_SEMI_DRY(10, UnlockCategory.PROCESSING, "gui.app.level.unlock.wine_semi_dry.desc"),
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 11-15: HARTE DROGEN & MITTELSTUFE
     // ═══════════════════════════════════════════════════════════
-    POT_IRON(11, UnlockCategory.POT, "Iron pot (5 plants)"),
-    COCA_BOLIVIANISCH(11, UnlockCategory.PRODUCTION_CHAIN, "Cocaine: Bolivian"),
-    MDMA_PRODUCTION(11, UnlockCategory.PRODUCTION_CHAIN, "MDMA production"),
-    CHEESE_CAMEMBERT(11, UnlockCategory.STRAIN, "Cheese: Camembert"),
-    BEER_STOUT(11, UnlockCategory.STRAIN, "Beer: Stout"),
+    POT_IRON(11, UnlockCategory.POT, "gui.app.level.unlock.pot_iron.desc"),
+    COCA_BOLIVIANISCH(11, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.coca_bolivianisch.desc"),
+    MDMA_PRODUCTION(11, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.mdma_production.desc"),
+    CHEESE_CAMEMBERT(11, UnlockCategory.STRAIN, "gui.app.level.unlock.cheese_camembert.desc"),
+    BEER_STOUT(11, UnlockCategory.STRAIN, "gui.app.level.unlock.beer_stout.desc"),
 
-    CANNABIS_HYBRID(13, UnlockCategory.STRAIN, "Cannabis: Hybrid strain"),
-    MUSHROOM_CUBENSIS(13, UnlockCategory.STRAIN, "Mushroom: Cubensis"),
-    LSD_PRODUCTION(13, UnlockCategory.PRODUCTION_CHAIN, "LSD production"),
-    WINE_SPAETBURGUNDER(13, UnlockCategory.STRAIN, "Wine: Pinot Noir"),
-    COFFEE_LIBERICA(13, UnlockCategory.STRAIN, "Coffee: Liberica"),
+    CANNABIS_HYBRID(13, UnlockCategory.STRAIN, "gui.app.level.unlock.cannabis_hybrid.desc"),
+    MUSHROOM_CUBENSIS(13, UnlockCategory.STRAIN, "gui.app.level.unlock.mushroom_cubensis.desc"),
+    LSD_PRODUCTION(13, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.lsd_production.desc"),
+    WINE_SPAETBURGUNDER(13, UnlockCategory.STRAIN, "gui.app.level.unlock.wine_spaetburgunder.desc"),
+    COFFEE_LIBERICA(13, UnlockCategory.STRAIN, "gui.app.level.unlock.coffee_liberica.desc"),
 
-    GANG_CREATE(15, UnlockCategory.GANG, "Create gang (\u20AC25,000)"),
-    POPPY_INDISCH(15, UnlockCategory.PRODUCTION_CHAIN, "Poppy: Indian (heroin)"),
-    COCA_PERUANISCH(15, UnlockCategory.STRAIN, "Cocaine: Peruvian"),
-    METH_PRODUCTION(15, UnlockCategory.PRODUCTION_CHAIN, "Meth production"),
-    CHOCOLATE_RUBY(15, UnlockCategory.STRAIN, "Chocolate: Ruby"),
+    GANG_CREATE(15, UnlockCategory.GANG, "gui.app.level.unlock.gang_create.desc"),
+    POPPY_INDISCH(15, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.poppy_indisch.desc"),
+    COCA_PERUANISCH(15, UnlockCategory.STRAIN, "gui.app.level.unlock.coca_peruanisch.desc"),
+    METH_PRODUCTION(15, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.meth_production.desc"),
+    CHOCOLATE_RUBY(15, UnlockCategory.STRAIN, "gui.app.level.unlock.chocolate_ruby.desc"),
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 16-20: PREMIUM
     // ═══════════════════════════════════════════════════════════
-    POT_GOLDEN(16, UnlockCategory.POT, "Golden pot (5 plants + quality boost)"),
-    TOBACCO_HAVANA(16, UnlockCategory.STRAIN, "Tobacco: Havana strain"),
-    WINE_MERLOT(16, UnlockCategory.STRAIN, "Wine: Merlot"),
-    COFFEE_EXCELSA(16, UnlockCategory.STRAIN, "Coffee: Excelsa"),
-    CHEESE_PARMESAN(16, UnlockCategory.STRAIN, "Cheese: Parmesan"),
+    POT_GOLDEN(16, UnlockCategory.POT, "gui.app.level.unlock.pot_golden.desc"),
+    TOBACCO_HAVANA(16, UnlockCategory.STRAIN, "gui.app.level.unlock.tobacco_havana.desc"),
+    WINE_MERLOT(16, UnlockCategory.STRAIN, "gui.app.level.unlock.wine_merlot.desc"),
+    COFFEE_EXCELSA(16, UnlockCategory.STRAIN, "gui.app.level.unlock.coffee_excelsa.desc"),
+    CHEESE_PARMESAN(16, UnlockCategory.STRAIN, "gui.app.level.unlock.cheese_parmesan.desc"),
 
-    POPPY_TUERKISCH(18, UnlockCategory.STRAIN, "Poppy: Turkish"),
-    COCA_KOLUMBIANISCH(18, UnlockCategory.STRAIN, "Cocaine: Colombian"),
-    MUSHROOM_AZURESCENS(18, UnlockCategory.STRAIN, "Mushroom: Azurescens"),
-    HONEY_MANUKA(18, UnlockCategory.STRAIN, "Honey: Manuka"),
+    POPPY_TUERKISCH(18, UnlockCategory.STRAIN, "gui.app.level.unlock.poppy_tuerkisch.desc"),
+    COCA_KOLUMBIANISCH(18, UnlockCategory.STRAIN, "gui.app.level.unlock.coca_kolumbianisch.desc"),
+    MUSHROOM_AZURESCENS(18, UnlockCategory.STRAIN, "gui.app.level.unlock.mushroom_azurescens.desc"),
+    HONEY_MANUKA(18, UnlockCategory.STRAIN, "gui.app.level.unlock.honey_manuka.desc"),
 
-    COFFEE_ROAST_ESPRESSO(20, UnlockCategory.PROCESSING, "Coffee: Espresso roast"),
-    WINE_DESSERT(20, UnlockCategory.PROCESSING, "Wine: Dessert"),
-    CHEESE_PROCESSING_HERB(20, UnlockCategory.PROCESSING, "Cheese: Herb processing"),
-    CHOCOLATE_FILLED(20, UnlockCategory.PROCESSING, "Chocolate: Filled"),
+    COFFEE_ROAST_ESPRESSO(20, UnlockCategory.PROCESSING, "gui.app.level.unlock.coffee_roast_espresso.desc"),
+    WINE_DESSERT(20, UnlockCategory.PROCESSING, "gui.app.level.unlock.wine_dessert.desc"),
+    CHEESE_PROCESSING_HERB(20, UnlockCategory.PROCESSING, "gui.app.level.unlock.cheese_processing_herb.desc"),
+    CHOCOLATE_FILLED(20, UnlockCategory.PROCESSING, "gui.app.level.unlock.chocolate_filled.desc"),
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 21-25: EXPERTE
     // ═══════════════════════════════════════════════════════════
-    POPPY_AFGHANISCH(22, UnlockCategory.STRAIN, "Poppy: Afghan (highest potency)"),
-    MACHINE_SIZE_MEDIUM(22, UnlockCategory.MACHINE, "Medium production facilities"),
-    VEHICLE_SUV(22, UnlockCategory.VEHICLE, "SUV vehicle"),
-    VEHICLE_TRANSPORTER(22, UnlockCategory.VEHICLE, "Transport van"),
+    POPPY_AFGHANISCH(22, UnlockCategory.STRAIN, "gui.app.level.unlock.poppy_afghanisch.desc"),
+    MACHINE_SIZE_MEDIUM(22, UnlockCategory.MACHINE, "gui.app.level.unlock.machine_size_medium.desc"),
+    VEHICLE_SUV(22, UnlockCategory.VEHICLE, "gui.app.level.unlock.vehicle_suv.desc"),
+    VEHICLE_TRANSPORTER(22, UnlockCategory.VEHICLE, "gui.app.level.unlock.vehicle_transporter.desc"),
 
-    MACHINE_SIZE_BIG(25, UnlockCategory.MACHINE, "Large production facilities"),
-    VEHICLE_SPORT(25, UnlockCategory.VEHICLE, "Sports vehicle"),
+    MACHINE_SIZE_BIG(25, UnlockCategory.MACHINE, "gui.app.level.unlock.machine_size_big.desc"),
+    VEHICLE_SPORT(25, UnlockCategory.VEHICLE, "gui.app.level.unlock.vehicle_sport.desc"),
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 26-30: ENDGAME
     // ═══════════════════════════════════════════════════════════
-    ECONOMY_MARKET_ACCESS(26, UnlockCategory.ECONOMY_FEATURE, "Market access (view supply/demand)"),
-    ECONOMY_PRICE_ALERTS(28, UnlockCategory.ECONOMY_FEATURE, "Price alerts"),
-    ECONOMY_BULK_TRADING(30, UnlockCategory.ECONOMY_FEATURE, "Bulk trading (volume discounts)");
+    ECONOMY_MARKET_ACCESS(26, UnlockCategory.ECONOMY_FEATURE, "gui.app.level.unlock.economy_market_access.desc"),
+    ECONOMY_PRICE_ALERTS(28, UnlockCategory.ECONOMY_FEATURE, "gui.app.level.unlock.economy_price_alerts.desc"),
+    ECONOMY_BULK_TRADING(30, UnlockCategory.ECONOMY_FEATURE, "gui.app.level.unlock.economy_bulk_trading.desc");
 
     private final int requiredLevel;
     private final UnlockCategory category;
-    private final String description;
+    private final String descriptionKey;
 
-    Unlockable(int requiredLevel, UnlockCategory category, String description) {
+    Unlockable(int requiredLevel, UnlockCategory category, String descriptionKey) {
         this.requiredLevel = requiredLevel;
         this.category = category;
-        this.description = description;
+        this.descriptionKey = descriptionKey;
     }
 
     public int getRequiredLevel() {
@@ -134,7 +136,7 @@ public enum Unlockable {
     }
 
     public String getDescription() {
-        return description;
+        return Component.translatable(descriptionKey).getString();
     }
 
     /**
@@ -152,8 +154,8 @@ public enum Unlockable {
         String status = unlocked ? "§a✔" : "§c✘";
         String levelColor = unlocked ? "§a" : "§c";
 
-        return String.format("%s %s%s §7(Level %s%d§7) §8- %s",
-                status, category.getColorCode(), description,
+        String format = Component.translatable("gui.app.level.unlock.formatted_info_pattern").getString();
+        return String.format(format, status, category.getColorCode(), getDescription(),
                 levelColor, requiredLevel, category.getDisplayName());
     }
 }
