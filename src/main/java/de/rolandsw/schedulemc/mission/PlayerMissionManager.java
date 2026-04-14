@@ -133,7 +133,7 @@ public class PlayerMissionManager {
             m -> m.getMissionId().equals(missionId) && m.getStatus() == MissionStatus.ACTIVE
         );
         if (removed) {
-            SecretDoorMissionAccessManager.clearPlayerAccess(uuid);
+            SecretDoorMissionAccessManager.clearPlayerAccess(player);
             syncToPlayer(player);
         }
         return removed;
@@ -166,7 +166,7 @@ public class PlayerMissionManager {
                     LOGGER.error("Fehler beim Auszahlen der Mission-Belohnung für {}", uuid, e);
                 }
                 MissionEventBridge.fireMissionCompleted(player);
-                SecretDoorMissionAccessManager.clearPlayerAccess(uuid);
+                SecretDoorMissionAccessManager.clearPlayerAccess(player);
                 syncToPlayer(player);
                 return true;
             }

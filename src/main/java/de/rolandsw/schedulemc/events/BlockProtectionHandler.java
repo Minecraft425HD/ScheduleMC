@@ -674,7 +674,12 @@ public class BlockProtectionHandler {
 
             BlockState clickedState = event.getLevel().getBlockState(pos);
             if (isSecretDoorControlledBlockState(clickedState)) {
-                if (!canPlaceOrUseSecretDoorBlock(player, pos, true)) {
+                if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer
+                    && SecretDoorMissionAccessManager.hasMissionOrEventAccess(serverPlayer, pos)) {
+                    SecretDoorMissionAccessManager.markMissionDoorUsed(serverPlayer, pos);
+                    return;
+                }
+                if (!canPlaceOrUseSecretDoorBlock(player, pos, false)) {
                     event.setCanceled(true);
                 }
                 return;

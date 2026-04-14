@@ -414,19 +414,8 @@ public class GangCommand {
         java.util.List<de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket.LockInfo> locks =
                 new java.util.ArrayList<>();
         try {
-            de.rolandsw.schedulemc.lock.LockManager lockMgr = de.rolandsw.schedulemc.lock.LockManager.getInstance();
-            if (lockMgr != null) {
-                for (de.rolandsw.schedulemc.lock.LockData lock : lockMgr.getAllLocks()) {
-                    locks.add(new de.rolandsw.schedulemc.gang.network.OpenScenarioEditorPacket.LockInfo(
-                            lock.getLockId(),
-                            lock.getType().name(),
-                            lock.getOwnerName(),
-                            lock.getDoorX(),
-                            lock.getDoorY(),
-                            lock.getDoorZ(),
-                            lock.getType().hasCode()));
-                }
-            }
+            locks.addAll(de.rolandsw.schedulemc.mission.editor.MissionEditorSecretDataCollector
+                .collectSecretLockInfos(player.server));
         } catch (Exception e) {
             com.mojang.logging.LogUtils.getLogger().warn("Failed to load locks for scenario editor: {}", e.getMessage());
         }

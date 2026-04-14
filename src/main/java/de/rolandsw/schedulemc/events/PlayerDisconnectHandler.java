@@ -78,7 +78,7 @@ public class PlayerDisconnectHandler {
             // Cleanup Mission Scenario Executor + Proximity Checker
             de.rolandsw.schedulemc.mission.scenario.PlayerMissionScenarioExecutor.clearPlayerState(playerUUID);
             de.rolandsw.schedulemc.mission.proximity.NPCProximityChecker.clearPlayerState(playerUUID);
-            de.rolandsw.schedulemc.secretdoors.mission.SecretDoorMissionAccessManager.clearPlayerAccess(playerUUID);
+            de.rolandsw.schedulemc.secretdoors.mission.SecretDoorMissionAccessManager.clearPlayerAccess(player);
 
             // Cleanup Economy Rate Limiter (verhindert Memory-Leak bei vielen Spieler-Wechseln)
             de.rolandsw.schedulemc.economy.RateLimiter.clearPlayer(playerUUID);

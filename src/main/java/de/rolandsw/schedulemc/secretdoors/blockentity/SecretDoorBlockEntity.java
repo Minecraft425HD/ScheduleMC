@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.secretdoors.blockentity;
 
 import de.rolandsw.schedulemc.secretdoors.SecretDoors;
+import de.rolandsw.schedulemc.secretdoors.mission.SecretBlockRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -45,6 +46,23 @@ public class SecretDoorBlockEntity extends BlockEntity {
 
     public SecretDoorBlockEntity(BlockPos pos, BlockState state) {
         super(SecretDoors.SECRET_DOOR_BE.get(), pos, state);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            String type = getBlockState().is(SecretDoors.HATCH.get()) ? "HATCH" : "SECRET_DOOR";
+            SecretBlockRegistry.register(serverLevel, worldPosition, type);
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            SecretBlockRegistry.unregister(serverLevel, worldPosition);
+        }
+        super.setRemoved();
     }
 
     // ─────────────────────────────────────────────────────────────────

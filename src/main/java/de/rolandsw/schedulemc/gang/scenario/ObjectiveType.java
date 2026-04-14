@@ -500,6 +500,10 @@ public enum ObjectiveType {
                     new ParamDef("lock_id", "Schloss", "", ParamWidget.DROPDOWN_LOCK),
                     new ParamDef("method", "Methode (CODE/SCHLUESSEL/HACK)", "CODE", ParamWidget.TEXT)
             }),
+    SECRET_BLOCK_LIST("Secret-Block waehlen", "\uD83D\uDD10", 0xFF37474F, Category.SONSTIGES,
+            new ParamDef[]{
+                    new ParamDef("lock_id", "Secret Door/Hatch/Switch", "", ParamWidget.DROPDOWN_LOCK)
+            }),
 
     // ═══════════════════════════════════════════════════════════
     // FAHRZEUG (3)

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.secretdoors.blockentity;
 
 import de.rolandsw.schedulemc.secretdoors.SecretDoors;
+import de.rolandsw.schedulemc.secretdoors.mission.SecretBlockRegistry;
 import de.rolandsw.schedulemc.secretdoors.blocks.AbstractSecretDoorBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -38,6 +39,22 @@ public class HiddenSwitchBlockEntity extends BlockEntity {
 
     public HiddenSwitchBlockEntity(BlockPos pos, BlockState state) {
         super(SecretDoors.HIDDEN_SWITCH_BE.get(), pos, state);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            SecretBlockRegistry.register(serverLevel, worldPosition, "HIDDEN_SWITCH");
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            SecretBlockRegistry.unregister(serverLevel, worldPosition);
+        }
+        super.setRemoved();
     }
 
     // ─────────────────────────────────────────────────────────────────

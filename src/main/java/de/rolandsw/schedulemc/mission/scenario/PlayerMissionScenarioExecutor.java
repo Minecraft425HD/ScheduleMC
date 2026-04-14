@@ -122,7 +122,7 @@ public class PlayerMissionScenarioExecutor {
         ObjectiveType type = obj.getType();
         switch (type) {
             // ── Sofort-Bloecke ─────────────────────────────────
-            case START, COMMENT, PARALLEL_HINT -> { return true; }
+            case START, COMMENT, PARALLEL_HINT, SECRET_BLOCK_LIST -> { return true; }
 
             // ── Position / Naeherung ───────────────────────────
             case GOTO_LOCATION, GOTO_PLOT -> {
