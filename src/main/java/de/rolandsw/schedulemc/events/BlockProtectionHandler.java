@@ -10,6 +10,8 @@ import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.PlotType;
 import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
+import de.rolandsw.schedulemc.secretdoors.SecretDoors;
+import de.rolandsw.schedulemc.secretdoors.mission.SecretDoorMissionAccessManager;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -17,6 +19,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.level.BlockEvent;
@@ -411,6 +414,10 @@ public class BlockProtectionHandler {
         String blockId = getPlacedBlockId(event);
         if (blockId == null) return true;
 
+        if (isSecretDoorControlledBlock(blockId)) {
+            return canPlaceOrUseSecretDoorBlock(player, pos, false);
+        }
+
         PlotType requiredType = getRequiredPlotTypeForBlock(blockId);
         if (requiredType == null) {
             return true;
@@ -505,6 +512,81 @@ public class BlockProtectionHandler {
         return value;
     }
 
+    private boolean isSecretDoorControlledBlock(String blockIdRaw) {
+        String id = normalizeBlockId(blockIdRaw);
+        return "secret_door".equals(id) || "hatch".equals(id) || "hidden_switch_stone".equals(id);
+    }
+
+    private boolean isSecretDoorControlledBlockState(BlockState state) {
+        return state.is(SecretDoors.SECRET_DOOR.get())
+            || state.is(SecretDoors.HATCH.get())
+            || state.is(SecretDoors.HIDDEN_SWITCH_STONE.get());
+    }
+
+    private boolean canPlaceOrUseSecretDoorBlock(Player player, BlockPos pos, boolean allowMissionOverride) {
+        if (player.hasPermissions(2)) {
+            return true;
+        }
+
+        if (allowMissionOverride && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer
+            && SecretDoorMissionAccessManager.hasMissionOrEventAccess(serverPlayer, pos)) {
+            return true;
+        }
+
+        PlotRegion plot = PlotManager.getPlotAt(pos);
+        if (plot == null) {
+            player.displayClientMessage(
+                Component.literal("§cHidden Switch/Tür/Luke nur auf gekauftem oder gemietetem Grundstück erlaubt."),
+                true
+            );
+            return false;
+        }
+
+        Set<PlotType> allowedTypes = getConfiguredSecretDoorPlotTypes();
+        if (!allowedTypes.contains(plot.getType())) {
+            player.displayClientMessage(
+                Component.literal("§cDieser Block ist auf diesem Grundstückstyp nicht erlaubt."),
+                true
+            );
+            return false;
+        }
+
+        if (!plot.hasOwner() && !plot.isRented()) {
+            player.displayClientMessage(
+                Component.literal("§cGrundstück muss gekauft oder gemietet sein."),
+                true
+            );
+            return false;
+        }
+
+        if (!plot.hasAccess(player.getUUID())) {
+            player.displayClientMessage(
+                Component.literal("§cDu hast keinen Zugriff auf dieses Grundstück."),
+                true
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    private Set<PlotType> getConfiguredSecretDoorPlotTypes() {
+        Set<PlotType> result = new HashSet<>();
+        for (String raw : ModConfigHandler.COMMON.SECRET_DOOR_ALLOWED_PLOT_TYPES.get()) {
+            if (raw == null) continue;
+            try {
+                result.add(PlotType.valueOf(raw.trim().toUpperCase(Locale.ROOT)));
+            } catch (IllegalArgumentException ignored) {
+                LOGGER.warn("Unknown plot type in secret_door_allowed_plot_types config: {}", raw);
+            }
+        }
+        if (result.isEmpty()) {
+            result.add(PlotType.RESIDENTIAL);
+            result.add(PlotType.INDUSTRIAL);
+        }
+        return result;
+    }
+
     /**
      * Zentrale Berechtigungsprüfung
      *
@@ -587,6 +669,14 @@ public class BlockProtectionHandler {
 
             // Admin darf immer!
             if (player.hasPermissions(2)) {
+                return;
+            }
+
+            BlockState clickedState = event.getLevel().getBlockState(pos);
+            if (isSecretDoorControlledBlockState(clickedState)) {
+                if (!canPlaceOrUseSecretDoorBlock(player, pos, true)) {
+                    event.setCanceled(true);
+                }
                 return;
             }
 

@@ -16,6 +16,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -338,5 +340,46 @@ public class PlayerMissionScenarioExecutor {
         String prefix = playerUUID.toString();
         TICK_COUNTERS.entrySet().removeIf(e -> e.getKey().startsWith(prefix));
         CURRENT_OBJECTIVE.entrySet().removeIf(e -> e.getKey().startsWith(prefix));
+    }
+
+    /**
+     * Liefert alle aktuell aktiven Objective-Blöcke eines Spielers.
+     * Wird u.a. für temporäre missionsbasierte Zugriffsregeln verwendet.
+     */
+    public static List<ScenarioObjective> getActiveObjectivesForPlayer(UUID playerUUID) {
+        if (playerUUID == null) {
+            return Collections.emptyList();
+        }
+
+        PlayerMissionManager missionManager = PlayerMissionManager.getInstance();
+        ScenarioManager scenarioManager = ScenarioManager.getInstance();
+        if (missionManager == null || scenarioManager == null) {
+            return Collections.emptyList();
+        }
+
+        String prefix = playerUUID + "_";
+        List<ScenarioObjective> objectives = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : CURRENT_OBJECTIVE.entrySet()) {
+            String stateKey = entry.getKey();
+            if (!stateKey.startsWith(prefix)) continue;
+
+            String missionId = stateKey.substring(prefix.length());
+            PlayerMission mission = missionManager.getPlayerMissions(playerUUID).stream()
+                .filter(m -> m.getMissionId().equals(missionId) && m.getStatus() == MissionStatus.ACTIVE)
+                .findFirst()
+                .orElse(null);
+            if (mission == null) continue;
+
+            MissionScenario scenario = scenarioManager.getScenario(mission.getDefinitionId());
+            if (scenario == null) continue;
+
+            ScenarioObjective objective = findObjectiveById(scenario, entry.getValue());
+            if (objective != null) {
+                objectives.add(objective);
+            }
+        }
+
+        return objectives;
     }
 }
