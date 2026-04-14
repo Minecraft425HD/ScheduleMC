@@ -18,17 +18,17 @@ public class MethItems {
     // GRUNDZUTATEN
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Item> EPHEDRIN =
-            ITEMS.register("ephedrin", EphedrinItem::new);
+    public static final RegistryObject<Item> EPHEDRINE =
+            ITEMS.register("ephedrin", EphedrineItem::new);
 
-    public static final RegistryObject<Item> PSEUDOEPHEDRIN =
-            ITEMS.register("pseudoephedrin", PseudoephedrinItem::new);
+    public static final RegistryObject<Item> PSEUDOEPHEDRINE =
+            ITEMS.register("pseudoephedrin", PseudoephedrineItem::new);
 
-    public static final RegistryObject<Item> ROTER_PHOSPHOR =
-            ITEMS.register("roter_phosphor", RoterPhosphorItem::new);
+    public static final RegistryObject<Item> RED_PHOSPHORUS =
+            ITEMS.register("roter_phosphor", RedPhosphorusItem::new);
 
-    public static final RegistryObject<Item> JOD =
-            ITEMS.register("jod", JodItem::new);
+    public static final RegistryObject<Item> IODINE =
+            ITEMS.register("jod", IodineItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // ZWISCHENPRODUKTE
@@ -37,11 +37,11 @@ public class MethItems {
     public static final RegistryObject<Item> METH_PASTE =
             ITEMS.register("meth_paste", MethPasteItem::new);
 
-    public static final RegistryObject<Item> ROH_METH =
-            ITEMS.register("roh_meth", RohMethItem::new);
+    public static final RegistryObject<Item> RAW_METH =
+            ITEMS.register("roh_meth", RawMethItem::new);
 
-    public static final RegistryObject<Item> KRISTALL_METH =
-            ITEMS.register("kristall_meth", KristallMethItem::new);
+    public static final RegistryObject<Item> CRYSTAL_METH =
+            ITEMS.register("kristall_meth", CrystalMethItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // ENDPRODUKT

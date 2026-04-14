@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  * Hauptansicht: Nachrichten-Inbox (wie WhatsApp-Chats).
  * Jede Kategorie fuehrt zu einer scrollbaren Unterseite.
  *
- * SubPages: INBOX, ZENTRALE, AUFTRAEGE, RIVALEN, MITGLIEDER, PERKS, BERICHT
+ * SubPages: INBOX, HEADQUARTERS, MISSIONS, RIVALS, MEMBERS, PERKS, REPORT
  */
 @OnlyIn(Dist.CLIENT)
 public class GangAppScreen extends Screen {
@@ -44,16 +44,20 @@ public class GangAppScreen extends Screen {
     // ═══════════════════════════════════════════════════════════
 
     private enum SubPage {
-        INBOX("Gang"),
-        ZENTRALE("Gang-Zentrale"),
-        AUFTRAEGE("Auftraege"),
-        RIVALEN("Rivalen"),
-        MITGLIEDER("Mitglieder"),
-        PERKS("Perks & Upgrades"),
-        BERICHT("Wochenbericht");
+        INBOX("gui.app.gang.page.inbox"),
+        HEADQUARTERS("gui.app.gang.page.headquarters"),
+        MISSIONS("gui.app.gang.page.missions"),
+        RIVALS("gui.app.gang.page.rivals"),
+        MEMBERS("gui.app.gang.page.members"),
+        PERKS("gui.app.gang.page.perks"),
+        REPORT("gui.app.gang.page.report");
 
-        final String title;
-        SubPage(String title) { this.title = title; }
+        final String titleKey;
+        SubPage(String titleKey) { this.titleKey = titleKey; }
+
+        String localizedTitle() {
+            return Component.translatable(titleKey).getString();
+        }
     }
 
     private SubPage currentPage = SubPage.INBOX;
@@ -174,8 +178,8 @@ public class GangAppScreen extends Screen {
 
         // Page-spezifische Widgets
         switch (currentPage) {
-            case MITGLIEDER -> buildMitgliederWidgets(footerY);
-            case ZENTRALE -> buildZentraleWidgets(footerY);
+            case MEMBERS -> buildMitgliederWidgets(footerY);
+            case HEADQUARTERS -> buildZentraleWidgets(footerY);
             default -> {}
         }
     }
@@ -293,8 +297,10 @@ public class GangAppScreen extends Screen {
 
             // Page-Titel
             String title = currentPage == SubPage.INBOX
-                    ? (headerData != null ? formatGangTag(headerData) + " \u00A7f\u00A7l" + headerData.getGangName() : "\u00A7f\u00A7lGang")
-                    : "\u00A7f\u00A7l\u25C0 " + currentPage.title;
+                    ? (headerData != null
+                        ? formatGangTag(headerData) + " \u00A7f\u00A7l" + headerData.getGangName()
+                        : "§f§l" + Component.translatable("gui.app.gang.page.inbox").getString())
+                    : "§f§l◀ " + currentPage.localizedTitle();
             g.drawCenteredString(this.font, title, leftPos + WIDTH / 2, topPos + 15, 0xFFFFFF);
         } else {
             g.fill(leftPos, topPos + 10, leftPos + WIDTH, topPos + HEADER_HEIGHT, 0xFF1A1A2E);
@@ -353,12 +359,12 @@ public class GangAppScreen extends Screen {
 
         int totalHeight = switch (currentPage) {
             case INBOX -> renderInbox(g);
-            case ZENTRALE -> renderZentrale(g);
-            case AUFTRAEGE -> renderAuftraege(g);
-            case RIVALEN -> renderRivalen(g);
-            case MITGLIEDER -> renderMitglieder(g);
+            case HEADQUARTERS -> renderZentrale(g);
+            case MISSIONS -> renderAuftraege(g);
+            case RIVALS -> renderRivalen(g);
+            case MEMBERS -> renderMitglieder(g);
             case PERKS -> renderPerks(g);
-            case BERICHT -> renderBericht(g);
+            case REPORT -> renderBericht(g);
         };
 
         g.disableScissor();
@@ -543,7 +549,7 @@ public class GangAppScreen extends Screen {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // PAGE: ZENTRALE
+    // PAGE: HEADQUARTERS
     // ═══════════════════════════════════════════════════════════
 
     private int renderZentrale(GuiGraphics g) {
@@ -616,7 +622,7 @@ public class GangAppScreen extends Screen {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // PAGE: AUFTRAEGE
+    // PAGE: MISSIONS
     // ═══════════════════════════════════════════════════════════
 
     private int renderAuftraege(GuiGraphics g) {
@@ -712,7 +718,7 @@ public class GangAppScreen extends Screen {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // PAGE: RIVALEN
+    // PAGE: RIVALS
     // ═══════════════════════════════════════════════════════════
 
     private int renderRivalen(GuiGraphics g) {
@@ -799,7 +805,7 @@ public class GangAppScreen extends Screen {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // PAGE: MITGLIEDER
+    // PAGE: MEMBERS
     // ═══════════════════════════════════════════════════════════
 
     private int renderMitglieder(GuiGraphics g) {
@@ -923,7 +929,7 @@ public class GangAppScreen extends Screen {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // PAGE: WOCHENBERICHT
+    // PAGE: WOCHENREPORT
     // ═══════════════════════════════════════════════════════════
 
     private int renderBericht(GuiGraphics g) {
@@ -1035,8 +1041,8 @@ public class GangAppScreen extends Screen {
 
             switch (currentPage) {
                 case INBOX -> { if (handleInboxClick(relY)) return true; }
-                case AUFTRAEGE -> { if (handleMissionClick(relY, mouseX)) return true; }
-                case MITGLIEDER -> { if (handleMemberClick(relY, mouseX)) return true; }
+                case MISSIONS -> { if (handleMissionClick(relY, mouseX)) return true; }
+                case MEMBERS -> { if (handleMemberClick(relY, mouseX)) return true; }
                 case PERKS -> { if (handlePerkClick(relY, mouseX)) return true; }
                 default -> {}
             }
@@ -1049,8 +1055,8 @@ public class GangAppScreen extends Screen {
         double afterStats = relY - 22;
         if (afterStats < 0) return false;
         int rowIndex = (int) (afterStats / INBOX_ROW_HEIGHT);
-        SubPage[] targets = {SubPage.ZENTRALE, SubPage.AUFTRAEGE, SubPage.RIVALEN,
-                SubPage.MITGLIEDER, SubPage.PERKS, SubPage.BERICHT};
+        SubPage[] targets = {SubPage.HEADQUARTERS, SubPage.MISSIONS, SubPage.RIVALS,
+                SubPage.MEMBERS, SubPage.PERKS, SubPage.REPORT};
         if (rowIndex >= 0 && rowIndex < targets.length) {
             navigateTo(targets[rowIndex]);
             return true;

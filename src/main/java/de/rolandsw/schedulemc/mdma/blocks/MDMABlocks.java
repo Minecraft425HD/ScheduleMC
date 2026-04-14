@@ -27,9 +27,9 @@ public class MDMABlocks {
     // REAKTIONS-KESSEL (Schritt 1)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> REAKTIONS_KESSEL = registerBlockWithItem(
+    public static final RegistryObject<Block> REACTION_KETTLE = registerBlockWithItem(
             "reaktions_kessel",
-            () -> new ReaktionsKesselBlock(
+            () -> new ReactionKettleBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
                             .sound(SoundType.METAL)
@@ -42,9 +42,9 @@ public class MDMABlocks {
     // TROCKNUNGS-OFEN (Schritt 2)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> TROCKNUNGS_OFEN = registerBlockWithItem(
+    public static final RegistryObject<Block> DRYING_OVEN = registerBlockWithItem(
             "trocknungs_ofen",
-            () -> new TrocknungsOfenBlock(
+            () -> new DryingOvenBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
                             .sound(SoundType.METAL)
@@ -57,9 +57,9 @@ public class MDMABlocks {
     // PILLEN-PRESSE (Schritt 3) - Mit Timing-Minigame!
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> PILLEN_PRESSE = registerBlockWithItem(
+    public static final RegistryObject<Block> PILL_PRESS = registerBlockWithItem(
             "pillen_presse",
-            () -> new PillenPresseBlock(
+            () -> new PillPressBlock(
                     BlockBehaviour.Properties.of()
                             .strength(4.0f)
                             .sound(SoundType.METAL)

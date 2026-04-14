@@ -92,7 +92,7 @@ public enum MethQuality implements ProductionQuality {
     }
 
     /**
-     * Berechnet Qualität basierend auf Temperatur-Performance im Reduktionskessel
+     * Berechnet Qualität basierend auf Temperatur-Performance im ReductionKettle
      * @param optimalTimePercent Prozentsatz der Zeit im optimalen Temperaturbereich (0.0 - 1.0)
      */
     public static MethQuality fromTemperaturePerformance(double optimalTimePercent) {

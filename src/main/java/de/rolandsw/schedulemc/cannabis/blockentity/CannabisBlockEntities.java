@@ -15,27 +15,27 @@ public class CannabisBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
-    public static final RegistryObject<BlockEntityType<TrimmStationBlockEntity>> TRIMM_STATION =
+    public static final RegistryObject<BlockEntityType<TrimStationBlockEntity>> TRIM_STATION =
             BLOCK_ENTITIES.register("cannabis_trimm_station", () ->
-                    BlockEntityType.Builder.of(TrimmStationBlockEntity::new,
-                            CannabisBlocks.TRIMM_STATION.get()
+                    BlockEntityType.Builder.of(TrimStationBlockEntity::new,
+                            CannabisBlocks.TRIM_STATION.get()
                     ).build(null));
 
-    public static final RegistryObject<BlockEntityType<CuringGlasBlockEntity>> CURING_GLAS =
+    public static final RegistryObject<BlockEntityType<CuringJarBlockEntity>> CURING_JAR =
             BLOCK_ENTITIES.register("cannabis_curing_glas", () ->
-                    BlockEntityType.Builder.of(CuringGlasBlockEntity::new,
-                            CannabisBlocks.CURING_GLAS.get()
+                    BlockEntityType.Builder.of(CuringJarBlockEntity::new,
+                            CannabisBlocks.CURING_JAR.get()
                     ).build(null));
 
-    public static final RegistryObject<BlockEntityType<HashPresseBlockEntity>> HASH_PRESSE =
+    public static final RegistryObject<BlockEntityType<HashPressBlockEntity>> HASH_PRESS =
             BLOCK_ENTITIES.register("cannabis_hash_presse", () ->
-                    BlockEntityType.Builder.of(HashPresseBlockEntity::new,
-                            CannabisBlocks.HASH_PRESSE.get()
+                    BlockEntityType.Builder.of(HashPressBlockEntity::new,
+                            CannabisBlocks.HASH_PRESS.get()
                     ).build(null));
 
-    public static final RegistryObject<BlockEntityType<OelExtraktortBlockEntity>> OEL_EXTRAKTOR =
+    public static final RegistryObject<BlockEntityType<OilExtractorBlockEntity>> OIL_EXTRACTOR =
             BLOCK_ENTITIES.register("cannabis_oel_extraktor", () ->
-                    BlockEntityType.Builder.of(OelExtraktortBlockEntity::new,
-                            CannabisBlocks.OEL_EXTRAKTOR.get()
+                    BlockEntityType.Builder.of(OilExtractorBlockEntity::new,
+                            CannabisBlocks.OIL_EXTRACTOR.get()
                     ).build(null));
 }

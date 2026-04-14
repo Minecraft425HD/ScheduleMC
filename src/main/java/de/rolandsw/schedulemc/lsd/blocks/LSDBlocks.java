@@ -27,9 +27,9 @@ public class LSDBlocks {
     // FERMENTATIONS-TANK (Schritt 1)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> FERMENTATIONS_TANK = registerBlockWithItem(
+    public static final RegistryObject<Block> FERMENTATION_TANK = registerBlockWithItem(
             "fermentations_tank",
-            () -> new FermentationsTankBlock(
+            () -> new FermentationTankBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.0f)
                             .sound(SoundType.GLASS)
@@ -41,9 +41,9 @@ public class LSDBlocks {
     // DESTILLATIONS-APPARAT (Schritt 2)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> DESTILLATIONS_APPARAT = registerBlockWithItem(
+    public static final RegistryObject<Block> DISTILLATION_APPARATUS = registerBlockWithItem(
             "destillations_apparat",
-            () -> new DestillationsApparatBlock(
+            () -> new DistillationApparatusBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.0f)
                             .sound(SoundType.GLASS)
@@ -56,9 +56,9 @@ public class LSDBlocks {
     // MIKRO-DOSIERER (Schritt 3) - Mit GUI
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> MIKRO_DOSIERER = registerBlockWithItem(
+    public static final RegistryObject<Block> MICRO_DOSER = registerBlockWithItem(
             "mikro_dosierer",
-            () -> new MikroDosiererBlock(
+            () -> new MicroDoserBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
                             .sound(SoundType.METAL)
@@ -70,9 +70,9 @@ public class LSDBlocks {
     // PERFORATIONS-PRESSE (Schritt 4 - Final)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> PERFORATIONS_PRESSE = registerBlockWithItem(
+    public static final RegistryObject<Block> PERFORATION_PRESS = registerBlockWithItem(
             "perforations_presse",
-            () -> new PerforationsPresseBlock(
+            () -> new PerforationPressBlock(
                     BlockBehaviour.Properties.of()
                             .strength(4.0f)
                             .sound(SoundType.METAL)

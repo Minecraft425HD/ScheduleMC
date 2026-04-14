@@ -35,7 +35,7 @@ public class MDMAItems {
             ITEMS.register("mdma_base", MDMABaseItem::new);
 
     public static final RegistryObject<Item> MDMA_KRISTALL =
-            ITEMS.register("mdma_kristall", MDMAKristallItem::new);
+            ITEMS.register("mdma_kristall", MDMACrystalItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // ENDPRODUKT

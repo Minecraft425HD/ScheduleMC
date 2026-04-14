@@ -6037,5 +6037,17 @@
   "subtitles.schedulemc.weapon_empty_click": "Empty click",
   "subtitles.schedulemc.weapon_click": "Click",
   "subtitles.schedulemc.weapon_grenade_explode": "Grenade explosion",
-  "subtitles.schedulemc.weapon_reload": "Reload"
+  "subtitles.schedulemc.weapon_reload": "Reload",
+  "screen.schedulemc.combination_lock.escape_hint": "[ESC] Cancel",
+  "gui.app.missions.status.available": "○ Available",
+  "gui.app.missions.status.active": "● Active",
+  "gui.app.missions.status.completed": "★ Completed",
+  "gui.app.missions.status.claimed": "✓ Claimed",
+  "gui.app.gang.page.inbox": "Gang",
+  "gui.app.gang.page.headquarters": "Gang HQ",
+  "gui.app.gang.page.missions": "Missions",
+  "gui.app.gang.page.rivals": "Rivals",
+  "gui.app.gang.page.members": "Members",
+  "gui.app.gang.page.perks": "Perks & Upgrades",
+  "gui.app.gang.page.report": "Weekly Report"
 }

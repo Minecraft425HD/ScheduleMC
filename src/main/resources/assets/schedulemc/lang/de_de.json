@@ -6037,5 +6037,17 @@
   "subtitles.schedulemc.weapon_empty_click": "Klick (leer)",
   "subtitles.schedulemc.weapon_click": "Klick",
   "subtitles.schedulemc.weapon_grenade_explode": "Granatenexplosion",
-  "subtitles.schedulemc.weapon_reload": "Nachladen"
+  "subtitles.schedulemc.weapon_reload": "Nachladen",
+  "screen.schedulemc.combination_lock.escape_hint": "[ESC] Abbrechen",
+  "gui.app.missions.status.available": "○ Verfügbar",
+  "gui.app.missions.status.active": "● Aktiv",
+  "gui.app.missions.status.completed": "★ Abgeschlossen",
+  "gui.app.missions.status.claimed": "✓ Erhalten",
+  "gui.app.gang.page.inbox": "Gang",
+  "gui.app.gang.page.headquarters": "Gang-Zentrale",
+  "gui.app.gang.page.missions": "Aufträge",
+  "gui.app.gang.page.rivals": "Rivalen",
+  "gui.app.gang.page.members": "Mitglieder",
+  "gui.app.gang.page.perks": "Perks & Upgrades",
+  "gui.app.gang.page.report": "Wochenbericht"
 }

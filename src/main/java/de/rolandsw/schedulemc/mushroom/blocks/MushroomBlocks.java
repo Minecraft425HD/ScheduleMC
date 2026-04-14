@@ -22,34 +22,34 @@ public class MushroomBlocks {
             DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
 
     // ═══════════════════════════════════════════════════════════
-    // KLIMALAMPEN (3 Stufen)
+    // CLIMATE_LAMPN (3 Stufen)
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Block> KLIMALAMPE_SMALL = BLOCKS.register("klimalampe_small",
-            () -> new KlimalampeBlock(KlimalampeTier.SMALL,
+    public static final RegistryObject<Block> CLIMATE_LAMP_SMALL = BLOCKS.register("klimalampe_small",
+            () -> new ClimateLampBlock(ClimateLampTier.SMALL,
                     BlockBehaviour.Properties.of()
                             .strength(2.0f)
                             .sound(SoundType.METAL)
                             .noOcclusion()));
 
-    public static final RegistryObject<Block> KLIMALAMPE_MEDIUM = BLOCKS.register("klimalampe_medium",
-            () -> new KlimalampeBlock(KlimalampeTier.MEDIUM,
+    public static final RegistryObject<Block> CLIMATE_LAMP_MEDIUM = BLOCKS.register("klimalampe_medium",
+            () -> new ClimateLampBlock(ClimateLampTier.MEDIUM,
                     BlockBehaviour.Properties.of()
                             .strength(2.5f)
                             .sound(SoundType.METAL)
                             .noOcclusion()));
 
-    public static final RegistryObject<Block> KLIMALAMPE_LARGE = BLOCKS.register("klimalampe_large",
-            () -> new KlimalampeBlock(KlimalampeTier.LARGE,
+    public static final RegistryObject<Block> CLIMATE_LAMP_LARGE = BLOCKS.register("klimalampe_large",
+            () -> new ClimateLampBlock(ClimateLampTier.LARGE,
                     BlockBehaviour.Properties.of()
                             .strength(3.0f)
                             .sound(SoundType.METAL)
                             .noOcclusion()));
 
     // ═══════════════════════════════════════════════════════════
-    // WASSERTANK
+    // WATER_TANK
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Block> WASSERTANK = BLOCKS.register("wassertank",
-            () -> new WassertankBlock(
+    public static final RegistryObject<Block> WATER_TANK = BLOCKS.register("wassertank",
+            () -> new WaterTankBlock(
                     BlockBehaviour.Properties.of()
                             .strength(2.0f)
                             .sound(SoundType.METAL)
@@ -58,15 +58,15 @@ public class MushroomBlocks {
     // ═══════════════════════════════════════════════════════════
     // BLOCK ITEMS
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> KLIMALAMPE_SMALL_ITEM = ITEMS.register("klimalampe_small",
-            () -> new BlockItem(KLIMALAMPE_SMALL.get(), new Item.Properties()));
+    public static final RegistryObject<Item> CLIMATE_LAMP_SMALL_ITEM = ITEMS.register("klimalampe_small",
+            () -> new BlockItem(CLIMATE_LAMP_SMALL.get(), new Item.Properties()));
 
-    public static final RegistryObject<Item> KLIMALAMPE_MEDIUM_ITEM = ITEMS.register("klimalampe_medium",
-            () -> new BlockItem(KLIMALAMPE_MEDIUM.get(), new Item.Properties()));
+    public static final RegistryObject<Item> CLIMATE_LAMP_MEDIUM_ITEM = ITEMS.register("klimalampe_medium",
+            () -> new BlockItem(CLIMATE_LAMP_MEDIUM.get(), new Item.Properties()));
 
-    public static final RegistryObject<Item> KLIMALAMPE_LARGE_ITEM = ITEMS.register("klimalampe_large",
-            () -> new BlockItem(KLIMALAMPE_LARGE.get(), new Item.Properties()));
+    public static final RegistryObject<Item> CLIMATE_LAMP_LARGE_ITEM = ITEMS.register("klimalampe_large",
+            () -> new BlockItem(CLIMATE_LAMP_LARGE.get(), new Item.Properties()));
 
-    public static final RegistryObject<Item> WASSERTANK_ITEM = ITEMS.register("wassertank",
-            () -> new BlockItem(WASSERTANK.get(), new Item.Properties()));
+    public static final RegistryObject<Item> WATER_TANK_ITEM = ITEMS.register("wassertank",
+            () -> new BlockItem(WATER_TANK.get(), new Item.Properties()));
 }

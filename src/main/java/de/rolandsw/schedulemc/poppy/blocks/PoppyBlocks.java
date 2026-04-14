@@ -33,23 +33,23 @@ public class PoppyBlocks {
             () -> new PoppyPlantBlock(PoppyType.INDISCH));
 
     // Verarbeitungs-Blöcke
-    public static final RegistryObject<Block> RITZMASCHINE = registerBlockWithItem("ritzmaschine",
-            () -> new RitzmaschineBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+    public static final RegistryObject<Block> SCORING_MACHINE = registerBlockWithItem("ritzmaschine",
+            () -> new ScoringMachineBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
                     .strength(3.5F, 6.0F)
                     .requiresCorrectToolForDrops()));
 
-    public static final RegistryObject<Block> OPIUM_PRESSE = registerBlockWithItem("opium_presse",
-            () -> new OpiumPresseBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+    public static final RegistryObject<Block> OPIUM_PRESS = registerBlockWithItem("opium_presse",
+            () -> new OpiumPressBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
                     .strength(4.0F, 6.0F)
                     .requiresCorrectToolForDrops()));
 
-    public static final RegistryObject<Block> KOCHSTATION = registerBlockWithItem("kochstation",
-            () -> new KochstationBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+    public static final RegistryObject<Block> COOKING_STATION = registerBlockWithItem("kochstation",
+            () -> new CookingStationBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
                     .strength(3.0F, 6.0F)
                     .requiresCorrectToolForDrops()));
 
-    public static final RegistryObject<Block> HEROIN_RAFFINERIE = registerBlockWithItem("heroin_raffinerie",
-            () -> new HeroinRaffinerieBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+    public static final RegistryObject<Block> HEROIN_REFINERY = registerBlockWithItem("heroin_raffinerie",
+            () -> new HeroinRefineryBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
                     .strength(4.0F, 6.0F)
                     .requiresCorrectToolForDrops()));
 

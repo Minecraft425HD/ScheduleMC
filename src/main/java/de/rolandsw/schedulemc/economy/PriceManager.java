@@ -264,7 +264,7 @@ public class PriceManager {
     private static List<Item> getMethItems() {
         return List.of(
                 MethItems.METH.get(),
-                MethItems.KRISTALL_METH.get()
+                MethItems.CRYSTAL_METH.get()
         );
     }
 

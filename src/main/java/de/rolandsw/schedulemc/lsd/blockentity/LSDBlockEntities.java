@@ -15,27 +15,27 @@ public class LSDBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
-    public static final RegistryObject<BlockEntityType<FermentationsTankBlockEntity>> FERMENTATIONS_TANK =
+    public static final RegistryObject<BlockEntityType<FermentationTankBlockEntity>> FERMENTATION_TANK =
             BLOCK_ENTITIES.register("fermentations_tank", () ->
-                    BlockEntityType.Builder.of(FermentationsTankBlockEntity::new,
-                            LSDBlocks.FERMENTATIONS_TANK.get()
+                    BlockEntityType.Builder.of(FermentationTankBlockEntity::new,
+                            LSDBlocks.FERMENTATION_TANK.get()
                     ).build(null));
 
-    public static final RegistryObject<BlockEntityType<DestillationsApparatBlockEntity>> DESTILLATIONS_APPARAT =
+    public static final RegistryObject<BlockEntityType<DistillationApparatusBlockEntity>> DISTILLATION_APPARATUS =
             BLOCK_ENTITIES.register("destillations_apparat", () ->
-                    BlockEntityType.Builder.of(DestillationsApparatBlockEntity::new,
-                            LSDBlocks.DESTILLATIONS_APPARAT.get()
+                    BlockEntityType.Builder.of(DistillationApparatusBlockEntity::new,
+                            LSDBlocks.DISTILLATION_APPARATUS.get()
                     ).build(null));
 
-    public static final RegistryObject<BlockEntityType<MikroDosiererBlockEntity>> MIKRO_DOSIERER =
+    public static final RegistryObject<BlockEntityType<MicroDoserBlockEntity>> MICRO_DOSER =
             BLOCK_ENTITIES.register("mikro_dosierer", () ->
-                    BlockEntityType.Builder.of(MikroDosiererBlockEntity::new,
-                            LSDBlocks.MIKRO_DOSIERER.get()
+                    BlockEntityType.Builder.of(MicroDoserBlockEntity::new,
+                            LSDBlocks.MICRO_DOSER.get()
                     ).build(null));
 
-    public static final RegistryObject<BlockEntityType<PerforationsPresseBlockEntity>> PERFORATIONS_PRESSE =
+    public static final RegistryObject<BlockEntityType<PerforationPressBlockEntity>> PERFORATION_PRESS =
             BLOCK_ENTITIES.register("perforations_presse", () ->
-                    BlockEntityType.Builder.of(PerforationsPresseBlockEntity::new,
-                            LSDBlocks.PERFORATIONS_PRESSE.get()
+                    BlockEntityType.Builder.of(PerforationPressBlockEntity::new,
+                            LSDBlocks.PERFORATION_PRESS.get()
                     ).build(null));
 }

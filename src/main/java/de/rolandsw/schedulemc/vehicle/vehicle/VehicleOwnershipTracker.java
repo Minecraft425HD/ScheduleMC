@@ -16,9 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Trackt Fahrzeug-Eigentümerschaft für Auto-LicensePlate Generierung
- * Format: XXX-YY wobei:
+ * Format: XXX-NNN wobei:
  * - XXX = 3 Anfangsbuchstaben des Spielernamens
- * - YY = Fahrzeug-Nummer (01-99)
+ * - NNN = Fahrzeug-Nummer (001+)
  *
  * Bei gleichem Präfix erhalten Spieler Offsets (0, 10, 20, 30...)
  */
@@ -51,7 +51,7 @@ public class VehicleOwnershipTracker extends SavedData {
      * Registriert einen Fahrzeugkauf und gibt die Kennzeichen-Nummer zurück
      * @param player Der Spieler, der ein Fahrzeug kauft
      * @param prefix Das Kennzeichen-Präfix (3 Buchstaben)
-     * @return Die Kennzeichen-Nummer (01-99)
+     * @return Die Kennzeichen-Nummer (001+)
      */
     public int registerVehiclePurchase(Player player, String prefix) {
         UUID playerUUID = player.getUUID();

@@ -176,7 +176,7 @@ public class MissionsAppScreen extends Screen {
         gui.drawString(this.font, title, x + 4, y + 4, 0xFFFFFF);
 
         // Status-Badge
-        String badge = getStatusBadge(mission.getStatus());
+        String badge = getStatusBadge(mission.getStatus()).getString();
         int badgeColor = getStatusBadgeColor(mission.getStatus());
         int badgeWidth = this.font.width(badge);
         gui.drawString(this.font, badge, x + width - badgeWidth - 4, y + 4, badgeColor);
@@ -317,12 +317,12 @@ public class MissionsAppScreen extends Screen {
 
     // ── Hilfsmethoden ────────────────────────────────────────────────────
 
-    private String getStatusBadge(MissionStatus status) {
+    private Component getStatusBadge(MissionStatus status) {
         return switch (status) {
-            case AVAILABLE -> "○ Verfügbar";
-            case ACTIVE -> "● Aktiv";
-            case COMPLETED -> "★ Abgeschlossen";
-            case CLAIMED -> "✓ Erhalten";
+            case AVAILABLE -> Component.translatable("gui.app.missions.status.available");
+            case ACTIVE -> Component.translatable("gui.app.missions.status.active");
+            case COMPLETED -> Component.translatable("gui.app.missions.status.completed");
+            case CLAIMED -> Component.translatable("gui.app.missions.status.claimed");
         };
     }
 

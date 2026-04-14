@@ -6,7 +6,7 @@ import net.minecraft.util.StringRepresentable;
 import java.util.Locale;
 
 /**
- * Temperatur-Modi für Klimalampe
+ * Temperatur-Modi für ClimateLamp
  */
 public enum TemperatureMode implements StringRepresentable {
     OFF("off", "⚫"),

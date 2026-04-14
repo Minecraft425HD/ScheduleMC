@@ -115,7 +115,7 @@ public class CocaBlocks {
 
     public static final RegistryObject<Block> CRACK_KOCHER = registerBlockWithItem(
             "crack_kocher",
-            () -> new CrackKocherBlock(
+            () -> new CrackCookerBlock(
                     BlockBehaviour.Properties.of()
                             .strength(2.5f)
                             .sound(SoundType.METAL)

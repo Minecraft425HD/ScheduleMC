@@ -23,19 +23,19 @@ import de.rolandsw.schedulemc.tobacco.screen.BigDryingRackScreen;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenuTypes;
 import de.rolandsw.schedulemc.warehouse.screen.WarehouseScreen;
 import de.rolandsw.schedulemc.meth.menu.MethMenuTypes;
-import de.rolandsw.schedulemc.meth.screen.ReduktionskesselScreen;
+import de.rolandsw.schedulemc.meth.screen.ReductionKettleScreen;
 import de.rolandsw.schedulemc.lsd.menu.LSDMenuTypes;
-import de.rolandsw.schedulemc.lsd.screen.MikroDosiererScreen;
+import de.rolandsw.schedulemc.lsd.screen.MicroDoserScreen;
 import de.rolandsw.schedulemc.mdma.menu.MDMAMenuTypes;
-import de.rolandsw.schedulemc.mdma.screen.PillenPresseScreen;
+import de.rolandsw.schedulemc.mdma.screen.PillPressScreen;
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
 import de.rolandsw.schedulemc.cannabis.items.CannabisSeedItem;
 import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;
-import de.rolandsw.schedulemc.cannabis.screen.TrimmStationScreen;
-import de.rolandsw.schedulemc.cannabis.screen.CuringGlasScreen;
-import de.rolandsw.schedulemc.cannabis.screen.HashPresseScreen;
-import de.rolandsw.schedulemc.cannabis.screen.OelExtraktortScreen;
+import de.rolandsw.schedulemc.cannabis.screen.TrimStationScreen;
+import de.rolandsw.schedulemc.cannabis.screen.CuringJarScreen;
+import de.rolandsw.schedulemc.cannabis.screen.HashPressScreen;
+import de.rolandsw.schedulemc.cannabis.screen.OilExtractorScreen;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import de.rolandsw.schedulemc.towing.menu.TowingMenuTypes;
@@ -90,19 +90,19 @@ public class ClientModEvents {
                 MenuScreens.register(ModMenuTypes.BIG_DRYING_RACK_MENU.get(), BigDryingRackScreen::new);
 
                 // Meth-System
-                MenuScreens.register(MethMenuTypes.REDUKTIONSKESSEL_MENU.get(), ReduktionskesselScreen::new);
+                MenuScreens.register(MethMenuTypes.REDUCTION_KETTLE_MENU.get(), ReductionKettleScreen::new);
 
                 // LSD-System
-                MenuScreens.register(LSDMenuTypes.MIKRO_DOSIERER_MENU.get(), MikroDosiererScreen::new);
+                MenuScreens.register(LSDMenuTypes.MICRO_DOSER_MENU.get(), MicroDoserScreen::new);
 
                 // MDMA-System
-                MenuScreens.register(MDMAMenuTypes.PILLEN_PRESSE_MENU.get(), PillenPresseScreen::new);
+                MenuScreens.register(MDMAMenuTypes.PILL_PRESS_MENU.get(), PillPressScreen::new);
 
                 // Cannabis-System
-                MenuScreens.register(CannabisMenuTypes.TRIMM_STATION_MENU.get(), TrimmStationScreen::new);
-                MenuScreens.register(CannabisMenuTypes.CURING_GLAS_MENU.get(),   CuringGlasScreen::new);
-                MenuScreens.register(CannabisMenuTypes.HASH_PRESSE_MENU.get(),   HashPresseScreen::new);
-                MenuScreens.register(CannabisMenuTypes.OEL_EXTRAKTOR_MENU.get(), OelExtraktortScreen::new);
+                MenuScreens.register(CannabisMenuTypes.TRIM_STATION_MENU.get(), TrimStationScreen::new);
+                MenuScreens.register(CannabisMenuTypes.CURING_JAR_MENU.get(),   CuringJarScreen::new);
+                MenuScreens.register(CannabisMenuTypes.HASH_PRESS_MENU.get(),   HashPressScreen::new);
+                MenuScreens.register(CannabisMenuTypes.OIL_EXTRACTOR_MENU.get(), OilExtractorScreen::new);
                 ItemProperties.register(CannabisItems.CANNABIS_SEED.get(),
                         new ResourceLocation(ScheduleMC.MOD_ID, "strain"),
                         (stack, level, entity, seed) -> CannabisSeedItem.getStrain(stack).ordinal());

@@ -27,9 +27,9 @@ public class MethBlocks {
     // CHEMIE-MIXER (Schritt 1)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> CHEMIE_MIXER = registerBlockWithItem(
+    public static final RegistryObject<Block> CHEMICAL_MIXER = registerBlockWithItem(
             "chemie_mixer",
-            () -> new ChemieMixerBlock(
+            () -> new ChemicalMixerBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.0f)
                             .sound(SoundType.METAL)
@@ -38,12 +38,12 @@ public class MethBlocks {
     );
 
     // ═══════════════════════════════════════════════════════════
-    // REDUKTIONSKESSEL (Schritt 2) - Mit Explosionsgefahr!
+    // REDUCTION_KETTLE (Schritt 2) - Mit Explosionsgefahr!
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> REDUKTIONSKESSEL = registerBlockWithItem(
+    public static final RegistryObject<Block> REDUCTION_KETTLE = registerBlockWithItem(
             "reduktionskessel",
-            () -> new ReduktionskesselBlock(
+            () -> new ReductionKettleBlock(
                     BlockBehaviour.Properties.of()
                             .strength(4.0f)
                             .sound(SoundType.METAL)
@@ -53,12 +53,12 @@ public class MethBlocks {
     );
 
     // ═══════════════════════════════════════════════════════════
-    // KRISTALLISATOR (Schritt 3)
+    // CRYSTALLIZER (Schritt 3)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> KRISTALLISATOR = registerBlockWithItem(
+    public static final RegistryObject<Block> CRYSTALLIZER = registerBlockWithItem(
             "kristallisator",
-            () -> new KristallisatorBlock(
+            () -> new CrystallizerBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
                             .sound(SoundType.GLASS)
@@ -70,9 +70,9 @@ public class MethBlocks {
     // VAKUUM-TROCKNER (Schritt 4 - Final)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> VAKUUM_TROCKNER = registerBlockWithItem(
+    public static final RegistryObject<Block> VACUUM_DRYER = registerBlockWithItem(
             "vakuum_trockner",
-            () -> new VakuumTrocknerBlock(
+            () -> new VacuumDryerBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
                             .sound(SoundType.METAL)
