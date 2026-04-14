@@ -161,7 +161,7 @@ public class GangAppScreen extends Screen {
 
         // Zurueck-Button (alle Seiten)
         if (currentPage == SubPage.INBOX) {
-            addRenderableWidget(Button.builder(Component.literal("\u00A77Zurueck"), b -> {
+            addRenderableWidget(Button.builder(Component.literal("\u00A77Back"), b -> {
                 if (minecraft != null) minecraft.setScreen(parentScreen);
             }).bounds(leftPos + 5, footerY, 50, 18).build());
         } else {
@@ -178,7 +178,7 @@ public class GangAppScreen extends Screen {
 
         // Page-spezifische Widgets
         switch (currentPage) {
-            case MEMBERS -> buildMitgliederWidgets(footerY);
+            case MEMBERS -> buildMembersWidgets(footerY);
             case HEADQUARTERS -> buildZentraleWidgets(footerY);
             default -> {}
         }
@@ -191,7 +191,7 @@ public class GangAppScreen extends Screen {
         // Card 1: Gang gruenden - Inputs
         createNameInput = new EditBox(this.font, cx + 3, cy + 40, 140, 14, Component.literal("Name"));
         createNameInput.setMaxLength(20);
-        createNameInput.setHint(Component.literal("Gang-Name..."));
+        createNameInput.setHint(Component.literal("Gang name..."));
         addRenderableWidget(createNameInput);
 
         createTagInput = new EditBox(this.font, cx + 3, cy + 70, 55, 14, Component.literal("Tag"));
@@ -199,7 +199,7 @@ public class GangAppScreen extends Screen {
         createTagInput.setHint(Component.literal("TAG"));
         addRenderableWidget(createTagInput);
 
-        addRenderableWidget(Button.builder(Component.literal("\u00A7a\u2713 Gruenden"), b -> {
+        addRenderableWidget(Button.builder(Component.literal("\u00A7a\u2713 Create"), b -> {
             String name = createNameInput.getValue().trim();
             String tag = createTagInput.getValue().trim().toUpperCase();
             if (!name.isEmpty() && !tag.isEmpty() && tag.length() >= 2) {
@@ -208,24 +208,24 @@ public class GangAppScreen extends Screen {
         }).bounds(cx + 62, cy + 70, 80, 14).build());
 
         // Card 2: Gang beitreten (cy + 98)
-        addRenderableWidget(Button.builder(Component.literal("\u00A7e\u2713 Einladung annehmen"), b -> {
+        addRenderableWidget(Button.builder(Component.literal("\u00A7e\u2713 Accept invite"), b -> {
             sendActionAndRefresh(GangActionPacket.acceptInvite(UUID.randomUUID()));
         }).bounds(cx + 3, cy + 98 + 40, 160, 14).build());
 
         // Zurueck-Button (Footer)
-        addRenderableWidget(Button.builder(Component.literal("\u00A77\u25C0 Zurueck"), b -> {
+        addRenderableWidget(Button.builder(Component.literal("\u00A77\u25C0 Back"), b -> {
             if (minecraft != null) minecraft.setScreen(parentScreen);
         }).bounds(leftPos + 5, topPos + HEIGHT - 24, 55, 18).build());
     }
 
-    private void buildMitgliederWidgets(int footerY) {
+    private void buildMembersWidgets(int footerY) {
         SyncGangDataPacket data = ClientGangCache.getMyGangData();
         if (data == null) return;
 
         if (data.canInvite()) {
             inviteInput = new EditBox(this.font, leftPos + 63, footerY, 100, 18, Component.literal("Invite"));
             inviteInput.setMaxLength(32);
-            inviteInput.setHint(Component.literal("Einladen..."));
+            inviteInput.setHint(Component.literal("Invite..."));
             addRenderableWidget(inviteInput);
 
             addRenderableWidget(Button.builder(Component.literal("\u00A7a+"), b -> {
@@ -360,9 +360,9 @@ public class GangAppScreen extends Screen {
         int totalHeight = switch (currentPage) {
             case INBOX -> renderInbox(g);
             case HEADQUARTERS -> renderZentrale(g);
-            case MISSIONS -> renderAuftraege(g);
+            case MISSIONS -> renderMissions(g);
             case RIVALS -> renderRivalen(g);
-            case MEMBERS -> renderMitglieder(g);
+            case MEMBERS -> renderMembers(g);
             case PERKS -> renderPerks(g);
             case REPORT -> renderBericht(g);
         };
@@ -393,8 +393,8 @@ public class GangAppScreen extends Screen {
         // ═══ CARD 1: Gang gruenden ═══
         g.fill(leftPos + 5, cy, leftPos + WIDTH - 5, cy + 92, 0xFF141A00);
         g.fill(leftPos + 5, cy, leftPos + WIDTH - 5, cy + 1, 0x33FFAA00);
-        g.drawString(this.font, "\u00A76\u2302 \u00A7l\u00A76Gang gruenden", cx, cy + 4, 0xFFAA00);
-        g.drawString(this.font, "\u00A78\u2514\u2500 Voraussetzung: \u00A7eLv.15 \u00A78+ \u00A7a25.000\u20AC", cx + 3, cy + 16, 0x888888);
+        g.drawString(this.font, "\u00A76\u2302 \u00A7l\u00A76Create gang", cx, cy + 4, 0xFFAA00);
+        g.drawString(this.font, "\u00A78\u2514\u2500 Requirement: \u00A7eLv.15 \u00A78+ \u00A7a25.000\u20AC", cx + 3, cy + 16, 0x888888);
         g.drawString(this.font, "\u00A77Name:", cx + 3, cy + 32, 0xAAAAAA);
         g.drawString(this.font, "\u00A77Tag (2-5):", cx + 3, cy + 62, 0xAAAAAA);
 
@@ -403,19 +403,19 @@ public class GangAppScreen extends Screen {
         // ═══ CARD 2: Gang beitreten ═══
         g.fill(leftPos + 5, cy, leftPos + WIDTH - 5, cy + 55, 0xFF001020);
         g.fill(leftPos + 5, cy, leftPos + WIDTH - 5, cy + 1, 0x3355AAFF);
-        g.drawString(this.font, "\u00A7b\u263A \u00A7l\u00A7bGang beitreten", cx, cy + 4, 0x55AAFF);
-        g.drawString(this.font, "\u00A78\u2514\u2500 Voraussetzung: \u00A7eLv.5 \u00A78+ \u00A7a2.500\u20AC", cx + 3, cy + 16, 0x888888);
-        g.drawString(this.font, "\u00A78\u2514\u2500 Einladung eines Gang-Mitglieds noetig!", cx + 3, cy + 28, 0x888888);
+        g.drawString(this.font, "\u00A7b\u263A \u00A7l\u00A7bJoin gang", cx, cy + 4, 0x55AAFF);
+        g.drawString(this.font, "\u00A78\u2514\u2500 Requirement: \u00A7eLv.5 \u00A78+ \u00A7a2.500\u20AC", cx + 3, cy + 16, 0x888888);
+        g.drawString(this.font, "\u00A78\u2514\u2500 Invitation from a gang member required!", cx + 3, cy + 28, 0x888888);
 
         cy += 60;
 
-        // ═══ CARD 3: Beitragssystem ═══
+        // ═══ CARD 3: Membership fee system ═══
         g.fill(leftPos + 5, cy, leftPos + WIDTH - 5, cy + 55, 0xFF140014);
         g.fill(leftPos + 5, cy, leftPos + WIDTH - 5, cy + 1, 0x33FF55FF);
-        g.drawString(this.font, "\u00A7d\u2726 \u00A7l\u00A7dWochenbeitrag-Staffelung", cx, cy + 4, 0xFF55FF);
-        g.drawString(this.font, "\u00A78Boss legt Beitrag fest (0-10.000\u20AC/Wo)", cx + 3, cy + 16, 0x888888);
+        g.drawString(this.font, "\u00A7d\u2726 \u00A7l\u00A7dWeekly fee tiers", cx, cy + 4, 0xFF55FF);
+        g.drawString(this.font, "\u00A78Boss sets fee (0-10,000\u20AC/week)", cx + 3, cy + 16, 0x888888);
         g.drawString(this.font, "\u00A7cRecruit: \u00A7f100% \u00A78| \u00A7eMember: \u00A7f50%", cx + 3, cy + 28, 0xFFFFFF);
-        g.drawString(this.font, "\u00A7bUnderboss: \u00A7f10% \u00A78| \u00A76Boss: \u00A7abefreit", cx + 3, cy + 40, 0xFFFFFF);
+        g.drawString(this.font, "\u00A7bUnderboss: \u00A7f10% \u00A78| \u00A76Boss: \u00A7aexempt", cx + 3, cy + 40, 0xFFFFFF);
 
         cy += 60;
 
@@ -474,7 +474,7 @@ public class GangAppScreen extends Screen {
         y += 22;
 
         // ═══ INBOX ROWS ═══
-        // Zeile 1: Gang-Zentrale
+        // Zeile 1: Gang HQ
         int done = data.getCompletedMissionCount();
         int total = data.getMissions().size();
         List<SyncGangListPacket.GangListEntry> gangs = ClientGangCache.getGangList();
@@ -485,14 +485,14 @@ public class GangAppScreen extends Screen {
         int onlineCount = (int) data.getMembers().stream().filter(SyncGangDataPacket.GangMemberInfo::online).count();
 
         y = renderInboxRow(g, y, rowLeft, rowRight, "\u2302", 0xFFFF8800,
-                "Gang-Zentrale", "\u00A7a" + data.getGangBalance() + "\u20AC \u00A78Kasse | Lv." + data.getGangLevel(),
+                "Gang HQ", "\u00A7a" + data.getGangBalance() + "\u20AC \u00A78Kasse | Lv." + data.getGangLevel(),
                 0xFF1A1400);
 
-        // Zeile 2: Auftraege
+        // Zeile 2: Missions
         String missionPreview = done >= total && total > 0 ? "\u00A7aBelohnungen abholen!" :
                 "\u00A7a" + done + "/" + total + " \u00A78erledigt | " + getShortTimerString(data);
         y = renderInboxRow(g, y, rowLeft, rowRight, "\u2606", 0xFFFFFF55,
-                "Auftraege", missionPreview,
+                "Missions", missionPreview,
                 0xFF141A00);
 
         // Zeile 3: Rivalen
@@ -502,22 +502,22 @@ public class GangAppScreen extends Screen {
                 "Rivalen", rivalInfo,
                 0xFF1A0000);
 
-        // Zeile 4: Mitglieder
+        // Zeile 4: Members
         y = renderInboxRow(g, y, rowLeft, rowRight, "\u263A", 0xFF55AAFF,
-                "Mitglieder", "\u00A7a" + onlineCount + " online \u00A78| " + data.getMemberCount() + "/" + data.getMaxMembers(),
+                "Members", "\u00A7a" + onlineCount + " online \u00A78| " + data.getMemberCount() + "/" + data.getMaxMembers(),
                 0xFF001020);
 
         // Zeile 5: Perks
         int freePerks = data.getAvailablePerkPoints();
-        String perkInfo = freePerks > 0 ? "\u00A7a" + freePerks + " Punkte verfuegbar!" :
-                "\u00A78" + data.getUnlockedPerks().size() + "/" + GangLevelRequirements.getAvailablePerkPoints(data.getGangLevel()) + " freigeschaltet";
+        String perkInfo = freePerks > 0 ? "\u00A7a" + freePerks + " points available!" :
+                "\u00A78" + data.getUnlockedPerks().size() + "/" + GangLevelRequirements.getAvailablePerkPoints(data.getGangLevel()) + " unlocked";
         y = renderInboxRow(g, y, rowLeft, rowRight, "\u2726", 0xFFFF55FF,
                 "Perks & Upgrades", perkInfo,
                 freePerks > 0 ? 0xFF1A0A1A : 0xFF140014);
 
-        // Zeile 6: Wochenbericht
+        // Zeile 6: Weekly report
         y = renderInboxRow(g, y, rowLeft, rowRight, "\u2261", 0xFF55FF55,
-                "Wochenbericht", "\u00A7a+" + data.getWeekXPGained() + " XP \u00A78| \u00A7a+" + data.getWeekMoneyEarned() + "\u20AC",
+                "Weekly report", "\u00A7a+" + data.getWeekXPGained() + " XP \u00A78| \u00A7a+" + data.getWeekMoneyEarned() + "\u20AC",
                 0xFF001A00);
 
         return y - startY + scrollOffset;
@@ -584,25 +584,25 @@ public class GangAppScreen extends Screen {
         // Stats
         int halfW = WIDTH / 2;
         g.drawString(this.font, "\u00A78Kasse: \u00A7a" + data.getGangBalance() + "\u20AC", leftPos + 15, y, 0xFFFFFF);
-        g.drawString(this.font, "\u00A78Mitglieder: \u00A7f" + data.getMemberCount() + "/" + data.getMaxMembers(), leftPos + halfW, y, 0xFFFFFF);
+        g.drawString(this.font, "\u00A78Members: \u00A7f" + data.getMemberCount() + "/" + data.getMaxMembers(), leftPos + halfW, y, 0xFFFFFF);
         y += 11;
         g.drawString(this.font, "\u00A78Territory: \u00A7f" + data.getTerritoryCount() + "/" + data.getMaxTerritory(), leftPos + 15, y, 0xFFFFFF);
         g.drawString(this.font, "\u00A78Perks: \u00A7f" + data.getUnlockedPerks().size() + "/" +
                 GangLevelRequirements.getAvailablePerkPoints(data.getGangLevel()), leftPos + halfW, y, 0xFFFFFF);
         y += 14;
 
-        // Beitrag
+        // Fee
         int fee = data.getWeeklyFee();
         if (fee > 0) {
             int myRank = data.getMyRankPriority();
             double mult = switch (myRank) { case 4 -> 0.0; case 3 -> 0.10; case 2 -> 0.50; default -> 1.0; };
             int myFee = (int) Math.ceil(fee * mult);
             String feeText = myFee > 0
-                    ? "\u00A78Beitrag: \u00A7e" + fee + "\u20AC/Wo \u00A77(dein: \u00A7a" + myFee + "\u20AC\u00A77)"
-                    : "\u00A78Beitrag: \u00A7e" + fee + "\u20AC/Wo \u00A77(du: \u00A7abefreit\u00A77)";
+                    ? "\u00A78Fee: \u00A7e" + fee + "\u20AC/week \u00A77(yours: \u00A7a" + myFee + "\u20AC\u00A77)"
+                    : "\u00A78Fee: \u00A7e" + fee + "\u20AC/week \u00A77(you: \u00A7aexempt\u00A77)";
             g.drawString(this.font, feeText, leftPos + 15, y, 0xFFFFFF);
         } else {
-            g.drawString(this.font, "\u00A78Beitrag: \u00A7akein Beitrag", leftPos + 15, y, 0xFFFFFF);
+            g.drawString(this.font, "\u00A78Fee: \u00A7ano fee", leftPos + 15, y, 0xFFFFFF);
         }
         y += 14;
 
@@ -610,12 +610,12 @@ public class GangAppScreen extends Screen {
         g.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 1, 0x44FFFFFF);
         y += 8;
 
-        // Stufenrabatt-Info
-        g.drawString(this.font, "\u00A76\u00A7lStufenrabatt", leftPos + 15, y, 0xFFAA00);
+        // Level discount-Info
+        g.drawString(this.font, "\u00A76\u00A7lLevel discount", leftPos + 15, y, 0xFFAA00);
         y += 12;
         g.drawString(this.font, "\u00A7cRecruit: \u00A7f100% \u00A78| \u00A7eMember: \u00A7f50%", leftPos + 15, y, 0xFFFFFF);
         y += 11;
-        g.drawString(this.font, "\u00A7bUnderboss: \u00A7f10% \u00A78| \u00A76Boss: \u00A7abefreit", leftPos + 15, y, 0xFFFFFF);
+        g.drawString(this.font, "\u00A7bUnderboss: \u00A7f10% \u00A78| \u00A76Boss: \u00A7aexempt", leftPos + 15, y, 0xFFFFFF);
         y += 18;
 
         return y - startY + scrollOffset;
@@ -625,7 +625,7 @@ public class GangAppScreen extends Screen {
     // PAGE: MISSIONS
     // ═══════════════════════════════════════════════════════════
 
-    private int renderAuftraege(GuiGraphics g) {
+    private int renderMissions(GuiGraphics g) {
         SyncGangDataPacket data = ClientGangCache.getMyGangData();
         if (data == null || !data.hasGang()) return 0;
 
@@ -641,12 +641,12 @@ public class GangAppScreen extends Screen {
         g.drawString(this.font, h + " \u00A78| " + d + " \u00A78| " + w, leftPos + 10, y + 2, 0xFFFFFF);
         y += 16;
 
-        // Stuendliche Auftraege
-        y = renderMissionCategory(g, data, y, 0, "\u00A7e\u00A7l\u23F1 Stuendlich", 0x33FFAA00);
-        // Taegliche Auftraege
-        y = renderMissionCategory(g, data, y, 1, "\u00A7a\u00A7l\u2600 Taeglich", 0x3300AA00);
-        // Woechentliche Auftraege
-        y = renderMissionCategory(g, data, y, 2, "\u00A76\u00A7l\u2605 Woechentlich", 0x33FF8800);
+        // Hourly Missions
+        y = renderMissionCategory(g, data, y, 0, "\u00A7e\u00A7l\u23F1 Hourly", 0x33FFAA00);
+        // Daily Missions
+        y = renderMissionCategory(g, data, y, 1, "\u00A7a\u00A7l\u2600 Daily", 0x3300AA00);
+        // Weekly Missions
+        y = renderMissionCategory(g, data, y, 2, "\u00A76\u00A7l\u2605 Weekly", 0x33FF8800);
 
         return y - startY + scrollOffset;
     }
@@ -663,7 +663,7 @@ public class GangAppScreen extends Screen {
 
         if (missions.isEmpty()) {
             if (yPos > contentTop - 12 && yPos < contentBottom + 12) {
-                g.drawString(this.font, "\u00A78Keine Auftraege.", leftPos + 15, yPos, 0x888888);
+                g.drawString(this.font, "\u00A78No missions.", leftPos + 15, yPos, 0x888888);
             }
             yPos += 14;
         } else {
@@ -736,7 +736,7 @@ public class GangAppScreen extends Screen {
             if (ge.name().equals(data.getGangName())) { ownRank = ge.rank(); break; }
         }
         if (y > contentTop - 14 && y < contentBottom + 14) {
-            g.drawString(this.font, "\u00A77Euer Rang: \u00A7e\u00A7l#" + ownRank, leftPos + 10, y, 0xFFFFFF);
+            g.drawString(this.font, "\u00A77Your rank: \u00A7e\u00A7l#" + ownRank, leftPos + 10, y, 0xFFFFFF);
         }
         y += 16;
 
@@ -797,7 +797,7 @@ public class GangAppScreen extends Screen {
         }
 
         if (gangs.isEmpty()) {
-            g.drawString(this.font, "\u00A78Keine anderen Gangs auf dem Server.", leftPos + 15, y, 0x888888);
+            g.drawString(this.font, "\u00A78No other gangs on this server.", leftPos + 15, y, 0x888888);
             y += 14;
         }
 
@@ -808,7 +808,7 @@ public class GangAppScreen extends Screen {
     // PAGE: MEMBERS
     // ═══════════════════════════════════════════════════════════
 
-    private int renderMitglieder(GuiGraphics g) {
+    private int renderMembers(GuiGraphics g) {
         SyncGangDataPacket data = ClientGangCache.getMyGangData();
         if (data == null || !data.hasGang()) return 0;
 
@@ -817,7 +817,7 @@ public class GangAppScreen extends Screen {
 
         int online = (int) data.getMembers().stream().filter(SyncGangDataPacket.GangMemberInfo::online).count();
         g.drawString(this.font, "\u00A78" + data.getMemberCount() + "/" + data.getMaxMembers() +
-                " Mitglieder \u00A77| \u00A7a" + online + " online", leftPos + 10, y, 0xFFFFFF);
+                " Members \u00A77| \u00A7a" + online + " online", leftPos + 10, y, 0xFFFFFF);
         y += 14;
 
         int myRank = data.getMyRankPriority();
@@ -857,9 +857,9 @@ public class GangAppScreen extends Screen {
                 int infoW = this.font.width(info);
                 g.drawString(this.font, info, rightX - infoW - 2, y + 2, 0x888888);
 
-                // Zeile 2 fuer Beitragsstatus
+                // Row 2 for fee status
                 if (fee > 0 && m.rankPriority() < 4) {
-                    g.drawString(this.font, "\u00A78Beitrag/Wo: \u00A7f" + memberFee + "\u20AC",
+                    g.drawString(this.font, "\u00A78Fee/week: \u00A7f" + memberFee + "\u20AC",
                             leftPos + 24, y + 12, 0x888888);
                 }
             }
@@ -961,23 +961,23 @@ public class GangAppScreen extends Screen {
         // Auftrags-Statistik
         g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 1, 0x44FFFFFF);
         y += 4;
-        g.drawString(this.font, "\u00A7e\u00A7lAuftrags-Statistik", leftPos + 10, y, 0xFFFF55);
+        g.drawString(this.font, "\u00A7e\u00A7lMission Statistics", leftPos + 10, y, 0xFFFF55);
         y += 14;
 
-        g.drawString(this.font, "\u00A78Stuendlich:   \u00A7a" + data.getWeekHourlyDone(), leftPos + 15, y, 0xFFFFFF);
+        g.drawString(this.font, "\u00A78Hourly:   \u00A7a" + data.getWeekHourlyDone(), leftPos + 15, y, 0xFFFFFF);
         y += 11;
-        g.drawString(this.font, "\u00A78Taeglich:     \u00A7a" + data.getWeekDailyDone(), leftPos + 15, y, 0xFFFFFF);
+        g.drawString(this.font, "\u00A78Daily:     \u00A7a" + data.getWeekDailyDone(), leftPos + 15, y, 0xFFFFFF);
         y += 11;
-        g.drawString(this.font, "\u00A78Woechentlich: \u00A7a" + data.getWeekWeeklyDone(), leftPos + 15, y, 0xFFFFFF);
+        g.drawString(this.font, "\u00A78Weekly: \u00A7a" + data.getWeekWeeklyDone(), leftPos + 15, y, 0xFFFFFF);
         y += 11;
         int totalDone = data.getWeekHourlyDone() + data.getWeekDailyDone() + data.getWeekWeeklyDone();
-        g.drawString(this.font, "\u00A78Gesamt:       \u00A7f" + totalDone + " Auftraege", leftPos + 15, y, 0xFFFFFF);
+        g.drawString(this.font, "\u00A78Gesamt:       \u00A7f" + totalDone + " Missions", leftPos + 15, y, 0xFFFFFF);
         y += 16;
 
-        // Top-Mitglieder
+        // Top-Members
         g.fill(leftPos + 5, y, leftPos + WIDTH - 5, y + 1, 0x44FFFFFF);
         y += 4;
-        g.drawString(this.font, "\u00A7e\u00A7lTop-Mitglieder (XP)", leftPos + 10, y, 0xFFFF55);
+        g.drawString(this.font, "\u00A7e\u00A7lTop-Members (XP)", leftPos + 10, y, 0xFFFF55);
         y += 14;
 
         List<SyncGangDataPacket.GangMemberInfo> sorted = data.getMembers().stream()

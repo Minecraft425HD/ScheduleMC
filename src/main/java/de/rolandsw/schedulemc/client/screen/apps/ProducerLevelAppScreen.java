@@ -446,7 +446,7 @@ public class ProducerLevelAppScreen extends Screen {
             guiGraphics.drawCenteredString(this.font, lockedText,
                     leftPos + WIDTH / 2, statusY, 0xFF5555);
             guiGraphics.drawCenteredString(this.font,
-                    "\u00A77Noch \u00A7e" + levelsNeeded + " Level\u00A77 benoetigt",
+                    "\u00A77Still \u00A7e" + levelsNeeded + " levels\u00A77 required",
                     leftPos + WIDTH / 2, statusY + 15, 0xAAAAAA);
         }
 
