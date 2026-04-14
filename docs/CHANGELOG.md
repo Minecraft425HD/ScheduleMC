@@ -112,7 +112,7 @@ Format: `[version] - date — Summary of changes`
 ### Added
 - **Vehicle System** — 5 vehicle types (Limousine, Van, Truck, SUV, Sports Car) using OBJ models via CoreLib
 - Vehicle upgrade system: modular chassis, engines (3 tiers), tires (6 types), fenders, fuel tanks
-- Garage blocks for vehicle storage
+- Vehicle workshop blocks for storage, repairs, and upgrades
 - Fuel station blocks with configurable fuel types
 - License plate system with custom text
 - Vehicle damage and crash system
@@ -284,4 +284,3 @@ Current stage: **beta** — All systems are feature-complete and tested, but bal
 - Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
 - Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
 - Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
-

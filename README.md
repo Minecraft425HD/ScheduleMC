@@ -799,7 +799,7 @@ All legal production chains follow similar multi-step patterns with dedicated it
 
 ### 6. Vehicle System
 
-A complete vehicle system spanning 137 files, covering chassis types, engines, tires, fuel mechanics, garages, license plates, and OBJ model rendering through CoreLib.
+A complete vehicle system spanning 137 files, covering chassis types, engines, tires, fuel mechanics, vehicle workshops, license plates, and OBJ model rendering through CoreLib.
 
 **Vehicle Components:**
 
@@ -814,7 +814,7 @@ A complete vehicle system spanning 137 files, covering chassis types, engines, t
 
 **Features:**
 - **Fuel system** with diesel and gasoline fuel types, fuel cans (empty/full), and fuel station blocks for refueling
-- **Garage system** with garage blocks for vehicle storage, retrieval, and management
+- **Workshop system** with vehicle workshop blocks for storage, retrieval, maintenance, and upgrades
 - **License plate system** with customizable plate text
 - **OBJ model support** via CoreLib for detailed 3D vehicle models with proper rendering
 - **Vehicle damage** system with durability, collision damage, and repair mechanics using maintenance kits
@@ -833,7 +833,7 @@ A complete vehicle system spanning 137 files, covering chassis types, engines, t
 |---|---|
 | `vehicle/entity/` | Vehicle entity definitions and behavior |
 | `vehicle/vehicle/` | Vehicle data models, configurations |
-| `vehicle/blocks/` | Fuel stations, garages |
+| `vehicle/blocks/` | Fuel stations, vehicle workshops |
 | `vehicle/items/` | Parts, fuel, tools, keys |
 | `vehicle/gui/` | Vehicle-related GUI screens |
 | `vehicle/fuel/` | Fuel types, consumption calculations |
@@ -1340,7 +1340,7 @@ ScheduleMC adds **152 blocks** across all systems.
 | **Economy** | 2 | ATM Block, Cash Block |
 | **Plot** | 1 | Plot Info Block |
 | **Warehouse** | 1 | Warehouse Block |
-| **Vehicle** | 4 | Fuel Station, Fuel Station Top, Garage (Werkstatt), Bio Diesel Fluid |
+| **Vehicle** | 4 | Fuel Station, Fuel Station Top, Vehicle Workshop (Werkstatt), Bio Diesel Fluid |
 | **TOTAL** | **152** | |
 
 ---
