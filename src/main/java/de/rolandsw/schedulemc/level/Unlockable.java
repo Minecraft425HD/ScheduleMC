@@ -21,99 +21,99 @@ public enum Unlockable {
     // ═══════════════════════════════════════════════════════════
     // LEVEL 1-5: EINSTIEG
     // ═══════════════════════════════════════════════════════════
-    TOBACCO_VIRGINIA(1, UnlockCategory.PRODUCTION_CHAIN, "Tabak: Virginia-Sorte"),
-    CANNABIS_AUTOFLOWER(1, UnlockCategory.PRODUCTION_CHAIN, "Cannabis: Autoflower-Sorte"),
-    BEER_PILSNER(1, UnlockCategory.PRODUCTION_CHAIN, "Bier: Pilsner"),
-    HONEY_ACACIA(1, UnlockCategory.PRODUCTION_CHAIN, "Honig: Akazie"),
-    POT_TERRACOTTA(1, UnlockCategory.POT, "Terracotta-Topf"),
+    TOBACCO_VIRGINIA(1, UnlockCategory.PRODUCTION_CHAIN, "Tobacco: Virginia strain"),
+    CANNABIS_AUTOFLOWER(1, UnlockCategory.PRODUCTION_CHAIN, "Cannabis: Autoflower strain"),
+    BEER_PILSNER(1, UnlockCategory.PRODUCTION_CHAIN, "Beer: Pilsner"),
+    HONEY_ACACIA(1, UnlockCategory.PRODUCTION_CHAIN, "Honey: Acacia"),
+    POT_TERRACOTTA(1, UnlockCategory.POT, "Terracotta pot"),
 
-    TOBACCO_BURLEY(3, UnlockCategory.STRAIN, "Tabak: Burley-Sorte"),
-    COFFEE_ARABICA(3, UnlockCategory.PRODUCTION_CHAIN, "Kaffee: Arabica"),
-    CHEESE_GOUDA(3, UnlockCategory.PRODUCTION_CHAIN, "Käse: Gouda"),
-    CHOCOLATE_MILK(3, UnlockCategory.PRODUCTION_CHAIN, "Schokolade: Milch"),
+    TOBACCO_BURLEY(3, UnlockCategory.STRAIN, "Tobacco: Burley strain"),
+    COFFEE_ARABICA(3, UnlockCategory.PRODUCTION_CHAIN, "Coffee: Arabica"),
+    CHEESE_GOUDA(3, UnlockCategory.PRODUCTION_CHAIN, "Cheese: Gouda"),
+    CHOCOLATE_MILK(3, UnlockCategory.PRODUCTION_CHAIN, "Chocolate: Milk"),
 
-    GANG_JOIN(5, UnlockCategory.GANG, "Gang beitreten (mit Einladung, 2.500\u20AC)"),
-    BEER_WEIZEN(5, UnlockCategory.STRAIN, "Bier: Weizen"),
-    WINE_RIESLING(5, UnlockCategory.PRODUCTION_CHAIN, "Wein: Riesling"),
-    HONEY_WILDFLOWER(5, UnlockCategory.STRAIN, "Honig: Wildblumen"),
-    CANNABIS_INDICA(5, UnlockCategory.STRAIN, "Cannabis: Indica-Sorte"),
+    GANG_JOIN(5, UnlockCategory.GANG, "Join gang (with invitation, \u20AC2,500)"),
+    BEER_WEIZEN(5, UnlockCategory.STRAIN, "Beer: Wheat"),
+    WINE_RIESLING(5, UnlockCategory.PRODUCTION_CHAIN, "Wine: Riesling"),
+    HONEY_WILDFLOWER(5, UnlockCategory.STRAIN, "Honey: Wildflower"),
+    CANNABIS_INDICA(5, UnlockCategory.STRAIN, "Cannabis: Indica strain"),
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 6-10: ERWEITERUNG
     // ═══════════════════════════════════════════════════════════
-    POT_CERAMIC(6, UnlockCategory.POT, "Keramik-Topf (4 Pflanzen)"),
-    TOBACCO_ORIENTAL(6, UnlockCategory.STRAIN, "Tabak: Oriental-Sorte"),
-    COFFEE_ROBUSTA(6, UnlockCategory.STRAIN, "Kaffee: Robusta"),
-    CHEESE_EMMENTAL(6, UnlockCategory.STRAIN, "Käse: Emmentaler"),
-    CHOCOLATE_DARK(6, UnlockCategory.STRAIN, "Schokolade: Dunkel"),
+    POT_CERAMIC(6, UnlockCategory.POT, "Ceramic pot (4 plants)"),
+    TOBACCO_ORIENTAL(6, UnlockCategory.STRAIN, "Tobacco: Oriental strain"),
+    COFFEE_ROBUSTA(6, UnlockCategory.STRAIN, "Coffee: Robusta"),
+    CHEESE_EMMENTAL(6, UnlockCategory.STRAIN, "Cheese: Emmental"),
+    CHOCOLATE_DARK(6, UnlockCategory.STRAIN, "Chocolate: Dark"),
 
-    CANNABIS_SATIVA(8, UnlockCategory.STRAIN, "Cannabis: Sativa-Sorte"),
-    MUSHROOM_MEXICANA(8, UnlockCategory.PRODUCTION_CHAIN, "Pilze: Mexicana"),
-    BEER_ALE(8, UnlockCategory.STRAIN, "Bier: Ale"),
-    WINE_CHARDONNAY(8, UnlockCategory.STRAIN, "Wein: Chardonnay"),
-    HONEY_FOREST(8, UnlockCategory.STRAIN, "Honig: Waldhonig"),
+    CANNABIS_SATIVA(8, UnlockCategory.STRAIN, "Cannabis: Sativa strain"),
+    MUSHROOM_MEXICANA(8, UnlockCategory.PRODUCTION_CHAIN, "Mushroom: Mexicana"),
+    BEER_ALE(8, UnlockCategory.STRAIN, "Beer: Ale"),
+    WINE_CHARDONNAY(8, UnlockCategory.STRAIN, "Wine: Chardonnay"),
+    HONEY_FOREST(8, UnlockCategory.STRAIN, "Honey: Forest"),
 
-    COFFEE_ROAST_MEDIUM(10, UnlockCategory.PROCESSING, "Kaffee: Mittlere Röstung"),
-    CHEESE_PROCESSING_SMOKED(10, UnlockCategory.PROCESSING, "Käse: Räucherung"),
-    WINE_SEMI_DRY(10, UnlockCategory.PROCESSING, "Wein: Halbtrocken"),
+    COFFEE_ROAST_MEDIUM(10, UnlockCategory.PROCESSING, "Coffee: Medium roast"),
+    CHEESE_PROCESSING_SMOKED(10, UnlockCategory.PROCESSING, "Cheese: Smoked"),
+    WINE_SEMI_DRY(10, UnlockCategory.PROCESSING, "Wine: Semi-dry"),
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 11-15: HARTE DROGEN & MITTELSTUFE
     // ═══════════════════════════════════════════════════════════
-    POT_IRON(11, UnlockCategory.POT, "Eisen-Topf (5 Pflanzen)"),
-    COCA_BOLIVIANISCH(11, UnlockCategory.PRODUCTION_CHAIN, "Kokain: Bolivianisch"),
-    MDMA_PRODUCTION(11, UnlockCategory.PRODUCTION_CHAIN, "MDMA-Produktion"),
-    CHEESE_CAMEMBERT(11, UnlockCategory.STRAIN, "Käse: Camembert"),
-    BEER_STOUT(11, UnlockCategory.STRAIN, "Bier: Stout"),
+    POT_IRON(11, UnlockCategory.POT, "Iron pot (5 plants)"),
+    COCA_BOLIVIANISCH(11, UnlockCategory.PRODUCTION_CHAIN, "Cocaine: Bolivian"),
+    MDMA_PRODUCTION(11, UnlockCategory.PRODUCTION_CHAIN, "MDMA production"),
+    CHEESE_CAMEMBERT(11, UnlockCategory.STRAIN, "Cheese: Camembert"),
+    BEER_STOUT(11, UnlockCategory.STRAIN, "Beer: Stout"),
 
-    CANNABIS_HYBRID(13, UnlockCategory.STRAIN, "Cannabis: Hybrid-Sorte"),
-    MUSHROOM_CUBENSIS(13, UnlockCategory.STRAIN, "Pilze: Cubensis"),
-    LSD_PRODUCTION(13, UnlockCategory.PRODUCTION_CHAIN, "LSD-Produktion"),
-    WINE_SPAETBURGUNDER(13, UnlockCategory.STRAIN, "Wein: Spätburgunder"),
-    COFFEE_LIBERICA(13, UnlockCategory.STRAIN, "Kaffee: Liberica"),
+    CANNABIS_HYBRID(13, UnlockCategory.STRAIN, "Cannabis: Hybrid strain"),
+    MUSHROOM_CUBENSIS(13, UnlockCategory.STRAIN, "Mushroom: Cubensis"),
+    LSD_PRODUCTION(13, UnlockCategory.PRODUCTION_CHAIN, "LSD production"),
+    WINE_SPAETBURGUNDER(13, UnlockCategory.STRAIN, "Wine: Pinot Noir"),
+    COFFEE_LIBERICA(13, UnlockCategory.STRAIN, "Coffee: Liberica"),
 
-    GANG_CREATE(15, UnlockCategory.GANG, "Gang gruenden (25.000\u20AC)"),
-    POPPY_INDISCH(15, UnlockCategory.PRODUCTION_CHAIN, "Mohn: Indisch (Heroin)"),
-    COCA_PERUANISCH(15, UnlockCategory.STRAIN, "Kokain: Peruanisch"),
-    METH_PRODUCTION(15, UnlockCategory.PRODUCTION_CHAIN, "Meth-Produktion"),
-    CHOCOLATE_RUBY(15, UnlockCategory.STRAIN, "Schokolade: Ruby"),
+    GANG_CREATE(15, UnlockCategory.GANG, "Create gang (\u20AC25,000)"),
+    POPPY_INDISCH(15, UnlockCategory.PRODUCTION_CHAIN, "Poppy: Indian (heroin)"),
+    COCA_PERUANISCH(15, UnlockCategory.STRAIN, "Cocaine: Peruvian"),
+    METH_PRODUCTION(15, UnlockCategory.PRODUCTION_CHAIN, "Meth production"),
+    CHOCOLATE_RUBY(15, UnlockCategory.STRAIN, "Chocolate: Ruby"),
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 16-20: PREMIUM
     // ═══════════════════════════════════════════════════════════
-    POT_GOLDEN(16, UnlockCategory.POT, "Gold-Topf (5 Pflanzen + Qualitäts-Boost)"),
-    TOBACCO_HAVANA(16, UnlockCategory.STRAIN, "Tabak: Havana-Sorte"),
-    WINE_MERLOT(16, UnlockCategory.STRAIN, "Wein: Merlot"),
-    COFFEE_EXCELSA(16, UnlockCategory.STRAIN, "Kaffee: Excelsa"),
-    CHEESE_PARMESAN(16, UnlockCategory.STRAIN, "Käse: Parmesan"),
+    POT_GOLDEN(16, UnlockCategory.POT, "Golden pot (5 plants + quality boost)"),
+    TOBACCO_HAVANA(16, UnlockCategory.STRAIN, "Tobacco: Havana strain"),
+    WINE_MERLOT(16, UnlockCategory.STRAIN, "Wine: Merlot"),
+    COFFEE_EXCELSA(16, UnlockCategory.STRAIN, "Coffee: Excelsa"),
+    CHEESE_PARMESAN(16, UnlockCategory.STRAIN, "Cheese: Parmesan"),
 
-    POPPY_TUERKISCH(18, UnlockCategory.STRAIN, "Mohn: Türkisch"),
-    COCA_KOLUMBIANISCH(18, UnlockCategory.STRAIN, "Kokain: Kolumbianisch"),
-    MUSHROOM_AZURESCENS(18, UnlockCategory.STRAIN, "Pilze: Azurescens"),
-    HONEY_MANUKA(18, UnlockCategory.STRAIN, "Honig: Manuka"),
+    POPPY_TUERKISCH(18, UnlockCategory.STRAIN, "Poppy: Turkish"),
+    COCA_KOLUMBIANISCH(18, UnlockCategory.STRAIN, "Cocaine: Colombian"),
+    MUSHROOM_AZURESCENS(18, UnlockCategory.STRAIN, "Mushroom: Azurescens"),
+    HONEY_MANUKA(18, UnlockCategory.STRAIN, "Honey: Manuka"),
 
-    COFFEE_ROAST_ESPRESSO(20, UnlockCategory.PROCESSING, "Kaffee: Espresso-Röstung"),
-    WINE_DESSERT(20, UnlockCategory.PROCESSING, "Wein: Dessertwein"),
-    CHEESE_PROCESSING_HERB(20, UnlockCategory.PROCESSING, "Käse: Kräuterverarbeitung"),
-    CHOCOLATE_FILLED(20, UnlockCategory.PROCESSING, "Schokolade: Gefüllt"),
+    COFFEE_ROAST_ESPRESSO(20, UnlockCategory.PROCESSING, "Coffee: Espresso roast"),
+    WINE_DESSERT(20, UnlockCategory.PROCESSING, "Wine: Dessert"),
+    CHEESE_PROCESSING_HERB(20, UnlockCategory.PROCESSING, "Cheese: Herb processing"),
+    CHOCOLATE_FILLED(20, UnlockCategory.PROCESSING, "Chocolate: Filled"),
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 21-25: EXPERTE
     // ═══════════════════════════════════════════════════════════
-    POPPY_AFGHANISCH(22, UnlockCategory.STRAIN, "Mohn: Afghanisch (höchste Potenz)"),
-    MACHINE_SIZE_MEDIUM(22, UnlockCategory.MACHINE, "Mittlere Produktionsanlagen"),
-    VEHICLE_SUV(22, UnlockCategory.VEHICLE, "SUV-Fahrzeug"),
-    VEHICLE_TRANSPORTER(22, UnlockCategory.VEHICLE, "Transporter-Fahrzeug"),
+    POPPY_AFGHANISCH(22, UnlockCategory.STRAIN, "Poppy: Afghan (highest potency)"),
+    MACHINE_SIZE_MEDIUM(22, UnlockCategory.MACHINE, "Medium production facilities"),
+    VEHICLE_SUV(22, UnlockCategory.VEHICLE, "SUV vehicle"),
+    VEHICLE_TRANSPORTER(22, UnlockCategory.VEHICLE, "Transport van"),
 
-    MACHINE_SIZE_BIG(25, UnlockCategory.MACHINE, "Große Produktionsanlagen"),
-    VEHICLE_SPORT(25, UnlockCategory.VEHICLE, "Sport-Fahrzeug"),
+    MACHINE_SIZE_BIG(25, UnlockCategory.MACHINE, "Large production facilities"),
+    VEHICLE_SPORT(25, UnlockCategory.VEHICLE, "Sports vehicle"),
 
     // ═══════════════════════════════════════════════════════════
     // LEVEL 26-30: ENDGAME
     // ═══════════════════════════════════════════════════════════
-    ECONOMY_MARKET_ACCESS(26, UnlockCategory.ECONOMY_FEATURE, "Markt-Zugang (Angebot/Nachfrage einsehen)"),
-    ECONOMY_PRICE_ALERTS(28, UnlockCategory.ECONOMY_FEATURE, "Preis-Benachrichtigungen"),
-    ECONOMY_BULK_TRADING(30, UnlockCategory.ECONOMY_FEATURE, "Großhandel (Mengenrabatte)");
+    ECONOMY_MARKET_ACCESS(26, UnlockCategory.ECONOMY_FEATURE, "Market access (view supply/demand)"),
+    ECONOMY_PRICE_ALERTS(28, UnlockCategory.ECONOMY_FEATURE, "Price alerts"),
+    ECONOMY_BULK_TRADING(30, UnlockCategory.ECONOMY_FEATURE, "Bulk trading (volume discounts)");
 
     private final int requiredLevel;
     private final UnlockCategory category;

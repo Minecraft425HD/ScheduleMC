@@ -5,16 +5,16 @@ package de.rolandsw.schedulemc.level;
  */
 public enum UnlockCategory {
 
-    PRODUCTION_CHAIN("Produktionskette", "§a", "Neue Produkte herstellen"),
-    MACHINE("Maschine", "§b", "Bessere Maschinen nutzen"),
-    POT("Topf/Behälter", "§6", "Größere Anbau-Kapazität"),
-    QUALITY("Qualitätsstufe", "§d", "Höhere Qualität erreichen"),
-    STRAIN("Sorte/Variante", "§e", "Neue Sorten anbauen"),
-    PROCESSING("Verarbeitungsmethode", "§5", "Neue Verarbeitungsarten"),
-    VEHICLE("Fahrzeug", "§7", "Bessere Fahrzeuge kaufen"),
-    SHOP_FEATURE("Shop-Feature", "§f", "Erweiterte Shop-Funktionen"),
-    ECONOMY_FEATURE("Wirtschafts-Feature", "§6", "Erweiterte Wirtschafts-Features"),
-    GANG("Gang", "§c", "Gang-System Funktionen");
+    PRODUCTION_CHAIN("Production Chain", "§a", "Produce new products"),
+    MACHINE("Machine", "§b", "Use better machines"),
+    POT("Pot/Container", "§6", "Increase grow capacity"),
+    QUALITY("Quality Tier", "§d", "Reach higher quality"),
+    STRAIN("Strain/Variant", "§e", "Grow new strains"),
+    PROCESSING("Processing Method", "§5", "Unlock new processing methods"),
+    VEHICLE("Vehicle", "§7", "Buy better vehicles"),
+    SHOP_FEATURE("Shop Feature", "§f", "Unlock advanced shop features"),
+    ECONOMY_FEATURE("Economy Feature", "§6", "Unlock advanced economy features"),
+    GANG("Gang", "§c", "Gang system features");
 
     private final String displayName;
     private final String colorCode;

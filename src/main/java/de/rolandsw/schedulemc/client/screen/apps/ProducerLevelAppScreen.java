@@ -223,7 +223,7 @@ public class ProducerLevelAppScreen extends Screen {
         guiGraphics.drawCenteredString(this.font, progressPercent, leftPos + WIDTH / 2, barY + 2, 0xFFFFFF);
 
         if (level < LevelRequirements.MAX_LEVEL) {
-            String xpText = "\u00A7eXP: \u00A7f" + totalXP + " \u00A77| \u00A7e" + xpToNext + " \u00A77bis Lv." + (level + 1);
+            String xpText = "\u00A7eXP: \u00A7f" + totalXP + " \u00A77| \u00A7e" + xpToNext + " \u00A77to Lv." + (level + 1);
             guiGraphics.drawCenteredString(this.font, xpText, leftPos + WIDTH / 2, startY + 37, 0xFFFFFF);
         } else {
             guiGraphics.drawCenteredString(this.font, "\u00A76\u00A7lMAX LEVEL!",
@@ -232,7 +232,7 @@ public class ProducerLevelAppScreen extends Screen {
 
         double unlockPercent = total > 0 ? (double) unlocked / total * 100.0 : 0;
         String unlockText = "\u00A7a" + unlocked + "\u00A77/\u00A7a" + total +
-                " \u00A77Freigeschaltet (" + String.format("%.0f%%", unlockPercent) + ")";
+                " \u00A77Unlocked (" + String.format("%.0f%%", unlockPercent) + ")";
         guiGraphics.drawCenteredString(this.font, unlockText, leftPos + WIDTH / 2, startY + 52, 0xFFFFFF);
 
         int soldTotal = ClientProducerLevelCache.getTotalItemsSold();
