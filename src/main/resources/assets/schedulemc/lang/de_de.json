@@ -6140,5 +6140,18 @@
   "gui.app.level.category.gang.name": "Gang",
   "gui.app.level.category.gang.desc": "Gang-System-Funktionen",
   "gui.app.level.refresh": "↻",
-  "gui.app.level.unlock.formatted_info_pattern": "%s %s%s §7(Level %s%d§7) §8- %s"
+  "gui.app.level.unlock.formatted_info_pattern": "%s %s%s §7(Level %s%d§7) §8- %s",
+  "gui.oel_extractor.title": "Öl-Extraktor",
+  "gui.oel_extractor.menu_title": "Öl-Extraktor",
+  "gui.oel_extractor.buds": "Blüten",
+  "gui.oel_extractor.trim": "Trim",
+  "gui.oel_extractor.info_material": "§7Material: §f",
+  "gui.oel_extractor.info_solvent": "§7Lösungsmittel: §f",
+  "gui.oel_extractor.info_oil": "§7Erwartetes Öl: §f",
+  "gui.oel_extractor.info_quality_sep": " ml §7| Qualität: ",
+  "gui.oel_extractor.oil_ready": "§aÖl fertig!",
+  "gui.oel_extractor.extracting": "§bExtrahiere...",
+  "gui.oel_extractor.button_start": "Start",
+  "gui.oel_extractor.hint_solvent_needed": "§7Füge Lösungsmittel hinzu, um zu starten.",
+  "gui.oel_extractor.hint_min_material": "§7Mindestens %dg Material benötigt."
 }

@@ -6140,5 +6140,18 @@
   "gui.app.level.unlock.economy_price_alerts.desc": "Preis-Benachrichtigungen",
   "gui.app.level.unlock.economy_bulk_trading.desc": "Großhandel (Mengenrabatte)",
   "gui.app.level.refresh": "↻",
-  "gui.app.level.unlock.formatted_info_pattern": "%s %s%s §7(Level %s%d§7) §8- %s"
+  "gui.app.level.unlock.formatted_info_pattern": "%s %s%s §7(Level %s%d§7) §8- %s",
+  "gui.oel_extractor.title": "Oil Extractor",
+  "gui.oel_extractor.menu_title": "Oil Extractor",
+  "gui.oel_extractor.buds": "Buds",
+  "gui.oel_extractor.trim": "Trim",
+  "gui.oel_extractor.info_material": "§7Material: §f",
+  "gui.oel_extractor.info_solvent": "§7Solvent: §f",
+  "gui.oel_extractor.info_oil": "§7Expected Oil: §f",
+  "gui.oel_extractor.info_quality_sep": " ml §7| Quality: ",
+  "gui.oel_extractor.oil_ready": "§aOil Ready!",
+  "gui.oel_extractor.extracting": "§bExtracting...",
+  "gui.oel_extractor.button_start": "Start",
+  "gui.oel_extractor.hint_solvent_needed": "§7Add solvent to begin extraction.",
+  "gui.oel_extractor.hint_min_material": "§7At least %dg material required."
 }
