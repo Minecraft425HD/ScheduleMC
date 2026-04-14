@@ -15,19 +15,19 @@ public class MushroomBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
-    // Klimalampe (alle 3 Stufen)
-    public static final RegistryObject<BlockEntityType<KlimalampeBlockEntity>> KLIMALAMPE =
+    // ClimateLamp (alle 3 Stufen)
+    public static final RegistryObject<BlockEntityType<ClimateLampBlockEntity>> CLIMATE_LAMP =
             BLOCK_ENTITIES.register("klimalampe", () ->
-                    BlockEntityType.Builder.of(KlimalampeBlockEntity::new,
-                            MushroomBlocks.KLIMALAMPE_SMALL.get(),
-                            MushroomBlocks.KLIMALAMPE_MEDIUM.get(),
-                            MushroomBlocks.KLIMALAMPE_LARGE.get()
+                    BlockEntityType.Builder.of(ClimateLampBlockEntity::new,
+                            MushroomBlocks.CLIMATE_LAMP_SMALL.get(),
+                            MushroomBlocks.CLIMATE_LAMP_MEDIUM.get(),
+                            MushroomBlocks.CLIMATE_LAMP_LARGE.get()
                     ).build(null));
 
-    // Wassertank
-    public static final RegistryObject<BlockEntityType<WassertankBlockEntity>> WASSERTANK =
+    // WaterTank
+    public static final RegistryObject<BlockEntityType<WaterTankBlockEntity>> WATER_TANK =
             BLOCK_ENTITIES.register("wassertank", () ->
-                    BlockEntityType.Builder.of(WassertankBlockEntity::new,
-                            MushroomBlocks.WASSERTANK.get()
+                    BlockEntityType.Builder.of(WaterTankBlockEntity::new,
+                            MushroomBlocks.WATER_TANK.get()
                     ).build(null));
 }

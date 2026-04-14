@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Meth-Paste - Zwischenprodukt aus Chemie-Mixer
- * Wird im Reduktionskessel weiterverarbeitet
+ * Wird im ReductionKettle weiterverarbeitet
  */
 public class MethPasteItem extends Item {
 

@@ -132,9 +132,9 @@ public class QualityItemColors {
 
         // Meth Items (4)
         event.register(QualityItemColors::getQualityColor,
-                MethItems.ROH_METH.get(),
+                MethItems.RAW_METH.get(),
                 MethItems.METH_PASTE.get(),
-                MethItems.KRISTALL_METH.get(),
+                MethItems.CRYSTAL_METH.get(),
                 MethItems.METH.get()
         );
 
@@ -246,19 +246,19 @@ public class QualityItemColors {
         if (item instanceof MethItem) {
             return MethItem.getQuality(stack).ordinal();
         }
-        if (item instanceof KristallMethItem) {
-            return KristallMethItem.getQuality(stack).ordinal();
+        if (item instanceof CrystalMethItem) {
+            return CrystalMethItem.getQuality(stack).ordinal();
         }
-        if (item instanceof RohMethItem) {
-            return RohMethItem.getQuality(stack).ordinal();
+        if (item instanceof RawMethItem) {
+            return RawMethItem.getQuality(stack).ordinal();
         }
         if (item instanceof MethPasteItem) {
             return MethPasteItem.getQuality(stack).ordinal();
         }
 
         // === MDMA ITEMS ===
-        if (item instanceof MDMAKristallItem) {
-            return MDMAKristallItem.getQuality(stack).ordinal();
+        if (item instanceof MDMACrystalItem) {
+            return MDMACrystalItem.getQuality(stack).ordinal();
         }
         if (item instanceof MDMABaseItem) {
             return MDMABaseItem.getQuality(stack).ordinal();
@@ -453,9 +453,9 @@ public class QualityItemColors {
                 PoppyItems.MORPHINE.get(),
                 PoppyItems.HEROIN.get(),
                 // Meth (4)
-                MethItems.ROH_METH.get(),
+                MethItems.RAW_METH.get(),
                 MethItems.METH_PASTE.get(),
-                MethItems.KRISTALL_METH.get(),
+                MethItems.CRYSTAL_METH.get(),
                 MethItems.METH.get(),
                 // MDMA (3)
                 MDMAItems.MDMA_BASE.get(),

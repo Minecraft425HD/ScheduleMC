@@ -15,21 +15,21 @@ public class MDMABlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
-    public static final RegistryObject<BlockEntityType<ReaktionsKesselBlockEntity>> REAKTIONS_KESSEL =
+    public static final RegistryObject<BlockEntityType<ReactionKettleBlockEntity>> REACTION_KETTLE =
             BLOCK_ENTITIES.register("reaktions_kessel", () ->
-                    BlockEntityType.Builder.of(ReaktionsKesselBlockEntity::new,
-                            MDMABlocks.REAKTIONS_KESSEL.get()
+                    BlockEntityType.Builder.of(ReactionKettleBlockEntity::new,
+                            MDMABlocks.REACTION_KETTLE.get()
                     ).build(null));
 
-    public static final RegistryObject<BlockEntityType<TrocknungsOfenBlockEntity>> TROCKNUNGS_OFEN =
+    public static final RegistryObject<BlockEntityType<DryingOvenBlockEntity>> DRYING_OVEN =
             BLOCK_ENTITIES.register("trocknungs_ofen", () ->
-                    BlockEntityType.Builder.of(TrocknungsOfenBlockEntity::new,
-                            MDMABlocks.TROCKNUNGS_OFEN.get()
+                    BlockEntityType.Builder.of(DryingOvenBlockEntity::new,
+                            MDMABlocks.DRYING_OVEN.get()
                     ).build(null));
 
-    public static final RegistryObject<BlockEntityType<PillenPresseBlockEntity>> PILLEN_PRESSE =
+    public static final RegistryObject<BlockEntityType<PillPressBlockEntity>> PILL_PRESS =
             BLOCK_ENTITIES.register("pillen_presse", () ->
-                    BlockEntityType.Builder.of(PillenPresseBlockEntity::new,
-                            MDMABlocks.PILLEN_PRESSE.get()
+                    BlockEntityType.Builder.of(PillPressBlockEntity::new,
+                            MDMABlocks.PILL_PRESS.get()
                     ).build(null));
 }

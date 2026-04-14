@@ -15,19 +15,19 @@ public class CannabisMenuTypes {
     public static final DeferredRegister<MenuType<?>> MENUS =
             DeferredRegister.create(ForgeRegistries.MENU_TYPES, ScheduleMC.MOD_ID);
 
-    public static final RegistryObject<MenuType<TrimmStationMenu>> TRIMM_STATION_MENU =
+    public static final RegistryObject<MenuType<TrimStationMenu>> TRIM_STATION_MENU =
             MENUS.register("trimm_station_menu", () ->
-                    IForgeMenuType.create(TrimmStationMenu::new));
+                    IForgeMenuType.create(TrimStationMenu::new));
 
-    public static final RegistryObject<MenuType<CuringGlasMenu>> CURING_GLAS_MENU =
+    public static final RegistryObject<MenuType<CuringJarMenu>> CURING_JAR_MENU =
             MENUS.register("curing_glas_menu", () ->
-                    IForgeMenuType.create(CuringGlasMenu::new));
+                    IForgeMenuType.create(CuringJarMenu::new));
 
-    public static final RegistryObject<MenuType<HashPresseMenu>> HASH_PRESSE_MENU =
+    public static final RegistryObject<MenuType<HashPressMenu>> HASH_PRESS_MENU =
             MENUS.register("hash_presse_menu", () ->
-                    IForgeMenuType.create(HashPresseMenu::new));
+                    IForgeMenuType.create(HashPressMenu::new));
 
-    public static final RegistryObject<MenuType<OelExtraktortMenu>> OEL_EXTRAKTOR_MENU =
+    public static final RegistryObject<MenuType<OilExtractorMenu>> OIL_EXTRACTOR_MENU =
             MENUS.register("oel_extraktor_menu", () ->
-                    IForgeMenuType.create(OelExtraktortMenu::new));
+                    IForgeMenuType.create(OilExtractorMenu::new));
 }

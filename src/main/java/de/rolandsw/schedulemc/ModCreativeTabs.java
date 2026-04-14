@@ -249,10 +249,10 @@ public class ModCreativeTabs {
                 output.accept(CannabisItems.EXTRACTION_SOLVENT.get());
 
                 // CANNABIS - BLÖCKE
-                output.accept(CannabisBlocks.TRIMM_STATION_ITEM.get());
-                output.accept(CannabisBlocks.CURING_GLAS_ITEM.get());
-                output.accept(CannabisBlocks.HASH_PRESSE_ITEM.get());
-                output.accept(CannabisBlocks.OEL_EXTRAKTOR_ITEM.get());
+                output.accept(CannabisBlocks.TRIM_STATION_ITEM.get());
+                output.accept(CannabisBlocks.CURING_JAR_ITEM.get());
+                output.accept(CannabisBlocks.HASH_PRESS_ITEM.get());
+                output.accept(CannabisBlocks.OIL_EXTRACTOR_ITEM.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // COCA / KOKAIN
@@ -294,10 +294,10 @@ public class ModCreativeTabs {
                 output.accept(PoppyItems.SCORING_KNIFE.get());
 
                 // MOHN - BLÖCKE
-                output.accept(PoppyBlocks.RITZMASCHINE.get());
-                output.accept(PoppyBlocks.OPIUM_PRESSE.get());
-                output.accept(PoppyBlocks.KOCHSTATION.get());
-                output.accept(PoppyBlocks.HEROIN_RAFFINERIE.get());
+                output.accept(PoppyBlocks.SCORING_MACHINE.get());
+                output.accept(PoppyBlocks.OPIUM_PRESS.get());
+                output.accept(PoppyBlocks.COOKING_STATION.get());
+                output.accept(PoppyBlocks.HEROIN_REFINERY.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // PILZE
@@ -316,10 +316,10 @@ public class ModCreativeTabs {
                 output.accept(MushroomItems.DRIED_MEXICANA.get());
 
                 // PILZE - BLÖCKE
-                output.accept(MushroomBlocks.KLIMALAMPE_SMALL_ITEM.get());
-                output.accept(MushroomBlocks.KLIMALAMPE_MEDIUM_ITEM.get());
-                output.accept(MushroomBlocks.KLIMALAMPE_LARGE_ITEM.get());
-                output.accept(MushroomBlocks.WASSERTANK_ITEM.get());
+                output.accept(MushroomBlocks.CLIMATE_LAMP_SMALL_ITEM.get());
+                output.accept(MushroomBlocks.CLIMATE_LAMP_MEDIUM_ITEM.get());
+                output.accept(MushroomBlocks.CLIMATE_LAMP_LARGE_ITEM.get());
+                output.accept(MushroomBlocks.WATER_TANK_ITEM.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // LSD
@@ -332,10 +332,10 @@ public class ModCreativeTabs {
                 output.accept(LSDItems.BLOTTER.get());
 
                 // LSD - BLÖCKE
-                output.accept(LSDBlocks.FERMENTATIONS_TANK.get());
-                output.accept(LSDBlocks.DESTILLATIONS_APPARAT.get());
-                output.accept(LSDBlocks.MIKRO_DOSIERER.get());
-                output.accept(LSDBlocks.PERFORATIONS_PRESSE.get());
+                output.accept(LSDBlocks.FERMENTATION_TANK.get());
+                output.accept(LSDBlocks.DISTILLATION_APPARATUS.get());
+                output.accept(LSDBlocks.MICRO_DOSER.get());
+                output.accept(LSDBlocks.PERFORATION_PRESS.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // MDMA / ECSTASY
@@ -348,27 +348,27 @@ public class ModCreativeTabs {
                 output.accept(MDMAItems.ECSTASY_PILL.get());
 
                 // MDMA - BLÖCKE
-                output.accept(MDMABlocks.REAKTIONS_KESSEL.get());
-                output.accept(MDMABlocks.TROCKNUNGS_OFEN.get());
-                output.accept(MDMABlocks.PILLEN_PRESSE.get());
+                output.accept(MDMABlocks.REACTION_KETTLE.get());
+                output.accept(MDMABlocks.DRYING_OVEN.get());
+                output.accept(MDMABlocks.PILL_PRESS.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // METH
                 // ═══════════════════════════════════════════════════════════
-                output.accept(MethItems.EPHEDRIN.get());
-                output.accept(MethItems.PSEUDOEPHEDRIN.get());
-                output.accept(MethItems.ROTER_PHOSPHOR.get());
-                output.accept(MethItems.JOD.get());
+                output.accept(MethItems.EPHEDRINE.get());
+                output.accept(MethItems.PSEUDOEPHEDRINE.get());
+                output.accept(MethItems.RED_PHOSPHORUS.get());
+                output.accept(MethItems.IODINE.get());
                 output.accept(MethItems.METH_PASTE.get());
-                output.accept(MethItems.ROH_METH.get());
-                output.accept(MethItems.KRISTALL_METH.get());
+                output.accept(MethItems.RAW_METH.get());
+                output.accept(MethItems.CRYSTAL_METH.get());
                 output.accept(MethItems.METH.get());
 
                 // METH - BLÖCKE
-                output.accept(MethBlocks.CHEMIE_MIXER.get());
-                output.accept(MethBlocks.REDUKTIONSKESSEL.get());
-                output.accept(MethBlocks.KRISTALLISATOR.get());
-                output.accept(MethBlocks.VAKUUM_TROCKNER.get());
+                output.accept(MethBlocks.CHEMICAL_MIXER.get());
+                output.accept(MethBlocks.REDUCTION_KETTLE.get());
+                output.accept(MethBlocks.CRYSTALLIZER.get());
+                output.accept(MethBlocks.VACUUM_DRYER.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // BIER

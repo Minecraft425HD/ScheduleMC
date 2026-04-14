@@ -16,30 +16,30 @@ public class MethBlockEntities {
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
     // Chemie-Mixer
-    public static final RegistryObject<BlockEntityType<ChemieMixerBlockEntity>> CHEMIE_MIXER =
+    public static final RegistryObject<BlockEntityType<ChemicalMixerBlockEntity>> CHEMICAL_MIXER =
             BLOCK_ENTITIES.register("chemie_mixer", () ->
-                    BlockEntityType.Builder.of(ChemieMixerBlockEntity::new,
-                            MethBlocks.CHEMIE_MIXER.get()
+                    BlockEntityType.Builder.of(ChemicalMixerBlockEntity::new,
+                            MethBlocks.CHEMICAL_MIXER.get()
                     ).build(null));
 
-    // Reduktionskessel
-    public static final RegistryObject<BlockEntityType<ReduktionskesselBlockEntity>> REDUKTIONSKESSEL =
+    // ReductionKettle
+    public static final RegistryObject<BlockEntityType<ReductionKettleBlockEntity>> REDUCTION_KETTLE =
             BLOCK_ENTITIES.register("reduktionskessel", () ->
-                    BlockEntityType.Builder.of(ReduktionskesselBlockEntity::new,
-                            MethBlocks.REDUKTIONSKESSEL.get()
+                    BlockEntityType.Builder.of(ReductionKettleBlockEntity::new,
+                            MethBlocks.REDUCTION_KETTLE.get()
                     ).build(null));
 
-    // Kristallisator
-    public static final RegistryObject<BlockEntityType<KristallisatorBlockEntity>> KRISTALLISATOR =
+    // Crystallizer
+    public static final RegistryObject<BlockEntityType<CrystallizerBlockEntity>> CRYSTALLIZER =
             BLOCK_ENTITIES.register("kristallisator", () ->
-                    BlockEntityType.Builder.of(KristallisatorBlockEntity::new,
-                            MethBlocks.KRISTALLISATOR.get()
+                    BlockEntityType.Builder.of(CrystallizerBlockEntity::new,
+                            MethBlocks.CRYSTALLIZER.get()
                     ).build(null));
 
     // Vakuum-Trockner
-    public static final RegistryObject<BlockEntityType<VakuumTrocknerBlockEntity>> VAKUUM_TROCKNER =
+    public static final RegistryObject<BlockEntityType<VacuumDryerBlockEntity>> VACUUM_DRYER =
             BLOCK_ENTITIES.register("vakuum_trockner", () ->
-                    BlockEntityType.Builder.of(VakuumTrocknerBlockEntity::new,
-                            MethBlocks.VAKUUM_TROCKNER.get()
+                    BlockEntityType.Builder.of(VacuumDryerBlockEntity::new,
+                            MethBlocks.VACUUM_DRYER.get()
                     ).build(null));
 }

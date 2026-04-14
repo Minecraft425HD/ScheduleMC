@@ -15,7 +15,7 @@ public class MDMAMenuTypes {
     public static final DeferredRegister<MenuType<?>> MENUS =
             DeferredRegister.create(ForgeRegistries.MENU_TYPES, ScheduleMC.MOD_ID);
 
-    public static final RegistryObject<MenuType<PillenPresseMenu>> PILLEN_PRESSE_MENU =
+    public static final RegistryObject<MenuType<PillPressMenu>> PILL_PRESS_MENU =
             MENUS.register("pillen_presse_menu", () ->
-                    IForgeMenuType.create(PillenPresseMenu::new));
+                    IForgeMenuType.create(PillPressMenu::new));
 }

@@ -14,42 +14,42 @@ public enum XPSource {
     // ═══════════════════════════════════════════════════════════
     // ILLEGALE PRODUKTION (hohe XP, hohes Risiko)
     // ═══════════════════════════════════════════════════════════
-    SELL_CANNABIS("Cannabis verkauft", 8, true),
-    SELL_TOBACCO("Tabak verkauft", 5, true),
-    SELL_COCAINE("Kokain verkauft", 15, true),
-    SELL_HEROIN("Heroin verkauft", 18, true),
-    SELL_METH("Meth verkauft", 16, true),
-    SELL_MDMA("MDMA verkauft", 12, true),
-    SELL_LSD("LSD verkauft", 14, true),
-    SELL_MUSHROOM("Pilze verkauft", 10, true),
+    SELL_CANNABIS("Cannabis sold", 8, true),
+    SELL_TOBACCO("Tobacco sold", 5, true),
+    SELL_COCAINE("Cocaine sold", 15, true),
+    SELL_HEROIN("Heroin sold", 18, true),
+    SELL_METH("Meth sold", 16, true),
+    SELL_MDMA("MDMA sold", 12, true),
+    SELL_LSD("LSD sold", 14, true),
+    SELL_MUSHROOM("Mushrooms sold", 10, true),
 
     // ═══════════════════════════════════════════════════════════
     // LEGALE PRODUKTION (niedrigere XP, kein Risiko)
     // ═══════════════════════════════════════════════════════════
-    SELL_WINE("Wein verkauft", 6, false),
-    SELL_BEER("Bier verkauft", 4, false),
-    SELL_COFFEE("Kaffee verkauft", 5, false),
-    SELL_CHEESE("Käse verkauft", 5, false),
-    SELL_CHOCOLATE("Schokolade verkauft", 4, false),
-    SELL_HONEY("Honig verkauft", 4, false),
+    SELL_WINE("Wine sold", 6, false),
+    SELL_BEER("Beer sold", 4, false),
+    SELL_COFFEE("Coffee sold", 5, false),
+    SELL_CHEESE("Cheese sold", 5, false),
+    SELL_CHOCOLATE("Chocolate sold", 4, false),
+    SELL_HONEY("Honey sold", 4, false),
 
     // ═══════════════════════════════════════════════════════════
     // HERSTELLUNG (zusätzliche XP für Verarbeitung)
     // ═══════════════════════════════════════════════════════════
-    HARVEST("Ernte", 2, false),
-    PROCESS("Verarbeitung", 3, false),
-    CRAFT_MACHINE("Maschine hergestellt", 10, false),
+    HARVEST("Harvest", 2, false),
+    PROCESS("Processing", 3, false),
+    CRAFT_MACHINE("Machine crafted", 10, false),
 
     // ═══════════════════════════════════════════════════════════
     // SONSTIGES
     // ═══════════════════════════════════════════════════════════
-    DAILY_LOGIN("Tägliches Login", 5, false),
-    COMPLETE_ACHIEVEMENT("Achievement abgeschlossen", 25, false),
-    SURVIVE_RAID("Razzia überlebt", 50, true),
+    DAILY_LOGIN("Daily login", 5, false),
+    COMPLETE_ACHIEVEMENT("Achievement completed", 25, false),
+    SURVIVE_RAID("Survived raid", 50, true),
 
     // Generische Quellen (Fallback wenn spezifische Quelle nicht bekannt)
-    SELL_ILLEGAL("Illegalen Artikel verkauft", 10, true),
-    SELL_LEGAL("Legalen Artikel verkauft", 4, false),
+    SELL_ILLEGAL("Illegal item sold", 10, true),
+    SELL_LEGAL("Legal item sold", 4, false),
 
     // Admin
     ADMIN_GRANT("Admin-Vergabe", 1, false);

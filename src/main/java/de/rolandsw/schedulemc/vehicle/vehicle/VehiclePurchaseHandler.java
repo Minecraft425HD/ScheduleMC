@@ -258,14 +258,14 @@ public class VehiclePurchaseHandler {
 
     /**
      * Generiert Kennzeichen-Text basierend auf Spielername
-     * Format: XXX-YY
+     * Format: XXX-NNN
      * XXX = 3 Anfangsbuchstaben des Spielernamens
-     * YY = Fahrzeug-Nummer (01-99), mit Offset bei gleichem Präfix
+     * NNN = Fahrzeug-Nummer (001+), mit Offset bei gleichem Präfix
      *
      * Beispiele:
-     * - Minecraft425HD (1. Auto): MIN-01
-     * - Minecraft425HD (2. Auto): MIN-02
-     * - MinecraftSteve (1. Auto, gleicher Präfix): MIN-10
+     * - Minecraft425HD (1. Auto): MIN-001
+     * - Minecraft425HD (2. Auto): MIN-002
+     * - MinecraftSteve (1. Auto, gleicher Präfix): MIN-011
      */
     private static String generateLicensePlateText(Player player, ServerLevel level) {
         // Extrahiere Präfix aus Spielername (3 Buchstaben)
@@ -277,8 +277,8 @@ public class VehiclePurchaseHandler {
         // Registriere Kauf und hole Nummer
         int plateNumber = tracker.registerVehiclePurchase(player, prefix);
 
-        // Formatiere: XXX-YY (z.B. "MIN-01")
-        return String.format("%s-%02d", prefix, plateNumber);
+        // Formatiere: XXX-NNN (z.B. "MIN-001")
+        return String.format("%s-%03d", prefix, plateNumber);
     }
 
     /**

@@ -90,7 +90,7 @@ public class UtilityRegistry {
                 UtilityConsumptionData.electricityOnly(200, UtilityCategory.LIGHTING));
 
         // ─────────────────────────────────────────────────────────────
-        // KLIMALAMPEN (Mushroom - Klimatisierung)
+        // CLIMATE_LAMPN (Mushroom - Klimatisierung)
         // Strom + etwas Wasser für Luftfeuchtigkeit
         // ─────────────────────────────────────────────────────────────
         registerById("schedulemc:klimalampe_small",
@@ -113,7 +113,7 @@ public class UtilityRegistry {
         registerById("schedulemc:golden_pot",
                 UtilityConsumptionData.constant(0, 25, UtilityCategory.IRRIGATION));
 
-        // Wassertank (Pilze)
+        // WaterTank (Pilze)
         registerById("schedulemc:wassertank",
                 UtilityConsumptionData.constant(5, 50, UtilityCategory.IRRIGATION));
 
@@ -300,61 +300,61 @@ public class UtilityRegistry {
 
         // Poppy Blocks
         tryResolve("schedulemc:ritzmaschine",
-                de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.RITZMASCHINE);
+                de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.SCORING_MACHINE);
         tryResolve("schedulemc:opium_presse",
-                de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.OPIUM_PRESSE);
+                de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.OPIUM_PRESS);
         tryResolve("schedulemc:kochstation",
-                de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.KOCHSTATION);
+                de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.COOKING_STATION);
         tryResolve("schedulemc:heroin_raffinerie",
-                de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.HEROIN_RAFFINERIE);
+                de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.HEROIN_REFINERY);
 
         // Mushroom Blocks
         tryResolve("schedulemc:klimalampe_small",
-                de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.KLIMALAMPE_SMALL);
+                de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.CLIMATE_LAMP_SMALL);
         tryResolve("schedulemc:klimalampe_medium",
-                de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.KLIMALAMPE_MEDIUM);
+                de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.CLIMATE_LAMP_MEDIUM);
         tryResolve("schedulemc:klimalampe_large",
-                de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.KLIMALAMPE_LARGE);
+                de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.CLIMATE_LAMP_LARGE);
         tryResolve("schedulemc:wassertank",
-                de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.WASSERTANK);
+                de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.WATER_TANK);
 
         // Meth Blocks
         tryResolve("schedulemc:chemie_mixer",
-                de.rolandsw.schedulemc.meth.blocks.MethBlocks.CHEMIE_MIXER);
+                de.rolandsw.schedulemc.meth.blocks.MethBlocks.CHEMICAL_MIXER);
         tryResolve("schedulemc:reduktionskessel",
-                de.rolandsw.schedulemc.meth.blocks.MethBlocks.REDUKTIONSKESSEL);
+                de.rolandsw.schedulemc.meth.blocks.MethBlocks.REDUCTION_KETTLE);
         tryResolve("schedulemc:kristallisator",
-                de.rolandsw.schedulemc.meth.blocks.MethBlocks.KRISTALLISATOR);
+                de.rolandsw.schedulemc.meth.blocks.MethBlocks.CRYSTALLIZER);
         tryResolve("schedulemc:vakuum_trockner",
-                de.rolandsw.schedulemc.meth.blocks.MethBlocks.VAKUUM_TROCKNER);
+                de.rolandsw.schedulemc.meth.blocks.MethBlocks.VACUUM_DRYER);
 
         // LSD Blocks
         tryResolve("schedulemc:fermentations_tank",
-                de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.FERMENTATIONS_TANK);
+                de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.FERMENTATION_TANK);
         tryResolve("schedulemc:destillations_apparat",
-                de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.DESTILLATIONS_APPARAT);
+                de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.DISTILLATION_APPARATUS);
         tryResolve("schedulemc:mikro_dosierer",
-                de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.MIKRO_DOSIERER);
+                de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.MICRO_DOSER);
         tryResolve("schedulemc:perforations_presse",
-                de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.PERFORATIONS_PRESSE);
+                de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.PERFORATION_PRESS);
 
         // MDMA Blocks
         tryResolve("schedulemc:reaktions_kessel",
-                de.rolandsw.schedulemc.mdma.blocks.MDMABlocks.REAKTIONS_KESSEL);
+                de.rolandsw.schedulemc.mdma.blocks.MDMABlocks.REACTION_KETTLE);
         tryResolve("schedulemc:trocknungs_ofen",
-                de.rolandsw.schedulemc.mdma.blocks.MDMABlocks.TROCKNUNGS_OFEN);
+                de.rolandsw.schedulemc.mdma.blocks.MDMABlocks.DRYING_OVEN);
         tryResolve("schedulemc:pillen_presse",
-                de.rolandsw.schedulemc.mdma.blocks.MDMABlocks.PILLEN_PRESSE);
+                de.rolandsw.schedulemc.mdma.blocks.MDMABlocks.PILL_PRESS);
 
         // Cannabis Blocks
         tryResolve("schedulemc:cannabis_trimm_station",
-                de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.TRIMM_STATION);
+                de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.TRIM_STATION);
         tryResolve("schedulemc:cannabis_curing_glas",
-                de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.CURING_GLAS);
+                de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.CURING_JAR);
         tryResolve("schedulemc:cannabis_hash_presse",
-                de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.HASH_PRESSE);
+                de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.HASH_PRESS);
         tryResolve("schedulemc:cannabis_oel_extraktor",
-                de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.OEL_EXTRAKTOR);
+                de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.OIL_EXTRACTOR);
     }
 
     private static void tryResolve(String id, net.minecraftforge.registries.RegistryObject<? extends Block> registryObject) {

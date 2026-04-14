@@ -27,8 +27,8 @@ import javax.annotation.Nullable;
  * - AbstractFermentationBarrelBlockEntity (und 3 Subklassen)
  * - AbstractExtractionVatBlockEntity (und 3 Subklassen)
  * - AbstractRefineryBlockEntity (und 3 Subklassen)
- * - ReaktionsKesselBlockEntity (MDMA)
- * - FermentationsTankBlockEntity (LSD)
+ * - ReactionKettleBlockEntity (MDMA)
+ * - FermentationTankBlockEntity (LSD)
  * - und viele mehr...
  *
  * Reduziert ~2000 Zeilen Code auf eine einzige konfigurierbare Klasse

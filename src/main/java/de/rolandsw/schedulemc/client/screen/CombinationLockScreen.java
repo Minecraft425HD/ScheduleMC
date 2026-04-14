@@ -99,7 +99,9 @@ public class CombinationLockScreen extends Screen {
         }
 
         // ESC-Hinweis
-        g.drawCenteredString(this.font, "\u00A78[ESC] Abbrechen", cx, py + PAD_H - 12, 0x555555);
+        g.drawCenteredString(this.font,
+                "§8" + Component.translatable("screen.schedulemc.combination_lock.escape_hint").getString(),
+                cx, py + PAD_H - 12, 0x555555);
 
         super.render(g, mx, my, pt);
     }

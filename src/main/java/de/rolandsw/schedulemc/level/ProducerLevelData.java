@@ -186,11 +186,11 @@ public class ProducerLevelData {
      */
     public String getFormattedInfo() {
         return String.format(
-                "§6═══ Produzenten-Level ═══\n" +
+                "§6═══ Producer Level ═══\n" +
                 "%s\n" +
-                "§7Verkauft: §f%d Items §7(§c%d illegal§7, §a%d legal§7)\n" +
-                "§7Umsatz: §f%.0f€\n" +
-                "§7Freigeschaltet: §f%d / %d",
+                "§7Sold: §f%d items §7(§c%d illegal§7, §a%d legal§7)\n" +
+                "§7Revenue: §f%.0f EUR\n" +
+                "§7Unlocked: §f%d / %d",
                 LevelRequirements.getLevelOverview(level, totalXP),
                 totalItemsSold, totalIllegalSold, totalLegalSold,
                 totalRevenue,

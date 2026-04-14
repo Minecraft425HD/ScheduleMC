@@ -64,6 +64,12 @@ public class ProducerLevelAppScreen extends Screen {
     private String cachedNoUnlockablesStr;
     private String cachedItemsSoldStr;
     private String cachedRevenueStr;
+    private String cachedMaxLevelStr;
+    private String cachedXpToNextPatternStr;
+    private String cachedUnlockedRatioPatternStr;
+    private String cachedLevelProgressPatternStr;
+    private String cachedLevelsRequiredPatternStr;
+    private String cachedRevenueValuePatternStr;
 
     public ProducerLevelAppScreen(Screen parent) {
         super(Component.translatable("gui.app.level.title"));
@@ -96,6 +102,12 @@ public class ProducerLevelAppScreen extends Screen {
         cachedNoUnlockablesStr = Component.translatable("gui.app.level.no_unlockables").getString();
         cachedItemsSoldStr = Component.translatable("gui.app.level.items_sold").getString();
         cachedRevenueStr = Component.translatable("gui.app.level.revenue").getString();
+        cachedMaxLevelStr = Component.translatable("gui.app.level.max_level").getString();
+        cachedXpToNextPatternStr = Component.translatable("gui.app.level.xp_to_next_pattern").getString();
+        cachedUnlockedRatioPatternStr = Component.translatable("gui.app.level.unlocked_ratio_pattern").getString();
+        cachedLevelProgressPatternStr = Component.translatable("gui.app.level.level_progress_pattern").getString();
+        cachedLevelsRequiredPatternStr = Component.translatable("gui.app.level.levels_required_pattern").getString();
+        cachedRevenueValuePatternStr = Component.translatable("gui.app.level.revenue_value_pattern").getString();
 
         initButtons();
     }
@@ -139,7 +151,7 @@ public class ProducerLevelAppScreen extends Screen {
         }).bounds(leftPos + 10, topPos + HEIGHT - 30, 80, 20).build());
 
         // Refresh-Button
-        addRenderableWidget(Button.builder(Component.literal("\u21BB"), button -> {
+        addRenderableWidget(Button.builder(Component.translatable("gui.app.level.refresh"), button -> {
             refreshData();
         }).bounds(leftPos + WIDTH - 30, topPos + HEIGHT - 30, 20, 20).build());
     }
@@ -203,7 +215,7 @@ public class ProducerLevelAppScreen extends Screen {
         // ── Fester Header: Level-Info ──
         guiGraphics.fill(leftPos + 10, startY, leftPos + WIDTH - 10, startY + 75, 0x44228B22);
 
-        String levelText = "\u00A76\u00A7lLevel " + level + " \u00A77/ " + LevelRequirements.MAX_LEVEL;
+        String levelText = "\u00A76\u00A7l" + cachedLevelStr + " " + level + " \u00A77/ " + LevelRequirements.MAX_LEVEL;
         guiGraphics.drawCenteredString(this.font, levelText, leftPos + WIDTH / 2, startY + 5, 0xFFFFFF);
 
         // XP-Fortschrittsbalken
@@ -223,22 +235,22 @@ public class ProducerLevelAppScreen extends Screen {
         guiGraphics.drawCenteredString(this.font, progressPercent, leftPos + WIDTH / 2, barY + 2, 0xFFFFFF);
 
         if (level < LevelRequirements.MAX_LEVEL) {
-            String xpText = "\u00A7eXP: \u00A7f" + totalXP + " \u00A77| \u00A7e" + xpToNext + " \u00A77bis Lv." + (level + 1);
+            String xpText = String.format(cachedXpToNextPatternStr, totalXP, xpToNext, level + 1);
             guiGraphics.drawCenteredString(this.font, xpText, leftPos + WIDTH / 2, startY + 37, 0xFFFFFF);
         } else {
-            guiGraphics.drawCenteredString(this.font, "\u00A76\u00A7lMAX LEVEL!",
+            guiGraphics.drawCenteredString(this.font, cachedMaxLevelStr,
                     leftPos + WIDTH / 2, startY + 37, 0xFFAA00);
         }
 
         double unlockPercent = total > 0 ? (double) unlocked / total * 100.0 : 0;
-        String unlockText = "\u00A7a" + unlocked + "\u00A77/\u00A7a" + total +
-                " \u00A77Freigeschaltet (" + String.format("%.0f%%", unlockPercent) + ")";
+        String unlockText = String.format(cachedUnlockedRatioPatternStr, unlocked, total, unlockPercent);
         guiGraphics.drawCenteredString(this.font, unlockText, leftPos + WIDTH / 2, startY + 52, 0xFFFFFF);
 
         int soldTotal = ClientProducerLevelCache.getTotalItemsSold();
         double revenue = ClientProducerLevelCache.getTotalRevenue();
+        String revenueValue = String.format(cachedRevenueValuePatternStr, revenue);
         String statsText = "\u00A77" + cachedItemsSoldStr + ": \u00A7f" + soldTotal +
-                " \u00A77| " + cachedRevenueStr + ": \u00A7a" + String.format("%.0f\u20AC", revenue);
+                " \u00A77| " + cachedRevenueStr + ": " + revenueValue;
         guiGraphics.drawCenteredString(this.font, statsText, leftPos + WIDTH / 2, startY + 62, 0xFFFFFF);
 
         // ── Scrollbare Kategorien-Liste (1 pro Zeile) ──
@@ -345,7 +357,7 @@ public class ProducerLevelAppScreen extends Screen {
 
                 // Level-Anforderung
                 String levelColor = isUnlocked ? "\u00A7a" : (reqLevel <= currentLevel + 2 ? "\u00A7e" : "\u00A7c");
-                String levelText = levelColor + "Level " + reqLevel;
+                String levelText = levelColor + cachedLevelStr + " " + reqLevel;
                 guiGraphics.drawString(this.font, levelText, leftPos + 15, y + 18, 0xAAAAAA);
 
                 // Status-Text rechts
@@ -427,7 +439,7 @@ public class ProducerLevelAppScreen extends Screen {
                 guiGraphics.fill(barX, barY, barX + filledWidth, barY + barHeight, barColor);
             }
 
-            String barText = "Level " + currentLevel + " / " + reqLevel;
+            String barText = String.format(cachedLevelProgressPatternStr, currentLevel, reqLevel);
             guiGraphics.drawCenteredString(this.font, "\u00A7e" + barText,
                     leftPos + WIDTH / 2, barY + 1, 0xFFFFFF);
         } else {
@@ -446,7 +458,7 @@ public class ProducerLevelAppScreen extends Screen {
             guiGraphics.drawCenteredString(this.font, lockedText,
                     leftPos + WIDTH / 2, statusY, 0xFF5555);
             guiGraphics.drawCenteredString(this.font,
-                    "\u00A77Noch \u00A7e" + levelsNeeded + " Level\u00A77 benoetigt",
+                    String.format(cachedLevelsRequiredPatternStr, levelsNeeded),
                     leftPos + WIDTH / 2, statusY + 15, 0xAAAAAA);
         }
 

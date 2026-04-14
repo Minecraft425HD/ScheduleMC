@@ -62,14 +62,14 @@ public class LevelUpNotificationPacket {
     @OnlyIn(Dist.CLIENT)
     private void handleClient() {
         // Zeige Level-Up Notification
-        String title = "\u2605 Level " + newLevel + " erreicht!";
+        String title = "\u2605 Reached level " + newLevel + "!";
         String message;
         if (newUnlockNames.isEmpty()) {
-            message = "Weiter so!";
+            message = "Keep it up!";
         } else if (newUnlockNames.size() == 1) {
-            message = "Neu: " + newUnlockNames.get(0);
+            message = "New: " + newUnlockNames.get(0);
         } else {
-            message = newUnlockNames.size() + " neue Inhalte freigeschaltet!";
+            message = newUnlockNames.size() + " new unlocks!";
         }
 
         MessageNotificationOverlay.showNotification(title, message);

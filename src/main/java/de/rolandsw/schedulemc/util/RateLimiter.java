@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Verhindert dass Spieler den Server mit zu vielen Operationen pro Sekunde überfluten.
  *
  * Features:
- * - Sliding Window Rate Limiting
+ * - Fixed Window Rate Limiting
  * - Thread-Safe mit ConcurrentHashMap
  * - Automatische Cleanup alter Einträge
  * - Konfigurierbare Limits pro Operation
@@ -169,7 +169,7 @@ public class RateLimiter {
     }
 
     /**
-     * Operation Window für Sliding Window Rate Limiting
+     * Operation Window für Fixed Window Rate Limiting
      */
     private static class OperationWindow {
         volatile long windowStart;
