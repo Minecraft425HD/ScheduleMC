@@ -642,7 +642,12 @@ public class ScenarioEditorScreen extends Screen {
                 yield val;
             }
             case DROPDOWN_LOCK -> {
-                for (var l : serverLocks) { if (l.lockId().equals(val)) { yield l.lockId() + " (" + l.lockType() + ")"; } }
+                for (var l : serverLocks) {
+                    if (l.lockId().equals(val)) {
+                        String lockPart = "NO_LOCK".equalsIgnoreCase(l.lockId()) ? "kein lock_id" : ("lock_id=" + l.lockId());
+                        yield l.lockType() + " @ " + l.x() + "," + l.y() + "," + l.z() + " (" + lockPart + ")";
+                    }
+                }
                 yield val;
             }
             default -> val;

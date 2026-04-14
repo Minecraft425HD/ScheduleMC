@@ -111,6 +111,8 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
             Direction facing = state.getValue(FACING);
             int[] size = autoDetectSize(level, pos, facing);
             spawnFillers(level, pos, be, size[0], size[1], facing);
+            player.sendSystemMessage(Component.literal(
+                "§a[Secret] Neue lock_id: §f" + be.getLockId() + " §7| Code: §f" + be.getAccessCode()));
         }
     }
 

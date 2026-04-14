@@ -70,6 +70,7 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> GOVERNMENT_PLOT_BLOCKS;
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> PRISON_PLOT_BLOCKS;
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> TOWING_YARD_PLOT_BLOCKS;
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> SECRET_DOOR_ALLOWED_PLOT_TYPES;
         
         // ═══════════════════════════════════════════════════════════
         // DAILY REWARDS
@@ -435,6 +436,14 @@ public class ModConfigHandler {
             TOWING_YARD_PLOT_BLOCKS = builder
                     .comment("Blöcke für TOWING_YARD-Plots. Default: ALL")
                     .defineList("towing_yard", java.util.List.of("ALL"), obj -> obj instanceof String);
+
+            SECRET_DOOR_ALLOWED_PLOT_TYPES = builder
+                    .comment("Erlaubte Plot-Typen für HiddenSwitch/SecretDoor/Hatch (für Nicht-OP).",
+                        "Nutzung/Platzierung nur auf besessenem/vermietetem Plot mit Access.",
+                        "Standard: RESIDENTIAL, INDUSTRIAL.")
+                    .defineList("secret_door_allowed_plot_types",
+                        java.util.Arrays.asList("RESIDENTIAL", "INDUSTRIAL"),
+                        obj -> obj instanceof String);
 
             builder.pop();
 

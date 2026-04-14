@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.mission.network.MissionNetworkHandler;
 import de.rolandsw.schedulemc.mission.client.PlayerMissionDto;
+import de.rolandsw.schedulemc.secretdoors.mission.SecretDoorMissionAccessManager;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,6 +133,7 @@ public class PlayerMissionManager {
             m -> m.getMissionId().equals(missionId) && m.getStatus() == MissionStatus.ACTIVE
         );
         if (removed) {
+            SecretDoorMissionAccessManager.clearPlayerAccess(player);
             syncToPlayer(player);
         }
         return removed;
@@ -164,6 +166,7 @@ public class PlayerMissionManager {
                     LOGGER.error("Fehler beim Auszahlen der Mission-Belohnung für {}", uuid, e);
                 }
                 MissionEventBridge.fireMissionCompleted(player);
+                SecretDoorMissionAccessManager.clearPlayerAccess(player);
                 syncToPlayer(player);
                 return true;
             }

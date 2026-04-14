@@ -50,7 +50,9 @@ public class RequestPlayerMissionsPacket {
             // Collect server data for dropdowns (same as OpenScenarioEditorPacket)
             List<String> npcNames = collectNpcNames();
             List<OpenScenarioEditorPacket.PlotInfo> plots = new ArrayList<>();
-            List<OpenScenarioEditorPacket.LockInfo> locks = new ArrayList<>();
+            List<OpenScenarioEditorPacket.LockInfo> locks =
+                de.rolandsw.schedulemc.mission.editor.MissionEditorSecretDataCollector
+                    .collectSecretLockInfos(player.server);
 
             String json = serializeScenarios(storyScenarios);
 
