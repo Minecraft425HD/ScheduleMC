@@ -5,6 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
@@ -15,12 +16,20 @@ public class BigFermentationBarrelMenu extends AbstractContainerMenu {
     public BigFermentationBarrelMenu(int id, Inventory inv, BigFermentationBarrelBlockEntity be) {
         super(ModMenuTypes.BIG_FERMENTATION_BARREL_MENU.get(), id);
         this.blockEntity = be;
+        addPlayerHotbar(inv);
     }
 
     public BigFermentationBarrelMenu(int id, Inventory inv, FriendlyByteBuf buf) {
         super(ModMenuTypes.BIG_FERMENTATION_BARREL_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
         this.blockEntity = be instanceof BigFermentationBarrelBlockEntity e ? e : null; // NOPMD
+        addPlayerHotbar(inv);
+    }
+
+    private void addPlayerHotbar(Inventory inv) {
+        for (int i = 0; i < 9; i++) {
+            addSlot(new Slot(inv, i, 8 + i * 18, 84));
+        }
     }
 
     public int getInputCount() {

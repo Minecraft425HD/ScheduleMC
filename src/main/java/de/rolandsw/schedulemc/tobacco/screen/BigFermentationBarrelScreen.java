@@ -54,12 +54,11 @@ public class BigFermentationBarrelScreen extends AbstractContainerScreen<BigFerm
 
         int x = leftPos;
         int y = topPos;
-        graphics.drawString(font, Component.translatable("block.big_fermentation_barrel.header").getString(), x + 8, y + 6, 0xFFFFFF, false);
+        graphics.drawString(font, Component.translatable("block.schedulemc.big_fermentation_barrel").getString(), x + 8, y + 6, 0xFFFFFF, false);
         graphics.drawString(font, Component.translatable("block.fermentation.capacity", menu.getInputCount(), menu.getCapacity()).getString(), x + 8, y + 22, 0xCCCCCC, false);
         graphics.drawString(font, Component.translatable("gui.fermentation.input_label").getString(), x + 48, y + 56, 0xCCCCCC, false);
         graphics.drawString(font, Component.translatable("gui.fermentation.output_label", menu.getOutputCount()).getString(), x + 104, y + 56, 0xCCCCCC, false);
         graphics.drawString(font, Component.translatable("gui.progress_percent", menu.getProgressPercent()).getString(), x + 80, y + 70, 0xF44336, false);
-        graphics.drawString(font, Component.translatable("gui.fermentation.interaction_hint").getString(), x + 8, y + 92, 0xAAAAAA, false);
     }
 
     @Override
