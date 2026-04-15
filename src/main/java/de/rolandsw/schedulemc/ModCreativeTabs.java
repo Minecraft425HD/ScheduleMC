@@ -603,7 +603,6 @@ public class ModCreativeTabs {
                 output.accept(HoneyItems.CREAMED_HONEY.get());
                 output.accept(HoneyItems.CRYSTALLIZED_HONEY.get());
                 output.accept(HoneyItems.HONEY_CRYSTALS.get());
-                output.accept(HoneyItems.BEEKEEPER_SUIT.get());
                 output.accept(HoneyItems.SMOKER.get());
                 output.accept(HoneyItems.HIVE_TOOL.get());
                 output.accept(HoneyItems.HONEY_CANDY.get());

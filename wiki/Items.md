@@ -732,7 +732,6 @@ Beekeeping and honey production: raw materials, processing stages, by-products, 
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Beekeeper Suit | `beekeeper_suit` | Protective suit for handling beehives. Prevents bee stings. Stacks to 1. | Crafting |
 | Smoker | `smoker` | Bee smoker tool to calm bees during harvest. 256 durability. Stacks to 1. | Crafting |
 | Hive Tool | `hive_tool` | Metal tool for prying open hives and extracting frames. 512 durability. Stacks to 1. | Crafting |
 
@@ -874,4 +873,3 @@ Modular vehicle system with complete vehicles, individual parts, fuel, tools, an
 - Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
 - Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
 - Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
-

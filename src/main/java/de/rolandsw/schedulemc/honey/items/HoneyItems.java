@@ -138,11 +138,6 @@ public class HoneyItems {
     // ═══════════════════════════════════════════════════════════
     // BIENENZUCHT - AUSRÜSTUNG & WERKZEUGE
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> BEEKEEPER_SUIT = ITEMS.register(
-        "beekeeper_suit",
-        () -> new Item(new Item.Properties().stacksTo(1))
-    );
-
     public static final RegistryObject<Item> SMOKER = ITEMS.register(
         "smoker",
         () -> new Item(new Item.Properties().stacksTo(1).durability(256))
