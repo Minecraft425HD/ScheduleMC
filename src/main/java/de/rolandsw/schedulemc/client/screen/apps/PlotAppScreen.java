@@ -4,6 +4,7 @@ import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.network.PlotNetworkHandler;
 import de.rolandsw.schedulemc.region.network.PlotPurchasePacket;
+import de.rolandsw.schedulemc.region.network.PlotUtilityBillingPacket;
 import de.rolandsw.schedulemc.utility.PlotUtilityData;
 import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 import net.minecraft.client.Minecraft;
@@ -116,6 +117,8 @@ public class PlotAppScreen extends Screen {
     // Tab-1 action buttons (buy/rent on current plot)
     private Button buyButton;
     private Button rentButton;
+    private Button payBillsButton;
+    private Button autoPayButton;
 
     public PlotAppScreen(Screen parent) {
         super(Component.translatable("gui.app.plot.title"));
@@ -238,6 +241,28 @@ public class PlotAppScreen extends Screen {
             }
         ).bounds(leftPos + 105, topPos + HEIGHT - 55, 85, 18).build());
 
+        payBillsButton = addRenderableWidget(Button.builder(
+            Component.literal("Rechnungen zahlen"),
+            button -> {
+                PlotNetworkHandler.sendToServer(PlotUtilityBillingPacket.payAll());
+                refreshData();
+                updateButtonVisibility();
+            }
+        ).bounds(leftPos + 10, topPos + HEIGHT - 55, 85, 18).build());
+
+        autoPayButton = addRenderableWidget(Button.builder(
+            Component.literal("AutoPay: AUS"),
+            button -> {
+                if (minecraft == null || minecraft.player == null) {
+                    return;
+                }
+                boolean currentlyEnabled = PlotUtilityManager.isAutoPayEnabledForOwner(minecraft.player.getUUID());
+                PlotNetworkHandler.sendToServer(PlotUtilityBillingPacket.setAutoPay(!currentlyEnabled));
+                refreshData();
+                updateButtonVisibility();
+            }
+        ).bounds(leftPos + 105, topPos + HEIGHT - 55, 85, 18).build());
+
         updateButtonVisibility();
     }
 
@@ -281,14 +306,21 @@ public class PlotAppScreen extends Screen {
      * Zeigt/versteckt Kauf-/Miet-Buttons je nach aktuellem Tab und Plot-Status.
      */
     private void updateButtonVisibility() {
-        if (buyButton == null || rentButton == null) return;
+        if (buyButton == null || rentButton == null || payBillsButton == null || autoPayButton == null) return;
         boolean onTab0 = currentTab == 0;
+        boolean onTab3 = currentTab == 3;
         boolean canBuy = onTab0 && currentPlot != null
             && ((!currentPlot.hasOwner() && currentPlot.isPurchasable()) || currentPlot.isForSale());
         boolean canRent = onTab0 && currentPlot != null
             && currentPlot.isForRent() && !currentPlot.isRented();
         buyButton.visible = canBuy;
         rentButton.visible = canRent;
+        payBillsButton.visible = onTab3 && !myPlots.isEmpty();
+        autoPayButton.visible = onTab3 && !myPlots.isEmpty();
+        if (minecraft != null && minecraft.player != null) {
+            boolean autoPayEnabled = PlotUtilityManager.isAutoPayEnabledForOwner(minecraft.player.getUUID());
+            autoPayButton.setMessage(Component.literal(autoPayEnabled ? "AutoPay: AN" : "AutoPay: AUS"));
+        }
     }
 
     @Override
@@ -737,27 +769,30 @@ public class PlotAppScreen extends Screen {
 
             for (PlotRegion plot : myPlots) {
                 Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
-                if (dataOpt.isPresent()) {
-                    PlotUtilityData data = dataOpt.get();
-                    double elec = data.getCurrentElectricity();
-                    double water = data.getCurrentWater();
-                    double cost = (elec * ELECTRICITY_PRICE_PER_KWH) + (water * WATER_PRICE_PER_LITER);
+                PlotUtilityData data = dataOpt.orElse(null);
+                double elec = data != null ? data.getCurrentElectricity() : 0.0;
+                double water = data != null ? data.getCurrentWater() : 0.0;
+                double cost = (elec * ELECTRICITY_PRICE_PER_KWH) + (water * WATER_PRICE_PER_LITER);
+                double outstanding = data != null ? data.getOutstandingBill() : 0.0;
+                int unpaidDays = data != null ? data.getUnpaidDays() : 0;
 
-                    if (y >= startY - 30 && y < endY) {
-                        guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x33333333);
-                        String plotName = plot.getPlotName();
-                        if (plotName == null || plotName.isEmpty()) {
-                            plotName = cachedUnnamed;
-                        }
-                        guiGraphics.drawString(this.font, "§7" + plotName, leftPos + 15, y + 3, 0xAAAAAA);
-                        guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 140, y + 3, 0xFFAA00);
-                        guiGraphics.drawString(this.font, Component.translatable("ui.plot.utility_display",
-                            String.format("%.0f", elec),
-                            String.format("%.0f", water)).getString(), leftPos + 15, y + 14, 0x666666);
+                if (y >= startY - 40 && y < endY) {
+                    guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 34, 0x33333333);
+                    String plotName = plot.getPlotName();
+                    if (plotName == null || plotName.isEmpty()) {
+                        plotName = cachedUnnamed;
                     }
-                    y += 28;
-                    contentHeight += 28;
+                    guiGraphics.drawString(this.font, "§7" + plotName, leftPos + 15, y + 3, 0xAAAAAA);
+                    guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 140, y + 3, 0xFFAA00);
+                    guiGraphics.drawString(this.font, Component.translatable("ui.plot.utility_display",
+                        String.format("%.0f", elec),
+                        String.format("%.0f", water)).getString(), leftPos + 15, y + 14, 0x666666);
+                    guiGraphics.drawString(this.font,
+                        String.format("§cOffen: %.2f€  §8(%d Tage)", outstanding, unpaidDays),
+                        leftPos + 15, y + 24, 0xAA6666);
                 }
+                y += 37;
+                contentHeight += 37;
             }
         }
 

@@ -506,6 +506,62 @@ public class PlotUtilityManager {
                 plotData.size(), formatElectricity(totalElec), formatWater(totalWater));
     }
 
+    public static double getOutstandingBillsForOwner(UUID ownerUUID) {
+        double total = 0.0;
+        for (PlotRegion plot : PlotManager.getPlotsByOwner(ownerUUID)) {
+            PlotUtilityData data = plotData.get(plot.getPlotId());
+            if (data != null) {
+                total += data.getOutstandingBill();
+            }
+        }
+        return total;
+    }
+
+    public static double payOutstandingBillsForOwner(UUID ownerUUID) {
+        double totalOutstanding = getOutstandingBillsForOwner(ownerUUID);
+        if (totalOutstanding <= 0.0) {
+            return 0.0;
+        }
+
+        if (!EconomyManager.withdraw(ownerUUID, totalOutstanding, TransactionType.OTHER, "Utility bill payment")) {
+            return 0.0;
+        }
+
+        double paid = 0.0;
+        for (PlotRegion plot : PlotManager.getPlotsByOwner(ownerUUID)) {
+            PlotUtilityData data = plotData.get(plot.getPlotId());
+            if (data == null) {
+                continue;
+            }
+            paid += data.payOutstandingBill(data.getOutstandingBill());
+        }
+        dirty = true;
+        return paid;
+    }
+
+    public static void setAutoPayForOwner(UUID ownerUUID, boolean enabled) {
+        for (PlotRegion plot : PlotManager.getPlotsByOwner(ownerUUID)) {
+            PlotUtilityData data = plotData.computeIfAbsent(plot.getPlotId(), PlotUtilityData::new);
+            data.setAutoPayEnabled(enabled);
+        }
+        dirty = true;
+    }
+
+    public static boolean isAutoPayEnabledForOwner(UUID ownerUUID) {
+        List<PlotRegion> ownedPlots = PlotManager.getPlotsByOwner(ownerUUID);
+        if (ownedPlots.isEmpty()) {
+            return false;
+        }
+
+        for (PlotRegion plot : ownedPlots) {
+            PlotUtilityData data = plotData.get(plot.getPlotId());
+            if (data == null || !data.isAutoPayEnabled()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static void processDailyBilling(PlotUtilityData data) {
         PlotRegion plot = PlotManager.getPlot(data.getPlotId());
         if (plot == null || !plot.hasOwner()) {
