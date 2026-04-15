@@ -57,7 +57,7 @@ public class MediumFermentationBarrelScreen extends AbstractContainerScreen<Medi
         graphics.drawString(font, Component.translatable("block.schedulemc.medium_fermentation_barrel").getString(), x + 8, y + 6, 0xFFFFFF, false);
         graphics.drawString(font, Component.translatable("block.fermentation.capacity", menu.getInputCount(), menu.getCapacity()).getString(), x + 8, y + 22, 0xCCCCCC, false);
         graphics.drawString(font, Component.translatable("gui.fermentation.input_label").getString(), x + 48, y + 56, 0xCCCCCC, false);
-        graphics.drawString(font, Component.translatable("gui.fermentation.output_label", menu.getOutputCount()).getString(), x + 104, y + 56, 0xCCCCCC, false);
+        graphics.drawString(font, Component.translatable("gui.fermentation.output_label").getString(), x + 104, y + 56, 0xCCCCCC, false);
         graphics.drawString(font, Component.translatable("gui.progress_percent", menu.getProgressPercent()).getString(), x + 80, y + 70, 0xFF9800, false);
     }
 

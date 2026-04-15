@@ -1,13 +1,11 @@
 package de.rolandsw.schedulemc.tobacco.blocks;
 
 import de.rolandsw.schedulemc.tobacco.blockentity.SmallFermentationBarrelBlockEntity;
-import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -50,37 +48,8 @@ public class SmallFermentationBarrelBlock extends Block implements EntityBlock {
                                  InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
-        BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof SmallFermentationBarrelBlockEntity barrelBE)) {
-            return InteractionResult.PASS;
-        }
-
-        ItemStack heldItem = player.getItemInHand(hand);
-
-        // ═══════════════════════════════════════════════════════════
-        // 1. GETROCKNETE BLÄTTER HINZUFÜGEN
-        // ═══════════════════════════════════════════════════════════
-        if (heldItem.getItem() instanceof DriedTobaccoLeafItem) {
-            if (barrelBE.isFull()) return InteractionResult.FAIL;
-
-            if (barrelBE.addDriedLeaves(heldItem)) {
-                if (!player.isCreative()) heldItem.shrink(1);
-                return InteractionResult.SUCCESS;
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════
-        // 2. FERMENTIERTE BLÄTTER ENTNEHMEN
-        // ═══════════════════════════════════════════════════════════
-        if (player.isShiftKeyDown() && barrelBE.hasOutput()) {
-            ItemStack fermented = barrelBE.extractAllFermentedLeaves();
-            if (!fermented.isEmpty()) {
-                player.getInventory().add(fermented);
-                return InteractionResult.SUCCESS;
-            }
-        }
-
-        if (player instanceof ServerPlayer serverPlayer) {
+        if (level.getBlockEntity(pos) instanceof SmallFermentationBarrelBlockEntity barrelBE
+            && player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openScreen(serverPlayer, barrelBE, pos);
         }
 

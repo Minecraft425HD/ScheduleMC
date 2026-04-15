@@ -2271,7 +2271,7 @@
   "gui.done": "Fertig",
   "gui.fermentation.medium_header": "§6═══ Mittleres Fermentierungsfass ═══\n",
   "gui.fermentation.input_label": "Input",
-  "gui.fermentation.output_label": "Output: %s",
+  "gui.fermentation.output_label": "Output",
   "gui.fermentation.progress_line": "\n§7Fortschritt: %s §e%s%%\n",
   "gui.fermentation.small_header": "§6═══ Kleines Fermentierungsfass ═══\n",
   "gui.fuel.bill_title": "TANKRECHNUNG",

@@ -2290,7 +2290,7 @@
   "gui.done": "Done",
   "gui.fermentation.medium_header": "§6═══ Medium Fermentation Barrel ═══\n",
   "gui.fermentation.input_label": "Input",
-  "gui.fermentation.output_label": "Output: %s",
+  "gui.fermentation.output_label": "Output",
   "gui.fermentation.progress_line": "\n§7Progress: %s §e%s%%\n",
   "gui.fermentation.small_header": "§6═══ Small Fermentation Barrel ═══\n",
   "gui.fuel.bill_title": "FUEL BILL",

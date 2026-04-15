@@ -138,23 +138,17 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
 
             @Override
             public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if (slot != 1 || amount <= 0 || !hasOutput()) {
+                if (amount <= 0) {
                     return ItemStack.EMPTY;
                 }
 
-                if (simulate) {
-                    ItemStack preview = getFirstOutputStack();
-                    if (preview.isEmpty()) return ItemStack.EMPTY;
-                    preview = preview.copy();
-                    preview.setCount(Math.min(amount, getOutputCount()));
-                    return preview;
+                if (slot == 0) {
+                    return extractInputLeaves(amount, simulate);
                 }
-
-                ItemStack extracted = extractAllFermentedLeaves();
-                if (level != null) {
-                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                if (slot == 1) {
+                    return extractFermentedLeaves(amount, simulate);
                 }
-                return extracted;
+                return ItemStack.EMPTY;
             }
         };
     }
@@ -175,6 +169,63 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
             }
         }
         return ItemStack.EMPTY;
+    }
+
+    private ItemStack extractInputLeaves(int amount, boolean simulate) {
+        ItemStack firstInput = getFirstInputStack();
+        if (firstInput.isEmpty()) return ItemStack.EMPTY;
+
+        int extractCount = Math.min(amount, getInputCount());
+        ItemStack result = firstInput.copy();
+        result.setCount(extractCount);
+
+        if (!simulate) {
+            int remaining = extractCount;
+            for (int i = 0; i < getCapacity() && remaining > 0; i++) {
+                if (!inputs[i].isEmpty()) {
+                    inputs[i] = ItemStack.EMPTY;
+                    fermentationProgress[i] = 0;
+                    tobaccoTypes[i] = null;
+                    qualities[i] = null;
+                    remaining--;
+                }
+            }
+            setChanged();
+            if (level != null) {
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            }
+        }
+
+        return result;
+    }
+
+    private ItemStack extractFermentedLeaves(int amount, boolean simulate) {
+        ItemStack firstOutput = getFirstOutputStack();
+        if (firstOutput.isEmpty()) return ItemStack.EMPTY;
+
+        int extractCount = Math.min(amount, getOutputCount());
+        ItemStack result = firstOutput.copy();
+        result.setCount(extractCount);
+
+        if (!simulate) {
+            int remaining = extractCount;
+            for (int i = 0; i < getCapacity() && remaining > 0; i++) {
+                if (!outputs[i].isEmpty()) {
+                    outputs[i] = ItemStack.EMPTY;
+                    inputs[i] = ItemStack.EMPTY;
+                    fermentationProgress[i] = 0;
+                    tobaccoTypes[i] = null;
+                    qualities[i] = null;
+                    remaining--;
+                }
+            }
+            setChanged();
+            if (level != null) {
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            }
+        }
+
+        return result;
     }
 
     public boolean addDriedLeaves(ItemStack stack) {
