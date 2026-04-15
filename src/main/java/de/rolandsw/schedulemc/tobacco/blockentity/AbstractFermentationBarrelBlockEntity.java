@@ -13,6 +13,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +53,7 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
         this.capacitySupplier = capacitySupplier;
         this.fermentationTimeSupplier = fermentationTimeSupplier;
         initArrays();  // NOPMD
+        createItemHandler();  // NOPMD
     }
 
     protected int getCapacity() {
@@ -77,6 +80,101 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
             outputs[i] = ItemStack.EMPTY;
             fermentationProgress[i] = 0;
         }
+    }
+
+    private void createItemHandler() {
+        this.itemHandler = new ItemStackHandler(2) {
+            @Override
+            public @NotNull ItemStack getStackInSlot(int slot) {
+                if (slot == 0) {
+                    ItemStack firstInput = getFirstInputStack();
+                    if (firstInput.isEmpty()) return ItemStack.EMPTY;
+                    ItemStack preview = firstInput.copy();
+                    preview.setCount(getInputCount());
+                    return preview;
+                }
+                if (slot == 1) {
+                    ItemStack firstOutput = getFirstOutputStack();
+                    if (firstOutput.isEmpty()) return ItemStack.EMPTY;
+                    ItemStack preview = firstOutput.copy();
+                    preview.setCount(getOutputCount());
+                    return preview;
+                }
+                return ItemStack.EMPTY;
+            }
+
+            @Override
+            public int getSlotLimit(int slot) {
+                return slot == 0 ? getCapacity() : 64;
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                return slot == 0 && stack.getItem() instanceof DriedTobaccoLeafItem;
+            }
+
+            @Override
+            public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+                if (slot != 0 || stack.isEmpty() || !(stack.getItem() instanceof DriedTobaccoLeafItem)) {
+                    return stack;
+                }
+
+                int canInsert = Math.min(stack.getCount(), Math.max(0, getCapacity() - getInputCount()));
+                if (canInsert <= 0) return stack;
+
+                if (!simulate) {
+                    for (int i = 0; i < canInsert; i++) {
+                        if (!addDriedLeaves(stack)) break;
+                    }
+                    if (level != null) {
+                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                    }
+                }
+
+                ItemStack remainder = stack.copy();
+                remainder.shrink(canInsert);
+                return remainder;
+            }
+
+            @Override
+            public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if (slot != 1 || amount <= 0 || !hasOutput()) {
+                    return ItemStack.EMPTY;
+                }
+
+                if (simulate) {
+                    ItemStack preview = getFirstOutputStack();
+                    if (preview.isEmpty()) return ItemStack.EMPTY;
+                    preview = preview.copy();
+                    preview.setCount(Math.min(amount, getOutputCount()));
+                    return preview;
+                }
+
+                ItemStack extracted = extractAllFermentedLeaves();
+                if (level != null) {
+                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                }
+                return extracted;
+            }
+        };
+    }
+
+    private ItemStack getFirstInputStack() {
+        for (ItemStack input : inputs) {
+            if (!input.isEmpty()) {
+                return input;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private ItemStack getFirstOutputStack() {
+        for (ItemStack output : outputs) {
+            if (!output.isEmpty()) {
+                return output;
+            }
+        }
+        return ItemStack.EMPTY;
     }
 
     public boolean addDriedLeaves(ItemStack stack) {

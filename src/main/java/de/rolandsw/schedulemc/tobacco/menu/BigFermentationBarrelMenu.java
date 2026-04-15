@@ -8,6 +8,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class BigFermentationBarrelMenu extends AbstractContainerMenu {
@@ -16,6 +17,7 @@ public class BigFermentationBarrelMenu extends AbstractContainerMenu {
     public BigFermentationBarrelMenu(int id, Inventory inv, BigFermentationBarrelBlockEntity be) {
         super(ModMenuTypes.BIG_FERMENTATION_BARREL_MENU.get(), id);
         this.blockEntity = be;
+        addMachineSlots();
         addPlayerHotbar(inv);
     }
 
@@ -23,7 +25,14 @@ public class BigFermentationBarrelMenu extends AbstractContainerMenu {
         super(ModMenuTypes.BIG_FERMENTATION_BARREL_MENU.get(), id);
         BlockEntity be = inv.player.level().getBlockEntity(buf.readBlockPos());
         this.blockEntity = be instanceof BigFermentationBarrelBlockEntity e ? e : null; // NOPMD
+        addMachineSlots();
         addPlayerHotbar(inv);
+    }
+
+    private void addMachineSlots() {
+        if (blockEntity == null) return;
+        addSlot(new SlotItemHandler(blockEntity.getItemHandler(), 0, 56, 35));
+        addSlot(new SlotItemHandler(blockEntity.getItemHandler(), 1, 116, 35));
     }
 
     private void addPlayerHotbar(Inventory inv) {
@@ -50,7 +59,22 @@ public class BigFermentationBarrelMenu extends AbstractContainerMenu {
 
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
-        return ItemStack.EMPTY;
+        Slot slot = this.slots.get(index);
+        if (!slot.hasItem()) return ItemStack.EMPTY;
+
+        ItemStack stack = slot.getItem();
+        ItemStack copy = stack.copy();
+
+        if (index < 2) {
+            if (!this.moveItemStackTo(stack, 2, this.slots.size(), true)) return ItemStack.EMPTY;
+        } else {
+            if (!this.moveItemStackTo(stack, 0, 1, false)) return ItemStack.EMPTY;
+        }
+
+        if (stack.isEmpty()) slot.set(ItemStack.EMPTY);
+        else slot.setChanged();
+
+        return copy;
     }
 
     @Override
