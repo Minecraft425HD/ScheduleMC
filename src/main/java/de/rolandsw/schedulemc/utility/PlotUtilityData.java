@@ -44,6 +44,12 @@ public class PlotUtilityData {
     private final Map<UtilityCategory, Double> categoryElectricity = new EnumMap<>(UtilityCategory.class);
     private final Map<UtilityCategory, Double> categoryWater = new EnumMap<>(UtilityCategory.class);
 
+    // Utility-Rechnung / Sperr-Status
+    private double outstandingBill = 0.0;
+    private int unpaidDays = 0;
+    private boolean autoPayEnabled = false;
+    private boolean utilitiesEnabled = true;
+
     public PlotUtilityData(String plotId) {
         this.plotId = plotId;
         Arrays.fill(dailyElectricity, 0);
@@ -122,6 +128,14 @@ public class PlotUtilityData {
      * Wird jede Minecraft-Stunde aufgerufen (1000 Ticks)
      */
     public void calculateCurrentConsumption() {
+        if (!utilitiesEnabled) {
+            currentDayElectricity = 0;
+            currentDayWater = 0;
+            categoryElectricity.clear();
+            categoryWater.clear();
+            return;
+        }
+
         currentDayElectricity = 0;
         currentDayWater = 0;
         categoryElectricity.clear();
@@ -283,6 +297,54 @@ public class PlotUtilityData {
         return result;
     }
 
+    public double getOutstandingBill() {
+        return outstandingBill;
+    }
+
+    public int getUnpaidDays() {
+        return unpaidDays;
+    }
+
+    public boolean isAutoPayEnabled() {
+        return autoPayEnabled;
+    }
+
+    public void setAutoPayEnabled(boolean autoPayEnabled) {
+        this.autoPayEnabled = autoPayEnabled;
+    }
+
+    public boolean isUtilitiesEnabled() {
+        return utilitiesEnabled;
+    }
+
+    public void accrueDailyBill(double amount) {
+        if (amount <= 0) {
+            return;
+        }
+        outstandingBill += amount;
+        unpaidDays++;
+        if (unpaidDays >= 28) {
+            utilitiesEnabled = false;
+        }
+    }
+
+    public double payOutstandingBill(double amount) {
+        if (amount <= 0 || outstandingBill <= 0) {
+            return 0.0;
+        }
+
+        double paid = Math.min(amount, outstandingBill);
+        outstandingBill -= paid;
+
+        if (outstandingBill <= 0.0001) {
+            outstandingBill = 0.0;
+            unpaidDays = 0;
+            utilitiesEnabled = true;
+        }
+
+        return paid;
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // SERIALISIERUNG
     // ═══════════════════════════════════════════════════════════════════════════
@@ -294,6 +356,10 @@ public class PlotUtilityData {
         json.addProperty("currentDayElectricity", currentDayElectricity);
         json.addProperty("currentDayWater", currentDayWater);
         json.addProperty("historyIndex", historyIndex);  // OPTIMIERT: Circular Buffer Index
+        json.addProperty("outstandingBill", outstandingBill);
+        json.addProperty("unpaidDays", unpaidDays);
+        json.addProperty("autoPayEnabled", autoPayEnabled);
+        json.addProperty("utilitiesEnabled", utilitiesEnabled);
 
         // Historie - speichere in chronologischer Reihenfolge für Kompatibilität
         JsonArray elecHistory = new JsonArray();
@@ -328,6 +394,18 @@ public class PlotUtilityData {
         data.lastUpdateDay = json.get("lastUpdateDay").getAsLong();
         data.currentDayElectricity = json.get("currentDayElectricity").getAsDouble();
         data.currentDayWater = json.get("currentDayWater").getAsDouble();
+        if (json.has("outstandingBill")) {
+            data.outstandingBill = json.get("outstandingBill").getAsDouble();
+        }
+        if (json.has("unpaidDays")) {
+            data.unpaidDays = json.get("unpaidDays").getAsInt();
+        }
+        if (json.has("autoPayEnabled")) {
+            data.autoPayEnabled = json.get("autoPayEnabled").getAsBoolean();
+        }
+        if (json.has("utilitiesEnabled")) {
+            data.utilitiesEnabled = json.get("utilitiesEnabled").getAsBoolean();
+        }
 
         // OPTIMIERT: Lade Circular Buffer Index (mit Fallback für alte Daten)
         if (json.has("historyIndex")) {

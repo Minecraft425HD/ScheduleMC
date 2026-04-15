@@ -98,6 +98,11 @@ public class SavingsAccount {
      * Berechnet und zahlt wöchentliche Zinsen
      */
     public double calculateAndPayInterest(long currentDay) {
+        if (balance <= 0.0) {
+            lastInterestDay = currentDay;
+            return 0.0;
+        }
+
         long daysSinceLastInterest = currentDay - lastInterestDay;
 
         if (daysSinceLastInterest >= 7) {

@@ -642,18 +642,24 @@ public class PlotAppScreen extends Screen {
         // MAHNUNGEN / WARNUNGEN
         // ═══════════════════════════════════════════════════════════════════════════
         boolean hasWarnings = false;
+        boolean hasUtilityCutoff = false;
         double totalElectricity = 0;
         double totalWater = 0;
+        double totalOutstandingBills = 0;
 
         for (PlotRegion plot : myPlots) {
             Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
             if (dataOpt.isPresent()) {
                 PlotUtilityData data = dataOpt.get();
-                totalElectricity += data.get7DayAverageElectricity();
-                totalWater += data.get7DayAverageWater();
+                totalElectricity += data.getCurrentElectricity();
+                totalWater += data.getCurrentWater();
+                totalOutstandingBills += data.getOutstandingBill();
+                if (!data.isUtilitiesEnabled()) {
+                    hasUtilityCutoff = true;
+                }
 
                 // Warnung bei hohem Verbrauch (>100 kWh oder >500 L)
-                if (data.get7DayAverageElectricity() > 100 || data.get7DayAverageWater() > 500) {
+                if (data.getCurrentElectricity() > 100 || data.getCurrentWater() > 500 || data.getOutstandingBill() > 0) {
                     hasWarnings = true;
                 }
             }
@@ -664,7 +670,10 @@ public class PlotAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x66AA0000);
                 guiGraphics.drawString(this.font, cachedWarning, leftPos + 15, y + 3, 0xFF5555);
-                guiGraphics.drawString(this.font, cachedHighConsumption, leftPos + 15, y + 14, 0xFFFFFF);
+                String warningText = hasUtilityCutoff
+                    ? "§cStrom/Wasser gesperrt (28+ Tage unbezahlt)"
+                    : cachedHighConsumption;
+                guiGraphics.drawString(this.font, warningText, leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
@@ -686,7 +695,7 @@ public class PlotAppScreen extends Screen {
             y += 15;
             contentHeight += 15;
         } else {
-            // Berechne Gesamtkosten
+            // Berechne Gesamtkosten (heutiger Verbrauch)
             double totalElecCost = totalElectricity * ELECTRICITY_PRICE_PER_KWH;
             double totalWaterCost = totalWater * WATER_PRICE_PER_LITER;
             double totalCost = totalElecCost + totalWaterCost;
@@ -694,7 +703,7 @@ public class PlotAppScreen extends Screen {
             // Gesamt-Box
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44333333);
-                guiGraphics.drawString(this.font, cachedTotalAvg, leftPos + 15, y + 3, 0xFFFFFF);
+                guiGraphics.drawString(this.font, "Heute fällig", leftPos + 15, y + 3, 0xFFFFFF);
 
                 // Strom
                 guiGraphics.drawString(this.font, "§e⚡ " + PlotUtilityManager.formatElectricity(totalElectricity), leftPos + 15, y + 15, 0xFFFFFF);
@@ -707,10 +716,17 @@ public class PlotAppScreen extends Screen {
                 // Gesamtsumme
                 guiGraphics.fill(leftPos + 15, y + 38, leftPos + WIDTH - 15, y + 39, 0x44FFFFFF);
                 guiGraphics.drawString(this.font, cachedSum, leftPos + 15, y + 41, 0xFFFFFF);
-                guiGraphics.drawString(this.font, String.format("§e§l%.2f€", totalCost) + cachedPerDay, leftPos + 100, y + 41, 0xFFAA00);
+                guiGraphics.drawString(this.font, String.format("§e§l%.2f€", totalCost), leftPos + 100, y + 41, 0xFFAA00);
             }
             y += 55;
             contentHeight += 55;
+
+            if (y >= startY - 10 && y < endY) {
+                guiGraphics.drawString(this.font, String.format("§cOffene Rechnungen: %.2f€", totalOutstandingBills),
+                    leftPos + 15, y, 0xFF5555);
+            }
+            y += 12;
+            contentHeight += 12;
 
             // Pro-Plot Aufschlüsselung
             if (y >= startY - 10 && y < endY) {
@@ -723,8 +739,8 @@ public class PlotAppScreen extends Screen {
                 Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
                 if (dataOpt.isPresent()) {
                     PlotUtilityData data = dataOpt.get();
-                    double elec = data.get7DayAverageElectricity();
-                    double water = data.get7DayAverageWater();
+                    double elec = data.getCurrentElectricity();
+                    double water = data.getCurrentWater();
                     double cost = (elec * ELECTRICITY_PRICE_PER_KWH) + (water * WATER_PRICE_PER_LITER);
 
                     if (y >= startY - 30 && y < endY) {

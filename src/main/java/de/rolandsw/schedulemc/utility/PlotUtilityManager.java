@@ -5,6 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import net.minecraft.core.BlockPos;
@@ -44,6 +46,8 @@ public class PlotUtilityManager {
 
     private static volatile boolean dirty = false;
     private static volatile long lastTickDay = -1;
+    private static final double ELECTRICITY_PRICE_PER_KWH = 0.35;
+    private static final double WATER_PRICE_PER_LITER = 0.005;
 
     // ═══════════════════════════════════════════════════════════════════════════
     // INITIALISIERUNG
@@ -227,6 +231,7 @@ public class PlotUtilityManager {
             // Tageswechsel - Rollover für alle Plots
             for (PlotUtilityData data : plotData.values()) {
                 data.rolloverDay(currentDay);
+                processDailyBilling(data);
             }
             dirty = true;
             LOGGER.info("Utility-Tageswechsel: Tag {} -> {}", lastTickDay, currentDay);
@@ -499,5 +504,37 @@ public class PlotUtilityManager {
 
         return String.format("Utility-Stats: %d Plots, %s Strom, %s Wasser (7-Tage-Ø)",
                 plotData.size(), formatElectricity(totalElec), formatWater(totalWater));
+    }
+
+    private static void processDailyBilling(PlotUtilityData data) {
+        PlotRegion plot = PlotManager.getPlot(data.getPlotId());
+        if (plot == null || !plot.hasOwner()) {
+            return;
+        }
+
+        UUID ownerUUID;
+        try {
+            ownerUUID = UUID.fromString(plot.getOwnerUUID());
+        } catch (IllegalArgumentException ex) {
+            LOGGER.warn("Ungültige Owner-UUID für Plot {}: {}", plot.getPlotId(), plot.getOwnerUUID());
+            return;
+        }
+
+        double dayCost = (data.getCurrentElectricity() * ELECTRICITY_PRICE_PER_KWH)
+            + (data.getCurrentWater() * WATER_PRICE_PER_LITER);
+
+        if (dayCost > 0) {
+            data.accrueDailyBill(dayCost);
+            dirty = true;
+        }
+
+        if (data.isAutoPayEnabled() && data.getOutstandingBill() > 0.0) {
+            double bill = data.getOutstandingBill();
+            if (EconomyManager.withdraw(ownerUUID, bill, TransactionType.OTHER,
+                "Utility auto payment for plot " + plot.getPlotId())) {
+                data.payOutstandingBill(bill);
+                dirty = true;
+            }
+        }
     }
 }
