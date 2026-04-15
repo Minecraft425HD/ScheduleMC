@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.EconomyManager;
+import de.rolandsw.schedulemc.economy.StateAccount;
 import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
@@ -48,6 +49,8 @@ public class PlotUtilityManager {
     private static volatile long lastTickDay = -1;
     private static final double ELECTRICITY_PRICE_PER_KWH = 0.35;
     private static final double WATER_PRICE_PER_LITER = 0.005;
+    private static final double ELECTRICITY_TAX_PER_KWH = 0.08;
+    private static final double WATER_TAX_PER_LITER = 0.0015;
 
     // ═══════════════════════════════════════════════════════════════════════════
     // INITIALISIERUNG
@@ -228,10 +231,11 @@ public class PlotUtilityManager {
 
         // Neuer Tag?
         if (currentDay != lastTickDay && lastTickDay >= 0) {
+            int daysPassed = (int) Math.max(1L, currentDay - lastTickDay);
             // Tageswechsel - Rollover für alle Plots
             for (PlotUtilityData data : plotData.values()) {
                 data.rolloverDay(currentDay);
-                processDailyBilling(data);
+                processDailyBilling(data, daysPassed);
             }
             dirty = true;
             LOGGER.info("Utility-Tageswechsel: Tag {} -> {}", lastTickDay, currentDay);
@@ -527,6 +531,8 @@ public class PlotUtilityManager {
             return 0.0;
         }
 
+        transferUtilityPaymentToState(ownerUUID, totalOutstanding);
+
         double paid = 0.0;
         for (PlotRegion plot : PlotManager.getPlotsByOwner(ownerUUID)) {
             PlotUtilityData data = plotData.get(plot.getPlotId());
@@ -562,7 +568,7 @@ public class PlotUtilityManager {
         return true;
     }
 
-    private static void processDailyBilling(PlotUtilityData data) {
+    private static void processDailyBilling(PlotUtilityData data, int daysPassed) {
         PlotRegion plot = PlotManager.getPlot(data.getPlotId());
         if (plot == null || !plot.hasOwner()) {
             return;
@@ -576,11 +582,16 @@ public class PlotUtilityManager {
             return;
         }
 
-        double dayCost = (data.getCurrentElectricity() * ELECTRICITY_PRICE_PER_KWH)
-            + (data.getCurrentWater() * WATER_PRICE_PER_LITER);
+        double dayElectricity = Math.max(0.0, data.getCurrentElectricity());
+        double dayWater = Math.max(0.0, data.getCurrentWater());
+        double dayBaseCost = (dayElectricity * ELECTRICITY_PRICE_PER_KWH)
+            + (dayWater * WATER_PRICE_PER_LITER);
+        double dayTax = (dayElectricity * ELECTRICITY_TAX_PER_KWH)
+            + (dayWater * WATER_TAX_PER_LITER);
+        double totalToAccrue = (dayBaseCost + dayTax) * daysPassed;
 
-        if (dayCost > 0) {
-            data.accrueDailyBill(dayCost);
+        if (totalToAccrue > 0) {
+            data.accrueDailyBill(totalToAccrue, dayElectricity * daysPassed, dayWater * daysPassed, daysPassed);
             dirty = true;
         }
 
@@ -588,9 +599,18 @@ public class PlotUtilityManager {
             double bill = data.getOutstandingBill();
             if (EconomyManager.withdraw(ownerUUID, bill, TransactionType.OTHER,
                 "Utility auto payment for plot " + plot.getPlotId())) {
+                transferUtilityPaymentToState(ownerUUID, bill);
                 data.payOutstandingBill(bill);
                 dirty = true;
             }
         }
+    }
+
+    private static void transferUtilityPaymentToState(UUID ownerUUID, double amount) {
+        int rounded = (int) Math.round(amount);
+        if (rounded <= 0) {
+            return;
+        }
+        StateAccount.deposit(rounded, "Utility payment by " + ownerUUID);
     }
 }

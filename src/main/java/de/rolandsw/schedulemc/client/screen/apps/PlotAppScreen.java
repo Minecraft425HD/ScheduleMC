@@ -57,9 +57,11 @@ public class PlotAppScreen extends Screen {
     private int maxScroll = 0;
     private static final int SCROLL_SPEED = 15;
     private static final int CONTENT_HEIGHT = 160; // Sichtbarer Bereich
+    private static final long DATA_REFRESH_INTERVAL_MS = 1000L;
 
     private int leftPos;
     private int topPos;
+    private long lastRefreshMs = 0L;
 
     // Cached Data
     private PlotRegion currentPlot;
@@ -300,6 +302,7 @@ public class PlotAppScreen extends Screen {
                 myPlots.add(plot);
             }
         }
+        lastRefreshMs = System.currentTimeMillis();
     }
 
     /**
@@ -325,6 +328,12 @@ public class PlotAppScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        long now = System.currentTimeMillis();
+        if (now - lastRefreshMs >= DATA_REFRESH_INTERVAL_MS) {
+            refreshData();
+            updateButtonVisibility();
+        }
+
         renderBackground(guiGraphics);
 
         // Smartphone-Hintergrund
@@ -667,8 +676,6 @@ public class PlotAppScreen extends Screen {
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-
-        String playerUUID = mc.player.getUUID().toString();  // NOPMD
 
         // ═══════════════════════════════════════════════════════════════════════════
         // MAHNUNGEN / WARNUNGEN

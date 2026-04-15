@@ -46,6 +46,8 @@ public class PlotUtilityData {
 
     // Utility-Rechnung / Sperr-Status
     private double outstandingBill = 0.0;
+    private double outstandingElectricityKwh = 0.0;
+    private double outstandingWaterLiters = 0.0;
     private int unpaidDays = 0;
     private boolean autoPayEnabled = false;
     private boolean utilitiesEnabled = true;
@@ -305,6 +307,14 @@ public class PlotUtilityData {
         return unpaidDays;
     }
 
+    public double getOutstandingElectricityKwh() {
+        return outstandingElectricityKwh;
+    }
+
+    public double getOutstandingWaterLiters() {
+        return outstandingWaterLiters;
+    }
+
     public boolean isAutoPayEnabled() {
         return autoPayEnabled;
     }
@@ -317,12 +327,14 @@ public class PlotUtilityData {
         return utilitiesEnabled;
     }
 
-    public void accrueDailyBill(double amount) {
-        if (amount <= 0) {
+    public void accrueDailyBill(double amount, double electricityKwh, double waterLiters, int days) {
+        if (amount <= 0 || days <= 0) {
             return;
         }
         outstandingBill += amount;
-        unpaidDays++;
+        outstandingElectricityKwh += Math.max(0.0, electricityKwh);
+        outstandingWaterLiters += Math.max(0.0, waterLiters);
+        unpaidDays += days;
         if (unpaidDays >= 28) {
             utilitiesEnabled = false;
         }
@@ -334,10 +346,15 @@ public class PlotUtilityData {
         }
 
         double paid = Math.min(amount, outstandingBill);
+        double ratio = outstandingBill > 0 ? (paid / outstandingBill) : 0.0;
         outstandingBill -= paid;
+        outstandingElectricityKwh = Math.max(0.0, outstandingElectricityKwh * (1.0 - ratio));
+        outstandingWaterLiters = Math.max(0.0, outstandingWaterLiters * (1.0 - ratio));
 
         if (outstandingBill <= 0.0001) {
             outstandingBill = 0.0;
+            outstandingElectricityKwh = 0.0;
+            outstandingWaterLiters = 0.0;
             unpaidDays = 0;
             utilitiesEnabled = true;
         }
@@ -357,6 +374,8 @@ public class PlotUtilityData {
         json.addProperty("currentDayWater", currentDayWater);
         json.addProperty("historyIndex", historyIndex);  // OPTIMIERT: Circular Buffer Index
         json.addProperty("outstandingBill", outstandingBill);
+        json.addProperty("outstandingElectricityKwh", outstandingElectricityKwh);
+        json.addProperty("outstandingWaterLiters", outstandingWaterLiters);
         json.addProperty("unpaidDays", unpaidDays);
         json.addProperty("autoPayEnabled", autoPayEnabled);
         json.addProperty("utilitiesEnabled", utilitiesEnabled);
@@ -396,6 +415,12 @@ public class PlotUtilityData {
         data.currentDayWater = json.get("currentDayWater").getAsDouble();
         if (json.has("outstandingBill")) {
             data.outstandingBill = json.get("outstandingBill").getAsDouble();
+        }
+        if (json.has("outstandingElectricityKwh")) {
+            data.outstandingElectricityKwh = json.get("outstandingElectricityKwh").getAsDouble();
+        }
+        if (json.has("outstandingWaterLiters")) {
+            data.outstandingWaterLiters = json.get("outstandingWaterLiters").getAsDouble();
         }
         if (json.has("unpaidDays")) {
             data.unpaidDays = json.get("unpaidDays").getAsInt();
