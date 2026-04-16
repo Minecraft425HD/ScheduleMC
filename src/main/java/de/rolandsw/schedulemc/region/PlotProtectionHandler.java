@@ -167,7 +167,7 @@ public class PlotProtectionHandler {
             }
 
             // Prüfe Rechte im Plot
-            if (!plot.hasAccess(serverPlayer.getUUID())) {
+            if (!plot.hasAccess(serverPlayer.getUUID(), pos)) {
                 // Nur bei bestimmten Blöcken blocken (Türen, Truhen, etc.)
                 String blockName = event.getLevel().getBlockState(pos).getBlock().getDescriptionId();
 

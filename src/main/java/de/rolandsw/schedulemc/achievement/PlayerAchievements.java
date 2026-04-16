@@ -72,6 +72,10 @@ public class PlayerAchievements {
      * Schaltet Achievement frei
      */
     public boolean unlock(String achievementId, double rewardMoney) {
+        if (unlockTimestamps.containsKey(achievementId)) {
+            unlockedAchievements.add(achievementId);
+            return false;
+        }
         if (unlockedAchievements.add(achievementId)) {
             unlockTimestamps.put(achievementId, System.currentTimeMillis());
             totalPointsEarned += rewardMoney;

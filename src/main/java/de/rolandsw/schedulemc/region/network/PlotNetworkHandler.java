@@ -77,6 +77,13 @@ public class PlotNetworkHandler {
             .encoder(PlotRatingPacket::encode)
             .consumerMainThread(PlotRatingPacket::handle)
             .add();
+
+        // Utility-Rechnungen (bezahlen / AutoPay)
+        INSTANCE.messageBuilder(PlotUtilityBillingPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(PlotUtilityBillingPacket::decode)
+            .encoder(PlotUtilityBillingPacket::encode)
+            .consumerMainThread(PlotUtilityBillingPacket::handle)
+            .add();
     }
 
     /**
