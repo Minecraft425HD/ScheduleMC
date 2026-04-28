@@ -31,6 +31,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends AbstractIt
     private ItemStack yeastStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int fermentationProgress = 0;
+    private long lastGameTime = -1L;
     private BeerQuality quality;
 
     protected AbstractBeerFermentationTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -144,9 +145,15 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends AbstractIt
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!unfermentedBeerStack.isEmpty() && !yeastStack.isEmpty() && outputStack.isEmpty()) {
             int totalTime = getTotalFermentationTime();
-            fermentationProgress = Math.min(fermentationProgress + 1, totalTime);
+            int prevProgress = fermentationProgress;
+            fermentationProgress = Math.min(fermentationProgress + (int) ticksPassed, totalTime);
 
             if (fermentationProgress >= totalTime) {
                 // Fermentation complete: Unfermented Beer + Yeast → Young Beer
@@ -166,7 +173,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends AbstractIt
                 changed = true;
             }
 
-            if (fermentationProgress % 20 == 0) changed = true;
+            if (fermentationProgress / 20 > prevProgress / 20) changed = true;
         }
 
         if (changed) {
@@ -196,6 +203,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends AbstractIt
         if (!yeastStack.isEmpty()) tag.put("Yeast", yeastStack.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", fermentationProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         if (quality != null) tag.putString("Quality", quality.name());
     }
 
@@ -207,6 +215,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends AbstractIt
         yeastStack = tag.contains("Yeast") ? ItemStack.of(tag.getCompound("Yeast")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         fermentationProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
             catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }

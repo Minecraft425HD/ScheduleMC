@@ -28,6 +28,7 @@ public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEnt
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int processingProgress = 0;
+    private long lastGameTime = -1L;
     private ProcessingStage currentStage = ProcessingStage.IDLE;
     private CoffeeType coffeeType;
     private CoffeeQuality quality;
@@ -101,13 +102,19 @@ public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEnt
         if (level == null || level.isClientSide) return;
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
             if (currentStage == ProcessingStage.IDLE) {
                 currentStage = ProcessingStage.PULPING;
                 processingProgress = 0;
                 changed = true;
             } else {
-                processingProgress = Math.min(processingProgress + 1, currentStage.getDuration());
+                int prevProgress = processingProgress;
+                processingProgress = (int) Math.min((long) processingProgress + ticksPassed, currentStage.getDuration());
 
                 if (processingProgress >= currentStage.getDuration()) {
                     ProcessingStage nextStage = currentStage.next();
@@ -117,6 +124,7 @@ public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEnt
                         CoffeeQuality finalQuality = quality.upgrade();  // NOPMD
                         int beanCount = inputStack.getCount() * 2;
                         outputStack = new ItemStack(de.rolandsw.schedulemc.coffee.items.CoffeeItems.GREEN_ARABICA_BEANS.get(), beanCount);
+                        inputStack = ItemStack.EMPTY;
                         currentStage = ProcessingStage.IDLE;
                         processingProgress = 0;
                     } else {
@@ -124,9 +132,9 @@ public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEnt
                         processingProgress = 0;
                     }
                     changed = true;
+                } else if (processingProgress / 20 > prevProgress / 20) {
+                    changed = true;
                 }
-
-                if (processingProgress % 20 == 0) changed = true;
             }
         }
 
@@ -152,6 +160,7 @@ public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEnt
         if (!inputStack.isEmpty()) tag.put("Input", inputStack.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", processingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         tag.putString("Stage", currentStage.name());
         if (coffeeType != null) tag.putString("CoffeeType", coffeeType.name());
         if (quality != null) tag.putString("Quality", quality.name());
@@ -163,6 +172,7 @@ public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEnt
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         processingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Stage")) {
             try { currentStage = ProcessingStage.valueOf(tag.getString("Stage")); }
             catch (IllegalArgumentException e) { currentStage = ProcessingStage.IDLE; }

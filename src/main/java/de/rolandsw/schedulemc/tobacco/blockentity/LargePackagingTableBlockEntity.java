@@ -21,12 +21,12 @@ import org.jetbrains.annotations.Nullable;
  * Kein Verpackungsmaterial benötigt!
  * Inventar:
  * - Slot 0: Input (fermentierter Tabak)
- * - Slots 1-9: Output (20g Pakete)
+ * - Slots 1-10: Output (20g Pakete)
  */
 public class LargePackagingTableBlockEntity extends AbstractPackagingTableBlockEntity {
 
     public LargePackagingTableBlockEntity(BlockPos pos, BlockState state) {
-        super(TobaccoBlockEntities.LARGE_PACKAGING_TABLE.get(), pos, state, 10);
+        super(TobaccoBlockEntities.LARGE_PACKAGING_TABLE.get(), pos, state, 11);
     }
 
     /**
@@ -46,8 +46,8 @@ public class LargePackagingTableBlockEntity extends AbstractPackagingTableBlockE
                 if (slot == 0) {
                     return PackagedDrugItem.isPackageableItem(stack);
                 }
-                // Slots 1-9: Output (nur verpackte 20g Pakete)
-                if (slot >= 1 && slot <= 9) {
+                // Slots 1-10: Output (nur verpackte 20g Pakete)
+                if (slot >= 1 && slot <= 10) {
                     return stack.getItem() instanceof PackagedDrugItem;
                 }
                 return false;
@@ -100,7 +100,7 @@ public class LargePackagingTableBlockEntity extends AbstractPackagingTableBlockE
         int created = 0;
 
         for (int i = 0; i < packagesCount; i++) {
-            int slot = findFreeSlot(1, 9);
+            int slot = findFreeSlot(1, 10);
             if (slot == -1) {
                 break; // Kein Platz mehr
             }
@@ -131,7 +131,7 @@ public class LargePackagingTableBlockEntity extends AbstractPackagingTableBlockE
         java.util.List<ItemStack> packagesToUnpack = new java.util.ArrayList<>();
 
         // Durchsuche alle Slots nach vollen Paketen
-        for (int i = 1; i <= 9; i++) {
+        for (int i = 1; i <= 10; i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
             if (stack.getItem() instanceof PackagedDrugItem) {
                 // Sammle das Paket zur Entpackung

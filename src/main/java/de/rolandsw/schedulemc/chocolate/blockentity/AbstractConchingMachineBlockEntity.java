@@ -35,6 +35,7 @@ public abstract class AbstractConchingMachineBlockEntity extends AbstractItemHan
     private ItemStack[] ingredientInputs;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int conchingProgress = 0;
+    private long lastGameTime = -1L;
     private ChocolateQuality quality;
 
     private static final int BASE_PROCESSING_TIME = 2400; // 2 minutes
@@ -172,8 +173,14 @@ public abstract class AbstractConchingMachineBlockEntity extends AbstractItemHan
             }
         }
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!cocoaMassInput.isEmpty() && hasIngredient && outputStack.isEmpty()) {
-            conchingProgress = Math.min(conchingProgress + 1, getTotalConchingTime());
+            int prevProgress = conchingProgress;
+            conchingProgress = Math.min(conchingProgress + (int) ticksPassed, getTotalConchingTime());
 
             if (conchingProgress >= getTotalConchingTime()) {
                 // Conching complete: Cocoa Mass + Ingredients → Conched Chocolate
@@ -204,7 +211,7 @@ public abstract class AbstractConchingMachineBlockEntity extends AbstractItemHan
                 changed = true;
             }
 
-            if (conchingProgress % 20 == 0) changed = true;
+            if (conchingProgress / 20 > prevProgress / 20) changed = true;
         }
 
         if (changed) {
@@ -257,6 +264,7 @@ public abstract class AbstractConchingMachineBlockEntity extends AbstractItemHan
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", conchingProgress);
         if (quality != null) tag.putString("Quality", quality.name());
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -280,6 +288,7 @@ public abstract class AbstractConchingMachineBlockEntity extends AbstractItemHan
 
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         conchingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
             catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }

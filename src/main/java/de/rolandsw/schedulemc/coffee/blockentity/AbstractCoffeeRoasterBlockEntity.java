@@ -32,6 +32,7 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends AbstractItemHandl
     private ItemStack inputStack = ItemStack.EMPTY;  // Green Coffee Beans
     private ItemStack outputStack = ItemStack.EMPTY; // Roasted Coffee Beans
     private int roastingProgress = 0;
+    private long lastGameTime = -1L;
     private CoffeeType coffeeType;
     private CoffeeQuality quality;
     private CoffeeRoastLevel selectedRoastLevel = CoffeeRoastLevel.MEDIUM; // Player-wählbar
@@ -135,9 +136,15 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends AbstractItemHandl
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
             int totalTime = getRoastingTimePerBean() * inputStack.getCount();
-            roastingProgress = Math.min(roastingProgress + 1, totalTime);
+            int prevProgress = roastingProgress;
+            roastingProgress = (int) Math.min((long) roastingProgress + ticksPassed, totalTime);
 
             if (roastingProgress >= totalTime) {
                 // Röstung abgeschlossen
@@ -150,9 +157,7 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends AbstractItemHandl
                 inputStack = ItemStack.EMPTY;
                 roastingProgress = 0;
                 changed = true;
-            }
-
-            if (roastingProgress % 20 == 0) {
+            } else if (roastingProgress / 20 > prevProgress / 20) {
                 changed = true;
             }
         }
@@ -188,6 +193,7 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends AbstractItemHandl
         }
 
         tag.putInt("Progress", roastingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         tag.putString("RoastLevel", selectedRoastLevel.name());
 
         if (coffeeType != null) {
@@ -209,6 +215,7 @@ public abstract class AbstractCoffeeRoasterBlockEntity extends AbstractItemHandl
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         roastingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("RoastLevel")) {
             try { selectedRoastLevel = CoffeeRoastLevel.valueOf(tag.getString("RoastLevel")); }
             catch (IllegalArgumentException ex) { selectedRoastLevel = CoffeeRoastLevel.MEDIUM; }

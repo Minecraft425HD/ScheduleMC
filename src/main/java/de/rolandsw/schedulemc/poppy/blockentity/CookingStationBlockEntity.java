@@ -24,9 +24,9 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
 
     private boolean lastActiveState = false;
     private static final int CAPACITY = 8;
-    private static final int COOK_TIME = 200; // 10 Sekunden
-    private static final int MAX_WATER = 1000;
-    private static final int MAX_FUEL = 500;
+    private static final int COOK_TIME = 12000; // 10 Minuten
+    private static final int MAX_WATER = 8000;
+    private static final int MAX_FUEL = 3200;
 
     private final ItemStack[] inputs = new ItemStack[CAPACITY];
     private final ItemStack[] outputs = new ItemStack[CAPACITY];
@@ -35,6 +35,7 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
     private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
     private int waterLevel = 0;
     private int fuelLevel = 0;
+    private long lastGameTime = -1L;
 
     public CookingStationBlockEntity(BlockPos pos, BlockState state) {
         super(PoppyBlockEntities.COOKING_STATION.get(), pos, state);
@@ -72,16 +73,16 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
     public void addWater(int amount) {
         waterLevel = Math.min(waterLevel + amount, MAX_WATER);
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
     }
 
     public void addFuel(int amount) {
         fuelLevel = Math.min(fuelLevel + amount, MAX_FUEL);
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
     }
 
@@ -125,8 +126,8 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
         }
 
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
         return totalCount > 0 ? MorphineItem.create(type, quality, totalCount) : ItemStack.EMPTY;
     }
@@ -174,6 +175,34 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
         return count;
     }
 
+    public ItemStack getInputDisplayItem() {
+        int count = 0;
+        ItemStack template = null;
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!inputs[i].isEmpty()) {
+                if (template == null) template = inputs[i].copy();
+                count++;
+            }
+        }
+        if (template == null) return ItemStack.EMPTY;
+        template.setCount(count);
+        return template;
+    }
+
+    public ItemStack getOutputDisplayItem() {
+        int count = 0;
+        ItemStack template = null;
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!outputs[i].isEmpty()) {
+                if (template == null) template = outputs[i].copy();
+                count += outputs[i].getCount();
+            }
+        }
+        if (template == null) return ItemStack.EMPTY;
+        template.setCount(count);
+        return template;
+    }
+
     public float getAverageProgress() {
         int activeSlots = 0;
         float totalProgress = 0;
@@ -191,30 +220,28 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
     public void tick() {
         if (level == null || level.isClientSide) return;
 
-        // Prüfe Wasser und Brennstoff
-        if (waterLevel < 1 || fuelLevel < 1) {
-            return; // Pausiere
-        }
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+
+        if (ticksPassed == 0) return;
 
         boolean changed = false;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                progress[i]++;
-
-                // Verbrauche Ressourcen
-                if (progress[i] % 20 == 0) {
-                    waterLevel = Math.max(0, waterLevel - 1);
-                    fuelLevel = Math.max(0, fuelLevel - 1);
+                if (progress[i] == 0) {
+                    if (waterLevel < 1000 || fuelLevel < 400) continue;
+                    waterLevel -= 1000;
+                    fuelLevel -= 400;
+                    changed = true;
                 }
+                progress[i] = (int) Math.min((long) progress[i] + ticksPassed, COOK_TIME);
 
                 if (progress[i] >= COOK_TIME) {
-                    // 1 Rohopium = 1 Morphin (Qualität bleibt)
                     outputs[i] = MorphineItem.create(types[i], qualities[i], 1);
                     inputs[i] = ItemStack.EMPTY;
                     progress[i] = 0;
-                    changed = true;
-                } else if (progress[i] % 20 == 0) {
                     changed = true;
                 }
             }
@@ -222,10 +249,9 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
 
         if (changed) {
             setChanged();
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
 
-        // Utility-Status nur bei Änderung melden
         boolean currentActive = isActivelyConsuming();
         if (currentActive != lastActiveState) {
             lastActiveState = currentActive;
@@ -235,8 +261,7 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
 
     @Override
     public boolean isActivelyConsuming() {
-        // Aktiv wenn Wasser und Brennstoff vorhanden und Inputs zu verarbeiten sind
-        if (waterLevel < 1 || fuelLevel < 1) return false;
+        if (waterLevel < 1000 || fuelLevel < 400) return false;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
@@ -252,6 +277,7 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
 
         tag.putInt("WaterLevel", waterLevel);
         tag.putInt("FuelLevel", fuelLevel);
+        tag.putLong("LastGameTime", lastGameTime);
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty()) {
@@ -284,6 +310,7 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
 
         waterLevel = tag.getInt("WaterLevel");
         fuelLevel = tag.getInt("FuelLevel");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
 
         for (int i = 0; i < CAPACITY; i++) {
             inputs[i] = tag.contains("Input" + i) ? ItemStack.of(tag.getCompound("Input" + i)) : ItemStack.EMPTY;

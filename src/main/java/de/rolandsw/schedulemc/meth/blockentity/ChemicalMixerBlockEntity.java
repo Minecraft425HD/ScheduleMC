@@ -26,6 +26,7 @@ import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private boolean lastActiveState = false;
+    private long lastGameTime = -1L;
     private static final int MIXING_TIME = 600; // 30 Sekunden (600 Ticks)
     private static final int CAPACITY = 4; // Kann 4 Batches gleichzeitig verarbeiten
 
@@ -149,6 +150,11 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         boolean changed = false;
         boolean anyActive = false;
 
@@ -158,7 +164,8 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
                 !jodSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
 
                 anyActive = true;
-                mixingProgress[i]++;
+                int prevProgress = mixingProgress[i];
+                mixingProgress[i] += (int) ticksPassed;
 
                 if (mixingProgress[i] >= MIXING_TIME) {
                     // Mischen abgeschlossen
@@ -175,8 +182,8 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
                     changed = true;
                 }
 
-                if (mixingProgress[i] % 20 == 0) {
-                    changed = true; // Update alle Sekunde
+                if (mixingProgress[i] / 20 > prevProgress / 20) {
+                    changed = true;
                 }
             }
         }
@@ -302,6 +309,7 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
             tag.putBoolean("Pseudo" + i, usedPseudoephedrine[i]);
         }
         tag.putBoolean("Active", isActive);
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -325,6 +333,7 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
             usedPseudoephedrine[i] = tag.getBoolean("Pseudo" + i);
         }
         isActive = tag.getBoolean("Active");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
     }
 
     @Nullable

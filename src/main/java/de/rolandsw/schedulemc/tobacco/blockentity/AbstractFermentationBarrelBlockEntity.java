@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.tobacco.blockentity;
 
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
-import de.rolandsw.schedulemc.util.ModConstants;
 import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
 import de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
@@ -32,19 +31,13 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
     private final Supplier<Integer> fermentationTimeSupplier;
 
     private boolean lastActiveState = false;
+    private long lastGameTime = -1L;
 
     private ItemStack[] inputs;
     private ItemStack[] outputs;
     private int[] fermentationProgress;
     private TobaccoType[] tobaccoTypes;
     private TobaccoQuality[] qualities;
-
-    // Performance-Optimierung: Tick-Throttling
-    private int tickCounter = 0;
-    private static final int TICK_INTERVAL = ModConstants.PROCESSING_TICK_INTERVAL;
-    // Sync-Throttling: Netzwerk-Update nur alle PROCESSING_SYNC_CYCLE Verarbeitungszyklen (~40 Ticks)
-    private int syncCycleCounter = 0;
-    private static final int SYNC_EVERY_N_CYCLES = ModConstants.PROCESSING_SYNC_CYCLE;
 
     public AbstractFermentationBarrelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
                                                   Supplier<Integer> capacitySupplier,
@@ -333,54 +326,38 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
     public void tick() {
         if (level == null || level.isClientSide) return;
 
-        tickCounter++;
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
 
-        // Performance-Optimierung: Nur alle TICK_INTERVAL Ticks verarbeiten
-        if (tickCounter >= TICK_INTERVAL) {
-            tickCounter = 0;
+        boolean changed = false;
 
-            boolean changed = false;
-            boolean needsSync = false;
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
+                int prevProgress = fermentationProgress[i];
+                fermentationProgress[i] += (int) ticksPassed;
 
-            // Periodischer Sync: alle SYNC_EVERY_N_CYCLES Verarbeitungszyklen (~40 Ticks)
-            syncCycleCounter++;
-            if (syncCycleCounter >= SYNC_EVERY_N_CYCLES) {
-                syncCycleCounter = 0;
-                needsSync = true;
-            }
-
-            // Nur aktive Slots verarbeiten
-            for (int i = 0; i < getCapacity(); i++) {
-                if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                    fermentationProgress[i] += TICK_INTERVAL; // Erhöhe um Intervall
-
-                    if (fermentationProgress[i] >= getFermentationTime()) {
-                        // Fermentierung abgeschlossen - mit 30% Chance auf Qualitätsverbesserung
-                        TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
-                        outputs[i] = FermentedTobaccoLeafItem.create(tobaccoTypes[i], finalQuality, 1);
-                        // BUG FIX: Input-Stack leeren, damit der Slot nicht im Mischzustand
-                        // (inputs[i] != EMPTY && outputs[i] != EMPTY) verbleibt.
-                        inputs[i] = ItemStack.EMPTY;
-                        changed = true;
-                        needsSync = true;
-                    }
+                if (fermentationProgress[i] >= getFermentationTime()) {
+                    TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
+                    outputs[i] = FermentedTobaccoLeafItem.create(tobaccoTypes[i], finalQuality, 1);
+                    inputs[i] = ItemStack.EMPTY;
+                    changed = true;
+                } else if (fermentationProgress[i] / 100 > prevProgress / 100) {
+                    changed = true;
                 }
             }
+        }
 
-            if (changed) {
-                setChanged();
-            }
+        if (changed) {
+            setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
 
-            if (needsSync) {
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            }
-
-            // Utility-Status nur bei Änderung melden
-            boolean currentActive = isActivelyConsuming();
-            if (currentActive != lastActiveState) {
-                lastActiveState = currentActive;
-                UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
-            }
+        boolean currentActive = isActivelyConsuming();
+        if (currentActive != lastActiveState) {
+            lastActiveState = currentActive;
+            UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
         }
     }
 
@@ -437,6 +414,7 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
                 tag.putString("Quality" + i, qualities[i].name());
             }
         }
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -447,6 +425,8 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
         if (inputs == null) {
             initArrays();
         }
+
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
 
         int savedCapacity = tag.contains("Capacity") ? tag.getInt("Capacity") : getCapacity();
 

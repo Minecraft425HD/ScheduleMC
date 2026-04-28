@@ -11,102 +11,134 @@ import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * GUI für Large Packaging Table (20g)
+ * GUI für den Large Packaging Table (20g Pakete).
+ *
+ * Design orientiert sich an SmallPackagingTableScreen:
+ *  - Gleiche Abmessungen (176 × 190)
+ *  - Input-Slot oben Mitte (80, 20)
+ *  - Pakete-Grid links (2 × 5), wie Schachteln-Seite bei Medium
+ *  - Info-Panel rechts mit Gewichtsanzeige + "Kein Material nötig"-Hinweis
+ *  - Buttons zentriert auf y = 145, Hotbar auf y = 168
  */
 public class LargePackagingTableScreen extends AbstractContainerScreen<LargePackagingTableMenu> {
 
     public LargePackagingTableScreen(LargePackagingTableMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 140;  // Erhöht für mehr Platz
+        this.imageHeight = 190;
         this.inventoryLabelY = this.imageHeight - 94;
     }
+
+    // ─────────────────────────────────────────────────────────────
+    // Buttons
+    // ─────────────────────────────────────────────────────────────
 
     @Override
     protected void init() {
         super.init();
 
-        int buttonWidth = 50;
-        int buttonHeight = 20;
-        int startX = this.leftPos + 8;
-        int startY = this.topPos + 90;  // Unter den Slots
+        int bw      = 50;
+        int bh      = 18;
+        int centerX = this.leftPos + this.imageWidth / 2;
+        int bY      = this.topPos + 145;
 
         // 20g Button
         this.addRenderableWidget(
             Button.builder(
                 Component.translatable("gui.packaging_table.weight_20g"),
                 btn -> onPackageButton(20)
-            )
-            .bounds(startX, startY, buttonWidth, buttonHeight)
-            .build()
+            ).bounds(centerX - 55, bY, bw, bh).build()
         );
 
-        // Unpack Button
+        // Entpacken Button
         this.addRenderableWidget(
             Button.builder(
                 Component.translatable("gui.common.unpack"),
                 btn -> onPackageButton(-1)
-            )
-            .bounds(startX + 60, startY, buttonWidth, buttonHeight)
-            .build()
+            ).bounds(centerX + 5, bY, bw, bh).build()
         );
     }
 
     private void onPackageButton(int weight) {
         ModNetworking.sendToServer(new LargePackageRequestPacket(menu.blockEntity.getBlockPos(), weight));
-    }    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // Block E key (inventory key - 69) from closing the screen
-        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers); // Block E key (GLFW_KEY_E)
     }
 
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers);
+    }
 
+    // ─────────────────────────────────────────────────────────────
+    // Hintergrund
+    // ─────────────────────────────────────────────────────────────
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull GuiGraphics g, float partialTick, int mouseX, int mouseY) {
         int x = this.leftPos;
         int y = this.topPos;
 
-        graphics.fill(x, y, x + this.imageWidth, y + this.imageHeight, 0xFF2B2B2B);
-        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + this.imageHeight - 2, 0xFF4C4C4C);
-        graphics.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 18, 0xFF1E1E1E);
+        // Rahmen / Panel / Header – identisch zu Small
+        g.fill(x,     y,     x + this.imageWidth,     y + this.imageHeight,     0xFF2B2B2B);
+        g.fill(x + 2, y + 2, x + this.imageWidth - 2, y + this.imageHeight - 2, 0xFF4C4C4C);
+        g.fill(x + 2, y + 2, x + this.imageWidth - 2, y + 18,                   0xFF1E1E1E);
 
-        renderSlotBorders(graphics, x, y);
+        renderSlotBorders(g, x, y);
+
+        // Info-Panel rechts (wie Medium)
+        g.fill(x + 52, y + 40, x + 168, y + 140, 0xFF383838);
+        g.fill(x + 54, y + 42, x + 166, y + 138, 0xFF404040);
     }
 
-    private void renderSlotBorders(GuiGraphics graphics, int x, int y) {
-        // Input Slot
-        drawSlot(graphics, x + 56, y + 35);
+    private void renderSlotBorders(GuiGraphics g, int x, int y) {
+        // Input-Slot – Mitte oben, wie Small + Medium
+        drawSlot(g, x + 80, y + 20);
 
-        // Output Slots (3x3 Grid)
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
-                drawSlot(graphics, x + 116 + col * 18, y + 17 + row * 18);
+        // Pakete-Output (2 × 5 Grid) links, wie Schachteln in Medium
+        for (int row = 0; row < 5; row++) {
+            for (int col = 0; col < 2; col++) {
+                drawSlot(g, x + 8 + col * 18, y + 50 + row * 18);
             }
         }
 
-        // Player Hotbar
+        // Hotbar
         for (int i = 0; i < 9; i++) {
-            drawSlot(graphics, x + 8 + i * 18, y + 116);  // Weiter nach unten
+            drawSlot(g, x + 8 + i * 18, y + 168);
         }
     }
 
-    private void drawSlot(GuiGraphics graphics, int x, int y) {
-        graphics.fill(x - 1, y - 1, x + 17, y + 17, 0xFF8B8B8B);
-        graphics.fill(x, y, x + 16, y + 16, 0xFF373737);
+    private void drawSlot(GuiGraphics g, int x, int y) {
+        g.fill(x - 1, y - 1, x + 17, y + 17, 0xFF8B8B8B);
+        g.fill(x,     y,     x + 16, y + 16,  0xFF373737);
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // Texte
+    // ─────────────────────────────────────────────────────────────
+
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
-        super.render(graphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(graphics, mouseX, mouseY);
+    public void render(@NotNull GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(g);
+        super.render(g, mouseX, mouseY, partialTick);
+        this.renderTooltip(g, mouseX, mouseY);
 
         int x = this.leftPos;
         int y = this.topPos;
-        graphics.drawString(this.font, Component.translatable("block.schedulemc.large_packaging_table").getString(), x + 8, y + 6, 0xFFFFFF, false);
+
+        // Titel
+        g.drawString(font,
+            Component.translatable("block.schedulemc.large_packaging_table").getString(),
+            x + 8, y + 6, 0xFFFFFF, false);
+
+        // Info-Panel rechts: Gewichtsanzeige + Hinweis auf kein Material
+        g.drawCenteredString(font,
+            Component.translatable("gui.packaging_table.weight_20g").getString(),
+            x + 110, y + 56, 0xFFAA00);
+        g.drawCenteredString(font,
+            Component.translatable("gui.packaging_table.no_material").getString(),
+            x + 110, y + 90, 0x888888);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
+        // Alle Labels werden in render() gezeichnet
     }
 }

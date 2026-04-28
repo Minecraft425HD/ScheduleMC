@@ -22,6 +22,8 @@ public class PlantGrowthHandlerFactory {
     private static final CocaGrowthHandler COCA_HANDLER = new CocaGrowthHandler();
     private static final PoppyGrowthHandler POPPY_HANDLER = new PoppyGrowthHandler();
     private static final MushroomGrowthHandler MUSHROOM_HANDLER = new MushroomGrowthHandler();
+    private static final GrapeGrowthHandler GRAPE_HANDLER = new GrapeGrowthHandler();
+    private static final CoffeeGrowthHandler COFFEE_HANDLER = new CoffeeGrowthHandler();
 
     /**
      * Gibt den passenden Handler für die Pflanze im Topf zurück
@@ -45,6 +47,12 @@ public class PlantGrowthHandlerFactory {
         }
         if (potData.hasMushroomPlant()) {
             return MUSHROOM_HANDLER;
+        }
+        if (potData.hasGrapePlant()) {
+            return GRAPE_HANDLER;
+        }
+        if (potData.hasCoffeePlant()) {
+            return COFFEE_HANDLER;
         }
 
         return null; // Keine Pflanze vorhanden

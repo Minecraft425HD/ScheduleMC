@@ -1,14 +1,12 @@
 package de.rolandsw.schedulemc.coca.blocks;
 
 import de.rolandsw.schedulemc.coca.blockentity.SmallRefineryBlockEntity;
-import de.rolandsw.schedulemc.coca.items.CocaPasteItem;
+import de.rolandsw.schedulemc.coca.menu.RefineryMenu;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -17,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -48,80 +47,13 @@ public class SmallRefineryBlock extends Block implements EntityBlock {
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
-
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof SmallRefineryBlockEntity refineryBE)) return InteractionResult.PASS;
-
-        ItemStack handStack = player.getItemInHand(hand);
-
-        // 1. Brennstoff hinzufügen (Kohle, Holz, etc.)
-        if (isFuel(handStack)) {
-            int fuelValue = getFuelValue(handStack);
-            if (refineryBE.getFuelLevel() >= refineryBE.getMaxFuel()) {
-                player.displayClientMessage(Component.translatable("message.small_refinery.fuel_tank_full"), true);
-                return InteractionResult.FAIL;
-            }
-
-            refineryBE.addFuel(fuelValue);
-            handStack.shrink(1);
-            player.displayClientMessage(Component.translatable("message.small_refinery.fuel_added", refineryBE.getFuelLevel(), refineryBE.getMaxFuel()), true);
-            player.playSound(net.minecraft.sounds.SoundEvents.FIRE_AMBIENT, 1.0f, 1.0f);
-            return InteractionResult.SUCCESS;
+        if (player instanceof ServerPlayer serverPlayer) {
+            NetworkHooks.openScreen(serverPlayer, new RefineryMenu.Provider(refineryBE), buf -> buf.writeBlockPos(pos));
         }
-
-        // 2. Koka-Paste hinzufügen
-        if (handStack.getItem() instanceof CocaPasteItem) {
-            if (refineryBE.isFull()) {
-                player.displayClientMessage(Component.translatable("message.small_refinery.refinery_full"), true);
-                return InteractionResult.FAIL;
-            }
-
-            if (refineryBE.addPaste(handStack)) {
-                handStack.shrink(1);
-                player.displayClientMessage(Component.translatable("message.small_refinery.paste_added", refineryBE.getInputCount(), refineryBE.getCapacity()), true);
-                player.playSound(net.minecraft.sounds.SoundEvents.SLIME_BLOCK_PLACE, 1.0f, 1.0f);
-                return InteractionResult.SUCCESS;
-            }
-        }
-
-        // 3. Kokain entnehmen (Shift + Rechtsklick mit leerer Hand)
-        if (handStack.isEmpty() && player.isShiftKeyDown()) {
-            if (refineryBE.hasOutput()) {
-                ItemStack cocaine = refineryBE.extractAllCocaine();
-                if (!cocaine.isEmpty()) {
-                    player.getInventory().add(cocaine);
-                    player.displayClientMessage(Component.translatable("message.small_refinery.cocaine_extracted", cocaine.getCount()), true);
-                    player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
-                    return InteractionResult.SUCCESS;
-                }
-            }
-        }
-
-        // 4. Status anzeigen (Rechtsklick mit leerer Hand)
-        if (handStack.isEmpty() && !player.isShiftKeyDown()) {
-            float progress = refineryBE.getAverageRefineryPercentage() * 100;
-            player.displayClientMessage(Component.translatable("message.small_refinery.status", refineryBE.getFuelLevel(), refineryBE.getMaxFuel(), refineryBE.getInputCount(), refineryBE.getCapacity(), refineryBE.getOutputCount(), String.format("%.1f", progress)), false);
-            return InteractionResult.SUCCESS;
-        }
-
-        return InteractionResult.PASS;
+        return InteractionResult.SUCCESS;
     }
 
-    private boolean isFuel(ItemStack stack) {
-        return stack.is(Items.COAL) || stack.is(Items.CHARCOAL) ||
-                stack.is(Items.COAL_BLOCK) || stack.is(Items.OAK_LOG) ||
-                stack.is(Items.BIRCH_LOG) || stack.is(Items.SPRUCE_LOG) ||
-                stack.is(Items.JUNGLE_LOG) || stack.is(Items.ACACIA_LOG) ||
-                stack.is(Items.DARK_OAK_LOG) || stack.is(Items.MANGROVE_LOG) ||
-                stack.is(Items.CHERRY_LOG) || stack.is(Items.OAK_PLANKS) ||
-                stack.is(Items.BIRCH_PLANKS) || stack.is(Items.SPRUCE_PLANKS);
-    }
 
-    private int getFuelValue(ItemStack stack) {
-        if (stack.is(Items.COAL_BLOCK)) return 800;
-        if (stack.is(Items.COAL) || stack.is(Items.CHARCOAL)) return 100;
-        if (stack.getItem().toString().contains("log")) return 50;
-        if (stack.getItem().toString().contains("planks")) return 25;
-        return 25; // Default
-    }
 }

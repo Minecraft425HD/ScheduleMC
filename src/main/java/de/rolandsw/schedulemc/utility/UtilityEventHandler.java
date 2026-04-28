@@ -26,7 +26,7 @@ public class UtilityEventHandler {
 
     // Counter für periodische Updates
     private static int tickCounter = 0;
-    private static final int UPDATE_INTERVAL = 1000; // Alle 1000 Ticks (~50 Sekunden)
+    private static final int UPDATE_INTERVAL = 100; // Alle 100 Ticks (~5 Sekunden)
     private static final int SAVE_INTERVAL = ModConstants.TICKS_SAVE_INTERVAL;
 
     // ═══════════════════════════════════════════════════════════════════════════

@@ -159,9 +159,9 @@ public class ServerConfig extends ConfigBase {
         vehicleOnroadSpeed = builder.comment("The speed modifier for vehicles on road blocks", "On road blocks are defined in the config section 'road_blocks'").defineInRange("vehicle.onroad_speed_modifier", 1D, 0.001D, 10D);
         vehicleDriveBlocks = builder.comment("If it starts with '#' it is a tag").defineList("vehicle.road_blocks.blocks", Collections.singletonList("#vehicle:drivable_blocks"), Objects::nonNull);
 
-        tankSmallMaxFuel = builder.comment("Default tank: 11 Liter = 11000 mB").defineInRange("vehicle.parts.small_tank.max_fuel", 11000, 100, 100_000);
-        tankMediumMaxFuel = builder.comment("1st upgrade: 15 Liter = 15000 mB").defineInRange("vehicle.parts.medium_tank.max_fuel", 15000, 100, 100_000);
-        tankLargeMaxFuel = builder.comment("2nd upgrade: 20 Liter = 20000 mB").defineInRange("vehicle.parts.large_tank.max_fuel", 20000, 100, 100_000);
+        tankSmallMaxFuel = builder.comment("Default tank: 5.5 Liter = 5500 mB").defineInRange("vehicle.parts.small_tank.max_fuel", 5500, 100, 100_000);
+        tankMediumMaxFuel = builder.comment("1st upgrade: 7.5 Liter = 7500 mB").defineInRange("vehicle.parts.medium_tank.max_fuel", 7500, 100, 100_000);
+        tankLargeMaxFuel = builder.comment("2nd upgrade: 10 Liter = 10000 mB").defineInRange("vehicle.parts.large_tank.max_fuel", 10000, 100, 100_000);
 
         normalMotorFuelConsumption = builder.comment("Fuel consumption of the normal motor in liters per 10 km (500 blocks = 1 km)").defineInRange("vehicle.fuel.normal_motor_consumption_per_10km", 5.5D, 0.1D, 100.0D);
         performanceMotorFuelConsumption = builder.comment("Fuel consumption of the performance motor in liters per 10 km").defineInRange("vehicle.fuel.performance_motor_consumption_per_10km", 7.0D, 0.1D, 100.0D);

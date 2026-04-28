@@ -69,18 +69,16 @@ public class CuredBudItem extends Item {
     public static double calculatePrice(ItemStack stack) {
         CannabisStrain strain = getStrain(stack);
         CannabisQuality quality = getQuality(stack);
-        int curingDays = getCuringDays(stack);
 
         double basePrice;
         try {
             basePrice = strain.calculateDynamicPrice(quality, stack.getCount(), null);
         } catch (Exception e) {
-            // Fallback auf alte Formel
             basePrice = strain.calculatePrice(quality) * stack.getCount() / 10.0;
         }
-        // Bonus für längeres Curing (max +50% bei 30+ Tagen)
-        double curingBonus = Math.min(curingDays / 60.0, 0.5);
-        return basePrice * (1.0 + curingBonus);
+        float priceBonus = (stack.hasTag() && stack.getTag().contains("PriceBonus"))
+                ? stack.getTag().getFloat("PriceBonus") : 0.0f;
+        return basePrice * (1.0 + priceBonus);
     }
 
     @Override

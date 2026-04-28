@@ -27,6 +27,7 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int pressingProgress = 0;
+    private long lastGameTime = -1L;
     private WineType wineType;
     private WineQuality quality;
 
@@ -131,9 +132,15 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
             int totalTime = getTotalPressingTime();
-            pressingProgress = Math.min(pressingProgress + 1, totalTime);
+            int prevProgress = pressingProgress;
+            pressingProgress = Math.min(pressingProgress + (int) ticksPassed, totalTime);
 
             if (pressingProgress >= totalTime) {
                 // Pressing complete: Mash → Juice
@@ -159,11 +166,12 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
                 }
 
                 outputStack = juice;
+                inputStack = ItemStack.EMPTY;
                 pressingProgress = 0;
                 changed = true;
             }
 
-            if (pressingProgress % 20 == 0) changed = true;
+            if (pressingProgress / 20 > prevProgress / 20) changed = true;
         }
 
         if (changed) {
@@ -190,6 +198,7 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
         if (!inputStack.isEmpty()) tag.put("Input", inputStack.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", pressingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         if (wineType != null) tag.putString("WineType", wineType.name());
         if (quality != null) tag.putString("Quality", quality.name());
     }
@@ -201,6 +210,7 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         pressingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("WineType")) {
             try { wineType = WineType.valueOf(tag.getString("WineType")); }
             catch (IllegalArgumentException exception) {

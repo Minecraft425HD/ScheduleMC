@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.production.blocks;
 
 import de.rolandsw.schedulemc.cannabis.blocks.CannabisPlantBlock;
 import de.rolandsw.schedulemc.cannabis.items.CannabisSeedItem;
+import de.rolandsw.schedulemc.coffee.blocks.CoffeePlantBlock;
+import de.rolandsw.schedulemc.coffee.items.CoffeeSeedlingItem;
 import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
 import de.rolandsw.schedulemc.coca.items.CocaSeedItem;
 import de.rolandsw.schedulemc.coca.items.FreshCocaLeafItem;
@@ -399,7 +401,34 @@ public class PlantPotBlock extends Block implements EntityBlock {
         }
 
         // ═══════════════════════════════════════════════════════════
-        // 3e. IMPFEN - PILZE (Sporen-Spritze)
+        // 3e. PFLANZEN - KAFFEE
+        // ═══════════════════════════════════════════════════════════
+        if (handStack.getItem() instanceof CoffeeSeedlingItem coffeeSeedlingItem) {
+            if (!potData.hasSoil()) {
+                player.displayClientMessage(Component.translatable("block.plant_pot.needs_soil_first"), true);
+                return InteractionResult.FAIL;
+            }
+            if (potData.hasPlant()) {
+                player.displayClientMessage(Component.translatable("block.plant_pot.has_plant"), true);
+                return InteractionResult.FAIL;
+            }
+            if (potData.getWaterLevel() < 10) {
+                player.displayClientMessage(Component.translatable("block.plant_pot.too_little_water"), true);
+                return InteractionResult.FAIL;
+            }
+            potData.plantCoffeeSeed(coffeeSeedlingItem.getCoffeeType());
+            potBE.setChanged();
+            level.sendBlockUpdated(pos, state, state, 3);
+            handStack.shrink(1);
+            CoffeePlantBlock.growToStage(level, pos, 0, coffeeSeedlingItem.getCoffeeType());
+            player.displayClientMessage(Component.translatable("block.plant_pot.coffee_planted",
+                coffeeSeedlingItem.getCoffeeType().getColoredName()), true);
+            player.playSound(net.minecraft.sounds.SoundEvents.CROP_PLANTED, 1.0f, 1.0f);
+            return InteractionResult.SUCCESS;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 3f. PFLANZEN - WEINREBE
         // ═══════════════════════════════════════════════════════════
         if (handStack.getItem() instanceof GrapeSeedlingItem grapeSeedlingItem) {
             if (!potData.hasSoil()) {
@@ -432,11 +461,11 @@ public class PlantPotBlock extends Block implements EntityBlock {
                 return InteractionResult.FAIL;
             }
 
-            level.setBlock(plantPos, WineBlocks.GRAPEVINE.get().defaultBlockState().setValue(GrapevineBlock.AGE, 0), 3);
-            handStack.shrink(1);
-            potData.consumeWater(10);
+            potData.plantGrapeSeed(grapeSeedlingItem.getWineType());
             potBE.setChanged();
             level.sendBlockUpdated(pos, state, state, 3);
+            handStack.shrink(1);
+            GrapevineBlock.growToStage(level, pos, 0, grapeSeedlingItem.getWineType());
 
             player.displayClientMessage(Component.translatable(
                 "block.plant_pot.grape_planted",
@@ -447,7 +476,7 @@ public class PlantPotBlock extends Block implements EntityBlock {
         }
 
         // ═══════════════════════════════════════════════════════════
-        // 3f. IMPFEN - PILZE (Sporen-Spritze)
+        // 3g. IMPFEN - PILZE (Sporen-Spritze)
         // ═══════════════════════════════════════════════════════════
         if (handStack.getItem() instanceof SporeSyringeItem syringeItem) {
             if (!potData.hasMist()) {

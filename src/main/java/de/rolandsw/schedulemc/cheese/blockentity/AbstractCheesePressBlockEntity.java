@@ -27,6 +27,7 @@ public abstract class AbstractCheesePressBlockEntity extends AbstractItemHandler
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int pressingProgress = 0;
+    private long lastGameTime = -1L;
     private CheeseQuality quality;
 
     protected AbstractCheesePressBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -108,9 +109,15 @@ public abstract class AbstractCheesePressBlockEntity extends AbstractItemHandler
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
             int totalTime = getTotalPressingTime();
-            pressingProgress = Math.min(pressingProgress + 1, totalTime);
+            int prevProgress = pressingProgress;
+            pressingProgress = Math.min(pressingProgress + (int) ticksPassed, totalTime);
 
             if (pressingProgress >= totalTime) {
                 // Pressing complete: Curd → Fresh Cheese Wheel
@@ -131,7 +138,7 @@ public abstract class AbstractCheesePressBlockEntity extends AbstractItemHandler
                 changed = true;
             }
 
-            if (pressingProgress % 20 == 0) changed = true;
+            if (pressingProgress / 20 > prevProgress / 20) changed = true;
         }
 
         if (changed) {
@@ -158,6 +165,7 @@ public abstract class AbstractCheesePressBlockEntity extends AbstractItemHandler
         if (!inputStack.isEmpty()) tag.put("Input", inputStack.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", pressingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         if (quality != null) tag.putString("Quality", quality.name());
     }
 
@@ -168,6 +176,7 @@ public abstract class AbstractCheesePressBlockEntity extends AbstractItemHandler
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         pressingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
             catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }

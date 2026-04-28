@@ -18,22 +18,17 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Abstrakte Basisklasse für Extraktionswannen
- * Verarbeitet Koka-Blätter + Diesel zu Koka-Paste
- */
 public abstract class AbstractExtractionVatBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private boolean lastActiveState = false;
 
     private ItemStack[] inputs;
     private ItemStack[] outputs;
-    private int[] extractionProgress;
+    private long[] slotStartTime;
     private CocaType[] cocaTypes;
     private TobaccoQuality[] qualities;
     private int dieselLevel = 0;
 
-    // Optional: ProductionSize für vereinfachte Subklassen
     protected final ProductionSize size;
 
     protected AbstractExtractionVatBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -46,51 +41,39 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
         initArrays();  // NOPMD
     }
 
-    /**
-     * Kapazität (Anzahl Blätter gleichzeitig)
-     */
     public int getCapacity() {
         return size != null ? size.getCapacity() : getDefaultCapacity();
     }
 
     protected int getDefaultCapacity() {
-        return 6; // Fallback
+        return 6;
     }
 
-    /**
-     * Extraktionszeit in Ticks
-     */
     protected abstract int getExtractionTime();
 
-    /**
-     * Maximale Diesel-Menge in mB
-     */
     public int getMaxDiesel() {
         return size != null ? size.getMaxFuel() : getDefaultMaxDiesel();
     }
 
     protected int getDefaultMaxDiesel() {
-        return 1000; // Fallback
+        return 1000;
     }
 
-    /**
-     * Diesel-Verbrauch pro Blatt in mB
-     */
     protected int getDieselPerLeaf() {
-        return 100; // 100 mB pro Blatt
+        return 80;
     }
 
     private void initArrays() {
         int capacity = getCapacity();
         inputs = new ItemStack[capacity];
         outputs = new ItemStack[capacity];
-        extractionProgress = new int[capacity];
+        slotStartTime = new long[capacity];
         cocaTypes = new CocaType[capacity];
         qualities = new TobaccoQuality[capacity];
         for (int i = 0; i < capacity; i++) {
             inputs[i] = ItemStack.EMPTY;
             outputs[i] = ItemStack.EMPTY;
-            extractionProgress[i] = 0;
+            slotStartTime[i] = -1L;
         }
     }
 
@@ -99,14 +82,13 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
             return false;
         }
 
-        // Finde leeren Slot
         for (int i = 0; i < getCapacity(); i++) {
             if (inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 inputs[i] = stack.copy();
                 inputs[i].setCount(1);
                 cocaTypes[i] = FreshCocaLeafItem.getType(stack);
                 qualities[i] = FreshCocaLeafItem.getQuality(stack);
-                extractionProgress[i] = 0;
+                slotStartTime[i] = -1L;
                 setChanged();
                 return true;
             }
@@ -128,15 +110,15 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
                 totalCount += outputs[i].getCount();
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
-                extractionProgress[i] = 0;
+                slotStartTime[i] = -1L;
                 cocaTypes[i] = null;
                 qualities[i] = null;
             }
         }
 
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
         return totalCount > 0 ? CocaPasteItem.create(type, quality, totalCount) : ItemStack.EMPTY;
     }
@@ -144,8 +126,8 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
     public void addDiesel(int amount) {
         dieselLevel = Math.min(dieselLevel + amount, getMaxDiesel());
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
     }
 
@@ -196,14 +178,43 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
         return count;
     }
 
+    public ItemStack getInputDisplayItem() {
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!inputs[i].isEmpty()) {
+                ItemStack display = inputs[i].copy();
+                display.setCount(getInputCount());
+                return display;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public ItemStack getOutputDisplayItem() {
+        int count = 0;
+        ItemStack template = null;
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!outputs[i].isEmpty()) {
+                if (template == null) template = outputs[i].copy();
+                count += outputs[i].getCount();
+            }
+        }
+        if (template == null) return ItemStack.EMPTY;
+        template.setCount(count);
+        return template;
+    }
+
     public float getAverageExtractionPercentage() {
+        if (level == null) return 0;
         int activeSlots = 0;
         float totalProgress = 0;
 
         for (int i = 0; i < getCapacity(); i++) {
-            if (!inputs[i].isEmpty()) {
+            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 activeSlots++;
-                totalProgress += (float) extractionProgress[i] / getExtractionTime();
+                if (slotStartTime[i] >= 0) {
+                    long elapsed = level.getDayTime() - slotStartTime[i];
+                    totalProgress += Math.min(1.0f, (float) elapsed / getExtractionTime());
+                }
             }
         }
 
@@ -217,21 +228,19 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
 
         for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                // Prüfe ob genug Diesel vorhanden ist
-                if (dieselLevel < getDieselPerLeaf()) {
-                    continue; // Nicht genug Diesel - pausiere Extraktion
-                }
-
-                extractionProgress[i]++;
-
-                if (extractionProgress[i] >= getExtractionTime()) {
-                    // Extraktion abgeschlossen
-                    outputs[i] = CocaPasteItem.create(cocaTypes[i], qualities[i], 1);
-                    dieselLevel -= getDieselPerLeaf(); // Verbrauche Diesel
+                if (slotStartTime[i] < 0) {
+                    if (dieselLevel < getDieselPerLeaf()) continue;
+                    dieselLevel -= getDieselPerLeaf();
+                    slotStartTime[i] = level.getDayTime();
                     changed = true;
                 }
-
-                if (extractionProgress[i] % 20 == 0) {
+                long elapsed = level.getDayTime() - slotStartTime[i];
+                if (elapsed >= getExtractionTime()) {
+                    outputs[i] = CocaPasteItem.create(cocaTypes[i], qualities[i], 1);
+                    inputs[i] = ItemStack.EMPTY;
+                    slotStartTime[i] = -1L;
+                    changed = true;
+                } else if (elapsed % 20 == 0) {
                     changed = true;
                 }
             }
@@ -242,7 +251,6 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
 
-        // Utility-Status nur bei Änderung melden
         boolean currentActive = isActivelyConsuming();
         if (currentActive != lastActiveState) {
             lastActiveState = currentActive;
@@ -252,10 +260,9 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
 
     @Override
     public boolean isActivelyConsuming() {
-        // Aktiv wenn Blätter verarbeitet werden und genug Diesel vorhanden ist
         for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                if (dieselLevel >= getDieselPerLeaf()) {
+                if (slotStartTime[i] >= 0 || dieselLevel >= getDieselPerLeaf()) {
                     return true;
                 }
             }
@@ -284,7 +291,7 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
                 tag.put("Output" + i, outputTag);
             }
 
-            tag.putInt("Progress" + i, extractionProgress[i]);
+            tag.putLong("StartTime" + i, slotStartTime[i]);
 
             if (cocaTypes[i] != null) {
                 tag.putString("Type" + i, cocaTypes[i].name());
@@ -309,7 +316,7 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
         for (int i = 0; i < Math.min(savedCapacity, getCapacity()); i++) {
             inputs[i] = tag.contains("Input" + i) ? ItemStack.of(tag.getCompound("Input" + i)) : ItemStack.EMPTY;
             outputs[i] = tag.contains("Output" + i) ? ItemStack.of(tag.getCompound("Output" + i)) : ItemStack.EMPTY;
-            extractionProgress[i] = tag.getInt("Progress" + i);
+            slotStartTime[i] = tag.contains("StartTime" + i) ? tag.getLong("StartTime" + i) : -1L;
 
             if (tag.contains("Type" + i)) {
                 try { cocaTypes[i] = CocaType.valueOf(tag.getString("Type" + i)); }

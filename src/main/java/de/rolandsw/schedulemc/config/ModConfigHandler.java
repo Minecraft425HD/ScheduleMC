@@ -240,6 +240,12 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue ANTI_EXPLOIT_MASS_SELL_PENALTY;
 
         // ═══════════════════════════════════════════════════════════
+        // UTILITY SYSTEM
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.DoubleValue UTILITY_ELECTRICITY_PRICE_PER_KWH;
+        public final ForgeConfigSpec.DoubleValue UTILITY_WATER_PRICE_PER_LITER;
+
+        // ═══════════════════════════════════════════════════════════
         // WERKSTATT SYSTEM
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.DoubleValue WERKSTATT_BASE_INSPECTION_FEE;
@@ -777,6 +783,20 @@ public class ModConfigHandler {
             WAREHOUSE_DEFAULT_DELIVERY_PRICE = builder
                     .comment("Standard-Lieferpreis für Items ohne spezifischen Preis")
                     .defineInRange("default_delivery_price", 5, 1, 10000);
+
+            builder.pop();
+
+            builder.comment("Plot Utility Pricing Settings",
+                            "Strom- und Wasserpreise für das Grundstücks-Nutzungssystem")
+                    .push("utility");
+
+            UTILITY_ELECTRICITY_PRICE_PER_KWH = builder
+                    .comment("Strompreis pro kWh in Euro (Standard: 0.35 €/kWh)")
+                    .defineInRange("electricity_price_per_kwh", 0.35, 0.001, 100.0);
+
+            UTILITY_WATER_PRICE_PER_LITER = builder
+                    .comment("Wasserpreis pro Liter in Euro (Standard: 0.005 €/L = 0.50 €/100L)")
+                    .defineInRange("water_price_per_liter", 0.005, 0.0001, 10.0);
 
             builder.pop();
 

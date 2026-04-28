@@ -2,8 +2,10 @@ package de.rolandsw.schedulemc.cannabis.blocks;
 
 import de.rolandsw.schedulemc.cannabis.blockentity.TrimStationBlockEntity;
 import de.rolandsw.schedulemc.cannabis.blockentity.CannabisBlockEntities;
+import de.rolandsw.schedulemc.cannabis.items.DriedBudItem;
 import de.rolandsw.schedulemc.cannabis.menu.TrimStationMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -50,17 +52,10 @@ public class TrimStationBlock extends BaseEntityBlock {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
-
-        BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof TrimStationBlockEntity station)) return InteractionResult.PASS;
-
-        ItemStack heldItem = player.getItemInHand(hand);
-
-        if (heldItem.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+        if (!(level.getBlockEntity(pos) instanceof TrimStationBlockEntity station)) return InteractionResult.PASS;
+        if (player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openScreen(serverPlayer, new TrimStationMenu.Provider(station), pos);
-            return InteractionResult.CONSUME;
         }
-
-        return InteractionResult.SUCCESS;
+        return InteractionResult.CONSUME;
     }
 }

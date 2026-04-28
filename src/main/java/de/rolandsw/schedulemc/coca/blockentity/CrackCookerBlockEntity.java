@@ -20,40 +20,26 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-/**
- * Crack-Kocher - Kocht Kokain zu Crack
- *
- * Prozess: Kokain + Backpulver + Wasser → erhitzen → Crack
- *
- * Timing-Minigame:
- * - Zu früh = schlecht (unterkokt, feucht)
- * - Perfekt = Fishscale (glänzt, beste Qualität)
- * - Zu spät = schlecht (überkokt, verbrannt)
- */
 public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private boolean lastActiveState = false;
 
-    // Timing-Konstanten
-    public static final int COOK_CYCLE_TICKS = 80;  // 4 Sekunden
+    public static final int COOK_CYCLE_TICKS = 80;
     public static final int PERFECT_WINDOW_START = 35;
     public static final int PERFECT_WINDOW_END = 45;
     public static final int GOOD_WINDOW_START = 28;
     public static final int GOOD_WINDOW_END = 52;
 
-    // Zutaten
     private int cocaineGrams = 0;
     private int backpulverCount = 0;
     private CocaType cocaType = CocaType.BOLIVIANISCH;
     private TobaccoQuality inputQuality = TobaccoQuality.GUT;
 
-    // Minigame
     private boolean isMinigameActive = false;
-    private int cookTick = 0;
+    private long startCookTime = -1L;
     private boolean waitingForRemove = false;
     private UUID activePlayer = null;
 
-    // Output
     private ItemStack outputItem = ItemStack.EMPTY;
     private double lastTimingScore = 0;
 
@@ -65,7 +51,6 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
         if (!(stack.getItem() instanceof CocaineItem)) return false;
         if (isMinigameActive || !outputItem.isEmpty()) return false;
 
-        // Max 10g pro Cook
         if (cocaineGrams >= 10) return false;
 
         cocaType = CocaineItem.getType(stack);
@@ -73,8 +58,8 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
         cocaineGrams += stack.getCount();
 
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
         return true;
     }
@@ -85,6 +70,9 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
 
         backpulverCount += stack.getCount();
         setChanged();
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
+        }
         return true;
     }
 
@@ -94,40 +82,33 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
 
     public boolean startCooking(UUID playerUUID) {
         if (!canStartCooking()) return false;
+        if (level == null) return false;
 
         activePlayer = playerUUID;
         isMinigameActive = true;
         waitingForRemove = true;
-        cookTick = 0;
+        startCookTime = level.getDayTime();
         lastTimingScore = 0;
 
         setChanged();
         return true;
     }
 
-    /**
-     * Spieler nimmt Crack aus dem Kocher
-     * Timing bestimmt Qualität
-     */
     public double removeCrack() {
         if (!isMinigameActive || !waitingForRemove) return 0;
 
-        // Berechne Timing-Score
+        int tick = getCookTick();
         double score;
-        if (cookTick >= PERFECT_WINDOW_START && cookTick <= PERFECT_WINDOW_END) {
-            // Perfekt - Fishscale!
+        if (tick >= PERFECT_WINDOW_START && tick <= PERFECT_WINDOW_END) {
             int perfectCenter = (PERFECT_WINDOW_START + PERFECT_WINDOW_END) / 2;
-            double distanceFromPerfect = Math.abs(cookTick - perfectCenter);
+            double distanceFromPerfect = Math.abs(tick - perfectCenter);
             score = 1.0 - (distanceFromPerfect / 10.0) * 0.05;
-        } else if (cookTick >= GOOD_WINDOW_START && cookTick <= GOOD_WINDOW_END) {
-            // Gut
-            score = 0.6 + (0.3 * (1.0 - Math.abs(cookTick - 40) / 20.0));
-        } else if (cookTick < GOOD_WINDOW_START) {
-            // Zu früh - unterkokt
-            score = 0.2 + (cookTick / (double) GOOD_WINDOW_START) * 0.3;
+        } else if (tick >= GOOD_WINDOW_START && tick <= GOOD_WINDOW_END) {
+            score = 0.6 + (0.3 * (1.0 - Math.abs(tick - 40) / 20.0));
+        } else if (tick < GOOD_WINDOW_START) {
+            score = 0.2 + (tick / (double) GOOD_WINDOW_START) * 0.3;
         } else {
-            // Zu spät - überkokt/verbrannt
-            score = Math.max(0.1, 0.5 - ((cookTick - GOOD_WINDOW_END) / 30.0) * 0.4);
+            score = Math.max(0.1, 0.5 - ((tick - GOOD_WINDOW_END) / 30.0) * 0.4);
         }
 
         lastTimingScore = score;
@@ -141,27 +122,25 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
     private void createCrack(double timingScore) {
         CrackQuality quality = CrackQuality.fromTimingScore(timingScore);
 
-        // Input-Qualität kann Ergebnis verbessern
         if (inputQuality == TobaccoQuality.LEGENDAER && quality.getLevel() < CrackQuality.LEGENDAER.getLevel()) {
             quality = CrackQuality.fromLevel(quality.getLevel() + 1);
         }
 
-        // Crack-Gewicht: ~80% des Kokain-Gewichts
         int crackWeight = (int) (cocaineGrams * 0.8);
         crackWeight = Math.max(1, crackWeight);
 
         outputItem = CrackRockItem.create(cocaType, quality, crackWeight);
 
-        // Verbrauche Zutaten
         cocaineGrams = 0;
         backpulverCount = Math.max(0, backpulverCount - 1);
 
         isMinigameActive = false;
+        startCookTime = -1L;
         activePlayer = null;
 
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
     }
 
@@ -172,8 +151,8 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
         outputItem = ItemStack.EMPTY;
 
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
         return result;
     }
@@ -182,21 +161,18 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
         if (level == null || level.isClientSide) return;
 
         if (isMinigameActive && waitingForRemove) {
-            cookTick = Math.min(cookTick + 1, PERFECT_WINDOW_START);
+            int elapsed = getCookTick();
 
-            // Timeout - automatisch verbrannt
-            if (cookTick >= COOK_CYCLE_TICKS) {
+            if (elapsed >= COOK_CYCLE_TICKS) {
                 removeCrack();
             }
 
-            // Update für GUI
-            if (cookTick % 2 == 0) {
+            if (level.getGameTime() % 2 == 0) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
         }
 
-        // Utility-Status nur bei Änderung melden
         boolean currentActive = isActivelyConsuming();
         if (currentActive != lastActiveState) {
             lastActiveState = currentActive;
@@ -206,35 +182,40 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
 
     @Override
     public boolean isActivelyConsuming() {
-        // Aktiv wenn das Minigame läuft
         return isMinigameActive;
     }
 
     public void cancelCooking() {
         isMinigameActive = false;
         waitingForRemove = false;
-        cookTick = 0;
+        startCookTime = -1L;
         activePlayer = null;
         setChanged();
     }
 
-    // Getter
+    // Getters
     public int getCocaineGrams() { return cocaineGrams; }
     public int getBackpulverCount() { return backpulverCount; }
     public boolean isMinigameActive() { return isMinigameActive; }
     public boolean isWaitingForRemove() { return waitingForRemove; }
-    public int getCookTick() { return cookTick; }
-    public float getCookProgress() { return (float) cookTick / COOK_CYCLE_TICKS; }
+
+    public int getCookTick() {
+        if (!isMinigameActive || startCookTime < 0 || level == null) return 0;
+        return (int) Math.min(level.getDayTime() - startCookTime, COOK_CYCLE_TICKS);
+    }
+
+    public float getCookProgress() { return (float) getCookTick() / COOK_CYCLE_TICKS; }
     public boolean hasOutput() { return !outputItem.isEmpty(); }
     public CocaType getCocaType() { return cocaType; }
     public double getLastTimingScore() { return lastTimingScore; }
     public UUID getActivePlayer() { return activePlayer; }
 
     public int getCurrentZone() {
-        if (cookTick >= PERFECT_WINDOW_START && cookTick <= PERFECT_WINDOW_END) return 2; // Perfekt
-        if (cookTick >= GOOD_WINDOW_START && cookTick <= GOOD_WINDOW_END) return 1;       // Gut
-        if (cookTick < GOOD_WINDOW_START) return 0;                                        // Zu früh
-        return 3;                                                                           // Zu spät
+        int tick = getCookTick();
+        if (tick >= PERFECT_WINDOW_START && tick <= PERFECT_WINDOW_END) return 2;
+        if (tick >= GOOD_WINDOW_START && tick <= GOOD_WINDOW_END) return 1;
+        if (tick < GOOD_WINDOW_START) return 0;
+        return 3;
     }
 
     @Override
@@ -245,7 +226,7 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
         tag.putString("CocaType", cocaType.name());
         tag.putString("InputQuality", inputQuality.name());
         tag.putBoolean("MinigameActive", isMinigameActive);
-        tag.putInt("CookTick", cookTick);
+        tag.putLong("StartCookTime", startCookTime);
         tag.putBoolean("WaitingForRemove", waitingForRemove);
         tag.putDouble("LastScore", lastTimingScore);
         if (!outputItem.isEmpty()) {
@@ -268,7 +249,7 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
         try { inputQuality = TobaccoQuality.valueOf(tag.getString("InputQuality")); }
         catch (IllegalArgumentException e) { inputQuality = TobaccoQuality.GUT; }
         isMinigameActive = tag.getBoolean("MinigameActive");
-        cookTick = tag.getInt("CookTick");
+        startCookTime = tag.contains("StartCookTime") ? tag.getLong("StartCookTime") : -1L;
         waitingForRemove = tag.getBoolean("WaitingForRemove");
         lastTimingScore = tag.getDouble("LastScore");
         outputItem = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;

@@ -8,6 +8,7 @@ import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.items.DriedTobaccoLeafItem;
 import de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem;
+import de.rolandsw.schedulemc.multiblock.MultiblockHelper;
 import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
@@ -40,6 +41,12 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int dryingProgress = 0;
+    private long lastGameTime = -1L;
+
+    // Multiblock-Boost durch angrenzende Ventilatoren
+    private float cachedBoostMultiplier = 1.0f;
+    private long lastBoostScan = Long.MIN_VALUE;
+    private static final int BOOST_SCAN_INTERVAL = 40; // alle 40 Ticks neu scannen
 
     // Produkttyp (tobacco oder cannabis)
     private ContentType contentType = ContentType.NONE;
@@ -242,6 +249,11 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
         return dryingProgress;
     }
 
+    /** Aktueller Ventilator-Boost-Multiplikator (1.0 = kein Boost, 2.0 = doppelte Geschwindigkeit) */
+    public float getBoostMultiplier() {
+        return cachedBoostMultiplier;
+    }
+
     public int getTotalDryingTime() {
         return getDryingTime() * Math.max(1, inputStack.getCount());
     }
@@ -251,21 +263,33 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
+        // Ventilator-Boost alle BOOST_SCAN_INTERVAL Ticks neu berechnen
+        if (now - lastBoostScan >= BOOST_SCAN_INTERVAL) {
+            cachedBoostMultiplier = MultiblockHelper.scanForBoost(level, worldPosition, 4);
+            lastBoostScan = now;
+        }
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
             int totalTime = getDryingTime() * inputStack.getCount();
-            dryingProgress = Math.min(dryingProgress + 1, totalTime);
+            int prevProgress = dryingProgress;
+            long boostedTicks = Math.round(ticksPassed * (double) cachedBoostMultiplier);
+            dryingProgress = Math.min(dryingProgress + (int) boostedTicks, totalTime);
 
             if (dryingProgress >= totalTime) {
-                // Trocknung abgeschlossen - erstelle richtigen Output
                 if (contentType == ContentType.TOBACCO) {
                     outputStack = DriedTobaccoLeafItem.create(tobaccoType, tobaccoQuality, inputStack.getCount());
                 } else if (contentType == ContentType.CANNABIS) {
                     outputStack = DriedBudItem.create(cannabisStrain, cannabisQuality, inputStack.getCount());
                 }
+                inputStack = ItemStack.EMPTY;
+                dryingProgress = 0;
                 changed = true;
-            }
-
-            if (dryingProgress % 20 == 0) {
+            } else if (dryingProgress / 20 > prevProgress / 20) {
                 changed = true;
             }
         }
@@ -307,6 +331,7 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
         }
 
         tag.putInt("Progress", dryingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         tag.putString("ContentType", contentType.name());
 
         if (tobaccoType != null) {
@@ -334,6 +359,7 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         dryingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
 
         if (tag.contains("ContentType")) {
             try { contentType = ContentType.valueOf(tag.getString("ContentType")); }

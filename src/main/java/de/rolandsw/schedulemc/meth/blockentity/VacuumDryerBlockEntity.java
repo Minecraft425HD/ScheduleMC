@@ -24,6 +24,7 @@ import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 public class VacuumDryerBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private boolean lastActiveState = false;
+    private long lastGameTime = -1L;
     private static final int DRYING_TIME = 600; // 30 Sekunden
     private static final int CAPACITY = 6; // Kann 6 Batches gleichzeitig verarbeiten
 
@@ -103,13 +104,19 @@ public class VacuumDryerBlockEntity extends BlockEntity implements IUtilityConsu
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         boolean changed = false;
         boolean anyActive = false;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 anyActive = true;
-                progress[i]++;
+                int prevProgress = progress[i];
+                progress[i] += (int) ticksPassed;
 
                 if (progress[i] >= DRYING_TIME) {
                     // Trocknung abgeschlossen - Qualität bleibt gleich
@@ -117,7 +124,7 @@ public class VacuumDryerBlockEntity extends BlockEntity implements IUtilityConsu
                     changed = true;
                 }
 
-                if (progress[i] % 40 == 0) {
+                if (progress[i] / 40 > prevProgress / 40) {
                     changed = true;
                 }
             }
@@ -231,6 +238,7 @@ public class VacuumDryerBlockEntity extends BlockEntity implements IUtilityConsu
             tag.putString("Quality" + i, qualities[i].name());
         }
         tag.putBoolean("Active", isActive);
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -254,6 +262,7 @@ public class VacuumDryerBlockEntity extends BlockEntity implements IUtilityConsu
             }
         }
         isActive = tag.getBoolean("Active");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
     }
 
     @Nullable

@@ -7,7 +7,6 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
@@ -230,7 +229,7 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
     }
 
     /**
-     * Berechnet Grundsteuer basierend auf Grundbesitz
+     * Berechnet Grundsteuer: Pauschale pro Grundstück (kein Chunk-Bezug)
      */
     public double calculatePropertyTax(UUID playerUUID) {
         List<PlotRegion> plots = PlotManager.getPlotsByOwner(playerUUID);
@@ -239,22 +238,8 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
             return 0.0;
         }
 
-        int totalChunks = 0;
-        for (PlotRegion plot : plots) {
-            // Berechne horizontale Fläche (X * Z)
-            BlockPos min = plot.getMin();
-            BlockPos max = plot.getMax();
-            long width = max.getX() - min.getX() + 1;
-            long depth = max.getZ() - min.getZ() + 1;
-            long area = width * depth;
-
-            // Ein Chunk ist 16x16 = 256 Blöcke
-            int chunks = (int) Math.ceil(area / 256.0);
-            totalChunks += chunks;
-        }
-
-        double taxPerChunk = ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK.get();
-        return totalChunks * taxPerChunk;
+        double taxPerPlot = ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK.get();
+        return plots.size() * taxPerPlot;
     }
 
     /**
@@ -297,33 +282,22 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
 
             ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
             if (player != null) {
+                int plotCount = PlotManager.getPlotsByOwner(playerUUID).size();
                 if (incomeTax > 0 && propertyTax > 0) {
-                    double taxPerChunk = ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK.get();
-                    int chunks = (int)(propertyTax / taxPerChunk);
                     player.sendSystemMessage(Component.translatable("manager.tax.charged_both",
-                        String.format("%.2f€", balance),
-                        String.format("%.2f€", incomeTax),
-                        String.format("%.2f€", propertyTax),
-                        String.valueOf(chunks),
-                        String.format("%.2f€", totalTax),
-                        String.format("%.2f€", EconomyManager.getBalance(playerUUID))
+                        String.format("%.2f", incomeTax),
+                        String.format("%.2f", propertyTax),
+                        String.valueOf(plotCount),
+                        String.format("%.2f", totalTax)
                     ));
                 } else if (incomeTax > 0) {
                     player.sendSystemMessage(Component.translatable("manager.tax.charged_income",
-                        String.format("%.2f€", balance),
-                        String.format("%.2f€", incomeTax),
-                        String.format("%.2f€", totalTax),
-                        String.format("%.2f€", EconomyManager.getBalance(playerUUID))
+                        String.format("%.2f", incomeTax)
                     ));
                 } else if (propertyTax > 0) {
-                    double taxPerChunk = ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK.get();
-                    int chunks = (int)(propertyTax / taxPerChunk);
                     player.sendSystemMessage(Component.translatable("manager.tax.charged_property",
-                        String.format("%.2f€", balance),
-                        String.format("%.2f€", propertyTax),
-                        String.valueOf(chunks),
-                        String.format("%.2f€", totalTax),
-                        String.format("%.2f€", EconomyManager.getBalance(playerUUID))
+                        String.format("%.2f", propertyTax),
+                        String.valueOf(plotCount)
                     ));
                 }
             }
@@ -335,10 +309,8 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
             ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
             if (player != null) {
                 player.sendSystemMessage(Component.translatable("manager.tax.payment_failed",
-                    String.format("%.2f€", totalTax),
-                    String.format("%.2f€", incomeTax),
-                    String.format("%.2f€", propertyTax),
-                    String.format("%.2f€", debt)
+                    String.format("%.2f", totalTax),
+                    String.format("%.2f", debt)
                 ));
             }
         }

@@ -24,8 +24,8 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
 
     private boolean lastActiveState = false;
     private static final int CAPACITY = 8;
-    private static final int REFINE_TIME = 300; // 15 Sekunden
-    private static final int MAX_FUEL = 800;
+    private static final int REFINE_TIME = 24000; // 20 Minuten (1 Minecraft-Tag)
+    private static final int MAX_FUEL = 6400;
 
     private final ItemStack[] inputs = new ItemStack[CAPACITY];
     private final ItemStack[] outputs = new ItemStack[CAPACITY];
@@ -33,6 +33,7 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
     private final PoppyType[] types = new PoppyType[CAPACITY];
     private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
     private int fuelLevel = 0;
+    private long lastGameTime = -1L;
 
     public HeroinRefineryBlockEntity(BlockPos pos, BlockState state) {
         super(PoppyBlockEntities.HEROIN_REFINERY.get(), pos, state);
@@ -62,8 +63,8 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
     public void addFuel(int amount) {
         fuelLevel = Math.min(fuelLevel + amount, MAX_FUEL);
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
     }
 
@@ -107,8 +108,8 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
         }
 
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
         return totalCount > 0 ? HeroinItem.create(type, quality, totalCount) : ItemStack.EMPTY;
     }
@@ -156,6 +157,34 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
         return count;
     }
 
+    public ItemStack getInputDisplayItem() {
+        int count = 0;
+        ItemStack template = null;
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!inputs[i].isEmpty()) {
+                if (template == null) template = inputs[i].copy();
+                count++;
+            }
+        }
+        if (template == null) return ItemStack.EMPTY;
+        template.setCount(count);
+        return template;
+    }
+
+    public ItemStack getOutputDisplayItem() {
+        int count = 0;
+        ItemStack template = null;
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!outputs[i].isEmpty()) {
+                if (template == null) template = outputs[i].copy();
+                count += outputs[i].getCount();
+            }
+        }
+        if (template == null) return ItemStack.EMPTY;
+        template.setCount(count);
+        return template;
+    }
+
     public float getAverageProgress() {
         int activeSlots = 0;
         float totalProgress = 0;
@@ -180,29 +209,28 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
     public void tick() {
         if (level == null || level.isClientSide) return;
 
-        if (fuelLevel < 1) {
-            return; // Pausiere
-        }
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+
+        if (ticksPassed == 0) return;
 
         boolean changed = false;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                progress[i]++;
-
-                // Verbrauche Brennstoff
-                if (progress[i] % 20 == 0) {
-                    fuelLevel = Math.max(0, fuelLevel - 1);
+                if (progress[i] == 0) {
+                    if (fuelLevel < 800) continue;
+                    fuelLevel -= 800;
+                    changed = true;
                 }
+                progress[i] = (int) Math.min((long) progress[i] + ticksPassed, REFINE_TIME);
 
                 if (progress[i] >= REFINE_TIME) {
-                    // Chance auf Qualitätsverbesserung
                     TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
                     outputs[i] = HeroinItem.create(types[i], finalQuality, 1);
                     inputs[i] = ItemStack.EMPTY;
                     progress[i] = 0;
-                    changed = true;
-                } else if (progress[i] % 20 == 0) {
                     changed = true;
                 }
             }
@@ -210,10 +238,9 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
 
         if (changed) {
             setChanged();
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
 
-        // Utility-Status nur bei Änderung melden
         boolean currentActive = isActivelyConsuming();
         if (currentActive != lastActiveState) {
             lastActiveState = currentActive;
@@ -223,8 +250,7 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
 
     @Override
     public boolean isActivelyConsuming() {
-        // Aktiv wenn Brennstoff vorhanden und Inputs zu verarbeiten sind
-        if (fuelLevel < 1) return false;
+        if (fuelLevel < 800) return false;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
@@ -251,6 +277,7 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
         super.saveAdditional(tag);
 
         tag.putInt("FuelLevel", fuelLevel);
+        tag.putLong("LastGameTime", lastGameTime);
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty()) {
@@ -282,6 +309,7 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
         }
 
         fuelLevel = tag.getInt("FuelLevel");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
 
         for (int i = 0; i < CAPACITY; i++) {
             inputs[i] = tag.contains("Input" + i) ? ItemStack.of(tag.getCompound("Input" + i)) : ItemStack.EMPTY;

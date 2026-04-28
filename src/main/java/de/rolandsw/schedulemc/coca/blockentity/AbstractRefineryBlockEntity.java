@@ -18,22 +18,17 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Abstrakte Basisklasse für Raffinerien
- * Verarbeitet Koka-Paste zu Kokain (weiß) mit Brennstoff
- */
 public abstract class AbstractRefineryBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private boolean lastActiveState = false;
 
     private ItemStack[] inputs;
     private ItemStack[] outputs;
-    private int[] refineryProgress;
+    private long[] slotStartTime;
     private CocaType[] cocaTypes;
     private TobaccoQuality[] qualities;
     private int fuelLevel = 0;
 
-    // Optional: ProductionSize für vereinfachte Subklassen
     protected final ProductionSize size;
 
     protected AbstractRefineryBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -46,66 +41,43 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
         initArrays();  // NOPMD
     }
 
-    /**
-     * Kapazität (Anzahl Pasten gleichzeitig)
-     * Kann von Subklassen überschrieben werden, nutzt standardmäßig ProductionSize
-     */
     public int getCapacity() {
         return size != null ? size.getCapacity() : getDefaultCapacity();
     }
 
-    /**
-     * Standard-Kapazität für Legacy-Subklassen ohne ProductionSize
-     */
     protected int getDefaultCapacity() {
-        return 6; // Fallback
+        return 6;
     }
 
-    /**
-     * Raffinierungszeit in Ticks
-     */
     protected abstract int getRefineryTime();
 
-    /**
-     * Maximaler Brennstoff-Level
-     * Kann von Subklassen überschrieben werden, nutzt standardmäßig ProductionSize
-     */
     public int getMaxFuel() {
         return size != null ? size.getMaxFuel() : getDefaultMaxFuel();
     }
 
-    /**
-     * Standard-MaxFuel für Legacy-Subklassen ohne ProductionSize
-     */
     protected int getDefaultMaxFuel() {
-        return 500; // Fallback
+        return 500;
     }
 
-    /**
-     * Brennstoff-Verbrauch pro Paste
-     */
     protected int getFuelPerPaste() {
         return 50;
     }
 
-    /**
-     * Chance auf Qualitätsverbesserung (0.0 - 1.0)
-     */
     protected double getQualityUpgradeChance() {
-        return 0.2; // 20%
+        return 0.2;
     }
 
     private void initArrays() {
         int capacity = getCapacity();
         inputs = new ItemStack[capacity];
         outputs = new ItemStack[capacity];
-        refineryProgress = new int[capacity];
+        slotStartTime = new long[capacity];
         cocaTypes = new CocaType[capacity];
         qualities = new TobaccoQuality[capacity];
         for (int i = 0; i < capacity; i++) {
             inputs[i] = ItemStack.EMPTY;
             outputs[i] = ItemStack.EMPTY;
-            refineryProgress[i] = 0;
+            slotStartTime[i] = -1L;
         }
     }
 
@@ -114,14 +86,13 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
             return false;
         }
 
-        // Finde leeren Slot
         for (int i = 0; i < getCapacity(); i++) {
             if (inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 inputs[i] = stack.copy();
                 inputs[i].setCount(1);
                 cocaTypes[i] = CocaPasteItem.getType(stack);
                 qualities[i] = CocaPasteItem.getQuality(stack);
-                refineryProgress[i] = 0;
+                slotStartTime[i] = -1L;
                 setChanged();
                 return true;
             }
@@ -143,15 +114,15 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
                 totalCount += outputs[i].getCount();
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
-                refineryProgress[i] = 0;
+                slotStartTime[i] = -1L;
                 cocaTypes[i] = null;
                 qualities[i] = null;
             }
         }
 
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
         return totalCount > 0 ? CocaineItem.create(type, quality, totalCount) : ItemStack.EMPTY;
     }
@@ -159,8 +130,8 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
     public void addFuel(int amount) {
         fuelLevel = Math.min(fuelLevel + amount, getMaxFuel());
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
     }
 
@@ -211,14 +182,43 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
         return count;
     }
 
+    public ItemStack getInputDisplayItem() {
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!inputs[i].isEmpty()) {
+                ItemStack display = inputs[i].copy();
+                display.setCount(getInputCount());
+                return display;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    public ItemStack getOutputDisplayItem() {
+        int count = 0;
+        ItemStack template = null;
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!outputs[i].isEmpty()) {
+                if (template == null) template = outputs[i].copy();
+                count += outputs[i].getCount();
+            }
+        }
+        if (template == null) return ItemStack.EMPTY;
+        template.setCount(count);
+        return template;
+    }
+
     public float getAverageRefineryPercentage() {
+        if (level == null) return 0;
         int activeSlots = 0;
         float totalProgress = 0;
 
         for (int i = 0; i < getCapacity(); i++) {
-            if (!inputs[i].isEmpty()) {
+            if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
                 activeSlots++;
-                totalProgress += (float) refineryProgress[i] / getRefineryTime();
+                if (slotStartTime[i] >= 0) {
+                    long elapsed = level.getDayTime() - slotStartTime[i];
+                    totalProgress += Math.min(1.0f, (float) elapsed / getRefineryTime());
+                }
             }
         }
 
@@ -232,26 +232,20 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
 
         for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                // Prüfe ob genug Brennstoff vorhanden ist
-                if (fuelLevel < 1) {
-                    continue; // Kein Brennstoff - pausiere
-                }
-
-                refineryProgress[i]++;
-
-                // Verbrauche Brennstoff (1 pro 20 Ticks = 1 Sekunde)
-                if (refineryProgress[i] % 20 == 0) {
-                    fuelLevel = Math.max(0, fuelLevel - 1);
-                }
-
-                if (refineryProgress[i] >= getRefineryTime()) {
-                    // Raffinierung abgeschlossen - mit Chance auf Qualitätsverbesserung
-                    TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
-                    outputs[i] = CocaineItem.create(cocaTypes[i], finalQuality, 1);
+                if (slotStartTime[i] < 0) {
+                    if (fuelLevel < getFuelPerPaste()) continue;
+                    fuelLevel -= getFuelPerPaste();
+                    slotStartTime[i] = level.getDayTime();
                     changed = true;
                 }
-
-                if (refineryProgress[i] % 20 == 0) {
+                long elapsed = level.getDayTime() - slotStartTime[i];
+                if (elapsed >= getRefineryTime()) {
+                    TobaccoQuality finalQuality = calculateFinalQuality(qualities[i]);
+                    outputs[i] = CocaineItem.create(cocaTypes[i], finalQuality, 1);
+                    inputs[i] = ItemStack.EMPTY;
+                    slotStartTime[i] = -1L;
+                    changed = true;
+                } else if (elapsed % 20 == 0) {
                     changed = true;
                 }
             }
@@ -262,7 +256,6 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
 
-        // Utility-Status nur bei Änderung melden
         boolean currentActive = isActivelyConsuming();
         if (currentActive != lastActiveState) {
             lastActiveState = currentActive;
@@ -272,10 +265,9 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
 
     @Override
     public boolean isActivelyConsuming() {
-        // Aktiv wenn Paste raffiniert wird und Brennstoff vorhanden ist
         for (int i = 0; i < getCapacity(); i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                if (fuelLevel >= 1) {
+                if (slotStartTime[i] >= 0 || fuelLevel >= getFuelPerPaste()) {
                     return true;
                 }
             }
@@ -290,7 +282,6 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
             return effectiveQuality;
         }
 
-        // Chance auf Upgrade
         if (level != null && level.random.nextFloat() < getQualityUpgradeChance()) {
             return effectiveQuality.upgrade();
         }
@@ -319,7 +310,7 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
                 tag.put("Output" + i, outputTag);
             }
 
-            tag.putInt("Progress" + i, refineryProgress[i]);
+            tag.putLong("StartTime" + i, slotStartTime[i]);
 
             if (cocaTypes[i] != null) {
                 tag.putString("Type" + i, cocaTypes[i].name());
@@ -344,7 +335,7 @@ public abstract class AbstractRefineryBlockEntity extends BlockEntity implements
         for (int i = 0; i < Math.min(savedCapacity, getCapacity()); i++) {
             inputs[i] = tag.contains("Input" + i) ? ItemStack.of(tag.getCompound("Input" + i)) : ItemStack.EMPTY;
             outputs[i] = tag.contains("Output" + i) ? ItemStack.of(tag.getCompound("Output" + i)) : ItemStack.EMPTY;
-            refineryProgress[i] = tag.getInt("Progress" + i);
+            slotStartTime[i] = tag.contains("StartTime" + i) ? tag.getLong("StartTime" + i) : -1L;
 
             if (tag.contains("Type" + i)) {
                 try { cocaTypes[i] = CocaType.valueOf(tag.getString("Type" + i)); }

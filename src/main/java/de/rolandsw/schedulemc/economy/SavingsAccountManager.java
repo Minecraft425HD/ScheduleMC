@@ -250,16 +250,16 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
             for (SavingsAccount account : entry.getValue()) {
                 double interest = account.calculateAndPayInterest(currentDay);
 
-                if (interest > 0) {
+                if (interest >= 0.005) {
                     ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
                     if (player != null) {
                         player.sendSystemMessage(Component.translatable("manager.savings.interest_paid",
-                            String.format("%.2f€", interest),
-                            String.format("%.2f€", account.getBalance())
+                            String.format("%.2f", interest),
+                            String.format("%.2f", account.getBalance())
                         ));
                     }
 
-                    LOGGER.info("Savings interest paid: {}€ to {}", interest, playerUUID);
+                    LOGGER.info("Savings interest paid: {} to {}", interest, playerUUID);
                 }
             }
         }

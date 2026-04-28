@@ -15,4 +15,8 @@ public class WeaponParticles {
             () -> new SimpleParticleType(true));
     public static final RegistryObject<SimpleParticleType> BLOOD = PARTICLES.register("weapon_blood",
             () -> new SimpleParticleType(true));
+
+    /** Großer, dunkler, langlebiger Rauchpartikel für Rauchgranaten */
+    public static final RegistryObject<SimpleParticleType> GRENADE_SMOKE = PARTICLES.register("grenade_smoke",
+            () -> new SimpleParticleType(true));
 }

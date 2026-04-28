@@ -20,6 +20,7 @@ public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandler
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgingBarrelBlockEntity.class);
     private ItemStack storedWine = ItemStack.EMPTY;
     private int agingTicks = 0;
+    private long lastGameTime = -1L;
     private WineType wineType;
     private WineQuality quality;
 
@@ -76,9 +77,16 @@ public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandler
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!storedWine.isEmpty()) {
-            agingTicks++;
-            if (agingTicks % 100 == 0) {
+            int prevTicks = agingTicks;
+            agingTicks += (int) ticksPassed;
+            if (agingTicks / 100 > prevTicks / 100) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -93,6 +101,7 @@ public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandler
         tag.putInt("AgingTicks", agingTicks);
         if (wineType != null) tag.putString("WineType", wineType.name());
         if (quality != null) tag.putString("Quality", quality.name());
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override public void load(CompoundTag tag) {
@@ -100,6 +109,7 @@ public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandler
         if (itemHandler == null) createItemHandler();
         storedWine = tag.contains("StoredWine") ? ItemStack.of(tag.getCompound("StoredWine")) : ItemStack.EMPTY;
         agingTicks = tag.getInt("AgingTicks");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("WineType")) {
             try { wineType = WineType.valueOf(tag.getString("WineType")); }
             catch (IllegalArgumentException exception) {

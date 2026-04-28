@@ -34,6 +34,7 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
     private int pressProgress = 0;
     private ItemStack outputItem = ItemStack.EMPTY;
     private boolean isPressing = false;
+    private long lastGameTime = -1L;
 
     public PerforationPressBlockEntity(BlockPos pos, BlockState state) {
         super(LSDBlockEntities.PERFORATION_PRESS.get(), pos, state);
@@ -119,8 +120,13 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+
         if (isPressing) {
-            pressProgress = Math.min(pressProgress + 1, PRESS_TIME);
+            int prevProgress = pressProgress;
+            pressProgress = (int) Math.min((long) pressProgress + ticksPassed, PRESS_TIME);
 
             if (pressProgress >= PRESS_TIME) {
                 // Pressen abgeschlossen
@@ -154,7 +160,7 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
 
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            } else if (pressProgress % 20 == 0) {
+            } else if (pressProgress / 20 > prevProgress / 20) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -202,6 +208,7 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
         tag.putString("Design", selectedDesign.name());
         tag.putInt("Progress", pressProgress);
         tag.putBoolean("Pressing", isPressing);
+        tag.putLong("LastGameTime", lastGameTime);
         if (!outputItem.isEmpty()) {
             CompoundTag outputTag = new CompoundTag();
             outputItem.save(outputTag);
@@ -223,6 +230,7 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
         }
         pressProgress = tag.getInt("Progress");
         isPressing = tag.getBoolean("Pressing");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         outputItem = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
     }
 

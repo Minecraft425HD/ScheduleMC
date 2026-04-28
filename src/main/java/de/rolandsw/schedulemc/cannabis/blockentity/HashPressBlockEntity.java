@@ -33,7 +33,7 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
     private int trimWeight = 0;
     private CannabisQuality trimQuality = CannabisQuality.GUT;
     private CannabisStrain strain = CannabisStrain.HYBRID;
-    private int pressProgress = 0;
+    private long startDayTime = -1L;
     private boolean isPressing = false;
     private ItemStack outputItem = ItemStack.EMPTY;
 
@@ -41,32 +41,31 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
         super(CannabisBlockEntities.HASH_PRESS.get(), pos, state);
     }
 
-    public boolean addTrim(ItemStack stack) {
-        if (!(stack.getItem() instanceof TrimItem)) return false;
-        if (isPressing || !outputItem.isEmpty()) return false;
-        if (trimWeight >= MAX_TRIM_WEIGHT) return false;
+    /**
+     * Fügt Trim hinzu. Gibt die Anzahl verbrauchter Items zurück (0 = nichts hinzugefügt).
+     * Berücksichtigt Stack-Count: 20 Items à 1g = 20g.
+     */
+    public int addTrim(ItemStack stack) {
+        if (!(stack.getItem() instanceof TrimItem)) return 0;
+        if (isPressing || !outputItem.isEmpty()) return 0;
+        if (trimWeight >= MAX_TRIM_WEIGHT) return 0;
 
-        CannabisStrain  trimStrain  = TrimItem.getStrain(stack);
-        CannabisQuality addQuality  = TrimItem.getQuality(stack);
-        int addWeight = TrimItem.getWeight(stack);
+        CannabisStrain  trimStrain = TrimItem.getStrain(stack);
+        CannabisQuality addQuality = TrimItem.getQuality(stack);
 
-        // Nur gleiche Sorte erlauben
-        if (trimWeight > 0 && trimStrain != strain) {
-            return false;
-        }
+        if (trimWeight > 0 && trimStrain != strain) return 0;
 
-        // Überlauf verhindern
-        if (trimWeight + addWeight > MAX_TRIM_WEIGHT) return false;
+        int space    = MAX_TRIM_WEIGHT - trimWeight;
+        int canAdd   = Math.min(stack.getCount(), space); // 1 Item = 1g
+        if (canAdd <= 0) return 0;
 
         strain = trimStrain;
-        if (trimWeight == 0) { trimQuality = addQuality; }
-        trimWeight += addWeight;
+        if (trimWeight == 0) trimQuality = addQuality;
+        trimWeight += canAdd;
 
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
-        return true;
+        if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        return canAdd;
     }
 
     public boolean startPressing() {
@@ -75,7 +74,7 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
         }
 
         isPressing = true;
-        pressProgress = 0;
+        startDayTime = (level != null) ? level.getDayTime() : 0L;
 
         setChanged();
         return true;
@@ -85,13 +84,16 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
         if (level == null || level.isClientSide) return;
 
         if (isPressing) {
-            pressProgress = Math.min(pressProgress + 1, PRESS_TICKS);
-
-            if (pressProgress >= PRESS_TICKS) {
-                finishPressing();
+            if (startDayTime < 0) {
+                startDayTime = level.getDayTime();
+                setChanged();
             }
-
-            setChanged();
+            long elapsed = level.getDayTime() - startDayTime;
+            if (elapsed >= PRESS_TICKS) {
+                finishPressing();
+            } else {
+                setChanged();
+            }
         }
 
         // Utility-Status nur bei Änderung melden
@@ -116,7 +118,7 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
 
         trimWeight = 0;
         isPressing = false;
-        pressProgress = 0;
+        startDayTime = -1L;
 
         if (level != null) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -141,10 +143,27 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
     public boolean canStart() { return trimWeight >= MIN_TRIM_WEIGHT && !isPressing && outputItem.isEmpty(); }
     public boolean isPressing() { return isPressing; }
     public boolean hasOutput() { return !outputItem.isEmpty(); }
-    public float getPressProgress() { return (float) pressProgress / PRESS_TICKS; }
+    public float getPressProgress() {
+        if (!isPressing || level == null || startDayTime < 0) return 0.0f;
+        return (float) Math.min(1.0, (double)(level.getDayTime() - startDayTime) / PRESS_TICKS);
+    }
     public int getExpectedHashWeight() { return Math.max(1, (int) (trimWeight * CONVERSION_RATE)); }
     public CannabisStrain getStrain() { return strain; }
     public CannabisQuality getTrimQuality() { return trimQuality; }
+    public ItemStack getOutputItem() { return outputItem; }
+    public void clearTrim() {
+        trimWeight = 0;
+        trimQuality = CannabisQuality.GUT;
+        strain = CannabisStrain.HYBRID;
+        setChanged();
+        if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    }
+
+    public ItemStack getInputDisplayItem() {
+        if (trimWeight == 0) return ItemStack.EMPTY;
+        ItemStack item = TrimItem.create(strain, trimQuality, trimWeight);
+        return item;
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
@@ -152,7 +171,7 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
         tag.putInt("TrimWeight", trimWeight);
         tag.putString("Strain", strain.name());
         tag.putString("TrimQuality", trimQuality.name());
-        tag.putInt("PressProgress", pressProgress);
+        tag.putLong("StartDayTime", startDayTime);
         tag.putBoolean("IsPressing", isPressing);
         if (!outputItem.isEmpty()) {
             CompoundTag outputTag = new CompoundTag();
@@ -169,7 +188,7 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
         catch (IllegalArgumentException e) { strain = CannabisStrain.HYBRID; }
         try { trimQuality = CannabisQuality.valueOf(tag.getString("TrimQuality")); }
         catch (IllegalArgumentException e) { trimQuality = CannabisQuality.GUT; }
-        pressProgress = tag.getInt("PressProgress");
+        startDayTime = tag.contains("StartDayTime") ? tag.getLong("StartDayTime") : -1L;
         isPressing = tag.getBoolean("IsPressing");
         outputItem = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
     }

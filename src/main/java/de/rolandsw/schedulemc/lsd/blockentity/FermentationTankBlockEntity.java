@@ -25,6 +25,7 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
     private static final int CAPACITY = 8;
 
     private boolean lastActiveState = false;
+    private long lastGameTime = -1L;
     private int mutterkornCount = 0;
     private int fermentationProgress = 0;
     private int outputCount = 0;
@@ -68,9 +69,15 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (mutterkornCount > 0 && outputCount == 0) {
             isActive = true;  // NOPMD
-            fermentationProgress = Math.min(fermentationProgress + 1, FERMENTATION_TIME);
+            int prevProgress = fermentationProgress;
+            fermentationProgress = Math.min(fermentationProgress + (int) ticksPassed, FERMENTATION_TIME);
 
             if (fermentationProgress >= FERMENTATION_TIME) {
                 // Fermentation abgeschlossen
@@ -81,7 +88,7 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
 
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            } else if (fermentationProgress % 40 == 0) {
+            } else if (fermentationProgress / 40 > prevProgress / 40) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -116,6 +123,7 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
         tag.putInt("Progress", fermentationProgress);
         tag.putInt("Output", outputCount);
         tag.putBoolean("Active", isActive);
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -125,6 +133,7 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
         fermentationProgress = tag.getInt("Progress");
         outputCount = tag.getInt("Output");
         isActive = tag.getBoolean("Active");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
     }
 
     @Nullable

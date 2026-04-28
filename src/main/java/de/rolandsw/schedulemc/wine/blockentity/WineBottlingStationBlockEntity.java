@@ -31,6 +31,7 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
     private ItemStack output = ItemStack.EMPTY;
     private int bottlingProgress = 0;
 
+    private long lastGameTime = -1L;
     private WineType wineType;
     private WineQuality quality;
     private WineAgeLevel ageLevel;
@@ -58,10 +59,15 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 if (slot == 0) return stack.getItem() == WineItems.YOUNG_WINE.get();
-                if (slot == 1) {
-                    return stack.getItem() == WineItems.EMPTY_WINE_BOTTLE.get();
-                }
-                return slot == 2;
+                if (slot == 1) return stack.getItem() == WineItems.EMPTY_WINE_BOTTLE.get();
+                return false; // output slot not insertable
+            }
+
+            @Override
+            public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if (slot == 2) return super.extractItem(slot, amount, simulate);
+                if (bottlingProgress == 0) return super.extractItem(slot, amount, simulate);
+                return ItemStack.EMPTY;
             }
         };
     }
@@ -128,9 +134,15 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!wineInput.isEmpty() && !bottleInput.isEmpty() && output.isEmpty()) {
             int bottlingTime = 200; // 10 seconds per bottle
-            bottlingProgress = Math.min(bottlingProgress + 1, bottlingTime);
+            int prevProgress = bottlingProgress;
+            bottlingProgress = Math.min(bottlingProgress + (int) ticksPassed, bottlingTime);
 
             if (bottlingProgress >= bottlingTime) {
                 ItemStack filledBottle = WineBottleItem.create(
@@ -165,7 +177,7 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
 
-            if (bottlingProgress % 20 == 0) {
+            if (bottlingProgress / 20 > prevProgress / 20) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -195,6 +207,7 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
         if (!bottleInput.isEmpty()) tag.put("BottleInput", bottleInput.save(new CompoundTag()));
         if (!output.isEmpty()) tag.put("Output", output.save(new CompoundTag()));
         tag.putInt("BottlingProgress", bottlingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         if (wineType != null) tag.putString("WineType", wineType.name());
         if (quality != null) tag.putString("Quality", quality.name());
         if (ageLevel != null) tag.putString("AgeLevel", ageLevel.name());
@@ -211,6 +224,7 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
         bottleInput = tag.contains("BottleInput") ? ItemStack.of(tag.getCompound("BottleInput")) : ItemStack.EMPTY;
         output = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         bottlingProgress = tag.getInt("BottlingProgress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("WineType")) {
             try { wineType = WineType.valueOf(tag.getString("WineType")); }
             catch (IllegalArgumentException exception) {

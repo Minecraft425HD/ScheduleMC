@@ -192,6 +192,12 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
 
         double interest = balance * INTEREST_RATE;
         interest = Math.min(interest, MAX_INTEREST_PER_WEEK);
+        interest = Math.round(interest * 100.0) / 100.0;
+
+        // Kein Zins bei abgerundetem Nullbetrag
+        if (interest < 0.005) {
+            return;
+        }
 
         EconomyManager.deposit(playerUUID, interest, TransactionType.INTEREST,
             Component.translatable("manager.interest.weekly_interest",
@@ -201,8 +207,8 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
             player.sendSystemMessage(Component.translatable("manager.interest.paid",
-                String.format("%.2f€", interest),
-                String.format("%.2f€", EconomyManager.getBalance(playerUUID))
+                String.format("%.2f", interest),
+                String.format("%.2f", EconomyManager.getBalance(playerUUID))
             ));
         }
     }

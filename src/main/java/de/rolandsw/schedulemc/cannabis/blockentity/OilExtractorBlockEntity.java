@@ -38,7 +38,7 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
     private CannabisQuality baseQuality = CannabisQuality.GUT;
     private int solventCount = 0;
 
-    private int extractionProgress = 0;
+    private long startDayTime = -1L;
     private boolean isExtracting = false;
     private ItemStack outputItem = ItemStack.EMPTY;
 
@@ -98,7 +98,7 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
         }
 
         isExtracting = true;
-        extractionProgress = 0;
+        startDayTime = (level != null) ? level.getDayTime() : 0L;
         solventCount--;
 
         setChanged();
@@ -109,13 +109,16 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
         if (level == null || level.isClientSide) return;
 
         if (isExtracting) {
-            extractionProgress = Math.min(extractionProgress + 1, EXTRACTION_TICKS);
-
-            if (extractionProgress >= EXTRACTION_TICKS) {
-                finishExtraction();
+            if (startDayTime < 0) {
+                startDayTime = level.getDayTime();
+                setChanged();
             }
-
-            setChanged();
+            long elapsed = level.getDayTime() - startDayTime;
+            if (elapsed >= EXTRACTION_TICKS) {
+                finishExtraction();
+            } else {
+                setChanged();
+            }
         }
 
         // Utility-Status nur bei Änderung melden
@@ -146,7 +149,7 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
 
         materialWeight = 0;
         isExtracting = false;
-        extractionProgress = 0;
+        startDayTime = -1L;
 
         if (level != null) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -173,13 +176,46 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
     public boolean canStart() { return materialWeight >= MIN_MATERIAL_WEIGHT && solventCount >= 1 && !isExtracting && outputItem.isEmpty(); }
     public boolean isExtracting() { return isExtracting; }
     public boolean hasOutput() { return !outputItem.isEmpty(); }
-    public float getExtractionProgress() { return (float) extractionProgress / EXTRACTION_TICKS; }
+    public float getExtractionProgress() {
+        if (!isExtracting || level == null || startDayTime < 0) return 0.0f;
+        return (float) Math.min(1.0, (double)(level.getDayTime() - startDayTime) / EXTRACTION_TICKS);
+    }
     public int getExpectedOilAmount() {
         float rate = isFromBuds ? BUD_CONVERSION_RATE : TRIM_CONVERSION_RATE;
         return Math.max(1, (int) (materialWeight * rate));
     }
     public CannabisStrain getStrain() { return strain; }
     public CannabisQuality getBaseQuality() { return baseQuality; }
+    public ItemStack getOutputItem() { return outputItem; }
+    public void clearMaterial() {
+        materialWeight = 0;
+        isFromBuds = false;
+        strain = CannabisStrain.HYBRID;
+        baseQuality = CannabisQuality.GUT;
+        setChanged();
+        if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    }
+    public void clearSolvent() {
+        solventCount = 0;
+        setChanged();
+        if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    }
+
+    public ItemStack getInputDisplayItem() {
+        if (materialWeight == 0) return ItemStack.EMPTY;
+        if (isFromBuds) {
+            ItemStack item = TrimmedBudItem.create(strain, baseQuality, materialWeight);
+            return item;
+        } else {
+            ItemStack item = TrimItem.create(strain, baseQuality, materialWeight);
+            return item;
+        }
+    }
+
+    public ItemStack getSolventDisplayItem() {
+        if (solventCount == 0) return ItemStack.EMPTY;
+        return new ItemStack(CannabisItems.EXTRACTION_SOLVENT.get(), Math.min(solventCount, 64));
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
@@ -189,7 +225,7 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
         tag.putString("Strain", strain.name());
         tag.putString("Quality", baseQuality.name());
         tag.putInt("SolventCount", solventCount);
-        tag.putInt("ExtractionProgress", extractionProgress);
+        tag.putLong("StartDayTime", startDayTime);
         tag.putBoolean("IsExtracting", isExtracting);
         if (!outputItem.isEmpty()) {
             CompoundTag outputTag = new CompoundTag();
@@ -208,7 +244,7 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
         try { baseQuality = CannabisQuality.valueOf(tag.getString("Quality")); }
         catch (IllegalArgumentException e) { baseQuality = CannabisQuality.GUT; }
         solventCount = tag.getInt("SolventCount");
-        extractionProgress = tag.getInt("ExtractionProgress");
+        startDayTime = tag.contains("StartDayTime") ? tag.getLong("StartDayTime") : -1L;
         isExtracting = tag.getBoolean("IsExtracting");
         outputItem = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
     }

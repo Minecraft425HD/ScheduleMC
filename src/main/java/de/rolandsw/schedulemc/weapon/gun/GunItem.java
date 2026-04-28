@@ -225,7 +225,6 @@ public abstract class GunItem extends Item {
             String name = switch (attachment.getType()) {
                 case SCOPE -> "Visier";
                 case SILENCER -> "Schalldämpfer";
-                case LASER -> "Laser";
             };
             player.displayClientMessage(Component.literal("§a" + name + " montiert!"), true);
         }
@@ -320,11 +319,7 @@ public abstract class GunItem extends Item {
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 WeaponSounds.GUN_SHOT.get(), SoundSource.PLAYERS, volume, 1.0F);
 
-        if (level instanceof ServerLevel server) {
-            server.sendParticles(WeaponParticles.MUZZLE_FLASH.get(),
-                    player.getX() + lookVec.x, player.getEyeY() + lookVec.y,
-                    player.getZ() + lookVec.z, 3, 0.05, 0.05, 0.05, 0);
-        }
+        // Muzzle flash particles disabled
     }
 
     public boolean canShoot(ItemStack stack, Player player) {
@@ -425,7 +420,6 @@ public abstract class GunItem extends Item {
                 .map(a -> switch (a.getType()) {
                     case SCOPE -> "Visier";
                     case SILENCER -> "Schalldämpfer";
-                    case LASER -> "Laser";
                 })
                 .collect(Collectors.joining(", "));
             tooltip.add(Component.literal("§7Zubehör: §d" + names));

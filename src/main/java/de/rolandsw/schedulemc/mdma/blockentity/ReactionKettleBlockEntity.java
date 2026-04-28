@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private boolean lastActiveState = false;
+    private long lastGameTime = -1L;
 
     private static final int SYNTHESIS_TIME = 1000; // 50 Sekunden
     private static final int CAPACITY = 8;
@@ -63,9 +64,15 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (safrolCount > 0 && outputCount == 0) {
             isActive = true;  // NOPMD
-            synthesisProgress = Math.min(synthesisProgress + 1, SYNTHESIS_TIME);
+            int prevProgress = synthesisProgress;
+            synthesisProgress = Math.min(synthesisProgress + (int) ticksPassed, SYNTHESIS_TIME);
 
             if (synthesisProgress >= SYNTHESIS_TIME) {
                 // Synthese abgeschlossen - Qualität basiert auf Menge
@@ -83,7 +90,7 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
 
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            } else if (synthesisProgress % 40 == 0) {
+            } else if (synthesisProgress / 40 > prevProgress / 40) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -119,6 +126,7 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
         tag.putInt("Output", outputCount);
         tag.putString("Quality", outputQuality.name());
         tag.putBoolean("Active", isActive);
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -127,6 +135,7 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
         safrolCount = tag.getInt("Safrol");
         synthesisProgress = tag.getInt("Progress");
         outputCount = tag.getInt("Output");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try {
                 outputQuality = MDMAQuality.valueOf(tag.getString("Quality"));

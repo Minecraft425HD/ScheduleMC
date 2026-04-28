@@ -34,6 +34,7 @@ import java.util.UUID;
 public class ReductionKettleBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private boolean lastActiveState = false;
+    private long lastGameTime = -1L;
 
     // Temperatur-Konstanten
     public static final int TEMP_MIN = 20;          // Raumtemperatur
@@ -145,6 +146,10 @@ public class ReductionKettleBlockEntity extends BlockEntity implements IUtilityC
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+
         boolean changed = false;
 
         // Temperatur-Update
@@ -182,7 +187,7 @@ public class ReductionKettleBlockEntity extends BlockEntity implements IUtilityC
             // Prüfe ob Temperatur hoch genug ist
             if (currentTemperature >= TEMP_OPTIMAL_MIN) {
                 isProcessing = true;
-                processProgress = Math.min(processProgress + 1, PROCESS_TIME);
+                processProgress = Math.min(processProgress + (int) ticksPassed, PROCESS_TIME);
 
                 // Zähle Zeit in verschiedenen Temperaturzonen
                 if (currentTemperature <= TEMP_OPTIMAL_MAX) {
@@ -398,6 +403,7 @@ public class ReductionKettleBlockEntity extends BlockEntity implements IUtilityC
         tag.putInt("Progress", processProgress);
         tag.putInt("OptimalTime", optimalTimeTicks);
         tag.putInt("DangerTime", dangerTimeTicks);
+        tag.putLong("LastGameTime", lastGameTime);
 
         if (!inputItem.isEmpty()) {
             CompoundTag inputTag = new CompoundTag();
@@ -427,6 +433,7 @@ public class ReductionKettleBlockEntity extends BlockEntity implements IUtilityC
         processProgress = tag.getInt("Progress");
         optimalTimeTicks = tag.getInt("OptimalTime");
         dangerTimeTicks = tag.getInt("DangerTime");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
 
         inputItem = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputItem = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;

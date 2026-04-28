@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.client.screen.apps;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.network.PlotNetworkHandler;
@@ -56,8 +57,8 @@ public class PlotAppScreen extends Screen {
     private int scrollOffset = 0;
     private int maxScroll = 0;
     private static final int SCROLL_SPEED = 15;
-    private static final int CONTENT_HEIGHT = 160; // Sichtbarer Bereich
-    private static final long DATA_REFRESH_INTERVAL_MS = 1000L;
+    private static final int CONTENT_HEIGHT = 125; // Sichtbarer Bereich (HEIGHT - 55 Tabs - 60 Buttons)
+    private static final long DATA_REFRESH_INTERVAL_MS = 250L;
 
     private int leftPos;
     private int topPos;
@@ -68,6 +69,20 @@ public class PlotAppScreen extends Screen {
     private PlotUtilityData utilityData;
     private List<PlotRegion> availablePlots;
     private List<PlotRegion> myPlots;
+
+    // OPTIMIERT: Utility-Daten für myPlots gecacht, um per-Frame PlotUtilityManager.getPlotData()-Lookups zu vermeiden
+    private java.util.Map<String, PlotUtilityData> cachedUtilityByPlot = new java.util.HashMap<>();
+
+    // OPTIMIERT: Aggregierte Finanz-Werte in refreshData() berechnet statt per Frame
+    private double cachedTotalElectricity;
+    private double cachedTotalWater;
+    private double cachedTotalOutstandingBills;
+    private boolean cachedHasWarnings;
+    private boolean cachedHasUtilityCutoff;
+
+    // Config-Preise (aus ModConfigHandler, in refreshData() aktualisiert)
+    private double electricityPricePerKwh;
+    private double waterPricePerLiter;
 
     // OPTIMIERT: Wiederverwendbare Arrays statt Allokation pro Frame in renderFinanceTab()
     private final double[] totalDailyElec = new double[7];
@@ -115,6 +130,16 @@ public class PlotAppScreen extends Screen {
     private String cachedHistory7day;
     private String[] cachedDayLabels;
     private String cachedPrices;
+    // Währungssymbol (locale-abhängig: "€" für de_de, "$" für en_us)
+    private String cachedCurrencySymbol;
+    // Neue Übersetzungsschlüssel für vormals hardcodierte Strings
+    private String cachedPayBills;
+    private String cachedAutoPayOn;
+    private String cachedAutoPayOff;
+    private String cachedUtilityCutoff;
+    private String cachedDueToday;
+    private String cachedOutstandingFmt;
+    private String cachedBillDetailFmt;
 
     // Tab-1 action buttons (buy/rent on current plot)
     private Button buyButton;
@@ -135,6 +160,9 @@ public class PlotAppScreen extends Screen {
 
         // Positioniere oben mit Margin
         this.topPos = MARGIN_TOP;
+
+        // Währungssymbol zuerst initialisieren, da refreshData() es bereits nutzt
+        cachedCurrencySymbol = Component.translatable("format.currency").getString();
 
         // Cache data
         refreshData();
@@ -193,7 +221,14 @@ public class PlotAppScreen extends Screen {
             Component.translatable("gui.app.plot.days_ago_5").getString(),
             Component.translatable("gui.app.plot.days_ago_6").getString()
         };
-        cachedPrices = Component.translatable("gui.app.plot.prices").getString();
+        cachedPayBills = Component.translatable("gui.app.plot.button.pay_bills").getString();
+        cachedAutoPayOn = Component.translatable("gui.app.plot.button.autopay_on").getString();
+        cachedAutoPayOff = Component.translatable("gui.app.plot.button.autopay_off").getString();
+        cachedUtilityCutoff = Component.translatable("gui.app.plot.utility_cutoff").getString();
+        cachedDueToday = Component.translatable("gui.app.plot.due_today").getString();
+        cachedOutstandingFmt = Component.translatable("gui.app.plot.outstanding_fmt").getString();
+        cachedBillDetailFmt = Component.translatable("gui.app.plot.bill_detail_fmt").getString();
+        // cachedPrices wird dynamisch in refreshData() aus Config-Werten gebaut
 
         // Tab-Buttons
         for (int i = 0; i < getTabNames().length; i++) {
@@ -243,17 +278,9 @@ public class PlotAppScreen extends Screen {
             }
         ).bounds(leftPos + 105, topPos + HEIGHT - 55, 85, 18).build());
 
-        payBillsButton = addRenderableWidget(Button.builder(
-            Component.literal("Rechnungen zahlen"),
-            button -> {
-                PlotNetworkHandler.sendToServer(PlotUtilityBillingPacket.payAll());
-                refreshData();
-                updateButtonVisibility();
-            }
-        ).bounds(leftPos + 10, topPos + HEIGHT - 55, 85, 18).build());
-
+        // AutoPay-Toggle links (schmaler), Rechnungen zahlen rechts (breiter als primäre Aktion)
         autoPayButton = addRenderableWidget(Button.builder(
-            Component.literal("AutoPay: AUS"),
+            Component.translatable("gui.app.plot.button.autopay_off"),
             button -> {
                 if (minecraft == null || minecraft.player == null) {
                     return;
@@ -263,13 +290,23 @@ public class PlotAppScreen extends Screen {
                 refreshData();
                 updateButtonVisibility();
             }
-        ).bounds(leftPos + 105, topPos + HEIGHT - 55, 85, 18).build());
+        ).bounds(leftPos + 10, topPos + HEIGHT - 55, 75, 18).build());
+
+        payBillsButton = addRenderableWidget(Button.builder(
+            Component.translatable("gui.app.plot.button.pay_bills"),
+            button -> {
+                PlotNetworkHandler.sendToServer(PlotUtilityBillingPacket.payAll());
+                refreshData();
+                updateButtonVisibility();
+            }
+        ).bounds(leftPos + 90, topPos + HEIGHT - 55, 100, 18).build());
 
         updateButtonVisibility();
     }
 
     /**
-     * Aktualisiert gecachte Daten
+     * Aktualisiert gecachte Daten (wird max. 1x/Sekunde aufgerufen).
+     * OPTIMIERT: Alle teuren Lookups hier gebündelt statt per Frame.
      */
     private void refreshData() {
         Minecraft mc = Minecraft.getInstance();
@@ -277,6 +314,12 @@ public class PlotAppScreen extends Screen {
 
         BlockPos playerPos = mc.player.blockPosition();
         String playerUUID = mc.player.getUUID().toString();
+
+        // Config-Preise (aus gemeinsamer COMMON-Config, auf Client verfügbar)
+        electricityPricePerKwh = ModConfigHandler.COMMON.UTILITY_ELECTRICITY_PRICE_PER_KWH.get();
+        waterPricePerLiter = ModConfigHandler.COMMON.UTILITY_WATER_PRICE_PER_LITER.get();
+        cachedPrices = String.format("§8%.2f%s/kWh, %.2f%s/100L",
+            electricityPricePerKwh, cachedCurrencySymbol, waterPricePerLiter * 100, cachedCurrencySymbol);
 
         // Aktueller Plot
         currentPlot = PlotManager.getPlotAt(playerPos);
@@ -302,6 +345,32 @@ public class PlotAppScreen extends Screen {
                 myPlots.add(plot);
             }
         }
+
+        // OPTIMIERT: Utility-Daten und Finanz-Aggregate einmalig cachen
+        cachedUtilityByPlot.clear();
+        cachedTotalElectricity = 0;
+        cachedTotalWater = 0;
+        cachedTotalOutstandingBills = 0;
+        cachedHasWarnings = false;
+        cachedHasUtilityCutoff = false;
+
+        for (PlotRegion plot : myPlots) {
+            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
+            if (dataOpt.isPresent()) {
+                PlotUtilityData data = dataOpt.get();
+                cachedUtilityByPlot.put(plot.getPlotId(), data);
+                cachedTotalElectricity += data.getCurrentElectricity();
+                cachedTotalWater += data.getCurrentWater();
+                cachedTotalOutstandingBills += data.getOutstandingBill();
+                if (!data.isUtilitiesEnabled()) {
+                    cachedHasUtilityCutoff = true;
+                }
+                if (data.getCurrentElectricity() > 100 || data.getCurrentWater() > 500 || data.getOutstandingBill() > 0) {
+                    cachedHasWarnings = true;
+                }
+            }
+        }
+
         lastRefreshMs = System.currentTimeMillis();
     }
 
@@ -322,7 +391,7 @@ public class PlotAppScreen extends Screen {
         autoPayButton.visible = onTab3 && !myPlots.isEmpty();
         if (minecraft != null && minecraft.player != null) {
             boolean autoPayEnabled = PlotUtilityManager.isAutoPayEnabledForOwner(minecraft.player.getUUID());
-            autoPayButton.setMessage(Component.literal(autoPayEnabled ? "AutoPay: AN" : "AutoPay: AUS"));
+            autoPayButton.setMessage(Component.literal(autoPayEnabled ? cachedAutoPayOn : cachedAutoPayOff));
         }
     }
 
@@ -353,9 +422,9 @@ public class PlotAppScreen extends Screen {
             }
         }
 
-        // Content-Bereich (mit Clipping simuliert)
+        // Content-Bereich: endet 60px vom unteren Rand, damit Text die Buttons (bei -55) nicht überlappt
         int contentY = topPos + 55;
-        int contentEndY = topPos + HEIGHT - 40;
+        int contentEndY = topPos + HEIGHT - 60;
 
         // Render Tab-Content
         switch (currentTab) {
@@ -364,6 +433,16 @@ public class PlotAppScreen extends Screen {
             case 2 -> renderMyPlotsTab(guiGraphics, contentY, contentEndY);
             case 3 -> renderFinanceTab(guiGraphics, contentY, contentEndY);
             default -> {}
+        }
+
+        // Gradient-Fade am unteren Content-Rand: blendet scrollenden Text sanft aus
+        // (verhindert, dass Text über die Buttons läuft)
+        final int FADE_HEIGHT = 15;
+        for (int fi = 0; fi < FADE_HEIGHT; fi++) {
+            int alpha = (255 * fi / FADE_HEIGHT) << 24;
+            guiGraphics.fill(leftPos, contentEndY - FADE_HEIGHT + fi,
+                leftPos + WIDTH, contentEndY - FADE_HEIGHT + fi + 1,
+                alpha | 0x2A2A2A);
         }
 
         // Scroll-Indikator
@@ -460,7 +539,7 @@ public class PlotAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44228B22);
                 guiGraphics.drawString(this.font, cachedForSale, leftPos + 15, y + 3, 0x00FF00);
-                guiGraphics.drawString(this.font, cachedPriceLabel + String.format("%.0f", currentPlot.getPrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedPriceLabel + String.format("%.0f", currentPlot.getPrice()) + cachedCurrencySymbol, leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
@@ -468,7 +547,7 @@ public class PlotAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44228B22);
                 guiGraphics.drawString(this.font, cachedForSale, leftPos + 15, y + 3, 0x00FF00);
-                guiGraphics.drawString(this.font, cachedPriceLabel + String.format("%.0f", currentPlot.getSalePrice()) + "€", leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedPriceLabel + String.format("%.0f", currentPlot.getSalePrice()) + cachedCurrencySymbol, leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
@@ -476,7 +555,7 @@ public class PlotAppScreen extends Screen {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x44C71585);
                 guiGraphics.drawString(this.font, cachedForRent, leftPos + 15, y + 3, 0xFF00FF);
-                guiGraphics.drawString(this.font, cachedRentPriceLabel + String.format("%.0f", currentPlot.getRentPricePerDay()) + "€" + cachedPerDay, leftPos + 15, y + 14, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedRentPriceLabel + String.format("%.0f", currentPlot.getRentPricePerDay()) + cachedCurrencySymbol + cachedPerDay, leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
             contentHeight += 30;
@@ -580,13 +659,13 @@ public class PlotAppScreen extends Screen {
                 String price;
                 if (!plot.hasOwner()) {
                     status = cachedBuyLabel;
-                    price = String.format("%.0f€", plot.getPrice());
+                    price = String.format("%.0f", plot.getPrice()) + cachedCurrencySymbol;
                 } else if (plot.isForSale()) {
                     status = cachedBuyLabel;
-                    price = String.format("%.0f€", plot.getSalePrice());
+                    price = String.format("%.0f", plot.getSalePrice()) + cachedCurrencySymbol;
                 } else {
                     status = cachedRentLabel;
-                    price = String.format("%.0f€", plot.getRentPricePerDay()) + cachedPerDay;
+                    price = String.format("%.0f", plot.getRentPricePerDay()) + cachedCurrencySymbol + cachedPerDay;
                 }
 
                 guiGraphics.drawString(this.font, status, leftPos + 15, y + 14, 0xFFFFFF);
@@ -636,10 +715,9 @@ public class PlotAppScreen extends Screen {
                 }
                 guiGraphics.drawString(this.font, "§6§l" + plotName, leftPos + 15, y + 3, 0xFFAA00);
 
-                // Utility-Verbrauch
-                Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
-                if (dataOpt.isPresent()) {
-                    PlotUtilityData data = dataOpt.get();
+                // Utility-Verbrauch — OPTIMIERT: cachedUtilityByPlot statt getPlotData() per Frame
+                PlotUtilityData data = cachedUtilityByPlot.get(plot.getPlotId());
+                if (data != null) {
                     guiGraphics.drawString(this.font, "§e⚡ " + PlotUtilityManager.formatElectricity(data.getCurrentElectricity()), leftPos + 15, y + 15, 0xFFFFFF);
                     guiGraphics.drawString(this.font, "§b💧 " + PlotUtilityManager.formatWater(data.getCurrentWater()), leftPos + 100, y + 15, 0xFFFFFF);
                 }
@@ -651,8 +729,8 @@ public class PlotAppScreen extends Screen {
                 guiGraphics.drawString(this.font, status, leftPos + 15, y + 27, 0xFFFFFF);
 
                 // Geräte-Anzahl
-                if (dataOpt.isPresent()) {
-                    guiGraphics.drawString(this.font, "§8" + dataOpt.get().getConsumerCount() + cachedDevicesCount, leftPos + 100, y + 27, 0x666666);
+                if (data != null) {
+                    guiGraphics.drawString(this.font, "§8" + data.getConsumerCount() + cachedDevicesCount, leftPos + 100, y + 27, 0x666666);
                 }
             }
             y += 50;
@@ -666,10 +744,6 @@ public class PlotAppScreen extends Screen {
     // TAB 4: FINANZEN
     // ═══════════════════════════════════════════════════════════════════════════
 
-    // Preiskonstanten (pro Einheit)
-    private static final double ELECTRICITY_PRICE_PER_KWH = 0.35; // €/kWh
-    private static final double WATER_PRICE_PER_LITER = 0.005; // €/L
-
     private void renderFinanceTab(GuiGraphics guiGraphics, int startY, int endY) {
         int y = startY - scrollOffset;
         int contentHeight = 0;
@@ -677,41 +751,19 @@ public class PlotAppScreen extends Screen {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
+        // OPTIMIERT: Aggregate aus refreshData() — kein Per-Frame-Looping mehr
+        double totalElectricity = cachedTotalElectricity;
+        double totalWater = cachedTotalWater;
+        double totalOutstandingBills = cachedTotalOutstandingBills;
+
         // ═══════════════════════════════════════════════════════════════════════════
         // MAHNUNGEN / WARNUNGEN
         // ═══════════════════════════════════════════════════════════════════════════
-        boolean hasWarnings = false;
-        boolean hasUtilityCutoff = false;
-        double totalElectricity = 0;
-        double totalWater = 0;
-        double totalOutstandingBills = 0;
-
-        for (PlotRegion plot : myPlots) {
-            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
-            if (dataOpt.isPresent()) {
-                PlotUtilityData data = dataOpt.get();
-                totalElectricity += data.getCurrentElectricity();
-                totalWater += data.getCurrentWater();
-                totalOutstandingBills += data.getOutstandingBill();
-                if (!data.isUtilitiesEnabled()) {
-                    hasUtilityCutoff = true;
-                }
-
-                // Warnung bei hohem Verbrauch (>100 kWh oder >500 L)
-                if (data.getCurrentElectricity() > 100 || data.getCurrentWater() > 500 || data.getOutstandingBill() > 0) {
-                    hasWarnings = true;
-                }
-            }
-        }
-
-        // Warnungs-Bereich
-        if (hasWarnings) {
+        if (cachedHasWarnings) {
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 25, 0x66AA0000);
                 guiGraphics.drawString(this.font, cachedWarning, leftPos + 15, y + 3, 0xFF5555);
-                String warningText = hasUtilityCutoff
-                    ? "§cStrom/Wasser gesperrt (28+ Tage unbezahlt)"
-                    : cachedHighConsumption;
+                String warningText = cachedHasUtilityCutoff ? cachedUtilityCutoff : cachedHighConsumption;
                 guiGraphics.drawString(this.font, warningText, leftPos + 15, y + 14, 0xFFFFFF);
             }
             y += 30;
@@ -734,40 +786,40 @@ public class PlotAppScreen extends Screen {
             y += 15;
             contentHeight += 15;
         } else {
-            // Berechne Gesamtkosten (heutiger Verbrauch)
-            double totalElecCost = totalElectricity * ELECTRICITY_PRICE_PER_KWH;
-            double totalWaterCost = totalWater * WATER_PRICE_PER_LITER;
+            // Gesamtkosten mit Config-Preisen
+            double totalElecCost = totalElectricity * electricityPricePerKwh;
+            double totalWaterCost = totalWater * waterPricePerLiter;
             double totalCost = totalElecCost + totalWaterCost;
 
             // Gesamt-Box
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 50, 0x44333333);
-                guiGraphics.drawString(this.font, "Heute fällig", leftPos + 15, y + 3, 0xFFFFFF);
+                guiGraphics.drawString(this.font, cachedDueToday, leftPos + 15, y + 3, 0xFFFFFF);
 
                 // Strom
                 guiGraphics.drawString(this.font, "§e⚡ " + PlotUtilityManager.formatElectricity(totalElectricity), leftPos + 15, y + 15, 0xFFFFFF);
-                guiGraphics.drawString(this.font, String.format("§a%.2f€", totalElecCost), leftPos + 130, y + 15, 0x55FF55);
+                guiGraphics.drawString(this.font, String.format("§a%.2f", totalElecCost) + cachedCurrencySymbol, leftPos + 130, y + 15, 0x55FF55);
 
                 // Wasser
                 guiGraphics.drawString(this.font, "§b💧 " + PlotUtilityManager.formatWater(totalWater), leftPos + 15, y + 27, 0xFFFFFF);
-                guiGraphics.drawString(this.font, String.format("§a%.2f€", totalWaterCost), leftPos + 130, y + 27, 0x55FF55);
+                guiGraphics.drawString(this.font, String.format("§a%.2f", totalWaterCost) + cachedCurrencySymbol, leftPos + 130, y + 27, 0x55FF55);
 
                 // Gesamtsumme
                 guiGraphics.fill(leftPos + 15, y + 38, leftPos + WIDTH - 15, y + 39, 0x44FFFFFF);
                 guiGraphics.drawString(this.font, cachedSum, leftPos + 15, y + 41, 0xFFFFFF);
-                guiGraphics.drawString(this.font, String.format("§e§l%.2f€", totalCost), leftPos + 100, y + 41, 0xFFAA00);
+                guiGraphics.drawString(this.font, String.format("§e§l%.2f", totalCost) + cachedCurrencySymbol, leftPos + 100, y + 41, 0xFFAA00);
             }
             y += 55;
             contentHeight += 55;
 
             if (y >= startY - 10 && y < endY) {
-                guiGraphics.drawString(this.font, String.format("§cOffene Rechnungen: %.2f€", totalOutstandingBills),
+                guiGraphics.drawString(this.font, String.format(cachedOutstandingFmt, totalOutstandingBills),
                     leftPos + 15, y, 0xFF5555);
             }
             y += 12;
             contentHeight += 12;
 
-            // Pro-Plot Aufschlüsselung
+            // Pro-Plot Aufschlüsselung — OPTIMIERT: nutzt cachedUtilityByPlot statt getPlotData() per Frame
             if (y >= startY - 10 && y < endY) {
                 guiGraphics.drawString(this.font, cachedPerProperty, leftPos + 15, y, 0x888888);
             }
@@ -775,11 +827,10 @@ public class PlotAppScreen extends Screen {
             contentHeight += 12;
 
             for (PlotRegion plot : myPlots) {
-                Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
-                PlotUtilityData data = dataOpt.orElse(null);
+                PlotUtilityData data = cachedUtilityByPlot.get(plot.getPlotId());
                 double elec = data != null ? data.getCurrentElectricity() : 0.0;
                 double water = data != null ? data.getCurrentWater() : 0.0;
-                double cost = (elec * ELECTRICITY_PRICE_PER_KWH) + (water * WATER_PRICE_PER_LITER);
+                double cost = (elec * electricityPricePerKwh) + (water * waterPricePerLiter);
                 double outstanding = data != null ? data.getOutstandingBill() : 0.0;
                 int unpaidDays = data != null ? data.getUnpaidDays() : 0;
 
@@ -790,12 +841,12 @@ public class PlotAppScreen extends Screen {
                         plotName = cachedUnnamed;
                     }
                     guiGraphics.drawString(this.font, "§7" + plotName, leftPos + 15, y + 3, 0xAAAAAA);
-                    guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 140, y + 3, 0xFFAA00);
+                    guiGraphics.drawString(this.font, String.format("§e%.2f", cost) + cachedCurrencySymbol, leftPos + 140, y + 3, 0xFFAA00);
                     guiGraphics.drawString(this.font, Component.translatable("ui.plot.utility_display",
                         String.format("%.0f", elec),
                         String.format("%.0f", water)).getString(), leftPos + 15, y + 14, 0x666666);
                     guiGraphics.drawString(this.font,
-                        String.format("§cOffen: %.2f€  §8(%d Tage)", outstanding, unpaidDays),
+                        String.format(cachedBillDetailFmt, outstanding, unpaidDays),
                         leftPos + 15, y + 24, 0xAA6666);
                 }
                 y += 37;
@@ -804,7 +855,7 @@ public class PlotAppScreen extends Screen {
         }
 
         // ═══════════════════════════════════════════════════════════════════════════
-        // 7-TAGE VERLAUF
+        // 7-TAGE VERLAUF — OPTIMIERT: cachedUtilityByPlot statt getPlotData() per Frame
         // ═══════════════════════════════════════════════════════════════════════════
         y += 5;
         contentHeight += 5;
@@ -821,36 +872,31 @@ public class PlotAppScreen extends Screen {
         y += 15;
         contentHeight += 15;
 
-        // OPTIMIERT: Wiederverwendbare Instance-Arrays statt new double[7] pro Frame
+        // Wiederverwendbare Instance-Arrays zurücksetzen
         java.util.Arrays.fill(totalDailyElec, 0.0);
         java.util.Arrays.fill(totalDailyWater, 0.0);
 
-        for (PlotRegion plot : myPlots) {
-            Optional<PlotUtilityData> dataOpt = PlotUtilityManager.getPlotData(plot.getPlotId());
-            if (dataOpt.isPresent()) {
-                PlotUtilityData data = dataOpt.get();
-                double[] dailyElec = data.getDailyElectricity();
-                double[] dailyWater = data.getDailyWater();
-                for (int i = 0; i < 7; i++) {
-                    totalDailyElec[i] += dailyElec[i];
-                    totalDailyWater[i] += dailyWater[i];
-                }
+        for (PlotUtilityData data : cachedUtilityByPlot.values()) {
+            double[] dailyElec = data.getDailyElectricity();
+            double[] dailyWater = data.getDailyWater();
+            for (int i = 0; i < 7; i++) {
+                totalDailyElec[i] += dailyElec[i];
+                totalDailyWater[i] += dailyWater[i];
             }
         }
 
-        // Tages-Anzeige (0 = Heute, 6 = Vor 6 Tagen) - uses cached day labels
+        // Tages-Anzeige (0 = Heute, 6 = Vor 6 Tagen)
         for (int i = 0; i < 7; i++) {
             double elec = totalDailyElec[i];
             double water = totalDailyWater[i];
-            double cost = (elec * ELECTRICITY_PRICE_PER_KWH) + (water * WATER_PRICE_PER_LITER);
+            double cost = (elec * electricityPricePerKwh) + (water * waterPricePerLiter);
 
             if (y >= startY - 15 && y < endY) {
-                // Hintergrund für jeden Tag
                 int bgColor = (i == 0) ? 0x44228B22 : 0x22333333;
                 guiGraphics.fill(leftPos + 10, y, leftPos + WIDTH - 10, y + 14, bgColor);
 
                 guiGraphics.drawString(this.font, "§7" + cachedDayLabels[i], leftPos + 15, y + 3, 0xAAAAAA);
-                guiGraphics.drawString(this.font, String.format("§e%.2f€", cost), leftPos + 80, y + 3, 0xFFAA00);
+                guiGraphics.drawString(this.font, String.format("§e%.2f", cost) + cachedCurrencySymbol, leftPos + 80, y + 3, 0xFFAA00);
                 guiGraphics.drawString(this.font, String.format("§8%.0fkWh", elec), leftPos + 130, y + 3, 0x666666);
             }
             y += 16;
@@ -858,7 +904,7 @@ public class PlotAppScreen extends Screen {
         }
 
         // ═══════════════════════════════════════════════════════════════════════════
-        // HINWEIS
+        // PREISHINWEIS (dynamisch aus Config)
         // ═══════════════════════════════════════════════════════════════════════════
         y += 10;
         contentHeight += 10;

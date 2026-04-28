@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "schedulemc:block/fan_tier3" },
+    "facing=south": { "model": "schedulemc:block/fan_tier3", "y": 180 },
+    "facing=west":  { "model": "schedulemc:block/fan_tier3", "y": 270 },
+    "facing=east":  { "model": "schedulemc:block/fan_tier3", "y": 90 }
+  }
+}

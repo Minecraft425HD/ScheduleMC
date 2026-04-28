@@ -54,49 +54,11 @@ public class CuringJarBlock extends BaseEntityBlock {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
-
-        BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof CuringJarBlockEntity glas)) return InteractionResult.PASS;
-
-        ItemStack heldItem = player.getItemInHand(hand);
-
-        // Getrimmte Buds hinzufügen (bis zu MAX_WEIGHT g, gleiche Sorte/Qualität)
-        if (heldItem.getItem() instanceof TrimmedBudItem) {
-            if (glas.addTrimmedBud(heldItem)) {
-                if (!player.isCreative()) {
-                    heldItem.shrink(1);
-                }
-                player.displayClientMessage(Component.translatable("block.curing_glas.buds_added"), true);
-                return InteractionResult.CONSUME;
-            }
-        }
-
-        // Gecurte Buds entnehmen (Shift+Click), jedes Gramm als eigenes Item
-        if (glas.hasContent() && heldItem.isEmpty() && player.isShiftKeyDown()) {
-            ItemStack cured = glas.extractCuredBud();
-            if (!cured.isEmpty()) {
-                while (!cured.isEmpty()) {
-                    ItemStack gram = cured.split(1);
-                    if (!player.addItem(gram)) Block.popResource(level, glas.getBlockPos(), gram);
-                }
-                if (glas.isOptimallyCured()) {
-                    player.displayClientMessage(Component.translatable("block.curing_glas.perfect_buds"), true);
-                } else if (glas.isReadyForExtraction()) {
-                    player.displayClientMessage(Component.translatable("block.curing_glas.cured_buds"), true);
-                } else {
-                    player.displayClientMessage(Component.translatable("block.curing_glas.early_removal"), true);
-                }
-                return InteractionResult.CONSUME;
-            }
-        }
-
-        // GUI öffnen (leere Hand, normaler Rechtsklick)
-        if (heldItem.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+        if (!(level.getBlockEntity(pos) instanceof CuringJarBlockEntity glas)) return InteractionResult.PASS;
+        if (player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openScreen(serverPlayer, new CuringJarMenu.Provider(glas), glas.getBlockPos());
-            return InteractionResult.CONSUME;
         }
-
-        return InteractionResult.SUCCESS;
+        return InteractionResult.CONSUME;
     }
 
     @Override

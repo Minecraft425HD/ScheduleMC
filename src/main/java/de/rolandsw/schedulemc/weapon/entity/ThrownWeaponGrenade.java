@@ -1,9 +1,9 @@
 package de.rolandsw.schedulemc.weapon.entity;
 
+import de.rolandsw.schedulemc.util.SmokeEmitter;
 import de.rolandsw.schedulemc.weapon.grenade.GrenadeType;
 import de.rolandsw.schedulemc.weapon.item.WeaponItems;
 import de.rolandsw.schedulemc.weapon.sound.WeaponSounds;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -26,6 +26,11 @@ import net.minecraftforge.network.NetworkHooks;
 public class ThrownWeaponGrenade extends ThrowableItemProjectile {
     private static final EntityDataAccessor<Integer> GRENADE_TYPE =
             SynchedEntityData.defineId(ThrownWeaponGrenade.class, EntityDataSerializers.INT);
+
+    // Smoke-Granate: Partikel werden gestaffelt über SMOKE_BATCHES Ticks emittiert,
+    // um den Spawn-Spike zu vermeiden. smokeBatch = -1 bedeutet inaktiv.
+    private int    smokeBatch   = -1;
+    private double smokeOriginX, smokeOriginY, smokeOriginZ;
 
     public ThrownWeaponGrenade(EntityType<? extends ThrowableItemProjectile> type, Level level) {
         super(type, level);
@@ -58,31 +63,52 @@ public class ThrownWeaponGrenade extends ThrowableItemProjectile {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        // Gestaffelte Rauch-Emission: pro Tick ein Batch, nach SMOKE_BATCHES Ticks discard.
+        if (smokeBatch >= 0 && !this.level().isClientSide
+                && this.level() instanceof ServerLevel server) {
+            SmokeEmitter.emitGrenadeSmokeBatch(server, smokeOriginX, smokeOriginY, smokeOriginZ, smokeBatch);
+            smokeBatch++;
+            if (smokeBatch >= SmokeEmitter.SMOKE_BATCHES) {
+                this.discard();
+            }
+        }
+    }
+
+    @Override
     protected void onHit(HitResult result) {
         super.onHit(result);
         if (!this.level().isClientSide) {
             GrenadeType type = getGrenadeType();
             switch (type) {
-                case FRAG -> explode();
-                case SMOKE -> spawnSmoke();
-                case FLASH -> flash();
-                default -> { /* unknown type: no action */ }
+                case FRAG -> { explode(); this.discard(); }
+                case SMOKE -> beginSmokeEmission();   // kein discard — tick() übernimmt das
+                case FLASH -> { flash();   this.discard(); }
+                default    -> this.discard();
             }
-            this.discard();
         }
         this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
                 WeaponSounds.GRENADE_EXPLODE.get(), net.minecraft.sounds.SoundSource.PLAYERS, 2.0F, 1.0F);
     }
 
-    private void explode() {
-        this.level().explode(this, this.getX(), this.getY(), this.getZ(), 3.0F, true, Level.ExplosionInteraction.MOB);
+    /**
+     * Startet die gestaffelte Rauch-Emission.
+     * Speichert die Aufschlagposition und aktiviert den Tick-Zähler.
+     * onHit() gibt danach die Kontrolle ab — tick() emittiert Batch für Batch.
+     */
+    private void beginSmokeEmission() {
+        if (smokeBatch >= 0) return;  // Doppel-Aufruf verhindern
+        smokeOriginX = this.getX();
+        smokeOriginY = this.getY();
+        smokeOriginZ = this.getZ();
+        smokeBatch = 0;
+        // Granate einfrieren — keine weitere Bewegung nach Aufprall
+        this.setDeltaMovement(0, 0, 0);
     }
 
-    private void spawnSmoke() {
-        if (this.level() instanceof ServerLevel server) {
-            server.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                    this.getX(), this.getY(), this.getZ(), 200, 2, 2, 2, 0.05);
-        }
+    private void explode() {
+        this.level().explode(this, this.getX(), this.getY(), this.getZ(), 3.0F, true, Level.ExplosionInteraction.MOB);
     }
 
     private void flash() {

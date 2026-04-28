@@ -48,6 +48,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
     private ItemStack capStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int bottlingProgress = 0;
+    private long lastGameTime = -1L;
 
     private BeerType beerType;
     private BeerQuality quality;
@@ -87,7 +88,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
                     return stack.getItem() == BeerItems.BOTTLE_CAP.get() ||
                            stack.getItem() == BeerItems.CROWN_CAP.get();
                 }
-                return slot == 3;
+                return false; // output slot not insertable
             }
 
             @Override
@@ -216,9 +217,15 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         boolean changed = false;
 
         // Check if we have all required inputs and empty output
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!beerSource.isEmpty() && !containerStack.isEmpty() && !capStack.isEmpty() && outputStack.isEmpty()) {
             int totalTime = getTotalBottlingTime();
-            bottlingProgress = Math.min(bottlingProgress + 1, totalTime);
+            int prevProgress = bottlingProgress;
+            bottlingProgress = Math.min(bottlingProgress + (int) ticksPassed, totalTime);
 
             if (bottlingProgress >= totalTime) {
                 // Bottling complete: Create final beer bottle with all NBT data
@@ -240,7 +247,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
                 changed = true;
             }
 
-            if (bottlingProgress % 20 == 0) changed = true;
+            if (bottlingProgress / 20 > prevProgress / 20) changed = true;
         } else {
             if (bottlingProgress > 0) {
                 bottlingProgress = 0;
@@ -283,6 +290,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         if (!capStack.isEmpty()) tag.put("Cap", capStack.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("BottlingProgress", bottlingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         if (beerType != null) tag.putString("BeerType", beerType.name());
         if (quality != null) tag.putString("Quality", quality.name());
         if (ageLevel != null) tag.putString("AgeLevel", ageLevel.name());
@@ -301,6 +309,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         capStack = tag.contains("Cap") ? ItemStack.of(tag.getCompound("Cap")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         bottlingProgress = tag.getInt("BottlingProgress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("BeerType")) {
             try { beerType = BeerType.valueOf(tag.getString("BeerType")); }
             catch (IllegalArgumentException exception) {

@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class AbstractConditioningTankBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
     private boolean lastActiveState = false;
+    private long lastGameTime = -1L;
 
     // Track aging ticks for each slot
     private int[] agingTicks;
@@ -95,6 +96,11 @@ public abstract class AbstractConditioningTankBlockEntity extends AbstractItemHa
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         boolean changed = false;
         boolean anyActive = false;
 
@@ -106,11 +112,11 @@ public abstract class AbstractConditioningTankBlockEntity extends AbstractItemHa
                                      stack.getItem() == BeerItems.CONDITIONED_BEER.get())) {
                 anyActive = true;
 
-                // Increment aging with speed multiplier
-                agingTicks[slot] += (int) Math.round(getSpeedMultiplier());
+                int prevTick = agingTicks[slot];
+                agingTicks[slot] += (int) Math.round(ticksPassed * getSpeedMultiplier());
 
                 // Update NBT with aging information every 100 ticks
-                if (agingTicks[slot] % 100 == 0) {
+                if (agingTicks[slot] / 100 > prevTick / 100) {
                     CompoundTag tag = stack.getOrCreateTag();
                     tag.putInt("AgingTicks", agingTicks[slot]);
 
@@ -185,12 +191,14 @@ public abstract class AbstractConditioningTankBlockEntity extends AbstractItemHa
             agingList.add(slotTag);
         }
         tag.put("AgingTicks", agingList);
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
         if (itemHandler == null) createItemHandler();
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
 
         itemHandler.deserializeNBT(tag.getCompound("Inventory"));
 

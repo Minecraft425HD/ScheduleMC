@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class DryingOvenBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     private boolean lastActiveState = false;
+    private long lastGameTime = -1L;
 
     private static final int DRYING_TIME = 600; // 30 Sekunden
     private static final int CAPACITY = 8;
@@ -64,9 +65,15 @@ public class DryingOvenBlockEntity extends BlockEntity implements IUtilityConsum
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (inputCount > 0 && outputCount == 0) {
             isActive = true;  // NOPMD
-            dryingProgress = Math.min(dryingProgress + 1, DRYING_TIME);
+            int prevProgress = dryingProgress;
+            dryingProgress = Math.min(dryingProgress + (int) ticksPassed, DRYING_TIME);
 
             if (dryingProgress >= DRYING_TIME) {
                 outputCount = inputCount;
@@ -76,7 +83,7 @@ public class DryingOvenBlockEntity extends BlockEntity implements IUtilityConsum
 
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            } else if (dryingProgress % 40 == 0) {
+            } else if (dryingProgress / 40 > prevProgress / 40) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -112,12 +119,14 @@ public class DryingOvenBlockEntity extends BlockEntity implements IUtilityConsum
         tag.putInt("Progress", dryingProgress);
         tag.putInt("Output", outputCount);
         tag.putBoolean("Active", isActive);
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
         inputCount = tag.getInt("Input");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try {
                 inputQuality = MDMAQuality.valueOf(tag.getString("Quality"));

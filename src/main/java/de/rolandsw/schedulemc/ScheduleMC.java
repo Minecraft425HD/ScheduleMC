@@ -51,9 +51,11 @@ import de.rolandsw.schedulemc.tobacco.blockentity.TobaccoBlockEntities;
 import de.rolandsw.schedulemc.coca.items.CocaItems;
 import de.rolandsw.schedulemc.coca.blocks.CocaBlocks;
 import de.rolandsw.schedulemc.coca.blockentity.CocaBlockEntities;
+import de.rolandsw.schedulemc.coca.menu.CocaMenuTypes;
 import de.rolandsw.schedulemc.poppy.items.PoppyItems;
 import de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks;
 import de.rolandsw.schedulemc.poppy.blockentity.PoppyBlockEntities;
+import de.rolandsw.schedulemc.poppy.menu.PoppyMenuTypes;
 import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
 import de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks;
 import de.rolandsw.schedulemc.mushroom.blockentity.MushroomBlockEntities;
@@ -205,12 +207,14 @@ public class ScheduleMC {
         CocaBlocks.BLOCKS.register(modEventBus);
         CocaBlocks.ITEMS.register(modEventBus);
         CocaBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        CocaMenuTypes.MENUS.register(modEventBus);
 
         // Mohn-System registrieren
         PoppyItems.ITEMS.register(modEventBus);
         PoppyBlocks.BLOCKS.register(modEventBus);
         PoppyBlocks.ITEMS.register(modEventBus);
         PoppyBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        PoppyMenuTypes.MENUS.register(modEventBus);
 
         // Pilz-System registrieren
         MushroomItems.ITEMS.register(modEventBus);
@@ -313,6 +317,10 @@ public class ScheduleMC {
         de.rolandsw.schedulemc.secretdoors.SecretDoors.BLOCKS.register(modEventBus);
         de.rolandsw.schedulemc.secretdoors.SecretDoors.ITEMS.register(modEventBus);
         de.rolandsw.schedulemc.secretdoors.SecretDoors.BLOCK_ENTITIES.register(modEventBus);
+
+        // Ventilator-System registrieren (Multiblock-Booster für Trocknungsgestelle)
+        de.rolandsw.schedulemc.fan.blocks.FanBlocks.BLOCKS.register(modEventBus);
+        de.rolandsw.schedulemc.fan.blocks.FanBlocks.ITEMS.register(modEventBus);
 
         // Waffen-System registrieren
         WeaponItems.ITEMS.register(modEventBus);

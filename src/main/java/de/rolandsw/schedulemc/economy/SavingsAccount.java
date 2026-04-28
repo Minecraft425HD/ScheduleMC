@@ -98,7 +98,8 @@ public class SavingsAccount {
      * Berechnet und zahlt wöchentliche Zinsen
      */
     public double calculateAndPayInterest(long currentDay) {
-        if (balance < 0.01) {
+        // Kein Zins bei leerem oder praktisch leerem Konto
+        if (balance < 0.005) {
             balance = 0.0;
             lastInterestDay = currentDay;
             return 0.0;
@@ -108,8 +109,8 @@ public class SavingsAccount {
 
         if (daysSinceLastInterest >= 7) {
             double interestRate = ModConfigHandler.COMMON.SAVINGS_INTEREST_RATE.get();
-            double interest = balance * interestRate;
-            balance += interest;
+            double interest = Math.round(balance * interestRate * 100.0) / 100.0;
+            balance = Math.round((balance + interest) * 100.0) / 100.0;
             lastInterestDay = currentDay;
             return interest;
         }

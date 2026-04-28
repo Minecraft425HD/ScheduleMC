@@ -31,6 +31,7 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
     private int processProgress = 0;
     private ItemStack outputItem = ItemStack.EMPTY;
     private boolean isProcessing = false;
+    private long lastGameTime = -1L;
 
     public MicroDoserBlockEntity(BlockPos pos, BlockState state) {
         super(LSDBlockEntities.MICRO_DOSER.get(), pos, state);
@@ -88,8 +89,13 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+
         if (isProcessing && lysergsaeureCount > 0) {
-            processProgress = Math.min(processProgress + 1, PROCESS_TIME);
+            int prevProgress = processProgress;
+            processProgress = (int) Math.min((long) processProgress + ticksPassed, PROCESS_TIME);
 
             if (processProgress >= PROCESS_TIME) {
                 // Prozess abgeschlossen
@@ -108,7 +114,7 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
 
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            } else if (processProgress % 20 == 0) {
+            } else if (processProgress / 20 > prevProgress / 20) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -144,6 +150,7 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
         tag.putInt("DosageSlider", dosageSlider);
         tag.putInt("Progress", processProgress);
         tag.putBoolean("Processing", isProcessing);
+        tag.putLong("LastGameTime", lastGameTime);
         if (!outputItem.isEmpty()) {
             CompoundTag outputTag = new CompoundTag();
             outputItem.save(outputTag);
@@ -158,6 +165,7 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
         dosageSlider = tag.getInt("DosageSlider");
         processProgress = tag.getInt("Progress");
         isProcessing = tag.getBoolean("Processing");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         outputItem = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
     }
 

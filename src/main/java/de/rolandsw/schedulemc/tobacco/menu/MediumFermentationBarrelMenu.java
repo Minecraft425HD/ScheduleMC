@@ -31,13 +31,13 @@ public class MediumFermentationBarrelMenu extends AbstractContainerMenu {
 
     private void addMachineSlots() {
         if (blockEntity == null) return;
-        addSlot(new SlotItemHandler(blockEntity.getItemHandler(), 0, 56, 35));
-        addSlot(new SlotItemHandler(blockEntity.getItemHandler(), 1, 116, 35));
+        addSlot(new SlotItemHandler(blockEntity.getItemHandler(), 0, 22, 30));
+        addSlot(new SlotItemHandler(blockEntity.getItemHandler(), 1, 134, 30));
     }
 
     private void addPlayerHotbar(Inventory inv) {
         for (int i = 0; i < 9; i++) {
-            addSlot(new Slot(inv, i, 8 + i * 18, 84));
+            addSlot(new Slot(inv, i, 8 + i * 18, 127));
         }
     }
 

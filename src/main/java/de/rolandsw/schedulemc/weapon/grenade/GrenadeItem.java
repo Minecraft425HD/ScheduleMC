@@ -20,9 +20,18 @@ public abstract class GrenadeItem extends Item {
 
     public GrenadeType getType() { return type; }
 
+    /** Cooldown zwischen zwei Würfen in Ticks (3 Sekunden = 60 Ticks). */
+    private static final int THROW_COOLDOWN_TICKS = 60;
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+
+        // Cooldown-Check — gilt pro Granaten-Typ (jeder Typ hat eigenen Cooldown-Eintrag)
+        if (player.getCooldowns().isOnCooldown(this)) {
+            return InteractionResultHolder.fail(stack);
+        }
+
         if (!level.isClientSide) {
             ThrownWeaponGrenade grenade = new ThrownWeaponGrenade(level, player, type);
             grenade.setItem(stack);
@@ -34,6 +43,10 @@ public abstract class GrenadeItem extends Item {
         if (!player.isCreative()) {
             stack.shrink(1);
         }
+
+        // Cooldown starten — graut den Slot im Hotbar visuell aus
+        player.getCooldowns().addCooldown(this, THROW_COOLDOWN_TICKS);
+
         return InteractionResultHolder.success(stack);
     }
 }

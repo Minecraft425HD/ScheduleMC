@@ -4,6 +4,8 @@ import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.data.CannabisPlantData;
 import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.data.CocaPlantData;
+import de.rolandsw.schedulemc.coffee.CoffeeType;
+import de.rolandsw.schedulemc.coffee.data.CoffeePlantData;
 import de.rolandsw.schedulemc.mushroom.MushroomType;
 import de.rolandsw.schedulemc.mushroom.data.MushroomPlantData;
 import de.rolandsw.schedulemc.poppy.PoppyType;
@@ -11,6 +13,8 @@ import de.rolandsw.schedulemc.poppy.data.PoppyPlantData;
 import de.rolandsw.schedulemc.production.core.PotType;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 import de.rolandsw.schedulemc.tobacco.data.TobaccoPlantData;
+import de.rolandsw.schedulemc.wine.WineType;
+import de.rolandsw.schedulemc.wine.data.GrapePlantData;
 
 /**
  * Speichert Daten eines universellen Pflanzen-Topfes
@@ -36,6 +40,8 @@ public class PlantPotData {
     private CocaPlantData cocaPlant;
     private PoppyPlantData poppyPlant;
     private MushroomPlantData mushroomPlant;
+    private GrapePlantData grapePlant;
+    private CoffeePlantData coffeePlant;
     private boolean hasSoil;
     private boolean hasMist;
 
@@ -49,6 +55,8 @@ public class PlantPotData {
         this.cocaPlant = null;
         this.poppyPlant = null;
         this.mushroomPlant = null;
+        this.grapePlant = null;
+        this.coffeePlant = null;
         this.hasSoil = false;
         this.hasMist = false;
     }
@@ -110,7 +118,8 @@ public class PlantPotData {
     }
 
     public boolean hasPlant() {
-        return plant != null || cannabisPlant != null || cocaPlant != null || poppyPlant != null || mushroomPlant != null;
+        return plant != null || cannabisPlant != null || cocaPlant != null || poppyPlant != null || mushroomPlant != null
+                || grapePlant != null || coffeePlant != null;
     }
 
     public boolean hasTobaccoPlant() {
@@ -132,6 +141,11 @@ public class PlantPotData {
     public boolean hasMushroomPlant() {
         return mushroomPlant != null;
     }
+
+    public GrapePlantData getGrapePlant() { return grapePlant; }
+    public CoffeePlantData getCoffeePlant() { return coffeePlant; }
+    public boolean hasGrapePlant() { return grapePlant != null; }
+    public boolean hasCoffeePlant() { return coffeePlant != null; }
 
     public boolean hasSoil() {
         return hasSoil;
@@ -323,6 +337,30 @@ public class PlantPotData {
     }
 
     /**
+     * Pflanzt Weinrebe
+     */
+    public boolean plantGrapeSeed(WineType type) {
+        if (!hasSoil || !hasEnoughSoilForPlant() || hasPlant()) {
+            return false;
+        }
+        this.grapePlant = new GrapePlantData(type);
+        this.soilLevelAtPlanting = this.soilLevel;
+        return true;
+    }
+
+    /**
+     * Pflanzt Kaffee-Setzling
+     */
+    public boolean plantCoffeeSeed(CoffeeType type) {
+        if (!hasSoil || !hasEnoughSoilForPlant() || hasPlant()) {
+            return false;
+        }
+        this.coffeePlant = new CoffeePlantData(type);
+        this.soilLevelAtPlanting = this.soilLevel;
+        return true;
+    }
+
+    /**
      * Erntet die Tabak-Pflanze
      * WICHTIG: Resterde bleibt erhalten!
      */
@@ -413,6 +451,8 @@ public class PlantPotData {
         this.cocaPlant = null;
         this.poppyPlant = null;
         this.mushroomPlant = null;
+        this.grapePlant = null;
+        this.coffeePlant = null;
         this.soilLevelAtPlanting = 0; // Reset HUD-Basis
     }
 
@@ -438,6 +478,13 @@ public class PlantPotData {
 
         if (mushroomPlant != null && !mushroomPlant.isFullyGrown()) {
             return checkResourcesForMushroomGrowth();
+        }
+
+        if (grapePlant != null && !grapePlant.isFullyGrown()) {
+            return checkResourcesForGrowth();
+        }
+        if (coffeePlant != null && !coffeePlant.isFullyGrown()) {
+            return checkResourcesForGrowth();
         }
 
         return false;

@@ -6,6 +6,34 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.7.2-beta] - 2026-04-17
+
+### Added
+- **Cannabis Processing Blocks — Slot-based GUI** — All 4 processing blocks (Trimm Station, Curing Jar, Hash Presse, Öl Extraktor) now display item slots directly in their GUI:
+  - **Trimm Station:** Input slot (DriedBud), TrimmedBud output slot, Trim output slot — items are stored in the machine, not taken from player inventory
+  - **Curing Jar:** Input slot (TrimmedBud), Output slot (live quality preview of resulting CuredBud)
+  - **Hash Presse:** Input slot (Trim display), Output slot (Hash when pressing complete)
+  - **Öl Extraktor:** Input slot (material), Solvent slot, Output slot (oil)
+- **Cannabis Block Interactions:**
+  - **Trimm Station:** Right-click with DriedBud = load input slot; Shift+Right-click = collect output (or return input); Right-click empty hand = open GUI
+  - **Hash Presse:** Shift+Right-click with empty hand = collect hash (was: plain right-click); Right-click with Trim = fill (unchanged)
+  - **Öl Extraktor:** Shift+Right-click with empty hand = collect oil (was: plain right-click); Right-click with material/solvent = fill (unchanged)
+  - **Curing Jar:** Interaction unchanged — Right-click with TrimmedBud fills; Shift+Right-click extracts CuredBud
+
+### Changed
+- **Fermentation Barrel GUIs (Tobacco — Small/Medium/Big):** Complete visual redesign — dark theme, progress bar with gloss highlight, capacity bar, consistent 176×166 layout; color-coded by size (Small=green, Medium=orange, Big=red)
+- **Packaging Table GUIs (Tobacco — Medium/Large):** Redesigned to match SmallPackagingTable layout — dark theme, 2×5 output grid on the left, info panel on the right, buttons at y=145, hotbar at y=168
+- **Large Packaging Table:** Output grid changed from 3×3 (9 slots) to 2×5 (10 slots), matching the Medium Packaging Table layout; BlockEntity expanded from 10 to 11 slots
+- **Slot labels removed:** Removed "Input"/"Output" text labels above machine slots in all Packaging Table screens (visual cleanup)
+- **Plot App refresh rate:** `DATA_REFRESH_INTERVAL_MS` reduced from 1000 ms to 250 ms; `UtilityEventHandler.UPDATE_INTERVAL` reduced from 1000 ticks (~50 s) to 100 ticks (~5 s) — utility consumption data now updates within ~5 seconds instead of ~50 seconds
+- **Currency symbol locale-aware:** `format.currency` translation key added (`€` in `de_de.json`, `$` in `en_us.json`); all 12 hardcoded `€` in `PlotAppScreen` replaced; `outstanding_fmt` and `bill_detail_fmt` lang keys updated per locale
+
+### Fixed
+- **Property tax calculation:** Replaced chunk-area-based formula with flat rate per plot (`TAX_PROPERTY_PER_CHUNK` config value × number of owned plots); tax amount is now predictable and config-driven
+- **Regular bank interest rounding:** `InterestManager.payoutInterest()` now rounds to 2 decimal places (`Math.round(interest * 100.0) / 100.0`) and skips payouts below 0.005€ — prevents log spam with amounts like `23.475724`
+- **Savings account interest:** `SavingsAccount.calculateAndPayInterest()` skips payout when balance < 0.005€ (was 0.01€); result rounded to 2dp; `SavingsAccountManager` also uses `>= 0.005` threshold
+- **HashPressScreen / OilExtractorScreen:** Removed erroneous `this.onClose()` call that automatically closed the GUI when output was ready; output is now shown in the output slot instead
+
 ## [3.7.0-beta] - 2026-03-17
 
 ### Added

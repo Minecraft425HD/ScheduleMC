@@ -1,13 +1,12 @@
 package de.rolandsw.schedulemc.poppy.blocks;
 
 import de.rolandsw.schedulemc.poppy.blockentity.ScoringMachineBlockEntity;
-import de.rolandsw.schedulemc.poppy.items.PoppyPodItem;
+import de.rolandsw.schedulemc.poppy.menu.ScoringMachineMenu;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -16,12 +15,9 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * ScoringMachine - ritzt Mohnkapseln automatisch zu Rohopium
- * Benötigt Redstone-Signal
- */
 public class ScoringMachineBlock extends Block implements EntityBlock {
 
     public ScoringMachineBlock(Properties properties) {
@@ -48,52 +44,11 @@ public class ScoringMachineBlock extends Block implements EntityBlock {
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
-
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof ScoringMachineBlockEntity machineBE)) return InteractionResult.PASS;
-
-        ItemStack handStack = player.getItemInHand(hand);
-
-        // 1. Mohnkapseln hinzufügen
-        if (handStack.getItem() instanceof PoppyPodItem) {
-            if (machineBE.isFull()) {
-                player.displayClientMessage(Component.translatable("message.ritzmaschine.machine_full"), true);
-                return InteractionResult.FAIL;
-            }
-
-            if (machineBE.addPod(handStack)) {
-                handStack.shrink(1);
-                player.displayClientMessage(Component.translatable("message.ritzmaschine.pod_added", machineBE.getInputCount(), machineBE.getCapacity()), true);
-                player.playSound(net.minecraft.sounds.SoundEvents.ITEM_FRAME_ADD_ITEM, 1.0f, 1.0f);
-                return InteractionResult.SUCCESS;
-            }
+        if (player instanceof ServerPlayer serverPlayer) {
+            NetworkHooks.openScreen(serverPlayer, new ScoringMachineMenu.Provider(machineBE), buf -> buf.writeBlockPos(pos));
         }
-
-        // 2. Rohopium entnehmen
-        if (handStack.isEmpty() && player.isShiftKeyDown()) {
-            if (machineBE.hasOutput()) {
-                ItemStack opium = machineBE.extractAllOpium();
-                if (!opium.isEmpty()) {
-                    player.getInventory().add(opium);
-                    player.displayClientMessage(Component.translatable("message.ritzmaschine.opium_extracted", opium.getCount()), true);
-                    player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
-                    return InteractionResult.SUCCESS;
-                }
-            }
-        }
-
-        // 3. Status anzeigen
-        if (handStack.isEmpty() && !player.isShiftKeyDown()) {
-            boolean hasPower = level.hasNeighborSignal(pos);
-            float progress = machineBE.getAverageProgress() * 100;
-            player.displayClientMessage(Component.translatable("message.ritzmaschine.status",
-                    hasPower ? Component.translatable("message.ritzmaschine.power_on") : Component.translatable("message.ritzmaschine.power_off"),
-                    machineBE.getInputCount(), machineBE.getCapacity(),
-                    machineBE.getOutputCount(),
-                    String.format("%.1f", progress)), false);
-            return InteractionResult.SUCCESS;
-        }
-
-        return InteractionResult.PASS;
+        return InteractionResult.SUCCESS;
     }
 }

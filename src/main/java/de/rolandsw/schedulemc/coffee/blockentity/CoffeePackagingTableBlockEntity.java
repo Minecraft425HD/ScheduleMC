@@ -35,6 +35,7 @@ public class CoffeePackagingTableBlockEntity extends AbstractItemHandlerBlockEnt
     private ItemStack packageInput = ItemStack.EMPTY;   // Packaging Material
     private ItemStack outputStack = ItemStack.EMPTY;    // Packaged Coffee
     private int packagingProgress = 0;
+    private long lastGameTime = -1L;
     private PackageSize selectedSize = PackageSize.MEDIUM; // Player-wählbar
 
     // ContainerData for syncing with client
@@ -189,8 +190,14 @@ public class CoffeePackagingTableBlockEntity extends AbstractItemHandlerBlockEnt
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (canPackage()) {
-            packagingProgress = Math.min(packagingProgress + 1, 200);
+            int prevProgress = packagingProgress;
+            packagingProgress = (int) Math.min((long) packagingProgress + ticksPassed, 200);
 
             if (packagingProgress >= 200) { // 10 Sekunden
                 // Packaging abgeschlossen
@@ -205,9 +212,7 @@ public class CoffeePackagingTableBlockEntity extends AbstractItemHandlerBlockEnt
 
                 packagingProgress = 0;
                 changed = true;
-            }
-
-            if (packagingProgress % 20 == 0) {
+            } else if (packagingProgress / 20 > prevProgress / 20) {
                 changed = true;
             }
         } else if (packagingProgress > 0) {
@@ -249,6 +254,7 @@ public class CoffeePackagingTableBlockEntity extends AbstractItemHandlerBlockEnt
         }
 
         tag.putInt("Progress", packagingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         tag.putString("PackageSize", selectedSize.name());
     }
 
@@ -264,6 +270,7 @@ public class CoffeePackagingTableBlockEntity extends AbstractItemHandlerBlockEnt
         packageInput = tag.contains("PackageInput") ? ItemStack.of(tag.getCompound("PackageInput")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         packagingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("PackageSize")) {
             try { selectedSize = PackageSize.valueOf(tag.getString("PackageSize")); }
             catch (IllegalArgumentException ex) { selectedSize = PackageSize.MEDIUM; }

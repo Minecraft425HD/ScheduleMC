@@ -131,16 +131,19 @@ public class CoffeePlantBlock extends Block {
 
             var be = level.getBlockEntity(potPos);
             if (be instanceof PlantPotBlockEntity potBE) {
-                // Coffee plants grow as separate blocks on top of pots
-                // They don't use the PlantPotData system
+                var potData = potBE.getPotData();
                 int age = state.getValue(AGE);
                 if (age >= 9) {
-                    // Harvest type-specific coffee cherries with random quality
-                    int yield = level.random.nextInt(3) + 2; // 2-4 cherries
+                    CoffeeQuality harvestQuality = potData.hasCoffeePlant()
+                        ? potData.getCoffeePlant().getQuality()
+                        : randomHarvestQuality(level.random);
+                    int yield = level.random.nextInt(3) + 2;
                     ItemStack cherries = new ItemStack(CoffeeItems.getCherryForType(this.coffeeType), yield);
-                    CoffeeQuality harvestQuality = randomHarvestQuality(level.random);
                     CoffeeCherryItem.withQuality(cherries, harvestQuality);
-                    Block.popResource(level, pos, cherries);
+                    player.getInventory().add(cherries);
+                    if (!cherries.isEmpty()) {
+                        Block.popResource(level, pos, cherries);
+                    }
                     player.displayClientMessage(Component.translatable("message.coffee.cherries_harvested", yield), true);
                 } else {
                     player.displayClientMessage(Component.translatable(
@@ -148,7 +151,13 @@ public class CoffeePlantBlock extends Block {
                         (age * 100 / 9)
                     ), true);
                 }
+                double newSoil = Math.max(0, potData.getSoilLevelExact() - 33);
+                potData.setSoilLevel(newSoil);
+                potData.setSoilLevelAtPlanting(newSoil);
+                potData.clearPlant();
+                potData.setWaterLevel(0);
                 potBE.setChanged();
+                level.sendBlockUpdated(potPos, level.getBlockState(potPos), level.getBlockState(potPos), 3);
             }
 
             if (half == DoubleBlockHalf.UPPER) {

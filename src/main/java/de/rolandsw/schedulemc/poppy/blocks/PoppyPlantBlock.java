@@ -299,13 +299,7 @@ public class PoppyPlantBlock extends Block {
         // ═══════════════════════════════════════════════════════
         // WASSER: Garantiere EXAKT 100 verbraucht
         // ═══════════════════════════════════════════════════════
-        double waterDifference = targetWater - actualWaterConsumed;
-        if (Math.abs(waterDifference) > 0.001) {
-            // Zu wenig verbraucht → noch mehr abziehen
-            // Zu viel verbraucht → etwas zurückgeben
-            double correctedWater = currentWater - waterDifference;
-            potData.setWaterLevel(Math.max(0, correctedWater));
-        }
+        potData.setWaterLevel(0);
 
         // ═══════════════════════════════════════════════════════
         // ERDE: Pauschal EXAKT 33 abziehen + HUD-Basis sync

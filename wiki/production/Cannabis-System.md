@@ -101,39 +101,31 @@ Each slot processes independently. You can fill slots at different times.
 
 ---
 
-## Step 4: Trimming (Trimm Station) -- MINIGAME
+## Step 4: Trimming (Trimm Station)
 
-The trimming station is the most important step for quality. It uses a timing-based minigame where you trim 10 leaves from each batch.
+The trimming station converts DriedBuds into TrimmedBuds and Trim by-product. Quality is determined by the input bud's quality. Clicking the Trim button 5 times processes one DriedBud.
 
-### Minigame Mechanics
+### Interaction
 
-A visual indicator sweeps across a bar. Press the action key when the indicator is in the target zone. Repeat 10 times per batch.
+| Action | Result |
+|--------|--------|
+| Right-click block with DriedBud | Loads bud into the machine's input slot |
+| Right-click empty hand | Opens GUI |
+| Shift+Right-click empty hand | Collects output (TrimmedBud + Trim) or returns input bud |
+| Click "Trim" button 5× in GUI | Processes one DriedBud from the input slot (or player inventory) |
 
-```
-  [====|=====GREEN=====|====]
-       <-- INDICATOR -->
+### GUI Slots (right side of GUI)
 
-  Perfect Zone (center): ticks 45-55   = 2 points
-  Good Zone:             ticks 35-65   = 1 point
-  Bad Zone:              everything else = 0 points
-```
-
-### Scoring
-
-```
-score = (perfectTrims * 1.0 + goodTrims * 0.6 + badTrims * 0.2) / 10
-
-Score >= 0.95  -->  EXOTIC     (5.0x price)
-Score >= 0.80  -->  TOP SHELF  (3.5x price)
-Score >= 0.60  -->  DANK       (2.0x price)
-Score >= 0.40  -->  MIDS       (1.0x price)
-Score <  0.40  -->  SCHWAG     (0.5x price)
-```
+| Slot | Contents |
+|------|----------|
+| IN | DriedBud loaded into machine |
+| BUD | TrimmedBud output (ready to collect) |
+| TRIM | Cannabis Trim output (ready to collect) |
 
 ### Trimming Output
 
-- **Trimmed Buds:** Same weight as input; quality set by minigame score
-- **Cannabis Trim (by-product):** 50% of input weight; used for hash or oil
+- **Trimmed Buds:** 1g per DriedBud processed; quality preserved from input
+- **Cannabis Trim (by-product):** 2g per DriedBud; used for hash or oil
 
 ---
 
@@ -148,6 +140,21 @@ Optional long-term aging in curing jars. Dramatically improves quality over time
 | 60 days | +2 tiers (max) | +50% (max) |
 
 Curing can push Mids all the way to Top Shelf, or Dank all the way to Exotic.
+
+### Interaction
+
+| Action | Result |
+|--------|--------|
+| Right-click block with TrimmedBud | Adds 1g to the jar (up to 10g, same strain + quality only) |
+| Right-click empty hand | Opens GUI |
+| Shift+Right-click empty hand | Extracts CuredBud with quality based on curing time |
+
+### GUI Slots (right side of GUI)
+
+| Slot | Contents |
+|------|----------|
+| IN | TrimmedBud currently curing |
+| OUT | Live preview of resulting CuredBud at current quality |
 
 ---
 
@@ -164,6 +171,21 @@ Convert trim into concentrated hash using the Hash Presse.
 
 Hash quality depends on input weight: 80g+ trim yields Top Shelf, 50g+ yields Dank, 30g+ yields Mids, below that yields Schwag.
 
+### Interaction
+
+| Action | Result |
+|--------|--------|
+| Right-click block with Trim | Adds trim to the press (up to 20g, same strain) |
+| Right-click empty hand | Opens GUI |
+| **Shift+Right-click empty hand** | Collects finished Hash from output slot |
+
+### GUI Slots (right side of GUI)
+
+| Slot | Contents |
+|------|----------|
+| IN | Trim loaded into press |
+| OUT | Hash (shown when pressing is complete) |
+
 ---
 
 ## Step 7: Oil Extraction (Oel Extraktor)
@@ -179,6 +201,23 @@ Create high-concentration cannabis oil from buds or trim.
 | THC Concentration | 3x the strain's base THC |
 
 Oil from trimmed buds gets +1 quality tier. Oil from trim is always Mids quality.
+
+### Interaction
+
+| Action | Result |
+|--------|--------|
+| Right-click block with TrimmedBud or Trim | Adds material (up to 10g, same strain) |
+| Right-click block with Extraction Solvent | Adds solvent |
+| Right-click empty hand | Opens GUI |
+| **Shift+Right-click empty hand** | Collects finished Cannabis Oil from output slot |
+
+### GUI Slots (right side of GUI)
+
+| Slot | Contents |
+|------|----------|
+| IN | Material (TrimmedBud or Trim) |
+| SOL | Extraction Solvent count |
+| OUT | Cannabis Oil (shown when extraction is complete) |
 
 ---
 
@@ -262,7 +301,7 @@ Oil from trimmed buds gets +1 quality tier. Oil from trim is always Mids quality
 
 ## Dokumentationsstatus
 
-- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
-- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-17**.
+- Diese Datei wurde im Rahmen der GUI-Überarbeitung (Slot-System, Interaktionsänderungen) aktualisiert.
 - Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
 

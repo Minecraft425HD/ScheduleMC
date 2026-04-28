@@ -24,11 +24,12 @@ public class ScoringMachineBlockEntity extends BlockEntity implements IUtilityCo
 
     private boolean lastActiveState = false;
     private static final int CAPACITY = 8;
-    private static final int PROCESS_TIME = 100; // 5 Sekunden
+    private static final int PROCESS_TIME = 6000; // 5 Minuten
 
     private final ItemStack[] inputs = new ItemStack[CAPACITY];
     private final ItemStack[] outputs = new ItemStack[CAPACITY];
     private final int[] progress = new int[CAPACITY];
+    private long lastGameTime = -1L;
     private final PoppyType[] types = new PoppyType[CAPACITY];
     private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
 
@@ -89,8 +90,8 @@ public class ScoringMachineBlockEntity extends BlockEntity implements IUtilityCo
         }
 
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
         return totalCount > 0 ? RawOpiumItem.create(type, quality, totalCount) : ItemStack.EMPTY;
     }
@@ -138,6 +139,34 @@ public class ScoringMachineBlockEntity extends BlockEntity implements IUtilityCo
         return count;
     }
 
+    public ItemStack getInputDisplayItem() {
+        int count = 0;
+        ItemStack template = null;
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!inputs[i].isEmpty()) {
+                if (template == null) template = inputs[i].copy();
+                count++;
+            }
+        }
+        if (template == null) return ItemStack.EMPTY;
+        template.setCount(count);
+        return template;
+    }
+
+    public ItemStack getOutputDisplayItem() {
+        int count = 0;
+        ItemStack template = null;
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!outputs[i].isEmpty()) {
+                if (template == null) template = outputs[i].copy();
+                count += outputs[i].getCount();
+            }
+        }
+        if (template == null) return ItemStack.EMPTY;
+        template.setCount(count);
+        return template;
+    }
+
     public float getAverageProgress() {
         int activeSlots = 0;
         float totalProgress = 0;
@@ -155,19 +184,26 @@ public class ScoringMachineBlockEntity extends BlockEntity implements IUtilityCo
     public void tick() {
         if (level == null || level.isClientSide) return;
 
-        // Prüfe Redstone-Signal (Strom)
-        if (!level.hasNeighborSignal(worldPosition)) {
-            return; // Kein Strom - pausiere
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+
+        if (!level.hasNeighborSignal(worldPosition) || ticksPassed == 0) {
+            boolean currentActive = isActivelyConsuming();
+            if (currentActive != lastActiveState) {
+                lastActiveState = currentActive;
+                UtilityEventHandler.reportBlockEntityActivity(this, currentActive);
+            }
+            return;
         }
 
         boolean changed = false;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                progress[i]++;
+                progress[i] = (int) Math.min((long) progress[i] + ticksPassed, PROCESS_TIME);
 
                 if (progress[i] >= PROCESS_TIME) {
-                    // 1 Kapsel = 1-3 Rohopium (basierend auf Qualität)
                     TobaccoQuality quality = qualities[i] != null ? qualities[i] : TobaccoQuality.SCHLECHT;
                     int yield = switch (quality) {
                         case SCHLECHT -> 1;
@@ -179,18 +215,15 @@ public class ScoringMachineBlockEntity extends BlockEntity implements IUtilityCo
                     inputs[i] = ItemStack.EMPTY;
                     progress[i] = 0;
                     changed = true;
-                } else if (progress[i] % 20 == 0) {
-                    changed = true;
                 }
             }
         }
 
         if (changed) {
             setChanged();
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
 
-        // Utility-Status nur bei Änderung melden
         boolean currentActive = isActivelyConsuming();
         if (currentActive != lastActiveState) {
             lastActiveState = currentActive;
@@ -217,6 +250,7 @@ public class ScoringMachineBlockEntity extends BlockEntity implements IUtilityCo
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
+        tag.putLong("LastGameTime", lastGameTime);
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty()) {
@@ -246,6 +280,7 @@ public class ScoringMachineBlockEntity extends BlockEntity implements IUtilityCo
         if (inputs == null) {
             initArrays();
         }
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
 
         for (int i = 0; i < CAPACITY; i++) {
             inputs[i] = tag.contains("Input" + i) ? ItemStack.of(tag.getCompound("Input" + i)) : ItemStack.EMPTY;

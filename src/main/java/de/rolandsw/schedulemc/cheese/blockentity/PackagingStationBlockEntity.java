@@ -38,6 +38,7 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
     private ItemStack secondaryOutput = ItemStack.EMPTY;
     private int packagingProgress = 0;
 
+    private long lastGameTime = -1L;
     private CheeseType cheeseType;
     private CheeseQuality quality;
     private CheeseAgeLevel ageLevel;
@@ -63,15 +64,20 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
 
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                if (slot == 0) {
-                    return stack.getItem() == CheeseItems.CHEESE_WHEEL.get();
-                }
+                if (slot == 0) return stack.getItem() == CheeseItems.CHEESE_WHEEL.get();
                 if (slot == 1) {
                     return stack.getItem() == CheeseItems.CHEESE_CLOTH.get()
                             || stack.getItem() == CheeseItems.WAX_COATING.get()
                             || stack.getItem() == CheeseItems.CHEESE_PAPER.get();
                 }
-                return slot >= 2;
+                return false; // output slots not insertable
+            }
+
+            @Override
+            public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if (slot >= 2) return super.extractItem(slot, amount, simulate);
+                if (packagingProgress == 0) return super.extractItem(slot, amount, simulate);
+                return ItemStack.EMPTY;
             }
         };
     }
@@ -124,9 +130,15 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!wheelInput.isEmpty() && !packagingInput.isEmpty() && output.isEmpty()) {
             int packagingTime = 300; // 15 seconds per wheel
-            packagingProgress = Math.min(packagingProgress + 1, packagingTime);
+            int prevProgress = packagingProgress;
+            packagingProgress = Math.min(packagingProgress + (int) ticksPassed, packagingTime);
 
             if (packagingProgress >= packagingTime) {
                 // Output the packaged cheese wheel
@@ -154,7 +166,7 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
 
-            if (packagingProgress % 20 == 0) {
+            if (packagingProgress / 20 > prevProgress / 20) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -173,7 +185,7 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
 
     @Override
     public boolean isActivelyConsuming() {
-        return !wheelInput.isEmpty() && !packagingInput.isEmpty();
+        return !wheelInput.isEmpty() && !packagingInput.isEmpty() && output.isEmpty();
     }
 
     @Override
@@ -185,6 +197,7 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
         if (!output.isEmpty()) tag.put("Output", output.save(new CompoundTag()));
         if (!secondaryOutput.isEmpty()) tag.put("SecondaryOutput", secondaryOutput.save(new CompoundTag()));
         tag.putInt("PackagingProgress", packagingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         if (cheeseType != null) tag.putString("CheeseType", cheeseType.name());
         if (quality != null) tag.putString("Quality", quality.name());
         if (ageLevel != null) tag.putString("AgeLevel", ageLevel.name());
@@ -201,6 +214,7 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
         output = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         secondaryOutput = tag.contains("SecondaryOutput") ? ItemStack.of(tag.getCompound("SecondaryOutput")) : ItemStack.EMPTY;
         packagingProgress = tag.getInt("PackagingProgress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("CheeseType")) {
             try { cheeseType = CheeseType.valueOf(tag.getString("CheeseType")); }
             catch (IllegalArgumentException exception) {

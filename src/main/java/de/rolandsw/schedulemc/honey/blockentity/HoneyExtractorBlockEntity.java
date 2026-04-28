@@ -38,6 +38,7 @@ public class HoneyExtractorBlockEntity extends AbstractItemHandlerBlockEntity im
     private ItemStack outputStack = ItemStack.EMPTY;
     private ItemStack byproductStack = ItemStack.EMPTY;
     private int processingProgress = 0;
+    private long lastGameTime = -1L;
     private HoneyType honeyType;
     private HoneyQuality quality;
 
@@ -122,8 +123,14 @@ public class HoneyExtractorBlockEntity extends AbstractItemHandlerBlockEntity im
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            processingProgress = Math.min(processingProgress + 1, PROCESSING_TIME);
+            int prevProgress = processingProgress;
+            processingProgress = Math.min(processingProgress + (int) ticksPassed, PROCESSING_TIME);
 
             if (processingProgress >= PROCESSING_TIME) {
                 // Processing complete: Honeycomb → Raw Honey + Beeswax
@@ -147,7 +154,7 @@ public class HoneyExtractorBlockEntity extends AbstractItemHandlerBlockEntity im
                 changed = true;
             }
 
-            if (processingProgress % 20 == 0) changed = true;
+            if (processingProgress / 20 > prevProgress / 20) changed = true;
         }
 
         if (changed) {
@@ -179,6 +186,7 @@ public class HoneyExtractorBlockEntity extends AbstractItemHandlerBlockEntity im
         tag.putInt("Progress", processingProgress);
         if (honeyType != null) tag.putString("HoneyType", honeyType.name());
         if (quality != null) tag.putString("Quality", quality.name());
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -189,6 +197,7 @@ public class HoneyExtractorBlockEntity extends AbstractItemHandlerBlockEntity im
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         byproductStack = tag.contains("Byproduct") ? ItemStack.of(tag.getCompound("Byproduct")) : ItemStack.EMPTY;
         processingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("HoneyType")) {
             try { honeyType = HoneyType.valueOf(tag.getString("HoneyType")); }
             catch (IllegalArgumentException exception) {

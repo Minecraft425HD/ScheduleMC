@@ -53,9 +53,42 @@ Alle 29 Call-Site-Dateien migriert. NBT-Keys identisch — Spielstände bleiben 
 
 ---
 
+## Dimension-System
+
+**ScheduleMC nutzt genau eine Dimension (Overworld).**
+
+- Es gibt keinen Nether- oder End-Support.
+- Die Dimension-Switch-Logik in `PlotAppScreen.renderCurrentPlotTab()` (Overworld/Nether/End-Labels)
+  ist toter Code — Nether/End werden nie aktiv sein.
+- **Konsequenz:** Nicht vorschlagen, Multi-Dimension-Support zu ergänzen oder den Switch-Block
+  zu einem echten Feature auszubauen. Der Code kann bei Bedarf auf den Overworld-Fall vereinfacht werden.
+- **Festgehalten am:** 2026-04-16.
+
+---
+
+## Cannabis-Blöcke — Interaktionsmodell (ab 2026-04-17)
+
+**Status:** IMPLEMENTIERT — Architekturentscheidung festhalten
+
+**Betrifft:**
+- `cannabis/blocks/TrimStationBlock` + `TrimStationBlockEntity`
+- `cannabis/blocks/HashPressBlock`
+- `cannabis/blocks/OilExtractorBlock`
+- `cannabis/blocks/CuringJarBlock`
+
+**Entscheidungen:**
+- **Alle 4 Blöcke** haben jetzt visuelle Input/Output-Slots im GUI (render-only, kein ItemStackHandler).
+- Items werden weiterhin direkt in den BlockEntity-Feldern gespeichert (kein Refactoring auf ItemStackHandler).
+- `CuringJarBlock`: Interaktion unverändert (RK fill, Shift+RK extract).
+- `HashPressBlock` und `OilExtractorBlock`: Extraktion auf **Shift+RK** umgestellt (war: plain RK).
+- `TrimStationBlock`: komplett auf Maschinen-Slot-Basis umgestellt — RK mit DriedBud = füllen, Shift+RK = entnehmen; Output wird in BE-Feldern gepuffert statt direkt ins Spieler-Inventar gegeben.
+- **Nicht vorschlagen:** TrimStation auf ItemStackHandler umzustellen — bewusst direktes Feld-Storage beibehalten.
+
+---
+
 ## Dokumentationsstatus
 
-- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
-- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-17**.
+- Diese Datei wurde im Rahmen der Cannabis-GUI-Überarbeitung erweitert.
 - Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
 

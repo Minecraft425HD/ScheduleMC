@@ -42,7 +42,8 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
     private PlantPotData potData;
     private int tickCounter = 0;
-    private int plantGrowthCounter = 0;
+    private long lastGameTime = -1L;
+    private double plantGrowthAccumulator = 0.0;
 
     public PlantPotBlockEntity(BlockPos pos, BlockState state) {
         super(TobaccoBlockEntities.TOBACCO_POT.get(), pos, state);
@@ -63,62 +64,64 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
         tickCounter++;
 
-        // Pflanzen-Wachstum prüfen (alle 20 Ticks = 1x pro Sekunde)
-        // Performance-Optimierung: Reduziert von 4x/Sekunde auf 1x/Sekunde
         if (tickCounter >= 20) {
             tickCounter = 0;
-            plantGrowthCounter++;
 
-            if (potData.hasPlant() && potData.canGrow()) {
-                // Hole den passenden Handler für diese Pflanze
+            long worldNow = level.getDayTime();
+            if (lastGameTime < 0) lastGameTime = worldNow;
+            long worldTicksPassed = Math.max(0L, worldNow - lastGameTime);
+            lastGameTime = worldNow;
+
+            if (worldTicksPassed > 0 && potData.hasPlant() && potData.canGrow()) {
                 PlantGrowthHandler handler = PlantGrowthHandlerFactory.getHandler(potData);
 
                 if (handler != null) {
-                    // Prüfe ob Pflanze wachsen kann (Licht, spezielle Bedingungen)
-                    if (!handler.canGrow(level, worldPosition, potData)) {  // NOPMD - intentionaler Stub
-                        // Bedingungen nicht erfüllt – kein frühzeitiges return, damit Utility-Status gemeldet wird
+                    if (!handler.canGrow(level, worldPosition, potData)) {  // NOPMD
+                        // Licht nicht ausreichend
                     } else {
-
-                    // Wachstumsgeschwindigkeit basierend auf Licht
-                    double lightSpeedMultiplier = getLightSpeedMultiplier();
-                    if (lightSpeedMultiplier <= 0) lightSpeedMultiplier = 0.1;
-                    int ticksNeeded = (int) Math.max(1, 4 / lightSpeedMultiplier);
-
-                    // Hole aktuelles Stadium
-                    int oldStage = handler.getCurrentStage(potData);
-
-                    // Führe Wachstums-Tick aus
-                    if (plantGrowthCounter >= ticksNeeded) {
-                        plantGrowthCounter = 0;
-                        handler.tick(potData);
-                    }
-
-                    // Hole neues Stadium
-                    int newStage = handler.getCurrentStage(potData);
-
-                    // Wenn gewachsen → Ressourcen verbrauchen & Block aktualisieren
-                    if (oldStage != newStage) {
-                        // Spezielle Logik für Pilze (verbrauchen nur bei Fruchtung Wasser)
-                        if (potData.hasMushroomPlant()) {
-                            var mushroom = potData.getMushroomPlant();
-                            if (mushroom.needsWater()) {
-                                consumeResourcesForGrowth(newStage);
-                            } else {
-                                // Nur Substrat verbrauchen (33/7 pro Stufe)
-                                potData.consumeSoil(potData.getSoilConsumptionPerStage());
-                            }
+                        double lightSpeedMultiplier = getLightSpeedMultiplier();
+                        if (lightSpeedMultiplier <= 0) {
+                            // Kein Licht (Nacht oder innen ohne Growlight): kein Wachstum
                         } else {
-                            // Standard-Ressourcen-Verbrauch für alle anderen Pflanzen
-                            consumeResourcesForGrowth(newStage);
+                            plantGrowthAccumulator += worldTicksPassed * lightSpeedMultiplier / 80.0;
+
+                            int callCount = (int) Math.min(plantGrowthAccumulator, 10000);
+                            if (callCount > 0) {
+                                plantGrowthAccumulator -= callCount;
+
+                                int oldStage = handler.getCurrentStage(potData);
+                                int stageAdvances = 0;
+                                int prevStage = oldStage;
+                                for (int i = 0; i < callCount; i++) {
+                                    handler.tick(potData);
+                                    int cur = handler.getCurrentStage(potData);
+                                    if (cur != prevStage) {
+                                        stageAdvances++;
+                                        prevStage = cur;
+                                    }
+                                }
+
+                                int newStage = handler.getCurrentStage(potData);
+                                if (oldStage != newStage) {
+                                    for (int s = 0; s < stageAdvances; s++) {
+                                        if (potData.hasMushroomPlant()) {
+                                            var mushroom = potData.getMushroomPlant();
+                                            if (mushroom.needsWater()) {
+                                                consumeResourcesForGrowth(newStage);
+                                            } else {
+                                                potData.consumeSoil(potData.getSoilConsumptionPerStage());
+                                            }
+                                        } else {
+                                            consumeResourcesForGrowth(newStage);
+                                        }
+                                    }
+                                    handler.updateBlockState(level, worldPosition, newStage, potData);
+                                    setChanged();
+                                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                                }
+                            }
                         }
-
-                        // Block-State aktualisieren
-                        handler.updateBlockState(level, worldPosition, newStage, potData);
-
-                        setChanged();
-                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                     }
-                    } // end else (canGrow)
                 }
             }
         }
@@ -162,6 +165,8 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
         super.saveAdditional(tag);
 
         tag.putString("PotType", potData.getPotType().name());
+        tag.putLong("PlantLastGameTime", lastGameTime);
+        tag.putDouble("PlantGrowthAccumulator", plantGrowthAccumulator);
         tag.putDouble("WaterLevel", potData.getWaterLevelExact());
         tag.putDouble("SoilLevel", potData.getSoilLevelExact());
         tag.putDouble("SoilLevelAtPlanting", potData.getSoilLevelAtPlanting());
@@ -190,6 +195,9 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
             }
         }
 
+        if (tag.contains("PlantLastGameTime")) lastGameTime = tag.getLong("PlantLastGameTime");
+        if (tag.contains("PlantGrowthAccumulator")) plantGrowthAccumulator = tag.getDouble("PlantGrowthAccumulator");
+
         // WICHTIG: Werte direkt setzen, nicht addieren!
         if (tag.contains("WaterLevel")) {
             potData.setWaterLevel(tag.getDouble("WaterLevel"));
@@ -213,7 +221,8 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
         // Keine Pflanzen-Tags -> Pflanze entfernen falls vorhanden
         if (!tag.contains("Plant") && !tag.contains("CannabisPlant") && !tag.contains("CocaPlant") &&
-            !tag.contains("PoppyPlant") && !tag.contains("MushroomPlant")) {
+            !tag.contains("PoppyPlant") && !tag.contains("MushroomPlant") &&
+            !tag.contains("GrapePlant") && !tag.contains("CoffeePlant")) {
             if (potData.hasPlant()) {
                 potData.clearPlant();
             }
@@ -241,17 +250,16 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
             }
         }
 
-        // Kein Grow Light → Nutze Sonnenlicht (50% Geschwindigkeit)
-        // Lichtlevel variiert mit Tageszeit (0-15)
-        // Prüfe an Position 2 Blöcke über dem Topf
+        // Kein Grow Light → prüfe Tageslicht (außen, tageszeitabhängig)
         BlockPos checkPos = worldPosition.above(2);
-        int skyLight = level.getBrightness(LightLayer.SKY, checkPos);
+        int rawSkyLight = level.getBrightness(LightLayer.SKY, checkPos);
+        if (rawSkyLight > 0) {
+            // Außen: nur tagsüber wachsen (Effektivlicht >= 9 → 50% Geschwindigkeit)
+            return level.getRawBrightness(checkPos, 0) >= 9 ? 0.5 : 0.0;
+        }
 
-        // Je dunkler, desto langsamer das Wachstum
-        // Bei Nacht (Lichtlevel 0): kein Wachstum (0%)
-        // Bei Tag (Lichtlevel 15): volle 50%
-        double sunlightFactor = skyLight / 15.0; // 0.0 bis 1.0
-        return 0.5 * sunlightFactor; // 0% bis 50%
+        // Innen ohne Grow Light: kein aktives Wachstum
+        return 0.0;
     }
 
     /**

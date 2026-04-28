@@ -28,6 +28,7 @@ public class DistillationApparatusBlockEntity extends BlockEntity implements IUt
     private int distillationProgress = 0;
     private int outputCount = 0;
     private boolean isActive = false;
+    private long lastGameTime = -1L;
 
     public DistillationApparatusBlockEntity(BlockPos pos, BlockState state) {
         super(LSDBlockEntities.DISTILLATION_APPARATUS.get(), pos, state);
@@ -67,9 +68,14 @@ public class DistillationApparatusBlockEntity extends BlockEntity implements IUt
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+
         if (ergotCount > 0 && outputCount == 0) {
             isActive = true;  // NOPMD
-            distillationProgress = Math.min(distillationProgress + 1, DISTILLATION_TIME);
+            int prevProgress = distillationProgress;
+            distillationProgress = (int) Math.min((long) distillationProgress + ticksPassed, DISTILLATION_TIME);
 
             if (distillationProgress >= DISTILLATION_TIME) {
                 // Destillation abgeschlossen - 2 Lysergsäure pro 1 Ergot-Kultur
@@ -80,7 +86,7 @@ public class DistillationApparatusBlockEntity extends BlockEntity implements IUt
 
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            } else if (distillationProgress % 40 == 0) {
+            } else if (distillationProgress / 40 > prevProgress / 40) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -115,6 +121,7 @@ public class DistillationApparatusBlockEntity extends BlockEntity implements IUt
         tag.putInt("Progress", distillationProgress);
         tag.putInt("Output", outputCount);
         tag.putBoolean("Active", isActive);
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -124,6 +131,7 @@ public class DistillationApparatusBlockEntity extends BlockEntity implements IUt
         distillationProgress = tag.getInt("Progress");
         outputCount = tag.getInt("Output");
         isActive = tag.getBoolean("Active");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
     }
 
     @Nullable

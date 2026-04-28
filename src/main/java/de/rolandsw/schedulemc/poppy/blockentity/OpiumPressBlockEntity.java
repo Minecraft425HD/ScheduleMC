@@ -24,8 +24,8 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
 
     private boolean lastActiveState = false;
     private static final int CAPACITY = 16;
-    private static final int PROCESS_TIME = 80; // 4 Sekunden (schneller)
-    private static final int MAX_DIESEL = 1000;
+    private static final int PROCESS_TIME = 4800; // 4 Minuten
+    private static final int MAX_DIESEL = 16000;
 
     private final ItemStack[] inputs = new ItemStack[CAPACITY];
     private final ItemStack[] outputs = new ItemStack[CAPACITY];
@@ -33,6 +33,7 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
     private final PoppyType[] types = new PoppyType[CAPACITY];
     private final TobaccoQuality[] qualities = new TobaccoQuality[CAPACITY];
     private int dieselLevel = 0;
+    private long lastGameTime = -1L;
 
     public OpiumPressBlockEntity(BlockPos pos, BlockState state) {
         super(PoppyBlockEntities.OPIUM_PRESS.get(), pos, state);
@@ -62,8 +63,8 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
     public void addDiesel(int amount) {
         dieselLevel = Math.min(dieselLevel + amount, MAX_DIESEL);
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
     }
 
@@ -107,8 +108,8 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
         }
 
         setChanged();
-        if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
         return totalCount > 0 ? RawOpiumItem.create(type, quality, totalCount) : ItemStack.EMPTY;
     }
@@ -156,6 +157,34 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
         return count;
     }
 
+    public ItemStack getInputDisplayItem() {
+        int count = 0;
+        ItemStack template = null;
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!inputs[i].isEmpty()) {
+                if (template == null) template = inputs[i].copy();
+                count++;
+            }
+        }
+        if (template == null) return ItemStack.EMPTY;
+        template.setCount(count);
+        return template;
+    }
+
+    public ItemStack getOutputDisplayItem() {
+        int count = 0;
+        ItemStack template = null;
+        for (int i = 0; i < CAPACITY; i++) {
+            if (!outputs[i].isEmpty()) {
+                if (template == null) template = outputs[i].copy();
+                count += outputs[i].getCount();
+            }
+        }
+        if (template == null) return ItemStack.EMPTY;
+        template.setCount(count);
+        return template;
+    }
+
     public float getAverageProgress() {
         int activeSlots = 0;
         float totalProgress = 0;
@@ -173,25 +202,24 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
     public void tick() {
         if (level == null || level.isClientSide) return;
 
-        // Prüfe Diesel
-        if (dieselLevel < 1) {
-            return; // Kein Diesel - pausiere
-        }
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+
+        if (ticksPassed == 0) return;
 
         boolean changed = false;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
-                progress[i]++;
-
-                // Verbrauche Diesel (1 pro 20 Ticks)
-                if (progress[i] % 20 == 0) {
-                    dieselLevel = Math.max(0, dieselLevel - 1);
+                if (progress[i] == 0) {
+                    if (dieselLevel < 1000) continue;
+                    dieselLevel -= 1000;
+                    changed = true;
                 }
+                progress[i] = (int) Math.min((long) progress[i] + ticksPassed, PROCESS_TIME);
 
                 if (progress[i] >= PROCESS_TIME) {
-                    // Höherer Ertrag als ScoringMachine!
-                    // 1 Kapsel = 2-5 Rohopium (basierend auf Qualität)
                     TobaccoQuality quality = qualities[i] != null ? qualities[i] : TobaccoQuality.SCHLECHT;
                     int yield = switch (quality) {
                         case SCHLECHT -> 2;
@@ -203,18 +231,15 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
                     inputs[i] = ItemStack.EMPTY;
                     progress[i] = 0;
                     changed = true;
-                } else if (progress[i] % 20 == 0) {
-                    changed = true;
                 }
             }
         }
 
         if (changed) {
             setChanged();
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
         }
 
-        // Utility-Status nur bei Änderung melden
         boolean currentActive = isActivelyConsuming();
         if (currentActive != lastActiveState) {
             lastActiveState = currentActive;
@@ -224,8 +249,7 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
 
     @Override
     public boolean isActivelyConsuming() {
-        // Aktiv wenn Diesel vorhanden und Inputs zu verarbeiten sind
-        if (dieselLevel < 1) return false;
+        if (dieselLevel < 1000) return false;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty() && outputs[i].isEmpty()) {
@@ -240,6 +264,7 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
         super.saveAdditional(tag);
 
         tag.putInt("DieselLevel", dieselLevel);
+        tag.putLong("LastGameTime", lastGameTime);
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!inputs[i].isEmpty()) {
@@ -271,6 +296,7 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
         }
 
         dieselLevel = tag.getInt("DieselLevel");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
 
         for (int i = 0; i < CAPACITY; i++) {
             inputs[i] = tag.contains("Input" + i) ? ItemStack.of(tag.getCompound("Input" + i)) : ItemStack.EMPTY;

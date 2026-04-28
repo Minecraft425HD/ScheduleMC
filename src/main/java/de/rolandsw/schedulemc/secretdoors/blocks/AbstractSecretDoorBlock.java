@@ -83,13 +83,14 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        // Wenn offen: kein Kollisions-Shape
-        if (state.getValue(OPEN)) return Shapes.empty();
+        // Controller-Block immer mit vollem Shape, damit er auch im offenen Zustand
+        // anvisierbar und abbaubar bleibt. Nur der Collision-Shape entfällt beim Öffnen.
         return Shapes.block();
     }
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+        // Wenn offen: kein Kollisions-Shape → Spieler können hindurchlaufen
         if (state.getValue(OPEN)) return Shapes.empty();
         return Shapes.block();
     }

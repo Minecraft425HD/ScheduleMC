@@ -12,7 +12,12 @@ import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Container-Menu für Medium Packaging Table
+ * Container-Menu für Medium Packaging Table.
+ *
+ * Slot-Layout (passend zu MediumPackagingTableScreen, 176 × 190):
+ *  - Slot 0  : Input  – Mitte oben (80, 20)  ← wie Small
+ *  - Slots 1–10 : Schachteln-Grid (2 × 5) links (8 + col*18, 50 + row*18)  ← wie Tüten in Small
+ *  - Slots 11–19: Hotbar (8 + i*18, 168)  ← wie Small
  */
 public class MediumPackagingTableMenu extends AbstractContainerMenu {
 
@@ -23,21 +28,14 @@ public class MediumPackagingTableMenu extends AbstractContainerMenu {
         super(ModMenuTypes.MEDIUM_PACKAGING_TABLE_MENU.get(), containerId);
         this.blockEntity = blockEntity;
         this.playerInventory = playerInventory;
-
         addSlots();
     }
 
     public MediumPackagingTableMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         super(ModMenuTypes.MEDIUM_PACKAGING_TABLE_MENU.get(), containerId);
         this.playerInventory = playerInventory;
-
         BlockEntity be = playerInventory.player.level().getBlockEntity(extraData.readBlockPos());
-        if (be instanceof MediumPackagingTableBlockEntity packagingTable) {
-            this.blockEntity = packagingTable;
-        } else {
-            this.blockEntity = null;
-        }
-
+        this.blockEntity = be instanceof MediumPackagingTableBlockEntity pt ? pt : null;
         addSlots();
     }
 
@@ -46,20 +44,20 @@ public class MediumPackagingTableMenu extends AbstractContainerMenu {
 
         var handler = blockEntity.getItemHandler();
 
-        // Input Slot (Slot 0) - Oben Mitte
+        // Input Slot (Slot 0) – oben Mitte, wie Small
         this.addSlot(new SlotItemHandler(handler, 0, 80, 20));
 
-        // Schachteln-Slots (Slots 1-10) - Mitte (2x5 Grid)
+        // Schachteln-Slots (Slots 1–10) – 2 × 5 Grid links, wie Tüten im Small
         for (int row = 0; row < 5; row++) {
             for (int col = 0; col < 2; col++) {
                 int index = 1 + col + row * 2;
-                this.addSlot(new SlotItemHandler(handler, index, 71 + col * 18, 50 + row * 18));
+                this.addSlot(new SlotItemHandler(handler, index, 8 + col * 18, 50 + row * 18));
             }
         }
 
-        // Player Hotbar (nur Schnellzugriffsleiste)
+        // Player Hotbar
         for (int i = 0; i < 9; i++) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 168));  // Angepasst an neue GUI-Höhe
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 168));
         }
     }
 
@@ -69,23 +67,16 @@ public class MediumPackagingTableMenu extends AbstractContainerMenu {
         if (!slot.hasItem()) return ItemStack.EMPTY;
 
         ItemStack stack = slot.getItem();
-        ItemStack copy = stack.copy();
+        ItemStack copy  = stack.copy();
 
         if (index < 11) {
-            if (!this.moveItemStackTo(stack, 11, this.slots.size(), true)) {
-                return ItemStack.EMPTY;
-            }
+            if (!this.moveItemStackTo(stack, 11, this.slots.size(), true)) return ItemStack.EMPTY;
         } else {
-            if (!this.moveItemStackTo(stack, 0, 11, false)) {
-                return ItemStack.EMPTY;
-            }
+            if (!this.moveItemStackTo(stack, 0, 11, false)) return ItemStack.EMPTY;
         }
 
-        if (stack.isEmpty()) {
-            slot.set(ItemStack.EMPTY);
-        } else {
-            slot.setChanged();
-        }
+        if (stack.isEmpty()) slot.set(ItemStack.EMPTY);
+        else slot.setChanged();
 
         return copy;
     }
@@ -94,7 +85,7 @@ public class MediumPackagingTableMenu extends AbstractContainerMenu {
     public boolean stillValid(@NotNull Player player) {
         return blockEntity != null && !blockEntity.isRemoved() &&
                player.distanceToSqr(blockEntity.getBlockPos().getX() + 0.5,
-                                   blockEntity.getBlockPos().getY() + 0.5,
-                                   blockEntity.getBlockPos().getZ() + 0.5) <= 64.0;
+                                    blockEntity.getBlockPos().getY() + 0.5,
+                                    blockEntity.getBlockPos().getZ() + 0.5) <= 64.0;
     }
 }

@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.cannabis.screen;
 
+import de.rolandsw.schedulemc.cannabis.blockentity.TrimStationBlockEntity;
 import de.rolandsw.schedulemc.cannabis.items.DriedBudItem;
 import de.rolandsw.schedulemc.cannabis.menu.TrimStationMenu;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,114 +12,110 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * GUI für die Trimm-Station.
- * Kein Minigame – 5× Button klicken, dann DriedBud → TrimmedBud + 2× Trim.
+ * Layout: IN-Slot links → Klick-Fortschrittsbalken mitte → BUD + TRIM Slots rechts → Hotbar unten
  */
 public class TrimStationScreen extends AbstractContainerScreen<TrimStationMenu> {
 
-    private static final int GUI_WIDTH  = 220;
-    private static final int GUI_HEIGHT = 160;
+    private static final int COLOR_PROGRESS = 0xFF44AA44;
+    private static final int COLOR_HIGHLIGHT = 0xFF66CC66;
+    private static final int COLOR_SEP       = 0xFF3A5A3A;
 
-    private static final int BAR_X      = 20;
-    private static final int BAR_Y      = 80;
-    private static final int BAR_WIDTH  = 180;
-    private static final int BAR_HEIGHT = 14;
+    // TrimStation: 1 input left, 2 outputs side-by-side right
+    private static final int SLOT_IN_X   = 22;
+    private static final int SLOT_BUD_X  = 118;
+    private static final int SLOT_TRIM_X = 140;
+    private static final int SLOT_Y      = 30;
 
-    private static final int BUTTON_X      = 70;
-    private static final int BUTTON_Y      = 110;
-    private static final int BUTTON_WIDTH  = 80;
-    private static final int BUTTON_HEIGHT = 20;
-
-    private static final int ROW1_Y   = 35;
-    private static final int ROW2_Y   = 50;
-    private static final int STATUS_Y = 138;
+    private static final int BUTTON_X = 48;
+    private static final int BUTTON_Y = 94;
+    private static final int BUTTON_W = 80;
+    private static final int BUTTON_H = 20;
 
     private boolean mouseButtonHeld = false;
     private int     holdTick        = 0;
 
-    public TrimStationScreen(TrimStationMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
-        this.imageWidth  = GUI_WIDTH;
-        this.imageHeight = GUI_HEIGHT;
+    public TrimStationScreen(TrimStationMenu menu, Inventory inv, Component title) {
+        super(menu, inv, title);
+        this.imageWidth  = 176;
+        this.imageHeight = 166;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
-    protected void init() {
-        super.init();
-        this.leftPos = (this.width  - GUI_WIDTH)  / 2;
-        this.topPos  = (this.height - GUI_HEIGHT) / 2;
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    /** Sucht ersten DriedBud im Spieler-Inventar (client-side). */
-    private ItemStack getPlayerDriedBud() {
-        if (this.minecraft == null || this.minecraft.player == null) return ItemStack.EMPTY;
-        for (ItemStack stack : this.minecraft.player.getInventory().items) {
-            if (!stack.isEmpty() && stack.getItem() instanceof DriedBudItem) return stack;
+    private void drawSlot(GuiGraphics g, int x, int y) {
+        g.fill(x - 1, y - 1, x + 17, y + 17, 0xFF8B8B8B);
+        g.fill(x,     y,     x + 16, y + 16,  0xFF373737);
+    }
+
+    private ItemStack getAvailableDriedBud() {
+        if (menu.blockEntity != null && menu.blockEntity.hasInput()) {
+            return menu.blockEntity.getInputItem();
         }
         return ItemStack.EMPTY;
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        int x = this.leftPos;
-        int y = this.topPos;
+    protected void renderBg(@NotNull GuiGraphics g, float partialTick, int mouseX, int mouseY) {
+        int x = leftPos;
+        int y = topPos;
 
-        // Background
-        graphics.fill(x, y, x + GUI_WIDTH, y + GUI_HEIGHT, 0xFF0A1A0A);
-        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + GUI_HEIGHT - 3, 0xFF1D2D1D);
-        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + 25, 0xFF1D3D1D);
+        // Panel
+        g.fill(x,     y,     x + 176, y + 166, 0xFF1A2B1A);
+        g.fill(x + 2, y + 2, x + 174, y + 164, 0xFF2B3B2B);
+        g.fill(x + 2, y + 2, x + 174, y + 18,  0xFF0E1A0E);
 
-        // Info rows
-        ItemStack playerBud = getPlayerDriedBud();
-        if (!playerBud.isEmpty()) {
-            String strain  = DriedBudItem.getStrain(playerBud).getColoredName();
-            String quality = DriedBudItem.getQuality(playerBud).getColoredName();
-            graphics.drawString(this.font, Component.translatable("gui.trimm_station.info_strain").getString() + strain,   x + 10, y + ROW1_Y, 0xFFFFFF, false);
-            graphics.drawString(this.font, Component.translatable("gui.trimm_station.info_quality").getString() + quality, x + 10, y + ROW2_Y, 0xFFFFFF, false);
-        }
+        // Machine slots: 1 input left, 2 output slots side-by-side right
+        drawSlot(g, x + SLOT_IN_X,   y + SLOT_Y);
+        drawSlot(g, x + SLOT_BUD_X,  y + SLOT_Y);
+        drawSlot(g, x + SLOT_TRIM_X, y + SLOT_Y);
 
-        // Progress bar
-        renderProgressBar(graphics, x + BAR_X, y + BAR_Y);
-
-        // Button
-        renderButton(graphics, x + BUTTON_X, y + BUTTON_Y, mouseX, mouseY, !playerBud.isEmpty());
-    }
-
-    private void renderProgressBar(GuiGraphics graphics, int x, int y) {
-        graphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xFF555555);
-        graphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF222222);
-
-        int clicks    = menu.getClickCount();
-        int filledPx  = (int)((clicks / (float) de.rolandsw.schedulemc.cannabis.blockentity.TrimStationBlockEntity.CLICKS_NEEDED) * BAR_WIDTH);
+        // Arrow / click progress area (between input right edge and bud slot left edge)
+        g.fill(x + 44, y + 26, x + 112, y + 52, 0xFF111A11);
+        int clicks   = menu.getClickCount();
+        int filledPx = (int)(clicks / (float) TrimStationBlockEntity.CLICKS_NEEDED * 68);
         if (filledPx > 0) {
-            graphics.fill(x, y, x + filledPx, y + BAR_HEIGHT, 0xFF44AA44);
+            g.fill(x + 44, y + 26, x + 44 + filledPx, y + 52, COLOR_PROGRESS);
+            g.fill(x + 44, y + 26, x + 44 + filledPx, y + 29, COLOR_HIGHLIGHT);
         }
 
-        String label = clicks + " / " + de.rolandsw.schedulemc.cannabis.blockentity.TrimStationBlockEntity.CLICKS_NEEDED;
-        int tw = this.font.width(label);
-        graphics.drawString(this.font, label, x + BAR_WIDTH / 2 - tw / 2, y + 2, 0xFFFFFF, true);
+        // Separator after machine area
+        g.fill(x + 8, y + 62, x + 168, y + 63, COLOR_SEP);
+
+        // Trim button
+        renderButton(g, x + BUTTON_X, y + BUTTON_Y, mouseX, mouseY, !getAvailableDriedBud().isEmpty());
+
+        // Separator before hotbar
+        g.fill(x + 8, y + 134, x + 168, y + 135, COLOR_SEP);
+
+        // Hotbar slots
+        for (int i = 0; i < 9; i++) {
+            drawSlot(g, x + 8 + i * 18, y + 142);
+        }
     }
 
-    private void renderButton(GuiGraphics graphics, int x, int y, int mouseX, int mouseY, boolean enabled) {
-        boolean hovered = mouseX >= x && mouseX < x + BUTTON_WIDTH &&
-                          mouseY >= y && mouseY < y + BUTTON_HEIGHT;
-
+    private void renderButton(GuiGraphics g, int x, int y, int mouseX, int mouseY, boolean enabled) {
+        boolean hovered = mouseX >= x && mouseX < x + BUTTON_W && mouseY >= y && mouseY < y + BUTTON_H;
         int color = enabled ? (hovered ? 0xFF55DD55 : 0xFF44AA44) : 0xFF2A3A2A;
         String text = Component.translatable("gui.trimm_station.button_trim").getString();
 
-        graphics.fill(x + 2, y + 2, x + BUTTON_WIDTH + 2, y + BUTTON_HEIGHT + 2, 0x66000000);
-        graphics.fill(x - 1, y - 1, x + BUTTON_WIDTH + 1, y + BUTTON_HEIGHT + 1, 0xFF224422);
-        graphics.fill(x, y, x + BUTTON_WIDTH, y + BUTTON_HEIGHT, color);
-        int tw = this.font.width(text);
-        graphics.drawString(this.font, text, x + BUTTON_WIDTH / 2 - tw / 2, y + 6, 0xFFFFFF, true);
+        g.fill(x + 2, y + 2, x + BUTTON_W + 2, y + BUTTON_H + 2, 0x66000000);
+        g.fill(x - 1, y - 1, x + BUTTON_W + 1, y + BUTTON_H + 1, 0xFF224422);
+        g.fill(x, y, x + BUTTON_W, y + BUTTON_H, color);
+        int tw = font.width(text);
+        g.drawString(font, text, x + BUTTON_W / 2 - tw / 2, y + 6, 0xFFFFFF, true);
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // Auto-click when holding mouse button over trim button
-        if (mouseButtonHeld && !getPlayerDriedBud().isEmpty()) {
-            int bx = this.leftPos + BUTTON_X;
-            int by = this.topPos  + BUTTON_Y;
-            if (mouseX >= bx && mouseX < bx + BUTTON_WIDTH && mouseY >= by && mouseY < by + BUTTON_HEIGHT) {
+    public void render(@NotNull GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        // Auto-click when holding button
+        if (mouseButtonHeld && !getAvailableDriedBud().isEmpty()) {
+            int bx = leftPos + BUTTON_X;
+            int by = topPos  + BUTTON_Y;
+            if (mouseX >= bx && mouseX < bx + BUTTON_W && mouseY >= by && mouseY < by + BUTTON_H) {
                 holdTick++;
                 if (holdTick % 5 == 0) {
                     java.util.Objects.requireNonNull(this.minecraft).gameMode
@@ -127,41 +124,60 @@ public class TrimStationScreen extends AbstractContainerScreen<TrimStationMenu> 
             }
         }
 
-        this.renderBackground(graphics);
-        super.render(graphics, mouseX, mouseY, partialTick);
+        renderBackground(g);
+        super.render(g, mouseX, mouseY, partialTick);
+        renderTooltip(g, mouseX, mouseY);
 
-        int x = this.leftPos;
-        int y = this.topPos;
+        int x = leftPos;
+        int y = topPos;
 
-        graphics.drawString(this.font,
-                Component.translatable("gui.trimm_station.title").getString(),
-                x + 10, y + 8, 0xFF88FF88, true);
+        // Title
+        g.drawString(font, Component.translatable("gui.trimm_station.title").getString(),
+                x + 8, y + 6, 0xFF88FF88, true);
 
-        ItemStack playerBud = getPlayerDriedBud();
-        if (playerBud.isEmpty()) {
+        // Slot labels
+        g.drawString(font, Component.translatable("gui.fermentation.input_label").getString(),
+                x + 16, y + 19, 0xAAAAAA, false);
+        g.drawString(font, "Bud",  x + 114, y + 19, 0xAAAAAA, false);
+        g.drawString(font, "Trim", x + 136, y + 19, 0xAAAAAA, false);
+
+        // Click count in arrow area (center of x+44..x+112 = x+78)
+        String label = menu.getClickCount() + " / " + TrimStationBlockEntity.CLICKS_NEEDED;
+        g.drawCenteredString(font, label, x + 78, y + 36, 0xFFFFFF);
+
+        // Info rows (strain + quality from input)
+        TrimStationBlockEntity be = menu.blockEntity;
+        if (be != null && be.hasInput()) {
+            ItemStack inputBud = be.getInputItem();
+            g.drawString(font,
+                    Component.translatable("gui.trimm_station.info_strain").getString()
+                    + DriedBudItem.getStrain(inputBud).getColoredName(),
+                    x + 8, y + 66, 0xFFFFFF, false);
+            g.drawString(font,
+                    Component.translatable("gui.trimm_station.info_quality").getString()
+                    + DriedBudItem.getQuality(inputBud).getColoredName(),
+                    x + 8, y + 76, 0xFFFFFF, false);
+        } else if (getAvailableDriedBud().isEmpty() && (be == null || !be.hasOutput())) {
             String msg = Component.translatable("gui.trimm_station.no_bud").getString();
-            int w = this.font.width(msg);
-            graphics.drawString(this.font, msg, x + GUI_WIDTH / 2 - w / 2, y + STATUS_Y, 0xFF888888, false);
-        } else {
-            // Show output preview
+            g.drawCenteredString(font, msg, x + 88, y + 70, 0xFF888888);
+        }
+
+        if (!getAvailableDriedBud().isEmpty() && (be == null || !be.hasInput())) {
             String out = Component.translatable("gui.trimm_station.output_preview").getString();
-            graphics.drawString(this.font, out, x + 10, y + STATUS_Y, 0xFFFFFF, false);
+            g.drawString(font, out, x + 8, y + 86, 0xFFFFFF, false);
         }
     }
 
     @Override
-    protected void renderLabels(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
-        // Empty
-    }
+    protected void renderLabels(@NotNull GuiGraphics g, int mouseX, int mouseY) { }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
-            int bx = this.leftPos + BUTTON_X;
-            int by = this.topPos  + BUTTON_Y;
-            if (mouseX >= bx && mouseX < bx + BUTTON_WIDTH &&
-                mouseY >= by && mouseY < by + BUTTON_HEIGHT) {
-                if (!getPlayerDriedBud().isEmpty()) {
+            int bx = leftPos + BUTTON_X;
+            int by = topPos  + BUTTON_Y;
+            if (mouseX >= bx && mouseX < bx + BUTTON_W && mouseY >= by && mouseY < by + BUTTON_H) {
+                if (!getAvailableDriedBud().isEmpty()) {
                     mouseButtonHeld = true;
                     holdTick = 0;
                     java.util.Objects.requireNonNull(this.minecraft).gameMode
@@ -183,7 +199,5 @@ public class TrimStationScreen extends AbstractContainerScreen<TrimStationMenu> 
     }
 
     @Override
-    public boolean isPauseScreen() {
-        return false;
-    }
+    public boolean isPauseScreen() { return false; }
 }

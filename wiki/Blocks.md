@@ -115,6 +115,7 @@ Quick Navigation:
 
 #### Small Fermentation Barrel
 - **ID:** `small_fermentation_barrel`
+- **GUI:** 1 Input slot + 1 Output slot; green progress bar + capacity bar (176×166)
 - **Capacity:** 4 slots
 - **Processing Time:** 10 minutes
 - **Quality Bonus:** +5%
@@ -124,6 +125,7 @@ Quick Navigation:
 
 #### Medium Fermentation Barrel
 - **ID:** `medium_fermentation_barrel`
+- **GUI:** 1 Input slot + 1 Output slot; orange progress bar + capacity bar (176×166)
 - **Capacity:** 8 slots
 - **Processing Time:** 12 minutes
 - **Quality Bonus:** +15%
@@ -133,6 +135,7 @@ Quick Navigation:
 
 #### Big Fermentation Barrel
 - **ID:** `big_fermentation_barrel`
+- **GUI:** 1 Input slot + 1 Output slot; red progress bar + capacity bar (176×166)
 - **Capacity:** 16 slots
 - **Processing Time:** 15 minutes
 - **Quality Bonus:** +30%
@@ -140,32 +143,29 @@ Quick Navigation:
 - **BlockEntity:** BigFermentationBarrelBlockEntity
 - **Crafting:** 32 planks + 8 iron ingots
 
-### Packaging Tables (3 Sizes) - MULTI-BLOCK 2x2
+### Packaging Tables (3 Sizes)
 
 #### Small Packaging Table
 - **ID:** `small_packaging_table`
-- **Size:** 2x2 multi-block
-- **Capacity:** 4 input slots
-- **Package Sizes:** 1g, 5g, 10g
-- **Speed:** 1 package/minute
+- **GUI:** 1 Input slot (top center) + 2×5 Bag grid (left) + 2×5 Jar grid (right); dark theme (176×190)
+- **Package Sizes:** 1g (Bags), 5g (Jars)
+- **Output Slots:** 10 Bag slots + 10 Jar slots = 20 output slots
 - **BlockEntity:** SmallPackagingTableBlockEntity
 - **Crafting:** 16 planks + 4 iron
 
 #### Medium Packaging Table
 - **ID:** `medium_packaging_table`
-- **Size:** 2x2 multi-block
-- **Capacity:** 8 input slots
-- **Package Sizes:** 1g-50g
-- **Speed:** 2 packages/minute
+- **GUI:** 1 Input slot (top center) + 2×5 Box grid (left) + info panel (right); dark theme (176×190)
+- **Package Sizes:** 10g (Boxes)
+- **Output Slots:** 10 Box slots
 - **BlockEntity:** MediumPackagingTableBlockEntity
 - **Crafting:** 32 planks + 8 iron
 
 #### Large Packaging Table
 - **ID:** `large_packaging_table`
-- **Size:** 2x2 multi-block
-- **Capacity:** 16 input slots
-- **Package Sizes:** All (1g-100g+)
-- **Speed:** 4 packages/minute
+- **GUI:** 1 Input slot (top center) + 2×5 Packet grid (left) + info panel (right); dark theme (176×190)
+- **Package Sizes:** 20g (Packets)
+- **Output Slots:** 10 Packet slots
 - **BlockEntity:** LargePackagingTableBlockEntity
 - **Crafting:** 64 planks + 16 iron
 
@@ -208,39 +208,41 @@ Quick Navigation:
 
 #### Trimm Station
 - **ID:** `cannabis_trimm_station`
-- **Function:** Trim dried buds
-- **Capacity:** 6 slots
-- **Time:** 3 minutes
-- **Output:** Trimmed buds + Trim
-- **Trim Ratio:** 25% of input
-- **BlockEntity:** TrimmStationBlockEntity
+- **Function:** Convert DriedBuds → TrimmedBuds + Trim (5 button-clicks per bud)
+- **GUI Slots:** Input (DriedBud), Output-Bud (TrimmedBud), Output-Trim (Trim)
+- **Interaction:** Right-click with DriedBud = fill; Shift+Right-click = collect output
+- **Output:** 1g TrimmedBud + 2g Trim per DriedBud
+- **BlockEntity:** TrimStationBlockEntity
 
 #### Curing Glas (Curing Jar)
 - **ID:** `cannabis_curing_glas`
-- **Function:** Cure trimmed buds
-- **Capacity:** 4 slots
-- **Time:** 10 minutes
-- **Quality Bonus:** +20%
-- **BlockEntity:** CuringGlasBlockEntity
-- **Crafting:** 8 glass + lid
+- **Function:** Cure trimmed buds to improve quality over time
+- **Capacity:** Up to 10g (same strain + quality only)
+- **Quality Upgrade:** +1 tier at 14 days, +2 tiers at 28 days
+- **GUI Slots:** Input (TrimmedBud), Output (live quality preview of CuredBud)
+- **Interaction:** Right-click with TrimmedBud = fill; Shift+Right-click = extract CuredBud
+- **BlockEntity:** CuringJarBlockEntity
 
 #### Hash Presse
 - **ID:** `cannabis_hash_presse`
-- **Function:** Press hash from trim/buds
-- **Input:** 4 trim OR 2 cured buds
-- **Output:** 1 hash
-- **Time:** 5 minutes
-- **Pressure:** Hydraulic press
-- **BlockEntity:** HashPresseBlockEntity
+- **Function:** Press Trim into Hash
+- **Input:** 20g Trim (single strain, exact amount)
+- **Output:** 5g Hash (25% conversion rate)
+- **Processing Time:** 6,000 ticks (5 minutes)
+- **GUI Slots:** Input (Trim), Output (Hash when done)
+- **Interaction:** Right-click with Trim = fill; **Shift+Right-click** = collect Hash
+- **BlockEntity:** HashPressBlockEntity
 
 #### Öl Extraktor
 - **ID:** `cannabis_oel_extraktor`
-- **Function:** Extract cannabis oil
-- **Input:** 3 cured buds + 1 solvent
-- **Output:** 1 oil (3x potency)
-- **Time:** 8 minutes
-- **Method:** Solvent extraction
-- **BlockEntity:** OelExtraktortBlockEntity
+- **Function:** Extract Cannabis Oil from buds or trim using solvent
+- **Input:** 10g TrimmedBud or Trim + 1 Extraction Solvent
+- **Output:** 1–2ml Cannabis Oil
+- **Processing Time:** 12,000 ticks (10 minutes)
+- **Conversion:** 10g buds = 1.5ml oil; 10g trim = 0.8ml oil
+- **GUI Slots:** Input (material), Solvent, Output (oil when done)
+- **Interaction:** Right-click with material/solvent = fill; **Shift+Right-click** = collect oil
+- **BlockEntity:** OilExtractorBlockEntity
 
 ---
 

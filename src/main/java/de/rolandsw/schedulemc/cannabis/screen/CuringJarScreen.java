@@ -5,148 +5,132 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class CuringJarScreen extends AbstractContainerScreen<CuringJarMenu> {
 
-    private static final int GUI_WIDTH  = 220;
-    private static final int GUI_HEIGHT = 160;
+    private static final int COLOR_PROGRESS  = 0xFF2D6B2D;
+    private static final int COLOR_PROGRESS2 = 0xFF8B8B22;
+    private static final int COLOR_PROGRESS3 = 0xFFAA7700;
+    private static final int COLOR_HIGHLIGHT = 0xFF55AA55;
+    private static final int COLOR_SEP       = 0xFF3A5A3A;
 
-    private static final int BAR_X      = 20;
-    private static final int BAR_Y      = 80;
-    private static final int BAR_WIDTH  = 180;
-    private static final int BAR_HEIGHT = 16;
-
-    private static final int ROW1_Y = 35;
-    private static final int ROW2_Y = 50;
-    private static final int ROW3_Y = 65;
-    private static final int ROW4_Y = 114;
-
-    public CuringJarScreen(CuringJarMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
-        this.imageWidth  = GUI_WIDTH;
-        this.imageHeight = GUI_HEIGHT;
+    public CuringJarScreen(CuringJarMenu menu, Inventory inv, Component title) {
+        super(menu, inv, title);
+        this.imageWidth  = 176;
+        this.imageHeight = 166;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
-    protected void init() {
-        super.init();
-        this.leftPos = (this.width  - GUI_WIDTH)  / 2;
-        this.topPos  = (this.height - GUI_HEIGHT) / 2;
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        return keyCode == 69 || super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private void drawSlot(GuiGraphics g, int x, int y) {
+        g.fill(x - 1, y - 1, x + 17, y + 17, 0xFF8B8B8B);
+        g.fill(x,     y,     x + 16, y + 16,  0xFF373737);
     }
 
     @Override
-    protected void renderBg(@NotNull GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        int x = this.leftPos;
-        int y = this.topPos;
+    protected void renderBg(@NotNull GuiGraphics g, float partialTick, int mouseX, int mouseY) {
+        int x = leftPos;
+        int y = topPos;
 
-        // Background
-        graphics.fill(x, y, x + GUI_WIDTH, y + GUI_HEIGHT, 0xFF0A1A0A);
-        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + GUI_HEIGHT - 3, 0xFF1D2D1D);
-        graphics.fill(x + 3, y + 3, x + GUI_WIDTH - 3, y + 25, 0xFF1D3D1D);
+        // Panel
+        g.fill(x,     y,     x + 176, y + 166, 0xFF1A2B1A);
+        g.fill(x + 2, y + 2, x + 174, y + 164, 0xFF2B3B2B);
+        g.fill(x + 2, y + 2, x + 174, y + 18,  0xFF0E1A0E);
 
-        if (menu.hasContent()) {
-            renderInfoRows(graphics, x, y);
+        // Machine slots
+        drawSlot(g, x + 22,  y + 30);  // IN
+        drawSlot(g, x + 134, y + 30);  // OUT
+
+        // Arrow / curing progress area
+        g.fill(x + 54, y + 26, x + 122, y + 52, 0xFF111A11);
+        float progress = menu.getCuringProgress();
+        if (menu.hasContent() && progress > 0) {
+            int filled = (int)(progress * 68);
+            int zone1 = 68 / 3, zone2 = 68 * 2 / 3;
+            g.fill(x + 54, y + 26, x + 54 + Math.min(filled, zone1), y + 52, COLOR_PROGRESS);
+            if (filled > zone1)
+                g.fill(x + 54 + zone1, y + 26, x + 54 + Math.min(filled, zone2), y + 52, COLOR_PROGRESS2);
+            if (filled > zone2)
+                g.fill(x + 54 + zone2, y + 26, x + 54 + filled, y + 52, COLOR_PROGRESS3);
+            g.fill(x + 54, y + 26, x + 54 + Math.min(filled, 68), y + 29, COLOR_HIGHLIGHT);
+        } else if (menu.hasOutput()) {
+            g.fill(x + 54, y + 26, x + 122, y + 52, COLOR_PROGRESS3);
+            g.fill(x + 54, y + 26, x + 122, y + 29, COLOR_HIGHLIGHT);
         }
 
-        renderProgressBar(graphics, x + BAR_X, y + BAR_Y);
-    }
+        // Separator after machine area
+        g.fill(x + 8, y + 62, x + 168, y + 63, COLOR_SEP);
 
-    private void renderInfoRows(GuiGraphics graphics, int x, int y) {
-        int maxDays = 3 - menu.getBaseQuality().getLevel(); // Tage bis LEGENDAER
+        // Separator before hotbar
+        g.fill(x + 8, y + 134, x + 168, y + 135, COLOR_SEP);
 
-        // Row 1: strain + weight
-        String row1 = Component.translatable("gui.curing_glas.info_strain").getString()
-                    + menu.getStrain().getColoredName()
-                    + Component.translatable("gui.curing_glas.info_weight_sep").getString()
-                    + menu.getWeight() + "g";
-        graphics.drawString(this.font, row1, x + 10, y + ROW1_Y, 0xFFFFFF, false);
-
-        // Row 2: base quality
-        String row2 = Component.translatable("gui.curing_glas.info_base_quality").getString()
-                    + menu.getBaseQuality().getColoredName();
-        graphics.drawString(this.font, row2, x + 10, y + ROW2_Y, 0xFFFFFF, false);
-
-        // Row 3: curing days
-        String row3 = maxDays <= 0
-                ? Component.translatable("gui.curing_glas.info_curing_days").getString()
-                    + menu.getCuringDays()
-                    + Component.translatable("gui.curing_glas.info_max_reached").getString()
-                : Component.translatable("gui.curing_glas.info_curing_days").getString()
-                    + menu.getCuringDays() + " §7/ " + maxDays;
-        graphics.drawString(this.font, row3, x + 10, y + ROW3_Y, 0xFFFFFF, false);
-    }
-
-    private void renderProgressBar(GuiGraphics graphics, int x, int y) {
-        // Border + background
-        graphics.fill(x - 1, y - 1, x + BAR_WIDTH + 1, y + BAR_HEIGHT + 1, 0xFF555555);
-        graphics.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, 0xFF222222);
-
-        if (!menu.hasContent()) return;
-
-        int days    = menu.getCuringDays();
-        int maxDays = Math.max(1, 3 - menu.getBaseQuality().getLevel()); // 1-3 Tage je nach Basis
-        int filledPixels = Math.min(BAR_WIDTH, (int)((days / (float) maxDays) * BAR_WIDTH));
-
-        // Farbzonen: grün → gelbgrün → gold
-        int zone1 = BAR_WIDTH / 3;
-        int zone2 = BAR_WIDTH * 2 / 3;
-        if (filledPixels > 0) {
-            int end1 = Math.min(filledPixels, zone1);
-            graphics.fill(x, y, x + end1, y + BAR_HEIGHT, 0xFF2D6B2D);
-            if (filledPixels > zone1) {
-                int end2 = Math.min(filledPixels, zone2);
-                graphics.fill(x + zone1, y, x + end2, y + BAR_HEIGHT, 0xFF8B8B22);
-            }
-            if (filledPixels > zone2) {
-                graphics.fill(x + zone2, y, x + filledPixels, y + BAR_HEIGHT, 0xFFAA7700);
-            }
+        // Hotbar slots
+        for (int i = 0; i < 9; i++) {
+            drawSlot(g, x + 8 + i * 18, y + 142);
         }
-
-        // Stern bei max Qualität
-        if (days >= maxDays) {
-            graphics.drawString(this.font, "§6★", x + BAR_WIDTH - 8, y + BAR_HEIGHT / 2 - 4, 0xFFFFFF, true);
-        }
-
-        // Labels
-        graphics.drawString(this.font, "§70",                         x,                  y + BAR_HEIGHT + 3, 0xAAAAAA, false);
-        graphics.drawString(this.font, "§7" + (maxDays / 2) + "d",   x + zone1 - 5,      y + BAR_HEIGHT + 3, 0xFFFF55, false);
-        graphics.drawString(this.font, "§6" + maxDays + "d",          x + BAR_WIDTH - 15, y + BAR_HEIGHT + 3, 0xFFAA00, false);
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public void render(@NotNull GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        renderBackground(g);
+        super.render(g, mouseX, mouseY, partialTick);
+        renderTooltip(g, mouseX, mouseY);
 
-        int x = this.leftPos;
-        int y = this.topPos;
+        int x = leftPos;
+        int y = topPos;
 
         // Title
-        graphics.drawString(this.font,
-                Component.translatable("gui.curing_glas.title").getString(),
-                x + 10, y + 8, 0xFF88FF88, true);
+        g.drawString(font, Component.translatable("gui.curing_glas.title").getString(),
+                x + 8, y + 6, 0xFF88FF88, true);
 
-        if (!menu.hasContent()) {
+        // Slot labels
+        g.drawString(font, Component.translatable("gui.fermentation.input_label").getString(),
+                x + 16, y + 19, 0xAAAAAA, false);
+        g.drawString(font, Component.translatable("gui.fermentation.output_label").getString(),
+                x + 128, y + 19, 0xAAAAAA, false);
+
+        if (!menu.hasContent() && !menu.hasOutput()) {
             String empty = Component.translatable("gui.curing_glas.empty").getString();
-            int w = this.font.width(empty);
-            graphics.drawString(this.font, empty, x + GUI_WIDTH / 2 - w / 2, y + 70, 0xFF888888, false);
+            g.drawCenteredString(font, empty, x + 88, y + 35, 0xFF888888);
             return;
         }
 
-        // Row 4: expected quality (below bar)
-        String expectedText = Component.translatable("gui.curing_glas.info_expected_quality").getString()
-                            + menu.getExpectedQuality().getColoredName();
-        graphics.drawString(this.font, expectedText, x + 10, y + ROW4_Y, 0xFFFFFF, false);
+        // Progress label / fertig-Indikator in der Pfeilfläche
+        if (menu.hasContent()) {
+            int pct = (int)(menu.getCuringProgress() * 100);
+            g.drawCenteredString(font, pct + "%", x + 88, y + 36, 0xFFFFFF);
+        } else if (menu.hasOutput()) {
+            g.drawCenteredString(font, "§6★ 100%", x + 88, y + 36, 0xFFFFFF);
+        }
+
+        // Info rows
+        g.drawString(font,
+                Component.translatable("gui.curing_glas.info_strain").getString()
+                + menu.getStrain().getColoredName() + " §7| " + menu.getWeight() + "g",
+                x + 8, y + 66, 0xFFFFFF, false);
+        g.drawString(font,
+                Component.translatable("gui.curing_glas.info_base_quality").getString()
+                + menu.getBaseQuality().getColoredName(),
+                x + 8, y + 76, 0xFFFFFF, false);
+        g.drawString(font,
+                Component.translatable("gui.curing_glas.info_expected_quality").getString()
+                + menu.getExpectedQuality().getColoredName()
+                + " §7(+1)",
+                x + 8, y + 86, 0xFFFFFF, false);
+        g.drawString(font,
+                "§7+20% " + Component.translatable("gui.curing_glas.price_bonus").getString(),
+                x + 8, y + 96, 0xFFFFFF, false);
     }
 
     @Override
-    protected void renderLabels(@NotNull GuiGraphics graphics, int mouseX, int mouseY) {
-        // Empty
-    }
+    protected void renderLabels(@NotNull GuiGraphics g, int mouseX, int mouseY) { }
 
     @Override
-    public boolean isPauseScreen() {
-        return false;
-    }
+    public boolean isPauseScreen() { return false; }
 }

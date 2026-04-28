@@ -1,8 +1,6 @@
 package de.rolandsw.schedulemc.weapon.handler;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.weapon.attachment.Attachment;
 import de.rolandsw.schedulemc.weapon.gun.GunItem;
@@ -12,19 +10,15 @@ import de.rolandsw.schedulemc.weapon.network.WeaponReloadPacket;
 import de.rolandsw.schedulemc.weapon.network.WeaponSetAmmoTypePacket;
 import de.rolandsw.schedulemc.weapon.network.WeaponStartAutoFirePacket;
 import de.rolandsw.schedulemc.weapon.network.WeaponStopAutoFirePacket;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -140,40 +134,7 @@ public class WeaponClientEventHandler {
         }
     }
 
-    @SubscribeEvent
-    public static void onRenderLevelStage(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
-        Minecraft mc = Minecraft.getInstance();
-        LocalPlayer player = mc.player;
-        if (player == null) return;
-        ItemStack mainHand = player.getMainHandItem();
-        if (!(mainHand.getItem() instanceof GunItem gun)) return;
-        boolean hasLaser = gun.getAttachments(mainHand).stream()
-                .anyMatch(a -> a.getType() == Attachment.Type.LASER);
-        if (!hasLaser) return;
 
-        Vec3 start = player.getEyePosition(1.0f);
-        Vec3 look = player.getLookAngle();
-        Vec3 end = start.add(look.scale(50));
-        Camera camera = mc.gameRenderer.getMainCamera();
-        PoseStack poseStack = event.getPoseStack();
-        Vec3 cameraPos = camera.getPosition();
-        poseStack.pushPose();
-        poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-
-        VertexConsumer builder = mc.renderBuffers().bufferSource().getBuffer(RenderType.LINES);
-        builder.vertex(poseStack.last().pose(), (float) start.x, (float) start.y, (float) start.z)
-                .color(255, 0, 0, 255)
-                .normal(poseStack.last().normal(), 0, 1, 0)
-                .endVertex();
-        builder.vertex(poseStack.last().pose(), (float) end.x, (float) end.y, (float) end.z)
-                .color(255, 0, 0, 255)
-                .normal(poseStack.last().normal(), 0, 1, 0)
-                .endVertex();
-        mc.renderBuffers().bufferSource().endBatch(RenderType.LINES);
-
-        poseStack.popPose();
-    }
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {

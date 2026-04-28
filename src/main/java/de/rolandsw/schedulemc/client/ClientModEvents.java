@@ -39,6 +39,15 @@ import de.rolandsw.schedulemc.cannabis.screen.TrimStationScreen;
 import de.rolandsw.schedulemc.cannabis.screen.CuringJarScreen;
 import de.rolandsw.schedulemc.cannabis.screen.HashPressScreen;
 import de.rolandsw.schedulemc.cannabis.screen.OilExtractorScreen;
+import de.rolandsw.schedulemc.coca.menu.CocaMenuTypes;
+import de.rolandsw.schedulemc.coca.screen.ExtractionVatScreen;
+import de.rolandsw.schedulemc.coca.screen.RefineryScreen;
+import de.rolandsw.schedulemc.coca.screen.CrackCookerScreen;
+import de.rolandsw.schedulemc.poppy.menu.PoppyMenuTypes;
+import de.rolandsw.schedulemc.poppy.screen.ScoringMachineScreen;
+import de.rolandsw.schedulemc.poppy.screen.OpiumPressScreen;
+import de.rolandsw.schedulemc.poppy.screen.CookingStationScreen;
+import de.rolandsw.schedulemc.poppy.screen.HeroinRefineryScreen;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import de.rolandsw.schedulemc.towing.menu.TowingMenuTypes;
@@ -109,6 +118,17 @@ public class ClientModEvents {
                 MenuScreens.register(CannabisMenuTypes.CURING_JAR_MENU.get(),   CuringJarScreen::new);
                 MenuScreens.register(CannabisMenuTypes.HASH_PRESS_MENU.get(),   HashPressScreen::new);
                 MenuScreens.register(CannabisMenuTypes.OIL_EXTRACTOR_MENU.get(), OilExtractorScreen::new);
+
+                // Coca-System
+                MenuScreens.register(CocaMenuTypes.EXTRACTION_VAT_MENU.get(), ExtractionVatScreen::new);
+                MenuScreens.register(CocaMenuTypes.REFINERY_MENU.get(), RefineryScreen::new);
+                MenuScreens.register(CocaMenuTypes.CRACK_COOKER_MENU.get(), CrackCookerScreen::new);
+
+                // Mohn-System
+                MenuScreens.register(PoppyMenuTypes.SCORING_MACHINE_MENU.get(), ScoringMachineScreen::new);
+                MenuScreens.register(PoppyMenuTypes.OPIUM_PRESS_MENU.get(), OpiumPressScreen::new);
+                MenuScreens.register(PoppyMenuTypes.COOKING_STATION_MENU.get(), CookingStationScreen::new);
+                MenuScreens.register(PoppyMenuTypes.HEROIN_REFINERY_MENU.get(), HeroinRefineryScreen::new);
                 ItemProperties.register(CannabisItems.CANNABIS_SEED.get(),
                         new ResourceLocation(ScheduleMC.MOD_ID, "strain"),
                         (stack, level, entity, seed) -> CannabisSeedItem.getStrain(stack).ordinal());

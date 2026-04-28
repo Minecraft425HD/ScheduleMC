@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.weapon.item;
 
 import de.rolandsw.schedulemc.ScheduleMC;
-import de.rolandsw.schedulemc.weapon.attachment.LaserAttachment;
 import de.rolandsw.schedulemc.weapon.attachment.ScopeAttachment;
 import de.rolandsw.schedulemc.weapon.attachment.SilencerAttachment;
 import de.rolandsw.schedulemc.weapon.grenade.FlashGrenadeItem;
@@ -77,7 +76,6 @@ public class WeaponItems {
     // ---- Attachments ----
     public static final RegistryObject<Item> SCOPE = ITEMS.register("scope", ScopeAttachment::new);
     public static final RegistryObject<Item> SILENCER = ITEMS.register("silencer", SilencerAttachment::new);
-    public static final RegistryObject<Item> LASER = ITEMS.register("laser", LaserAttachment::new);
 
     // ---- Feuermodus-Upgrades ----
     public static final RegistryObject<Item> UPGRADE_SINGLE_PRECISION = ITEMS.register("upgrade_single_precision",

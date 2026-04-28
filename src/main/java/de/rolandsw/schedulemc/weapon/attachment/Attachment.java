@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.weapon.attachment;
 
 public class Attachment {
-    public enum Type { SCOPE, SILENCER, LASER }
+    public enum Type { SCOPE, SILENCER }
 
     private final Type type;
     private final float damageMultiplier;

@@ -32,6 +32,7 @@ public class RoastingStationBlockEntity extends AbstractItemHandlerBlockEntity i
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int roastingProgress = 0;
+    private long lastGameTime = -1L;
     private ChocolateQuality quality;
 
     private static final int PROCESSING_TIME = 400; // 20 seconds
@@ -108,8 +109,14 @@ public class RoastingStationBlockEntity extends AbstractItemHandlerBlockEntity i
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            roastingProgress = Math.min(roastingProgress + 1, PROCESSING_TIME);
+            int prevProgress = roastingProgress;
+            roastingProgress = Math.min(roastingProgress + (int) ticksPassed, PROCESSING_TIME);
 
             if (roastingProgress >= PROCESSING_TIME) {
                 // Roasting complete: Cocoa Beans → Roasted Cocoa Beans
@@ -127,7 +134,7 @@ public class RoastingStationBlockEntity extends AbstractItemHandlerBlockEntity i
                 changed = true;
             }
 
-            if (roastingProgress % 20 == 0) changed = true;
+            if (roastingProgress / 20 > prevProgress / 20) changed = true;
         }
 
         if (changed) {
@@ -155,6 +162,7 @@ public class RoastingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", roastingProgress);
         if (quality != null) tag.putString("Quality", quality.name());
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -164,6 +172,7 @@ public class RoastingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         roastingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
             catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }

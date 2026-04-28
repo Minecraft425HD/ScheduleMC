@@ -149,7 +149,7 @@ public final class VehicleConstants {
     /**
      * Fallback-Tankgröße wenn kein PartTank installiert (in mB)
      */
-    public static final int DEFAULT_TANK_SIZE_MB = 11000;
+    public static final int DEFAULT_TANK_SIZE_MB = 5500;
 
     // ═══════════════════════════════════════════════════════════
     // VEHICLE DEFAULTS

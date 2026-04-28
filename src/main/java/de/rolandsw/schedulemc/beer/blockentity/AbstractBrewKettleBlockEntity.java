@@ -31,6 +31,7 @@ public abstract class AbstractBrewKettleBlockEntity extends AbstractItemHandlerB
     private ItemStack hopsStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int brewingProgress = 0;
+    private long lastGameTime = -1L;
     private BeerQuality quality;
 
     protected AbstractBrewKettleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -144,9 +145,15 @@ public abstract class AbstractBrewKettleBlockEntity extends AbstractItemHandlerB
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!wortStack.isEmpty() && !hopsStack.isEmpty() && outputStack.isEmpty()) {
             int totalTime = getTotalBrewingTime();
-            brewingProgress = Math.min(brewingProgress + 1, totalTime);
+            int prevProgress = brewingProgress;
+            brewingProgress = Math.min(brewingProgress + (int) ticksPassed, totalTime);
 
             if (brewingProgress >= totalTime) {
                 // Brewing complete: Wort + Hops → Unfermented Beer
@@ -172,7 +179,7 @@ public abstract class AbstractBrewKettleBlockEntity extends AbstractItemHandlerB
                 changed = true;
             }
 
-            if (brewingProgress % 20 == 0) changed = true;
+            if (brewingProgress / 20 > prevProgress / 20) changed = true;
         }
 
         if (changed) {
@@ -202,6 +209,7 @@ public abstract class AbstractBrewKettleBlockEntity extends AbstractItemHandlerB
         if (!hopsStack.isEmpty()) tag.put("Hops", hopsStack.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", brewingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         if (quality != null) tag.putString("Quality", quality.name());
     }
 
@@ -213,6 +221,7 @@ public abstract class AbstractBrewKettleBlockEntity extends AbstractItemHandlerB
         hopsStack = tag.contains("Hops") ? ItemStack.of(tag.getCompound("Hops")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         brewingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
             catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }

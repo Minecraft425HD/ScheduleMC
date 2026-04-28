@@ -25,6 +25,7 @@ public abstract class AbstractAgingCaveBlockEntity extends AbstractItemHandlerBl
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgingCaveBlockEntity.class);
     private ItemStack storedCheese = ItemStack.EMPTY;
     private int agingTicks = 0;
+    private long lastGameTime = -1L;
     private CheeseType cheeseType;
     private CheeseQuality quality;
     private double weightKg;
@@ -106,16 +107,20 @@ public abstract class AbstractAgingCaveBlockEntity extends AbstractItemHandlerBl
     public void tick() {
         if (level == null || level.isClientSide) return;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!storedCheese.isEmpty()) {
-            // Apply aging speed multiplier
-            double tickIncrement = getAgingSpeedMultiplier();
-            agingTicks += (int) Math.ceil(tickIncrement);
+            int prevAgingTicks = agingTicks;
+            agingTicks += (int) Math.ceil(ticksPassed * getAgingSpeedMultiplier());
 
             // Update the stored cheese wheel's aging ticks
             CheeseWheelItem.setAgingTicks(storedCheese, agingTicks);
             itemHandler.setStackInSlot(0, storedCheese.copy());
 
-            if (agingTicks % 100 == 0) {
+            if (agingTicks / 100 > prevAgingTicks / 100) {
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -135,6 +140,7 @@ public abstract class AbstractAgingCaveBlockEntity extends AbstractItemHandlerBl
         if (cheeseType != null) tag.putString("CheeseType", cheeseType.name());
         if (quality != null) tag.putString("Quality", quality.name());
         tag.putDouble("WeightKg", weightKg);
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -143,6 +149,7 @@ public abstract class AbstractAgingCaveBlockEntity extends AbstractItemHandlerBl
         if (itemHandler == null) createItemHandler();
         storedCheese = tag.contains("StoredCheese") ? ItemStack.of(tag.getCompound("StoredCheese")) : ItemStack.EMPTY;
         agingTicks = tag.getInt("AgingTicks");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("CheeseType")) {
             try { cheeseType = CheeseType.valueOf(tag.getString("CheeseType")); }
             catch (IllegalArgumentException exception) {

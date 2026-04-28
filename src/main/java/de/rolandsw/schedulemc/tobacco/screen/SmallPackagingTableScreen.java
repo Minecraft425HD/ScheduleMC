@@ -130,9 +130,6 @@ public class SmallPackagingTableScreen extends AbstractContainerScreen<SmallPack
         int y = this.topPos;
         graphics.drawString(this.font, Component.translatable("block.schedulemc.small_packaging_table").getString(), x + 8, y + 6, 0xFFFFFF, false);
 
-        // Labels für Tüten und Gläser
-        graphics.drawString(this.font, Component.translatable("gui.packaging_table.bags").getString(), x + 8, y + 40, 0xCCCCCC, false);
-        graphics.drawString(this.font, Component.translatable("gui.packaging_table.jars").getString(), x + 134, y + 40, 0xCCCCCC, false);
     }
 
     @Override

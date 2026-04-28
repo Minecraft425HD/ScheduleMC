@@ -35,6 +35,7 @@ public class MashTunBlockEntity extends AbstractItemHandlerBlockEntity implement
     private ItemStack waterBucketStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int mashingProgress = 0;
+    private long lastGameTime = -1L;
     private BeerQuality quality;
 
     public MashTunBlockEntity(BlockPos pos, BlockState state) {
@@ -127,9 +128,15 @@ public class MashTunBlockEntity extends AbstractItemHandlerBlockEntity implement
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!maltedGrainStack.isEmpty() && !waterBucketStack.isEmpty() && outputStack.isEmpty()) {
             int totalTime = getTotalMashingTime();
-            mashingProgress = Math.min(mashingProgress + 1, totalTime);
+            int prevProgress = mashingProgress;
+            mashingProgress = Math.min(mashingProgress + (int) ticksPassed, totalTime);
 
             if (mashingProgress >= totalTime) {
                 // Mashing complete: Malted Grain + Water → Wort
@@ -160,7 +167,7 @@ public class MashTunBlockEntity extends AbstractItemHandlerBlockEntity implement
                 changed = true;
             }
 
-            if (mashingProgress % 20 == 0) changed = true;
+            if (mashingProgress / 20 > prevProgress / 20) changed = true;
         }
 
         if (changed) {
@@ -190,6 +197,7 @@ public class MashTunBlockEntity extends AbstractItemHandlerBlockEntity implement
         if (!waterBucketStack.isEmpty()) tag.put("WaterBucket", waterBucketStack.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", mashingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         if (quality != null) tag.putString("Quality", quality.name());
     }
 
@@ -201,6 +209,7 @@ public class MashTunBlockEntity extends AbstractItemHandlerBlockEntity implement
         waterBucketStack = tag.contains("WaterBucket") ? ItemStack.of(tag.getCompound("WaterBucket")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         mashingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
             catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }

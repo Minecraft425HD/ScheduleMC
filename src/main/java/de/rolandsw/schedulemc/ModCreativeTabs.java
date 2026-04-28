@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc;
 
 import de.rolandsw.schedulemc.items.ModItems;
+import de.rolandsw.schedulemc.fan.blocks.FanBlocks;
 import de.rolandsw.schedulemc.tobacco.blocks.TobaccoBlocks;
 import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
@@ -220,6 +221,10 @@ public class ModCreativeTabs {
                 output.accept(TobaccoBlocks.SMALL_DRYING_RACK.get());
                 output.accept(TobaccoBlocks.MEDIUM_DRYING_RACK.get());
                 output.accept(TobaccoBlocks.BIG_DRYING_RACK.get());
+                // Ventilatoren (Multiblock-Booster)
+                output.accept(FanBlocks.FAN_TIER_1.get());
+                output.accept(FanBlocks.FAN_TIER_2.get());
+                output.accept(FanBlocks.FAN_TIER_3.get());
                 output.accept(TobaccoBlocks.SMALL_FERMENTATION_BARREL.get());
                 output.accept(TobaccoBlocks.MEDIUM_FERMENTATION_BARREL.get());
                 output.accept(TobaccoBlocks.BIG_FERMENTATION_BARREL.get());
@@ -660,7 +665,6 @@ public class ModCreativeTabs {
                 // Attachments
                 output.accept(WeaponItems.SCOPE.get());
                 output.accept(WeaponItems.SILENCER.get());
-                output.accept(WeaponItems.LASER.get());
                 // Upgrades
                 output.accept(WeaponItems.UPGRADE_SINGLE_PRECISION.get());
                 output.accept(WeaponItems.UPGRADE_BURST.get());

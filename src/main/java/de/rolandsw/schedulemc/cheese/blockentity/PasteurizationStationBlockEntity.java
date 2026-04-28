@@ -31,6 +31,7 @@ public class PasteurizationStationBlockEntity extends AbstractItemHandlerBlockEn
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int pasteurizationProgress = 0;
+    private long lastGameTime = -1L;
 
     public PasteurizationStationBlockEntity(BlockPos pos, BlockState state) {
         super(CheeseBlockEntities.PASTEURIZATION_STATION.get(), pos, state);
@@ -95,8 +96,14 @@ public class PasteurizationStationBlockEntity extends AbstractItemHandlerBlockEn
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            pasteurizationProgress = Math.min(pasteurizationProgress + 1, getTotalPasteurizationTime());
+            int prevProgress = pasteurizationProgress;
+            pasteurizationProgress = Math.min(pasteurizationProgress + (int) ticksPassed, getTotalPasteurizationTime());
 
             if (pasteurizationProgress >= getTotalPasteurizationTime()) {
                 // Pasteurization complete: Raw Milk → Pasteurized Milk
@@ -108,7 +115,7 @@ public class PasteurizationStationBlockEntity extends AbstractItemHandlerBlockEn
                 changed = true;
             }
 
-            if (pasteurizationProgress % 20 == 0) changed = true;
+            if (pasteurizationProgress / 20 > prevProgress / 20) changed = true;
         }
 
         if (changed) {
@@ -135,6 +142,7 @@ public class PasteurizationStationBlockEntity extends AbstractItemHandlerBlockEn
         if (!inputStack.isEmpty()) tag.put("Input", inputStack.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", pasteurizationProgress);
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -144,6 +152,7 @@ public class PasteurizationStationBlockEntity extends AbstractItemHandlerBlockEn
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         pasteurizationProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         syncToHandler();
     }
 

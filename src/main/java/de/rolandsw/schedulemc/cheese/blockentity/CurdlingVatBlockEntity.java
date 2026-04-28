@@ -36,6 +36,7 @@ public class CurdlingVatBlockEntity extends AbstractItemHandlerBlockEntity imple
     private ItemStack rennetInput = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int curdlingProgress = 0;
+    private long lastGameTime = -1L;
     private CheeseQuality quality;
 
     public CurdlingVatBlockEntity(BlockPos pos, BlockState state) {
@@ -115,8 +116,14 @@ public class CurdlingVatBlockEntity extends AbstractItemHandlerBlockEntity imple
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!milkInput.isEmpty() && !rennetInput.isEmpty() && outputStack.isEmpty()) {
-            curdlingProgress = Math.min(curdlingProgress + 1, getTotalCurdlingTime());
+            int prevCurdlingProgress = curdlingProgress;
+            curdlingProgress = Math.min(curdlingProgress + (int) ticksPassed, getTotalCurdlingTime());
 
             if (curdlingProgress >= getTotalCurdlingTime()) {
                 // Determine quality once at completion
@@ -130,20 +137,18 @@ public class CurdlingVatBlockEntity extends AbstractItemHandlerBlockEntity imple
 
                 outputStack = curd;
 
+                // Consume all milk used for this batch
+                milkInput = ItemStack.EMPTY;
+
                 // Consume one rennet
                 rennetInput.shrink(1);
-                if (rennetInput.isEmpty()) {
-                    itemHandler.setStackInSlot(1, ItemStack.EMPTY);
-                } else {
-                    itemHandler.setStackInSlot(1, rennetInput.copy());
-                }
 
                 curdlingProgress = 0;
                 quality = null;
                 changed = true;
             }
 
-            if (curdlingProgress % 20 == 0) changed = true;
+            if (curdlingProgress / 20 > prevCurdlingProgress / 20) changed = true;
         } else {
             if (curdlingProgress > 0 && (milkInput.isEmpty() || rennetInput.isEmpty())) {
                 curdlingProgress = 0;
@@ -177,6 +182,7 @@ public class CurdlingVatBlockEntity extends AbstractItemHandlerBlockEntity imple
         if (!rennetInput.isEmpty()) tag.put("RennetInput", rennetInput.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", curdlingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         if (quality != null) tag.putString("Quality", quality.name());
     }
 
@@ -188,6 +194,7 @@ public class CurdlingVatBlockEntity extends AbstractItemHandlerBlockEntity imple
         rennetInput = tag.contains("RennetInput") ? ItemStack.of(tag.getCompound("RennetInput")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         curdlingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
             catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }

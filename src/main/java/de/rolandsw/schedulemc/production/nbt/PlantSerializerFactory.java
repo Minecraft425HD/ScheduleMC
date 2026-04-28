@@ -18,12 +18,12 @@ public class PlantSerializerFactory {
 
     static {
         SERIALIZERS.add(new TobaccoPlantSerializer());
-        // Note: Additional plant serializers can be added here as they are implemented
-        // Template for new serializers:
-        // SERIALIZERS.add(new CannabisPlantSerializer());
-        // SERIALIZERS.add(new CocaPlantSerializer());
-        // SERIALIZERS.add(new PoppyPlantSerializer());
-        // SERIALIZERS.add(new MushroomPlantSerializer());
+        SERIALIZERS.add(new CannabisPlantSerializer());
+        SERIALIZERS.add(new CocaPlantSerializer());
+        SERIALIZERS.add(new PoppyPlantSerializer());
+        SERIALIZERS.add(new MushroomPlantSerializer());
+        SERIALIZERS.add(new GrapePlantSerializer());
+        SERIALIZERS.add(new CoffeePlantSerializer());
     }
 
     /**

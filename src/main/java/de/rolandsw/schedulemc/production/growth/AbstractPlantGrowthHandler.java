@@ -55,11 +55,16 @@ public abstract class AbstractPlantGrowthHandler implements PlantGrowthHandler {
             }
         }
 
-        // Kein Grow Light → Fallback auf normale Licht-Prüfung
-        // (z.B. Sonnenlicht, Fackeln, etc.)
+        // Kein Grow Light → tageszeitabhängige Außenprüfung
         BlockPos plantPos = pos.above(2);
-        int lightLevel = level.getBrightness(LightLayer.BLOCK, plantPos);
+        int rawSkyLight = level.getBrightness(LightLayer.SKY, plantPos);
+        if (rawSkyLight > 0) {
+            // Außen: effektives Licht >= minLight (tagsüber ja, nachts nein)
+            return level.getRawBrightness(plantPos, 0) >= minLight;
+        }
 
+        // Innen ohne Grow Light: Block-Licht prüfen (Fackeln etc.)
+        int lightLevel = level.getBrightness(LightLayer.BLOCK, plantPos);
         return lightLevel >= minLight;
     }
 

@@ -35,6 +35,7 @@ public class CoolingTunnelBlockEntity extends AbstractItemHandlerBlockEntity imp
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int coolingProgress = 0;
+    private long lastGameTime = -1L;
 
     private static final int PROCESSING_TIME = 200; // 10 seconds
 
@@ -105,8 +106,14 @@ public class CoolingTunnelBlockEntity extends AbstractItemHandlerBlockEntity imp
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            coolingProgress = Math.min(coolingProgress + 1, PROCESSING_TIME);
+            int prevProgress = coolingProgress;
+            coolingProgress = (int) Math.min((long) coolingProgress + ticksPassed, PROCESSING_TIME);
 
             if (coolingProgress >= PROCESSING_TIME) {
                 // Cooling complete: Add "Cooled" tag
@@ -119,11 +126,12 @@ public class CoolingTunnelBlockEntity extends AbstractItemHandlerBlockEntity imp
                 }
 
                 outputStack = cooledItem;
+                inputStack = ItemStack.EMPTY;
                 coolingProgress = 0;
                 changed = true;
+            } else if (coolingProgress / 20 > prevProgress / 20) {
+                changed = true;
             }
-
-            if (coolingProgress % 20 == 0) changed = true;
         }
 
         if (changed) {
@@ -150,6 +158,7 @@ public class CoolingTunnelBlockEntity extends AbstractItemHandlerBlockEntity imp
         if (!inputStack.isEmpty()) tag.put("Input", inputStack.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", coolingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
     }
 
     @Override
@@ -159,6 +168,7 @@ public class CoolingTunnelBlockEntity extends AbstractItemHandlerBlockEntity imp
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         coolingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         syncToHandler();
     }
 

@@ -4,7 +4,9 @@ import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.cannabis.blocks.CannabisPlantBlock;
 import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
+import de.rolandsw.schedulemc.coffee.blocks.CoffeePlantBlock;
 import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
+import de.rolandsw.schedulemc.wine.blocks.GrapevineBlock;
 import de.rolandsw.schedulemc.production.blockentity.PlantPotBlockEntity;
 import de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
 import de.rolandsw.schedulemc.production.core.PotType;
@@ -85,6 +87,13 @@ public class TobaccoPotHudOverlay {
                 potPos = targetPos.below();
             } else if (block instanceof PoppyPlantBlock) {
                 if (state.getValue(PoppyPlantBlock.HALF) == DoubleBlockHalf.UPPER) {
+                    targetPos = targetPos.below();
+                }
+                potPos = targetPos.below();
+            } else if (block instanceof GrapevineBlock) {
+                potPos = targetPos.below();
+            } else if (block instanceof CoffeePlantBlock) {
+                if (state.getValue(CoffeePlantBlock.HALF) == DoubleBlockHalf.UPPER) {
                     targetPos = targetPos.below();
                 }
                 potPos = targetPos.below();
@@ -325,7 +334,8 @@ public class TobaccoPotHudOverlay {
             currentY += LINE_HEIGHT;
 
             int growthStage = getPlantGrowthStage(potData);
-            int growthPercent = (growthStage * 100) / 7;
+            int maxStage = getPlantMaxStage(potData);
+            int growthPercent = (growthStage * 100) / maxStage;
 
             drawScaledText(guiGraphics, mc, "📊 Wachstum  §e" + growthPercent + "%", x + PADDING, currentY, 0xFFFFFF);
             currentY += LINE_HEIGHT;
@@ -353,6 +363,8 @@ public class TobaccoPotHudOverlay {
         if (potData.hasTobaccoPlant() && potData.getPlant().isFullyGrown()) return true;
         if (potData.hasCannabisPlant() && potData.getCannabisPlant().isFullyGrown()) return true;
         if (potData.hasCocaPlant() && potData.getCocaPlant().isFullyGrown()) return true;
+        if (potData.hasGrapePlant() && potData.getGrapePlant().isFullyGrown()) return true;
+        if (potData.hasCoffeePlant() && potData.getCoffeePlant().isFullyGrown()) return true;
         return potData.hasPoppyPlant() && potData.getPoppyPlant().isFullyGrown()
                 || potData.hasMushroomPlant() && potData.getMushroomPlant().canHarvest();
     }
@@ -369,7 +381,14 @@ public class TobaccoPotHudOverlay {
         if (potData.hasCocaPlant()) return potData.getCocaPlant().getGrowthStage();
         if (potData.hasPoppyPlant()) return potData.getPoppyPlant().getGrowthStage();
         if (potData.hasMushroomPlant()) return potData.getMushroomPlant().getGrowthStage();
+        if (potData.hasGrapePlant()) return potData.getGrapePlant().getGrowthStage();
+        if (potData.hasCoffeePlant()) return potData.getCoffeePlant().getGrowthStage();
         return 0;
+    }
+
+    private static int getPlantMaxStage(PlantPotData potData) {
+        if (potData.hasCoffeePlant()) return 9;
+        return 7;
     }
 
     /**
@@ -485,21 +504,27 @@ public class TobaccoPotHudOverlay {
      */
     private static String getPlantInfoCompact(PlantPotData potData) {
         if (potData.hasTobaccoPlant()) {
-            return potData.getPlant().getType().getColoredName();
+            return "Tobacco: " + potData.getPlant().getType().getColoredName();
         }
         if (potData.hasCannabisPlant()) {
-            return potData.getCannabisPlant().getStrain().getColoredName();
+            return "Cannabis: " + potData.getCannabisPlant().getStrain().getColoredName();
         }
         if (potData.hasCocaPlant()) {
-            return potData.getCocaPlant().getType().getColoredName();
+            return "Coca: " + potData.getCocaPlant().getType().getColoredName();
         }
         if (potData.hasPoppyPlant()) {
-            return potData.getPoppyPlant().getType().getColoredName();
+            return "Poppy: " + potData.getPoppyPlant().getType().getColoredName();
+        }
+        if (potData.hasGrapePlant()) {
+            return "Grape: " + potData.getGrapePlant().getType().getDisplayName();
+        }
+        if (potData.hasCoffeePlant()) {
+            return "Coffee: " + potData.getCoffeePlant().getType().getColoredName();
         }
         if (potData.hasMushroomPlant()) {
             var plant = potData.getMushroomPlant();
             String phase = plant.isIncubating() ? "§8Inkubation" : "§aFruchtung";
-            return potData.getMushroomPlant().getType().getColoredName() + " §7| " + phase;
+            return "Mushroom: " + potData.getMushroomPlant().getType().getColoredName() + " §7| " + phase;
         }
         return "§7Unbekannt";
     }
@@ -519,6 +544,12 @@ public class TobaccoPotHudOverlay {
         }
         if (potData.hasPoppyPlant()) {
             return potData.getPoppyPlant().getQuality().getColoredName();
+        }
+        if (potData.hasGrapePlant()) {
+            return "§7-";
+        }
+        if (potData.hasCoffeePlant()) {
+            return potData.getCoffeePlant().getQuality().getColoredName();
         }
         return "§7-";
     }

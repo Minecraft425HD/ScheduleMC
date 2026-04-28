@@ -31,6 +31,7 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends AbstractItemHa
     private ItemStack inputStack = ItemStack.EMPTY;  // Coffee Cherries
     private ItemStack outputStack = ItemStack.EMPTY; // Green Coffee Beans
     private int dryingProgress = 0;
+    private long lastGameTime = -1L;
     private CoffeeType coffeeType;
     private CoffeeQuality quality;
 
@@ -185,9 +186,15 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends AbstractItemHa
 
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
             int totalTime = getDryingTimePerCherry() * inputStack.getCount();
-            dryingProgress = Math.min(dryingProgress + 1, totalTime);
+            int prevProgress = dryingProgress;
+            dryingProgress = (int) Math.min((long) dryingProgress + ticksPassed, totalTime);
 
             if (dryingProgress >= totalTime) {
                 // Trocknung abgeschlossen
@@ -195,10 +202,10 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends AbstractItemHa
                 int beanCount = inputStack.getCount() * 2;
                 outputStack = new ItemStack(CoffeeItems.getGreenBeanForType(coffeeType != null ? coffeeType : CoffeeType.ARABICA), beanCount);
                 GreenCoffeeBeanItem.withQuality(outputStack, quality != null ? quality : CoffeeQuality.GUT);
+                inputStack = ItemStack.EMPTY;
+                dryingProgress = 0;
                 changed = true;
-            }
-
-            if (dryingProgress % 20 == 0) {
+            } else if (dryingProgress / 20 > prevProgress / 20) {
                 changed = true;
             }
         }
@@ -239,6 +246,7 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends AbstractItemHa
         }
 
         tag.putInt("Progress", dryingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
 
         if (coffeeType != null) {
             tag.putString("CoffeeType", coffeeType.name());
@@ -259,6 +267,7 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends AbstractItemHa
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         dryingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
 
         if (tag.contains("CoffeeType")) {
             try { coffeeType = CoffeeType.valueOf(tag.getString("CoffeeType")); }

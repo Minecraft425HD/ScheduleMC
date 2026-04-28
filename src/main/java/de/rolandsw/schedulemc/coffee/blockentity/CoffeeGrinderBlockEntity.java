@@ -27,6 +27,7 @@ public class CoffeeGrinderBlockEntity extends AbstractItemHandlerBlockEntity imp
     private ItemStack inputStack = ItemStack.EMPTY;
     private ItemStack outputStack = ItemStack.EMPTY;
     private int grindingProgress = 0;
+    private long lastGameTime = -1L;
     private CoffeeGrindSize selectedGrindSize = CoffeeGrindSize.MEDIUM;
     public CoffeeGrinderBlockEntity(BlockPos pos, BlockState state) {
         super(CoffeeBlockEntities.COFFEE_GRINDER.get(), pos, state);
@@ -81,8 +82,14 @@ public class CoffeeGrinderBlockEntity extends AbstractItemHandlerBlockEntity imp
         if (level == null || level.isClientSide) return;
         boolean changed = false;
 
+        long now = level.getDayTime();
+        long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
+        lastGameTime = now;
+        if (ticksPassed == 0) return;
+
         if (!inputStack.isEmpty() && outputStack.isEmpty()) {
-            grindingProgress = Math.min(grindingProgress + 1, 100);
+            int prevProgress = grindingProgress;
+            grindingProgress = (int) Math.min((long) grindingProgress + ticksPassed, 100);
 
             if (grindingProgress >= 100) {
                 CoffeeType type = RoastedCoffeeBeanItem.getType(inputStack);
@@ -93,9 +100,9 @@ public class CoffeeGrinderBlockEntity extends AbstractItemHandlerBlockEntity imp
                 inputStack = ItemStack.EMPTY;
                 grindingProgress = 0;
                 changed = true;
+            } else if (grindingProgress / 20 > prevProgress / 20) {
+                changed = true;
             }
-
-            if (grindingProgress % 20 == 0) changed = true;
         }
 
         if (changed) {
@@ -120,6 +127,7 @@ public class CoffeeGrinderBlockEntity extends AbstractItemHandlerBlockEntity imp
         if (!inputStack.isEmpty()) tag.put("Input", inputStack.save(new CompoundTag()));
         if (!outputStack.isEmpty()) tag.put("Output", outputStack.save(new CompoundTag()));
         tag.putInt("Progress", grindingProgress);
+        tag.putLong("LastGameTime", lastGameTime);
         tag.putString("GrindSize", selectedGrindSize.name());
     }
 
@@ -129,6 +137,7 @@ public class CoffeeGrinderBlockEntity extends AbstractItemHandlerBlockEntity imp
         inputStack = tag.contains("Input") ? ItemStack.of(tag.getCompound("Input")) : ItemStack.EMPTY;
         outputStack = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;
         grindingProgress = tag.getInt("Progress");
+        lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("GrindSize")) {
             try { selectedGrindSize = CoffeeGrindSize.valueOf(tag.getString("GrindSize")); }
             catch (IllegalArgumentException ex) { selectedGrindSize = CoffeeGrindSize.MEDIUM; }

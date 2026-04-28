@@ -56,60 +56,11 @@ public class OilExtractorBlock extends BaseEntityBlock {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
-
-        BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof OilExtractorBlockEntity extractor)) return InteractionResult.PASS;
-
-        ItemStack heldItem = player.getItemInHand(hand);
-
-        // Öl entnehmen (jedes ml als eigenes Item)
-        if (extractor.hasOutput()) {
-            ItemStack oil = extractor.extractOil();
-            if (!oil.isEmpty()) {
-                while (!oil.isEmpty()) {
-                    ItemStack ml = oil.split(1);
-                    if (!player.addItem(ml)) Block.popResource(level, extractor.getBlockPos(), ml);
-                }
-                player.displayClientMessage(Component.translatable("block.oil_extractor.oil_removed"), true);
-                return InteractionResult.CONSUME;
-            }
-        }
-
-        // Material hinzufügen (Blüten oder Trim)
-        if ((heldItem.getItem() instanceof TrimmedBudItem || heldItem.getItem() instanceof TrimItem) && !extractor.isExtracting()) {
-            if (extractor.addMaterial(heldItem)) {
-                if (!player.isCreative()) {
-                    heldItem.shrink(1);
-                }
-                String typeKey = extractor.isFromBuds() ? "block.oil_extractor.buds_label" : "block.oil_extractor.trim_label";
-                player.displayClientMessage(Component.translatable("block.oil_extractor.material_added").append(
-                        Component.translatable(typeKey)).append(Component.translatable("block.oil_extractor.material_added_suffix")).append(
-                        Component.translatable("block.oil_extractor.material_grams", extractor.getMaterialWeight())
-                ), true);
-                return InteractionResult.CONSUME;
-            }
-        }
-
-        // Lösungsmittel hinzufügen
-        if (heldItem.is(CannabisItems.EXTRACTION_SOLVENT.get()) && !extractor.isExtracting()) {
-            if (extractor.addSolvent(heldItem)) {
-                if (!player.isCreative()) {
-                    heldItem.shrink(heldItem.getCount());
-                }
-                player.displayClientMessage(Component.translatable("block.oil_extractor.solvent_added").append(
-                        Component.translatable("block.oil_extractor.solvent_count", extractor.getSolventCount())
-                ), true);
-                return InteractionResult.CONSUME;
-            }
-        }
-
-        // GUI öffnen (leere Hand)
-        if (heldItem.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+        if (!(level.getBlockEntity(pos) instanceof OilExtractorBlockEntity extractor)) return InteractionResult.PASS;
+        if (player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openScreen(serverPlayer, new OilExtractorMenu.Provider(extractor), extractor.getBlockPos());
-            return InteractionResult.CONSUME;
         }
-
-        return InteractionResult.SUCCESS;
+        return InteractionResult.CONSUME;
     }
 
     @Override

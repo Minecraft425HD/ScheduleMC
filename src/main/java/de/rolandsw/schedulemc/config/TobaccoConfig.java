@@ -62,12 +62,12 @@ public class TobaccoConfig {
                 .defineInRange("growth_speed_multiplier", 1.0, 0.1, 10.0);
         
         TOBACCO_DRYING_TIME = builder
-                .comment("Trocknungszeit in Ticks (6000 = 5 Minuten)")
-                .defineInRange("drying_time", 6000, 100, 72000);
-        
+                .comment("Trocknungszeit in Ticks (750 = ca. 37 Sekunden)")
+                .defineInRange("drying_time", 750, 100, 72000);
+
         TOBACCO_FERMENTING_TIME = builder
-                .comment("Fermentierungszeit in Ticks (12000 = 10 Minuten)")
-                .defineInRange("fermenting_time", 12000, 100, 72000);
+                .comment("Fermentierungszeit in Ticks (500 = ca. 25 Sekunden)")
+                .defineInRange("fermenting_time", 500, 100, 72000);
         
         FERMENTATION_QUALITY_CHANCE = builder
                 .comment("Chance auf Qualitätsverbesserung bei Fermentierung (0.3 = 30%)")
