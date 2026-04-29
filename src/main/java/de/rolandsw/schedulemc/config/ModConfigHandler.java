@@ -71,7 +71,18 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> PRISON_PLOT_BLOCKS;
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> TOWING_YARD_PLOT_BLOCKS;
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> SECRET_DOOR_ALLOWED_PLOT_TYPES;
-        
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> UTILITY_CONSUMER_BLOCKS;
+
+        // ═══════════════════════════════════════════════════════════
+        // PRODUCT PRICES (EconomyController Referenzpreise)
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> PRODUCT_PRICES;
+
+        // ═══════════════════════════════════════════════════════════
+        // BLOCK PRICES (Produktionsblock-Katalog: Preis + Level)
+        // ═══════════════════════════════════════════════════════════
+        public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> BLOCK_PRICES;
+
         // ═══════════════════════════════════════════════════════════
         // DAILY REWARDS
         // ═══════════════════════════════════════════════════════════
@@ -420,7 +431,8 @@ public class ModConfigHandler {
                         "large_aging_chamber", "honey_storage_barrel", "honey_display_case",
                         "small_conching_machine", "medium_conching_machine", "large_conching_machine",
                         "small_molding_station", "medium_molding_station", "large_molding_station",
-                        "chocolate_storage_cabinet"
+                        "chocolate_storage_cabinet",
+                        "fan_tier1", "fan_tier2", "fan_tier3"
                     ), obj -> obj instanceof String);
 
             SHOP_PLOT_BLOCKS = builder
@@ -452,6 +464,63 @@ public class ModConfigHandler {
                         obj -> obj instanceof String);
 
             builder.pop();
+
+            builder.pop();
+
+            builder.comment("Utility Consumer Blocks - Blöcke die Strom/Wasser verbrauchen",
+                            "Entferne einen Eintrag um den Block aus der Verbrauchsabrechnung auszuschließen.",
+                            "Neue Blöcke können mit ihrer vollen Registry-ID hinzugefügt werden (z.B. schedulemc:small_drying_rack).",
+                            "Verbrauchswerte werden weiterhin intern verwaltet.")
+                    .push("utility");
+
+            UTILITY_CONSUMER_BLOCKS = builder
+                    .comment("Liste aller Blöcke die Strom/Wasser verbrauchen.")
+                    .defineList("consumer_blocks", java.util.Arrays.asList(
+                        "schedulemc:basic_grow_light_slab", "schedulemc:advanced_grow_light_slab", "schedulemc:premium_grow_light_slab",
+                        "schedulemc:klimalampe_small", "schedulemc:klimalampe_medium", "schedulemc:klimalampe_large",
+                        "schedulemc:terracotta_pot", "schedulemc:ceramic_pot", "schedulemc:iron_pot", "schedulemc:golden_pot",
+                        "schedulemc:wassertank",
+                        "schedulemc:fan_tier1", "schedulemc:fan_tier2", "schedulemc:fan_tier3",
+                        "schedulemc:small_drying_rack", "schedulemc:medium_drying_rack", "schedulemc:big_drying_rack",
+                        "schedulemc:small_fermentation_barrel", "schedulemc:medium_fermentation_barrel", "schedulemc:big_fermentation_barrel",
+                        "schedulemc:fermentations_tank",
+                        "schedulemc:small_packaging_table", "schedulemc:medium_packaging_table", "schedulemc:large_packaging_table",
+                        "schedulemc:sink",
+                        "schedulemc:small_extraction_vat", "schedulemc:medium_extraction_vat", "schedulemc:big_extraction_vat",
+                        "schedulemc:small_refinery", "schedulemc:medium_refinery", "schedulemc:big_refinery",
+                        "schedulemc:crack_kocher",
+                        "schedulemc:ritzmaschine", "schedulemc:opium_presse", "schedulemc:kochstation", "schedulemc:heroin_raffinerie",
+                        "schedulemc:chemie_mixer", "schedulemc:reduktionskessel", "schedulemc:kristallisator", "schedulemc:vakuum_trockner",
+                        "schedulemc:destillations_apparat", "schedulemc:mikro_dosierer", "schedulemc:perforations_presse",
+                        "schedulemc:reaktions_kessel", "schedulemc:trocknungs_ofen", "schedulemc:pillen_presse",
+                        "schedulemc:cannabis_trimm_station", "schedulemc:cannabis_curing_glas", "schedulemc:cannabis_hash_presse", "schedulemc:cannabis_oel_extraktor",
+                        "schedulemc:malting_station", "schedulemc:mash_tun",
+                        "schedulemc:small_brew_kettle", "schedulemc:medium_brew_kettle", "schedulemc:large_brew_kettle",
+                        "schedulemc:small_beer_fermentation_tank", "schedulemc:medium_beer_fermentation_tank", "schedulemc:large_beer_fermentation_tank",
+                        "schedulemc:small_conditioning_tank", "schedulemc:medium_conditioning_tank", "schedulemc:large_conditioning_tank",
+                        "schedulemc:beer_bottling_station",
+                        "schedulemc:crushing_station",
+                        "schedulemc:small_wine_press", "schedulemc:medium_wine_press", "schedulemc:large_wine_press",
+                        "schedulemc:small_fermentation_tank", "schedulemc:medium_fermentation_tank", "schedulemc:large_fermentation_tank",
+                        "schedulemc:small_aging_barrel", "schedulemc:medium_aging_barrel", "schedulemc:large_aging_barrel",
+                        "schedulemc:wine_bottling_station",
+                        "schedulemc:beehive", "schedulemc:advanced_beehive", "schedulemc:apiary",
+                        "schedulemc:honey_extractor", "schedulemc:centrifugal_extractor", "schedulemc:filtering_station",
+                        "schedulemc:small_aging_chamber", "schedulemc:medium_aging_chamber", "schedulemc:large_aging_chamber",
+                        "schedulemc:processing_station", "schedulemc:creaming_station", "schedulemc:bottling_station",
+                        "schedulemc:pasteurization_station", "schedulemc:curdling_vat",
+                        "schedulemc:small_cheese_press", "schedulemc:medium_cheese_press", "schedulemc:large_cheese_press",
+                        "schedulemc:small_aging_cave", "schedulemc:medium_aging_cave", "schedulemc:large_aging_cave",
+                        "schedulemc:packaging_station",
+                        "schedulemc:roasting_station", "schedulemc:winnowing_machine", "schedulemc:grinding_mill", "schedulemc:pressing_station",
+                        "schedulemc:small_conching_machine", "schedulemc:medium_conching_machine", "schedulemc:large_conching_machine",
+                        "schedulemc:tempering_station",
+                        "schedulemc:small_molding_station", "schedulemc:medium_molding_station", "schedulemc:large_molding_station",
+                        "schedulemc:enrobing_machine", "schedulemc:cooling_tunnel", "schedulemc:wrapping_station",
+                        "schedulemc:wet_processing_station",
+                        "schedulemc:small_coffee_roaster", "schedulemc:medium_coffee_roaster", "schedulemc:large_coffee_roaster",
+                        "schedulemc:coffee_grinder", "schedulemc:coffee_packaging_table"
+                    ), obj -> obj instanceof String);
 
             builder.pop();
 
@@ -1027,6 +1096,211 @@ public class ModConfigHandler {
                     .comment("Preisreduzierung bei Massenverkauf (0.8 = 20% weniger)")
                     .defineInRange("mass_sell_penalty", 0.80, 0.1, 1.0);
 
+            builder.pop();
+
+            // ═══════════════════════════════════════════════════════════
+            // PRODUCT PRICES
+            // ═══════════════════════════════════════════════════════════
+            builder.comment("Referenzpreise aller Produkte im EconomyController (€ pro Einheit/Gramm)").push("product_prices");
+            PRODUCT_PRICES = builder
+                .comment("Format: PRODUKT_ID=Preis  |  Aenderungen gelten sofort nach dem Speichern.")
+                .defineList("prices", java.util.Arrays.asList(
+                    // Cannabis
+                    "CANNABIS_INDICA=12.0", "CANNABIS_SATIVA=14.0",
+                    "CANNABIS_HYBRID=16.0", "CANNABIS_AUTOFLOWER=9.0",
+                    // Tabak
+                    "TOBACCO_VIRGINIA=6.0", "TOBACCO_BURLEY=8.0",
+                    "TOBACCO_ORIENTAL=10.0", "TOBACCO_HAVANA=14.0",
+                    // Kokain
+                    "COCA_BOLIVIANISCH=25.0", "COCA_PERUANISCH=35.0",
+                    "COCA_KOLUMBIANISCH=50.0", "CRACK_ROCK=40.0",
+                    // Heroin (Mohn)
+                    "POPPY_INDISCH=20.0", "POPPY_TUERKISCH=35.0", "POPPY_AFGHANISCH=55.0",
+                    // Meth
+                    "METH_STANDARD=30.0", "METH_GUT=50.0", "METH_BLUE_SKY=80.0",
+                    // MDMA
+                    "MDMA_SCHLECHT=8.0", "MDMA_STANDARD=18.0",
+                    "MDMA_GUT=30.0", "MDMA_PREMIUM=50.0",
+                    // LSD
+                    "LSD_SCHWACH=15.0", "LSD_STANDARD=25.0",
+                    "LSD_STARK=40.0", "LSD_BICYCLE_DAY=70.0",
+                    // Pilze
+                    "MUSHROOM_MEXICANA=10.0", "MUSHROOM_CUBENSIS=18.0", "MUSHROOM_AZURESCENS=35.0",
+                    // Wein
+                    "WINE_RIESLING=8.0", "WINE_CHARDONNAY=12.0",
+                    "WINE_SPAETBURGUNDER=15.0", "WINE_MERLOT=20.0",
+                    // Bier
+                    "BEER_PILSNER=5.0", "BEER_WEIZEN=6.0",
+                    "BEER_ALE=7.0", "BEER_STOUT=9.0",
+                    // Kaffee
+                    "COFFEE_ARABICA=6.0", "COFFEE_ROBUSTA=8.0",
+                    "COFFEE_LIBERICA=12.0", "COFFEE_EXCELSA=18.0",
+                    // Kaese
+                    "CHEESE_GOUDA=7.0", "CHEESE_EMMENTAL=10.0",
+                    "CHEESE_CAMEMBERT=13.0", "CHEESE_PARMESAN=17.0",
+                    // Schokolade
+                    "CHOCOLATE_WHITE=5.0", "CHOCOLATE_MILK=6.0",
+                    "CHOCOLATE_DARK=9.0", "CHOCOLATE_RUBY=14.0",
+                    // Honig
+                    "HONEY_ACACIA=6.0", "HONEY_WILDFLOWER=8.0",
+                    "HONEY_FOREST=11.0", "HONEY_MANUKA=18.0",
+                    // Fahrzeuge
+                    "VEHICLE_OAK=5000.0", "VEHICLE_BIG_OAK=7500.0",
+                    "VEHICLE_SUV=10000.0", "VEHICLE_TRANSPORTER=12000.0",
+                    "VEHICLE_SPORT=15000.0",
+                    // Toepfe
+                    "POT_TERRACOTTA=20.0", "POT_CERAMIC=40.0",
+                    "POT_IRON=80.0", "POT_GOLDEN=150.0",
+                    // Nahrung
+                    "FOOD_BREAD=3.75", "FOOD_COOKED_BEEF=7.5",
+                    "FOOD_COOKED_PORKCHOP=6.875", "FOOD_APPLE=1.25",
+                    "FOOD_GOLDEN_APPLE=200.0", "FOOD_CARROT=0.9375",
+                    "FOOD_POTATO=0.9375", "FOOD_CAKE=80.0", "FOOD_COOKIE=0.78125"
+                ), obj -> obj instanceof String && ((String) obj).contains("="));
+            builder.pop();
+
+            // ═══════════════════════════════════════════════════════════
+            // BLOCK PRICES
+            // ═══════════════════════════════════════════════════════════
+            builder.comment("Kaufpreise und Level-Voraussetzungen aller Produktionsblöcke").push("block_prices");
+            BLOCK_PRICES = builder
+                .comment("Format: schedulemc:blockname=Preis:Level  |  Level 0 = keine Voraussetzung")
+                .defineList("prices", java.util.Arrays.asList(
+                    // Cannabis
+                    "schedulemc:cannabis_trimm_station=200:1",
+                    "schedulemc:cannabis_curing_glas=150:1",
+                    "schedulemc:cannabis_hash_presse=500:8",
+                    "schedulemc:cannabis_oel_extraktor=800:13",
+                    // Tabak – Toepfe
+                    "schedulemc:terracotta_pot=20:1",
+                    "schedulemc:ceramic_pot=40:6",
+                    "schedulemc:iron_pot=80:11",
+                    "schedulemc:golden_pot=150:16",
+                    // Tabak – Trocknungsgestelle
+                    "schedulemc:small_drying_rack=100:1",
+                    "schedulemc:medium_drying_rack=300:22",
+                    "schedulemc:big_drying_rack=600:25",
+                    // Tabak – Faesser
+                    "schedulemc:small_fermentation_barrel=150:1",
+                    "schedulemc:medium_fermentation_barrel=450:22",
+                    "schedulemc:big_fermentation_barrel=900:25",
+                    // Tabak – Packtische
+                    "schedulemc:small_packaging_table=80:1",
+                    "schedulemc:medium_packaging_table=240:22",
+                    "schedulemc:large_packaging_table=480:25",
+                    // Tabak – Grow Lights
+                    "schedulemc:basic_grow_light_slab=200:3",
+                    "schedulemc:advanced_grow_light_slab=600:10",
+                    "schedulemc:premium_grow_light_slab=1200:16",
+                    // Tabak – Sonstiges
+                    "schedulemc:sink=50:1",
+                    // Wein
+                    "schedulemc:crushing_station=300:5",
+                    "schedulemc:small_wine_press=400:5",
+                    "schedulemc:medium_wine_press=1200:22",
+                    "schedulemc:large_wine_press=2400:25",
+                    "schedulemc:small_fermentation_tank=350:5",
+                    "schedulemc:medium_fermentation_tank=1050:22",
+                    "schedulemc:large_fermentation_tank=2100:25",
+                    "schedulemc:small_aging_barrel=450:5",
+                    "schedulemc:medium_aging_barrel=1350:22",
+                    "schedulemc:large_aging_barrel=2700:25",
+                    "schedulemc:wine_bottling_station=200:5",
+                    // Bier
+                    "schedulemc:malting_station=250:1",
+                    "schedulemc:mash_tun=300:1",
+                    "schedulemc:small_brew_kettle=400:1",
+                    "schedulemc:medium_brew_kettle=1200:22",
+                    "schedulemc:large_brew_kettle=2400:25",
+                    "schedulemc:small_beer_fermentation_tank=350:1",
+                    "schedulemc:medium_beer_fermentation_tank=1050:22",
+                    "schedulemc:large_beer_fermentation_tank=2100:25",
+                    "schedulemc:small_conditioning_tank=300:1",
+                    "schedulemc:medium_conditioning_tank=900:22",
+                    "schedulemc:large_conditioning_tank=1800:25",
+                    "schedulemc:beer_bottling_station=200:1",
+                    // Kaffee
+                    "schedulemc:wet_processing_station=300:3",
+                    "schedulemc:small_coffee_roaster=400:3",
+                    "schedulemc:medium_coffee_roaster=1200:22",
+                    "schedulemc:large_coffee_roaster=2400:25",
+                    "schedulemc:coffee_grinder=200:3",
+                    "schedulemc:coffee_packaging_table=150:3",
+                    // Kaese
+                    "schedulemc:pasteurization_station=350:3",
+                    "schedulemc:curdling_vat=300:3",
+                    "schedulemc:small_cheese_press=400:3",
+                    "schedulemc:medium_cheese_press=1200:22",
+                    "schedulemc:large_cheese_press=2400:25",
+                    "schedulemc:small_aging_cave=350:3",
+                    "schedulemc:medium_aging_cave=1050:22",
+                    "schedulemc:large_aging_cave=2100:25",
+                    "schedulemc:packaging_station=200:3",
+                    // Schokolade
+                    "schedulemc:roasting_station=300:3",
+                    "schedulemc:winnowing_machine=250:3",
+                    "schedulemc:grinding_mill=350:3",
+                    "schedulemc:pressing_station=300:3",
+                    "schedulemc:small_conching_machine=400:3",
+                    "schedulemc:medium_conching_machine=1200:22",
+                    "schedulemc:large_conching_machine=2400:25",
+                    "schedulemc:tempering_station=500:6",
+                    "schedulemc:small_molding_station=350:3",
+                    "schedulemc:medium_molding_station=1050:22",
+                    "schedulemc:large_molding_station=2100:25",
+                    "schedulemc:enrobing_machine=600:10",
+                    "schedulemc:cooling_tunnel=400:6",
+                    "schedulemc:wrapping_station=200:3",
+                    // Honig
+                    "schedulemc:beehive=100:1",
+                    "schedulemc:advanced_beehive=300:8",
+                    "schedulemc:apiary=800:18",
+                    "schedulemc:honey_extractor=200:1",
+                    "schedulemc:centrifugal_extractor=600:8",
+                    "schedulemc:filtering_station=150:1",
+                    "schedulemc:small_aging_chamber=200:1",
+                    "schedulemc:medium_aging_chamber=600:22",
+                    "schedulemc:large_aging_chamber=1200:25",
+                    "schedulemc:processing_station=250:1",
+                    "schedulemc:creaming_station=400:8",
+                    "schedulemc:bottling_station=150:1",
+                    // Pilze
+                    "schedulemc:klimalampe_small=400:8",
+                    "schedulemc:klimalampe_medium=1200:22",
+                    "schedulemc:klimalampe_large=2400:25",
+                    "schedulemc:wassertank=200:8",
+                    // Kokain (illegal)
+                    "schedulemc:small_extraction_vat=800:11",
+                    "schedulemc:medium_extraction_vat=2400:22",
+                    "schedulemc:big_extraction_vat=4800:25",
+                    "schedulemc:small_refinery=1000:11",
+                    "schedulemc:medium_refinery=3000:22",
+                    "schedulemc:big_refinery=6000:25",
+                    "schedulemc:crack_kocher=1200:11",
+                    // Heroin (illegal)
+                    "schedulemc:ritzmaschine=1500:15",
+                    "schedulemc:opium_presse=1800:15",
+                    "schedulemc:kochstation=2000:15",
+                    "schedulemc:heroin_raffinerie=5000:22",
+                    // Meth (illegal)
+                    "schedulemc:chemie_mixer=2000:15",
+                    "schedulemc:reduktionskessel=2500:15",
+                    "schedulemc:kristallisator=3000:15",
+                    "schedulemc:vakuum_trockner=4000:22",
+                    // MDMA (illegal)
+                    "schedulemc:reaktions_kessel=1500:11",
+                    "schedulemc:trocknungs_ofen=1800:11",
+                    "schedulemc:pillen_presse=2000:11",
+                    // LSD (illegal)
+                    "schedulemc:fermentations_tank=2000:13",
+                    "schedulemc:destillations_apparat=2500:13",
+                    "schedulemc:mikro_dosierer=3000:13",
+                    "schedulemc:perforations_presse=2500:13",
+                    // Fans
+                    "schedulemc:fan_tier1=150:1",
+                    "schedulemc:fan_tier2=500:8",
+                    "schedulemc:fan_tier3=1500:16"
+                ), obj -> obj instanceof String s && s.contains("=") && s.contains(":"));
             builder.pop();
         }
     }

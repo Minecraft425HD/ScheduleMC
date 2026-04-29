@@ -401,6 +401,48 @@ public class EconomyController {
         return itemCategories.getOrDefault(productId, ItemCategory.OTHER);
     }
 
+    /**
+     * Setzt den Referenz-Preis eines Produkts direkt (live-Update).
+     * Nur bekannte Produkte werden akzeptiert.
+     */
+    public void setRefPrice(String productId, double price) {
+        if (price > 0 && referencePrices.containsKey(productId)) {
+            referencePrices.put(productId, price);
+        }
+    }
+
+    /**
+     * Liest alle Preise aus der Config (PRODUCT_PRICES) und überschreibt
+     * die internen Referenzpreise. Wird beim Server-Start und bei explizitem
+     * Reload-Packet aufgerufen.
+     */
+    public void applyConfigPrices() {
+        try {
+            java.util.List<? extends String> configPrices =
+                de.rolandsw.schedulemc.config.ModConfigHandler.COMMON.PRODUCT_PRICES.get();
+            if (configPrices == null || configPrices.isEmpty()) return;
+            int applied = 0;
+            for (String entry : configPrices) {
+                String[] parts = entry.split("=", 2);
+                if (parts.length == 2) {
+                    String productId = parts[0].trim();
+                    try {
+                        double price = Double.parseDouble(parts[1].trim());
+                        if (price > 0 && referencePrices.containsKey(productId)) {
+                            referencePrices.put(productId, price);
+                            applied++;
+                        }
+                    } catch (NumberFormatException ignored) {
+                        // Ungültiger Wert – überspringen
+                    }
+                }
+            }
+            LOGGER.info("EconomyController: {} Preise aus Config übernommen", applied);
+        } catch (Exception e) {
+            LOGGER.warn("applyConfigPrices fehlgeschlagen: {}", e.getMessage());
+        }
+    }
+
     // ═══════════════════════════════════════════════════════════
     // S&D INTEGRATION
     // ═══════════════════════════════════════════════════════════
@@ -663,6 +705,9 @@ public class EconomyController {
         registerProduct("FOOD_COOKIE", 0.78125, ItemCategory.FOOD);
 
         LOGGER.info("EconomyController initialized with {} reference prices", referencePrices.size());
+
+        // Config-Overrides sofort anwenden (überschreibt obige Defaults)
+        applyConfigPrices();
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -750,6 +795,9 @@ public class EconomyController {
         } catch (Exception e) {
             LOGGER.warn("Could not load EconomyCycle, using default multiplier");
         }
+
+        // Produktionsblock-Katalog laden
+        BlockShopCatalog.getInstance().applyConfig();
 
         LOGGER.info("EconomyController started - {} products registered, cycle={}",
                 referencePrices.size(), cycleMultiplier);

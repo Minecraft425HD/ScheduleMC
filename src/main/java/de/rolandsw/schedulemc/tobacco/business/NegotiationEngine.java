@@ -45,6 +45,19 @@ public class NegotiationEngine {
     }
 
     /**
+     * Konstruktor für Nicht-Tabak-Drogen (Cannabis, Meth, etc.)
+     * Akzeptiert einen bereits berechneten fairen Preis aus dem EconomyController.
+     */
+    public NegotiationEngine(double preCalculatedFairPrice, NPCBusinessMetrics metrics, String playerUUID) {
+        this.metrics = metrics;
+        this.playerUUID = playerUUID;
+
+        this.fairPrice = preCalculatedFairPrice;
+        this.minAcceptable = PriceCalculator.calculateMinPrice(fairPrice);
+        this.maxAcceptable = PriceCalculator.calculateMaxPrice(fairPrice);
+    }
+
+    /**
      * NPC-Reaktion auf Spieler-Angebot - DYNAMISCH
      *
      * Der NPC erhöht sein Gegenangebot mit jeder Runde:
@@ -456,7 +469,22 @@ public class NegotiationEngine {
         }
 
         // Engine erstellen und Response berechnen
-        NegotiationEngine engine = new NegotiationEngine(type, quality, weight, metrics, playerUUID);
+        NegotiationEngine engine;
+        if (drugType == DrugType.TOBACCO) {
+            // Tabak: PriceCalculator nutzt EconomyController.getBuyPrice() als Basis
+            engine = new NegotiationEngine(type, quality, weight, metrics, playerUUID);
+        } else {
+            // Andere Drogen (Cannabis, Meth, etc.): Marktpreis aus PackagedDrugItem
+            double marketPrice = de.rolandsw.schedulemc.production.items.PackagedDrugItem.calculatePrice(drugItem);
+            // NPC-Modifier anwenden (gleiche Logik wie PriceCalculator.calculateFairPrice)
+            int reputation = metrics.getReputation(playerUUID);
+            int satisfaction = metrics.getSatisfaction();
+            DemandLevel demand = metrics.getDemand();
+            double repMult  = 0.85 + (reputation  / 100.0 * 0.35);
+            double satMult  = 0.80 + (satisfaction / 100.0 * 0.30);
+            double fairPriceForItem = marketPrice * demand.getPriceMultiplier() * repMult * satMult;
+            engine = new NegotiationEngine(fairPriceForItem, metrics, playerUUID);
+        }
         NPCResponse response = engine.calculateResponse(offeredPrice, round, lastNPCOffer);
 
         // ═══════════════════════════════════════════════════════════

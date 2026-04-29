@@ -1,8 +1,12 @@
 package de.rolandsw.schedulemc.tobacco.network;
 
+import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
+import de.rolandsw.schedulemc.economy.network.EconomyNetworkHandler;
+import de.rolandsw.schedulemc.economy.network.SyncATMDataPacket;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
+import net.minecraftforge.network.PacketDistributor;
 import de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.quest.QuestEventHandler;
@@ -229,6 +233,15 @@ public class NegotiationPacket {
                     // Füge Geld im WalletManager hinzu
                     WalletManager.addMoney(player.getUUID(), price);
                     WalletManager.save();
+
+                    // Client sofort synchronisieren — ohne diesen Packet-Aufruf
+                    // bleibt die Wallet-Anzeige veraltet bis der Spieler ein ATM öffnet
+                    double newWalletBalance = WalletManager.getBalance(player.getUUID());
+                    double bankBalance = EconomyManager.getBalance(player.getUUID());
+                    EconomyNetworkHandler.INSTANCE.send(
+                        PacketDistributor.PLAYER.with(() -> player),
+                        new SyncATMDataPacket(bankBalance, newWalletBalance, true, "")
+                    );
                 }
 
                 // Metriken aktualisieren (mit den tatsächlich verkauften Gramm)

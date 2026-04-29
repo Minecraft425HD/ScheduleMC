@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.economy.BlockShopCatalog;
 import de.rolandsw.schedulemc.npc.menu.ShopEditorMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.UpdateShopItemsPacket;
@@ -67,6 +68,9 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
     protected void init() {
         super.init();
 
+        // Katalog client-seitig aus Config füllen (damit Preise für neue Items vorbelegt werden)
+        BlockShopCatalog.getInstance().applyConfig();
+
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
@@ -120,7 +124,20 @@ public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
                 x + 180, rowY, 40, 16,
                 Component.translatable("gui.common.price"));
             row.priceInput.setMaxLength(6);
-            row.priceInput.setValue(String.valueOf(menu.getItemPrices()[slotIndex]));
+
+            // Preis vorbelegen: gespeicherter Preis, oder Katalog-Preis falls 0
+            int savedPrice = menu.getItemPrices()[slotIndex];
+            if (savedPrice == 0) {
+                ItemStack slotItem = menu.getShopContainer().getItem(slotIndex);
+                if (!slotItem.isEmpty()) {
+                    BlockShopCatalog.BlockCatalogEntry catEntry = BlockShopCatalog.getInstance().getEntry(slotItem);
+                    if (catEntry != null && catEntry.price() > 0) {
+                        savedPrice = (int) catEntry.price();
+                        menu.setItemPrice(slotIndex, savedPrice); // auch im Menü setzen
+                    }
+                }
+            }
+            row.priceInput.setValue(String.valueOf(savedPrice));
             row.priceInput.setFilter(s -> DIGITS_ONLY.matcher(s).matches()); // Nur Zahlen
 
             final int finalSlotIndex = slotIndex;

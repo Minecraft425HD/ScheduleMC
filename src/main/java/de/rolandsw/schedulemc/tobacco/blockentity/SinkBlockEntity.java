@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * BlockEntity für Waschbecken - Wasserverbrauch-Tracking für Utility-System
@@ -31,6 +32,7 @@ public class SinkBlockEntity extends BlockEntity implements IUtilityConsumer {
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         // Cooldown runterzählen
         if (waterUsageCooldown > 0) {

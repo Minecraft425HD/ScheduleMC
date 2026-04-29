@@ -38,17 +38,17 @@ public class FanBlocks {
                             .sound(SoundType.METAL)
                             .noOcclusion()));
 
-    // ─── Tier-2: Großer Ventilator (Stahl, +150 % Geschwindigkeit) ──────────
+    // ─── Tier-2: Großer Ventilator (2 Blöcke hoch, +150 % Geschwindigkeit) ────
     public static final RegistryObject<Block> FAN_TIER_2 = register("fan_tier2",
-            () -> new FanBlock(FanTier.TIER_2,
+            () -> new TallFanBlock(FanTier.TIER_2,
                     BlockBehaviour.Properties.of()
                             .strength(2.5f)
                             .sound(SoundType.METAL)
                             .noOcclusion()));
 
-    // ─── Tier-3: Industrieventilator (Diamant/Titan, +300 % Geschwindigkeit) ─
+    // ─── Tier-3: Industrieventilator (2 Blöcke hoch, +300 % Geschwindigkeit) ─
     public static final RegistryObject<Block> FAN_TIER_3 = register("fan_tier3",
-            () -> new FanBlock(FanTier.TIER_3,
+            () -> new TallFanBlock(FanTier.TIER_3,
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
                             .sound(SoundType.METAL)

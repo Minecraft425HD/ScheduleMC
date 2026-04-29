@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Beehive BlockEntity - Produces Raw Honeycomb passively
@@ -75,6 +76,7 @@ public class BeehiveBlockEntity extends AbstractItemHandlerBlockEntity implement
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         boolean changed = false;
         ItemStack output = itemHandler.getStackInSlot(0);

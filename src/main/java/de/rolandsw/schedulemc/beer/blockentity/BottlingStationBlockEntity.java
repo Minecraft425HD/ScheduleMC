@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Bottling Station - Final beer bottling with processing method selection
@@ -213,6 +214,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         boolean changed = false;
 

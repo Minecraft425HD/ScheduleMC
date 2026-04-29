@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsumer {
 
@@ -159,6 +160,7 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         if (isMinigameActive && waitingForRemove) {
             int elapsed = getCookTick();

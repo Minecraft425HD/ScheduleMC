@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.production.blockentity;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.production.core.ProductionType;
 import de.rolandsw.schedulemc.util.ModConstants;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -92,6 +93,12 @@ public abstract class AbstractProcessingBlockEntity<T extends ProductionType, Q 
     public void tick() {
         if (level == null || level.isClientSide) {
             return;
+        }
+
+        // ── Utility-Sperre: Maschine pausiert bei ≥ 28 unbezahlten Tagen ──────
+        // PlotUtilityManager.areUtilitiesEnabled() ist O(1) via positionCache.
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) {
+            return; // Fortschritt bleibt erhalten – Maschine läuft weiter sobald bezahlt
         }
 
         tickCounter++;

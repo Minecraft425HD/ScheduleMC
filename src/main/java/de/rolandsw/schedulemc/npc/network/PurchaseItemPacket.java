@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.economy.BlockShopCatalog;
+import de.rolandsw.schedulemc.level.ProducerLevel;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
@@ -127,6 +129,25 @@ public class PurchaseItemPacket {
         if (quantity > MAX_QUANTITY) {
             player.sendSystemMessage(Component.translatable("message.purchase.max_quantity", MAX_QUANTITY));
             return;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // LEVEL-CHECK: ProducerLevel-Voraussetzung prüfen
+        // ═══════════════════════════════════════════════════════════
+        int requiredLevel = entry.getRequiredLevel();
+        if (requiredLevel == 0) {
+            // Katalog-Fallback (für manuell befüllte Shops ohne explizites RequiredLevel)
+            BlockShopCatalog.BlockCatalogEntry catEntry = BlockShopCatalog.getInstance().getEntry(entry.getItem());
+            if (catEntry != null) requiredLevel = catEntry.requiredLevel();
+        }
+        if (requiredLevel > 0) {
+            int playerLevel = ProducerLevel.getInstance().getPlayerLevel(player.getUUID());
+            if (playerLevel < requiredLevel) {
+                player.sendSystemMessage(net.minecraft.network.chat.Component.translatable(
+                    "message.shop.level_required", requiredLevel, playerLevel)
+                    .withStyle(ChatFormatting.RED));
+                return;
+            }
         }
 
         // ═══════════════════════════════════════════════════════════

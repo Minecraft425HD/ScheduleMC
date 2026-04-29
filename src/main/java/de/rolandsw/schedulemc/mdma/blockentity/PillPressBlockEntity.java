@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Pillen-Presse - Dritter und letzter Schritt der MDMA-Herstellung
@@ -202,6 +203,7 @@ public class PillPressBlockEntity extends BlockEntity implements IUtilityConsume
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         if (isMinigameActive && waitingForPress) {
             minigameTick = Math.min(minigameTick + 1, PERFECT_WINDOW_START);

@@ -256,8 +256,11 @@ public class CustomNPCEntity extends PathfinderMob {
                 if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER ||
                     getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.ABSCHLEPPER) {
                     openShopEditor(serverPlayer);
-                    return false; // Verhindere Schaden
+                    return false; // Verhindere Schaden + Animation
                 }
+                // Alle anderen NPC-Typen: Shift+Klick eines Admins ebenfalls ignorieren
+                // (verhindert ungewollte Angst-Reaktion bei Admin-Interaktionen)
+                return false;
             }
         }
 

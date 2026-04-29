@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * ReductionKettle - Zweiter Schritt der Meth-Herstellung
@@ -145,6 +146,7 @@ public class ReductionKettleBlockEntity extends BlockEntity implements IUtilityC
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         long now = level.getDayTime();
         long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);

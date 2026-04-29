@@ -296,6 +296,32 @@ public class PlotUtilityManager {
     }
 
     /**
+     * Prüft ob die Utilities für den Plot an der gegebenen Position aktiv sind.
+     *
+     * Gibt {@code true} zurück wenn:
+     *  - Die Position in keinem Plot liegt (kein Plot = keine Einschränkung)
+     *  - Der Plot existiert, aber noch keine Daten hat
+     *  - Die Rechnungen bezahlt sind (utilitiesEnabled == true)
+     *
+     * Gibt {@code false} zurück wenn der Plot seit ≥ 28 Tagen unbezahlte
+     * Rechnungen hat und dadurch gesperrt wurde.
+     *
+     * Wird von Produktionsblöcken in ihrem tick() aufgerufen, bevor sie
+     * verarbeiten — so stoppen Maschinen automatisch bei Zahlungsrückstand.
+     */
+    public static boolean areUtilitiesEnabled(BlockPos pos) {
+        // Schneller Cache-Lookup (O(1))
+        String plotId = positionCache.get(pos);
+        if (plotId == null) {
+            // Position nicht im Cache → kein Plot oder nicht registriert → erlaubt
+            return true;
+        }
+        PlotUtilityData data = plotData.get(plotId);
+        // Keine Daten = noch nicht initialisiert → erlaubt
+        return data == null || data.isUtilitiesEnabled();
+    }
+
+    /**
      * Gibt den aktuellen Stromverbrauch eines Plots zurück
      */
     public static double getCurrentElectricity(String plotId) {

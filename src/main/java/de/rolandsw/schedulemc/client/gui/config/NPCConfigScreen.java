@@ -43,6 +43,12 @@ public class NPCConfigScreen extends Screen {
             "Arrival Distance: §e%.1f blocks",
             ModConfigHandler.COMMON.NAVIGATION_ARRIVAL_DISTANCE, 0.5, 5.0));
 
+        // Block Lists Button
+        this.addRenderableWidget(Button.builder(
+            Component.literal("§e⬛ NPC & Road Block Lists..."),
+            button -> this.minecraft.setScreen(new NPCBlockListConfigScreen(this))
+        ).bounds(centerX - w / 2, y + s * 4, w, 20).build());
+
         // Back Button
         this.addRenderableWidget(Button.builder(
             Component.literal("« Back"),
@@ -60,16 +66,6 @@ public class NPCConfigScreen extends Screen {
             Component.literal("§7NPC Pathfinding & Navigation"),
             this.width / 2, 40, 0x808080);
 
-        // Info about block lists (NPC_WALKABLE_BLOCKS & NAVIGATION_ROAD_BLOCKS)
-        graphics.drawCenteredString(this.font,
-            Component.literal("§6Block Lists (NPC Walkable & Road Blocks):"),
-            this.width / 2, this.height - 80, 0xFFAA00);
-        graphics.drawCenteredString(this.font,
-            Component.literal("§7npc.walkable_blocks & navigation.road_blocks"),
-            this.width / 2, this.height - 65, 0x808080);
-        graphics.drawCenteredString(this.font,
-            Component.literal("§8Edit in: config/schedulemc-common.toml"),
-            this.width / 2, this.height - 50, 0x606060);
     }
 
     @Override

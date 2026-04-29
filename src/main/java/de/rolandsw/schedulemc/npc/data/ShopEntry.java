@@ -8,12 +8,14 @@ public class ShopEntry {
     private int price;
     private boolean unlimited; // True = unbegrenzt, False = Lagerware
     private int stock; // Aktueller Lagerbestand (nur relevant wenn unlimited = false)
+    private int requiredLevel; // Mindest-ProducerLevel (0 = kein Limit)
 
     public ShopEntry() {
         this.item = ItemStack.EMPTY;
         this.price = 0;
         this.unlimited = true; // Default: unbegrenzt
         this.stock = 0;
+        this.requiredLevel = 0;
     }
 
     public ShopEntry(ItemStack item, int price) {
@@ -21,6 +23,7 @@ public class ShopEntry {
         this.price = price;
         this.unlimited = true;
         this.stock = 0;
+        this.requiredLevel = 0;
     }
 
     public ShopEntry(ItemStack item, int price, boolean unlimited, int stock) {
@@ -28,6 +31,15 @@ public class ShopEntry {
         this.price = price;
         this.unlimited = unlimited;
         this.stock = stock;
+        this.requiredLevel = 0;
+    }
+
+    public ShopEntry(ItemStack item, int price, boolean unlimited, int stock, int requiredLevel) {
+        this.item = item.copy();
+        this.price = price;
+        this.unlimited = unlimited;
+        this.stock = stock;
+        this.requiredLevel = requiredLevel;
     }
 
     public ItemStack getItem() {
@@ -50,6 +62,14 @@ public class ShopEntry {
         this.stock = stock;
     }
 
+    public int getRequiredLevel() {
+        return requiredLevel;
+    }
+
+    public void setRequiredLevel(int requiredLevel) {
+        this.requiredLevel = requiredLevel;
+    }
+
     public void reduceStock(int amount) {
         if (!unlimited) {
             this.stock = Math.max(0, this.stock - amount);
@@ -65,6 +85,7 @@ public class ShopEntry {
         tag.putInt("Price", price);
         tag.putBoolean("Unlimited", unlimited);
         tag.putInt("Stock", stock);
+        if (requiredLevel > 0) tag.putInt("RequiredLevel", requiredLevel);
         return tag;
     }
 
@@ -73,5 +94,6 @@ public class ShopEntry {
         price = tag.getInt("Price");
         unlimited = tag.getBoolean("Unlimited");
         stock = tag.getInt("Stock");
+        requiredLevel = tag.contains("RequiredLevel") ? tag.getInt("RequiredLevel") : 0;
     }
 }

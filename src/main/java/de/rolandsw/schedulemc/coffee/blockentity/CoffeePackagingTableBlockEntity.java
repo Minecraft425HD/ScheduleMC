@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Coffee Packaging Table - Verpackt gemahlenen Kaffee
@@ -187,6 +188,7 @@ public class CoffeePackagingTableBlockEntity extends AbstractItemHandlerBlockEnt
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         boolean changed = false;
 

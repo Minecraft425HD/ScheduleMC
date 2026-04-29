@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Abstrakte Basis für Conching Machines
@@ -161,6 +162,7 @@ public abstract class AbstractConchingMachineBlockEntity extends AbstractItemHan
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         boolean changed = false;
 

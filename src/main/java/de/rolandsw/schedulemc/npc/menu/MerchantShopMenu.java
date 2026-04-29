@@ -51,7 +51,8 @@ public class MerchantShopMenu extends AbstractContainerMenu {
             int price = extraData.readInt();
             boolean unlimited = extraData.readBoolean();
             int stock = extraData.readInt();
-            shopItems.add(new ShopEntry(item, price, unlimited, stock));
+            int requiredLevel = extraData.readInt();
+            shopItems.add(new ShopEntry(item, price, unlimited, stock, requiredLevel));
         }
     }
 

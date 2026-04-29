@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer, MenuProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(WineBottlingStationBlockEntity.class);
@@ -133,6 +134,7 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         long now = level.getDayTime();
         long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);

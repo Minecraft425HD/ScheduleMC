@@ -18,14 +18,16 @@ public record UtilityConsumptionData(
 ) {
 
     /**
-     * Erstellt Verbrauchsdaten mit automatischer 50% idle-Berechnung
+     * Erstellt Verbrauchsdaten für Produktionsmaschinen.
+     * Idle-Verbrauch = 0: ein nicht aktiver Block verbraucht NICHTS.
+     * Nur aktiv laufende Maschinen werden belastet.
      */
     public static UtilityConsumptionData of(double electricity, double water, UtilityCategory category) {
         return new UtilityConsumptionData(
                 electricity,
-                electricity * 0.5,
+                0.0,   // kein Standby-Verbrauch – inaktive Maschine = 0 kWh/Tag
                 water,
-                water * 0.5,
+                0.0,   // kein Standby-Wasserverbrauch
                 category
         );
     }
@@ -44,17 +46,17 @@ public record UtilityConsumptionData(
     }
 
     /**
-     * Erstellt Verbrauchsdaten nur für Strom
+     * Erstellt Verbrauchsdaten nur für Strom (kein Standby).
      */
     public static UtilityConsumptionData electricityOnly(double active, UtilityCategory category) {
-        return new UtilityConsumptionData(active, active * 0.5, 0, 0, category);
+        return new UtilityConsumptionData(active, 0.0, 0, 0, category);
     }
 
     /**
-     * Erstellt Verbrauchsdaten nur für Wasser
+     * Erstellt Verbrauchsdaten nur für Wasser (kein Standby).
      */
     public static UtilityConsumptionData waterOnly(double active, UtilityCategory category) {
-        return new UtilityConsumptionData(0, 0, active, active * 0.5, category);
+        return new UtilityConsumptionData(0, 0, active, 0.0, category);
     }
 
     /**

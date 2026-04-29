@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Apiary BlockEntity - Multi-hive system with highest production
@@ -74,6 +75,7 @@ public class ApiaryBlockEntity extends AbstractItemHandlerBlockEntity implements
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         boolean changed = false;
         ItemStack output = itemHandler.getStackInSlot(0);

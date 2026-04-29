@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.network;
 
+import de.rolandsw.schedulemc.economy.BlockShopCatalog;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelBillManager;
 import de.rolandsw.schedulemc.vehicle.fuel.FuelStationRegistry;
@@ -166,6 +167,15 @@ public class OpenMerchantShopPacket {
                                 actualStock = entry.getStock();
                             }
                             buf.writeInt(actualStock);
+
+                            // Level-Voraussetzung: aus ShopEntry oder Katalog-Fallback
+                            int reqLevel = entry.getRequiredLevel();
+                            if (reqLevel == 0) {
+                                BlockShopCatalog.BlockCatalogEntry catEntry =
+                                    BlockShopCatalog.getInstance().getEntry(entry.getItem());
+                                if (catEntry != null) reqLevel = catEntry.requiredLevel();
+                            }
+                            buf.writeInt(reqLevel);
                         }
                     });
                 }

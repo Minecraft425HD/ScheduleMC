@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Malting Station - Converts grain to malted grain
@@ -112,6 +113,7 @@ public class MaltingStationBlockEntity extends AbstractItemHandlerBlockEntity im
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         boolean changed = false;
 

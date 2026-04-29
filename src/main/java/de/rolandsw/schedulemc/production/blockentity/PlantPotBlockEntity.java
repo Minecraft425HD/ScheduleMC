@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Universal Plant Pot BlockEntity
@@ -61,6 +62,7 @@ public class PlantPotBlockEntity extends BlockEntity implements IUtilityConsumer
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         tickCounter++;
 

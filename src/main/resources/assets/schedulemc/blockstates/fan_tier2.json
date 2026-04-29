@@ -1,8 +1,12 @@
 {
   "variants": {
-    "facing=north": { "model": "schedulemc:block/fan_tier2" },
-    "facing=south": { "model": "schedulemc:block/fan_tier2", "y": 180 },
-    "facing=west":  { "model": "schedulemc:block/fan_tier2", "y": 270 },
-    "facing=east":  { "model": "schedulemc:block/fan_tier2", "y": 90 }
+    "facing=north,half=lower": { "model": "schedulemc:block/fan_tier2_lower" },
+    "facing=south,half=lower": { "model": "schedulemc:block/fan_tier2_lower", "y": 180 },
+    "facing=west,half=lower":  { "model": "schedulemc:block/fan_tier2_lower", "y": 270 },
+    "facing=east,half=lower":  { "model": "schedulemc:block/fan_tier2_lower", "y": 90  },
+    "facing=north,half=upper": { "model": "schedulemc:block/fan_tier2_upper" },
+    "facing=south,half=upper": { "model": "schedulemc:block/fan_tier2_upper", "y": 180 },
+    "facing=west,half=upper":  { "model": "schedulemc:block/fan_tier2_upper", "y": 270 },
+    "facing=east,half=upper":  { "model": "schedulemc:block/fan_tier2_upper", "y": 90  }
   }
 }

@@ -1,0 +1,8 @@
+{
+  "parent": "block/cube_orientable",
+  "textures": {
+    "top":   "schedulemc:block/fan_tier2_side",
+    "front": "schedulemc:block/fan_tier2_front",
+    "side":  "schedulemc:block/fan_tier2_side"
+  }
+}

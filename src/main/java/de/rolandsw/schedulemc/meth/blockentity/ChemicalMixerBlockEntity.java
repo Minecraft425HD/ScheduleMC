@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Chemie-Mixer - Erster Schritt der Meth-Herstellung
@@ -149,6 +150,7 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         long now = level.getDayTime();
         long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);

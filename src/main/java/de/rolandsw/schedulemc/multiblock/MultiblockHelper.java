@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.multiblock;
 
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -71,8 +72,11 @@ public final class MultiblockHelper {
                     if (checkState.hasProperty(HorizontalDirectionalBlock.FACING)) {
                         Direction fanFacing = checkState.getValue(HorizontalDirectionalBlock.FACING);
                         if (fanFacing == dir.getOpposite()) {
-                            totalBonus += (booster.getBoostMultiplier() - 1.0f);
-                            counted.add(checkPos);
+                            // Ventilator nur zählen wenn Utilities für seine Plot-Position aktiv
+                            if (PlotUtilityManager.areUtilitiesEnabled(checkPos)) {
+                                totalBonus += (booster.getBoostMultiplier() - 1.0f);
+                                counted.add(checkPos);
+                            }
                         }
                     }
                     break; // Erster Block in dieser Richtung - egal ob gezählt, nicht weitersuchen
@@ -128,8 +132,11 @@ public final class MultiblockHelper {
                         if (checkState.hasProperty(HorizontalDirectionalBlock.FACING)) {
                             Direction fanFacing = checkState.getValue(HorizontalDirectionalBlock.FACING);
                             if (fanFacing == dir.getOpposite()) {
-                                totalBonus += (booster.getBoostMultiplier() - 1.0f);
-                                counted.add(checkPos);
+                                // Ventilator nur zählen wenn Utilities für seine Plot-Position aktiv
+                                if (PlotUtilityManager.areUtilitiesEnabled(checkPos)) {
+                                    totalBonus += (booster.getBoostMultiplier() - 1.0f);
+                                    counted.add(checkPos);
+                                }
                             }
                         }
                         break;

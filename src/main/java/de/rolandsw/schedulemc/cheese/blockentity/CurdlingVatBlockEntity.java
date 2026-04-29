@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ThreadLocalRandom;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Curdling Vat - Dicklegt pasteurisierte Milch mit Lab zu Käsebruch
@@ -113,6 +114,7 @@ public class CurdlingVatBlockEntity extends AbstractItemHandlerBlockEntity imple
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         boolean changed = false;
 

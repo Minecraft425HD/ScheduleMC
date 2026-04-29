@@ -12,6 +12,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * WaterTank-BlockEntity - gibt automatisch Wasser an benachbarte Töpfe
@@ -31,6 +32,7 @@ public class WaterTankBlockEntity extends BlockEntity implements IUtilityConsume
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         tickCounter++;
 

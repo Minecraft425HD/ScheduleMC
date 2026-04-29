@@ -69,6 +69,18 @@ public class ModNetworking {
             .encoder(NegotiationResponsePacket::encode)
             .consumerMainThread(NegotiationResponsePacket::handle)
             .add();
+
+        INSTANCE.messageBuilder(ReloadEconomyPricesPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(ReloadEconomyPricesPacket::decode)
+            .encoder(ReloadEconomyPricesPacket::encode)
+            .consumerMainThread(ReloadEconomyPricesPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(ReloadBlockCatalogPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(ReloadBlockCatalogPacket::decode)
+            .encoder(ReloadBlockCatalogPacket::encode)
+            .consumerMainThread(ReloadBlockCatalogPacket::handle)
+            .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

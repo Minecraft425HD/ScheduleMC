@@ -104,10 +104,10 @@ public class FanBlock extends HorizontalDirectionalBlock implements IMultiblockB
     @Override
     public void appendHoverText(ItemStack stack, @Nullable BlockGetter level,
                                 List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("§7Stufe: §e" + tier.getLevel()));
-        tooltip.add(Component.literal("§7Boost: §a+" + (int)((tier.getMultiplier() - 1.0f) * 100) + "% Trocknungsgeschwindigkeit"));
-        tooltip.add(Component.literal("§7Reichweite: §f4 Blöcke"));
-        tooltip.add(Component.literal("§8Zeige mit der Vorderseite auf das Trocknungsgestell."));
+        tooltip.add(Component.translatable("block.schedulemc.fan.tooltip.tier",   tier.getLevel()));
+        tooltip.add(Component.translatable("block.schedulemc.fan.tooltip.boost",  (int)((tier.getMultiplier() - 1.0f) * 100)));
+        tooltip.add(Component.translatable("block.schedulemc.fan.tooltip.range"));
+        tooltip.add(Component.translatable("block.schedulemc.fan.tooltip.hint"));
     }
 
     // ─────────────────────────────────────────────────────────────────

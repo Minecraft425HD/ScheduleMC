@@ -1,9 +1,11 @@
 package de.rolandsw.schedulemc.utility;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.world.level.block.Block;
 import org.slf4j.Logger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -72,6 +74,14 @@ public class UtilityRegistry {
         return new HashMap<>(CONSUMPTION_MAP);
     }
 
+    /**
+     * Gibt alle bekannten Registry-IDs zurück (aus registerById — unabhängig vom Config-Filter).
+     * Wird von UtilityBlockListConfigScreen für Autocomplete verwendet.
+     */
+    public static Set<String> getAllRegisteredIds() {
+        return java.util.Collections.unmodifiableSet(CONSUMPTION_BY_ID.keySet());
+    }
+
     // ═══════════════════════════════════════════════════════════════════════════
     // STANDARD-VERBRAUCHSWERTE
     // Werden beim Mod-Start via registerDefaults() geladen
@@ -116,6 +126,17 @@ public class UtilityRegistry {
         // WaterTank (Pilze)
         registerById("schedulemc:wassertank",
                 UtilityConsumptionData.constant(5, 50, UtilityCategory.IRRIGATION));
+
+        // ─────────────────────────────────────────────────────────────
+        // VENTILATOREN
+        // Konstanter Stromverbrauch (kein BlockEntity → immer aktiv)
+        // ─────────────────────────────────────────────────────────────
+        registerById("schedulemc:fan_tier1",
+                UtilityConsumptionData.constant(20, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:fan_tier2",
+                UtilityConsumptionData.constant(50, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:fan_tier3",
+                UtilityConsumptionData.constant(100, 0, UtilityCategory.MECHANICAL));
 
         // ─────────────────────────────────────────────────────────────
         // TROCKNUNGSGESTELLE (Tabak)
@@ -239,6 +260,158 @@ public class UtilityRegistry {
                 UtilityConsumptionData.of(80, 0, UtilityCategory.MECHANICAL));
         registerById("schedulemc:cannabis_oel_extraktor",
                 UtilityConsumptionData.of(120, 20, UtilityCategory.CHEMICAL));
+
+        // ─────────────────────────────────────────────────────────────
+        // BIER-PRODUKTION
+        // ─────────────────────────────────────────────────────────────
+        registerById("schedulemc:malting_station",
+                UtilityConsumptionData.of(30, 20, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:mash_tun",
+                UtilityConsumptionData.of(50, 60, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:small_brew_kettle",
+                UtilityConsumptionData.of(80, 40, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:medium_brew_kettle",
+                UtilityConsumptionData.of(120, 60, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:large_brew_kettle",
+                UtilityConsumptionData.of(200, 100, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:small_beer_fermentation_tank",
+                UtilityConsumptionData.of(20, 10, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:medium_beer_fermentation_tank",
+                UtilityConsumptionData.of(40, 20, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:large_beer_fermentation_tank",
+                UtilityConsumptionData.of(80, 40, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:small_conditioning_tank",
+                UtilityConsumptionData.of(15, 5, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:medium_conditioning_tank",
+                UtilityConsumptionData.of(30, 10, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:large_conditioning_tank",
+                UtilityConsumptionData.of(60, 20, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:beer_bottling_station",
+                UtilityConsumptionData.of(20, 5, UtilityCategory.PACKAGING));
+
+        // ─────────────────────────────────────────────────────────────
+        // WEIN-PRODUKTION
+        // ─────────────────────────────────────────────────────────────
+        registerById("schedulemc:crushing_station",
+                UtilityConsumptionData.of(30, 10, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:small_wine_press",
+                UtilityConsumptionData.of(20, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:medium_wine_press",
+                UtilityConsumptionData.of(40, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:large_wine_press",
+                UtilityConsumptionData.of(80, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:small_fermentation_tank",
+                UtilityConsumptionData.of(15, 5, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:medium_fermentation_tank",
+                UtilityConsumptionData.of(30, 10, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:large_fermentation_tank",
+                UtilityConsumptionData.of(60, 20, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:small_aging_barrel",
+                UtilityConsumptionData.of(5, 0, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:medium_aging_barrel",
+                UtilityConsumptionData.of(10, 0, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:large_aging_barrel",
+                UtilityConsumptionData.of(20, 0, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:wine_bottling_station",
+                UtilityConsumptionData.of(15, 5, UtilityCategory.PACKAGING));
+
+        // ─────────────────────────────────────────────────────────────
+        // HONIG-PRODUKTION
+        // ─────────────────────────────────────────────────────────────
+        registerById("schedulemc:beehive",
+                UtilityConsumptionData.constant(0, 5, UtilityCategory.IRRIGATION));
+        registerById("schedulemc:advanced_beehive",
+                UtilityConsumptionData.constant(5, 10, UtilityCategory.IRRIGATION));
+        registerById("schedulemc:apiary",
+                UtilityConsumptionData.constant(10, 20, UtilityCategory.IRRIGATION));
+        registerById("schedulemc:honey_extractor",
+                UtilityConsumptionData.of(40, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:centrifugal_extractor",
+                UtilityConsumptionData.of(80, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:filtering_station",
+                UtilityConsumptionData.of(20, 10, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:small_aging_chamber",
+                UtilityConsumptionData.of(10, 0, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:medium_aging_chamber",
+                UtilityConsumptionData.of(20, 0, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:large_aging_chamber",
+                UtilityConsumptionData.of(40, 0, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:processing_station",
+                UtilityConsumptionData.of(30, 10, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:creaming_station",
+                UtilityConsumptionData.of(40, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:bottling_station",
+                UtilityConsumptionData.of(15, 5, UtilityCategory.PACKAGING));
+
+        // ─────────────────────────────────────────────────────────────
+        // KÄSE-PRODUKTION
+        // ─────────────────────────────────────────────────────────────
+        registerById("schedulemc:pasteurization_station",
+                UtilityConsumptionData.of(80, 30, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:curdling_vat",
+                UtilityConsumptionData.of(30, 40, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:small_cheese_press",
+                UtilityConsumptionData.of(20, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:medium_cheese_press",
+                UtilityConsumptionData.of(40, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:large_cheese_press",
+                UtilityConsumptionData.of(80, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:small_aging_cave",
+                UtilityConsumptionData.of(15, 5, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:medium_aging_cave",
+                UtilityConsumptionData.of(30, 10, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:large_aging_cave",
+                UtilityConsumptionData.of(60, 20, UtilityCategory.FERMENTATION));
+        registerById("schedulemc:packaging_station",
+                UtilityConsumptionData.of(20, 5, UtilityCategory.PACKAGING));
+
+        // ─────────────────────────────────────────────────────────────
+        // SCHOKOLADEN-PRODUKTION
+        // ─────────────────────────────────────────────────────────────
+        registerById("schedulemc:roasting_station",
+                UtilityConsumptionData.of(100, 0, UtilityCategory.DRYING));
+        registerById("schedulemc:winnowing_machine",
+                UtilityConsumptionData.of(40, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:grinding_mill",
+                UtilityConsumptionData.of(60, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:pressing_station",
+                UtilityConsumptionData.of(50, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:small_conching_machine",
+                UtilityConsumptionData.of(80, 10, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:medium_conching_machine",
+                UtilityConsumptionData.of(120, 15, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:large_conching_machine",
+                UtilityConsumptionData.of(200, 25, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:tempering_station",
+                UtilityConsumptionData.of(60, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:small_molding_station",
+                UtilityConsumptionData.of(30, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:medium_molding_station",
+                UtilityConsumptionData.of(50, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:large_molding_station",
+                UtilityConsumptionData.of(80, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:enrobing_machine",
+                UtilityConsumptionData.of(40, 20, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:cooling_tunnel",
+                UtilityConsumptionData.of(120, 0, UtilityCategory.CLIMATE));
+        registerById("schedulemc:wrapping_station",
+                UtilityConsumptionData.of(20, 0, UtilityCategory.PACKAGING));
+
+        // ─────────────────────────────────────────────────────────────
+        // KAFFEE-PRODUKTION
+        // ─────────────────────────────────────────────────────────────
+        registerById("schedulemc:wet_processing_station",
+                UtilityConsumptionData.of(30, 50, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:small_coffee_roaster",
+                UtilityConsumptionData.of(80, 0, UtilityCategory.DRYING));
+        registerById("schedulemc:medium_coffee_roaster",
+                UtilityConsumptionData.of(120, 0, UtilityCategory.DRYING));
+        registerById("schedulemc:large_coffee_roaster",
+                UtilityConsumptionData.of(200, 0, UtilityCategory.DRYING));
+        registerById("schedulemc:coffee_grinder",
+                UtilityConsumptionData.of(40, 0, UtilityCategory.MECHANICAL));
+        registerById("schedulemc:coffee_packaging_table",
+                UtilityConsumptionData.of(15, 0, UtilityCategory.PACKAGING));
     }
 
     /**
@@ -246,6 +419,14 @@ public class UtilityRegistry {
      * Muss nach der Block-Registrierung aufgerufen werden
      */
     public static void resolveBlockReferences() {
+        // Fan Blocks
+        tryResolve("schedulemc:fan_tier1",
+                de.rolandsw.schedulemc.fan.blocks.FanBlocks.FAN_TIER_1);
+        tryResolve("schedulemc:fan_tier2",
+                de.rolandsw.schedulemc.fan.blocks.FanBlocks.FAN_TIER_2);
+        tryResolve("schedulemc:fan_tier3",
+                de.rolandsw.schedulemc.fan.blocks.FanBlocks.FAN_TIER_3);
+
         // Tobacco Blocks
         tryResolve("schedulemc:basic_grow_light_slab",
                 de.rolandsw.schedulemc.tobacco.blocks.TobaccoBlocks.BASIC_GROW_LIGHT_SLAB);
@@ -355,10 +536,153 @@ public class UtilityRegistry {
                 de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.HASH_PRESS);
         tryResolve("schedulemc:cannabis_oel_extraktor",
                 de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.OIL_EXTRACTOR);
+
+        // Beer Blocks
+        tryResolve("schedulemc:malting_station",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.MALTING_STATION);
+        tryResolve("schedulemc:mash_tun",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.MASH_TUN);
+        tryResolve("schedulemc:small_brew_kettle",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.SMALL_BREW_KETTLE);
+        tryResolve("schedulemc:medium_brew_kettle",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.MEDIUM_BREW_KETTLE);
+        tryResolve("schedulemc:large_brew_kettle",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.LARGE_BREW_KETTLE);
+        tryResolve("schedulemc:small_beer_fermentation_tank",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.SMALL_FERMENTATION_TANK);
+        tryResolve("schedulemc:medium_beer_fermentation_tank",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.MEDIUM_FERMENTATION_TANK);
+        tryResolve("schedulemc:large_beer_fermentation_tank",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.LARGE_FERMENTATION_TANK);
+        tryResolve("schedulemc:small_conditioning_tank",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.SMALL_CONDITIONING_TANK);
+        tryResolve("schedulemc:medium_conditioning_tank",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.MEDIUM_CONDITIONING_TANK);
+        tryResolve("schedulemc:large_conditioning_tank",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.LARGE_CONDITIONING_TANK);
+        tryResolve("schedulemc:beer_bottling_station",
+                de.rolandsw.schedulemc.beer.blocks.BeerBlocks.BOTTLING_STATION);
+
+        // Wine Blocks
+        tryResolve("schedulemc:crushing_station",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.CRUSHING_STATION);
+        tryResolve("schedulemc:small_wine_press",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.SMALL_WINE_PRESS);
+        tryResolve("schedulemc:medium_wine_press",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.MEDIUM_WINE_PRESS);
+        tryResolve("schedulemc:large_wine_press",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.LARGE_WINE_PRESS);
+        tryResolve("schedulemc:small_fermentation_tank",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.SMALL_FERMENTATION_TANK);
+        tryResolve("schedulemc:medium_fermentation_tank",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.MEDIUM_FERMENTATION_TANK);
+        tryResolve("schedulemc:large_fermentation_tank",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.LARGE_FERMENTATION_TANK);
+        tryResolve("schedulemc:small_aging_barrel",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.SMALL_AGING_BARREL);
+        tryResolve("schedulemc:medium_aging_barrel",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.MEDIUM_AGING_BARREL);
+        tryResolve("schedulemc:large_aging_barrel",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.LARGE_AGING_BARREL);
+        tryResolve("schedulemc:wine_bottling_station",
+                de.rolandsw.schedulemc.wine.blocks.WineBlocks.WINE_BOTTLING_STATION);
+
+        // Honey Blocks
+        tryResolve("schedulemc:beehive",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.BEEHIVE);
+        tryResolve("schedulemc:advanced_beehive",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.ADVANCED_BEEHIVE);
+        tryResolve("schedulemc:apiary",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.APIARY);
+        tryResolve("schedulemc:honey_extractor",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.HONEY_EXTRACTOR);
+        tryResolve("schedulemc:centrifugal_extractor",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.CENTRIFUGAL_EXTRACTOR);
+        tryResolve("schedulemc:filtering_station",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.FILTERING_STATION);
+        tryResolve("schedulemc:small_aging_chamber",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.SMALL_AGING_CHAMBER);
+        tryResolve("schedulemc:medium_aging_chamber",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.MEDIUM_AGING_CHAMBER);
+        tryResolve("schedulemc:large_aging_chamber",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.LARGE_AGING_CHAMBER);
+        tryResolve("schedulemc:processing_station",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.PROCESSING_STATION);
+        tryResolve("schedulemc:creaming_station",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.CREAMING_STATION);
+        tryResolve("schedulemc:bottling_station",
+                de.rolandsw.schedulemc.honey.blocks.HoneyBlocks.BOTTLING_STATION);
+
+        // Cheese Blocks
+        tryResolve("schedulemc:pasteurization_station",
+                de.rolandsw.schedulemc.cheese.blocks.CheeseBlocks.PASTEURIZATION_STATION);
+        tryResolve("schedulemc:curdling_vat",
+                de.rolandsw.schedulemc.cheese.blocks.CheeseBlocks.CURDLING_VAT);
+        tryResolve("schedulemc:small_cheese_press",
+                de.rolandsw.schedulemc.cheese.blocks.CheeseBlocks.SMALL_CHEESE_PRESS);
+        tryResolve("schedulemc:medium_cheese_press",
+                de.rolandsw.schedulemc.cheese.blocks.CheeseBlocks.MEDIUM_CHEESE_PRESS);
+        tryResolve("schedulemc:large_cheese_press",
+                de.rolandsw.schedulemc.cheese.blocks.CheeseBlocks.LARGE_CHEESE_PRESS);
+        tryResolve("schedulemc:small_aging_cave",
+                de.rolandsw.schedulemc.cheese.blocks.CheeseBlocks.SMALL_AGING_CAVE);
+        tryResolve("schedulemc:medium_aging_cave",
+                de.rolandsw.schedulemc.cheese.blocks.CheeseBlocks.MEDIUM_AGING_CAVE);
+        tryResolve("schedulemc:large_aging_cave",
+                de.rolandsw.schedulemc.cheese.blocks.CheeseBlocks.LARGE_AGING_CAVE);
+        tryResolve("schedulemc:packaging_station",
+                de.rolandsw.schedulemc.cheese.blocks.CheeseBlocks.PACKAGING_STATION);
+
+        // Chocolate Blocks
+        tryResolve("schedulemc:roasting_station",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.ROASTING_STATION);
+        tryResolve("schedulemc:winnowing_machine",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.WINNOWING_MACHINE);
+        tryResolve("schedulemc:grinding_mill",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.GRINDING_MILL);
+        tryResolve("schedulemc:pressing_station",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.PRESSING_STATION);
+        tryResolve("schedulemc:small_conching_machine",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.SMALL_CONCHING_MACHINE);
+        tryResolve("schedulemc:medium_conching_machine",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.MEDIUM_CONCHING_MACHINE);
+        tryResolve("schedulemc:large_conching_machine",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.LARGE_CONCHING_MACHINE);
+        tryResolve("schedulemc:tempering_station",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.TEMPERING_STATION);
+        tryResolve("schedulemc:small_molding_station",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.SMALL_MOLDING_STATION);
+        tryResolve("schedulemc:medium_molding_station",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.MEDIUM_MOLDING_STATION);
+        tryResolve("schedulemc:large_molding_station",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.LARGE_MOLDING_STATION);
+        tryResolve("schedulemc:enrobing_machine",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.ENROBING_MACHINE);
+        tryResolve("schedulemc:cooling_tunnel",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.COOLING_TUNNEL);
+        tryResolve("schedulemc:wrapping_station",
+                de.rolandsw.schedulemc.chocolate.blocks.ChocolateBlocks.WRAPPING_STATION);
+
+        // Coffee Blocks
+        tryResolve("schedulemc:wet_processing_station",
+                de.rolandsw.schedulemc.coffee.blocks.CoffeeBlocks.WET_PROCESSING_STATION);
+        tryResolve("schedulemc:small_coffee_roaster",
+                de.rolandsw.schedulemc.coffee.blocks.CoffeeBlocks.SMALL_COFFEE_ROASTER);
+        tryResolve("schedulemc:medium_coffee_roaster",
+                de.rolandsw.schedulemc.coffee.blocks.CoffeeBlocks.MEDIUM_COFFEE_ROASTER);
+        tryResolve("schedulemc:large_coffee_roaster",
+                de.rolandsw.schedulemc.coffee.blocks.CoffeeBlocks.LARGE_COFFEE_ROASTER);
+        tryResolve("schedulemc:coffee_grinder",
+                de.rolandsw.schedulemc.coffee.blocks.CoffeeBlocks.COFFEE_GRINDER);
+        tryResolve("schedulemc:coffee_packaging_table",
+                de.rolandsw.schedulemc.coffee.blocks.CoffeeBlocks.COFFEE_PACKAGING_TABLE);
     }
 
     private static void tryResolve(String id, net.minecraftforge.registries.RegistryObject<? extends Block> registryObject) {
         try {
+            // Nur registrieren wenn der Block in der Config-Liste steht
+            if (!isEnabledByConfig(id)) return;
+
             if (registryObject.isPresent()) {
                 UtilityConsumptionData data = CONSUMPTION_BY_ID.get(id);
                 if (data != null) {
@@ -369,6 +693,25 @@ public class UtilityRegistry {
             if (DEFERRED_RESOLVE_LOGGED.add(id)) {
                 LOGGER.debug("UtilityRegistry: block '{}' not yet resolved (deferred)", id, ex);
             }
+        }
+    }
+
+    /**
+     * Prüft ob ein Block in der UTILITY_CONSUMER_BLOCKS-Config-Liste steht.
+     * Unterstützt sowohl volle IDs ("schedulemc:block") als auch Kurznamen ("block").
+     */
+    private static boolean isEnabledByConfig(String fullId) {
+        try {
+            List<? extends String> configList = ModConfigHandler.COMMON.UTILITY_CONSUMER_BLOCKS.get();
+            if (configList == null || configList.isEmpty()) return true;
+            String path = fullId.contains(":") ? fullId.substring(fullId.indexOf(':') + 1) : fullId;
+            for (String entry : configList) {
+                String e = entry.trim();
+                if (e.equalsIgnoreCase(fullId) || e.equalsIgnoreCase(path)) return true;
+            }
+            return false;
+        } catch (Exception ex) {
+            return true; // Config noch nicht geladen → Standard: alles aktiv
         }
     }
 }

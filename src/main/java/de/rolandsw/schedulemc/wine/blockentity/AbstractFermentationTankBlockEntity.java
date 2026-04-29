@@ -15,6 +15,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Abstrakte Basis für Fermentationstanks
@@ -120,6 +121,7 @@ public abstract class AbstractFermentationTankBlockEntity extends AbstractItemHa
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         boolean changed = false;
 

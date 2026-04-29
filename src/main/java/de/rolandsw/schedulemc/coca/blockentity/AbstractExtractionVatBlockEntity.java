@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 public abstract class AbstractExtractionVatBlockEntity extends BlockEntity implements IUtilityConsumer {
 
@@ -223,6 +224,7 @@ public abstract class AbstractExtractionVatBlockEntity extends BlockEntity imple
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         boolean changed = false;
 

@@ -2,6 +2,7 @@ package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.ScheduleMC;
+import de.rolandsw.schedulemc.level.client.ClientProducerLevelCache;
 import de.rolandsw.schedulemc.npc.data.ShopEntry;
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.menu.MerchantShopMenu;
@@ -137,12 +138,15 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
     private void loadShopItems() {
         shopItemRows.clear();
+        int playerLevel = ClientProducerLevelCache.getCurrentLevel();
         for (ShopEntry entry : menu.getShopItems()) {
             ShopItemRow row = new ShopItemRow();
-            row.item      = entry.getItem().copy();
-            row.price     = entry.getPrice();
-            row.unlimited = entry.isUnlimited();
-            row.stock     = entry.isUnlimited() ? Integer.MAX_VALUE : entry.getStock();
+            row.item           = entry.getItem().copy();
+            row.price          = entry.getPrice();
+            row.unlimited      = entry.isUnlimited();
+            row.stock          = entry.isUnlimited() ? Integer.MAX_VALUE : entry.getStock();
+            row.requiredLevel  = entry.getRequiredLevel();
+            row.locked         = row.requiredLevel > 0 && playerLevel < row.requiredLevel;
             if (row.item.hasTag() && row.item.getTag().contains("BillType")) {
                 row.savedQty = "1";
                 row.isBill   = true;
@@ -178,6 +182,10 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
                 box.setValue("1");
                 box.setEditable(false);
                 box.setTextColor(0xAAAAAA);
+            } else if (row.locked) {
+                box.setValue("0");
+                box.setEditable(false);
+                box.setTextColor(C_STOCK_OOS);
             } else if (oos) {
                 box.setValue("0");
                 box.setEditable(false);
@@ -224,6 +232,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
         for (int i = 0; i < shopItemRows.size(); i++) {
             ShopItemRow row = shopItemRows.get(i);
+            if (row.locked) continue;
             if (row.savedQty.isEmpty() || "0".equals(row.savedQty)) continue;
 
             try {
@@ -284,7 +293,7 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
             if (i < visible) {
                 ShopItemRow row = shopItemRows.get(i + scrollOffset);
                 boolean oos = !row.unlimited && row.stock <= 0;
-                if (oos) rowColor = C_BG_OOS;
+                if (oos || row.locked) rowColor = C_BG_OOS;
             }
 
             // Hover
@@ -362,19 +371,28 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
 
     private void renderRow(GuiGraphics g, ShopItemRow row, int x, int rowY, int mx, int my) {
         boolean oos = !row.unlimited && row.stock <= 0;
-        int nameColor = oos ? C_STOCK_OOS : C_TEXT;
+        int nameColor = (oos || row.locked) ? C_STOCK_OOS : C_TEXT;
 
         // Icon
         g.renderItem(row.item, x + COL_ICON, rowY + 3);
 
         // Name
         String name = row.item.getHoverName().getString();
-        if (font.width(name) > COL_PRICE - COL_NAME - 6) {
-            while (font.width(name + "..") > COL_PRICE - COL_NAME - 6 && !name.isEmpty())
+        // Maximalbreite berücksichtigt ggf. Level-Badge
+        int nameMaxWidth = COL_PRICE - COL_NAME - (row.requiredLevel > 0 ? 32 : 6);
+        if (font.width(name) > nameMaxWidth) {
+            while (font.width(name + "..") > nameMaxWidth && !name.isEmpty())
                 name = name.substring(0, name.length() - 1);
             name += "..";
         }
         g.drawString(font, name, x + COL_NAME, rowY + 7, nameColor, false);
+
+        // Level-Badge (rechts neben dem Namen, vor der Preis-Spalte)
+        if (row.requiredLevel > 0) {
+            String badge = "Lvl " + row.requiredLevel;
+            int badgeColor = row.locked ? 0xFFFF5555 : 0xFF55FF55;
+            g.drawString(font, badge, x + COL_PRICE - font.width(badge) - 2, rowY + 7, badgeColor, false);
+        }
 
         // Preis
         g.drawString(font, MoneyFormat.format(row.price), x + COL_PRICE, rowY + 7, C_PRICE, false);
@@ -462,6 +480,8 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
         int       stock;
         boolean   isBill;
         EditBox   input;
-        String    savedQty = "";
+        String    savedQty      = "";
+        int       requiredLevel = 0;
+        boolean   locked        = false;
     }
 }

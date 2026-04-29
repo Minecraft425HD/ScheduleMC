@@ -11,6 +11,7 @@ import de.rolandsw.schedulemc.tobacco.items.FreshTobaccoLeafItem;
 import de.rolandsw.schedulemc.multiblock.MultiblockHelper;
 import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -45,7 +46,10 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
 
     // Multiblock-Boost durch angrenzende Ventilatoren
     private float cachedBoostMultiplier = 1.0f;
-    private long lastBoostScan = Long.MIN_VALUE;
+    // WICHTIG: Nicht Long.MIN_VALUE — das verursacht einen Überlauf bei der Differenzberechnung
+    // (now - Long.MIN_VALUE überschreitet Long.MAX_VALUE → negativer Wert → Scan löst nie aus).
+    // -BOOST_SCAN_INTERVAL stellt sicher, dass der erste Scan sofort beim ersten tick() passiert.
+    private long lastBoostScan = -BOOST_SCAN_INTERVAL;
     private static final int BOOST_SCAN_INTERVAL = 40; // alle 40 Ticks neu scannen
 
     // Produkttyp (tobacco oder cannabis)
@@ -260,6 +264,11 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+
+        // ── Utility-Sperre: Trocknungsgestell pausiert bei ≥ 28 unbezahlten Tagen ─
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) {
+            return;
+        }
 
         boolean changed = false;
 

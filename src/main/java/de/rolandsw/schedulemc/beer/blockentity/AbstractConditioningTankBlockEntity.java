@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Abstract base class for Conditioning Tanks
@@ -95,6 +96,7 @@ public abstract class AbstractConditioningTankBlockEntity extends AbstractItemHa
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         long now = level.getDayTime();
         long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);

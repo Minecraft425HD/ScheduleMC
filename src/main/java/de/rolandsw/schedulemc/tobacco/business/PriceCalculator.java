@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.business;
 
+import de.rolandsw.schedulemc.economy.EconomyController;
 import de.rolandsw.schedulemc.tobacco.TobaccoQuality;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;
 
@@ -9,9 +10,24 @@ import de.rolandsw.schedulemc.tobacco.TobaccoType;
 public class PriceCalculator {
 
     /**
-     * Berechnet Basis-Preis (ohne NPC-Modifier)
+     * Berechnet Basis-Preis (ohne NPC-Modifier).
+     *
+     * Verwendet den aktuellen Marktpreis aus dem EconomyController als Basis,
+     * damit NPC-Kaufpreise mit dem Universal Price Manager übereinstimmen.
+     * Fallback auf die alte Formel falls EconomyController nicht verfügbar ist.
      */
     public static double calculateBasePrice(TobaccoType type, TobaccoQuality quality, int weight) {
+        try {
+            EconomyController ec = EconomyController.getInstance();
+            if (ec != null) {
+                // Marktpreis (NPC kauft vom Spieler) × Qualitätsmultiplikator
+                double marketBuyPrice = ec.getBuyPrice(type.getProductId(), weight);
+                return marketBuyPrice * quality.getPriceMultiplier();
+            }
+        } catch (Exception ignored) {
+            // Fallback wenn EconomyController noch nicht initialisiert ist
+        }
+        // Legacy-Fallback: Saatgutpreis / 20 als Basiswert
         double pricePerGram = type.getBasePrice();
         double qualityMultiplier = quality.getPriceMultiplier();
         return pricePerGram * qualityMultiplier * weight;

@@ -12,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * BlockEntity für ClimateLamp - reguliert Temperatur für benachbarte Töpfe
@@ -37,6 +38,7 @@ public class ClimateLampBlockEntity extends BlockEntity implements IUtilityConsu
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         tickCounter++;
 

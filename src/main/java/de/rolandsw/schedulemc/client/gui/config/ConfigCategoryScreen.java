@@ -58,7 +58,15 @@ public class ConfigCategoryScreen extends Screen {
         );
         categoryList.addCategoryRow(
             "§e⚡ Advanced Economy", () -> new AdvancedEconomyConfigScreen(this),
-            null, null  // Only left button in this row
+            "§3⚙ Plot Block Restrictions", () -> new PlotBlockRestrictionConfigScreen(this)
+        );
+        categoryList.addCategoryRow(
+            "§b⚡ Utility Consumer Blocks", () -> new UtilityBlockListConfigScreen(this),
+            "§6$ Produkt-Referenzpreise", () -> new EconomyPricesConfigScreen(this)
+        );
+        categoryList.addCategoryRow(
+            "§a⚙ Produktionsblock-Katalog", () -> new ProductionBlockCatalogScreen(this),
+            null, null
         );
 
         // Done Button (fixed at bottom)

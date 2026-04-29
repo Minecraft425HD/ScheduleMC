@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * BlockEntity für Grow Light Slabs - Stromverbrauch-Tracking für Utility-System
@@ -34,6 +35,7 @@ public class GrowLightSlabBlockEntity extends BlockEntity implements IUtilityCon
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         // Utility-Status nur bei Änderung melden
         boolean currentActive = isActivelyConsuming();

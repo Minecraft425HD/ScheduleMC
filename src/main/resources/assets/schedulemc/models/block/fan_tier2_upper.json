@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "schedulemc:block/fan_tier2_upper"
+  }
+}

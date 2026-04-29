@@ -15,6 +15,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandlerBlockEntity implements IUtilityConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAgingBarrelBlockEntity.class);
@@ -77,6 +78,7 @@ public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandler
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         long now = level.getDayTime();
         long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);

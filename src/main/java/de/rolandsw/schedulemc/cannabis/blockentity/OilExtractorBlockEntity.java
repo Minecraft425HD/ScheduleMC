@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import de.rolandsw.schedulemc.utility.PlotUtilityManager;
 
 /**
  * Öl-Extractor - extrahiert Cannabis-Öl aus Blüten oder Trim
@@ -107,6 +108,7 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
 
     public void tick() {
         if (level == null || level.isClientSide) return;
+        if (!PlotUtilityManager.areUtilitiesEnabled(getBlockPos())) return;
 
         if (isExtracting) {
             if (startDayTime < 0) {

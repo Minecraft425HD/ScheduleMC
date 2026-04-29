@@ -1,8 +1,11 @@
 package de.rolandsw.schedulemc.npc.data;
 
+import de.rolandsw.schedulemc.economy.BlockShopCatalog;
 import de.rolandsw.schedulemc.vehicle.items.ModItems;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Definiert Standard-Shop-Items für jede Verkäufer-Kategorie und Service-Kategorie
@@ -140,6 +143,14 @@ public class MerchantShopDefaults {
         shop.addEntry(new ShopEntry(new ItemStack(Items.ENCHANTED_BOOK, 1), 600, false, 0));
         shop.addEntry(new ShopEntry(new ItemStack(Items.TNT, 8), 400, false, 0));
         shop.addEntry(new ShopEntry(new ItemStack(Items.END_CRYSTAL, 1), 1000, false, 0));
+    }
+
+    public static void setupProductionShop(ShopInventory shop) {
+        for (BlockShopCatalog.BlockCatalogEntry entry : BlockShopCatalog.getInstance().getAllEntries()) {
+            var item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(entry.blockId()));
+            if (item == null || item == Items.AIR) continue;
+            shop.addEntry(new ShopEntry(new ItemStack(item), (int) entry.price(), true, 0, entry.requiredLevel()));
+        }
     }
 
     private static void setupAutohaendlerShop(ShopInventory shop) {

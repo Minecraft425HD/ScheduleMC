@@ -55,6 +55,10 @@ public class CrimeEventHandler {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!(player.level() instanceof ServerLevel level)) return;
 
+        // Admins, die Shift+Linksklick zum Öffnen des Shop-Editors nutzen,
+        // sollen keine Angst-Reaktion auslösen
+        if (player.isShiftKeyDown() && player.hasPermissions(2)) return;
+
         Entity target = event.getTarget();
 
         // Angriff auf NPC erkennen
