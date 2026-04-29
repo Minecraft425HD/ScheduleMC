@@ -1,6 +1,6 @@
 # ScheduleMC API Reference
 
-**Version:** 3.7.0-beta | **Minecraft:** 1.20.1 | **Forge:** 47.4.0 | **Java:** 17+
+**Version:** 3.8.0-beta | **Minecraft:** 1.20.1 | **Forge:** 47.4.0 | **Java:** 17+
 
 Complete API reference for external mod developers integrating with ScheduleMC.
 
@@ -51,10 +51,10 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
 
     // ScheduleMC API - compile-only dependency
-    compileOnly files('libs/schedulemc-3.7.0-beta.jar')
+    compileOnly files('libs/schedulemc-3.8.0-beta.jar')
 
     // Or, if published to a Maven repository:
-    // compileOnly 'de.rolandsw.schedulemc:schedulemc:3.7.0-beta'
+    // compileOnly 'de.rolandsw.schedulemc:schedulemc:3.8.0-beta'
 }
 ```
 
@@ -107,12 +107,12 @@ if (api.isInitialized()) {
 }
 
 // Version check
-String version = api.getVersion(); // "3.7.0-beta"
+String version = api.getVersion(); // "3.8.0-beta"
 
 // Diagnostic status (useful for logging)
 String status = api.getStatus();
 // Output:
-// ScheduleMC API v3.7.0-beta - READY
+// ScheduleMC API v3.8.0-beta - READY
 //   Economy:      [check]
 //   Plot:         [check]
 //   Production:   [check]
@@ -2651,7 +2651,7 @@ public class DrugBustHandler {
 | 3.1.0      | 3.1.0 – 3.5.x | 1.20.1    | 47.4.0 | Javadoc improvements, minor fixes           |
 | 3.1.0      | 3.6.0-beta     | 1.20.1    | 47.4.0 | Lock, Gang, Territory, Towing, Level systems |
 | 3.2.0      | 3.6.9-beta     | 1.20.1    | 47.4.0 | Extended methods for Messaging, Achievement, Market; 12 total modules |
-| 3.2.0      | 3.7.0-beta     | 1.20.1    | 47.4.0 | Current release line; API modules and contracts unchanged |
+| 3.2.0      | 3.8.0-beta     | 1.20.1    | 47.4.0 | Current release line; API modules and contracts unchanged |
 
 ### Supported Environments
 
@@ -2741,7 +2741,7 @@ de.rolandsw.schedulemc.api
 
 ---
 
-*ScheduleMC API Reference -- Version 3.7.0-beta*
+*ScheduleMC API Reference -- Version 3.8.0-beta*
 *Author: Luckas R. Schneider (Minecraft425HD)*
 *License: All Rights Reserved*
 

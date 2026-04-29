@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/Version-3.7.0--beta-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-3.8.0--beta-blue?style=for-the-badge)
 ![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-green?style=for-the-badge)
 ![Forge](https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge)
 ![Java](https://img.shields.io/badge/Java-17-red?style=for-the-badge)
@@ -24,7 +24,7 @@
 
 | Metric | Value |
 |---|---|
-| **Version** | 3.7.0-beta |
+| **Version** | 3.8.0-beta |
 | **Minecraft** | 1.20.1 |
 | **Forge** | 47.4.0 |
 | **Java** | 17 |
@@ -277,7 +277,7 @@ These mods are not required but provide enhanced functionality when installed:
 
 | Version | Status | Highlights |
 |---|---|---|
-| **3.7.0-beta** | **Current** | Weapon system integration (6 guns, 4 melee, 3 grenades, attachments, HUD, network packets), NPE fixes in NPC Life System |
+| **3.8.0-beta** | **Current** | Weapon system integration (6 guns, 4 melee, 3 grenades, attachments, HUD, network packets), NPE fixes in NPC Life System |
 | 3.6.9-beta | -- | Achievement system expansion, API v3.2.0, extended Messaging/Market/Achievement API methods, 32 test files, full documentation overhaul |
 | 3.6.0-beta | -- | Towing system, gang and territory systems, legal crafting (beer, wine, coffee, chocolate, cheese, honey), map view, lock system, level system, API v3.1.0 |
 | 3.4.0-beta | -- | Vehicle system enhancements, API v3 stabilization, expanded unit test coverage |
@@ -409,7 +409,7 @@ When reporting an issue, include the following information:
 
 - Minecraft version (1.20.1)
 - Forge version
-- ScheduleMC version (3.7.0-beta)
+- ScheduleMC version (3.8.0-beta)
 - Steps to reproduce the problem
 - Relevant log output from `.minecraft/logs/latest.log`
 - Output of the `/health` command if applicable
@@ -418,7 +418,7 @@ When reporting an issue, include the following information:
 
 <div align="center">
 
-ScheduleMC v3.7.0-beta -- Minecraft 1.20.1 -- Forge 47.4.0
+ScheduleMC v3.8.0-beta -- Minecraft 1.20.1 -- Forge 47.4.0
 
 Developed by Luckas R. Schneider (Minecraft425HD)
 

@@ -2,7 +2,7 @@
 
 Comprehensive answers to common questions about ScheduleMC, the all-in-one roleplay and economy mod for Minecraft Forge 1.20.1.
 
-**Version:** 3.7.0-beta | **Last Updated:** 2026-04-13
+**Version:** 3.8.0-beta | **Last Updated:** 2026-04-13
 
 ---
 
@@ -117,14 +117,14 @@ These mods are entirely optional. ScheduleMC functions fully without them. They 
    ```
    .minecraft/
    └── mods/
-       └── ScheduleMC-3.7.0-beta.jar
+       └── ScheduleMC-3.8.0-beta.jar
    ```
 
    **For servers:**
    ```
    minecraft_server/
    └── mods/
-       └── ScheduleMC-3.7.0-beta.jar
+       └── ScheduleMC-3.8.0-beta.jar
    ```
 
 3. Launch Minecraft with the Forge profile (client) or start the server. ScheduleMC should appear in the mod list.
@@ -159,7 +159,7 @@ cd ScheduleMC
 ./gradlew build
 
 # 3. The built .jar is located at:
-#    build/libs/schedulemc-3.7.0-beta.jar
+#    build/libs/schedulemc-3.8.0-beta.jar
 ```
 
 **Additional development commands:**
@@ -801,7 +801,7 @@ The protection is managed by the `ISmartphoneAPI` and tracks which players have 
 **Please include the following information in your bug report:**
 - Minecraft version (should be 1.20.1)
 - Forge version (e.g., 47.4.0)
-- ScheduleMC version (e.g., 3.7.0-beta)
+- ScheduleMC version (e.g., 3.8.0-beta)
 - Steps to reproduce the issue
 - Expected behavior vs. actual behavior
 - Log files from `.minecraft/logs/latest.log`
@@ -894,7 +894,7 @@ The `HealthCheckManager` automatically runs an initial health check on server st
 
 1. **Add ScheduleMC as a dependency** in your `build.gradle`:
    ```gradle
-   compileOnly files('libs/ScheduleMC-3.7.0-beta.jar')
+   compileOnly files('libs/ScheduleMC-3.8.0-beta.jar')
    ```
 
 2. **Access the API** through the singleton entry point:

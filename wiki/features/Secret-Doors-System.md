@@ -494,7 +494,7 @@ Output includes:
 
 ---
 
-*Part of the ScheduleMC v3.7.0-beta documentation. For API integration, see the [API Reference](../../docs/API_REFERENCE.md).*
+*Part of the ScheduleMC v3.8.0-beta documentation. For API integration, see the [API Reference](../../docs/API_REFERENCE.md).*
 
 ---
 

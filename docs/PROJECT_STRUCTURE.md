@@ -1,6 +1,6 @@
 # ScheduleMC - Vollstaendige Projektstruktur
 
-> Aktualisiert am 2026-03-17 | Version 3.7.0-beta
+> Aktualisiert am 2026-03-17 | Version 3.8.0-beta
 >
 > **Gesamtstatistik:**
 > - Java-Quelldateien (main): 1.494 (+46 Weapon-System)

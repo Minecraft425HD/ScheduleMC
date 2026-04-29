@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**Complete Command Reference for ScheduleMC v3.7.0-beta**
+**Complete Command Reference for ScheduleMC v3.8.0-beta**
 
 All registered commands organized by system, with syntax, permissions, and examples.
 
@@ -2754,7 +2754,7 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 
 <div align="center">
 
-**ScheduleMC v3.7.0-beta** -- Minecraft 1.20.1 -- Forge 47.4.0
+**ScheduleMC v3.8.0-beta** -- Minecraft 1.20.1 -- Forge 47.4.0
 
 [Back to Wiki Home](Home.md) -- [Getting Started](Getting-Started.md) -- [Items](Items.md) -- [Blocks](Blocks.md) -- [FAQ](FAQ.md)
 

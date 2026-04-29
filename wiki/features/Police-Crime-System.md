@@ -789,7 +789,7 @@ For related systems:
 
 [Back to Wiki Home](../Home.md) | [All Commands](../Commands.md)
 
-**Last Updated:** 2026-04-13 | **ScheduleMC v3.7.0-beta**
+**Last Updated:** 2026-04-13 | **ScheduleMC v3.8.0-beta**
 
 </div>
 

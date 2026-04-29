@@ -1,6 +1,6 @@
 # Tutorial System
 
-> **STATUS: NOT IMPLEMENTED** - The Tutorial System described on this page was planned but has not been implemented in the current codebase. No tutorial-related code, commands, or manager classes exist in ScheduleMC v3.7.0-beta. This page is retained for reference as a design document for potential future implementation.
+> **STATUS: NOT IMPLEMENTED** - The Tutorial System described on this page was planned but has not been implemented in the current codebase. No tutorial-related code, commands, or manager classes exist in ScheduleMC v3.8.0-beta. This page is retained for reference as a design document for potential future implementation.
 
 <div align="center">
 
@@ -839,7 +839,7 @@ For related systems:
 
 [🏠 Back to Wiki Home](../Home.md) • [📋 All Commands](../Commands.md)
 
-**Last Updated:** 2026-04-13 | **ScheduleMC v3.7.0-beta**
+**Last Updated:** 2026-04-13 | **ScheduleMC v3.8.0-beta**
 
 </div>
 

@@ -1,6 +1,6 @@
 # ScheduleMC Testing Guide
 
-**Version:** 3.7.0-beta | **Minecraft:** 1.20.1 | **Forge:** 47.4.0 | **Java:** 17
+**Version:** 3.8.0-beta | **Minecraft:** 1.20.1 | **Forge:** 47.4.0 | **Java:** 17
 
 Complete guide to testing the ScheduleMC mod — running tests, understanding coverage, writing new tests, and using the CI/CD pipeline.
 

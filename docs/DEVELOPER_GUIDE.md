@@ -3,7 +3,7 @@
 Comprehensive guide for developers who want to build, extend, and contribute to the
 ScheduleMC Minecraft Forge 1.20.1 mod.
 
-**Mod Version:** 3.7.0-beta
+**Mod Version:** 3.8.0-beta
 **API Version:** 3.2.0
 **Forge Version:** 1.20.1-47.4.0
 **Java Version:** 17
@@ -493,7 +493,7 @@ In your mod's `build.gradle`, add ScheduleMC as a dependency:
 ```groovy
 dependencies {
     // Compile against the ScheduleMC API
-    compileOnly files('libs/schedulemc-3.7.0-beta.jar')
+    compileOnly files('libs/schedulemc-3.8.0-beta.jar')
 }
 ```
 
@@ -2239,7 +2239,7 @@ Follow the established pattern for DeferredRegister usage:
 | Textures | `src/main/resources/assets/schedulemc/textures/` |
 | Test sources | `src/test/java/de/rolandsw/schedulemc/` |
 | Coverage reports | `build/reports/jacoco/test/html/index.html` |
-| Build output | `build/libs/schedulemc-3.7.0-beta.jar` |
+| Build output | `build/libs/schedulemc-3.8.0-beta.jar` |
 | Mod metadata | `src/main/resources/META-INF/mods.toml` |
 | Gradle properties | `gradle.properties` |
 

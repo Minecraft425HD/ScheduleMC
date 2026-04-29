@@ -34,7 +34,7 @@ Format: `[version] - date — Summary of changes`
 - **Savings account interest:** `SavingsAccount.calculateAndPayInterest()` skips payout when balance < 0.005€ (was 0.01€); result rounded to 2dp; `SavingsAccountManager` also uses `>= 0.005` threshold
 - **HashPressScreen / OilExtractorScreen:** Removed erroneous `this.onClose()` call that automatically closed the GUI when output was ready; output is now shown in the output slot instead
 
-## [3.7.0-beta] - 2026-03-17
+## [3.8.0-beta] - 2026-03-17
 
 ### Added
 - **Weapon System** — Full weapon mod integration (46 new Java files, 26 item textures, 26 item models)
