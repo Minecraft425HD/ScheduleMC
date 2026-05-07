@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "Kabelrechner",
+    "slug": "cable-calculator",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0D1E35",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "de.schedulemc.cableCalculator"
+    },
+    "android": {
+      "package": "de.schedulemc.cableCalculator",
+      "adaptiveIcon": {
+        "backgroundColor": "#0D1E35"
+      }
+    }
+  }
+}
