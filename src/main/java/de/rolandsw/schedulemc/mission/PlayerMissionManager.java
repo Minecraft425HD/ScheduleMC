@@ -191,7 +191,7 @@ public class PlayerMissionManager {
                 changed = true;
                 if (completed) {
                     player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                        "§a✓ Mission abgeschlossen: §f" + mission.getDefinition().getTitle()
+                        "§a✓ Mission completed: §f" + mission.getDefinition().getTitle()
                     ));
                 }
             }

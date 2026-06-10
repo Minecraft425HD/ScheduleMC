@@ -45,7 +45,7 @@ public class SaveScenarioPacket {
             ScenarioManager manager = ScenarioManager.getInstance();
             if (manager == null) {
                 player.sendSystemMessage(Component.literal(
-                        "\u00A7c[Szenario-Editor] Manager nicht initialisiert!"));
+                        "\u00A7c[Scenario Editor] Manager not initialized!"));
                 return;
             }
 

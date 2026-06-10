@@ -228,7 +228,7 @@ public class PlayerMissionScenarioExecutor {
                 for (ServerLevel level : server.getAllLevels()) {
                     Entity entity = level.getEntity(entityId);
                     if (entity == null || entity.isRemoved()) {
-                        failMission(player, null, "Zu schuetzender NPC wurde eliminiert!");
+                        failMission(player, null, "The NPC to protect was eliminated!");
                         return false;
                     }
                 }

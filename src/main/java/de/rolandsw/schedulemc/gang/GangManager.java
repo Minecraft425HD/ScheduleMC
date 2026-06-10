@@ -367,10 +367,10 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
                         toKick.add(memberUUID);
                         player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
                                 "\u00A7c[Gang] \u00A77Du wurdest aus \u00A7f" + gang.getName() +
-                                " \u00A77entfernt (6x Beitrag nicht gezahlt)."));
+                                " \u00A77removed (contribution unpaid 6x)."));
                     } else {
                         player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                                "\u00A7c[Gang] \u00A77Nicht genug Geld fuer Wochenbeitrag (" +
+                                "\u00A7c[Gang] \u00A77Not enough money for weekly contribution (" +
                                 fee + "\u20AC). Verpasst: " + memberData.getMissedFeePayments() + "/6"));
                     }
                 }
