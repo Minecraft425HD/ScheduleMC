@@ -182,8 +182,8 @@ public class PoliceVehiclePursuit {
      * Prueft ob Fahrzeugverfolgung moeglich ist
      */
     public static boolean canStartVehiclePursuit(CustomNPCEntity police, ServerPlayer target) {
-        // Polizei muss POLIZEI-Typ sein
-        if (police.getNpcType() != NPCType.POLIZEI) return false;
+        // Polizei muss POLICE-Typ sein
+        if (police.getNpcType() != NPCType.POLICE) return false;
 
         // Polizei darf nicht bereits fahren
         if (police.isDriving()) return false;

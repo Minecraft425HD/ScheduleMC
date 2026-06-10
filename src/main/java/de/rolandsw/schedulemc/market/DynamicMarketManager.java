@@ -376,11 +376,11 @@ public class DynamicMarketManager {
      */
     public String getPlayerMarketReport() {
         if (marketData.isEmpty()) {
-            return "\u00A77Keine Marktdaten verfügbar.";
+            return "\u00A77No market data available.";
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("\u00A76\u00A7l=== Marktübersicht ===\u00A7r\n");
+        sb.append("\u00A76\u00A7l=== Market Overview ===\u00A7r\n");
 
         // Steigende Preise
         List<MarketData> rising = getTrendingUpItems(5);

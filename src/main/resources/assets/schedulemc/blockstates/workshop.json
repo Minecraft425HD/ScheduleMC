@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "schedulemc:block/workshop", "y": 180 },
+        "facing=south": { "model": "schedulemc:block/workshop" },
+        "facing=west":  { "model": "schedulemc:block/workshop", "y": 90 },
+        "facing=east":  { "model": "schedulemc:block/workshop", "y": 270 }
+    }
+}

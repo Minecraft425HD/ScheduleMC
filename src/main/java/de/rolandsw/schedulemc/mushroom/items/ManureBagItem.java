@@ -1,0 +1,178 @@
+package de.rolandsw.schedulemc.mushroom.items;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Mist-Sack-Item für Pilzzucht (3 Stufen)
+ */
+public class ManureBagItem extends Item {
+
+    private final ManureBagType type;
+    private static final int UNITS_PER_BAG = 1;
+
+    public ManureBagItem(ManureBagType type) {
+        super(new Properties().stacksTo(1));
+        this.type = type;
+    }
+
+    public ManureBagType getType() {
+        return type;
+    }
+
+    /**
+     * Gibt die Anzahl der Pilzkulturen zurück, für die dieser Mist-Sack reicht
+     */
+    public int getPlantsPerBag() {
+        return type.getPlantsPerBag();
+    }
+
+    /**
+     * Erstellt neuen vollen Mist-Sack
+     */
+    public static ItemStack createFull(ManureBagType type) {
+        ItemStack stack = new ItemStack(getItemForType(type));
+        setUnits(stack, UNITS_PER_BAG);
+        return stack;
+    }
+
+    /**
+     * Setzt Einheiten im Sack
+     */
+    public static void setUnits(ItemStack stack, int units) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putInt("MistUnits", Math.max(0, Math.min(UNITS_PER_BAG, units)));
+    }
+
+    /**
+     * Gibt Einheiten zurück
+     */
+    public static int getUnits(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag != null && tag.contains("MistUnits")) {
+            return tag.getInt("MistUnits");
+        }
+        return UNITS_PER_BAG; // Neu = voll
+    }
+
+    /**
+     * Verbraucht Einheiten
+     */
+    public static boolean consumeUnits(ItemStack stack, int amount) {
+        int current = getUnits(stack);
+        if (current >= amount) {
+            setUnits(stack, current - amount);
+            if (getUnits(stack) <= 0) {
+                stack.shrink(1); // Leerer Sack verschwindet
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Gibt Item für Typ zurück
+     */
+    private static Item getItemForType(ManureBagType type) {
+        return switch (type) {
+            case SMALL -> MushroomItems.MANURE_BAG_SMALL.get();
+            case MEDIUM -> MushroomItems.MANURE_BAG_MEDIUM.get();
+            case LARGE -> MushroomItems.MANURE_BAG_LARGE.get();
+        };
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        int units = getUnits(stack);
+        float percentage = (float) units / UNITS_PER_BAG;
+
+        tooltip.add(Component.translatable("tooltip.manure_bag.substrate", units, UNITS_PER_BAG));
+        tooltip.add(Component.translatable("tooltip.manure_bag.enough_for", type.getPlantsPerBag()));
+        tooltip.add(Component.literal(""));
+
+        String bar = createBar(percentage);
+        tooltip.add(Component.literal("§7" + bar));
+
+        tooltip.add(Component.literal(""));
+        tooltip.add(Component.translatable("tooltip.manure_bag.right_click_pot"));
+        tooltip.add(Component.translatable("tooltip.manure_bag.ideal_for_mushrooms"));
+    }
+
+    private String createBar(float percentage) {
+        int filled = (int) (percentage * 10);
+        int empty = 10 - filled;
+        return "§2" + "▰".repeat(Math.max(0, filled)) + "§8" + "▱".repeat(Math.max(0, empty));
+    }
+
+    @Override
+    public Component getName(ItemStack stack) {
+        int units = getUnits(stack);
+        if (units <= 0) {
+            return Component.translatable("item.manure_bag.empty").append(" ").append(type.getDisplayName());
+        } else if (units >= UNITS_PER_BAG) {
+            return Component.literal(type.getColor())
+                .append(Component.translatable("item.manure_bag.full")).append(" ").append(type.getDisplayName());
+        } else {
+            return Component.literal(type.getColor())
+                .append(type.getDisplayName());
+        }
+    }
+
+    @Override
+    public boolean isBarVisible(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public int getBarWidth(ItemStack stack) {
+        float percentage = (float) getUnits(stack) / UNITS_PER_BAG;
+        return Math.round(13.0F * percentage);
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        return 0x3D2817; // Dunkelbraun für Mist
+    }
+}
+
+/**
+ * Verschiedene Mist-Sack-Typen
+ */
+enum ManureBagType {
+    SMALL("§7", 1, 15.0),
+    MEDIUM("§2", 2, 35.0),
+    LARGE("§6", 3, 60.0);
+
+    private final String color;
+    private final int plantsPerBag;
+    private final double basePrice;
+
+    ManureBagType(String color, int plantsPerBag, double basePrice) {
+        this.color = color;
+        this.plantsPerBag = plantsPerBag;
+        this.basePrice = basePrice;
+    }
+
+    public Component getDisplayName() {
+        return Component.translatable("enum.manure_bag_type." + this.name().toLowerCase(Locale.ROOT));
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public int getPlantsPerBag() {
+        return plantsPerBag;
+    }
+
+    public double getBasePrice() {
+        return basePrice;
+    }
+}

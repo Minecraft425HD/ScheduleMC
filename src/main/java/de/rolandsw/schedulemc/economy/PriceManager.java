@@ -159,61 +159,61 @@ public class PriceManager {
             // ═══════════════════════════════════════════════════════════
             // PREIS-BOOM EVENTS (Preise steigen)
             // ═══════════════════════════════════════════════════════════
-            case 0 -> createEvent("Polizei-Razzia: Cannabis",
+            case 0 -> createEvent("Police Raid: Cannabis",
                     "Cannabis knapp - Preise steigen!",
                     getCannabisItems(), 1.5f, 3);
 
-            case 1 -> createEvent("Polizei-Razzia: Kokain",
+            case 1 -> createEvent("Police Raid: Cocaine",
                     "Kokain knapp - Preise steigen!",
                     getCocaItems(), 1.6f, 3);
 
-            case 2 -> createEvent("Festival-Saison",
+            case 2 -> createEvent("Festival Season",
                     "Party-Drogen sehr gefragt!",
                     getPartyDrugs(), 1.4f, 5);
 
-            case 3 -> createEvent("Chemikalien-Knappheit",
+            case 3 -> createEvent("Chemical Shortage",
                     "Synthetische Drogen teurer!",
                     getSyntheticDrugs(), 1.45f, 4);
 
-            case 4 -> createEvent("Dürre",
+            case 4 -> createEvent("Drought",
                     "Pflanzen-basierte Produkte knapp!",
                     getPlantBasedDrugs(), 1.35f, 4);
 
             // ═══════════════════════════════════════════════════════════
             // PREIS-CRASH EVENTS (Preise fallen)
             // ═══════════════════════════════════════════════════════════
-            case 5 -> createEvent("Überproduktion: Cannabis",
-                    "Markt überschwemmt - Preise fallen!",
+            case 5 -> createEvent("Overproduction: Cannabis",
+                    "Market flooded - prices falling!",
                     getCannabisItems(), 0.7f, 3);
 
-            case 6 -> createEvent("Überproduktion: Meth",
+            case 6 -> createEvent("Overproduction: Meth",
                     "Zu viel Meth auf dem Markt!",
                     getMethItems(), 0.65f, 3);
 
-            case 7 -> createEvent("Neue Konkurrenz",
+            case 7 -> createEvent("New Competition",
                     "Alle Preise unter Druck!",
                     getAllDrugs(), 0.8f, 2);
 
             // ═══════════════════════════════════════════════════════════
             // SPEZIAL-EVENTS
             // ═══════════════════════════════════════════════════════════
-            case 8 -> createEvent("VIP-Nachfrage",
-                    "Reiche Kunden zahlen mehr für Kokain!",
+            case 8 -> createEvent("VIP Demand",
+                    "Rich customers pay more for cocaine!",
                     getCocaItems(), 1.8f, 2);
 
-            case 9 -> createEvent("Uni-Prüfungen",
+            case 9 -> createEvent("University Exams",
                     "Studenten brauchen Aufputschmittel!",
                     getStimulants(), 1.3f, 3);
 
-            case 10 -> createEvent("Techno-Festival",
+            case 10 -> createEvent("Techno Festival",
                     "MDMA & LSD extrem gefragt!",
                     List.of(
                             MDMAItems.ECSTASY_PILL.get(),
-                            MDMAItems.MDMA_KRISTALL.get(),
+                            MDMAItems.MDMA_CRYSTAL.get(),
                             LSDItems.BLOTTER.get()
                     ), 1.7f, 2);
 
-            case 11 -> createEvent("Grenzkontrollen",
+            case 11 -> createEvent("Border Controls",
                     "Import schwierig - lokale Ware teurer!",
                     getAllDrugs(), 1.25f, 5);
 
@@ -255,9 +255,9 @@ public class PriceManager {
         return List.of(
                 CocaItems.COCAINE.get(),
                 CocaItems.CRACK_ROCK.get(),
-                CocaItems.COCA_PASTE_BOLIVIANISCH.get(),
-                CocaItems.COCA_PASTE_KOLUMBIANISCH.get(),
-                CocaItems.COCA_PASTE_PERUANISCH.get()
+                CocaItems.COCA_PASTE_BOLIVIAN.get(),
+                CocaItems.COCA_PASTE_COLOMBIAN.get(),
+                CocaItems.COCA_PASTE_PERUVIAN.get()
         );
     }
 
@@ -271,7 +271,7 @@ public class PriceManager {
     private static List<Item> getPartyDrugs() {
         List<Item> items = new ArrayList<>();
         items.add(MDMAItems.ECSTASY_PILL.get());
-        items.add(MDMAItems.MDMA_KRISTALL.get());
+        items.add(MDMAItems.MDMA_CRYSTAL.get());
         items.add(LSDItems.BLOTTER.get());
         items.add(CocaItems.COCAINE.get());
         items.addAll(getCannabisItems());
@@ -282,9 +282,9 @@ public class PriceManager {
         List<Item> items = new ArrayList<>();
         items.addAll(getMethItems());
         items.add(MDMAItems.ECSTASY_PILL.get());
-        items.add(MDMAItems.MDMA_KRISTALL.get());
+        items.add(MDMAItems.MDMA_CRYSTAL.get());
         items.add(LSDItems.BLOTTER.get());
-        items.add(LSDItems.LSD_LOESUNG.get());
+        items.add(LSDItems.LSD_SOLUTION.get());
         return items;
     }
 
@@ -308,7 +308,7 @@ public class PriceManager {
         items.addAll(getCocaItems());
         items.addAll(getMethItems());
         items.add(MDMAItems.ECSTASY_PILL.get());
-        items.add(MDMAItems.MDMA_KRISTALL.get());
+        items.add(MDMAItems.MDMA_CRYSTAL.get());
         items.add(LSDItems.BLOTTER.get());
         return items;
     }

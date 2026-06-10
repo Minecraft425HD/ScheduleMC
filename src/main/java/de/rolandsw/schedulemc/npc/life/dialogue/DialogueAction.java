@@ -52,7 +52,7 @@ public class DialogueAction {
     public static DialogueAction triggerEmotion(EmotionState emotion, float intensity) {
         return new DialogueAction(
             "emotion_" + emotion.name(),
-            "Auslösen: " + emotion.getDisplayName(),
+            "Trigger: " + emotion.getDisplayName(),
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 if (life != null) {
@@ -85,7 +85,7 @@ public class DialogueAction {
     public static DialogueAction addPlayerTag(String tag) {
         return new DialogueAction(
             "add_tag_" + tag,
-            "Tag hinzufügen: " + tag,
+            "Add tag: " + tag,
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 if (life != null) {
@@ -166,7 +166,7 @@ public class DialogueAction {
     public static DialogueAction spreadRumor(RumorType type, String details) {
         return new DialogueAction(
             "rumor_" + type.name(),
-            "Gerücht verbreiten: " + type.getDisplayName(),
+            "Spread rumor: " + type.getDisplayName(),
             (ctx, npc) -> {
                 if (npc.level() instanceof ServerLevel level) {
                     RumorNetwork.getNetwork(level).createRumor(
@@ -196,7 +196,7 @@ public class DialogueAction {
     public static DialogueAction clearFlag(String flag) {
         return new DialogueAction(
             "clear_flag_" + flag,
-            "Flag löschen: " + flag,
+            "Clear flag: " + flag,
             (ctx, npc) -> ctx.clearFlag(flag)
         );
     }
@@ -216,7 +216,7 @@ public class DialogueAction {
     public static DialogueAction openTradeMenu() {
         return new DialogueAction(
             "open_trade",
-            "Handelsmenü öffnen",
+            "Open trade menu",
             (ctx, npc) -> {
                 ctx.setFlag("open_trade_menu");
                 ctx.endDialogue();
@@ -237,7 +237,7 @@ public class DialogueAction {
     public static DialogueAction shareRumors() {
         return new DialogueAction(
             "share_rumors",
-            "Gerüchte teilen",
+            "Share rumors",
             (ctx, npc) -> {
                 if (npc.level() instanceof ServerLevel level) {
                     RumorNetwork network = RumorNetwork.getNetwork(level);  // NOPMD
@@ -330,7 +330,7 @@ public class DialogueAction {
     public static DialogueAction checkForQuest() {
         return new DialogueAction(
             "check_quest",
-            "Quest prüfen",
+            "Check quest",
             (ctx, npc) -> {
                 // Setze Flag wenn Quest verfügbar
                 // Die tatsächliche Quest-Logik wird vom Quest-System behandelt
@@ -359,7 +359,7 @@ public class DialogueAction {
     public static DialogueAction openIllegalTrade() {
         return new DialogueAction(
             "open_illegal_trade",
-            "Illegalen Handel öffnen",
+            "Open illegal trade",
             (ctx, npc) -> {
                 ctx.setFlag("open_illegal_trade_menu");
                 ctx.endDialogue();
@@ -373,7 +373,7 @@ public class DialogueAction {
     public static DialogueAction payMoney(int amount) {
         return new DialogueAction(
             "pay_money_" + amount,
-            "Bezahlen: " + amount + " Münzen",
+            "Bezahlen: " + amount + " coins",
             (ctx, npc) -> {
                 var player = ctx.getPlayer();
                 if (player != null) {
@@ -404,7 +404,7 @@ public class DialogueAction {
     public static DialogueAction giveTempDiscount(float discount, int durationMinutes) {
         return new DialogueAction(
             "temp_discount_" + (int)(discount * 100),
-            "Temporärer Rabatt: " + (int)(discount * 100) + "%",
+            "Temporary discount: " + (int)(discount * 100) + "%",
             (ctx, npc) -> {
                 ctx.setVariable("temp_discount", discount);
                 ctx.setVariable("temp_discount_duration", durationMinutes);
@@ -450,7 +450,7 @@ public class DialogueAction {
     public static DialogueAction completeQuest(String questId) {
         return new DialogueAction(
             "complete_quest_" + questId,
-            "Quest abschließen: " + questId,
+            "Complete quest: " + questId,
             (ctx, npc) -> {
                 ctx.setFlag("quest_completed_" + questId);
                 ctx.clearFlag("quest_started_" + questId);

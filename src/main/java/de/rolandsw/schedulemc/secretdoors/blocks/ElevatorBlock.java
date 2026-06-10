@@ -232,10 +232,9 @@ public class ElevatorBlock extends BaseEntityBlock {
             boolean newMode = !be.isLinkingMode();
             be.setLinkingMode(newMode);
             if (newMode) {
-                player.sendSystemMessage(Component.literal(
-                    "§a[Aufzug] Verknüpfungs-Modus AN §7– Shift+Klick auf eine weitere Station."));
+                player.sendSystemMessage(Component.translatable("message.secret_door.elevator_link_on"));
             } else {
-                player.sendSystemMessage(Component.literal("§7[Aufzug] Verknüpfungs-Modus AUS."));
+                player.sendSystemMessage(Component.translatable("message.secret_door.elevator_link_off"));
             }
             return InteractionResult.SUCCESS;
         }
@@ -340,8 +339,7 @@ public class ElevatorBlock extends BaseEntityBlock {
 
         // Stationen müssen exakt über-/untereinander sein (gleicher X/Z)
         if (sourcePos.getX() != targetPos.getX() || sourcePos.getZ() != targetPos.getZ()) {
-            player.sendSystemMessage(Component.literal(
-                "§c[Aufzug] Stationen müssen exakt über-/untereinander sein (gleicher X/Z)."));
+            player.sendSystemMessage(Component.translatable("message.secret_door.elevator_not_aligned"));
             sourceBE.setLinkingMode(false);
             sourceBE.setChanged();
             return InteractionResult.SUCCESS;
@@ -349,9 +347,7 @@ public class ElevatorBlock extends BaseEntityBlock {
 
         int yDist = Math.abs(targetPos.getY() - sourcePos.getY());
         if (yDist > ElevatorBlockEntity.MAX_DISTANCE) {
-            player.sendSystemMessage(Component.literal(
-                "§c[Aufzug] Stationen zu weit auseinander (max. "
-                + ElevatorBlockEntity.MAX_DISTANCE + " Blöcke, aktuell: " + yDist + ")."));
+            player.sendSystemMessage(Component.translatable("message.secret_door.elevator_too_far", ElevatorBlockEntity.MAX_DISTANCE, yDist));
             sourceBE.setLinkingMode(false);
             sourceBE.setChanged();
             return InteractionResult.SUCCESS;
@@ -370,12 +366,9 @@ public class ElevatorBlock extends BaseEntityBlock {
 
         if (added) {
             int total = sourceBE.getLinkedStationsSortedByY().size();
-            player.sendSystemMessage(Component.literal(
-                "§a[Aufzug] Station bei §e" + targetPos.toShortString()
-                + "§a verknüpft. §7(" + total + " Station(en))"));
+            player.sendSystemMessage(Component.translatable("message.secret_door.elevator_linked", targetPos.toShortString(), total));
         } else {
-            player.sendSystemMessage(Component.literal(
-                "§7[Aufzug] Bereits verknüpft oder Stationslimit (32) erreicht."));
+            player.sendSystemMessage(Component.translatable("message.secret_door.elevator_link_failed"));
         }
         return InteractionResult.SUCCESS;
     }

@@ -152,10 +152,10 @@ public class NPCNetworkHandler {
             .consumerMainThread(OpenBankerMenuPacket::handle)
             .add();
 
-        INSTANCE.messageBuilder(OpenBoerseMenuPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-            .decoder(OpenBoerseMenuPacket::decode)
-            .encoder(OpenBoerseMenuPacket::encode)
-            .consumerMainThread(OpenBoerseMenuPacket::handle)
+        INSTANCE.messageBuilder(OpenStockMarketMenuPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+            .decoder(OpenStockMarketMenuPacket::decode)
+            .encoder(OpenStockMarketMenuPacket::encode)
+            .consumerMainThread(OpenStockMarketMenuPacket::handle)
             .add();
 
         INSTANCE.messageBuilder(CreateRecurringPaymentPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)

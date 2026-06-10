@@ -184,7 +184,7 @@ public class UtilityBlockListConfigScreen extends Screen {
                 Component.literal("Comma-separated IDs. TAB = Autocomplete"),
                 this.width / 2, 22, 0xAAAAAA);
         graphics.drawCenteredString(this.font,
-                Component.literal("§7Einträge entfernen = Block wird nicht mehr abgerechnet"),
+                Component.literal("§7Remove entries = block is no longer billed"),
                 this.width / 2, 34, 0x888888);
 
         if (!currentSuggestionText.isEmpty()) {
@@ -199,7 +199,7 @@ public class UtilityBlockListConfigScreen extends Screen {
         // Count info
         int count = parseList(consumerList.getValue()).size();
         graphics.drawString(this.font,
-                Component.literal("§7" + count + " Blöcke aktiv"),
+                Component.literal("§7" + count + " blocks active"),
                 LABEL_X, START_Y + 24, 0xAAAAAA, false);
     }
 

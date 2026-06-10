@@ -110,7 +110,7 @@ public class GangCommand {
         }
 
         GangManager manager = GangManager.getInstance();
-        if (manager == null) { sendError(player, "Gang-System nicht verfuegbar."); return 0; }
+        if (manager == null) { sendError(player, "Gang system not available."); return 0; }
 
         ChatFormatting color = ChatFormatting.getByName(colorName.toUpperCase(Locale.ROOT));
         if (color == null || !color.isColor()) color = ChatFormatting.WHITE;
@@ -121,7 +121,7 @@ public class GangCommand {
             GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
             return 1;
         }
-        sendError(player, "Erstellung fehlgeschlagen. Name/Tag vergeben, ungueltig, oder du bist schon in einer Gang.");
+        sendError(player, "Creation failed. Name/tag taken, invalid, or you are already in a gang.");
         return 0;
     }
 
@@ -175,7 +175,7 @@ public class GangCommand {
             GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
             return 1;
         }
-        sendError(player, "Konnte Gang nicht verlassen (als Boss: /gang disband oder Boss uebertragen).");
+        sendError(player, "Could not leave gang (as boss: /gang disband or transfer boss).");
         return 0;
     }
 
@@ -228,7 +228,7 @@ public class GangCommand {
         player.sendSystemMessage(Component.literal("\u00A77XP: \u00A7f" + gang.getGangXP() + " \u00A77(" + gang.getXPToNextLevel() + " bis naechstes Level)"));
         player.sendSystemMessage(Component.literal("\u00A77Mitglieder: \u00A7f" + gang.getMemberCount() + "/" + gang.getMaxMembers()));
         player.sendSystemMessage(Component.literal("\u00A77Territory: \u00A7f" + gang.getTerritoryCount() + "/" + gang.getMaxTerritory()));
-        player.sendSystemMessage(Component.literal("\u00A77Perks: \u00A7f" + gang.getUsedPerkPoints() + " genutzt, " + gang.getAvailablePerkPoints() + " verfuegbar"));
+        player.sendSystemMessage(Component.literal("\u00A77Perks: \u00A7f" + gang.getUsedPerkPoints() + " genutzt, " + gang.getAvailablePerkPoints() + " available"));
         player.sendSystemMessage(Component.literal("\u00A77Reputation: " + gang.getReputation().getFormattedName()));
 
         // Mitglieder
@@ -275,7 +275,7 @@ public class GangCommand {
             GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
             return 1;
         }
-        sendError(player, "Nur der Boss kann die Gang aufloesen.");
+        sendError(player, "Only the boss can disband the gang.");
         return 0;
     }
 
@@ -288,7 +288,7 @@ public class GangCommand {
         if (gang == null) { sendError(player, "Du bist in keiner Gang."); return 0; }
 
         GangRank rank = gang.getRank(player.getUUID());
-        if (rank == null || !rank.canManagePerks()) { sendError(player, "Nur Boss kann Perks freischalten."); return 0; }
+        if (rank == null || !rank.canManagePerks()) { sendError(player, "Only the boss can unlock perks."); return 0; }
 
         try {
             GangPerk perk = GangPerk.valueOf(perkName.toUpperCase(Locale.ROOT));
@@ -297,7 +297,7 @@ public class GangCommand {
                 sendSuccess(player, "Perk '" + perk.getDisplayName() + "' freigeschaltet!");
                 return 1;
             }
-            sendError(player, "Perk nicht freischaltbar (Level/Punkte nicht ausreichend oder bereits freigeschaltet).");
+            sendError(player, "Perk not unlockable (level/points insufficient or already unlocked).");
         } catch (IllegalArgumentException e) {
             sendError(player, "Unbekannter Perk: " + perkName);
         }
@@ -320,7 +320,7 @@ public class GangCommand {
                 return 1;
             }
         }
-        source.sendFailure(Component.literal("Gang nicht gefunden: " + gangName));
+        source.sendFailure(Component.literal("Gang not found: " + gangName));
         return 0;
     }
 
@@ -345,7 +345,7 @@ public class GangCommand {
                 return 1;
             }
         }
-        source.sendFailure(Component.literal("Gang nicht gefunden: " + gangName));
+        source.sendFailure(Component.literal("Gang not found: " + gangName));
         return 0;
     }
 
@@ -367,7 +367,7 @@ public class GangCommand {
                 return 1;
             }
         }
-        source.sendFailure(Component.literal("Gang nicht gefunden: " + gangName));
+        source.sendFailure(Component.literal("Gang not found: " + gangName));
         return 0;
     }
 
@@ -380,7 +380,7 @@ public class GangCommand {
         de.rolandsw.schedulemc.gang.scenario.ScenarioManager sm =
                 de.rolandsw.schedulemc.gang.scenario.ScenarioManager.getInstance();
         if (sm == null) {
-            source.sendFailure(Component.literal("Szenario-System nicht initialisiert!"));
+            source.sendFailure(Component.literal("Scenario system not initialized!"));
             return 0;
         }
 

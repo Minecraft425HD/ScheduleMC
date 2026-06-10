@@ -193,7 +193,7 @@ public class CompanionEventHandler {
         ServerPlayer owner = level.getServer().getPlayerList().getPlayer(ownerUUID);
         if (owner != null) {  // NOPMD - intentionaler Stub
             // owner.displayClientMessage(
-            //     Component.literal(companionData.getName() + " wurde besiegt!"),
+            //     Component.literal(companionData.getName() + " was defeated!"),
             //     false
             // );
         }

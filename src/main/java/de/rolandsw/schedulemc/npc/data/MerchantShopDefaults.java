@@ -19,26 +19,26 @@ public class MerchantShopDefaults {
         ShopInventory shop = npcData.getShopData().getBuyShop();
 
         switch (category) {
-            case BAUMARKT:
-                setupBaumarktShop(shop);
+            case HARDWARE_STORE:
+                setupHardwareStoreShop(shop);
                 break;
-            case WAFFENHAENDLER:
-                setupWaffenhaendlerShop(shop);
+            case WEAPONS_DEALER:
+                setupWeaponsDealerShop(shop);
                 break;
-            case TANKSTELLE:
-                setupTankstelleShop(shop);
+            case GAS_STATION:
+                setupGasStationShop(shop);
                 break;
-            case LEBENSMITTEL:
-                setupLebensmittelShop(shop);
+            case GROCERY:
+                setupGroceryShop(shop);
                 break;
-            case PERSONALMANAGEMENT:
+            case STAFF_MANAGEMENT:
                 setupPersonalmanagementShop(shop);
                 break;
-            case ILLEGALER_HAENDLER:
-                setupIllegalerHaendlerShop(shop);
+            case ILLEGAL_DEALER:
+                setupIllegalDealerShop(shop);
                 break;
-            case AUTOHAENDLER:
-                setupAutohaendlerShop(shop);
+            case CAR_DEALER:
+                setupCarDealerShop(shop);
                 break;
             default:
                 break;
@@ -52,8 +52,8 @@ public class MerchantShopDefaults {
         ShopInventory shop = npcData.getShopData().getBuyShop();
 
         switch (category) {
-            case ABSCHLEPPDIENST:
-                setupAbschleppdienstShop(shop);
+            case TOWING_SERVICE:
+                setupTowingServiceShop(shop);
                 break;
             case PANNENHILFE:
                 setupPannenhilfeShop(shop);
@@ -69,7 +69,7 @@ public class MerchantShopDefaults {
         }
     }
 
-    private static void setupBaumarktShop(ShopInventory shop) {
+    private static void setupHardwareStoreShop(ShopInventory shop) {
         // Baumaterialien - ALLE als Lager-Items (unlimited=false)
         shop.addEntry(new ShopEntry(new ItemStack(Items.OAK_PLANKS, 16), 50, false, 0));
         shop.addEntry(new ShopEntry(new ItemStack(Items.STONE, 32), 30, false, 0));
@@ -81,7 +81,7 @@ public class MerchantShopDefaults {
         shop.addEntry(new ShopEntry(new ItemStack(Items.TORCH, 32), 20, false, 0));
     }
 
-    private static void setupWaffenhaendlerShop(ShopInventory shop) {
+    private static void setupWeaponsDealerShop(ShopInventory shop) {
         // Waffen & Rüstung - ALLE als Lager-Items (unlimited=false)
         shop.addEntry(new ShopEntry(new ItemStack(Items.IRON_SWORD, 1), 150, false, 0));
         shop.addEntry(new ShopEntry(new ItemStack(Items.IRON_AXE, 1), 140, false, 0));
@@ -94,7 +94,7 @@ public class MerchantShopDefaults {
         shop.addEntry(new ShopEntry(new ItemStack(Items.SHIELD, 1), 90, false, 0));
     }
 
-    private static void setupTankstelleShop(ShopInventory shop) {
+    private static void setupGasStationShop(ShopInventory shop) {
         // Fortbewegung & Ressourcen - ALLE als Lager-Items (unlimited=false)
         shop.addEntry(new ShopEntry(new ItemStack(Items.COAL, 16), 40, false, 0));
         shop.addEntry(new ShopEntry(new ItemStack(Items.MINECART, 1), 150, false, 0));
@@ -106,7 +106,7 @@ public class MerchantShopDefaults {
         shop.addEntry(new ShopEntry(new ItemStack(Items.SADDLE, 1), 250, false, 0));
     }
 
-    private static void setupLebensmittelShop(ShopInventory shop) {
+    private static void setupGroceryShop(ShopInventory shop) {
         // Nahrung - ALLE als Lager-Items (unlimited=false)
         shop.addEntry(new ShopEntry(new ItemStack(Items.BREAD, 8), 30, false, 0));
         shop.addEntry(new ShopEntry(new ItemStack(Items.COOKED_BEEF, 8), 60, false, 0));
@@ -132,7 +132,7 @@ public class MerchantShopDefaults {
         shop.addEntry(new ShopEntry(new ItemStack(Items.NAME_TAG, 1), 150, false, 0));
     }
 
-    private static void setupIllegalerHaendlerShop(ShopInventory shop) {
+    private static void setupIllegalDealerShop(ShopInventory shop) {
         // Seltene & illegale Items - ALLE als Lager-Items (unlimited=false)
         shop.addEntry(new ShopEntry(new ItemStack(Items.DIAMOND, 1), 500, false, 0));
         shop.addEntry(new ShopEntry(new ItemStack(Items.EMERALD, 1), 400, false, 0));
@@ -153,7 +153,7 @@ public class MerchantShopDefaults {
         }
     }
 
-    private static void setupAutohaendlerShop(ShopInventory shop) {
+    private static void setupCarDealerShop(ShopInventory shop) {
         // Fahrzeuge - ALLE als Lager-Items (unlimited=false)
         // Diese werden NICHT ins Inventar gegeben, sondern direkt gespawnt
         shop.addEntry(new ShopEntry(new ItemStack(ModItems.SPAWN_VEHICLE_OAK.get(), 1), 5000, false, 0));
@@ -165,7 +165,7 @@ public class MerchantShopDefaults {
 
     // === SERVICE CATEGORY SHOPS ===
 
-    private static void setupAbschleppdienstShop(ShopInventory shop) {
+    private static void setupTowingServiceShop(ShopInventory shop) {
         // Abschleppdienst - Reparatur- & Notfallitems
         shop.addEntry(new ShopEntry(new ItemStack(Items.IRON_INGOT, 8), 100, false, 0));
         shop.addEntry(new ShopEntry(new ItemStack(Items.REDSTONE, 16), 80, false, 0));

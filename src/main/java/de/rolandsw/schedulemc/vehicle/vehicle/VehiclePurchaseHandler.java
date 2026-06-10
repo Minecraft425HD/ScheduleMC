@@ -54,14 +54,14 @@ public class VehiclePurchaseHandler {
             boolean isNearDealer = dealerPoints.stream()
                 .anyMatch(sp -> player.blockPosition().distSqr(sp.getPosition()) <= MAX_DEALER_DISTANCE * MAX_DEALER_DISTANCE);
             if (!isNearDealer) {
-                LOGGER.warn("Fahrzeugkauf abgelehnt: Spieler {} ist zu weit vom Händler {} entfernt",
+                LOGGER.warn("Vehicle purchase rejected: player {} is too far from merchant {}",
                     player.getName().getString(), dealerId);
                 player.sendSystemMessage(Component.translatable("vehicle.purchase.too_far").withStyle(ChatFormatting.RED));
                 return false;
             }
         }
 
-        LOGGER.info("Fahrzeugkauf gestartet: Spieler={}, Händler={}, Fahrzeug={}, Preis={}",
+        LOGGER.info("Vehicle purchase started: player={}, merchant={}, vehicle={}, price={}",
             player.getName().getString(), dealerId, vehicleItem.getHoverName().getString(), price);
 
         // Prüfe ob Spieler genug Geld hat
@@ -78,30 +78,30 @@ public class VehiclePurchaseHandler {
 
         // Ziehe Geld ab
         if (!EconomyManager.withdraw(player.getUUID(), price)) {
-            LOGGER.error("Fahrzeugkauf fehlgeschlagen: Geld konnte nicht abgebucht werden");
+            LOGGER.error("Vehicle purchase failed: money could not be debited");
             player.sendSystemMessage(Component.translatable("vehicle.purchase.deduction_error").withStyle(ChatFormatting.RED));
             return false;
         }
 
-        LOGGER.info("Geld abgebucht: {}€. Suche Spawn-Punkt für Händler {}", price, dealerId);
+        LOGGER.info("Money debited: {}€. Searching spawn point for merchant {}", price, dealerId);
 
         // Finde freien Spawn-Punkt
         List<VehicleSpawnRegistry.VehicleSpawnPoint> allPoints = VehicleSpawnRegistry.getSpawnPoints(dealerId);
-        LOGGER.info("Verfügbare Spawn-Punkte für Händler {}: {}", dealerId, allPoints.size());
+        LOGGER.info("Available spawn points for merchant {}: {}", dealerId, allPoints.size());
 
         VehicleSpawnRegistry.VehicleSpawnPoint spawnPoint = VehicleSpawnRegistry.findFreeSpawnPoint(dealerId);
 
         if (spawnPoint == null) {
             // Geld zurückgeben
             EconomyManager.deposit(player.getUUID(), price);
-            LOGGER.warn("Fahrzeugkauf fehlgeschlagen: Kein freier Spawn-Punkt verfügbar! Händler {} hat {} Punkte, alle belegt",
+            LOGGER.warn("Vehicle purchase failed: no free spawn point available! Merchant {} has {} points, all occupied",
                 dealerId, allPoints.size());
             player.sendSystemMessage(Component.translatable("vehicle.purchase.no_parking").withStyle(ChatFormatting.RED));
             player.sendSystemMessage(Component.translatable("vehicle.purchase.wait_for_parking").withStyle(ChatFormatting.GRAY));
             return false;
         }
 
-        LOGGER.info("Freien Spawn-Punkt gefunden: {}", spawnPoint.getPosition());
+        LOGGER.info("Free spawn point found: {}", spawnPoint.getPosition());
 
         // Spawn das Fahrzeug
         EntityGenericVehicle vehicle = spawnVehicle(player, (ServerLevel) level, vehicleItem, spawnPoint.getPosition(), spawnPoint.getYaw());
@@ -109,12 +109,12 @@ public class VehiclePurchaseHandler {
         if (vehicle == null) {
             // Geld zurückgeben
             EconomyManager.deposit(player.getUUID(), price);
-            LOGGER.error("Fahrzeugkauf fehlgeschlagen: Fahrzeug konnte nicht gespawnt werden");
+            LOGGER.error("Vehicle purchase failed: vehicle could not be spawned");
             player.sendSystemMessage(Component.translatable("message.vehicle.spawn_error").withStyle(ChatFormatting.RED));
             return false;
         }
 
-        LOGGER.info("Fahrzeug erfolgreich gespawnt");
+        LOGGER.info("Vehicle spawned successfully");
 
         // Setze Owner und verknüpfe Fahrzeug
         UUID vehicleUUID = UUID.randomUUID();
@@ -126,7 +126,7 @@ public class VehiclePurchaseHandler {
         VehicleSpawnRegistry.occupySpawnPoint(spawnPoint.getPosition(), vehicleUUID);
         VehicleSpawnRegistry.saveIfNeeded();
 
-        LOGGER.info("Fahrzeugkauf erfolgreich abgeschlossen: Vehicle-UUID={}, Kennzeichen={}", vehicleUUID, vehicle.getLicensePlate());
+        LOGGER.info("Vehicle purchase completed successfully: vehicle UUID={}, license plate={}", vehicleUUID, vehicle.getLicensePlate());
 
         // Erfolgs-Nachricht
         player.sendSystemMessage(Component.literal("═══════════════════════════════").withStyle(ChatFormatting.GOLD));

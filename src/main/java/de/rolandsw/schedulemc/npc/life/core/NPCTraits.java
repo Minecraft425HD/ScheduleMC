@@ -250,8 +250,8 @@ public class NPCTraits {
         if (courage >= 70) return "Sehr mutig";
         if (courage >= 30) return "Mutig";
         if (courage >= -30) return "Normal";
-        if (courage >= -70) return "Ängstlich";
-        return "Sehr ängstlich";
+        if (courage >= -70) return "Fearful";
+        return "Very fearful";
     }
 
     /**
@@ -262,7 +262,7 @@ public class NPCTraits {
         if (honesty >= 30) return "Ehrlich";
         if (honesty >= -30) return "Normal";
         if (honesty >= -70) return "Unehrlich";
-        return "Betrügerisch";
+        return "Fraudulent";
     }
 
     /**
@@ -272,8 +272,8 @@ public class NPCTraits {
         if (greed >= 70) return "Sehr gierig";
         if (greed >= 30) return "Gierig";
         if (greed >= -30) return "Normal";
-        if (greed >= -70) return "Großzügig";
-        return "Sehr großzügig";
+        if (greed >= -70) return "Generous";
+        return "Very generous";
     }
 
     /**
@@ -283,10 +283,10 @@ public class NPCTraits {
         // Kombinationen
         if (courage > 50 && honesty > 50 && greed < 0) return "Held";
         if (courage > 50 && honesty < -50 && greed > 50) return "Gangster";
-        if (courage < -50 && honesty > 50 && greed < 0) return "Bürger";
+        if (courage < -50 && honesty > 50 && greed < 0) return "Citizen";
         if (courage < -50 && honesty < -50 && greed > 50) return "Feigling";
         if (courage > 30 && honesty > 30) return "Aufrechter";
-        if (greed > 50 && honesty < 0) return "Händler";
+        if (greed > 50 && honesty < 0) return "Merchant";
         if (courage < -30 && honesty < -30) return "Schattenhaft";
         return "Durchschnittlich";
     }
@@ -341,11 +341,11 @@ public class NPCTraits {
 
     public String getDetailedInfo() {
         return String.format(
-            "Persönlichkeit: %s\n" +
+            "Personality: %s\n" +
             "Mut: %d (%s)\n" +
             "Ehrlichkeit: %d (%s)\n" +
             "Gier: %d (%s)\n" +
-            "Preis-Mod: ×%.2f | Angst-Schwelle: %.0f | Melde-Chance: %.0f%%",
+            "Price mod: ×%.2f | Fear threshold: %.0f | Report chance: %.0f%%",
             getArchetype(),
             courage, getCourageDescription(),
             honesty, getHonestyDescription(),

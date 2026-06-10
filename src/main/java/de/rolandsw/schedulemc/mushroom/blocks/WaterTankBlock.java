@@ -64,13 +64,13 @@ public class WaterTankBlock extends Block implements EntityBlock {
                     player.setItemInHand(hand, new ItemStack(Items.BUCKET));
                 }
                 player.displayClientMessage(Component.translatable(
-                        "block.wassertank.water_filled", tank.getWaterLevel(), tank.getMaxWater()
+                        "block.water_tank.water_filled", tank.getWaterLevel(), tank.getMaxWater()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_EMPTY, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             } else {
                 player.displayClientMessage(Component.translatable(
-                        "block.wassertank.tank_full"
+                        "block.water_tank.tank_full"
                 ), true);
                 return InteractionResult.FAIL;
             }
@@ -85,13 +85,13 @@ public class WaterTankBlock extends Block implements EntityBlock {
                     player.getInventory().add(new ItemStack(Items.WATER_BUCKET));
                 }
                 player.displayClientMessage(Component.translatable(
-                        "block.wassertank.water_removed", tank.getWaterLevel(), tank.getMaxWater()
+                        "block.water_tank.water_removed", tank.getWaterLevel(), tank.getMaxWater()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_FILL, 1.0f, 1.0f);
                 return InteractionResult.SUCCESS;
             } else {
                 player.displayClientMessage(Component.translatable(
-                        "block.wassertank.not_enough"
+                        "block.water_tank.not_enough"
                 ), true);
                 return InteractionResult.FAIL;
             }
@@ -99,7 +99,7 @@ public class WaterTankBlock extends Block implements EntityBlock {
 
         // Info anzeigen
         player.displayClientMessage(Component.translatable(
-                "block.wassertank.info", tank.getWaterLevel(), tank.getMaxWater()
+                "block.water_tank.info", tank.getWaterLevel(), tank.getMaxWater()
         ), true);
 
         return InteractionResult.SUCCESS;

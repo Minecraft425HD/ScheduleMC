@@ -8,14 +8,14 @@ import java.util.Locale;
  * Blotter-Design Varianten für LSD-Tabs
  */
 public enum BlotterDesign {
-    TOTENKOPF("§8", "☠"),
-    SONNE("§e", "☀"),
-    AUGE("§5", "◉"),
-    PILZ("§c", "🍄"),
-    FAHRRAD("§b", "⚙"),  // Bicycle Day Reference
+    SKULL("§8", "☠"),
+    SUN("§e", "☀"),
+    EYE("§5", "◉"),
+    MUSHROOM("§c", "🍄"),
+    BICYCLE("§b", "⚙"),  // Bicycle Day Reference
     MANDALA("§d", "✿"),
-    BLITZ("§6", "⚡"),
-    STERN("§f", "★");
+    LIGHTNING("§6", "⚡"),
+    STAR("§f", "★");
 
     private final String colorCode;
     private final String symbol;
@@ -45,6 +45,6 @@ public enum BlotterDesign {
         if (ordinal >= 0 && ordinal < values().length) {
             return values()[ordinal];
         }
-        return TOTENKOPF;
+        return SKULL;
     }
 }

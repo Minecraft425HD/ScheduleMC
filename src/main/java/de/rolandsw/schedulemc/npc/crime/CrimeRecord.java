@@ -110,7 +110,7 @@ public class CrimeRecord {
      */
     public String getFormattedDescription() {
         String statusColor = served ? "§a" : "§c";
-        String status = served ? "✓ Abgesessen" : "✗ Offen";
+        String status = served ? "✓ Served" : "✗ Open";
 
         return String.format(
             "§7[%s] %s%s\n" +

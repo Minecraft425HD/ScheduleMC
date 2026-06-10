@@ -46,8 +46,8 @@ public class ReductionKettleBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) return null;
         return (lvl, pos, st, be) -> {
-            if (be instanceof ReductionKettleBlockEntity kessel) {
-                kessel.tick();
+            if (be instanceof ReductionKettleBlockEntity kettle) {
+                kettle.tick();
             }
         };
     }
@@ -58,13 +58,13 @@ public class ReductionKettleBlock extends Block implements EntityBlock {
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof ReductionKettleBlockEntity kessel)) return InteractionResult.PASS;
+        if (!(be instanceof ReductionKettleBlockEntity kettle)) return InteractionResult.PASS;
 
         ItemStack heldItem = player.getItemInHand(hand);
 
         // Meth-Paste hinzufügen
         if (heldItem.getItem() instanceof MethPasteItem) {
-            if (kessel.addMethPaste(heldItem)) {
+            if (kettle.addMethPaste(heldItem)) {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
@@ -72,7 +72,7 @@ public class ReductionKettleBlock extends Block implements EntityBlock {
                 player.playSound(net.minecraft.sounds.SoundEvents.BUCKET_FILL_LAVA, 0.5f, 1.0f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.translatable("block.meth.kessel_full"), true);
+                player.displayClientMessage(Component.translatable("block.meth.kettle_full"), true);
                 return InteractionResult.FAIL;
             }
         }
@@ -80,8 +80,8 @@ public class ReductionKettleBlock extends Block implements EntityBlock {
         // Leere Hand
         if (heldItem.isEmpty()) {
             // Produkt entnehmen wenn fertig
-            if (kessel.hasOutput()) {
-                ItemStack output = kessel.extractOutput();
+            if (kettle.hasOutput()) {
+                ItemStack output = kettle.extractOutput();
                 if (!output.isEmpty()) {
                     if (!player.getInventory().add(output)) {
                         player.drop(output, false);
@@ -93,14 +93,14 @@ public class ReductionKettleBlock extends Block implements EntityBlock {
             }
 
             // GUI öffnen wenn Input vorhanden
-            if (kessel.hasInput()) {
-                openGui(player, kessel, pos);
+            if (kettle.hasInput()) {
+                openGui(player, kettle, pos);
                 return InteractionResult.SUCCESS;
             }
 
             // Status anzeigen
             player.displayClientMessage(Component.translatable("block.meth.status_header").append(Component.literal("\n"))
-                    .append(Component.translatable("block.meth.status_temp", kessel.getTemperatureInt(), kessel.getTemperatureZone())).append(Component.literal("\n"))
+                    .append(Component.translatable("block.meth.status_temp", kettle.getTemperatureInt(), kettle.getTemperatureZone())).append(Component.literal("\n"))
                     .append(Component.translatable("block.meth.add_paste_hint")), true);
             return InteractionResult.SUCCESS;
         }
@@ -108,20 +108,20 @@ public class ReductionKettleBlock extends Block implements EntityBlock {
         return InteractionResult.PASS;
     }
 
-    private void openGui(Player player, ReductionKettleBlockEntity kessel, BlockPos pos) {
+    private void openGui(Player player, ReductionKettleBlockEntity kettle, BlockPos pos) {
         if (!(player instanceof ServerPlayer serverPlayer)) return;
 
-        kessel.setActivePlayer(player.getUUID());
+        kettle.setActivePlayer(player.getUUID());
 
         NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
             @Override
             public Component getDisplayName() {
-                return Component.translatable("block.schedulemc.reduktionskessel");
+                return Component.translatable("block.schedulemc.reduction_kettle");
             }
 
             @Override
             public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-                return new ReductionKettleMenu(containerId, playerInventory, kessel);
+                return new ReductionKettleMenu(containerId, playerInventory, kettle);
             }
         }, pos);
     }
@@ -130,8 +130,8 @@ public class ReductionKettleBlock extends Block implements EntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof ReductionKettleBlockEntity kessel) {
-                kessel.clearActivePlayer();
+            if (be instanceof ReductionKettleBlockEntity kettle) {
+                kettle.clearActivePlayer();
             }
         }
         super.onRemove(state, level, pos, newState, isMoving);

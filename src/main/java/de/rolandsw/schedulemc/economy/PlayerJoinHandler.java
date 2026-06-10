@@ -143,10 +143,10 @@ public class PlayerJoinHandler {
         LOGGER.info("═══════════════════════════════════════════════════════════");
         LOGGER.info("WELT EINGEFROREN - Letzter Spieler hat den Server verlassen");
         LOGGER.info("Zeit: {} | Tag: {} | Tageszeit: {}", currentTime, currentTime / 24000, currentTime % 24000);
-        LOGGER.info("✓ Zeit gestoppt (doDaylightCycle = false)");
-        LOGGER.info("✓ Pflanzen gestoppt (randomTickSpeed = 0)");
-        LOGGER.info("✓ Mob-Spawn gestoppt (doMobSpawning = false)");
-        LOGGER.info("✓ Wetter gestoppt (doWeatherCycle = false)");
+        LOGGER.info("✓ Time stopped (doDaylightCycle = false)");
+        LOGGER.info("✓ Plant growth stopped (randomTickSpeed = 0)");
+        LOGGER.info("✓ Mob spawning stopped (doMobSpawning = false)");
+        LOGGER.info("✓ Weather stopped (doWeatherCycle = false)");
         LOGGER.info("═══════════════════════════════════════════════════════════");
     }
 

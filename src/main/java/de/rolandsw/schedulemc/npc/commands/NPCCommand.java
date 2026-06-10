@@ -279,14 +279,14 @@ public class NPCCommand {
         );
 
         // Arbeitsort nur für Verkäufer anzeigen
-        if (data.getNpcType() == NPCType.VERKAEUFER) {
+        if (data.getNpcType() == NPCType.MERCHANT) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.workplace_label").withStyle(ChatFormatting.GRAY)
                     .append(data.getLocationData().getWorkLocation() != null ?
                         Component.literal(data.getLocationData().getWorkLocation().toShortString()).withStyle(ChatFormatting.GREEN) :
                         Component.translatable("command.npc.not_set").withStyle(ChatFormatting.RED))
             );
-        } else if (data.getNpcType() == NPCType.BEWOHNER) {
+        } else if (data.getNpcType() == NPCType.CITIZEN) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.workplace_label").withStyle(ChatFormatting.GRAY)
                     .append(Component.translatable("message.npc.residents_dont_work")
@@ -302,7 +302,7 @@ public class NPCCommand {
         // Schedule Zeiten - unterschiedlich je nach NPC-Typ
         player.sendSystemMessage(Component.translatable("message.npc.schedule_header").withStyle(ChatFormatting.GOLD));
 
-        if (data.getNpcType() == NPCType.VERKAEUFER) {
+        if (data.getNpcType() == NPCType.MERCHANT) {
             // Verkäufer: Vollständiger Zeitplan
             player.sendSystemMessage(
                 Component.translatable("message.npc.work_start_label").withStyle(ChatFormatting.GRAY)
@@ -319,7 +319,7 @@ public class NPCCommand {
                     .append(Component.translatable("message.common.from_time", ticksToTime(data.getScheduleData().getHomeTime()))
                         .withStyle(ChatFormatting.YELLOW))
             );
-        } else if (data.getNpcType() == NPCType.BEWOHNER) {
+        } else if (data.getNpcType() == NPCType.CITIZEN) {
             // Bewohner: Nur Heimzeit (Schlafenszeit)
             String homeStart = ticksToTime(data.getScheduleData().getHomeTime());
             String homeEnd = ticksToTime(data.getScheduleData().getWorkStartTime()); // Aufstehzeit

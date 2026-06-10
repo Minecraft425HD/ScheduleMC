@@ -103,11 +103,11 @@ public class UtilityRegistry {
         // CLIMATE_LAMPN (Mushroom - Klimatisierung)
         // Strom + etwas Wasser für Luftfeuchtigkeit
         // ─────────────────────────────────────────────────────────────
-        registerById("schedulemc:klimalampe_small",
+        registerById("schedulemc:climate_lamp_small",
                 UtilityConsumptionData.of(30, 5, UtilityCategory.CLIMATE));
-        registerById("schedulemc:klimalampe_medium",
+        registerById("schedulemc:climate_lamp_medium",
                 UtilityConsumptionData.of(60, 10, UtilityCategory.CLIMATE));
-        registerById("schedulemc:klimalampe_large",
+        registerById("schedulemc:climate_lamp_large",
                 UtilityConsumptionData.of(120, 20, UtilityCategory.CLIMATE));
 
         // ─────────────────────────────────────────────────────────────
@@ -124,7 +124,7 @@ public class UtilityRegistry {
                 UtilityConsumptionData.constant(0, 25, UtilityCategory.IRRIGATION));
 
         // WaterTank (Pilze)
-        registerById("schedulemc:wassertank",
+        registerById("schedulemc:water_tank",
                 UtilityConsumptionData.constant(5, 50, UtilityCategory.IRRIGATION));
 
         // ─────────────────────────────────────────────────────────────
@@ -161,7 +161,7 @@ public class UtilityRegistry {
                 UtilityConsumptionData.of(60, 20, UtilityCategory.FERMENTATION));
 
         // LSD Fermentationstank
-        registerById("schedulemc:fermentations_tank",
+        registerById("schedulemc:fermentation_tank",
                 UtilityConsumptionData.of(80, 30, UtilityCategory.FERMENTATION));
 
         // ─────────────────────────────────────────────────────────────
@@ -197,68 +197,68 @@ public class UtilityRegistry {
         registerById("schedulemc:big_refinery",
                 UtilityConsumptionData.of(240, 80, UtilityCategory.CHEMICAL));
 
-        registerById("schedulemc:crack_kocher",
+        registerById("schedulemc:crack_cooker",
                 UtilityConsumptionData.of(100, 10, UtilityCategory.CHEMICAL));
 
         // ─────────────────────────────────────────────────────────────
         // POPPY/HEROIN VERARBEITUNG
         // Mittlerer Verbrauch
         // ─────────────────────────────────────────────────────────────
-        registerById("schedulemc:ritzmaschine",
+        registerById("schedulemc:scoring_machine",
                 UtilityConsumptionData.of(20, 5, UtilityCategory.MECHANICAL));
-        registerById("schedulemc:opium_presse",
+        registerById("schedulemc:opium_press",
                 UtilityConsumptionData.of(50, 0, UtilityCategory.MECHANICAL));
-        registerById("schedulemc:kochstation",
+        registerById("schedulemc:cooking_station",
                 UtilityConsumptionData.of(80, 40, UtilityCategory.CHEMICAL));
-        registerById("schedulemc:heroin_raffinerie",
+        registerById("schedulemc:heroin_refinery",
                 UtilityConsumptionData.of(150, 50, UtilityCategory.CHEMICAL));
 
         // ─────────────────────────────────────────────────────────────
         // METH LAB
         // SEHR hoher Verbrauch - Breaking Bad style
         // ─────────────────────────────────────────────────────────────
-        registerById("schedulemc:chemie_mixer",
+        registerById("schedulemc:chemical_mixer",
                 UtilityConsumptionData.of(100, 30, UtilityCategory.CHEMICAL));
-        registerById("schedulemc:reduktionskessel",
+        registerById("schedulemc:reduction_kettle",
                 UtilityConsumptionData.of(250, 50, UtilityCategory.CHEMICAL));
-        registerById("schedulemc:kristallisator",
+        registerById("schedulemc:crystallizer",
                 UtilityConsumptionData.of(180, 100, UtilityCategory.CHEMICAL));
-        registerById("schedulemc:vakuum_trockner",
+        registerById("schedulemc:vacuum_dryer",
                 UtilityConsumptionData.of(120, 0, UtilityCategory.DRYING));
 
         // ─────────────────────────────────────────────────────────────
         // LSD LAB
         // Hoher Verbrauch - Präzisionslabor
         // ─────────────────────────────────────────────────────────────
-        registerById("schedulemc:destillations_apparat",
+        registerById("schedulemc:distillation_apparatus",
                 UtilityConsumptionData.of(150, 60, UtilityCategory.CHEMICAL));
-        registerById("schedulemc:mikro_dosierer",
+        registerById("schedulemc:micro_doser",
                 UtilityConsumptionData.of(80, 10, UtilityCategory.CHEMICAL));
-        registerById("schedulemc:perforations_presse",
+        registerById("schedulemc:perforation_press",
                 UtilityConsumptionData.of(40, 0, UtilityCategory.MECHANICAL));
 
         // ─────────────────────────────────────────────────────────────
         // MDMA LAB
         // Hoher Verbrauch
         // ─────────────────────────────────────────────────────────────
-        registerById("schedulemc:reaktions_kessel",
+        registerById("schedulemc:reaction_kettle",
                 UtilityConsumptionData.of(200, 40, UtilityCategory.CHEMICAL));
-        registerById("schedulemc:trocknungs_ofen",
+        registerById("schedulemc:drying_oven",
                 UtilityConsumptionData.of(150, 0, UtilityCategory.DRYING));
-        registerById("schedulemc:pillen_presse",
+        registerById("schedulemc:pill_press",
                 UtilityConsumptionData.of(60, 0, UtilityCategory.MECHANICAL));
 
         // ─────────────────────────────────────────────────────────────
         // CANNABIS VERARBEITUNG
         // Mittlerer Verbrauch
         // ─────────────────────────────────────────────────────────────
-        registerById("schedulemc:cannabis_trimm_station",
+        registerById("schedulemc:cannabis_trim_station",
                 UtilityConsumptionData.of(10, 5, UtilityCategory.MECHANICAL));
-        registerById("schedulemc:cannabis_curing_glas",
+        registerById("schedulemc:cannabis_curing_jar",
                 UtilityConsumptionData.of(5, 0, UtilityCategory.FERMENTATION));
-        registerById("schedulemc:cannabis_hash_presse",
+        registerById("schedulemc:cannabis_hash_press",
                 UtilityConsumptionData.of(80, 0, UtilityCategory.MECHANICAL));
-        registerById("schedulemc:cannabis_oel_extraktor",
+        registerById("schedulemc:cannabis_oil_extractor",
                 UtilityConsumptionData.of(120, 20, UtilityCategory.CHEMICAL));
 
         // ─────────────────────────────────────────────────────────────
@@ -476,65 +476,65 @@ public class UtilityRegistry {
                 de.rolandsw.schedulemc.coca.blocks.CocaBlocks.MEDIUM_REFINERY);
         tryResolve("schedulemc:big_refinery",
                 de.rolandsw.schedulemc.coca.blocks.CocaBlocks.BIG_REFINERY);
-        tryResolve("schedulemc:crack_kocher",
-                de.rolandsw.schedulemc.coca.blocks.CocaBlocks.CRACK_KOCHER);
+        tryResolve("schedulemc:crack_cooker",
+                de.rolandsw.schedulemc.coca.blocks.CocaBlocks.CRACK_COOKER);
 
         // Poppy Blocks
-        tryResolve("schedulemc:ritzmaschine",
+        tryResolve("schedulemc:scoring_machine",
                 de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.SCORING_MACHINE);
-        tryResolve("schedulemc:opium_presse",
+        tryResolve("schedulemc:opium_press",
                 de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.OPIUM_PRESS);
-        tryResolve("schedulemc:kochstation",
+        tryResolve("schedulemc:cooking_station",
                 de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.COOKING_STATION);
-        tryResolve("schedulemc:heroin_raffinerie",
+        tryResolve("schedulemc:heroin_refinery",
                 de.rolandsw.schedulemc.poppy.blocks.PoppyBlocks.HEROIN_REFINERY);
 
         // Mushroom Blocks
-        tryResolve("schedulemc:klimalampe_small",
+        tryResolve("schedulemc:climate_lamp_small",
                 de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.CLIMATE_LAMP_SMALL);
-        tryResolve("schedulemc:klimalampe_medium",
+        tryResolve("schedulemc:climate_lamp_medium",
                 de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.CLIMATE_LAMP_MEDIUM);
-        tryResolve("schedulemc:klimalampe_large",
+        tryResolve("schedulemc:climate_lamp_large",
                 de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.CLIMATE_LAMP_LARGE);
-        tryResolve("schedulemc:wassertank",
+        tryResolve("schedulemc:water_tank",
                 de.rolandsw.schedulemc.mushroom.blocks.MushroomBlocks.WATER_TANK);
 
         // Meth Blocks
-        tryResolve("schedulemc:chemie_mixer",
+        tryResolve("schedulemc:chemical_mixer",
                 de.rolandsw.schedulemc.meth.blocks.MethBlocks.CHEMICAL_MIXER);
-        tryResolve("schedulemc:reduktionskessel",
+        tryResolve("schedulemc:reduction_kettle",
                 de.rolandsw.schedulemc.meth.blocks.MethBlocks.REDUCTION_KETTLE);
-        tryResolve("schedulemc:kristallisator",
+        tryResolve("schedulemc:crystallizer",
                 de.rolandsw.schedulemc.meth.blocks.MethBlocks.CRYSTALLIZER);
-        tryResolve("schedulemc:vakuum_trockner",
+        tryResolve("schedulemc:vacuum_dryer",
                 de.rolandsw.schedulemc.meth.blocks.MethBlocks.VACUUM_DRYER);
 
         // LSD Blocks
-        tryResolve("schedulemc:fermentations_tank",
+        tryResolve("schedulemc:fermentation_tank",
                 de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.FERMENTATION_TANK);
-        tryResolve("schedulemc:destillations_apparat",
+        tryResolve("schedulemc:distillation_apparatus",
                 de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.DISTILLATION_APPARATUS);
-        tryResolve("schedulemc:mikro_dosierer",
+        tryResolve("schedulemc:micro_doser",
                 de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.MICRO_DOSER);
-        tryResolve("schedulemc:perforations_presse",
+        tryResolve("schedulemc:perforation_press",
                 de.rolandsw.schedulemc.lsd.blocks.LSDBlocks.PERFORATION_PRESS);
 
         // MDMA Blocks
-        tryResolve("schedulemc:reaktions_kessel",
+        tryResolve("schedulemc:reaction_kettle",
                 de.rolandsw.schedulemc.mdma.blocks.MDMABlocks.REACTION_KETTLE);
-        tryResolve("schedulemc:trocknungs_ofen",
+        tryResolve("schedulemc:drying_oven",
                 de.rolandsw.schedulemc.mdma.blocks.MDMABlocks.DRYING_OVEN);
-        tryResolve("schedulemc:pillen_presse",
+        tryResolve("schedulemc:pill_press",
                 de.rolandsw.schedulemc.mdma.blocks.MDMABlocks.PILL_PRESS);
 
         // Cannabis Blocks
-        tryResolve("schedulemc:cannabis_trimm_station",
+        tryResolve("schedulemc:cannabis_trim_station",
                 de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.TRIM_STATION);
-        tryResolve("schedulemc:cannabis_curing_glas",
+        tryResolve("schedulemc:cannabis_curing_jar",
                 de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.CURING_JAR);
-        tryResolve("schedulemc:cannabis_hash_presse",
+        tryResolve("schedulemc:cannabis_hash_press",
                 de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.HASH_PRESS);
-        tryResolve("schedulemc:cannabis_oel_extraktor",
+        tryResolve("schedulemc:cannabis_oil_extractor",
                 de.rolandsw.schedulemc.cannabis.blocks.CannabisBlocks.OIL_EXTRACTOR);
 
         // Beer Blocks

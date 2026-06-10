@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cross",
-  "textures": {
-    "cross": "schedulemc:block/kolumbianisch_coca_plant_stage1_top"
-  }
-}

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "mode=cold": {
+      "model": "schedulemc:block/climate_lamp_large_cold"
+    },
+    "mode=off": {
+      "model": "schedulemc:block/climate_lamp_large_off"
+    },
+    "mode=warm": {
+      "model": "schedulemc:block/climate_lamp_large_warm"
+    }
+  }
+}

@@ -18,12 +18,12 @@ public class MushroomItems {
     // ═══════════════════════════════════════════════════════════
     // MIST-SÄCKE (3 Stufen)
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> MIST_BAG_SMALL = ITEMS.register("mist_bag_small",
-            () -> new MistBagItem(MistBagType.SMALL));
-    public static final RegistryObject<Item> MIST_BAG_MEDIUM = ITEMS.register("mist_bag_medium",
-            () -> new MistBagItem(MistBagType.MEDIUM));
-    public static final RegistryObject<Item> MIST_BAG_LARGE = ITEMS.register("mist_bag_large",
-            () -> new MistBagItem(MistBagType.LARGE));
+    public static final RegistryObject<Item> MANURE_BAG_SMALL = ITEMS.register("manure_bag_small",
+            () -> new ManureBagItem(ManureBagType.SMALL));
+    public static final RegistryObject<Item> MANURE_BAG_MEDIUM = ITEMS.register("manure_bag_medium",
+            () -> new ManureBagItem(ManureBagType.MEDIUM));
+    public static final RegistryObject<Item> MANURE_BAG_LARGE = ITEMS.register("manure_bag_large",
+            () -> new ManureBagItem(ManureBagType.LARGE));
 
     // ═══════════════════════════════════════════════════════════
     // SPOREN-SPRITZEN (pro Sorte)

@@ -51,12 +51,12 @@ public enum RumorType {
     /**
      * Spieler ist großzügig
      */
-    GENEROUS("Großzügig", 25, 0.5f, 7),
+    GENEROUS("Generous", 25, 0.5f, 7),
 
     /**
      * Spieler zahlt faire Preise
      */
-    FAIR_TRADER("Fairer Händler", 20, 0.4f, 5),
+    FAIR_TRADER("Fair trader", 20, 0.4f, 5),
 
     /**
      * Spieler hilft NPCs
@@ -66,22 +66,22 @@ public enum RumorType {
     /**
      * Spieler hat eine Quest erfolgreich abgeschlossen
      */
-    QUEST_COMPLETED("Quest erfüllt", 15, 0.3f, 3),
+    QUEST_COMPLETED("Quest fulfilled", 15, 0.3f, 3),
 
     /**
      * Spieler ist unzuverlässig
      */
-    UNRELIABLE("Unzuverlässig", -15, 0.4f, 5),
+    UNRELIABLE("Unreliable", -15, 0.4f, 5),
 
     /**
      * Spieler hat Versprechen gebrochen
      */
-    PROMISE_BREAKER("Wortbrüchig", -25, 0.5f, 7),
+    PROMISE_BREAKER("Untrustworthy", -25, 0.5f, 7),
 
     /**
      * Spieler handelt unfair
      */
-    UNFAIR_TRADER("Unfairer Händler", -20, 0.4f, 5),
+    UNFAIR_TRADER("Unfair trader", -20, 0.4f, 5),
 
     /**
      * Spieler ist reich

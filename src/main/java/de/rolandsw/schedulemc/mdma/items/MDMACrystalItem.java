@@ -21,7 +21,7 @@ public class MDMACrystalItem extends Item {
     }
 
     public static ItemStack create(MDMAQuality quality, int count) {
-        ItemStack stack = new ItemStack(MDMAItems.MDMA_KRISTALL.get(), count);
+        ItemStack stack = new ItemStack(MDMAItems.MDMA_CRYSTAL.get(), count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("Quality", quality.name());
         return stack;
@@ -33,10 +33,10 @@ public class MDMACrystalItem extends Item {
             try {
                 return MDMAQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return MDMAQuality.SCHLECHT;
+                return MDMAQuality.POOR;
             }
         }
-        return MDMAQuality.SCHLECHT;
+        return MDMAQuality.POOR;
     }
 
     @Override
@@ -50,6 +50,6 @@ public class MDMACrystalItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        return Component.translatable("item.mdma_kristall.name");
+        return Component.translatable("item.mdma_crystal.name");
     }
 }

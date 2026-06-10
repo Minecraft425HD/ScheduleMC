@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.lsd.blocks;
 
 import de.rolandsw.schedulemc.lsd.blockentity.DistillationApparatusBlockEntity;
-import de.rolandsw.schedulemc.lsd.items.ErgotKulturItem;
+import de.rolandsw.schedulemc.lsd.items.ErgotCultureItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -52,8 +52,8 @@ public class DistillationApparatusBlock extends Block implements EntityBlock {
         ItemStack heldItem = player.getItemInHand(hand);
 
         // Ergot-Kultur hinzufügen
-        if (heldItem.getItem() instanceof ErgotKulturItem) {
-            if (apparat.addErgotKultur(heldItem)) {
+        if (heldItem.getItem() instanceof ErgotCultureItem) {
+            if (apparat.addErgotCulture(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
                 player.displayClientMessage(Component.translatable(
                         "block.lsd.distillation_input", apparat.getErgotCount()
@@ -77,15 +77,15 @@ public class DistillationApparatusBlock extends Block implements EntityBlock {
             }
 
             // Status
-            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.destillations_apparat.title")
+            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.distillation_apparatus.title")
                     .append(Component.literal("\n"))
                     .append(Component.translatable("block.lsd.distillation_count", apparat.getErgotCount()))
                     .append(Component.literal("\n"));
 
             if (apparat.isActive()) {
-                message = message.append(Component.translatable("block.destillations_apparat.progress", (int)(apparat.getProgress() * 100)));
+                message = message.append(Component.translatable("block.distillation_apparatus.progress", (int)(apparat.getProgress() * 100)));
             } else if (apparat.hasOutput()) {
-                message = message.append(Component.translatable("block.destillations_apparat.output_ready", apparat.getOutputCount()));
+                message = message.append(Component.translatable("block.distillation_apparatus.output_ready", apparat.getOutputCount()));
             }
 
             player.displayClientMessage(message, true);

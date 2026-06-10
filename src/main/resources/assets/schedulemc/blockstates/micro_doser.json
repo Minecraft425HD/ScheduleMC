@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "schedulemc:block/micro_doser"
+    }
+  }
+}

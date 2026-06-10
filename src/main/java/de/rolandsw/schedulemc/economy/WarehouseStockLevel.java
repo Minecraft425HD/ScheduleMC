@@ -16,7 +16,7 @@ public enum WarehouseStockLevel {
     NIEDRIG("Niedrig", "§c", 0.2, 0.4, 1.15),
     NORMAL("Normal", "§a", 0.4, 0.7, 1.00),
     VOLL("Voll", "§e", 0.7, 0.9, 0.90),
-    UEBERFUELLT("Überfüllt", "§6", 0.9, 1.0, 0.75);
+    UEBERFUELLT("Overfilled", "§6", 0.9, 1.0, 0.75);
 
     private final String displayName;
     private final String colorCode;

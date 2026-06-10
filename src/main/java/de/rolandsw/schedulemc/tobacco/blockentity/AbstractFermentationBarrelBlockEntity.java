@@ -375,7 +375,7 @@ public class AbstractFermentationBarrelBlockEntity extends AbstractItemHandlerBl
     }
 
     private TobaccoQuality calculateFinalQuality(TobaccoQuality quality) {
-        if (quality == TobaccoQuality.LEGENDAER) {
+        if (quality == TobaccoQuality.LEGENDARY) {
             return quality;
         }
 

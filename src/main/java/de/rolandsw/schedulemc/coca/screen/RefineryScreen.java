@@ -151,8 +151,8 @@ public class RefineryScreen extends AbstractContainerScreen<RefineryMenu> {
             List<FormattedCharSequence> tip = List.of(
                 Component.literal("§eAkzeptierte Brennstoffe:").getVisualOrderText(),
                 Component.literal("§7Kohle, Holzkohle").getVisualOrderText(),
-                Component.literal("§7Kohleblock (×8)").getVisualOrderText(),
-                Component.literal("§7Holzstämme, Holzbretter").getVisualOrderText()
+                Component.literal("§7Coal block (×8)").getVisualOrderText(),
+                Component.literal("§7Logs, planks").getVisualOrderText()
             );
             g.renderTooltip(font, tip, mouseX, mouseY);
         }

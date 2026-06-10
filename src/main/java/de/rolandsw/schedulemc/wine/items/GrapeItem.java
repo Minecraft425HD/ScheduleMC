@@ -34,7 +34,7 @@ public class GrapeItem extends Item {
     public static ItemStack create(WineType type, WineQuality quality, int count) {
         ItemStack stack = switch (type) {
             case RIESLING -> new ItemStack(WineItems.RIESLING_GRAPES.get(), count);
-            case SPAETBURGUNDER -> new ItemStack(WineItems.SPAETBURGUNDER_GRAPES.get(), count);
+            case PINOT_NOIR -> new ItemStack(WineItems.PINOT_NOIR_GRAPES.get(), count);
             case CHARDONNAY -> new ItemStack(WineItems.CHARDONNAY_GRAPES.get(), count);
             case MERLOT -> new ItemStack(WineItems.MERLOT_GRAPES.get(), count);
         };
@@ -50,10 +50,10 @@ public class GrapeItem extends Item {
             try {
                 return WineQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return WineQuality.SCHLECHT;
+                return WineQuality.POOR;
             }
         }
-        return WineQuality.SCHLECHT;
+        return WineQuality.POOR;
     }
 
     @Override

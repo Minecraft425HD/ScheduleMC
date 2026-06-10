@@ -36,7 +36,7 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
     private int materialWeight = 0;
     private boolean isFromBuds = false; // true = Buds, false = Trim
     private CannabisStrain strain = CannabisStrain.HYBRID;
-    private CannabisQuality baseQuality = CannabisQuality.GUT;
+    private CannabisQuality baseQuality = CannabisQuality.GOOD;
     private int solventCount = 0;
 
     private long startDayTime = -1L;
@@ -70,7 +70,7 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
             // Überlauf verhindern
             if (materialWeight + TrimItem.getWeight(stack) > MAX_MATERIAL_WEIGHT) return false;
             strain = trimStrain;
-            baseQuality = CannabisQuality.GUT;
+            baseQuality = CannabisQuality.GOOD;
             materialWeight += TrimItem.getWeight(stack);
             isFromBuds = false;
         } else {
@@ -193,7 +193,7 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
         materialWeight = 0;
         isFromBuds = false;
         strain = CannabisStrain.HYBRID;
-        baseQuality = CannabisQuality.GUT;
+        baseQuality = CannabisQuality.GOOD;
         setChanged();
         if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
     }
@@ -244,7 +244,7 @@ public class OilExtractorBlockEntity extends BlockEntity implements IUtilityCons
         try { strain = CannabisStrain.valueOf(tag.getString("Strain")); }
         catch (IllegalArgumentException e) { strain = CannabisStrain.HYBRID; }
         try { baseQuality = CannabisQuality.valueOf(tag.getString("Quality")); }
-        catch (IllegalArgumentException e) { baseQuality = CannabisQuality.GUT; }
+        catch (IllegalArgumentException e) { baseQuality = CannabisQuality.GOOD; }
         solventCount = tag.getInt("SolventCount");
         startDayTime = tag.contains("StartDayTime") ? tag.getLong("StartDayTime") : -1L;
         isExtracting = tag.getBoolean("IsExtracting");

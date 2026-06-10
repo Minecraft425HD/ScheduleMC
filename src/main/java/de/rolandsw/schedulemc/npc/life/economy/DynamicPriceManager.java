@@ -339,7 +339,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
             "surplus_" + category,
             0.6f,
             durationDays * 24000,
-            "Warenüberfluss: " + category
+            "Goods surplus: " + category
         );
     }
 
@@ -605,7 +605,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     public String getMarketReport() {
         StringBuilder sb = new StringBuilder();
         sb.append("=== Marktbericht ===\n");
-        sb.append(String.format("Globaler Markt: %s (×%.2f)\n",
+        sb.append(String.format("Global market: %s (×%.2f)\n",
             globalCondition.getDisplayName(), globalCondition.getPriceMultiplier()));
 
         if (!categoryConditions.isEmpty()) {

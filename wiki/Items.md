@@ -196,17 +196,17 @@ Three coca strains, fresh leaves, and the cocaine/crack processing chain along w
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Bolivianisch Coca Seeds | `bolivianisch_coca_seeds` | Seeds for Bolivianisch coca (CocaType.BOLIVIANISCH). Higher quantity yield. ~15 min growth. | Admin command or NPC trading |
-| Kolumbianisch Coca Seeds | `kolumbianisch_coca_seeds` | Seeds for Kolumbianisch coca (CocaType.KOLUMBIANISCH). Higher purity output. ~18 min growth. | Admin command or NPC trading |
-| Peruanisch Coca Seeds | `peruanisch_coca_seeds` | Seeds for Peruanisch coca (CocaType.PERUANISCH). Balanced yield and quality. Uses Bolivianisch plant block internally. | Admin command or NPC trading |
+| Bolivianisch Coca Seeds | `bolivian_coca_seeds` | Seeds for Bolivianisch coca (CocaType.BOLIVIANISCH). Higher quantity yield. ~15 min growth. | Admin command or NPC trading |
+| Kolumbianisch Coca Seeds | `colombian_coca_seeds` | Seeds for Kolumbianisch coca (CocaType.KOLUMBIANISCH). Higher purity output. ~18 min growth. | Admin command or NPC trading |
+| Peruanisch Coca Seeds | `peruvian_coca_seeds` | Seeds for Peruanisch coca (CocaType.PERUANISCH). Balanced yield and quality. Uses Bolivianisch plant block internally. | Admin command or NPC trading |
 
 ### Fresh Leaves (3 Types)
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Fresh Bolivianisch Coca Leaf | `fresh_bolivianisch_coca_leaf` | Freshly harvested Bolivianisch coca leaf. Stacks to 16. Input for extraction. | Harvest mature Bolivianisch coca plant |
-| Fresh Kolumbianisch Coca Leaf | `fresh_kolumbianisch_coca_leaf` | Freshly harvested Kolumbianisch coca leaf. Stacks to 16. Input for extraction. | Harvest mature Kolumbianisch coca plant |
-| Fresh Peruanisch Coca Leaf | `fresh_peruanisch_coca_leaf` | Freshly harvested Peruanisch coca leaf. Stacks to 16. Input for extraction. | Harvest mature Peruanisch coca plant |
+| Fresh Bolivianisch Coca Leaf | `fresh_bolivian_coca_leaf` | Freshly harvested Bolivianisch coca leaf. Stacks to 16. Input for extraction. | Harvest mature Bolivianisch coca plant |
+| Fresh Kolumbianisch Coca Leaf | `fresh_colombian_coca_leaf` | Freshly harvested Kolumbianisch coca leaf. Stacks to 16. Input for extraction. | Harvest mature Kolumbianisch coca plant |
+| Fresh Peruanisch Coca Leaf | `fresh_peruvian_coca_leaf` | Freshly harvested Peruanisch coca leaf. Stacks to 16. Input for extraction. | Harvest mature Peruanisch coca plant |
 
 ### Processing Chain & Chemicals
 
@@ -214,8 +214,8 @@ Three coca strains, fresh leaves, and the cocaine/crack processing chain along w
 |------|-------------|-------------|---------------|
 | Coca Paste | `coca_paste` | Brown intermediate paste from leaf extraction. Stacks to 16. Requires diesel and leaves. | Extraction Vat (leaves + diesel canister) |
 | Cocaine | `cocaine` | White powder refined from coca paste. Stacks to 16. Purity 70-95%. Packageable. | Refinery (from coca paste) |
-| Crack Rock | `crack_rock` | Crystallized form of cocaine cooked with baking soda. Stacks to 16. Packageable. | Crack Kocher (cocaine + backpulver) |
-| Backpulver | `backpulver` | Baking soda, a required reagent for crack production. Stacks to 64. Ratio 1:1 with cocaine. | Crafting or NPC trading |
+| Crack Rock | `crack_rock` | Crystallized form of cocaine cooked with baking soda. Stacks to 16. Packageable. | Crack Kocher (cocaine + baking_powder) |
+| Backpulver | `baking_powder` | Baking soda, a required reagent for crack production. Stacks to 64. Ratio 1:1 with cocaine. | Crafting or NPC trading |
 
 ---
 
@@ -227,9 +227,9 @@ Three poppy strains and the full opium-to-heroin refinement chain.
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Afghanisch Poppy Seeds | `afghanisch_poppy_seeds` | Seeds for Afghanisch poppy (PoppyType.AFGHANISCH). High opium yield. ~12 min growth. | Admin command or NPC trading |
-| Tuerkisch Poppy Seeds | `tuerkisch_poppy_seeds` | Seeds for Tuerkisch poppy (PoppyType.TUERKISCH). Medium opium yield. ~15 min growth. | Admin command or NPC trading |
-| Indisch Poppy Seeds | `indisch_poppy_seeds` | Seeds for Indisch poppy (PoppyType.INDISCH). Premium quality opium. ~18 min growth. | Admin command or NPC trading |
+| Afghanisch Poppy Seeds | `afghan_poppy_seeds` | Seeds for Afghanisch poppy (PoppyType.AFGHANISCH). High opium yield. ~12 min growth. | Admin command or NPC trading |
+| Tuerkisch Poppy Seeds | `turkish_poppy_seeds` | Seeds for Tuerkisch poppy (PoppyType.TUERKISCH). Medium opium yield. ~15 min growth. | Admin command or NPC trading |
+| Indisch Poppy Seeds | `indian_poppy_seeds` | Seeds for Indisch poppy (PoppyType.INDISCH). Premium quality opium. ~18 min growth. | Admin command or NPC trading |
 
 ### Processing Chain
 
@@ -256,18 +256,18 @@ Chemical synthesis items for the four-step methamphetamine production process.
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Ephedrin | `ephedrin` | Primary precursor chemical for meth synthesis. Regulated substance. Stacks to 16. | NPC trading or crafting |
-| Pseudoephedrin | `pseudoephedrin` | Alternative precursor chemical for meth synthesis. Regulated substance. Stacks to 16. | NPC trading or crafting |
-| Roter Phosphor | `roter_phosphor` | Red phosphorus, a flammable reagent used in the reduction step. Stacks to 16. | Crafting |
-| Jod | `jod` | Iodine, a corrosive reagent used in the reduction step. Stacks to 16. | Crafting |
+| Ephedrin | `ephedrine` | Primary precursor chemical for meth synthesis. Regulated substance. Stacks to 16. | NPC trading or crafting |
+| Pseudoephedrin | `pseudoephedrine` | Alternative precursor chemical for meth synthesis. Regulated substance. Stacks to 16. | NPC trading or crafting |
+| Roter Phosphor | `red_phosphorus` | Red phosphorus, a flammable reagent used in the reduction step. Stacks to 16. | Crafting |
+| Jod | `iodine` | Iodine, a corrosive reagent used in the reduction step. Stacks to 16. | Crafting |
 
 ### Processing Chain (4)
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
 | Meth Paste | `meth_paste` | Wet intermediate paste from mixing base chemicals. Stacks to 16. | Chemie Mixer (step 1) |
-| Roh Meth | `roh_meth` | Raw methamphetamine from the dangerous reduction step. Stacks to 16. Explosion risk during production. | Reduktionskessel (step 2) |
-| Kristall Meth | `kristall_meth` | Crystallized methamphetamine with visible crystal structure. Stacks to 16. | Kristallisator (step 3) |
+| Roh Meth | `raw_meth` | Raw methamphetamine from the dangerous reduction step. Stacks to 16. Explosion risk during production. | Reduktionskessel (step 2) |
+| Kristall Meth | `crystal_meth` | Crystallized methamphetamine with visible crystal structure. Stacks to 16. | Kristallisator (step 3) |
 | Meth | `meth` | Final dried methamphetamine product, 95-99% purity. Stacks to 16. Packageable. | Vakuum Trockner (step 4) |
 
 ---
@@ -278,11 +278,11 @@ Laboratory synthesis items for the precision LSD production process.
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Mutterkorn | `mutterkorn` | Ergot fungus, the raw starting material. Toxic if consumed raw. Stacks to 16. | Specialized farming or NPC trading |
-| Blotter Papier | `blotter_papier` | Absorbent blotter paper sheet (10x10 grid). Used in the final dosing step. Stacks to 64. | Crafting |
-| Ergot Kultur | `ergot_kultur` | Fermented ergot culture, intermediate product from mutterkorn fermentation. Stacks to 16. | Fermentations Tank (step 1) |
-| Lysergsaeure | `lysergsaeure` | Lysergic acid distilled from ergot culture. High-precision intermediate. Stacks to 16. | Destillations Apparat (step 2) |
-| LSD Loesung | `lsd_loesung` | LSD solution at 100ug/ml concentration. Ready for blotter application. Stacks to 16. | Chemical synthesis from lysergic acid |
+| Mutterkorn | `ergot` | Ergot fungus, the raw starting material. Toxic if consumed raw. Stacks to 16. | Specialized farming or NPC trading |
+| Blotter Papier | `blotter_paper` | Absorbent blotter paper sheet (10x10 grid). Used in the final dosing step. Stacks to 64. | Crafting |
+| Ergot Kultur | `ergot_culture` | Fermented ergot culture, intermediate product from ergot fermentation. Stacks to 16. | Fermentations Tank (step 1) |
+| Lysergsaeure | `lysergic_acid` | Lysergic acid distilled from ergot culture. High-precision intermediate. Stacks to 16. | Destillations Apparat (step 2) |
+| LSD Loesung | `lsd_solution` | LSD solution at 100ug/ml concentration. Ready for blotter application. Stacks to 16. | Chemical synthesis from lysergic acid |
 | LSD Blotter | `lsd_blotter` | Finished LSD blotter tabs (100 per sheet). Final product. Stacks to 16. | Mikro Dosierer + Perforations Presse (steps 3-4) |
 
 ---
@@ -295,16 +295,16 @@ Chemical synthesis and pill-pressing items for ecstasy production.
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Safrol | `safrol` | Base chemical extracted from sassafras. Primary precursor for MDMA synthesis. Stacks to 16. | Extraction or NPC trading |
-| Bindemittel | `bindemittel` | Pill binder material that holds ecstasy pills together. Stacks to 64. | Crafting |
-| Pillen Farbstoff | `pillen_farbstoff` | Pill dye for coloring ecstasy pills. Customizable colors. Stacks to 64. | Crafting |
+| Safrol | `safrole` | Base chemical extracted from sassafras. Primary precursor for MDMA synthesis. Stacks to 16. | Extraction or NPC trading |
+| Bindemittel | `binding_agent` | Pill binder material that holds ecstasy pills together. Stacks to 64. | Crafting |
+| Pillen Farbstoff | `pill_dye` | Pill dye for coloring ecstasy pills. Customizable colors. Stacks to 64. | Crafting |
 
 ### Processing Chain (3)
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| MDMA Base | `mdma_base` | Liquid MDMA base synthesized from safrol. Stacks to 16. | Reaktions Kessel (step 1) |
-| MDMA Kristall | `mdma_kristall` | Dried MDMA crystals. Purity 80-95%. Stacks to 16. | Trocknungs Ofen (step 2) |
+| MDMA Base | `mdma_base` | Liquid MDMA base synthesized from safrole. Stacks to 16. | Reaktions Kessel (step 1) |
+| MDMA Kristall | `mdma_crystal` | Dried MDMA crystals. Purity 80-95%. Stacks to 16. | Trocknungs Ofen (step 2) |
 | Ecstasy Pill | `ecstasy_pill` | Finished pressed ecstasy pill with custom shape and color. Stacks to 64. Produced via timing minigame. | Pillen Presse (step 3, minigame) |
 
 ---
@@ -317,9 +317,9 @@ Psilocybin mushroom cultivation items across three strains: Cubensis, Azurescens
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Small Mist Bag | `mist_bag_small` | Small substrate bag for mushroom cultivation. Holds 1 spore syringe, produces up to 3 mushrooms. Stacks to 16. | Crafting or NPC trading |
-| Medium Mist Bag | `mist_bag_medium` | Medium substrate bag. Holds 2 spore syringes, produces up to 6 mushrooms. Stacks to 8. | Crafting or NPC trading |
-| Large Mist Bag | `mist_bag_large` | Large substrate bag. Holds 3 spore syringes, produces up to 9 mushrooms. Stacks to 4. | Crafting or NPC trading |
+| Small Mist Bag | `manure_bag_small` | Small substrate bag for mushroom cultivation. Holds 1 spore syringe, produces up to 3 mushrooms. Stacks to 16. | Crafting or NPC trading |
+| Medium Mist Bag | `manure_bag_medium` | Medium substrate bag. Holds 2 spore syringes, produces up to 6 mushrooms. Stacks to 8. | Crafting or NPC trading |
+| Large Mist Bag | `manure_bag_large` | Large substrate bag. Holds 3 spore syringes, produces up to 9 mushrooms. Stacks to 4. | Crafting or NPC trading |
 
 ### Spore Syringes (3 Strains)
 
@@ -833,7 +833,7 @@ Modular vehicle system with complete vehicles, individual parts, fuel, tools, an
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
 | Fuel Station | `fuel_station` | Item form of the Fuel Station block. Place to create a vehicle refueling point. | Admin command or crafting |
-| Garage | `werkstatt` | Item form of the Garage (Werkstatt) block. Place to create a vehicle repair station. | Admin command or crafting |
+| Garage | `workshop` | Item form of the Garage (Werkstatt) block. Place to create a vehicle repair station. | Admin command or crafting |
 
 ---
 

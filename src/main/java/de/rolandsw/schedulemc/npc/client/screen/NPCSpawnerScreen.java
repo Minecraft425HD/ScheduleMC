@@ -173,18 +173,18 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
      */
     private void updateCategoryVisibility() {
         NPCType currentType = NPCType.values()[selectedNPCTypeIndex];
-        boolean isVerkaufer = currentType == NPCType.VERKAEUFER;
+        boolean isSeller = currentType == NPCType.MERCHANT;
         boolean isBank = currentType == NPCType.BANK;
-        boolean isAbschlepper = currentType == NPCType.ABSCHLEPPER;
+        boolean isTowTruckDriver = currentType == NPCType.TOW_TRUCK_DRIVER;
 
-        prevMerchantCategoryButton.visible = isVerkaufer;
-        nextMerchantCategoryButton.visible = isVerkaufer;
+        prevMerchantCategoryButton.visible = isSeller;
+        nextMerchantCategoryButton.visible = isSeller;
 
         prevBankCategoryButton.visible = isBank;
         nextBankCategoryButton.visible = isBank;
 
-        prevServiceCategoryButton.visible = isAbschlepper;
-        nextServiceCategoryButton.visible = isAbschlepper;
+        prevServiceCategoryButton.visible = isTowTruckDriver;
+        nextServiceCategoryButton.visible = isTowTruckDriver;
     }
 
     /**
@@ -333,7 +333,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         guiGraphics.drawString(this.font, typeName, typeTextX, typeTextY, 0x404040, false);
 
         // Zeige ausgewählte Verkäufer-Kategorie (nur wenn Verkäufer)
-        if (currentType == NPCType.VERKAEUFER) {
+        if (currentType == NPCType.MERCHANT) {
             MerchantCategory currentCategory = MerchantCategory.values()[selectedMerchantCategoryIndex];
             String categoryName = currentCategory.getDisplayName();
             int categoryTextX = x + (imageWidth - font.width(categoryName)) / 2;
@@ -351,7 +351,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
         }
 
         // Zeige ausgewählte Service-Kategorie (nur wenn Abschlepper)
-        if (currentType == NPCType.ABSCHLEPPER) {
+        if (currentType == NPCType.TOW_TRUCK_DRIVER) {
             ServiceCategory currentCategory = ServiceCategory.values()[selectedServiceCategoryIndex];
             String categoryName = currentCategory.getDisplayName();
             int categoryTextX = x + (imageWidth - font.width(categoryName)) / 2;
@@ -383,7 +383,7 @@ public class NPCSpawnerScreen extends AbstractContainerScreen<NPCSpawnerMenu> {
 
         // PERFORMANCE: Single check instead of 3 duplicate branches
         NPCType currentType = NPCType.values()[selectedNPCTypeIndex];
-        if (currentType == NPCType.VERKAEUFER || currentType == NPCType.BANK || currentType == NPCType.ABSCHLEPPER) {
+        if (currentType == NPCType.MERCHANT || currentType == NPCType.BANK || currentType == NPCType.TOW_TRUCK_DRIVER) {
             guiGraphics.drawString(this.font, cachedLabelCategory, 8, 103, 0x404040, false);
         }
     }

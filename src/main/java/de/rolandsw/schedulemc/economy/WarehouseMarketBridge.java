@@ -306,7 +306,7 @@ public class WarehouseMarketBridge {
         sb.append("§6═══ Warehouse-Markt ═══\n");
 
         if (itemFillRates.isEmpty()) {
-            sb.append("§7Keine Warehouse-Daten verfügbar\n");
+            sb.append("§7No warehouse data available\n");
             return sb.toString();
         }
 
@@ -316,7 +316,7 @@ public class WarehouseMarketBridge {
             int stock = totalItemStock.getOrDefault(itemKey, 0);
             int capacity = totalItemCapacity.getOrDefault(itemKey, 0);
 
-            sb.append(String.format("§f%s: %s §7(%d/%d) §7Preis: §f×%.2f\n",
+            sb.append(String.format("§f%s: %s §7(%d/%d) §7Price: §f×%.2f\n",
                     itemKey, level.getFormattedName(), stock, capacity, level.getPriceMultiplier()));
         }
 

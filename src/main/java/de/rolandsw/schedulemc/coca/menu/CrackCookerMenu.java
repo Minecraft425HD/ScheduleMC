@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.coca.menu;
 
 import de.rolandsw.schedulemc.coca.blockentity.CrackCookerBlockEntity;
-import de.rolandsw.schedulemc.coca.items.BackpulverItem;
+import de.rolandsw.schedulemc.coca.items.BakingPowderItem;
 import de.rolandsw.schedulemc.coca.items.CocaItems;
 import de.rolandsw.schedulemc.coca.items.CocaineItem;
 import net.minecraft.core.BlockPos;
@@ -28,7 +28,7 @@ public class CrackCookerMenu extends AbstractContainerMenu {
     private final SimpleContainer dummy = new SimpleContainer(3);
 
     private static final int DATA_COCAINE_GRAMS  = 0;
-    private static final int DATA_BACKPULVER      = 1;
+    private static final int DATA_BAKING_POWDER      = 1;
     private static final int DATA_COOK_TICK       = 2; // 0..80
     private static final int DATA_IS_ACTIVE       = 3;
     private static final int DATA_HAS_OUTPUT      = 4;
@@ -38,7 +38,7 @@ public class CrackCookerMenu extends AbstractContainerMenu {
     public static final int BUTTON_REMOVE = 1;
 
     public static final int SLOT_COCAINE    = 0;
-    public static final int SLOT_BACKPULVER = 1;
+    public static final int SLOT_BAKING_POWDER = 1;
     public static final int SLOT_OUTPUT     = 2;
     public static final int HOTBAR_START    = 3;
 
@@ -51,7 +51,7 @@ public class CrackCookerMenu extends AbstractContainerMenu {
             @Override public int get(int index) {
                 return switch (index) {
                     case DATA_COCAINE_GRAMS -> blockEntity.getCocaineGrams();
-                    case DATA_BACKPULVER    -> blockEntity.getBackpulverCount();
+                    case DATA_BAKING_POWDER    -> blockEntity.getBakingPowderCount();
                     case DATA_COOK_TICK     -> blockEntity.getCookTick();
                     case DATA_IS_ACTIVE     -> blockEntity.isMinigameActive() ? 1 : 0;
                     case DATA_HAS_OUTPUT    -> blockEntity.hasOutput() ? 1 : 0;
@@ -91,13 +91,13 @@ public class CrackCookerMenu extends AbstractContainerMenu {
             @Override public boolean mayPlace(@NotNull ItemStack s) { return false; }
             @Override public @NotNull ItemStack remove(int count)   { return ItemStack.EMPTY; }
         });
-        // Slot 1: backpulver input/display
+        // Slot 1: baking_powder input/display
         addSlot(new Slot(dummy, 1, 44, 30) {
             @Override public @NotNull ItemStack getItem() {
-                if (be == null || be.getBackpulverCount() <= 0) return ItemStack.EMPTY;
-                return new ItemStack(CocaItems.BACKPULVER.get(), be.getBackpulverCount());
+                if (be == null || be.getBakingPowderCount() <= 0) return ItemStack.EMPTY;
+                return new ItemStack(CocaItems.BAKING_POWDER.get(), be.getBakingPowderCount());
             }
-            @Override public boolean hasItem()            { return be != null && be.getBackpulverCount() > 0; }
+            @Override public boolean hasItem()            { return be != null && be.getBakingPowderCount() > 0; }
             @Override public boolean mayPlace(@NotNull ItemStack s) { return false; }
             @Override public @NotNull ItemStack remove(int count)   { return ItemStack.EMPTY; }
         });
@@ -144,15 +144,15 @@ public class CrackCookerMenu extends AbstractContainerMenu {
                 // cursor empty: can't take cocaine back
                 return;
             }
-            if (slotId == SLOT_BACKPULVER) {
-                if (!cursor.isEmpty() && cursor.is(CocaItems.BACKPULVER.get())
+            if (slotId == SLOT_BAKING_POWDER) {
+                if (!cursor.isEmpty() && cursor.is(CocaItems.BAKING_POWDER.get())
                         && !blockEntity.isMinigameActive() && !blockEntity.hasOutput()) {
-                    if (blockEntity.addBackpulver(cursor)) {
+                    if (blockEntity.addBakingPowder(cursor)) {
                         if (!player.isCreative()) cursor.shrink(cursor.getCount());
                         setCarried(cursor.isEmpty() ? ItemStack.EMPTY : cursor);
                     }
                 }
-                // cursor empty: can't take backpulver back
+                // cursor empty: can't take baking_powder back
                 return;
             }
             if (slotId == SLOT_OUTPUT) {
@@ -181,9 +181,9 @@ public class CrackCookerMenu extends AbstractContainerMenu {
                     return ItemStack.EMPTY;
                 }
             }
-            if (stack.is(CocaItems.BACKPULVER.get())
+            if (stack.is(CocaItems.BAKING_POWDER.get())
                     && !blockEntity.isMinigameActive() && !blockEntity.hasOutput()) {
-                if (blockEntity.addBackpulver(stack)) {
+                if (blockEntity.addBakingPowder(stack)) {
                     if (!player.isCreative()) stack.shrink(stack.getCount());
                     slot.set(stack.isEmpty() ? ItemStack.EMPTY : stack);
                     return ItemStack.EMPTY;
@@ -208,11 +208,11 @@ public class CrackCookerMenu extends AbstractContainerMenu {
 
     // Getters for screen
     public int getCocaineGrams()     { return this.data.get(DATA_COCAINE_GRAMS); }
-    public int getBackpulverCount()  { return this.data.get(DATA_BACKPULVER); }
+    public int getBakingPowderCount()  { return this.data.get(DATA_BAKING_POWDER); }
     public int getCookTick()         { return this.data.get(DATA_COOK_TICK); }
     public boolean isMinigameActive(){ return this.data.get(DATA_IS_ACTIVE) == 1; }
     public boolean hasOutput()       { return this.data.get(DATA_HAS_OUTPUT) == 1; }
-    public boolean canStart()        { return getCocaineGrams() >= 1 && getBackpulverCount() >= 1 && !isMinigameActive() && !hasOutput(); }
+    public boolean canStart()        { return getCocaineGrams() >= 1 && getBakingPowderCount() >= 1 && !isMinigameActive() && !hasOutput(); }
 
     /** Zone from cook tick: 0=too early, 1=good, 2=perfect, 3=too late */
     public int getCookZone() {

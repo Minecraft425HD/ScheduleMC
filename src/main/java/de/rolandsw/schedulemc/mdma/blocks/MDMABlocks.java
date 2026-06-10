@@ -28,7 +28,7 @@ public class MDMABlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> REACTION_KETTLE = registerBlockWithItem(
-            "reaktions_kessel",
+            "reaction_kettle",
             () -> new ReactionKettleBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
@@ -43,7 +43,7 @@ public class MDMABlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> DRYING_OVEN = registerBlockWithItem(
-            "trocknungs_ofen",
+            "drying_oven",
             () -> new DryingOvenBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
@@ -58,7 +58,7 @@ public class MDMABlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> PILL_PRESS = registerBlockWithItem(
-            "pillen_presse",
+            "pill_press",
             () -> new PillPressBlock(
                     BlockBehaviour.Properties.of()
                             .strength(4.0f)

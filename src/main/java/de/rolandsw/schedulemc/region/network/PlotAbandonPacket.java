@@ -77,16 +77,16 @@ public class PlotAbandonPacket {
             plot.setForRent(false);
             plot.getTrustedPlayers().clear();
             plot.setDescription("");
-            plot.setPlotName("Freies Grundstück");
+            plot.setPlotName("Free plot");
             plot.setPurchaseTime(0L);
 
             PlotManager.savePlots();
 
             // Geldüberweisung
             EconomyManager.deposit(player.getUUID(), playerShare, TransactionType.PLOT_SALE,
-                "Grundstück aufgegeben: " + plotName);
+                "Plot abandoned: " + plotName);
             StateAccount.deposit((int) Math.round(stateShare),
-                "Grundstücksauflösung: " + plotName);
+                "Plot dissolution: " + plotName);
 
             player.sendSystemMessage(Component.translatable("message.plot.abandoned_prefix")
                 .append(Component.literal(plotName).withStyle(ChatFormatting.GRAY)));

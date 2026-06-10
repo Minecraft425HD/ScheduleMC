@@ -38,7 +38,7 @@ public class OpenCreditAdvisorMenuPacket {
             if (player.level().getEntity(entityId) instanceof CustomNPCEntity npc) {
                 // Prüfe ob NPC ein Kreditberater ist
                 if (npc.getNpcType() != NPCType.BANK ||
-                    npc.getBankCategory() != BankCategory.KREDITBERATER) {
+                    npc.getBankCategory() != BankCategory.CREDIT_ADVISOR) {
                     player.sendSystemMessage(Component.translatable(
                         "message.credit.error_not_advisor"
                     ));

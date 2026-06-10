@@ -154,7 +154,7 @@ public class TrimStationMenu extends AbstractContainerMenu {
     public CannabisQuality getLastQuality() {
         int ordinal = this.data.get(DATA_QUALITY);
         CannabisQuality[] values = CannabisQuality.values();
-        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisQuality.GUT;
+        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisQuality.GOOD;
     }
 
     @Override
@@ -234,7 +234,7 @@ public class TrimStationMenu extends AbstractContainerMenu {
 
         @Override
         public @NotNull Component getDisplayName() {
-            return Component.translatable("gui.trimm_station.menu_title");
+            return Component.translatable("gui.trim_station.menu_title");
         }
 
         @Nullable

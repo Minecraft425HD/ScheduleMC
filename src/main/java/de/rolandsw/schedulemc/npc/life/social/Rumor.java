@@ -304,7 +304,7 @@ public class Rumor {
     }
 
     public String getFullDescription() {
-        return String.format("%s: %s (Glaubwürdigkeit: %.0f%%)",
+        return String.format("%s: %s (credibility: %.0f%%)",
             type.getDisplayName(),
             details.isEmpty() ? "Keine Details" : details,
             credibility

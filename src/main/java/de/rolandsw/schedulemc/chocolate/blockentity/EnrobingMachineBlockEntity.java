@@ -100,9 +100,9 @@ public class EnrobingMachineBlockEntity extends AbstractItemHandlerBlockEntity i
             CompoundTag tag = handlerChocolate.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
             } else {
-                quality = ChocolateQuality.GUT;
+                quality = ChocolateQuality.GOOD;
             }
             enrobingProgress = 0;
         } else if (handlerChocolate.isEmpty()) {
@@ -216,7 +216,7 @@ public class EnrobingMachineBlockEntity extends AbstractItemHandlerBlockEntity i
         enrobingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
         }
         syncToHandler();
     }

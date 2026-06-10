@@ -36,7 +36,7 @@ public class OpenStealingMenuPacket {
             Entity entity = player.level().getEntity(npcEntityId);
             if (entity instanceof CustomNPCEntity npc) {
                 // Prüfe ob es kein Polizist ist
-                if (npc.getNpcType() != NPCType.POLIZEI) {
+                if (npc.getNpcType() != NPCType.POLICE) {
                     // Öffne Bestehlen-GUI
                     NetworkHooks.openScreen(player, new SimpleMenuProvider(
                         (id, playerInventory, p) -> new StealingMenu(id, playerInventory, npc),

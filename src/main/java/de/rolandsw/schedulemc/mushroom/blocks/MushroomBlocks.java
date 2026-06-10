@@ -24,21 +24,21 @@ public class MushroomBlocks {
     // ═══════════════════════════════════════════════════════════
     // CLIMATE_LAMPN (3 Stufen)
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Block> CLIMATE_LAMP_SMALL = BLOCKS.register("klimalampe_small",
+    public static final RegistryObject<Block> CLIMATE_LAMP_SMALL = BLOCKS.register("climate_lamp_small",
             () -> new ClimateLampBlock(ClimateLampTier.SMALL,
                     BlockBehaviour.Properties.of()
                             .strength(2.0f)
                             .sound(SoundType.METAL)
                             .noOcclusion()));
 
-    public static final RegistryObject<Block> CLIMATE_LAMP_MEDIUM = BLOCKS.register("klimalampe_medium",
+    public static final RegistryObject<Block> CLIMATE_LAMP_MEDIUM = BLOCKS.register("climate_lamp_medium",
             () -> new ClimateLampBlock(ClimateLampTier.MEDIUM,
                     BlockBehaviour.Properties.of()
                             .strength(2.5f)
                             .sound(SoundType.METAL)
                             .noOcclusion()));
 
-    public static final RegistryObject<Block> CLIMATE_LAMP_LARGE = BLOCKS.register("klimalampe_large",
+    public static final RegistryObject<Block> CLIMATE_LAMP_LARGE = BLOCKS.register("climate_lamp_large",
             () -> new ClimateLampBlock(ClimateLampTier.LARGE,
                     BlockBehaviour.Properties.of()
                             .strength(3.0f)
@@ -48,7 +48,7 @@ public class MushroomBlocks {
     // ═══════════════════════════════════════════════════════════
     // WATER_TANK
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Block> WATER_TANK = BLOCKS.register("wassertank",
+    public static final RegistryObject<Block> WATER_TANK = BLOCKS.register("water_tank",
             () -> new WaterTankBlock(
                     BlockBehaviour.Properties.of()
                             .strength(2.0f)
@@ -58,15 +58,15 @@ public class MushroomBlocks {
     // ═══════════════════════════════════════════════════════════
     // BLOCK ITEMS
     // ═══════════════════════════════════════════════════════════
-    public static final RegistryObject<Item> CLIMATE_LAMP_SMALL_ITEM = ITEMS.register("klimalampe_small",
+    public static final RegistryObject<Item> CLIMATE_LAMP_SMALL_ITEM = ITEMS.register("climate_lamp_small",
             () -> new BlockItem(CLIMATE_LAMP_SMALL.get(), new Item.Properties()));
 
-    public static final RegistryObject<Item> CLIMATE_LAMP_MEDIUM_ITEM = ITEMS.register("klimalampe_medium",
+    public static final RegistryObject<Item> CLIMATE_LAMP_MEDIUM_ITEM = ITEMS.register("climate_lamp_medium",
             () -> new BlockItem(CLIMATE_LAMP_MEDIUM.get(), new Item.Properties()));
 
-    public static final RegistryObject<Item> CLIMATE_LAMP_LARGE_ITEM = ITEMS.register("klimalampe_large",
+    public static final RegistryObject<Item> CLIMATE_LAMP_LARGE_ITEM = ITEMS.register("climate_lamp_large",
             () -> new BlockItem(CLIMATE_LAMP_LARGE.get(), new Item.Properties()));
 
-    public static final RegistryObject<Item> WATER_TANK_ITEM = ITEMS.register("wassertank",
+    public static final RegistryObject<Item> WATER_TANK_ITEM = ITEMS.register("water_tank",
             () -> new BlockItem(WATER_TANK.get(), new Item.Properties()));
 }

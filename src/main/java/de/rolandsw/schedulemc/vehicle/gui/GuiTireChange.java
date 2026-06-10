@@ -18,7 +18,7 @@ import net.minecraft.world.level.Level;
 import java.util.UUID;
 
 /**
- * Wagenheber-GUI: Wechsel zwischen Sommer- und Winterreifen ohne Werkstatt.
+ * Wagenheber-GUI: Wechsel zwischen Sommer- und Winterreifen ohne Workshop.
  * Zeigt aktuellen Reifentyp, Saison und die Schnellzugriffsleiste des Spielers.
  * Ein kompatibler Reifen muss in der Schnellzugriffsleiste liegen.
  */

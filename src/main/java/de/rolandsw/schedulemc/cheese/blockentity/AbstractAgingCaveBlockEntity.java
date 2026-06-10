@@ -82,7 +82,7 @@ public abstract class AbstractAgingCaveBlockEntity extends AbstractItemHandlerBl
                 }
                 if (tag.contains("Quality")) {
                     try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
+                    catch (IllegalArgumentException e) { quality = CheeseQuality.POOR; }
                 }
                 if (tag.contains("WeightKg")) weightKg = tag.getDouble("WeightKg");
                 if (tag.contains("AgingTicks")) agingTicks = tag.getInt("AgingTicks");
@@ -160,7 +160,7 @@ public abstract class AbstractAgingCaveBlockEntity extends AbstractItemHandlerBl
         }
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = CheeseQuality.POOR; }
         }
         weightKg = tag.getDouble("WeightKg");
         if (!storedCheese.isEmpty()) itemHandler.setStackInSlot(0, storedCheese.copy());

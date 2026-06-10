@@ -93,7 +93,7 @@ public class CircuitBreaker {
     public static CircuitBreaker get(String name) {
         CircuitBreaker cb = registry.get(name);
         if (cb == null) {
-            throw new IllegalStateException("CircuitBreaker nicht gefunden: " + name);
+            throw new IllegalStateException("CircuitBreaker not found: " + name);
         }
         return cb;
     }

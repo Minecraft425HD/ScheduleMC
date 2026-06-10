@@ -65,7 +65,7 @@ public class GroundCoffeeItem extends Item {
                 LOGGER.warn("Invalid Quality '{}' on GroundCoffeeItem", tag.getString("Quality"), exception);
             }
         }
-        return CoffeeQuality.SEHR_GUT;
+        return CoffeeQuality.VERY_GOOD;
     }
 
     /**

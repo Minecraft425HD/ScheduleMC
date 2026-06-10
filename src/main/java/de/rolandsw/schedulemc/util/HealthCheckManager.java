@@ -155,7 +155,7 @@ public class HealthCheckManager {
             () -> CrimeManager.isHealthy(), CrimeManager::getHealthInfo, CrimeManager::getLastError);
         registerManagerCheck("bounty", "NPC & Crime", "Bounty", BountyManager::getInstance);
         registerCheck("npc", "NPC & Crime", () ->
-            new ComponentHealth("NPC Registry", SystemHealth.HEALTHY, "Aktiv, Name-Registry geladen"));
+            new ComponentHealth("NPC Registry", SystemHealth.HEALTHY, "Active, name registry loaded"));
         registerCheck("prison", "NPC & Crime", () -> {
             PrisonManager mgr = PrisonManager.getInstance();
             if (mgr == null) return notInitialized("Prison");
@@ -205,7 +205,7 @@ public class HealthCheckManager {
             boolean enabled = mgr.isEnabled();
             return new ComponentHealth("Dynamic Market",
                 enabled ? SystemHealth.HEALTHY : SystemHealth.DEGRADED,
-                enabled ? "Aktiv, Markt-Simulation läuft" : "Deaktiviert");
+                enabled ? "Active, market simulation running" : "Deaktiviert");
         });
         registerCheck("warehouse", "Welt", () -> {
             int count = WarehouseManager.getAllWarehouses().size();
@@ -336,7 +336,7 @@ public class HealthCheckManager {
         }
 
         report.append("\n§e§l══════════════════════════════════§r\n");
-        report.append(String.format("  §a✔ Gesund: %d §7| §e⚠ Degradiert: %d §7| §c✘ Ungesund: %d §7| §fGesamt: %d\n",
+        report.append(String.format("  §a✔ Healthy: %d §7| §e⚠ Degraded: %d §7| §c✘ Unhealthy: %d §7| §fTotal: %d\n",
             healthy, degraded, unhealthy, results.size()));
         report.append("§e§l══════════════════════════════════§r");
 
@@ -446,7 +446,7 @@ public class HealthCheckManager {
     }
 
     private static ComponentHealth notInitialized(String name) {
-        return new ComponentHealth(name, SystemHealth.DEGRADED, "Noch nicht initialisiert");
+        return new ComponentHealth(name, SystemHealth.DEGRADED, "Not initialized yet");
     }
 
     private static ComponentHealth errorHealth(String name, Exception e) {

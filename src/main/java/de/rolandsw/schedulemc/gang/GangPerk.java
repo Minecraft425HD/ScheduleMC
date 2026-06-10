@@ -38,9 +38,9 @@ public enum GangPerk {
     ECONOMY_TRADE("Handelsrouten", PerkBranch.ECONOMY, 16,
             "10% Rabatt auf Warehouse-Lieferungen"),
     ECONOMY_LAUNDERING("Geldwaesche", PerkBranch.ECONOMY, 21,
-            "Reduzierte Steuern fuer Gang-Mitglieder"),
+            "Reduced taxes for gang members"),
     ECONOMY_MONOPOLY("Monopol", PerkBranch.ECONOMY, 27,
-            "15% Preisbonus beim Verkauf in eigenem Territory"),
+            "15% price bonus when selling in own territory"),
 
     // ═══════════════════════════════════════════════════════════
     // CRIME-ZWEIG
@@ -52,7 +52,7 @@ public enum GangPerk {
     CRIME_ESCAPE("Fluchtrouten", PerkBranch.CRIME, 17,
             "Flucht-Timer 25% kuerzer"),
     CRIME_INTIMIDATION("Einschuechterung", PerkBranch.CRIME, 23,
-            "NPCs in Gang-Territory melden keine Verbrechen"),
+            "NPCs in gang territory do not report crimes"),
     CRIME_UNTOUCHABLE("Unberuehrbar", PerkBranch.CRIME, 29,
             "Max Wanted-Level in eigenem Territory: 3 statt 5"),
 
@@ -60,15 +60,15 @@ public enum GangPerk {
     // PRODUCTION-ZWEIG
     // ═══════════════════════════════════════════════════════════
     PRODUCTION_XP_BOOST("XP-Boost", PerkBranch.PRODUCTION, 3,
-            "+15% ProducerLevel-XP fuer alle Mitglieder"),
+            "+15% producer level XP for all members"),
     PRODUCTION_QUALITY("Qualitaetsboost", PerkBranch.PRODUCTION, 9,
             "+10% Qualitaet bei Produktion"),
     PRODUCTION_SHARED_STORAGE("Gemeinsames Lager", PerkBranch.PRODUCTION, 14,
-            "Gang-Warehouse fuer alle Mitglieder"),
+            "Gang warehouse for all members"),
     PRODUCTION_EFFICIENCY("Effizienz", PerkBranch.PRODUCTION, 20,
             "Produktionszeit -15%"),
     PRODUCTION_MASTERY("Meisterschaft", PerkBranch.PRODUCTION, 26,
-            "+25% XP und +15% Qualitaet");
+            "+25% XP and +15% quality");
 
     private final String displayName;
     private final PerkBranch branch;

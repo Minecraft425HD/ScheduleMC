@@ -519,7 +519,7 @@ public class SettingsAppScreen extends Screen {
             }
         }
 
-        // ✅ "Spieler hinzufügen" Button
+        // ✅ "Add player" Button
         if (y >= startY - 30 && y < endY + 30) {
             drawButton(guiGraphics, leftPos + 10, y + 5, WIDTH - 20, 18, cachedAddPlayer, 0x55FFFF, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y + 5, leftPos + WIDTH - 10, y + 23, () -> {
@@ -596,7 +596,7 @@ public class SettingsAppScreen extends Screen {
             contentHeight += 12;
         }
 
-        // ✅ "Beschreibung ändern" Button
+        // ✅ "Change description" Button
         if (y >= startY - 30 && y < endY + 30) {
             drawButton(guiGraphics, leftPos + 10, y + 3, WIDTH - 20, 18, cachedChangeDescription, 0x55FF55, mouseX, mouseY);
             clickableRegions.add(new ClickableRegion(leftPos + 10, y + 3, leftPos + WIDTH - 10, y + 21, () -> {

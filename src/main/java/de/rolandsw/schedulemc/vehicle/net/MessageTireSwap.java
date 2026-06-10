@@ -50,7 +50,7 @@ public class MessageTireSwap implements Message<MessageTireSwap> {
         EntityGenericVehicle vehicle = findVehicle(player);
         if (vehicle == null) {
             player.displayClientMessage(
-                Component.translatable("message.werkstatt.vehicle_not_found").withStyle(ChatFormatting.RED), false);
+                Component.translatable("message.workshop.vehicle_not_found").withStyle(ChatFormatting.RED), false);
             return;
         }
 

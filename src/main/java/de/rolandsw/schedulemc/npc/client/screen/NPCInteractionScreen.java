@@ -14,7 +14,7 @@ import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.NPCActionPacket;
 import de.rolandsw.schedulemc.npc.network.OpenMerchantShopPacket;
 import de.rolandsw.schedulemc.npc.network.OpenBankerMenuPacket;
-import de.rolandsw.schedulemc.npc.network.OpenBoerseMenuPacket;
+import de.rolandsw.schedulemc.npc.network.OpenStockMarketMenuPacket;
 import de.rolandsw.schedulemc.npc.network.OpenCreditAdvisorMenuPacket;
 import de.rolandsw.schedulemc.npc.network.StartDialoguePacket;
 import de.rolandsw.schedulemc.client.screen.apps.MissionsAppScreen;
@@ -44,7 +44,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
     private Button shopBuyButton;
     private Button shopSellButton;
     private Button bankerButton;
-    private Button boerseButton;
+    private Button stock_marketButton;
     private Button creditAdvisorButton;
     private Button missionButton;
 
@@ -63,11 +63,11 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
 
         CustomNPCEntity npc = menu.getNpc();
         boolean canMessage = npc != null &&
-            (npc.getNpcType() == NPCType.BEWOHNER || npc.getNpcType() == NPCType.VERKAEUFER);
+            (npc.getNpcType() == NPCType.CITIZEN || npc.getNpcType() == NPCType.MERCHANT);
         boolean isBank = npc != null && npc.getNpcType() == NPCType.BANK;
-        boolean isCreditAdvisor = isBank && npc != null && npc.getBankCategory() == BankCategory.KREDITBERATER;
+        boolean isCreditAdvisor = isBank && npc != null && npc.getBankCategory() == BankCategory.CREDIT_ADVISOR;
 
-        // Dialog/Chat Button - opens chat for BEWOHNER and VERKAEUFER, dialog for others
+        // Dialog/Chat Button - opens chat for CITIZEN and MERCHANT, dialog for others
         Component buttonLabel = canMessage ? Component.translatable("gui.npc.interaction.chat") : Component.translatable("gui.npc.interaction.dialog");
         dialogButton = addRenderableWidget(Button.builder(buttonLabel, button -> {
             if (canMessage) {
@@ -83,12 +83,12 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
         }).bounds(x + 8, y + 54, 78, 20).build());
         bankerButton.visible = isBank && !isCreditAdvisor;
 
-        boerseButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.stock_market"), button -> {
-            openBoerseMenu();
+        stock_marketButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.stock_market"), button -> {
+            openStockMarketMenu();
         }).bounds(x + 90, y + 54, 78, 20).build());
-        boerseButton.visible = isBank && !isCreditAdvisor;
+        stock_marketButton.visible = isBank && !isCreditAdvisor;
 
-        // Kreditberater Button (nur für KREDITBERATER NPCs)
+        // Kreditberater Button (nur für CREDIT_ADVISOR NPCs)
         creditAdvisorButton = addRenderableWidget(Button.builder(Component.translatable("gui.npc.apply_credit"), button -> {
             openCreditAdvisorMenu();
         }).bounds(x + 8, y + 54, 160, 20).build());
@@ -190,7 +190,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
      */
     private void openShopBuy() {
         CustomNPCEntity npc = menu.getNpc();
-        if (npc != null && (npc.getNpcType() == NPCType.VERKAEUFER || npc.getNpcType() == NPCType.ABSCHLEPPER)) {
+        if (npc != null && (npc.getNpcType() == NPCType.MERCHANT || npc.getNpcType() == NPCType.TOW_TRUCK_DRIVER)) {
             // Sende Packet an Server um Shop zu öffnen
             NPCNetworkHandler.sendToServer(new OpenMerchantShopPacket(menu.getEntityId()));
             // Schließe aktuelles GUI - das Shop-GUI wird vom Server geöffnet
@@ -218,11 +218,11 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
     /**
      * Öffnet Börsen-Menü
      */
-    private void openBoerseMenu() {
+    private void openStockMarketMenu() {
         CustomNPCEntity npc = menu.getNpc();
         if (npc != null && npc.getNpcType() == NPCType.BANK) {
             // Sende Packet an Server um Börsen-Menü zu öffnen
-            NPCNetworkHandler.sendToServer(new OpenBoerseMenuPacket(menu.getEntityId()));
+            NPCNetworkHandler.sendToServer(new OpenStockMarketMenuPacket(menu.getEntityId()));
             // Schließe aktuelles GUI - das Börsen-GUI wird vom Server geöffnet
             this.onClose();
         }
@@ -234,7 +234,7 @@ public class NPCInteractionScreen extends AbstractContainerScreen<NPCInteraction
     private void openCreditAdvisorMenu() {
         CustomNPCEntity npc = menu.getNpc();
         if (npc != null && npc.getNpcType() == NPCType.BANK &&
-            npc.getBankCategory() == BankCategory.KREDITBERATER) {
+            npc.getBankCategory() == BankCategory.CREDIT_ADVISOR) {
             // Sende Packet an Server um Kreditberater-Menü zu öffnen
             NPCNetworkHandler.sendToServer(new OpenCreditAdvisorMenuPacket(menu.getEntityId()));
             // Schließe aktuelles GUI - das Kreditberater-GUI wird vom Server geöffnet

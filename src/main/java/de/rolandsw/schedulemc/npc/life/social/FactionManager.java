@@ -183,17 +183,17 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
      */
     public void onCrimeCommitted(UUID playerUUID, String crimeType, int severity) {
         // Ordnungshüter verlieren Reputation
-        modifyReputation(playerUUID, Faction.ORDNUNG, -severity * 5);
+        modifyReputation(playerUUID, Faction.LAW, -severity * 5);
 
         // Bürger verlieren auch
-        modifyReputation(playerUUID, Faction.BUERGER, -severity * 3);
+        modifyReputation(playerUUID, Faction.CITIZENS, -severity * 3);
 
         // Händler verlieren weniger
-        modifyReputation(playerUUID, Faction.HAENDLER, -severity * 2);
+        modifyReputation(playerUUID, Faction.TRADERS, -severity * 2);
 
         // Untergrund gewinnt (außer bei Verbrechen gegen sie)
-        if (!crimeType.contains("untergrund")) {
-            modifyReputation(playerUUID, Faction.UNTERGRUND, severity);
+        if (!crimeType.contains("underworld")) {
+            modifyReputation(playerUUID, Faction.UNDERWORLD, severity);
         }
     }
 
@@ -204,9 +204,9 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
         modifyReputation(playerUUID, beneficiary, amount);
 
         // Generell positive Auswirkung auf alle außer Untergrund
-        if (beneficiary != Faction.UNTERGRUND) {
+        if (beneficiary != Faction.UNDERWORLD) {
             for (Faction faction : Faction.values()) {
-                if (faction != beneficiary && faction != Faction.UNTERGRUND) {
+                if (faction != beneficiary && faction != Faction.UNDERWORLD) {
                     modifyReputation(playerUUID, faction, Math.max(1, amount / 4));
                 }
             }
@@ -311,7 +311,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
      * Findet die Fraktion mit der besten Beziehung zum Spieler
      */
     public Faction getBestFaction(UUID playerUUID) {
-        Faction best = Faction.BUERGER;
+        Faction best = Faction.CITIZENS;
         int bestRep = Integer.MIN_VALUE;
         for (Map.Entry<Faction, FactionRelation> e : getAllRelations(playerUUID).entrySet()) {
             int rep = e.getValue().getReputation();
@@ -327,7 +327,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
      * Findet die Fraktion mit der schlechtesten Beziehung zum Spieler
      */
     public Faction getWorstFaction(UUID playerUUID) {
-        Faction worst = Faction.ORDNUNG;
+        Faction worst = Faction.LAW;
         int worstRep = Integer.MAX_VALUE;
         for (Map.Entry<Faction, FactionRelation> e : getAllRelations(playerUUID).entrySet()) {
             int rep = e.getValue().getReputation();
@@ -474,7 +474,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
      */
     public String getPlayerOverview(UUID playerUUID) {
         StringBuilder sb = new StringBuilder();
-        sb.append("=== Fraktions-Übersicht ===\n");
+        sb.append("=== Faction Overview ===\n");
 
         Map<Faction, FactionRelation> relations = getAllRelations(playerUUID);
         for (Faction faction : Faction.values()) {

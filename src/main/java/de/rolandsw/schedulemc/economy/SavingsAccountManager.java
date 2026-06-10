@@ -72,7 +72,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
 
         // Prüfe ob genug Geld auf Hauptkonto
         if (!EconomyManager.withdraw(playerUUID, initialDeposit, TransactionType.SAVINGS_DEPOSIT,
-                "Sparkonto eröffnet")) {
+                "Savings account opened")) {
             return false;
         }
 
@@ -202,7 +202,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
 
         // Strafe an Staatskasse
         if (penalty > 0) {
-            StateAccount.getInstance(server).deposit((int) Math.round(penalty), "Sparkonto-Schließung (vorzeitig)");
+            StateAccount.getInstance(server).deposit((int) Math.round(penalty), "Savings account closed (early)");
         }
 
         // Entferne Konto

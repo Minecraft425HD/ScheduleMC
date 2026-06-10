@@ -24,7 +24,7 @@ public enum NPCPersonalityTrait {
         0.80,    // 20% Rabatt
         0.05,    // 5% Chance Gratis-Item
         0.30,    // 30% Polizei-Ruf Chance (niedrig)
-        "Dieser NPC ist freundlich und gibt bessere Preise."
+        "This NPC is friendly and gives better prices."
     ),
 
     /**
@@ -36,19 +36,19 @@ public enum NPCPersonalityTrait {
         1.30,    // 30% Aufpreis
         0.0,     // Keine Gratis-Items
         0.90,    // 90% Polizei-Ruf Chance (sehr hoch)
-        "Dieser NPC ist gierig und verlangt hohe Preise."
+        "This NPC is greedy and demands high prices."
     ),
 
     /**
      * Großzügig - Gelegentlich Gratis-Items, faire Preise
      */
     GENEROUS(
-        "Großzügig",
+        "Generous",
         "§d",
         0.90,    // 10% Rabatt
         0.15,    // 15% Chance Gratis-Item
         0.50,    // 50% Polizei-Ruf Chance (normal)
-        "Dieser NPC ist großzügig und gibt manchmal Geschenke."
+        "This NPC is generous and sometimes gives gifts."
     ),
 
     /**
@@ -60,7 +60,7 @@ public enum NPCPersonalityTrait {
         1.10,    // 10% Aufpreis
         0.0,     // Keine Gratis-Items
         0.95,    // 95% Polizei-Ruf Chance (extrem hoch)
-        "Dieser NPC ist misstrauisch und ruft schnell die Polizei."
+        "This NPC is distrustful and quickly calls the police."
     ),
 
     /**
@@ -72,7 +72,7 @@ public enum NPCPersonalityTrait {
         1.00,    // Normale Preise
         0.02,    // 2% Chance Gratis-Item
         0.70,    // 70% Polizei-Ruf Chance (normal-hoch)
-        "Dieser NPC ist neutral und verhält sich durchschnittlich."
+        "This NPC is neutral and behaves averagely."
     );
 
     // ═══════════════════════════════════════════════════════════

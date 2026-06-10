@@ -71,7 +71,7 @@ public class HashPressMenu extends AbstractContainerMenu {
         super(CannabisMenuTypes.HASH_PRESS_MENU.get(), containerId);
         BlockPos pos = extraData.readBlockPos();
         BlockEntity be = playerInventory.player.level().getBlockEntity(pos);
-        this.blockEntity = be instanceof HashPressBlockEntity presse ? presse : null;  // NOPMD
+        this.blockEntity = be instanceof HashPressBlockEntity press ? press : null;  // NOPMD
         this.data = new SimpleContainerData(DATA_SIZE);
         addDataSlots(this.data);
         addMachineSlots();
@@ -154,7 +154,7 @@ public class HashPressMenu extends AbstractContainerMenu {
     public CannabisQuality getBaseQuality() {
         int ordinal = this.data.get(DATA_QUALITY);
         CannabisQuality[] values = CannabisQuality.values();
-        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisQuality.GUT;
+        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisQuality.GOOD;
     }
 
     @Override
@@ -217,7 +217,7 @@ public class HashPressMenu extends AbstractContainerMenu {
 
         @Override
         public @NotNull Component getDisplayName() {
-            return Component.translatable("gui.hash_presse.menu_title");
+            return Component.translatable("gui.hash_press.menu_title");
         }
 
         @Nullable

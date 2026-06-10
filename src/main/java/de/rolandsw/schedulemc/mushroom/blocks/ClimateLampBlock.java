@@ -54,8 +54,8 @@ public class ClimateLampBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) return null;
         return (lvl, pos, st, be) -> {
-            if (be instanceof ClimateLampBlockEntity klimalampe) {
-                klimalampe.tick();
+            if (be instanceof ClimateLampBlockEntity climate_lamp) {
+                climate_lamp.tick();
             }
         };
     }
@@ -69,7 +69,7 @@ public class ClimateLampBlock extends Block implements EntityBlock {
         if (tier.isAutomatic()) {
             TemperatureMode currentMode = state.getValue(MODE);
             player.displayClientMessage(Component.translatable(
-                    "block.klimalampe.info", tier.getColoredName(), currentMode.getColoredName()
+                    "block.climate_lamp.info", tier.getColoredName(), currentMode.getColoredName()
             ), true);
             return InteractionResult.SUCCESS;
         }
@@ -80,7 +80,7 @@ public class ClimateLampBlock extends Block implements EntityBlock {
         level.setBlock(pos, state.setValue(MODE, nextMode), 3);
 
         player.displayClientMessage(Component.translatable(
-                "block.klimalampe.mode_changed", nextMode.getColoredName()
+                "block.climate_lamp.mode_changed", nextMode.getColoredName()
         ), true);
 
         player.playSound(net.minecraft.sounds.SoundEvents.LEVER_CLICK, 1.0f, 1.0f);

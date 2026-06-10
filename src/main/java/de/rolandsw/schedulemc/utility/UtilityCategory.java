@@ -13,7 +13,7 @@ public enum UtilityCategory {
     CLIMATE("Klimatisierung", "🌡️"),
 
     // Pflanzentöpfe und Bewässerung
-    IRRIGATION("Bewässerung", "💧"),
+    IRRIGATION("Irrigation", "💧"),
 
     // Trocknungs-Equipment
     DRYING("Trocknung", "🌬️"),

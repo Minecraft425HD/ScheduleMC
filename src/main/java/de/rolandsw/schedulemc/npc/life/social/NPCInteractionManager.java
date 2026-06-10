@@ -160,7 +160,7 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
                 targetLife.getEmotions().trigger(EmotionState.SUSPICIOUS, 40.0f);
             }
             case "dangerous" -> {
-                targetLife.getMemory().addPlayerTag(dangerUUID, "Gefährlich");
+                targetLife.getMemory().addPlayerTag(dangerUUID, "Dangerous");
                 targetLife.getEmotions().trigger(EmotionState.FEARFUL, 50.0f);
                 targetLife.getNeeds().modifySafety(-20);
             }

@@ -43,9 +43,9 @@ public enum HoneyProcessingMethod {
      */
     public String getDescription() {
         return switch (this) {
-            case LIQUID -> "Flüssiger Honig, direkt aus der Wabe extrahiert";
+            case LIQUID -> "Liquid honey, extracted straight from the comb";
             case CREAMED -> "Cremiger Honig durch kontrollierte Kristallisation";
-            case CHUNK -> "Wabenhonig mit natürlichen Wabenstücken";
+            case CHUNK -> "Comb honey with natural comb pieces";
         };
     }
 

@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
  *  - Gleiche Abmessungen (176 × 190)
  *  - Input-Slot oben Mitte (80, 20)
  *  - Pakete-Grid links (2 × 5), wie Schachteln-Seite bei Medium
- *  - Info-Panel rechts mit Gewichtsanzeige + "Kein Material nötig"-Hinweis
+ *  - Info-Panel rechts mit Gewichtsanzeige + "No material required"-Hinweis
  *  - Buttons zentriert auf y = 145, Hotbar auf y = 168
  */
 public class LargePackagingTableScreen extends AbstractContainerScreen<LargePackagingTableMenu> {

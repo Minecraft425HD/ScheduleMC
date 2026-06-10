@@ -97,10 +97,10 @@ public class PillPressScreen extends AbstractContainerScreen<PillPressMenu> {
         graphics.drawString(this.font, colorText, x + 30, infoY + 16, 0xFFFFFF, false);
 
         // Material-Anzeige rechts
-        String kristallText = "§f" + menu.getKristallCount() + "x §bKristalle";
-        String bindeText = "§f" + menu.getBindemittelCount() + "x §aBinde";
+        String crystalText = "§f" + menu.getCrystalCount() + "x §bKristalle";
+        String bindeText = "§f" + menu.getBindingAgentCount() + "x §aBinde";
 
-        graphics.drawString(this.font, kristallText, x + GUI_WIDTH - 90, infoY + 5, 0xFFFFFF, false);
+        graphics.drawString(this.font, crystalText, x + GUI_WIDTH - 90, infoY + 5, 0xFFFFFF, false);
         graphics.drawString(this.font, bindeText, x + GUI_WIDTH - 90, infoY + 16, 0xFFFFFF, false);
     }
 
@@ -201,15 +201,15 @@ public class PillPressScreen extends AbstractContainerScreen<PillPressMenu> {
         int qualityColor;
 
         switch (quality) {
-            case LEGENDAER -> {
+            case LEGENDARY -> {
                 qualityText = Component.translatable("gui.pill_press.result.premium").getString();
                 qualityColor = 0xFFFFAA00; // Gold (00a76)
             }
-            case SEHR_GUT -> {
+            case VERY_GOOD -> {
                 qualityText = Component.translatable("gui.pill_press.result.good").getString();
                 qualityColor = 0xFF55FF55;
             }
-            case GUT -> {
+            case GOOD -> {
                 qualityText = Component.translatable("gui.pill_press.result.standard").getString();
                 qualityColor = 0xFFFFFF55;
             }

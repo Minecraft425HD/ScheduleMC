@@ -53,7 +53,7 @@ public class SavePlayerMissionPacket {
             ScenarioManager manager = ScenarioManager.getInstance();
             if (manager == null) {
                 player.sendSystemMessage(Component.literal(
-                        "\u00A7c[Mission-Editor] Manager nicht initialisiert!"));
+                        "\u00A7c[Mission Editor] Manager not initialized!"));
                 return;
             }
 
@@ -72,7 +72,7 @@ public class SavePlayerMissionPacket {
                         ? (def.getCategory() == MissionCategory.HAUPT ? "Hauptmission" : "Nebenmission")
                         : "?";
                 player.sendSystemMessage(Component.literal(
-                        "\u00A7a[Mission-Editor] '" + scenario.getName() + "' gespeichert! "
+                        "\u00A7a[Mission-Editor] '" + scenario.getName() + "' saved! "
                         + "(" + catLabel + ", " + scenario.getStepCount() + " Schritte, "
                         + scenario.getDifficultyStars() + ")"));
 

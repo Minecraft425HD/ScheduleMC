@@ -31,7 +31,7 @@ public class DryingOvenBlockEntity extends BlockEntity implements IUtilityConsum
     private static final int CAPACITY = 8;
 
     private int inputCount = 0;
-    private MDMAQuality inputQuality = MDMAQuality.SCHLECHT;
+    private MDMAQuality inputQuality = MDMAQuality.POOR;
     private int dryingProgress = 0;
     private int outputCount = 0;
     private boolean isActive = false;
@@ -133,7 +133,7 @@ public class DryingOvenBlockEntity extends BlockEntity implements IUtilityConsum
             try {
                 inputQuality = MDMAQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                inputQuality = MDMAQuality.SCHLECHT;
+                inputQuality = MDMAQuality.POOR;
             }
         }
         dryingProgress = tag.getInt("Progress");

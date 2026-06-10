@@ -307,13 +307,13 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             }
 
             String qualityStr = PackagedDrugItem.getQuality(stack);
-            TobaccoQuality quality = TobaccoQuality.GUT;
+            TobaccoQuality quality = TobaccoQuality.GOOD;
             if (qualityStr != null) {
                 try {
                     String[] qParts = qualityStr.split("\\.");
                     if (qParts.length >= 2) quality = TobaccoQuality.valueOf(qParts[1]);
                 } catch (IllegalArgumentException ex) {
-                    quality = TobaccoQuality.GUT;
+                    quality = TobaccoQuality.GOOD;
                 }
             }
 

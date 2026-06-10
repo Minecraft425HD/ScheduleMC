@@ -19,27 +19,27 @@ public class WeaponConfig {
         builder.comment("ScheduleMC WeaponSystem – Reichweiten-Konfiguration").push("weapon_ranges");
 
         PISTOL_RANGE = builder
-                .comment("Pistole: maximale Reichweite in Blöcken")
+                .comment("Pistol: maximum range in blocks")
                 .defineInRange("pistol_range", 60, 1, 1000);
 
         REVOLVER_RANGE = builder
-                .comment("Revolver: maximale Reichweite in Blöcken")
+                .comment("Revolver: maximum range in blocks")
                 .defineInRange("revolver_range", 80, 1, 1000);
 
         AK47_RANGE = builder
-                .comment("AK47: maximale Reichweite in Blöcken")
+                .comment("AK47: maximum range in blocks")
                 .defineInRange("ak47_range", 120, 1, 1000);
 
         MP5_RANGE = builder
-                .comment("MP5: maximale Reichweite in Blöcken")
+                .comment("MP5: maximum range in blocks")
                 .defineInRange("mp5_range", 80, 1, 1000);
 
         SNIPER_RANGE = builder
-                .comment("Scharfschützengewehr: maximale Reichweite in Blöcken")
+                .comment("Sniper rifle: maximum range in blocks")
                 .defineInRange("sniper_range", 400, 1, 2000);
 
         SHOTGUN_RANGE = builder
-                .comment("Schrotflinte: maximale Reichweite in Blöcken")
+                .comment("Shotgun: maximum range in blocks")
                 .defineInRange("shotgun_range", 30, 1, 1000);
 
         builder.pop();

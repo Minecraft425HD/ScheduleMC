@@ -23,7 +23,7 @@ public class MicroDoserMenu extends AbstractContainerMenu {
 
     private static final int DATA_SLIDER = 0;
     private static final int DATA_MICROGRAMS = 1;
-    private static final int DATA_LYSERGSAEURE = 2;
+    private static final int DATA_LYSERGIC_ACID = 2;
     private static final int DATA_PROGRESS = 3;
     private static final int DATA_IS_PROCESSING = 4;
     private static final int DATA_DOSAGE_LEVEL = 5;
@@ -40,7 +40,7 @@ public class MicroDoserMenu extends AbstractContainerMenu {
                 return switch (index) {
                     case DATA_SLIDER -> blockEntity.getDosageSlider();
                     case DATA_MICROGRAMS -> blockEntity.getCurrentMicrograms();
-                    case DATA_LYSERGSAEURE -> blockEntity.getLysergsaeureCount();
+                    case DATA_LYSERGIC_ACID -> blockEntity.getLysergicAcidCount();
                     case DATA_PROGRESS -> (int) (blockEntity.getProgress() * 100);
                     case DATA_IS_PROCESSING -> blockEntity.isProcessing() ? 1 : 0;
                     case DATA_DOSAGE_LEVEL -> blockEntity.getCurrentDosage().getLevel();
@@ -69,8 +69,8 @@ public class MicroDoserMenu extends AbstractContainerMenu {
         super(LSDMenuTypes.MICRO_DOSER_MENU.get(), containerId);
 
         BlockEntity be = playerInventory.player.level().getBlockEntity(extraData.readBlockPos());
-        if (be instanceof MicroDoserBlockEntity dosierer) {
-            this.blockEntity = dosierer;
+        if (be instanceof MicroDoserBlockEntity doser) {
+            this.blockEntity = doser;
         } else {
             this.blockEntity = null;
         }
@@ -105,8 +105,8 @@ public class MicroDoserMenu extends AbstractContainerMenu {
         return this.data.get(DATA_MICROGRAMS);
     }
 
-    public int getLysergsaeureCount() {
-        return this.data.get(DATA_LYSERGSAEURE);
+    public int getLysergicAcidCount() {
+        return this.data.get(DATA_LYSERGIC_ACID);
     }
 
     public int getProgressPercent() {

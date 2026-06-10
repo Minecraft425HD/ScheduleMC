@@ -22,7 +22,7 @@ public enum ObjectiveType {
     GOTO_NPC("Gehe zu NPC", "N", 0xFF27AE60, Category.BEWEGUNG,
             new ParamDef[]{
                     new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
-                    new ParamDef("npc_type", "Beruf", "VERKAEUFER", ParamWidget.DROPDOWN_NPC_TYPE)
+                    new ParamDef("npc_type", "Beruf", "MERCHANT", ParamWidget.DROPDOWN_NPC_TYPE)
             }),
     GOTO_PLOT("Gehe zu Grundstueck", "P", 0xFF2980B9, Category.BEWEGUNG,
             new ParamDef[]{
@@ -79,13 +79,13 @@ public enum ObjectiveType {
     TALK_TO_NPC("Mit NPC reden", "I", 0xFFF1C40F, Category.INTERAKTION,
             new ParamDef[]{
                     new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
-                    new ParamDef("npc_type", "Beruf", "VERKAEUFER", ParamWidget.DROPDOWN_NPC_TYPE),
+                    new ParamDef("npc_type", "Beruf", "MERCHANT", ParamWidget.DROPDOWN_NPC_TYPE),
                     new ParamDef("dialog_id", "Dialog-ID", "default", ParamWidget.TEXT)
             }),
     TRADE_NPC("Mit NPC handeln", "M", 0xFFE6A817, Category.INTERAKTION,
             new ParamDef[]{
                     new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
-                    new ParamDef("merchant_cat", "Kategorie", "LEBENSMITTEL", ParamWidget.DROPDOWN_MERCHANT_CAT)
+                    new ParamDef("merchant_cat", "Kategorie", "GROCERY", ParamWidget.DROPDOWN_MERCHANT_CAT)
             }),
     COLLECT_ITEMS("Items sammeln", "C", 0xFFE67E22, Category.INTERAKTION,
             new ParamDef[]{
@@ -126,7 +126,7 @@ public enum ObjectiveType {
     BUY_ITEM("Item kaufen", "K", 0xFFF0B27A, Category.INTERAKTION,
             new ParamDef[]{
                     new ParamDef("npc_name", "Haendler", "", ParamWidget.DROPDOWN_NPC_NAME),
-                    new ParamDef("merchant_cat", "Kategorie", "LEBENSMITTEL", ParamWidget.DROPDOWN_MERCHANT_CAT),
+                    new ParamDef("merchant_cat", "Kategorie", "GROCERY", ParamWidget.DROPDOWN_MERCHANT_CAT),
                     new ParamDef("item_id", "Item", "minecraft:bread", ParamWidget.TEXT)
             }),
     RECEIVE_KEY("Schluessel erhalten", "\uD83D\uDD11", 0xFF8E44AD, Category.INTERAKTION,
@@ -158,7 +158,7 @@ public enum ObjectiveType {
     REPAIR_ITEM("Item reparieren", "\uD83D\uDD27", 0xFFB35A00, Category.INTERAKTION,
             new ParamDef[]{
                     new ParamDef("item_id", "Item", "minecraft:iron_sword", ParamWidget.TEXT),
-                    new ParamDef("plot_id", "Werkstatt", "", ParamWidget.DROPDOWN_PLOT)
+                    new ParamDef("plot_id", "Workshop", "", ParamWidget.DROPDOWN_PLOT)
             }),
     INSTALL_DEVICE("Geraet installieren", "\uD83D\uDCE1", 0xFF9E4B00, Category.INTERAKTION,
             new ParamDef[]{
@@ -168,90 +168,90 @@ public enum ObjectiveType {
             }),
 
     // ═══════════════════════════════════════════════════════════
-    // UEBERFALL (11)
+    // ROBBERY (11)
     // ═══════════════════════════════════════════════════════════
-    ROB_STORE("Laden ueberfallen", "!", 0xFFE74C3C, Category.UEBERFALL,
+    ROB_STORE("Laden ueberfallen", "!", 0xFFE74C3C, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("plot_id", "Laden", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("difficulty", "Schwierigkeit", "1", ParamWidget.DROPDOWN_DIFFICULTY),
                     new ParamDef("time_limit", "Zeitlimit (s)", "120", ParamWidget.NUMBER)
             }),
-    ROB_BANK("Bank ueberfallen", "B", 0xFFC0392B, Category.UEBERFALL,
+    ROB_BANK("Bank ueberfallen", "B", 0xFFC0392B, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("plot_id", "Bank", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("difficulty", "Schwierigkeit", "3", ParamWidget.DROPDOWN_DIFFICULTY),
                     new ParamDef("time_limit", "Zeitlimit (s)", "180", ParamWidget.NUMBER)
             }),
-    ROB_JEWELRY("Juwelier ueberfallen", "J", 0xFFAF7AC5, Category.UEBERFALL,
+    ROB_JEWELRY("Juwelier ueberfallen", "J", 0xFFAF7AC5, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("plot_id", "Juwelier", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY),
                     new ParamDef("time_limit", "Zeitlimit (s)", "150", ParamWidget.NUMBER)
             }),
-    ROB_GAS_STATION("Tankstelle ueberfallen", "T", 0xFFD35400, Category.UEBERFALL,
+    ROB_GAS_STATION("Tankstelle ueberfallen", "T", 0xFFD35400, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("plot_id", "Tankstelle", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("difficulty", "Schwierigkeit", "1", ParamWidget.DROPDOWN_DIFFICULTY),
                     new ParamDef("time_limit", "Zeitlimit (s)", "90", ParamWidget.NUMBER)
             }),
-    ROB_PLOT("Grundstueck ueberfallen", "R", 0xFFB03A2E, Category.UEBERFALL,
+    ROB_PLOT("Grundstueck ueberfallen", "R", 0xFFB03A2E, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("plot_id", "Grundstueck", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY),
                     new ParamDef("time_limit", "Zeitlimit (s)", "120", ParamWidget.NUMBER)
             }),
-    CRACK_SAFE("Tresor knacken", "K", 0xFF7F8C8D, Category.UEBERFALL,
+    CRACK_SAFE("Tresor knacken", "K", 0xFF7F8C8D, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY),
                     new ParamDef("time_limit", "Zeitlimit (s)", "60", ParamWidget.NUMBER)
             }),
-    HACK_SYSTEM("System hacken", "H", 0xFF2C3E50, Category.UEBERFALL,
+    HACK_SYSTEM("System hacken", "H", 0xFF2C3E50, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
             }),
-    ROB_NPC("NPC ausrauben", "N", 0xFFCB4335, Category.UEBERFALL,
+    ROB_NPC("NPC ausrauben", "N", 0xFFCB4335, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
                     new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
             }),
-    PLANT_BOMB("Bombe platzieren", "Q", 0xFFB71C1C, Category.UEBERFALL,
+    PLANT_BOMB("Bombe platzieren", "Q", 0xFFB71C1C, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("plot_id", "Grundstueck", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("timer", "Timer (s)", "30", ParamWidget.NUMBER)
             }),
-    KIDNAP_NPC("NPC entfuehren", "E", 0xFF922B21, Category.UEBERFALL,
+    KIDNAP_NPC("NPC entfuehren", "E", 0xFF922B21, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("npc_name", "NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
                     new ParamDef("plot_id", "Ziel-Versteck", "", ParamWidget.DROPDOWN_PLOT)
             }),
-    SABOTAGE("Sabotage", "S", 0xFF943126, Category.UEBERFALL,
+    SABOTAGE("Sabotage", "S", 0xFF943126, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("plot_id", "Grundstueck", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY)
             }),
-    ROB_CASINO("Kasino ausrauben", "\u265E", 0xFF7B241C, Category.UEBERFALL,
+    ROB_CASINO("Kasino ausrauben", "\u265E", 0xFF7B241C, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("plot_id", "Kasino", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("difficulty", "Schwierigkeit", "4", ParamWidget.DROPDOWN_DIFFICULTY),
                     new ParamDef("time_limit", "Zeitlimit (s)", "300", ParamWidget.NUMBER)
             }),
-    ROB_ARMORED_CAR("Geldtransporter ueberfallen", "\u26A0", 0xFF6E2C0A, Category.UEBERFALL,
+    ROB_ARMORED_CAR("Geldtransporter ueberfallen", "\u26A0", 0xFF6E2C0A, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("vehicle_type", "Transporter-Typ", "LKW", ParamWidget.DROPDOWN_VEHICLE),
                     new ParamDef("difficulty", "Schwierigkeit", "4", ParamWidget.DROPDOWN_DIFFICULTY)
             }),
-    ROB_PHARMACY("Apotheke ausrauben", "+", 0xFF78281F, Category.UEBERFALL,
+    ROB_PHARMACY("Apotheke ausrauben", "+", 0xFF78281F, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("plot_id", "Apotheke", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("difficulty", "Schwierigkeit", "2", ParamWidget.DROPDOWN_DIFFICULTY),
                     new ParamDef("time_limit", "Zeitlimit (s)", "90", ParamWidget.NUMBER)
             }),
-    TAKE_HOSTAGE("Geisel nehmen", "\u2620", 0xFF641E16, Category.UEBERFALL,
+    TAKE_HOSTAGE("Geisel nehmen", "\u2620", 0xFF641E16, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("npc_name", "Geisel-NPC", "", ParamWidget.DROPDOWN_NPC_NAME),
                     new ParamDef("ransom", "Loesegeld", "10000", ParamWidget.NUMBER)
             }),
-    BLOW_WALL("Wand sprengen", "\uD83D\uDCA5", 0xFF4A235A, Category.UEBERFALL,
+    BLOW_WALL("Wand sprengen", "\uD83D\uDCA5", 0xFF4A235A, Category.ROBBERY,
             new ParamDef[]{
                     new ParamDef("plot_id", "Ziel", "", ParamWidget.DROPDOWN_PLOT),
                     new ParamDef("explosive_amount", "Sprengstoff-Menge", "1", ParamWidget.NUMBER)
@@ -493,7 +493,7 @@ public enum ObjectiveType {
     TRIGGER_ALARM("Alarm ausloesen", "\uD83D\uDEA8", 0xFF515A5A, Category.SONSTIGES,
             new ParamDef[]{
                     new ParamDef("plot_id", "Gebaeude", "", ParamWidget.DROPDOWN_PLOT),
-                    new ParamDef("alarm_type", "Typ (POLIZEI/PRIVAT/BRAND)", "POLIZEI", ParamWidget.TEXT)
+                    new ParamDef("alarm_type", "Typ (POLICE/PRIVAT/BRAND)", "POLICE", ParamWidget.TEXT)
             }),
     UNLOCK_DOOR("Tuer oeffnen", "\uD83D\uDEAA", 0xFF424949, Category.SONSTIGES,
             new ParamDef[]{
@@ -542,7 +542,7 @@ public enum ObjectiveType {
     REPAIR_VEHICLE("Fahrzeug reparieren", "\uD83D\uDD27", 0xFF0F3470, Category.FAHRZEUG,
             new ParamDef[]{
                     new ParamDef("vehicle_type", "Fahrzeug", "AUTO", ParamWidget.DROPDOWN_VEHICLE),
-                    new ParamDef("plot_id", "Werkstatt", "", ParamWidget.DROPDOWN_PLOT)
+                    new ParamDef("plot_id", "Workshop", "", ParamWidget.DROPDOWN_PLOT)
             }),
     FUEL_VEHICLE("Fahrzeug betanken", "\u26FD", 0xFF0D2A58, Category.FAHRZEUG,
             new ParamDef[]{
@@ -724,7 +724,7 @@ public enum ObjectiveType {
     // ═══════════════════════════════════════════════════════════
     HACK_NETWORK("Netzwerk hacken", "\uD83D\uDD78", 0xFF006064, Category.TECHNOLOGIE,
             new ParamDef[]{
-                    new ParamDef("target_system", "Zielsystem", "polizei_db", ParamWidget.TEXT),
+                    new ParamDef("target_system", "Zielsystem", "police_db", ParamWidget.TEXT),
                     new ParamDef("difficulty", "Schwierigkeit", "3", ParamWidget.DROPDOWN_DIFFICULTY),
                     new ParamDef("time_limit", "Zeitlimit (s)", "120", ParamWidget.NUMBER)
             }),
@@ -902,7 +902,7 @@ public enum ObjectiveType {
     public enum Category {
         BEWEGUNG("Bewegung", 0xFF3498DB),
         INTERAKTION("Interaktion", 0xFFF39C12),
-        UEBERFALL("Ueberfall", 0xFFE74C3C),
+        ROBBERY("Ueberfall", 0xFFE74C3C),
         UEBERLEBEN("Ueberleben", 0xFF9B59B6),
         KAMPF("Kampf", 0xFF34495E),
         WIRTSCHAFT("Wirtschaft", 0xFFD4AC0D),

@@ -141,7 +141,7 @@ public class CuringJarMenu extends AbstractContainerMenu {
     public CannabisQuality getBaseQuality() {
         int ordinal = this.data.get(DATA_QUALITY);
         CannabisQuality[] values = CannabisQuality.values();
-        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisQuality.GUT;
+        return (ordinal >= 0 && ordinal < values.length) ? values[ordinal] : CannabisQuality.GOOD;
     }
 
     public CannabisQuality getExpectedQuality() {
@@ -211,7 +211,7 @@ public class CuringJarMenu extends AbstractContainerMenu {
 
         @Override
         public @NotNull Component getDisplayName() {
-            return Component.translatable("gui.curing_glas.menu_title");
+            return Component.translatable("gui.curing_jar.menu_title");
         }
 
         @Nullable

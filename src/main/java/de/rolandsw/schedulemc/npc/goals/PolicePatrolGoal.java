@@ -40,7 +40,7 @@ public class PolicePatrolGoal extends Goal {
     @Override
     public boolean canUse() {
         // NUR für Polizei-NPCs aktiv
-        if (npc.getNpcData().getNpcType() != de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
+        if (npc.getNpcData().getNpcType() != de.rolandsw.schedulemc.npc.data.NPCType.POLICE) {
             return false;
         }
 

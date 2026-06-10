@@ -253,7 +253,7 @@ public class DialogueTree {
 
         // Start-Node existiert?
         if (!nodes.containsKey(startNodeId)) {
-            errors.add("Start-Node '" + startNodeId + "' existiert nicht");
+            errors.add("Start-Node '" + startNodeId + "' does not exist");
         }
 
         // Alle referenzierten Nodes existieren?
@@ -261,7 +261,7 @@ public class DialogueTree {
             // Auto-Next
             if (node.getAutoNextNodeId() != null && !nodes.containsKey(node.getAutoNextNodeId())) {
                 errors.add("Node '" + node.getId() + "': Auto-Next '" +
-                          node.getAutoNextNodeId() + "' existiert nicht");
+                          node.getAutoNextNodeId() + "' does not exist");
             }
 
             // Option Targets
@@ -269,7 +269,7 @@ public class DialogueTree {
                 String target = option.getTargetNodeId();
                 if (target != null && !nodes.containsKey(target)) {
                     errors.add("Node '" + node.getId() + "', Option '" + option.getId() +
-                              "': Target '" + target + "' existiert nicht");
+                              "': Target '" + target + "' does not exist");
                 }
             }
         }
@@ -277,7 +277,7 @@ public class DialogueTree {
         // Bedingte Starts
         for (ConditionalStart cs : conditionalStarts) {
             if (!nodes.containsKey(cs.nodeId)) {
-                errors.add("Bedingter Start '" + cs.nodeId + "' existiert nicht");
+                errors.add("Bedingter Start '" + cs.nodeId + "' does not exist");
             }
         }
 

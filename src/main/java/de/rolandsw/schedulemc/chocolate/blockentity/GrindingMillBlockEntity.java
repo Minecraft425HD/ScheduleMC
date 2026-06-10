@@ -77,9 +77,9 @@ public class GrindingMillBlockEntity extends AbstractItemHandlerBlockEntity impl
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
             } else {
-                quality = ChocolateQuality.GUT;
+                quality = ChocolateQuality.GOOD;
             }
             grindingProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -118,12 +118,12 @@ public class GrindingMillBlockEntity extends AbstractItemHandlerBlockEntity impl
                 ItemStack cocoaMass = new ItemStack(ChocolateItems.COCOA_MASS.get(), inputStack.getCount());
 
                 // Upgrade quality by 1 level (max GOOD)
-                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.SCHLECHT;
+                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.POOR;
                 upgradedQuality = (ChocolateQuality) upgradedQuality.upgrade();
 
                 // Cap at GOOD quality for grinding mill
-                if (upgradedQuality.getLevel() > ChocolateQuality.SEHR_GUT.getLevel()) {
-                    upgradedQuality = ChocolateQuality.SEHR_GUT;
+                if (upgradedQuality.getLevel() > ChocolateQuality.VERY_GOOD.getLevel()) {
+                    upgradedQuality = ChocolateQuality.VERY_GOOD;
                 }
 
                 CompoundTag tag = cocoaMass.getOrCreateTag();
@@ -174,7 +174,7 @@ public class GrindingMillBlockEntity extends AbstractItemHandlerBlockEntity impl
         grindingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
         }
         syncToHandler();
     }

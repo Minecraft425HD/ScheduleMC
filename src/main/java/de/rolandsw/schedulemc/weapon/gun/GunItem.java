@@ -165,7 +165,7 @@ public abstract class GunItem extends Item {
             if (requiredMode != -1 && !getCompatibleFireModes().contains(requiredMode)) {
                 if (!player.level().isClientSide) {
                     player.displayClientMessage(
-                        Component.literal("§cDiese Waffe unterstützt diesen Feuermodus nicht!"), true);
+                        Component.literal("§cThis weapon does not support this fire mode!"), true);
                 }
                 return true;
             }
@@ -175,7 +175,7 @@ public abstract class GunItem extends Item {
                 if ((unlocked & (1 << requiredMode)) != 0) {
                     if (!player.level().isClientSide) {
                         player.displayClientMessage(
-                            Component.literal("§cDieser Modus ist bereits freigeschaltet!"), true);
+                            Component.literal("§cThis mode is already unlocked!"), true);
                     }
                     return true;
                 }
@@ -183,7 +183,7 @@ public abstract class GunItem extends Item {
                 if (thisStack.getOrCreateTag().getBoolean(TAG_SINGLE_PRECISION)) {
                     if (!player.level().isClientSide) {
                         player.displayClientMessage(
-                            Component.literal("§cPräzisions-Upgrade bereits montiert!"), true);
+                            Component.literal("§cPrecision upgrade already mounted!"), true);
                     }
                     return true;
                 }
@@ -209,14 +209,14 @@ public abstract class GunItem extends Item {
         if (hasAttachmentType(thisStack, attachment.getType())) {
             if (!player.level().isClientSide) {
                 player.displayClientMessage(
-                    Component.literal("§cDieses Zubehör ist bereits montiert!"), true);
+                    Component.literal("§cThis attachment is already mounted!"), true);
             }
             return true;
         }
         if (!addAttachment(thisStack, attachment)) {
             if (!player.level().isClientSide) {
                 player.displayClientMessage(
-                    Component.literal("§cMaximal 2 Zubehörteile pro Waffe!"), true);
+                    Component.literal("§cAt most 2 attachments per weapon!"), true);
             }
             return true;
         }
@@ -224,7 +224,7 @@ public abstract class GunItem extends Item {
         if (!player.level().isClientSide) {
             String name = switch (attachment.getType()) {
                 case SCOPE -> "Visier";
-                case SILENCER -> "Schalldämpfer";
+                case SILENCER -> "Silencer";
             };
             player.displayClientMessage(Component.literal("§a" + name + " montiert!"), true);
         }
@@ -355,7 +355,7 @@ public abstract class GunItem extends Item {
                 return;
             }
         }
-        player.displayClientMessage(Component.literal("§cKein Magazin gefunden!"), true);
+        player.displayClientMessage(Component.literal("§cNo magazine found!"), true);
     }
 
     private int getShotsFired(ItemStack stack) {
@@ -419,10 +419,10 @@ public abstract class GunItem extends Item {
             String names = atts.stream()
                 .map(a -> switch (a.getType()) {
                     case SCOPE -> "Visier";
-                    case SILENCER -> "Schalldämpfer";
+                    case SILENCER -> "Silencer";
                 })
                 .collect(Collectors.joining(", "));
-            tooltip.add(Component.literal("§7Zubehör: §d" + names));
+            tooltip.add(Component.literal("§7Attachments: §d" + names));
         }
         if (stack.hasTag()) {
             int unlocked = getUnlockedModes(stack);
@@ -433,7 +433,7 @@ public abstract class GunItem extends Item {
                 tooltip.add(Component.literal("§7Freigeschaltete Modi: §e" + String.join(", ", modeNames)));
             }
             if (stack.getTag().getBoolean(TAG_SINGLE_PRECISION)) {
-                tooltip.add(Component.literal("§7Upgrade: §aPräzisions-Verbesserung (+10%)"));
+                tooltip.add(Component.literal("§7Upgrade: §aPrecision improvement (+10%)"));
             }
         }
         Item ammoType = getLoadedAmmoType(stack);

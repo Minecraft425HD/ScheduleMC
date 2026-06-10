@@ -46,7 +46,7 @@ public class CrystallizerBlockEntity extends BlockEntity implements IUtilityCons
             inputs[i] = ItemStack.EMPTY;
             outputs[i] = ItemStack.EMPTY;
             progress[i] = 0;
-            qualities[i] = MethQuality.SCHLECHT;
+            qualities[i] = MethQuality.POOR;
         }
     }
 
@@ -76,7 +76,7 @@ public class CrystallizerBlockEntity extends BlockEntity implements IUtilityCons
      */
     public ItemStack extractAllOutput() {
         int totalCount = 0;
-        MethQuality bestQuality = MethQuality.SCHLECHT;
+        MethQuality bestQuality = MethQuality.POOR;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!outputs[i].isEmpty()) {
@@ -90,7 +90,7 @@ public class CrystallizerBlockEntity extends BlockEntity implements IUtilityCons
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 progress[i] = 0;
-                qualities[i] = MethQuality.SCHLECHT;
+                qualities[i] = MethQuality.POOR;
             }
         }
 
@@ -252,7 +252,7 @@ public class CrystallizerBlockEntity extends BlockEntity implements IUtilityCons
                 try {
                     qualities[i] = MethQuality.valueOf(tag.getString("Quality" + i));
                 } catch (IllegalArgumentException e) {
-                    qualities[i] = MethQuality.SCHLECHT;
+                    qualities[i] = MethQuality.POOR;
                 }
             }
         }

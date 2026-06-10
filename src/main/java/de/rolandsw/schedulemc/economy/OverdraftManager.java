@@ -275,7 +275,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
         // Ziehe Zinsen ab (macht Balance noch negativer)
         EconomyManager.setBalance(playerUUID, balance - interest, TransactionType.OVERDRAFT_FEE,
-            "Überziehungszinsen (wöchentlich)");
+            "Overdraft interest (weekly)");
 
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
@@ -322,7 +322,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             LOGGER.info("Auto-Repay: Used {}€ from wallet", useWallet);
         }
 
-        // 2. SPARKONTO nutzen (falls Bargeld nicht reicht)
+        // 2. SAVINGS_ACCOUNT nutzen (falls Bargeld nicht reicht)
         if (debt > 0 && server != null) {
             SavingsAccountManager savingsManager = SavingsAccountManager.getInstance(server);
             if (savingsManager != null) {
@@ -424,7 +424,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         if (imprisoned) {
             // Schulden auf 0€ setzen (Strafe ist abgegolten)
             EconomyManager.setBalance(playerUUID, 0.0, TransactionType.PRISON_DEBT_CLEARED,
-                "Schulden durch Gefängnisstrafe beglichen");
+                "Debt cleared by prison sentence");
 
             // Timer zurücksetzen
             resetDebtTimer(playerUUID);

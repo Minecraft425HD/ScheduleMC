@@ -43,42 +43,42 @@ public class CannabisBlocks {
     // ═══════════════════════════════════════════════════════════
 
     // Trimm-Station
-    public static final RegistryObject<Block> TRIM_STATION = BLOCKS.register("cannabis_trimm_station",
+    public static final RegistryObject<Block> TRIM_STATION = BLOCKS.register("cannabis_trim_station",
             () -> new TrimStationBlock(BlockBehaviour.Properties.of()
                     .strength(2.0f)
                     .sound(SoundType.WOOD)
                     .noOcclusion()));
 
-    public static final RegistryObject<Item> TRIM_STATION_ITEM = ITEMS.register("cannabis_trimm_station",
+    public static final RegistryObject<Item> TRIM_STATION_ITEM = ITEMS.register("cannabis_trim_station",
             () -> new BlockItem(TRIM_STATION.get(), new Item.Properties()));
 
     // Curing-Glas
-    public static final RegistryObject<Block> CURING_JAR = BLOCKS.register("cannabis_curing_glas",
+    public static final RegistryObject<Block> CURING_JAR = BLOCKS.register("cannabis_curing_jar",
             () -> new CuringJarBlock(BlockBehaviour.Properties.of()
                     .strength(0.5f)
                     .sound(SoundType.GLASS)
                     .noOcclusion()));
 
-    public static final RegistryObject<Item> CURING_JAR_ITEM = ITEMS.register("cannabis_curing_glas",
+    public static final RegistryObject<Item> CURING_JAR_ITEM = ITEMS.register("cannabis_curing_jar",
             () -> new BlockItem(CURING_JAR.get(), new Item.Properties()));
 
     // Hash-Presse
-    public static final RegistryObject<Block> HASH_PRESS = BLOCKS.register("cannabis_hash_presse",
+    public static final RegistryObject<Block> HASH_PRESS = BLOCKS.register("cannabis_hash_press",
             () -> new HashPressBlock(BlockBehaviour.Properties.of()
                     .strength(3.0f)
                     .sound(SoundType.ANVIL)
                     .requiresCorrectToolForDrops()));
 
-    public static final RegistryObject<Item> HASH_PRESS_ITEM = ITEMS.register("cannabis_hash_presse",
+    public static final RegistryObject<Item> HASH_PRESS_ITEM = ITEMS.register("cannabis_hash_press",
             () -> new BlockItem(HASH_PRESS.get(), new Item.Properties()));
 
     // Öl-Extractor
-    public static final RegistryObject<Block> OIL_EXTRACTOR = BLOCKS.register("cannabis_oel_extraktor",
+    public static final RegistryObject<Block> OIL_EXTRACTOR = BLOCKS.register("cannabis_oil_extractor",
             () -> new OilExtractorBlock(BlockBehaviour.Properties.of()
                     .strength(3.0f)
                     .sound(SoundType.METAL)
                     .requiresCorrectToolForDrops()));
 
-    public static final RegistryObject<Item> OIL_EXTRACTOR_ITEM = ITEMS.register("cannabis_oel_extraktor",
+    public static final RegistryObject<Item> OIL_EXTRACTOR_ITEM = ITEMS.register("cannabis_oil_extractor",
             () -> new BlockItem(OIL_EXTRACTOR.get(), new Item.Properties()));
 }

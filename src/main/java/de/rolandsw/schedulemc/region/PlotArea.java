@@ -307,7 +307,7 @@ public class PlotArea {
 
     @Override
     public String toString() {
-        String status = isRented() ? "Vermietet" : (forRent ? "Verfügbar" : "Nicht verfügbar");
+        String status = isRented() ? "Vermietet" : (forRent ? "Available" : "Not available");
         return String.format("PlotArea[ID=%s, Name='%s', Rent=%.2f€/Monat, Status=%s, Volume=%d]",
             id, name, monthlyRent, status, getVolume());
     }

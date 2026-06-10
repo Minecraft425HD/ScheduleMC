@@ -61,7 +61,7 @@ public class OpenMerchantShopPacket {
                 }
 
                 // Prüfe ob es ein Verkäufer oder Abschlepper ist
-                if (npc.getNpcType() == NPCType.VERKAEUFER || npc.getNpcType() == NPCType.ABSCHLEPPER) {
+                if (npc.getNpcType() == NPCType.MERCHANT || npc.getNpcType() == NPCType.TOW_TRUCK_DRIVER) {
                     // Prüfe ob NPC innerhalb der Arbeitszeiten ist
                     if (!npc.getNpcData().getScheduleData().isWithinWorkingHours(player.level())) {
                         player.sendSystemMessage(Component.translatable("message.npc.outside_working_hours")
@@ -117,14 +117,14 @@ public class OpenMerchantShopPacket {
                     List<ShopEntry> shopItems = new ArrayList<>(npc.getNpcData().getShopData().getBuyShop().getEntries());
 
                     // Spezialbehandlung für Tankstelle: Füge unbezahlte Rechnungen hinzu
-                    if (npc.getMerchantCategory() == MerchantCategory.TANKSTELLE) {
+                    if (npc.getMerchantCategory() == MerchantCategory.GAS_STATION) {
                         List<ShopEntry> billEntries = createFuelBillEntries(player);
                         shopItems.addAll(0, billEntries); // Am Anfang einfügen
                     }
 
                     // Spezialbehandlung für Abschlepper: Füge Towing-Rechnungen hinzu
                     // Slot 0 ist IMMER für Rechnungen reserviert (nur erste Rechnung anzeigen)
-                    if (npc.getNpcType() == NPCType.ABSCHLEPPER) {
+                    if (npc.getNpcType() == NPCType.TOW_TRUCK_DRIVER) {
                         List<ShopEntry> towingBillEntries = createTowingBillEntries(player);
                         // Füge nur den ersten Eintrag ein (entweder erste Rechnung oder "Keine Rechnungen")
                         if (!towingBillEntries.isEmpty()) {
@@ -133,7 +133,7 @@ public class OpenMerchantShopPacket {
                     }
 
                     // Determine display name based on NPC type
-                    String displayName = npc.getNpcType() == NPCType.VERKAEUFER
+                    String displayName = npc.getNpcType() == NPCType.MERCHANT
                         ? npc.getMerchantCategory().getDisplayName()
                         : npc.getServiceCategory().getDisplayName();
 
@@ -281,7 +281,7 @@ public class OpenMerchantShopPacket {
                 }
 
                 // Setze Namen mit Formatierung
-                billItem.setHoverName(Component.literal("🚗 Abschlepprechnung - " + yardName)
+                billItem.setHoverName(Component.literal("🚗 Towing invoice - " + yardName)
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
                 // Erstelle Shop-Entry

@@ -37,7 +37,7 @@ public class BeehiveBlockEntity extends AbstractItemHandlerBlockEntity implement
 
     private int tickCount = 0;
     private HoneyType honeyType = HoneyType.WILDFLOWER;
-    private HoneyQuality quality = HoneyQuality.GUT;
+    private HoneyQuality quality = HoneyQuality.GOOD;
     private boolean biomeDetermined = false;
 
     private static final int PRODUCTION_TIME = 1200; // 60 seconds
@@ -134,16 +134,16 @@ public class BeehiveBlockEntity extends AbstractItemHandlerBlockEntity implement
         // Determine honey type based on biome
         if (temperature > 1.5f) {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.GUT;
+            quality = HoneyQuality.GOOD;
         } else if (temperature < 0.3f) {
             honeyType = HoneyType.FOREST;
-            quality = HoneyQuality.SEHR_GUT;
+            quality = HoneyQuality.VERY_GOOD;
         } else if (temperature >= 0.6f && temperature <= 0.95f) {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.SEHR_GUT;
+            quality = HoneyQuality.VERY_GOOD;
         } else {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.GUT;
+            quality = HoneyQuality.GOOD;
         }
     }
 
@@ -176,7 +176,7 @@ public class BeehiveBlockEntity extends AbstractItemHandlerBlockEntity implement
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
         }
     }
 

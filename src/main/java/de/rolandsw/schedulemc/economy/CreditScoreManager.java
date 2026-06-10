@@ -245,7 +245,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
 
     @Override
     protected String getHealthDetails() {
-        return creditScores.size() + " Kredit-Scores gespeichert";
+        return creditScores.size() + " credit scores saved";
     }
 
     @Override

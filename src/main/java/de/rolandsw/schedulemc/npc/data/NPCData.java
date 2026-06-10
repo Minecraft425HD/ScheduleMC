@@ -46,7 +46,7 @@ public class NPCData {
     private NPCPoliceData   policeData;
     private NPCShopData     shopData;
 
-    // Inventar und Geldbörse (nur BEWOHNER und VERKAEUFER)
+    // Inventar und Geldbörse (nur CITIZEN und MERCHANT)
     private NonNullList<ItemStack> inventory;
     private int wallet;
     private long lastDailyIncome;
@@ -58,10 +58,10 @@ public class NPCData {
         this.npcName = "NPC";
         this.skinFileName = "default.png";
         this.npcUUID = UUID.randomUUID();
-        this.npcType = NPCType.BEWOHNER;
-        this.merchantCategory = MerchantCategory.BAUMARKT;
+        this.npcType = NPCType.CITIZEN;
+        this.merchantCategory = MerchantCategory.HARDWARE_STORE;
         this.bankCategory = BankCategory.BANKER;
-        this.serviceCategory = ServiceCategory.ABSCHLEPPDIENST;
+        this.serviceCategory = ServiceCategory.TOWING_SERVICE;
         this.dialogEntries = new ArrayList<>();
         this.currentDialogIndex = 0;
         this.customData = new CompoundTag();
@@ -132,7 +132,7 @@ public class NPCData {
     }
 
     private void saveInventoryData(CompoundTag tag) {
-        if (npcType != NPCType.POLIZEI) {
+        if (npcType != NPCType.POLICE) {
             ListTag inventoryList = new ListTag();
             for (int i = 0; i < inventory.size(); i++) {
                 CompoundTag itemTag = new CompoundTag();
@@ -188,7 +188,7 @@ public class NPCData {
     }
 
     private void loadInventoryData(CompoundTag tag) {
-        if (npcType != NPCType.POLIZEI) {
+        if (npcType != NPCType.POLICE) {
             inventory = NonNullList.withSize(9, ItemStack.EMPTY);
             if (tag.contains("Inventory")) {
                 ListTag inventoryList = tag.getList("Inventory", Tag.TAG_COMPOUND);
@@ -289,7 +289,7 @@ public class NPCData {
     public void setLastDailyIncome(long day) { this.lastDailyIncome = day; }
 
     public boolean hasInventoryAndWallet() {
-        return npcType == NPCType.BEWOHNER || npcType == NPCType.VERKAEUFER;
+        return npcType == NPCType.CITIZEN || npcType == NPCType.MERCHANT;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -298,7 +298,7 @@ public class NPCData {
 
     public boolean hasWarehouse() {
         if (locationData.getAssignedWarehouse() != null) return true;
-        if (npcType == NPCType.ABSCHLEPPER && locationData.getWorkLocation() != null) {
+        if (npcType == NPCType.TOW_TRUCK_DRIVER && locationData.getWorkLocation() != null) {
             de.rolandsw.schedulemc.region.PlotRegion plot =
                 de.rolandsw.schedulemc.region.PlotManager.getPlotAt(locationData.getWorkLocation());
             return plot != null && plot.getType().isTowingYard() && plot.getWarehouseLocation() != null;
@@ -311,7 +311,7 @@ public class NPCData {
         net.minecraft.core.BlockPos warehousePos = null;
         if (locationData.getAssignedWarehouse() != null) {
             warehousePos = locationData.getAssignedWarehouse();
-        } else if (npcType == NPCType.ABSCHLEPPER && locationData.getWorkLocation() != null) {
+        } else if (npcType == NPCType.TOW_TRUCK_DRIVER && locationData.getWorkLocation() != null) {
             de.rolandsw.schedulemc.region.PlotRegion plot =
                 de.rolandsw.schedulemc.region.PlotManager.getPlotAt(locationData.getWorkLocation());
             if (plot != null && plot.getType().isTowingYard()) {

@@ -207,7 +207,7 @@ public class NPCBusinessMetrics {
     public void recordGenericPurchase(String playerUUID, de.rolandsw.schedulemc.production.core.DrugType drugType,
                                       int weight, double price, long day) {
         // Verwende Standard-Werte für Tabak-Felder
-        Purchase purchase = new Purchase(playerUUID, TobaccoType.VIRGINIA, TobaccoQuality.GUT, weight, price, day);
+        Purchase purchase = new Purchase(playerUUID, TobaccoType.VIRGINIA, TobaccoQuality.GOOD, weight, price, day);
         purchaseHistory.add(0, purchase);
 
         // Nur letzte 10 behalten

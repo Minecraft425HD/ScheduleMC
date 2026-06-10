@@ -70,12 +70,9 @@ public class RemoteControlItem extends Item {
                 // Shift+Klick: Tür verknüpfen/trennen
                 boolean linked = toggleLink(stack, pos);
                 if (linked) {
-                    player.sendSystemMessage(Component.literal("§a[Fernbedienung] Tür bei §e"
-                        + pos.toShortString() + "§a verknüpft. Gesamt: §e"
-                        + getLinkedDoorCount(stack)));
+                    player.sendSystemMessage(Component.translatable("message.secret_door.rc_linked", pos.toShortString(), getLinkedDoorCount(stack)));
                 } else {
-                    player.sendSystemMessage(Component.literal("§7[Fernbedienung] Tür bei §e"
-                        + pos.toShortString() + "§7 getrennt."));
+                    player.sendSystemMessage(Component.translatable("message.secret_door.rc_unlinked", pos.toShortString()));
                 }
             } else {
                 // Normaler Klick: Nur diese Tür toggeln
@@ -91,14 +88,14 @@ public class RemoteControlItem extends Item {
             if (player.isShiftKeyDown() && level.getBlockEntity(pos) instanceof HiddenSwitchBlockEntity be) {
                 if (be.isLinkingMode()) {
                     // Schalter im Verknüpfungs-Modus: Fernbedienung verknüpft den Schalter
-                    player.sendSystemMessage(Component.literal("§7[Fernbedienung] Schalter-Verknüpfungs-Modus beendet."));
+                    player.sendSystemMessage(Component.translatable("message.secret_door.rc_switch_link_ended"));
                     be.setLinkingMode(false);
                     be.setChanged();
                 } else {
                     // Schalter-Verknüpfungs-Modus starten
                     be.setLinkingMode(true);
                     be.setChanged();
-                    player.sendSystemMessage(Component.literal("§a[Schalter] Verknüpfungs-Modus AN. Klicke auf eine Tür."));
+                    player.sendSystemMessage(Component.translatable("message.secret_door.switch_link_on_simple"));
                 }
             }
             return InteractionResult.SUCCESS;
@@ -122,8 +119,7 @@ public class RemoteControlItem extends Item {
         ItemStack stack = player.getItemInHand(hand);
 
         if (getLinkedDoorCount(stack) == 0) {
-            player.sendSystemMessage(Component.literal(
-                "§7[Fernbedienung] Keine Türen verknüpft. §eShift+Rechtsklick §7auf eine Geheimtür."));
+            player.sendSystemMessage(Component.translatable("message.secret_door.rc_no_doors"));
             return InteractionResultHolder.success(stack);
         }
 
@@ -156,10 +152,9 @@ public class RemoteControlItem extends Item {
         }
 
         if (toggled > 0) {
-            player.sendSystemMessage(Component.literal("§a[Fernbedienung] §e" + toggled + "§a Tür(en) geschaltet."));
+            player.sendSystemMessage(Component.translatable("message.secret_door.rc_toggled", toggled));
         } else {
-            player.sendSystemMessage(Component.literal("§7[Fernbedienung] Keine Türen in Reichweite (§e"
-                + MAX_RANGE + " §7Blöcke)."));
+            player.sendSystemMessage(Component.translatable("message.secret_door.rc_none_in_range", MAX_RANGE));
         }
 
         return InteractionResultHolder.success(stack);
@@ -174,10 +169,10 @@ public class RemoteControlItem extends Item {
                                  List<Component> tooltip, TooltipFlag flag) {
         int count = getLinkedDoorCount(stack);
         if (count == 0) {
-            tooltip.add(Component.literal("§7Keine Türen verknüpft").withStyle(ChatFormatting.GRAY));
-            tooltip.add(Component.literal("§eShift+Rechtsklick §7auf Tür zum Verknüpfen").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("message.secret_door.tooltip_no_doors").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("message.secret_door.tooltip_link_hint").withStyle(ChatFormatting.GRAY));
         } else {
-            tooltip.add(Component.literal("§7Verknüpfte Türen: §e" + count + " §7/ §e" + MAX_LINKED_DOORS));
+            tooltip.add(Component.translatable("message.secret_door.tooltip_linked", count, MAX_LINKED_DOORS));
             List<long[]> doors = getLinkedDoorsRaw(stack);
             int shown = Math.min(doors.size(), 5);
             for (int i = 0; i < shown; i++) {
@@ -185,10 +180,10 @@ public class RemoteControlItem extends Item {
                 tooltip.add(Component.literal("  §8→ §7" + pos.toShortString()).withStyle(ChatFormatting.GRAY));
             }
             if (doors.size() > 5) {
-                tooltip.add(Component.literal("  §8... und §7" + (doors.size() - 5) + "§8 mehr"));
+                tooltip.add(Component.translatable("message.secret_door.tooltip_more", doors.size() - 5));
             }
         }
-        tooltip.add(Component.literal("§7Reichweite: §e" + MAX_RANGE + " §7Blöcke").withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("message.secret_door.tooltip_range", MAX_RANGE).withStyle(ChatFormatting.GRAY));
     }
 
     // ─────────────────────────────────────────────────────────────────

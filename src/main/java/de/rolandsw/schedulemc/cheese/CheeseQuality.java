@@ -9,16 +9,16 @@ import java.util.Locale;
  * Käse-Qualitätsstufen
  *
  * Einheitliches 4-Stufen-System:
- * - SCHLECHT (Level 0)
- * - GUT (Level 1)
- * - SEHR_GUT (Level 2)
- * - LEGENDAER (Level 3)
+ * - POOR (Level 0)
+ * - GOOD (Level 1)
+ * - VERY_GOOD (Level 2)
+ * - LEGENDARY (Level 3)
  */
 public enum CheeseQuality implements ProductionQuality {
-    SCHLECHT("§c", 0, 0.7),
-    GUT("§e", 1, 1.0),
-    SEHR_GUT("§a", 2, 2.0),
-    LEGENDAER("§6§l", 3, 4.0);
+    POOR("§c", 0, 0.7),
+    GOOD("§e", 1, 1.0),
+    VERY_GOOD("§a", 2, 2.0),
+    LEGENDARY("§6§l", 3, 4.0);
 
     private final String colorCode;
     private final int level;
@@ -59,18 +59,18 @@ public enum CheeseQuality implements ProductionQuality {
     @Override
     public CheeseQuality upgrade() {
         return switch (this) {
-            case SCHLECHT -> GUT;
-            case GUT -> SEHR_GUT;
-            case SEHR_GUT, LEGENDAER -> LEGENDAER;
+            case POOR -> GOOD;
+            case GOOD -> VERY_GOOD;
+            case VERY_GOOD, LEGENDARY -> LEGENDARY;
         };
     }
 
     @Override
     public CheeseQuality downgrade() {
         return switch (this) {
-            case SCHLECHT, GUT -> SCHLECHT;
-            case SEHR_GUT -> GUT;
-            case LEGENDAER -> SEHR_GUT;
+            case POOR, GOOD -> POOR;
+            case VERY_GOOD -> GOOD;
+            case LEGENDARY -> VERY_GOOD;
         };
     }
 
@@ -80,10 +80,10 @@ public enum CheeseQuality implements ProductionQuality {
     public static CheeseQuality determineQuality(double qualityFactor, java.util.Random random) {
         double roll = random.nextDouble() * qualityFactor;
 
-        if (roll >= 0.95) return LEGENDAER;
-        if (roll >= 0.75) return SEHR_GUT;
-        if (roll >= 0.45) return GUT;
-        return SCHLECHT;
+        if (roll >= 0.95) return LEGENDARY;
+        if (roll >= 0.75) return VERY_GOOD;
+        if (roll >= 0.45) return GOOD;
+        return POOR;
     }
 
     public static CheeseQuality fromLevel(int level) {
@@ -92,6 +92,6 @@ public enum CheeseQuality implements ProductionQuality {
                 return quality;
             }
         }
-        return SCHLECHT;
+        return POOR;
     }
 }

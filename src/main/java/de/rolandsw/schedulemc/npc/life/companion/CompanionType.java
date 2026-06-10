@@ -14,22 +14,22 @@ public enum CompanionType {
     /**
      * Kämpfer - Fokus auf Kampf und Schutz
      */
-    FIGHTER("Kämpfer", "Schützt dich im Kampf", 0.8f, 1.5f, 0.5f),
+    FIGHTER("Fighter", "Protects you in combat", 0.8f, 1.5f, 0.5f),
 
     /**
      * Händler - Trägt Items und kann handeln
      */
-    TRADER("Händler", "Hilft beim Handel und trägt Waren", 0.5f, 0.8f, 1.5f),
+    TRADER("Merchant", "Helps with trading and carries goods", 0.5f, 0.8f, 1.5f),
 
     /**
      * Späher - Erkundet und warnt vor Gefahren
      */
-    SCOUT("Späher", "Erkundet die Umgebung und warnt vor Gefahren", 1.2f, 0.6f, 0.8f),
+    SCOUT("Scout", "Scouts the area and warns of dangers", 1.2f, 0.6f, 0.8f),
 
     /**
      * Heiler - Unterstützt und heilt
      */
-    HEALER("Heiler", "Heilt und unterstützt dich", 0.6f, 0.5f, 1.2f);
+    HEALER("Heiler", "Heals and supports you", 0.6f, 0.5f, 1.2f);
 
     // ═══════════════════════════════════════════════════════════
     // DATA

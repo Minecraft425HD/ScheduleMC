@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.lsd.blockentity;
 
-import de.rolandsw.schedulemc.lsd.items.ErgotKulturItem;
+import de.rolandsw.schedulemc.lsd.items.ErgotCultureItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
@@ -38,8 +38,8 @@ public class DistillationApparatusBlockEntity extends BlockEntity implements IUt
     /**
      * Fügt Ergot-Kultur hinzu
      */
-    public boolean addErgotKultur(ItemStack stack) {
-        if (!(stack.getItem() instanceof ErgotKulturItem)) return false;
+    public boolean addErgotCulture(ItemStack stack) {
+        if (!(stack.getItem() instanceof ErgotCultureItem)) return false;
         if (ergotCount >= CAPACITY) return false;
         if (outputCount > 0) return false;
 
@@ -57,7 +57,7 @@ public class DistillationApparatusBlockEntity extends BlockEntity implements IUt
     public ItemStack extractOutput() {
         if (outputCount <= 0) return ItemStack.EMPTY;
 
-        ItemStack result = new ItemStack(LSDItems.LYSERGSAEURE.get(), outputCount);
+        ItemStack result = new ItemStack(LSDItems.LYSERGIC_ACID.get(), outputCount);
         outputCount = 0;
         setChanged();
         if (level != null) {

@@ -112,7 +112,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+                    catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
                 }
                 if (tag.contains("AgeLevel")) {
                     try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }
@@ -270,7 +270,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
         }
         if (tag.contains("AgeLevel")) {
             try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }

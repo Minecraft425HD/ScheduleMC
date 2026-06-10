@@ -3,9 +3,9 @@ package de.rolandsw.schedulemc.lsd.blockentity;
 import de.rolandsw.schedulemc.lsd.BlotterDesign;
 import de.rolandsw.schedulemc.lsd.LSDDosage;
 import de.rolandsw.schedulemc.lsd.items.BlotterItem;
-import de.rolandsw.schedulemc.lsd.items.BlotterPapierItem;
+import de.rolandsw.schedulemc.lsd.items.BlotterPaperItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
-import de.rolandsw.schedulemc.lsd.items.LSDLoesungItem;
+import de.rolandsw.schedulemc.lsd.items.LSDSolutionItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
@@ -29,9 +29,9 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
     private static final int TABS_PER_PAPER = 9; // 9 Tabs pro Blotter-Papier (3x3)
 
     private boolean lastActiveState = false;
-    private ItemStack lsdLoesung = ItemStack.EMPTY;
-    private int blotterPapierCount = 0;
-    private BlotterDesign selectedDesign = BlotterDesign.TOTENKOPF;
+    private ItemStack lsdSolution = ItemStack.EMPTY;
+    private int blotterPaperCount = 0;
+    private BlotterDesign selectedDesign = BlotterDesign.SKULL;
     private int pressProgress = 0;
     private ItemStack outputItem = ItemStack.EMPTY;
     private boolean isPressing = false;
@@ -44,12 +44,12 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
     /**
      * Fügt LSD-Lösung hinzu
      */
-    public boolean addLSDLoesung(ItemStack stack) {
-        if (!(stack.getItem() instanceof LSDLoesungItem)) return false;
-        if (!lsdLoesung.isEmpty()) return false;
+    public boolean addLSDSolution(ItemStack stack) {
+        if (!(stack.getItem() instanceof LSDSolutionItem)) return false;
+        if (!lsdSolution.isEmpty()) return false;
 
-        lsdLoesung = stack.copy();
-        lsdLoesung.setCount(1);
+        lsdSolution = stack.copy();
+        lsdSolution.setCount(1);
         setChanged();
         return true;
     }
@@ -57,11 +57,11 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
     /**
      * Fügt Blotter-Papier hinzu
      */
-    public boolean addBlotterPapier(ItemStack stack) {
-        if (!(stack.getItem() instanceof BlotterPapierItem)) return false;
-        if (blotterPapierCount >= 16) return false;
+    public boolean addBlotterPaper(ItemStack stack) {
+        if (!(stack.getItem() instanceof BlotterPaperItem)) return false;
+        if (blotterPaperCount >= 16) return false;
 
-        blotterPapierCount = Math.min(blotterPapierCount + 1, 16);
+        blotterPaperCount = Math.min(blotterPaperCount + 1, 16);
         setChanged();
         return true;
     }
@@ -90,11 +90,11 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
      * Startet Pressvorgang
      */
     public boolean startPressing() {
-        if (lsdLoesung.isEmpty() || blotterPapierCount <= 0 || isPressing || !outputItem.isEmpty()) {
+        if (lsdSolution.isEmpty() || blotterPaperCount <= 0 || isPressing || !outputItem.isEmpty()) {
             return false;
         }
 
-        int charges = LSDLoesungItem.getCharges(lsdLoesung);
+        int charges = LSDSolutionItem.getCharges(lsdSolution);
         if (charges <= 0) return false;
 
         isPressing = true;
@@ -132,26 +132,26 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
 
             if (pressProgress >= PRESS_TIME) {
                 // Pressen abgeschlossen
-                LSDDosage dosage = LSDLoesungItem.getDosage(lsdLoesung);
-                int micrograms = LSDLoesungItem.getMicrograms(lsdLoesung);
-                int charges = LSDLoesungItem.getCharges(lsdLoesung);
+                LSDDosage dosage = LSDSolutionItem.getDosage(lsdSolution);
+                int micrograms = LSDSolutionItem.getMicrograms(lsdSolution);
+                int charges = LSDSolutionItem.getCharges(lsdSolution);
 
                 // Berechne wie viele Blotter wir machen können
-                int possibleFromPaper = blotterPapierCount * TABS_PER_PAPER;
+                int possibleFromPaper = blotterPaperCount * TABS_PER_PAPER;
                 int possibleFromCharges = charges;
                 int actualTabs = Math.min(possibleFromPaper, possibleFromCharges);
 
                 // Verbrauche Ressourcen
                 int paperUsed = (int) Math.ceil((double) actualTabs / TABS_PER_PAPER);
-                blotterPapierCount -= paperUsed;
+                blotterPaperCount -= paperUsed;
 
                 int chargesUsed = actualTabs;
                 int remainingCharges = charges - chargesUsed;
 
                 if (remainingCharges > 0) {
-                    LSDLoesungItem.setCharges(lsdLoesung, remainingCharges);
+                    LSDSolutionItem.setCharges(lsdSolution, remainingCharges);
                 } else {
-                    lsdLoesung = ItemStack.EMPTY;
+                    lsdSolution = ItemStack.EMPTY;
                 }
 
                 // Erstelle Output
@@ -179,17 +179,17 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
     // Getter
     public boolean isPressing() { return isPressing; }
     public boolean hasOutput() { return !outputItem.isEmpty(); }
-    public boolean hasLoesung() { return !lsdLoesung.isEmpty(); }
-    public boolean hasPapier() { return blotterPapierCount > 0; }
-    public int getBlotterPapierCount() { return blotterPapierCount; }
+    public boolean hasSolution() { return !lsdSolution.isEmpty(); }
+    public boolean hasPaper() { return blotterPaperCount > 0; }
+    public int getBlotterPaperCount() { return blotterPaperCount; }
     public BlotterDesign getSelectedDesign() { return selectedDesign; }
-    public ItemStack getLsdLoesung() { return lsdLoesung; }
+    public ItemStack getLsdSolution() { return lsdSolution; }
     public float getProgress() { return (float) pressProgress / PRESS_TIME; }
 
     public int getExpectedTabs() {
-        if (lsdLoesung.isEmpty() || blotterPapierCount <= 0) return 0;
-        int fromPaper = blotterPapierCount * TABS_PER_PAPER;
-        int fromCharges = LSDLoesungItem.getCharges(lsdLoesung);
+        if (lsdSolution.isEmpty() || blotterPaperCount <= 0) return 0;
+        int fromPaper = blotterPaperCount * TABS_PER_PAPER;
+        int fromCharges = LSDSolutionItem.getCharges(lsdSolution);
         return Math.min(fromPaper, fromCharges);
     }
 
@@ -201,12 +201,12 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        if (!lsdLoesung.isEmpty()) {
-            CompoundTag loesungTag = new CompoundTag();
-            lsdLoesung.save(loesungTag);
-            tag.put("LSDLoesung", loesungTag);
+        if (!lsdSolution.isEmpty()) {
+            CompoundTag solutionTag = new CompoundTag();
+            lsdSolution.save(solutionTag);
+            tag.put("LSDLoesung", solutionTag);
         }
-        tag.putInt("BlotterPapier", blotterPapierCount);
+        tag.putInt("BlotterPaper", blotterPaperCount);
         tag.putString("Design", selectedDesign.name());
         tag.putInt("Progress", pressProgress);
         tag.putBoolean("Pressing", isPressing);
@@ -221,13 +221,13 @@ public class PerforationPressBlockEntity extends BlockEntity implements IUtility
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        lsdLoesung = tag.contains("LSDLoesung") ? ItemStack.of(tag.getCompound("LSDLoesung")) : ItemStack.EMPTY;
-        blotterPapierCount = tag.getInt("BlotterPapier");
+        lsdSolution = tag.contains("LSDLoesung") ? ItemStack.of(tag.getCompound("LSDLoesung")) : ItemStack.EMPTY;
+        blotterPaperCount = tag.getInt("BlotterPaper");
         if (tag.contains("Design")) {
             try {
                 selectedDesign = BlotterDesign.valueOf(tag.getString("Design"));
             } catch (IllegalArgumentException e) {
-                selectedDesign = BlotterDesign.TOTENKOPF;
+                selectedDesign = BlotterDesign.SKULL;
             }
         }
         pressProgress = tag.getInt("Progress");

@@ -20,7 +20,7 @@ public class PoppyPlantData {
 
     public PoppyPlantData(PoppyType type) {
         this.type = type;
-        this.quality = TobaccoQuality.SCHLECHT;
+        this.quality = TobaccoQuality.POOR;
         this.growthStage = 0;
         this.ticksGrown = 0;
         this.hasFertilizer = false;
@@ -111,7 +111,7 @@ public class PoppyPlantData {
     }
 
     private void tryUpgradeQuality() {
-        if (quality == TobaccoQuality.LEGENDAER) return;
+        if (quality == TobaccoQuality.LEGENDARY) return;
 
         double upgradeChance = 0.25; // 25% Basis-Chance
         if (hasFertilizer) upgradeChance += 0.15;
@@ -131,10 +131,10 @@ public class PoppyPlantData {
     public int getHarvestYield() {
         int baseYield = type.getBaseYield();
         double qualityMultiplier = switch (quality) {
-            case SCHLECHT -> 0.7;
-            case GUT -> 1.0;
-            case SEHR_GUT -> 1.3;
-            case LEGENDAER -> 1.6;
+            case POOR -> 0.7;
+            case GOOD -> 1.0;
+            case VERY_GOOD -> 1.3;
+            case LEGENDARY -> 1.6;
         };
 
         if (hasFertilizer) {

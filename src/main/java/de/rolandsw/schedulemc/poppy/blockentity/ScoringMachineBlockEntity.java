@@ -206,12 +206,12 @@ public class ScoringMachineBlockEntity extends BlockEntity implements IUtilityCo
                 progress[i] = (int) Math.min((long) progress[i] + ticksPassed, PROCESS_TIME);
 
                 if (progress[i] >= PROCESS_TIME) {
-                    TobaccoQuality quality = qualities[i] != null ? qualities[i] : TobaccoQuality.SCHLECHT;
+                    TobaccoQuality quality = qualities[i] != null ? qualities[i] : TobaccoQuality.POOR;
                     int yield = switch (quality) {
-                        case SCHLECHT -> 1;
-                        case GUT -> 2;
-                        case SEHR_GUT -> 2;
-                        case LEGENDAER -> 3;
+                        case POOR -> 1;
+                        case GOOD -> 2;
+                        case VERY_GOOD -> 2;
+                        case LEGENDARY -> 3;
                     };
                     outputs[i] = RawOpiumItem.create(types[i], quality, yield);
                     inputs[i] = ItemStack.EMPTY;
@@ -291,11 +291,11 @@ public class ScoringMachineBlockEntity extends BlockEntity implements IUtilityCo
 
             if (tag.contains("Type" + i)) {
                 try { types[i] = PoppyType.valueOf(tag.getString("Type" + i)); }
-                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHANISCH; }
+                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHAN; }
             }
             if (tag.contains("Quality" + i)) {
                 try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
-                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.SCHLECHT; }
+                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.POOR; }
             }
         }
     }

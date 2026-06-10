@@ -79,7 +79,7 @@ public class BlockShopCatalog {
         } catch (Exception e) {
             LOGGER.warn("BlockShopCatalog.applyConfig fehlgeschlagen: {}", e.getMessage());
         }
-        LOGGER.info("BlockShopCatalog: {} Einträge geladen", count);
+        LOGGER.info("BlockShopCatalog: {} entries loaded", count);
     }
 
     // ── Lookup ────────────────────────────────────────────────────────────────

@@ -55,51 +55,51 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 1. `advanced_grow_light_slab.png`
 2. `basic_grow_light_slab.png`
 3. `premium_grow_light_slab.png`
-4. `klimalampe_large_cold.png`
-5. `klimalampe_large_off.png`
-6. `klimalampe_large_warm.png`
-7. `klimalampe_medium_cold.png`
-8. `klimalampe_medium_off.png`
-9. `klimalampe_medium_warm.png`
-10. `klimalampe_small_cold.png`
-11. `klimalampe_small_off.png`
-12. `klimalampe_small_warm.png`
+4. `climate_lamp_large_cold.png`
+5. `climate_lamp_large_off.png`
+6. `climate_lamp_large_warm.png`
+7. `climate_lamp_medium_cold.png`
+8. `climate_lamp_medium_off.png`
+9. `climate_lamp_medium_warm.png`
+10. `climate_lamp_small_cold.png`
+11. `climate_lamp_small_off.png`
+12. `climate_lamp_small_warm.png`
 
 #### Afghanisch Poppy Plant (16 Dateien)
-13. `afghanisch_poppy_plant_stage0.png`
-14. `afghanisch_poppy_plant_stage0_top.png`
-15. `afghanisch_poppy_plant_stage1.png`
-16. `afghanisch_poppy_plant_stage1_top.png`
-17. `afghanisch_poppy_plant_stage2.png`
-18. `afghanisch_poppy_plant_stage2_top.png`
-19. `afghanisch_poppy_plant_stage3.png`
-20. `afghanisch_poppy_plant_stage3_top.png`
-21. `afghanisch_poppy_plant_stage4.png`
-22. `afghanisch_poppy_plant_stage4_top.png`
-23. `afghanisch_poppy_plant_stage5.png`
-24. `afghanisch_poppy_plant_stage5_top.png`
-25. `afghanisch_poppy_plant_stage6.png`
-26. `afghanisch_poppy_plant_stage6_top.png`
-27. `afghanisch_poppy_plant_stage7.png`
-28. `afghanisch_poppy_plant_stage7_top.png`
+13. `afghan_poppy_plant_stage0.png`
+14. `afghan_poppy_plant_stage0_top.png`
+15. `afghan_poppy_plant_stage1.png`
+16. `afghan_poppy_plant_stage1_top.png`
+17. `afghan_poppy_plant_stage2.png`
+18. `afghan_poppy_plant_stage2_top.png`
+19. `afghan_poppy_plant_stage3.png`
+20. `afghan_poppy_plant_stage3_top.png`
+21. `afghan_poppy_plant_stage4.png`
+22. `afghan_poppy_plant_stage4_top.png`
+23. `afghan_poppy_plant_stage5.png`
+24. `afghan_poppy_plant_stage5_top.png`
+25. `afghan_poppy_plant_stage6.png`
+26. `afghan_poppy_plant_stage6_top.png`
+27. `afghan_poppy_plant_stage7.png`
+28. `afghan_poppy_plant_stage7_top.png`
 
 #### Bolivianisch Coca Plant (16 Dateien)
-29. `bolivianisch_coca_plant_stage0.png`
-30. `bolivianisch_coca_plant_stage0_top.png`
-31. `bolivianisch_coca_plant_stage1.png`
-32. `bolivianisch_coca_plant_stage1_top.png`
-33. `bolivianisch_coca_plant_stage2.png`
-34. `bolivianisch_coca_plant_stage2_top.png`
-35. `bolivianisch_coca_plant_stage3.png`
-36. `bolivianisch_coca_plant_stage3_top.png`
-37. `bolivianisch_coca_plant_stage4.png`
-38. `bolivianisch_coca_plant_stage4_top.png`
-39. `bolivianisch_coca_plant_stage5.png`
-40. `bolivianisch_coca_plant_stage5_top.png`
-41. `bolivianisch_coca_plant_stage6.png`
-42. `bolivianisch_coca_plant_stage6_top.png`
-43. `bolivianisch_coca_plant_stage7.png`
-44. `bolivianisch_coca_plant_stage7_top.png`
+29. `bolivian_coca_plant_stage0.png`
+30. `bolivian_coca_plant_stage0_top.png`
+31. `bolivian_coca_plant_stage1.png`
+32. `bolivian_coca_plant_stage1_top.png`
+33. `bolivian_coca_plant_stage2.png`
+34. `bolivian_coca_plant_stage2_top.png`
+35. `bolivian_coca_plant_stage3.png`
+36. `bolivian_coca_plant_stage3_top.png`
+37. `bolivian_coca_plant_stage4.png`
+38. `bolivian_coca_plant_stage4_top.png`
+39. `bolivian_coca_plant_stage5.png`
+40. `bolivian_coca_plant_stage5_top.png`
+41. `bolivian_coca_plant_stage6.png`
+42. `bolivian_coca_plant_stage6_top.png`
+43. `bolivian_coca_plant_stage7.png`
+44. `bolivian_coca_plant_stage7_top.png`
 
 #### Burley Tobacco Plant (16 Dateien)
 45. `burley_plant_stage0.png`
@@ -210,40 +210,40 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 140. `havana_plant_stage7_top.png`
 
 #### Indisch Poppy Plant (16 Dateien)
-141. `indisch_poppy_plant_stage0.png`
-142. `indisch_poppy_plant_stage0_top.png`
-143. `indisch_poppy_plant_stage1.png`
-144. `indisch_poppy_plant_stage1_top.png`
-145. `indisch_poppy_plant_stage2.png`
-146. `indisch_poppy_plant_stage2_top.png`
-147. `indisch_poppy_plant_stage3.png`
-148. `indisch_poppy_plant_stage3_top.png`
-149. `indisch_poppy_plant_stage4.png`
-150. `indisch_poppy_plant_stage4_top.png`
-151. `indisch_poppy_plant_stage5.png`
-152. `indisch_poppy_plant_stage5_top.png`
-153. `indisch_poppy_plant_stage6.png`
-154. `indisch_poppy_plant_stage6_top.png`
-155. `indisch_poppy_plant_stage7.png`
-156. `indisch_poppy_plant_stage7_top.png`
+141. `indian_poppy_plant_stage0.png`
+142. `indian_poppy_plant_stage0_top.png`
+143. `indian_poppy_plant_stage1.png`
+144. `indian_poppy_plant_stage1_top.png`
+145. `indian_poppy_plant_stage2.png`
+146. `indian_poppy_plant_stage2_top.png`
+147. `indian_poppy_plant_stage3.png`
+148. `indian_poppy_plant_stage3_top.png`
+149. `indian_poppy_plant_stage4.png`
+150. `indian_poppy_plant_stage4_top.png`
+151. `indian_poppy_plant_stage5.png`
+152. `indian_poppy_plant_stage5_top.png`
+153. `indian_poppy_plant_stage6.png`
+154. `indian_poppy_plant_stage6_top.png`
+155. `indian_poppy_plant_stage7.png`
+156. `indian_poppy_plant_stage7_top.png`
 
 #### Kolumbianisch Coca Plant (16 Dateien)
-157. `kolumbianisch_coca_plant_stage0.png`
-158. `kolumbianisch_coca_plant_stage0_top.png`
-159. `kolumbianisch_coca_plant_stage1.png`
-160. `kolumbianisch_coca_plant_stage1_top.png`
-161. `kolumbianisch_coca_plant_stage2.png`
-162. `kolumbianisch_coca_plant_stage2_top.png`
-163. `kolumbianisch_coca_plant_stage3.png`
-164. `kolumbianisch_coca_plant_stage3_top.png`
-165. `kolumbianisch_coca_plant_stage4.png`
-166. `kolumbianisch_coca_plant_stage4_top.png`
-167. `kolumbianisch_coca_plant_stage5.png`
-168. `kolumbianisch_coca_plant_stage5_top.png`
-169. `kolumbianisch_coca_plant_stage6.png`
-170. `kolumbianisch_coca_plant_stage6_top.png`
-171. `kolumbianisch_coca_plant_stage7.png`
-172. `kolumbianisch_coca_plant_stage7_top.png`
+157. `colombian_coca_plant_stage0.png`
+158. `colombian_coca_plant_stage0_top.png`
+159. `colombian_coca_plant_stage1.png`
+160. `colombian_coca_plant_stage1_top.png`
+161. `colombian_coca_plant_stage2.png`
+162. `colombian_coca_plant_stage2_top.png`
+163. `colombian_coca_plant_stage3.png`
+164. `colombian_coca_plant_stage3_top.png`
+165. `colombian_coca_plant_stage4.png`
+166. `colombian_coca_plant_stage4_top.png`
+167. `colombian_coca_plant_stage5.png`
+168. `colombian_coca_plant_stage5_top.png`
+169. `colombian_coca_plant_stage6.png`
+170. `colombian_coca_plant_stage6_top.png`
+171. `colombian_coca_plant_stage7.png`
+172. `colombian_coca_plant_stage7_top.png`
 
 #### Oriental Tobacco Plant (16 Dateien)
 173. `oriental_plant_stage0.png`
@@ -264,22 +264,22 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 188. `oriental_plant_stage7_top.png`
 
 #### Tuerkisch Poppy Plant (16 Dateien)
-189. `tuerkisch_poppy_plant_stage0.png`
-190. `tuerkisch_poppy_plant_stage0_top.png`
-191. `tuerkisch_poppy_plant_stage1.png`
-192. `tuerkisch_poppy_plant_stage1_top.png`
-193. `tuerkisch_poppy_plant_stage2.png`
-194. `tuerkisch_poppy_plant_stage2_top.png`
-195. `tuerkisch_poppy_plant_stage3.png`
-196. `tuerkisch_poppy_plant_stage3_top.png`
-197. `tuerkisch_poppy_plant_stage4.png`
-198. `tuerkisch_poppy_plant_stage4_top.png`
-199. `tuerkisch_poppy_plant_stage5.png`
-200. `tuerkisch_poppy_plant_stage5_top.png`
-201. `tuerkisch_poppy_plant_stage6.png`
-202. `tuerkisch_poppy_plant_stage6_top.png`
-203. `tuerkisch_poppy_plant_stage7.png`
-204. `tuerkisch_poppy_plant_stage7_top.png`
+189. `turkish_poppy_plant_stage0.png`
+190. `turkish_poppy_plant_stage0_top.png`
+191. `turkish_poppy_plant_stage1.png`
+192. `turkish_poppy_plant_stage1_top.png`
+193. `turkish_poppy_plant_stage2.png`
+194. `turkish_poppy_plant_stage2_top.png`
+195. `turkish_poppy_plant_stage3.png`
+196. `turkish_poppy_plant_stage3_top.png`
+197. `turkish_poppy_plant_stage4.png`
+198. `turkish_poppy_plant_stage4_top.png`
+199. `turkish_poppy_plant_stage5.png`
+200. `turkish_poppy_plant_stage5_top.png`
+201. `turkish_poppy_plant_stage6.png`
+202. `turkish_poppy_plant_stage6_top.png`
+203. `turkish_poppy_plant_stage7.png`
+204. `turkish_poppy_plant_stage7_top.png`
 
 #### Virginia Tobacco Plant (16 Dateien)
 205. `virginia_plant_stage0.png`
@@ -305,40 +305,40 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 223. `big_extraction_vat.png`
 224. `big_fermentation_barrel.png`
 225. `big_refinery.png`
-226. `cannabis_curing_glas.png`
-227. `cannabis_hash_presse.png`
-228. `cannabis_oel_extraktor.png`
-229. `cannabis_trimm_station.png`
+226. `cannabis_curing_jar.png`
+227. `cannabis_hash_press.png`
+228. `cannabis_oil_extractor.png`
+229. `cannabis_trim_station.png`
 230. `cannabis_trocknungsnetz.png`
-231. `chemie_mixer.png`
-232. `crack_kocher.png`
-233. `destillations_apparat.png`
+231. `chemical_mixer.png`
+232. `crack_cooker.png`
+233. `distillation_apparatus.png`
 234. `fermentation_barrel.png`
-235. `fermentations_tank.png`
-236. `heroin_raffinerie.png`
-237. `kochstation.png`
-238. `kristallisator.png`
+235. `fermentation_tank.png`
+236. `heroin_refinery.png`
+237. `cooking_station.png`
+238. `crystallizer.png`
 239. `large_packaging_table.png`
 240. `medium_drying_rack.png`
 241. `medium_extraction_vat.png`
 242. `medium_fermentation_barrel.png`
 243. `medium_packaging_table.png`
 244. `medium_refinery.png`
-245. `mikro_dosierer.png`
-246. `opium_presse.png`
-247. `perforations_presse.png`
-248. `pillen_presse.png`
-249. `reaktions_kessel.png`
-250. `reduktionskessel.png`
-251. `ritzmaschine.png`
+245. `micro_doser.png`
+246. `opium_press.png`
+247. `perforation_press.png`
+248. `pill_press.png`
+249. `reaction_kettle.png`
+250. `reduction_kettle.png`
+251. `scoring_machine.png`
 252. `sink.png`
 253. `small_drying_rack.png`
 254. `small_extraction_vat.png`
 255. `small_fermentation_barrel.png`
 256. `small_packaging_table.png`
 257. `small_refinery.png`
-258. `trocknungs_ofen.png`
-259. `vakuum_trockner.png`
+258. `drying_oven.png`
+259. `vacuum_dryer.png`
 
 #### Pots & Containers (4 Dateien)
 260. `ceramic_pot.png`
@@ -353,7 +353,7 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 267. `garage.png`
 268. `plot_info_block.png`
 269. `warehouse.png`
-270. `wassertank.png`
+270. `water_tank.png`
 
 ---
 
@@ -370,7 +370,7 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 **Speicherort:** `/src/main/resources/assets/schedulemc/textures/gui/`
 
 #### Main GUIs (6 Dateien)
-1. `boerse_gui.png`
+1. `stock_market_gui.png`
 2. `merchant_shop.png`
 3. `npc_interaction.png`
 4. `npc_spawner.png`
@@ -401,8 +401,8 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 **Speicherort:** `/src/main/resources/assets/schedulemc/textures/item/`
 
 #### Seeds (14 Dateien)
-1. `afghanisch_poppy_seeds.png`
-2. `bolivianisch_coca_seeds.png`
+1. `afghan_poppy_seeds.png`
+2. `bolivian_coca_seeds.png`
 3. `burley_seeds.png`
 4. `cannabis_seed.png`
 5. `cannabis_seed_autoflower.png` ⭐ NEU
@@ -410,20 +410,20 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 7. `cannabis_seed_indica.png` ⭐ NEU
 8. `cannabis_seed_sativa.png` ⭐ NEU
 9. `havana_seeds.png`
-10. `indisch_poppy_seeds.png`
-11. `kolumbianisch_coca_seeds.png`
+10. `indian_poppy_seeds.png`
+11. `colombian_coca_seeds.png`
 12. `oriental_seeds.png`
-13. `tuerkisch_poppy_seeds.png`
+13. `turkish_poppy_seeds.png`
 14. `virginia_seeds.png`
 
 #### Fresh Plant Products (12 Dateien)
 11. `fresh_azurescens.png`
-12. `fresh_bolivianisch_coca_leaf.png`
+12. `fresh_bolivian_coca_leaf.png`
 13. `fresh_burley_leaf.png`
 14. `fresh_cannabis_bud.png`
 15. `fresh_cubensis.png`
 16. `fresh_havana_leaf.png`
-17. `fresh_kolumbianisch_coca_leaf.png`
+17. `fresh_colombian_coca_leaf.png`
 18. `fresh_mexicana.png`
 19. `fresh_oriental_leaf.png`
 20. `fresh_virginia_leaf.png`
@@ -463,32 +463,32 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 44. `heroin.png`
 
 #### Methamphetamine Products (4 Dateien)
-45. `roh_meth.png`
+45. `raw_meth.png`
 46. `meth_paste.png`
 47. `meth.png`
-48. `kristall_meth.png`
+48. `crystal_meth.png`
 
 #### MDMA & LSD Products (6 Dateien)
 49. `mdma_base.png`
-50. `mdma_kristall.png`
+50. `mdma_crystal.png`
 51. `ecstasy_pill.png`
-52. `mutterkorn.png`
-53. `lysergsaeure.png`
-54. `lsd_loesung.png`
+52. `ergot.png`
+53. `lysergic_acid.png`
+54. `lsd_solution.png`
 55. `lsd_blotter.png`
 
 #### Chemicals & Precursors (9 Dateien)
-56. `backpulver.png`
-57. `bindemittel.png`
-58. `blotter_papier.png`
-59. `ephedrin.png`
-60. `ergot_kultur.png`
+56. `baking_powder.png`
+57. `binding_agent.png`
+58. `blotter_paper.png`
+59. `ephedrine.png`
+60. `ergot_culture.png`
 61. `extraction_solvent.png`
-62. `jod.png`
-63. `pillen_farbstoff.png`
-64. `pseudoephedrin.png`
-65. `roter_phosphor.png`
-66. `safrol.png`
+62. `iodine.png`
+63. `pill_dye.png`
+64. `pseudoephedrine.png`
+65. `red_phosphorus.png`
+66. `safrole.png`
 67. `scoring_knife.png`
 
 #### Packaging Materials (5 Dateien)
@@ -509,17 +509,17 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 80. `fertilizer_bottle.png`
 81. `growth_booster_bottle.png`
 82. `quality_booster_bottle.png`
-83. `klimalampe_large.png`
-84. `klimalampe_medium.png`
-85. `klimalampe_small.png`
+83. `climate_lamp_large.png`
+84. `climate_lamp_medium.png`
+85. `climate_lamp_small.png`
 
 #### Soil & Substrate (6 Dateien)
 86. `soil_bag_large.png`
 87. `soil_bag_medium.png`
 88. `soil_bag_small.png`
-89. `mist_bag_large.png`
-90. `mist_bag_medium.png`
-91. `mist_bag_small.png`
+89. `manure_bag_large.png`
+90. `manure_bag_medium.png`
+91. `manure_bag_small.png`
 
 #### Spore Syringes (3 Dateien)
 92. `spore_syringe_azurescens.png`
@@ -529,37 +529,37 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 #### Processing Equipment Items (33 Dateien)
 95. `big_drying_rack.png`
 96. `big_fermentation_barrel.png`
-97. `cannabis_curing_glas.png`
-98. `cannabis_hash_presse.png`
-99. `cannabis_oel_extraktor.png`
-100. `cannabis_trimm_station.png`
+97. `cannabis_curing_jar.png`
+98. `cannabis_hash_press.png`
+99. `cannabis_oil_extractor.png`
+100. `cannabis_trim_station.png`
 101. `cannabis_trocknungsnetz.png`
-102. `chemie_mixer.png`
-103. `destillations_apparat.png`
+102. `chemical_mixer.png`
+103. `distillation_apparatus.png`
 104. `fermentation_barrel.png`
-105. `fermentations_tank.png`
-106. `heroin_raffinerie.png`
-107. `kochstation.png`
-108. `kristallisator.png`
+105. `fermentation_tank.png`
+106. `heroin_refinery.png`
+107. `cooking_station.png`
+108. `crystallizer.png`
 109. `large_packaging_table.png`
 110. `medium_drying_rack.png`
 111. `medium_fermentation_barrel.png`
 112. `medium_packaging_table.png`
-113. `mikro_dosierer.png`
-114. `opium_presse.png`
+113. `micro_doser.png`
+114. `opium_press.png`
 115. `packaging_table.png`
-116. `perforations_presse.png`
-117. `pillen_presse.png`
+116. `perforation_press.png`
+117. `pill_press.png`
 118. `pollen_press_mold.png`
-119. `reaktions_kessel.png`
-120. `reduktionskessel.png`
-121. `ritzmaschine.png`
+119. `reaction_kettle.png`
+120. `reduction_kettle.png`
+121. `scoring_machine.png`
 122. `sink.png`
 123. `small_drying_rack.png`
 124. `small_fermentation_barrel.png`
 125. `small_packaging_table.png`
-126. `trocknungs_ofen.png`
-127. `vakuum_trockner.png`
+126. `drying_oven.png`
+127. `vacuum_dryer.png`
 
 #### Vehicle Items (35 Dateien)
 128. `allterrain_tire.png`
@@ -617,7 +617,7 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 176. `cash.png`
 177. `plot_info_block.png`
 178. `warehouse.png`
-179. `wassertank.png`
+179. `water_tank.png`
 
 ---
 

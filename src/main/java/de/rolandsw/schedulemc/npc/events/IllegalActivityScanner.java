@@ -94,7 +94,7 @@ public class IllegalActivityScanner {
         RoomScanner.RoomScanResult initialRoom = RoomScanner.scanRoom(level, arrestPos);
 
         com.mojang.logging.LogUtils.getLogger().info(
-            "[ROOM-SCAN] Scanne initialen Raum für Spieler {} - {} Blöcke gefunden",
+            "[ROOM-SCAN] Scanning initial room for player {} - {} blocks found",
             player.getName().getString(),
             initialRoom.size()
         );
@@ -116,7 +116,7 @@ public class IllegalActivityScanner {
             int additionalBlocks = connectedRooms.size() - initialRoom.size();
 
             com.mojang.logging.LogUtils.getLogger().info(
-                "[ROOM-SCAN] Konterband gefunden! Erweitere Suche - {} zusätzliche Blöcke in angrenzenden Räumen",
+                "[ROOM-SCAN] Contraband found! Expanding search - {} additional blocks in adjacent rooms",
                 additionalBlocks
             );
 
@@ -136,7 +136,7 @@ public class IllegalActivityScanner {
             );
         } else {
             com.mojang.logging.LogUtils.getLogger().info(
-                "[ROOM-SCAN] Kein Konterband im initialen Raum gefunden - Durchsuchung beendet"
+                "[ROOM-SCAN] No contraband found in initial room - search ended"
             );
         }
 

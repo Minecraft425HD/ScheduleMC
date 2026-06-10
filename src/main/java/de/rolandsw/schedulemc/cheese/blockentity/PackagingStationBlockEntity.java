@@ -99,7 +99,7 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
                 }
                 if (tag.contains("Quality")) {
                     try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
+                    catch (IllegalArgumentException e) { quality = CheeseQuality.POOR; }
                 }
                 if (tag.contains("AgeLevel")) {
                     try { ageLevel = CheeseAgeLevel.valueOf(tag.getString("AgeLevel")); }
@@ -225,7 +225,7 @@ public class PackagingStationBlockEntity extends AbstractItemHandlerBlockEntity 
         }
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = CheeseQuality.POOR; }
         }
         if (tag.contains("AgeLevel")) {
             try { ageLevel = CheeseAgeLevel.valueOf(tag.getString("AgeLevel")); }

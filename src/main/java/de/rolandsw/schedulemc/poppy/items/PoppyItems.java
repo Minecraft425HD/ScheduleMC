@@ -16,20 +16,20 @@ public class PoppyItems {
             DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
 
     // Samen
-    public static final RegistryObject<Item> AFGHANISCH_SEEDS = ITEMS.register("afghanisch_poppy_seeds",
-            () -> new PoppySeedItem(PoppyType.AFGHANISCH));
-    public static final RegistryObject<Item> TUERKISCH_SEEDS = ITEMS.register("tuerkisch_poppy_seeds",
-            () -> new PoppySeedItem(PoppyType.TUERKISCH));
-    public static final RegistryObject<Item> INDISCH_SEEDS = ITEMS.register("indisch_poppy_seeds",
-            () -> new PoppySeedItem(PoppyType.INDISCH));
+    public static final RegistryObject<Item> AFGHAN_SEEDS = ITEMS.register("afghan_poppy_seeds",
+            () -> new PoppySeedItem(PoppyType.AFGHAN));
+    public static final RegistryObject<Item> TURKISH_SEEDS = ITEMS.register("turkish_poppy_seeds",
+            () -> new PoppySeedItem(PoppyType.TURKISH));
+    public static final RegistryObject<Item> INDIAN_SEEDS = ITEMS.register("indian_poppy_seeds",
+            () -> new PoppySeedItem(PoppyType.INDIAN));
 
     // Mohnkapseln (je eine Variante pro Sorte)
-    public static final RegistryObject<Item> AFGHANISCH_POPPY_POD = ITEMS.register("afghanisch_poppy_pod",
-            () -> new PoppyPodItem(PoppyType.AFGHANISCH));
-    public static final RegistryObject<Item> TUERKISCH_POPPY_POD = ITEMS.register("tuerkisch_poppy_pod",
-            () -> new PoppyPodItem(PoppyType.TUERKISCH));
-    public static final RegistryObject<Item> INDISCH_POPPY_POD = ITEMS.register("indisch_poppy_pod",
-            () -> new PoppyPodItem(PoppyType.INDISCH));
+    public static final RegistryObject<Item> AFGHAN_POPPY_POD = ITEMS.register("afghan_poppy_pod",
+            () -> new PoppyPodItem(PoppyType.AFGHAN));
+    public static final RegistryObject<Item> TURKISH_POPPY_POD = ITEMS.register("turkish_poppy_pod",
+            () -> new PoppyPodItem(PoppyType.TURKISH));
+    public static final RegistryObject<Item> INDIAN_POPPY_POD = ITEMS.register("indian_poppy_pod",
+            () -> new PoppyPodItem(PoppyType.INDIAN));
 
     // Rohopium (braun)
     public static final RegistryObject<Item> RAW_OPIUM = ITEMS.register("raw_opium",

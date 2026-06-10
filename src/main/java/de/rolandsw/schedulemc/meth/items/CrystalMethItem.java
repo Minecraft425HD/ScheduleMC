@@ -40,10 +40,10 @@ public class CrystalMethItem extends Item {
             try {
                 return MethQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return MethQuality.SCHLECHT;
+                return MethQuality.POOR;
             }
         }
-        return MethQuality.SCHLECHT;
+        return MethQuality.POOR;
     }
 
     @Override
@@ -52,12 +52,12 @@ public class CrystalMethItem extends Item {
 
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.kristall_meth.moist_crystals", quality.getColorDescription().toLowerCase()));
+        tooltip.add(Component.translatable("tooltip.crystal_meth.moist_crystals", quality.getColorDescription().toLowerCase()));
         tooltip.add(Component.translatable("tooltip.meth.next_step_vacuum"));
     }
 
     @Override
     public Component getName(ItemStack stack) {
-        return Component.translatable("item.kristall_meth.name");
+        return Component.translatable("item.crystal_meth.name");
     }
 }

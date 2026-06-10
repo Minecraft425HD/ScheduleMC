@@ -65,7 +65,7 @@ public class RoastedCoffeeBeanItem extends Item {
                 LOGGER.warn("Invalid Quality '{}' on RoastedCoffeeBeanItem", tag.getString("Quality"), exception);
             }
         }
-        return CoffeeQuality.SEHR_GUT;
+        return CoffeeQuality.VERY_GOOD;
     }
 
     /**

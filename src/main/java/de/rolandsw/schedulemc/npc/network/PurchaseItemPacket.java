@@ -110,7 +110,7 @@ public class PurchaseItemPacket {
         List<ShopEntry> shopItems = new ArrayList<>(merchant.getNpcData().getShopData().getBuyShop().getEntries());
 
         // Spezialbehandlung für Tankstelle: Füge unbezahlte Rechnungen hinzu (wie in OpenMerchantShopPacket)
-        if (merchant.getMerchantCategory() == MerchantCategory.TANKSTELLE) {
+        if (merchant.getMerchantCategory() == MerchantCategory.GAS_STATION) {
             List<ShopEntry> billEntries = createBillEntries(player);
             shopItems.addAll(0, billEntries); // Am Anfang einfügen - GLEICHE LOGIK WIE BEIM ÖFFNEN!
         }
@@ -199,7 +199,7 @@ public class PurchaseItemPacket {
         // Separate Prüfung hier entfernt wegen TOCTOU Race Condition
 
         // Spezialbehandlung für Tankrechnungen (Tankstelle)
-        if (merchant.getMerchantCategory() == MerchantCategory.TANKSTELLE &&
+        if (merchant.getMerchantCategory() == MerchantCategory.GAS_STATION &&
             entry.getItem().hasTag() && entry.getItem().getTag() != null) {
 
             String billType = entry.getItem().getTag().getString("BillType");
@@ -220,10 +220,10 @@ public class PurchaseItemPacket {
         }
 
         // Spezialbehandlung für Fahrzeuge (Autohändler)
-        if (merchant.getMerchantCategory() == MerchantCategory.AUTOHAENDLER &&
+        if (merchant.getMerchantCategory() == MerchantCategory.CAR_DEALER &&
             entry.getItem().getItem() instanceof ItemSpawnVehicle) {
 
-            LOGGER.info("Fahrzeugkauf-Paket empfangen: Spieler={}, Händler-Category={}, Item={}",
+            LOGGER.info("Vehicle purchase packet received: player={}, merchant category={}, item={}",
                 player.getName().getString(), merchant.getMerchantCategory(), entry.getItem().getHoverName().getString());
 
             // Fahrzeug-Kauf über VehiclePurchaseHandler
@@ -235,11 +235,11 @@ public class PurchaseItemPacket {
             );
 
             if (success) {
-                LOGGER.info("Fahrzeugkauf erfolgreich, reduziere Lagerbestand");
+                LOGGER.info("Vehicle purchase successful, reducing stock");
                 // Reduziere Lagerbestand (nutze Warehouse-Integration)
                 merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, quantity, totalPrice);
             } else {
-                LOGGER.warn("Fahrzeugkauf fehlgeschlagen (VehiclePurchaseHandler gab false zurück)");
+                LOGGER.warn("Vehicle purchase failed (VehiclePurchaseHandler returned false)");
             }
             return;
         }
@@ -279,7 +279,7 @@ public class PurchaseItemPacket {
                 lifeData.getMemory().addMemory(
                     player.getUUID(),
                     MemoryType.TRADED,
-                    String.format("Kaufte %dx %s für %d",
+                    String.format("Bought %dx %s for %d",
                         quantity,
                         entry.getItem().getHoverName().getString(),
                         totalPrice),

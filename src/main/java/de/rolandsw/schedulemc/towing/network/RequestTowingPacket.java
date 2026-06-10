@@ -149,7 +149,7 @@ public class RequestTowingPacket {
                 membership != null ? membership.getTier() : de.rolandsw.schedulemc.towing.MembershipTier.NONE
             );
 
-            // Create invoice for the player to pay at ABSCHLEPPER NPC
+            // Create invoice for the player to pay at TOW_TRUCK_DRIVER NPC
             TowingYardManager.createInvoice(
                 sender.getUUID(),
                 vehicle.getUUID(),

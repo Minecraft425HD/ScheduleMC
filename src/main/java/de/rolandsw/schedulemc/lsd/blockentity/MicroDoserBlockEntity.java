@@ -2,8 +2,8 @@ package de.rolandsw.schedulemc.lsd.blockentity;
 
 import de.rolandsw.schedulemc.lsd.LSDDosage;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
-import de.rolandsw.schedulemc.lsd.items.LSDLoesungItem;
-import de.rolandsw.schedulemc.lsd.items.LysergsaeureItem;
+import de.rolandsw.schedulemc.lsd.items.LSDSolutionItem;
+import de.rolandsw.schedulemc.lsd.items.LysergicAcidItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
@@ -27,7 +27,7 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
     private static final int PROCESS_TIME = 200; // 10 Sekunden
 
     private boolean lastActiveState = false;
-    private int lysergsaeureCount = 0;
+    private int lysergic_acidCount = 0;
     private int dosageSlider = 50; // 0-100, default 50% = 175μg
     private int processProgress = 0;
     private ItemStack outputItem = ItemStack.EMPTY;
@@ -41,12 +41,12 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
     /**
      * Fügt Lysergsäure hinzu
      */
-    public boolean addLysergsaeure(ItemStack stack) {
-        if (!(stack.getItem() instanceof LysergsaeureItem)) return false;
-        if (lysergsaeureCount >= 16) return false;
+    public boolean addLysergicAcid(ItemStack stack) {
+        if (!(stack.getItem() instanceof LysergicAcidItem)) return false;
+        if (lysergic_acidCount >= 16) return false;
         if (!outputItem.isEmpty()) return false;
 
-        lysergsaeureCount = Math.min(lysergsaeureCount + 1, 16);
+        lysergic_acidCount = Math.min(lysergic_acidCount + 1, 16);
         setChanged();
         return true;
     }
@@ -63,7 +63,7 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
      * Startet den Dosierungsprozess
      */
     public boolean startProcess() {
-        if (lysergsaeureCount <= 0 || !outputItem.isEmpty() || isProcessing) {
+        if (lysergic_acidCount <= 0 || !outputItem.isEmpty() || isProcessing) {
             return false;
         }
         isProcessing = true;
@@ -95,7 +95,7 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
         long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
         lastGameTime = now;
 
-        if (isProcessing && lysergsaeureCount > 0) {
+        if (isProcessing && lysergic_acidCount > 0) {
             int prevProgress = processProgress;
             processProgress = (int) Math.min((long) processProgress + ticksPassed, PROCESS_TIME);
 
@@ -106,11 +106,11 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
 
                 // Mehr Lysergsäure = mehr Ladungen
                 // Höhere Dosis = weniger Ladungen pro Lysergsäure
-                int chargesPerLysergsaeure = Math.max(1, 10 - (micrograms / 50));
-                int totalCharges = lysergsaeureCount * chargesPerLysergsaeure;
+                int chargesPerLysergicAcid = Math.max(1, 10 - (micrograms / 50));
+                int totalCharges = lysergic_acidCount * chargesPerLysergicAcid;
 
-                outputItem = LSDLoesungItem.create(dosage, micrograms, totalCharges);
-                lysergsaeureCount = 0;
+                outputItem = LSDSolutionItem.create(dosage, micrograms, totalCharges);
+                lysergic_acidCount = 0;
                 isProcessing = false;
                 processProgress = 0;
 
@@ -133,8 +133,8 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
     // Getter
     public boolean isProcessing() { return isProcessing; }
     public boolean hasOutput() { return !outputItem.isEmpty(); }
-    public boolean hasInput() { return lysergsaeureCount > 0; }
-    public int getLysergsaeureCount() { return lysergsaeureCount; }
+    public boolean hasInput() { return lysergic_acidCount > 0; }
+    public int getLysergicAcidCount() { return lysergic_acidCount; }
     public int getDosageSlider() { return dosageSlider; }
     public int getCurrentMicrograms() { return LSDDosage.getMicrogramsFromSlider(dosageSlider); }
     public LSDDosage getCurrentDosage() { return LSDDosage.fromSliderValue(dosageSlider); }
@@ -148,7 +148,7 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        tag.putInt("Lysergsaeure", lysergsaeureCount);
+        tag.putInt("Lysergsaeure", lysergic_acidCount);
         tag.putInt("DosageSlider", dosageSlider);
         tag.putInt("Progress", processProgress);
         tag.putBoolean("Processing", isProcessing);
@@ -163,7 +163,7 @@ public class MicroDoserBlockEntity extends BlockEntity implements IUtilityConsum
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        lysergsaeureCount = tag.getInt("Lysergsaeure");
+        lysergic_acidCount = tag.getInt("Lysergsaeure");
         dosageSlider = tag.getInt("DosageSlider");
         processProgress = tag.getInt("Progress");
         isProcessing = tag.getBoolean("Processing");

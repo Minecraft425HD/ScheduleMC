@@ -88,7 +88,7 @@ public class TutorialManager extends AbstractPersistenceManager<Map<String, Tuto
         TRADE_WITH_NPC("Handle mit einem NPC", TutorialPhase.NPC_TRADING),
 
         // Phase 6: Gangs
-        JOIN_OR_CREATE_GANG("Tritt einer Gang bei oder gruende eine", TutorialPhase.GANG_INTRODUCTION),
+        JOIN_OR_CREATE_GANG("Join a gang or found one", TutorialPhase.GANG_INTRODUCTION),
         COMPLETE_GANG_MISSION("Schliesse eine Gang-Mission ab", TutorialPhase.GANG_INTRODUCTION),
 
         // Phase 7: Advanced

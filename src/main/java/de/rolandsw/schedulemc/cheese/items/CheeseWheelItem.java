@@ -61,10 +61,10 @@ public class CheeseWheelItem extends Item {
             try {
                 return CheeseQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return CheeseQuality.SCHLECHT;
+                return CheeseQuality.POOR;
             }
         }
-        return CheeseQuality.SCHLECHT;
+        return CheeseQuality.POOR;
     }
 
     public static CheeseAgeLevel getAgeLevel(ItemStack stack) {

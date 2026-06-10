@@ -443,7 +443,7 @@ public class GangAppScreen extends Screen {
             y += 13;
         }
         if (gangs.size() > shown) {
-            g.drawString(this.font, "\u00A78...und " + (gangs.size() - shown) + " weitere", leftPos + 12, y, 0x888888);
+            g.drawString(this.font, "\u00A78...and " + (gangs.size() - shown) + " weitere", leftPos + 12, y, 0x888888);
         }
     }
 

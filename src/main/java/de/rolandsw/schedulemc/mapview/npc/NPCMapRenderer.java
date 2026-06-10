@@ -27,8 +27,8 @@ import java.util.List;
 public class NPCMapRenderer {
 
     // Marker-Farben nach NPC-Typ
-    private static final int COLOR_BEWOHNER = 0xFF4CAF50;    // Grün für Bewohner
-    private static final int COLOR_VERKAEUFER = 0xFFFF9800;  // Orange für Verkäufer
+    private static final int COLOR_CITIZEN = 0xFF4CAF50;    // Grün für Bewohner
+    private static final int COLOR_MERCHANT = 0xFFFF9800;  // Orange für Verkäufer
     private static final int COLOR_DEFAULT = 0xFF2196F3;     // Blau als Default
 
     // Marker-Größe
@@ -229,11 +229,11 @@ public class NPCMapRenderer {
         NPCType type = npc.getNpcType();
 
         switch (type) {
-            case BEWOHNER:
-                return COLOR_BEWOHNER;
-            case VERKAEUFER:
-                return COLOR_VERKAEUFER;
-            case POLIZEI:
+            case CITIZEN:
+                return COLOR_CITIZEN;
+            case MERCHANT:
+                return COLOR_MERCHANT;
+            case POLICE:
                 // Sollte nie erreicht werden (gefiltert)
                 return 0xFF0000FF;
             default:
@@ -265,7 +265,7 @@ public class NPCMapRenderer {
             CustomNPCEntity npc = (CustomNPCEntity) entity;
 
             // Filter: Keine Polizei-NPCs
-            if (npc.getNpcType() == NPCType.POLIZEI) {
+            if (npc.getNpcType() == NPCType.POLICE) {
                 continue;
             }
 
@@ -306,7 +306,7 @@ public class NPCMapRenderer {
         for (Entity entity : level.getEntities(nullEntity, searchBox, e -> e instanceof CustomNPCEntity)) {
             CustomNPCEntity npc = (CustomNPCEntity) entity;
             NPCActivityStatus status = npc.getActivityStatus();
-            if (npc.getNpcType() != NPCType.POLIZEI && status.isVisibleOnMap()) {
+            if (npc.getNpcType() != NPCType.POLICE && status.isVisibleOnMap()) {
                 // Zeige Tooltip für ersten sichtbaren NPC
                 String name = npc.getNpcName();
                 String typeStr = npc.getNpcType().getDisplayName().getString();

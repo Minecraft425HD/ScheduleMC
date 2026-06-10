@@ -73,7 +73,7 @@ public abstract class HackingToolItem extends Item {
         LockData lockData = mgr.getLock(posKey);
 
         if (lockData == null) {
-            player.sendSystemMessage(Component.literal("\u00A77Diese Tuer ist nicht gesperrt."));
+            player.sendSystemMessage(Component.literal("\u00A77This door is not locked."));
             return InteractionResult.PASS;
         }
 
@@ -89,9 +89,9 @@ public abstract class HackingToolItem extends Item {
         // Pruefen ob dieses Tool den Lock-Typ hacken kann
         if (!canHackLockType(type)) {
             String msg = switch (type) {
-                case COMBINATION -> "\u00A7cDieses Tool ist fuer Dual-Locks konzipiert! Verwende einen Code-Cracker oder Omni-Hack.";
-                case DUAL -> "\u00A7cDieses Tool ist zu schwach fuer ein Dual-Lock! Verwende ein Bypass-Modul oder Omni-Hack.";
-                default -> "\u00A7cDieses Tool funktioniert nicht an diesem Schloss!";
+                case COMBINATION -> "\u00A7cThis tool is designed for dual locks! Use a code cracker or omni hack.";
+                case DUAL -> "\u00A7cThis tool is too weak for a dual lock! Use a bypass module or omni hack.";
+                default -> "\u00A7cThis tool does not work on this lock!";
             };
             player.sendSystemMessage(Component.literal(msg));
             return InteractionResult.FAIL;

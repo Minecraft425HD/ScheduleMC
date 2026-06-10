@@ -64,7 +64,7 @@ public class ShopEditorMenu extends AbstractContainerMenu {
         int entityId = extraData.readInt();
         this.merchant = (CustomNPCEntity) playerInventory.player.level().getEntity(entityId);
         this.entityId = entityId;
-        this.category = merchant != null ? merchant.getMerchantCategory() : MerchantCategory.BAUMARKT;
+        this.category = merchant != null ? merchant.getMerchantCategory() : MerchantCategory.HARDWARE_STORE;
         this.shopContainer = new SimpleContainer(SHOP_SLOTS);
 
         // Lese Shop-Items vom Buffer

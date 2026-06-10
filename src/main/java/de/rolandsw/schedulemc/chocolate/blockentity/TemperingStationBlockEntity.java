@@ -83,9 +83,9 @@ public class TemperingStationBlockEntity extends AbstractItemHandlerBlockEntity 
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
             } else {
-                quality = ChocolateQuality.GUT;
+                quality = ChocolateQuality.GOOD;
             }
             temperingProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -131,7 +131,7 @@ public class TemperingStationBlockEntity extends AbstractItemHandlerBlockEntity 
 
                 // Tempering can upgrade quality significantly!
                 // If already at PREMIUM, can reach EXCEPTIONAL
-                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.SCHLECHT;
+                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.POOR;
                 upgradedQuality = (ChocolateQuality) upgradedQuality.upgrade();
 
                 // Tempering is the only process that can reach EXCEPTIONAL
@@ -194,7 +194,7 @@ public class TemperingStationBlockEntity extends AbstractItemHandlerBlockEntity 
         lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
         }
         syncToHandler();
     }

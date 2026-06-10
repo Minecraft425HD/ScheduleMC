@@ -45,7 +45,7 @@ public class SaveScenarioPacket {
             ScenarioManager manager = ScenarioManager.getInstance();
             if (manager == null) {
                 player.sendSystemMessage(Component.literal(
-                        "\u00A7c[Szenario-Editor] Manager nicht initialisiert!"));
+                        "\u00A7c[Scenario Editor] Manager not initialized!"));
                 return;
             }
 
@@ -53,12 +53,12 @@ public class SaveScenarioPacket {
                 MissionScenario scenario = ScenarioManager.fromJson(msg.scenarioJson);
                 manager.saveScenario(scenario);
                 player.sendSystemMessage(Component.literal(
-                        "\u00A7a[Szenario-Editor] '" + scenario.getName() + "' gespeichert! ("
+                        "\u00A7a[Szenario-Editor] '" + scenario.getName() + "' saved! ("
                         + scenario.getStepCount() + " Phasen, "
                         + scenario.getDifficultyStars() + ")"));
             } catch (Exception e) {
                 player.sendSystemMessage(Component.literal(
-                        "\u00A7c[Szenario-Editor] Fehler beim Speichern: " + e.getMessage()));
+                        "\u00A7c[Scenario Editor] Error while saving: " + e.getMessage()));
             }
         });
         ctx.get().setPacketHandled(true);

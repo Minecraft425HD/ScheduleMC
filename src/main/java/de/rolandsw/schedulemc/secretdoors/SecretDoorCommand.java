@@ -70,24 +70,22 @@ public class SecretDoorCommand {
 
             BlockState state = level.getBlockState(pos);
             if (!(state.getBlock() instanceof AbstractSecretDoorBlock doorBlock)) {
-                source.sendFailure(Component.literal("§cKein Geheimtür-Block an dieser Position!"));
+                source.sendFailure(Component.translatable("message.secret_door.not_a_secret_door"));
                 return 0;
             }
 
             if (!(level.getBlockEntity(pos) instanceof SecretDoorBlockEntity be)) {
-                source.sendFailure(Component.literal("§cKein BlockEntity gefunden!"));
+                source.sendFailure(Component.translatable("message.secret_door.no_block_entity"));
                 return 0;
             }
 
             be.setSize(width, height, level);
             doorBlock.spawnFillers(level, pos, be, width, height, state.getValue(AbstractSecretDoorBlock.FACING));
 
-            source.sendSuccess(() -> Component.literal(
-                "§a[Geheimtür] Größe bei §e" + pos.toShortString() + "§a auf §e"
-                + width + "×" + height + "§a gesetzt."), true);
+            source.sendSuccess(() -> Component.translatable("message.secret_door.size_set", pos.toShortString(), width, height), true);
             return 1;
         } catch (Exception e) {
-            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("message.secret_door.error_generic", e.getMessage()));
             return 0;
         }
     }
@@ -100,23 +98,22 @@ public class SecretDoorCommand {
 
             BlockState state = level.getBlockState(pos);
             if (!(state.getBlock() instanceof AbstractSecretDoorBlock)) {
-                source.sendFailure(Component.literal("§cKein Geheimtür-Block an dieser Position!"));
+                source.sendFailure(Component.translatable("message.secret_door.not_a_secret_door"));
                 return 0;
             }
 
             if (!(level.getBlockEntity(pos) instanceof SecretDoorBlockEntity be)) {
-                source.sendFailure(Component.literal("§cKein BlockEntity gefunden!"));
+                source.sendFailure(Component.translatable("message.secret_door.no_block_entity"));
                 return 0;
             }
 
             ServerPlayer player = source.getPlayerOrException();
             be.toggle(level, player);
 
-            source.sendSuccess(() -> Component.literal(
-                "§a[Geheimtür] Tür bei §e" + pos.toShortString() + "§a geschaltet."), true);
+            source.sendSuccess(() -> Component.translatable("message.secret_door.toggled_at", pos.toShortString()), true);
             return 1;
         } catch (Exception e) {
-            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("message.secret_door.error_generic", e.getMessage()));
             return 0;
         }
     }
@@ -129,27 +126,24 @@ public class SecretDoorCommand {
 
             BlockState state = level.getBlockState(pos);
             if (!(state.getBlock() instanceof AbstractSecretDoorBlock doorBlock)) {
-                source.sendFailure(Component.literal("§cKein Geheimtür-Block an dieser Position!"));
+                source.sendFailure(Component.translatable("message.secret_door.not_a_secret_door"));
                 return 0;
             }
 
             if (!(level.getBlockEntity(pos) instanceof SecretDoorBlockEntity be)) {
-                source.sendFailure(Component.literal("§cKein BlockEntity gefunden!"));
+                source.sendFailure(Component.translatable("message.secret_door.no_block_entity"));
                 return 0;
             }
 
-            source.sendSuccess(() -> Component.literal(
-                "§6=== Geheimtür Info ===\n" +
-                "§7Typ: §e" + doorBlock.getDoorType().name() + "\n" +
-                "§7Größe: §e" + be.getDoorWidth() + "×" + be.getDoorHeight() + "\n" +
-                "§7Status: §e" + (be.isOpen() ? "§aOFFEN" : "§cGESCHLOSSEN") + "\n" +
-                "§7Besitzer: §e" + (be.getOwnerName().isEmpty() ? "Niemand" : be.getOwnerName()) + "\n" +
-                "§7Füller-Blöcke: §e" + be.getFillerOffsets().size() + "\n" +
-                "§7Verknüpfte Schalter: §e" + be.getLinkedSwitches().size()
+            source.sendSuccess(() -> Component.translatable("message.secret_door.info", doorBlock.getDoorType().name(),
+                be.getDoorWidth(), be.getDoorHeight(),
+                be.isOpen() ? Component.translatable("message.secret_door.status_open") : Component.translatable("message.secret_door.status_closed"),
+                be.getOwnerName().isEmpty() ? Component.translatable("message.secret_door.owner_none") : Component.literal(be.getOwnerName()),
+                be.getFillerOffsets().size(), be.getLinkedSwitches().size()
             ), false);
             return 1;
         } catch (Exception e) {
-            ctx.getSource().sendFailure(Component.literal("§cFehler: " + e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("message.secret_door.error_generic", e.getMessage()));
             return 0;
         }
     }

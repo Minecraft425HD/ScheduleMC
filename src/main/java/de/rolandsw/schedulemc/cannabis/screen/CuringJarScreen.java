@@ -86,7 +86,7 @@ public class CuringJarScreen extends AbstractContainerScreen<CuringJarMenu> {
         int y = topPos;
 
         // Title
-        g.drawString(font, Component.translatable("gui.curing_glas.title").getString(),
+        g.drawString(font, Component.translatable("gui.curing_jar.title").getString(),
                 x + 8, y + 6, 0xFF88FF88, true);
 
         // Slot labels
@@ -96,7 +96,7 @@ public class CuringJarScreen extends AbstractContainerScreen<CuringJarMenu> {
                 x + 128, y + 19, 0xAAAAAA, false);
 
         if (!menu.hasContent() && !menu.hasOutput()) {
-            String empty = Component.translatable("gui.curing_glas.empty").getString();
+            String empty = Component.translatable("gui.curing_jar.empty").getString();
             g.drawCenteredString(font, empty, x + 88, y + 35, 0xFF888888);
             return;
         }
@@ -111,20 +111,20 @@ public class CuringJarScreen extends AbstractContainerScreen<CuringJarMenu> {
 
         // Info rows
         g.drawString(font,
-                Component.translatable("gui.curing_glas.info_strain").getString()
+                Component.translatable("gui.curing_jar.info_strain").getString()
                 + menu.getStrain().getColoredName() + " §7| " + menu.getWeight() + "g",
                 x + 8, y + 66, 0xFFFFFF, false);
         g.drawString(font,
-                Component.translatable("gui.curing_glas.info_base_quality").getString()
+                Component.translatable("gui.curing_jar.info_base_quality").getString()
                 + menu.getBaseQuality().getColoredName(),
                 x + 8, y + 76, 0xFFFFFF, false);
         g.drawString(font,
-                Component.translatable("gui.curing_glas.info_expected_quality").getString()
+                Component.translatable("gui.curing_jar.info_expected_quality").getString()
                 + menu.getExpectedQuality().getColoredName()
                 + " §7(+1)",
                 x + 8, y + 86, 0xFFFFFF, false);
         g.drawString(font,
-                "§7+20% " + Component.translatable("gui.curing_glas.price_bonus").getString(),
+                "§7+20% " + Component.translatable("gui.curing_jar.price_bonus").getString(),
                 x + 8, y + 96, 0xFFFFFF, false);
     }
 

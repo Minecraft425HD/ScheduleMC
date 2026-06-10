@@ -124,14 +124,14 @@ public class HotReloadableConfig<T> {
     public void startWatching() {
         File parentFile = configFile.getParentFile();
         if (parentFile == null) {
-            LOGGER.error("Kann Config-Datei nicht überwachen – kein übergeordnetes Verzeichnis: {}", configFile.getName());
+            LOGGER.error("Cannot watch config file - no parent directory: {}", configFile.getName());
             return;
         }
         Path dir = parentFile.toPath();
         watchedConfigs.put(configFile.toPath().toAbsolutePath(), this);
 
         ensureWatchServiceRunning(dir);
-        LOGGER.info("Config Hot-Reload aktiv fuer: {}", configFile.getName());
+        LOGGER.info("Config hot reload active for: {}", configFile.getName());
     }
 
     /**
@@ -188,7 +188,7 @@ public class HotReloadableConfig<T> {
                 watchThread.start();
 
             } catch (IOException e) {
-                LOGGER.error("Konnte WatchService nicht starten", e);
+                LOGGER.error("Could not start WatchService", e);
             }
         }
     }
@@ -204,7 +204,7 @@ public class HotReloadableConfig<T> {
             try {
                 watchService.close();
             } catch (IOException e) {
-                LOGGER.error("Fehler beim Schliessen des WatchService", e);
+                LOGGER.error("Error closing WatchService", e);
             }
         }
 
@@ -253,11 +253,11 @@ public class HotReloadableConfig<T> {
                 try {
                     listener.accept(newConfig);
                 } catch (Exception e) {
-                    LOGGER.error("Fehler in Reload-Listener fuer {}", configFile.getName(), e);
+                    LOGGER.error("Error in reload listener for {}", configFile.getName(), e);
                 }
             }
 
-            LOGGER.info("Config erfolgreich neu geladen: {}", configFile.getName());
+            LOGGER.info("Config successfully reloaded: {}", configFile.getName());
             return true;
 
         } catch (Exception e) {
@@ -272,7 +272,7 @@ public class HotReloadableConfig<T> {
 
     private T loadFromFile() {
         if (!configFile.exists()) {
-            LOGGER.warn("Config-Datei nicht gefunden: {}", configFile.getAbsolutePath());
+            LOGGER.warn("Config file not found: {}", configFile.getAbsolutePath());
             return null;
         }
 
@@ -281,7 +281,7 @@ public class HotReloadableConfig<T> {
             lastModified = configFile.lastModified();
             return config;
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Config: {}", configFile.getName(), e);
+            LOGGER.error("Error loading config: {}", configFile.getName(), e);
             return null;
         }
     }
@@ -298,9 +298,9 @@ public class HotReloadableConfig<T> {
             Files.move(tempFile.toPath(), configFile.toPath(),
                 StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             lastModified = configFile.lastModified();
-            LOGGER.debug("Config gespeichert: {}", configFile.getName());
+            LOGGER.debug("Config saved: {}", configFile.getName());
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Speichern der Config: {}", configFile.getName(), e);
+            LOGGER.error("Error saving config: {}", configFile.getName(), e);
         }
     }
 

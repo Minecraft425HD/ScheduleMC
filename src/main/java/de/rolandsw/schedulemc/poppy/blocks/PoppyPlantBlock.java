@@ -127,10 +127,10 @@ public class PoppyPlantBlock extends Block {
 
             if (age >= 7) {
                 int yield = poppyType.getBaseYield();
-                drops.add(PoppyPodItem.create(poppyType, TobaccoQuality.GUT, yield));
+                drops.add(PoppyPodItem.create(poppyType, TobaccoQuality.GOOD, yield));
             } else if (age >= 4) {
                 int yield = (int) (poppyType.getBaseYield() * 0.5);
-                drops.add(PoppyPodItem.create(poppyType, TobaccoQuality.SCHLECHT, yield));
+                drops.add(PoppyPodItem.create(poppyType, TobaccoQuality.POOR, yield));
             }
         }
 
@@ -242,7 +242,7 @@ public class PoppyPlantBlock extends Block {
                             potBE.setChanged();
                             level.sendBlockUpdated(potPos, level.getBlockState(potPos), level.getBlockState(potPos), 3);
 
-                            String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
+                            String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 quality!)" : "";
                             player.displayClientMessage(Component.translatable(
                                 "block.plant_pot.poppy_harvested",
                                 harvested.getHarvestYield(),
@@ -316,9 +316,9 @@ public class PoppyPlantBlock extends Block {
 
     private static Block getPlantBlockForType(PoppyType type) {
         return switch (type) {
-            case AFGHANISCH -> PoppyBlocks.AFGHANISCH_PLANT.get();
-            case TUERKISCH -> PoppyBlocks.TUERKISCH_PLANT.get();
-            case INDISCH -> PoppyBlocks.INDISCH_PLANT.get();
+            case AFGHAN -> PoppyBlocks.AFGHAN_PLANT.get();
+            case TURKISH -> PoppyBlocks.TURKISH_PLANT.get();
+            case INDIAN -> PoppyBlocks.INDIAN_PLANT.get();
         };
     }
 }

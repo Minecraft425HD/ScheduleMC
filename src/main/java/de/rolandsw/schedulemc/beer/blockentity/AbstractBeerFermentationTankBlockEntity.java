@@ -98,9 +98,9 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends AbstractIt
             CompoundTag tag = handlerBeer.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
+                catch (IllegalArgumentException e) { quality = BeerQuality.POOR; }
             } else {
-                quality = BeerQuality.SCHLECHT;
+                quality = BeerQuality.POOR;
             }
 
             fermentationProgress = 0;
@@ -220,7 +220,7 @@ public abstract class AbstractBeerFermentationTankBlockEntity extends AbstractIt
         lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = BeerQuality.POOR; }
         }
         syncToHandler();
     }

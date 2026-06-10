@@ -237,11 +237,11 @@ public class NPCLifeSystemIntegration {
 
         // Bei niedriger Loyalität: negative Reputation
         if (companion.getLoyalty() < 30) {
-            factionManager.modifyReputation(playerUUID, Faction.BUERGER, -3);
+            factionManager.modifyReputation(playerUUID, Faction.CITIZENS, -3);
 
             Rumor rumor = Rumor.createPlayer(
                 playerUUID,
-                "hat seinen unglücklichen Begleiter entlassen",
+                "has dismissed their unhappy companion",
                 2,
                 3
             );
@@ -261,7 +261,7 @@ public class NPCLifeSystemIntegration {
         // Positive Gerüchte über den Spieler
         Rumor rumor = Rumor.createPlayer(
             playerUUID,
-            "hat die Aufgabe '" + quest.getTitle() + "' erfolgreich abgeschlossen",
+            "hat die Aufgabe '" + quest.getTitle() + "' completed successfully",
             4, // importance
             7  // duration days
         );
@@ -309,7 +309,7 @@ public class NPCLifeSystemIntegration {
                 "Quest fehlgeschlagen: " + quest.getTitle(),
                 4
             );
-            lifeData.getMemory().addPlayerTag(playerUUID, "Unzuverlässig");
+            lifeData.getMemory().addPlayerTag(playerUUID, "Unreliable");
         }
     }
 
@@ -332,7 +332,7 @@ public class NPCLifeSystemIntegration {
             if (totalAmount > 2000) {
                 Rumor rumor = Rumor.createPlayer(
                     playerUUID,
-                    "ist ein großzügiger Kunde mit tiefen Taschen",
+                    "is a generous customer with deep pockets",
                     2,
                     3
                 );
@@ -351,17 +351,17 @@ public class NPCLifeSystemIntegration {
         UUID criminalUUID = criminal.getUUID();
 
         // Severity-skalierte Reputations-Strafen basierend auf Wanted-Stars
-        // Petty Theft (1 Star): -2 ORDNUNG, -1 BUERGER
-        // Murder (3 Stars): -6 ORDNUNG, -3 BUERGER
-        // Terrorism (5 Stars): -10 ORDNUNG, -5 BUERGER
+        // Petty Theft (1 Star): -2 LAW, -1 CITIZENS
+        // Murder (3 Stars): -6 LAW, -3 CITIZENS
+        // Terrorism (5 Stars): -10 LAW, -5 CITIZENS
         int reputationPenalty = crimeType.getWantedStars() * 2;
-        factionManager.modifyReputation(criminalUUID, Faction.ORDNUNG, -reputationPenalty);
-        factionManager.modifyReputation(criminalUUID, Faction.BUERGER, -reputationPenalty / 2);
+        factionManager.modifyReputation(criminalUUID, Faction.LAW, -reputationPenalty);
+        factionManager.modifyReputation(criminalUUID, Faction.CITIZENS, -reputationPenalty / 2);
 
         // Gerücht über das Verbrechen verbreiten
         Rumor rumor = Rumor.createPlayer(
             criminalUUID,
-            "wurde bei " + getCrimeDescription(crimeType) + " beobachtet",
+            "was at " + getCrimeDescription(crimeType) + " beobachtet",
             crimeType.getSeverity() + 2,
             crimeType.getSeverity() * 3
         );
@@ -369,7 +369,7 @@ public class NPCLifeSystemIntegration {
 
         // Bei schwerem Verbrechen: Auch Untergrund informieren
         if (crimeType.getSeverity() >= 4) {
-            factionManager.modifyReputation(criminalUUID, Faction.UNTERGRUND, 2);
+            factionManager.modifyReputation(criminalUUID, Faction.UNDERWORLD, 2);
         }
     }
 
@@ -415,8 +415,8 @@ public class NPCLifeSystemIntegration {
         if (lifeData != null) {
             if (accepted) {
                 // Bestechung angenommen: Zeuge schweigt, aber Spieler wird korrupt
-                factionManager.modifyReputation(playerUUID, Faction.ORDNUNG, -5);
-                factionManager.modifyReputation(playerUUID, Faction.BUERGER, -3);
+                factionManager.modifyReputation(playerUUID, Faction.LAW, -5);
+                factionManager.modifyReputation(playerUUID, Faction.CITIZENS, -3);
 
                 // Zeuge erinnert sich an die Bestechung
                 lifeData.getMemory().addMemory(
@@ -428,7 +428,7 @@ public class NPCLifeSystemIntegration {
                 lifeData.getMemory().addPlayerTag(playerUUID, "Bestechlich");
 
                 // Im Untergrund wird das respektiert
-                factionManager.modifyReputation(playerUUID, Faction.UNTERGRUND, 2);
+                factionManager.modifyReputation(playerUUID, Faction.UNDERWORLD, 2);
             } else {
                 // Bestechung abgelehnt: Gerüchte verbreiten, aber mildere Strafe
                 Rumor rumor = Rumor.createPlayer(
@@ -440,8 +440,8 @@ public class NPCLifeSystemIntegration {
                 rumorNetwork.spreadRumor(rumor, witness.blockPosition());
 
                 // Mildere Strafe: Der Versuch allein ist nicht so schlimm
-                factionManager.modifyReputation(playerUUID, Faction.ORDNUNG, -3);
-                factionManager.modifyReputation(playerUUID, Faction.BUERGER, -1);
+                factionManager.modifyReputation(playerUUID, Faction.LAW, -3);
+                factionManager.modifyReputation(playerUUID, Faction.CITIZENS, -1);
 
                 // Zeuge ist verärgert
                 lifeData.getEmotions().trigger(EmotionState.ANGRY, 25.0f, 600);
@@ -461,7 +461,7 @@ public class NPCLifeSystemIntegration {
         String npcName = npc.getNpcData().getNpcName();
         Rumor rumor = Rumor.createNPC(
             npcUUID,
-            npcName + " wurde getötet",
+            npcName + " was killed",
             5,
             10
         );
@@ -469,12 +469,12 @@ public class NPCLifeSystemIntegration {
 
         // Killer erhält schwere Reputation-Strafen
         if (killer != null) {
-            factionManager.modifyReputation(killer.getUUID(), Faction.ORDNUNG, -20);
-            factionManager.modifyReputation(killer.getUUID(), Faction.BUERGER, -15);
+            factionManager.modifyReputation(killer.getUUID(), Faction.LAW, -20);
+            factionManager.modifyReputation(killer.getUUID(), Faction.CITIZENS, -15);
 
             // Bei Händler auch bei Händlerfraktion
-            if (npc.getNpcType() == NPCType.VERKAEUFER) {
-                factionManager.modifyReputation(killer.getUUID(), Faction.HAENDLER, -25);
+            if (npc.getNpcType() == NPCType.MERCHANT) {
+                factionManager.modifyReputation(killer.getUUID(), Faction.TRADERS, -25);
             }
         }
 

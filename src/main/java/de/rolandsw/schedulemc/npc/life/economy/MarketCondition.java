@@ -36,7 +36,7 @@ public enum MarketCondition {
     /**
      * Überfluss - Zu viele Waren, sehr niedrige Preise
      */
-    SURPLUS("Überfluss", 0.6f, "Warenüberfluss - Tiefstpreise"),
+    SURPLUS("Abundance", 0.6f, "Goods surplus - rock-bottom prices"),
 
     /**
      * Krise - Extreme Preisschwankungen
@@ -66,7 +66,7 @@ public enum MarketCondition {
     /**
      * High Demand - Hohe Nachfrage nach bestimmten Waren
      */
-    HIGH_DEMAND("Hohe Nachfrage", 1.35f, "Hohe Nachfrage - Erhöhte Preise");
+    HIGH_DEMAND("Hohe Nachfrage", 1.35f, "High demand - increased prices");
 
     private final String displayName;
     private final float priceMultiplier;

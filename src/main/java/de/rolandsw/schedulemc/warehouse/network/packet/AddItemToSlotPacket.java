@@ -56,7 +56,7 @@ public class AddItemToSlotPacket {
         PacketHandler.handleAdminPacket(ctx, 2, player -> {
             BlockEntity be = player.level().getBlockEntity(msg.pos);
             if (!(be instanceof WarehouseBlockEntity warehouse)) {
-                PacketHandler.sendError(player, "Warehouse nicht gefunden!");
+                PacketHandler.sendError(player, "Warehouse not found!");
                 return;
             }
 

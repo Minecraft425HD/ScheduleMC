@@ -41,10 +41,10 @@ public class MethItem extends Item {
             try {
                 return MethQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return MethQuality.SCHLECHT;
+                return MethQuality.POOR;
             }
         }
-        return MethQuality.SCHLECHT;
+        return MethQuality.POOR;
     }
 
     @Override
@@ -57,15 +57,15 @@ public class MethItem extends Item {
         tooltip.add(Component.literal(""));
 
         String colorDesc = switch (quality) {
-            case SCHLECHT -> "tooltip.meth.white_crystals";
-            case GUT -> "tooltip.meth.yellowish_crystals";
-            case SEHR_GUT -> "tooltip.meth.yellowish_crystals";
-            case LEGENDAER -> "tooltip.meth.blue_crystals";
+            case POOR -> "tooltip.meth.white_crystals";
+            case GOOD -> "tooltip.meth.yellowish_crystals";
+            case VERY_GOOD -> "tooltip.meth.yellowish_crystals";
+            case LEGENDARY -> "tooltip.meth.blue_crystals";
         };
         tooltip.add(Component.translatable(colorDesc));
         tooltip.add(Component.translatable("tooltip.meth.can_package"));
 
-        if (quality == MethQuality.LEGENDAER) {
+        if (quality == MethQuality.LEGENDARY) {
             tooltip.add(Component.literal(""));
             tooltip.add(Component.translatable("tooltip.meth.say_my_name"));
         }
@@ -73,10 +73,10 @@ public class MethItem extends Item {
 
     private int getPurityPercent(MethQuality quality) {
         return switch (quality) {
-            case SCHLECHT -> 70 + ThreadLocalRandom.current().nextInt(10); // 70-79%
-            case GUT -> 80 + ThreadLocalRandom.current().nextInt(10);      // 80-89%
-            case SEHR_GUT -> 90 + ThreadLocalRandom.current().nextInt(6);  // 90-95%
-            case LEGENDAER -> 96 + ThreadLocalRandom.current().nextInt(4); // 96-99%
+            case POOR -> 70 + ThreadLocalRandom.current().nextInt(10); // 70-79%
+            case GOOD -> 80 + ThreadLocalRandom.current().nextInt(10);      // 80-89%
+            case VERY_GOOD -> 90 + ThreadLocalRandom.current().nextInt(6);  // 90-95%
+            case LEGENDARY -> 96 + ThreadLocalRandom.current().nextInt(4); // 96-99%
         };
     }
 
@@ -84,10 +84,10 @@ public class MethItem extends Item {
     public Component getName(ItemStack stack) {
         MethQuality quality = getQuality(stack);
         String key = switch (quality) {
-            case SCHLECHT -> "item.schedulemc.meth.standard_name";
-            case GUT -> "item.schedulemc.meth.gut_name";
-            case SEHR_GUT -> "item.schedulemc.meth.gut_name";
-            case LEGENDAER -> "item.schedulemc.meth.blue_sky_name";
+            case POOR -> "item.schedulemc.meth.standard_name";
+            case GOOD -> "item.schedulemc.meth.good_name";
+            case VERY_GOOD -> "item.schedulemc.meth.good_name";
+            case LEGENDARY -> "item.schedulemc.meth.blue_sky_name";
         };
         return Component.translatable(key);
     }

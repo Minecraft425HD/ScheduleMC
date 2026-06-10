@@ -66,7 +66,7 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
                 if (slot == 0) {
                     // Accept any mash
                     return stack.getItem() == WineItems.RIESLING_MASH.get() ||
-                           stack.getItem() == WineItems.SPAETBURGUNDER_MASH.get() ||
+                           stack.getItem() == WineItems.PINOT_NOIR_MASH.get() ||
                            stack.getItem() == WineItems.CHARDONNAY_MASH.get() ||
                            stack.getItem() == WineItems.MERLOT_MASH.get();
                 }
@@ -88,7 +88,7 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
             inputStack = handlerInput.copy();
             // Determine wine type from mash
             if (handlerInput.getItem() == WineItems.RIESLING_MASH.get()) wineType = WineType.RIESLING;
-            else if (handlerInput.getItem() == WineItems.SPAETBURGUNDER_MASH.get()) wineType = WineType.SPAETBURGUNDER;
+            else if (handlerInput.getItem() == WineItems.PINOT_NOIR_MASH.get()) wineType = WineType.PINOT_NOIR;
             else if (handlerInput.getItem() == WineItems.CHARDONNAY_MASH.get()) wineType = WineType.CHARDONNAY;
             else if (handlerInput.getItem() == WineItems.MERLOT_MASH.get()) wineType = WineType.MERLOT;
 
@@ -96,9 +96,9 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
+                catch (IllegalArgumentException e) { quality = WineQuality.POOR; }
             } else {
-                quality = WineQuality.SCHLECHT;
+                quality = WineQuality.POOR;
             }
             pressingProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -156,7 +156,7 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
                 }
                 ItemStack juice = switch (wineType) {
                     case RIESLING -> new ItemStack(WineItems.RIESLING_JUICE.get(), inputStack.getCount());
-                    case SPAETBURGUNDER -> new ItemStack(WineItems.SPAETBURGUNDER_JUICE.get(), inputStack.getCount());
+                    case PINOT_NOIR -> new ItemStack(WineItems.PINOT_NOIR_JUICE.get(), inputStack.getCount());
                     case CHARDONNAY -> new ItemStack(WineItems.CHARDONNAY_JUICE.get(), inputStack.getCount());
                     case MERLOT -> new ItemStack(WineItems.MERLOT_JUICE.get(), inputStack.getCount());
                 };
@@ -221,7 +221,7 @@ public abstract class AbstractWinePressBlockEntity extends AbstractItemHandlerBl
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = WineQuality.POOR; }
         }
         syncToHandler();
     }

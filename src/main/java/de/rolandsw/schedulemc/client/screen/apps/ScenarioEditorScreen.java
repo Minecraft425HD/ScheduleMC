@@ -60,11 +60,11 @@ public class ScenarioEditorScreen extends Screen {
     private static final int C_DD_HOVER = 0x33FFFFFF;
 
     // Statische Dropdown-Werte
-    private static final String[] NPC_TYPES = {"BEWOHNER", "VERKAEUFER", "POLIZEI", "BANK", "ABSCHLEPPER", "DRUG_DEALER"};
-    private static final String[] MERCHANT_CATS = {"BAUMARKT", "WAFFENHAENDLER", "TANKSTELLE", "LEBENSMITTEL",
-            "PERSONALMANAGEMENT", "ILLEGALER_HAENDLER", "AUTOHAENDLER"};
-    private static final String[] BANK_CATS = {"BANKER", "BOERSE", "KREDITBERATER"};
-    private static final String[] SERVICE_CATS = {"ABSCHLEPPDIENST", "PANNENHILFE", "TAXI", "NOTDIENST"};
+    private static final String[] NPC_TYPES = {"CITIZEN", "MERCHANT", "POLICE", "BANK", "TOW_TRUCK_DRIVER", "DRUG_DEALER"};
+    private static final String[] MERCHANT_CATS = {"HARDWARE_STORE", "WEAPONS_DEALER", "GAS_STATION", "GROCERY",
+            "STAFF_MANAGEMENT", "ILLEGAL_DEALER", "CAR_DEALER"};
+    private static final String[] BANK_CATS = {"BANKER", "STOCK_MARKET", "CREDIT_ADVISOR"};
+    private static final String[] SERVICE_CATS = {"TOWING_SERVICE", "PANNENHILFE", "TAXI", "NOTDIENST"};
     private static final String[] DIFFICULTIES = {"1 - Leicht", "2 - Normal", "3 - Mittel", "4 - Schwer", "5 - Extrem"};
     private static final String[] ENTITY_TYPES = {"zombie", "skeleton", "spider", "creeper", "enderman",
             "witch", "pillager", "vindicator", "ravager", "phantom"};
@@ -72,7 +72,7 @@ public class ScenarioEditorScreen extends Screen {
     private static final String[] OUTFIT_TYPES = {"POLIZIST", "ARZT", "BAUARBEITER", "GESCHAEFTSMANN",
             "LIEFERANT", "MECHANIKER"};
     private static final String[] METHOD_TYPES = {"ABLENKUNG", "BESTECHUNG", "FALSCHALARM", "GERAEUSCH", "KOEDER"};
-    private static final String[] EVENT_TYPES = {"POLIZEI_KONTROLLE", "UEBERFALL", "UNFALL", "BRAND",
+    private static final String[] EVENT_TYPES = {"POLIZEI_KONTROLLE", "ROBBERY", "UNFALL", "BRAND",
             "STROMAUSFALL", "UNWETTER"};
     private static final String[] COLOR_TYPES = {"WEISS", "ROT", "GRUEN", "BLAU", "GELB", "LILA", "ORANGE", "GRAU"};
     private static final String[] MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
@@ -342,7 +342,7 @@ public class ScenarioEditorScreen extends Screen {
         // Lade-Anzeige fuer Spieler-Szenarien
         if (viewMode == ViewMode.PLAYER_MISSIONS && playerScenariosLoading) {
             g.fill(0, TOOLBAR_H, this.width, this.height, 0xFF0A0A1A);
-            g.drawCenteredString(this.font, "\u00A77Spieler-Missionen werden geladen...",
+            g.drawCenteredString(this.font, "\u00A77Player missions are loading...",
                     this.width / 2, this.height / 2 - 4, 0x555555);
         } else {
             // Hovered Block finden
@@ -644,7 +644,7 @@ public class ScenarioEditorScreen extends Screen {
             case DROPDOWN_LOCK -> {
                 for (var l : serverLocks) {
                     if (l.lockId().equals(val)) {
-                        String lockPart = "NO_LOCK".equalsIgnoreCase(l.lockId()) ? "kein lock_id" : ("lock_id=" + l.lockId());
+                        String lockPart = "NO_LOCK".equalsIgnoreCase(l.lockId()) ? "no lock_id" : ("lock_id=" + l.lockId());
                         yield l.lockType() + " @ " + l.x() + "," + l.y() + "," + l.z() + " (" + lockPart + ")";
                     }
                 }

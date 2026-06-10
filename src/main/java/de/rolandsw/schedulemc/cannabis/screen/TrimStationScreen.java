@@ -100,7 +100,7 @@ public class TrimStationScreen extends AbstractContainerScreen<TrimStationMenu> 
     private void renderButton(GuiGraphics g, int x, int y, int mouseX, int mouseY, boolean enabled) {
         boolean hovered = mouseX >= x && mouseX < x + BUTTON_W && mouseY >= y && mouseY < y + BUTTON_H;
         int color = enabled ? (hovered ? 0xFF55DD55 : 0xFF44AA44) : 0xFF2A3A2A;
-        String text = Component.translatable("gui.trimm_station.button_trim").getString();
+        String text = Component.translatable("gui.trim_station.button_trim").getString();
 
         g.fill(x + 2, y + 2, x + BUTTON_W + 2, y + BUTTON_H + 2, 0x66000000);
         g.fill(x - 1, y - 1, x + BUTTON_W + 1, y + BUTTON_H + 1, 0xFF224422);
@@ -132,7 +132,7 @@ public class TrimStationScreen extends AbstractContainerScreen<TrimStationMenu> 
         int y = topPos;
 
         // Title
-        g.drawString(font, Component.translatable("gui.trimm_station.title").getString(),
+        g.drawString(font, Component.translatable("gui.trim_station.title").getString(),
                 x + 8, y + 6, 0xFF88FF88, true);
 
         // Slot labels
@@ -150,20 +150,20 @@ public class TrimStationScreen extends AbstractContainerScreen<TrimStationMenu> 
         if (be != null && be.hasInput()) {
             ItemStack inputBud = be.getInputItem();
             g.drawString(font,
-                    Component.translatable("gui.trimm_station.info_strain").getString()
+                    Component.translatable("gui.trim_station.info_strain").getString()
                     + DriedBudItem.getStrain(inputBud).getColoredName(),
                     x + 8, y + 66, 0xFFFFFF, false);
             g.drawString(font,
-                    Component.translatable("gui.trimm_station.info_quality").getString()
+                    Component.translatable("gui.trim_station.info_quality").getString()
                     + DriedBudItem.getQuality(inputBud).getColoredName(),
                     x + 8, y + 76, 0xFFFFFF, false);
         } else if (getAvailableDriedBud().isEmpty() && (be == null || !be.hasOutput())) {
-            String msg = Component.translatable("gui.trimm_station.no_bud").getString();
+            String msg = Component.translatable("gui.trim_station.no_bud").getString();
             g.drawCenteredString(font, msg, x + 88, y + 70, 0xFF888888);
         }
 
         if (!getAvailableDriedBud().isEmpty() && (be == null || !be.hasInput())) {
-            String out = Component.translatable("gui.trimm_station.output_preview").getString();
+            String out = Component.translatable("gui.trim_station.output_preview").getString();
             g.drawString(font, out, x + 8, y + 86, 0xFFFFFF, false);
         }
     }

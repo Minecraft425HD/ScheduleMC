@@ -269,7 +269,7 @@ public class PoliceSearchBehavior {
             return true;
         }
 
-        // Prüfe ob Block-Name "glass" oder "pane" enthält (für Glasscheiben)
+        // Prüfe ob Block-Name "glass" or "pane" enthält (für Glasscheiben)
         String blockName = block.getDescriptionId().toLowerCase();
         if (blockName.contains("glass") || blockName.contains("pane")) {
             return true;

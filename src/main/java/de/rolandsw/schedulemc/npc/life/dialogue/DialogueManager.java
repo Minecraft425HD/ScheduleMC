@@ -194,7 +194,7 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
             lifeData.getMemory().addMemory(
                 player.getUUID(),
                 MemoryType.CONVERSATION,
-                "Gespräch begonnen",
+                "Conversation started",
                 2
             );
         }
@@ -255,13 +255,13 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
         // Erstelle generischen Dialog
         DialogueTree generic = new DialogueTree(genericId, "Allgemeiner Dialog")
             .addNode(DialogueNode.simple("start",
-                "Hallo, {player}. Wie kann ich Ihnen helfen?",
+                "Hello, {player}. How can I help you?",
                 DialogueOption.simple("talk", "Ich wollte nur reden.", "chat"),
-                DialogueOption.trade("Ich möchte handeln."),
+                DialogueOption.trade("I want to trade."),
                 DialogueOption.exit("Auf Wiedersehen.")
             ))
             .addNode(DialogueNode.end("chat",
-                "Das ist schön. Haben Sie noch einen angenehmen Tag."));
+                "That's nice. Have a pleasant day."));
 
         registeredTrees.put(genericId, generic);
         return generic;
@@ -353,7 +353,7 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
                 lifeData.getMemory().addMemory(
                     player.getUUID(),
                     MemoryType.CONVERSATION,
-                    "Gespräch beendet (" + context.getDurationSeconds() + "s)",
+                    "Conversation ended (" + context.getDurationSeconds() + "s)",
                     1
                 );
             }

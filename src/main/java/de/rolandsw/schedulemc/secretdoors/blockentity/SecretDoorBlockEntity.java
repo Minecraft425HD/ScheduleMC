@@ -78,8 +78,7 @@ public class SecretDoorBlockEntity extends BlockEntity {
     public void toggle(Level level, Player player) {
         if (level.isClientSide) return;
         if (!canUse(player)) {
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                "§cDu hast keine Berechtigung, diese Tür zu bedienen."));
+            player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.secret_door.no_permission_door"));
             return;
         }
         if (open) {

@@ -40,7 +40,7 @@ public abstract class TobaccoBottleItem extends Item {
  */
 class FertilizerBottleItem extends TobaccoBottleItem {
     public FertilizerBottleItem() {
-        super("Mehr Ertrag (max 10g), -1 Qualität", 50.0);
+        super("More yield (max 10g), -1 quality", 50.0);
     }
     
     @Override
@@ -54,7 +54,7 @@ class FertilizerBottleItem extends TobaccoBottleItem {
  */
 class GrowthBoosterBottleItem extends TobaccoBottleItem {
     public GrowthBoosterBottleItem() {
-        super("2x Wachstum, -1 Qualität", 75.0);
+        super("2x growth, -1 quality", 75.0);
     }
     
     @Override
@@ -68,7 +68,7 @@ class GrowthBoosterBottleItem extends TobaccoBottleItem {
  */
 class QualityBoosterBottleItem extends TobaccoBottleItem {
     public QualityBoosterBottleItem() {
-        super("+1 Qualität", 100.0);
+        super("+1 quality", 100.0);
     }
     
     @Override

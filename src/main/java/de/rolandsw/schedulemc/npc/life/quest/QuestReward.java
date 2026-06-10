@@ -216,7 +216,7 @@ public class QuestReward {
         StringBuilder sb = new StringBuilder();
 
         if (money > 0) {
-            sb.append(money).append(" Münzen");
+            sb.append(money).append(" coins");
         }
 
         for (ItemStack stack : items) {

@@ -52,7 +52,7 @@ public class OpenTobaccoNegotiationPacket {
             }
 
             // Polizisten können keinen Tabak kaufen!
-            if (npc.getNpcType() == NPCType.POLIZEI) {
+            if (npc.getNpcType() == NPCType.POLICE) {
                 player.sendSystemMessage(Component.translatable("message.tobacco.police_no_buy"));
                 return;
             }

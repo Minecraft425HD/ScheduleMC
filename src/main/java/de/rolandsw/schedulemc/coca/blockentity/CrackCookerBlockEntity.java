@@ -32,9 +32,9 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
     public static final int GOOD_WINDOW_END = 52;
 
     private int cocaineGrams = 0;
-    private int backpulverCount = 0;
-    private CocaType cocaType = CocaType.BOLIVIANISCH;
-    private TobaccoQuality inputQuality = TobaccoQuality.GUT;
+    private int baking_powderCount = 0;
+    private CocaType cocaType = CocaType.BOLIVIAN;
+    private TobaccoQuality inputQuality = TobaccoQuality.GOOD;
 
     private boolean isMinigameActive = false;
     private long startCookTime = -1L;
@@ -45,7 +45,7 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
     private double lastTimingScore = 0;
 
     public CrackCookerBlockEntity(BlockPos pos, BlockState state) {
-        super(CocaBlockEntities.CRACK_KOCHER.get(), pos, state);
+        super(CocaBlockEntities.CRACK_COOKER.get(), pos, state);
     }
 
     public boolean addCocaine(ItemStack stack) {
@@ -65,11 +65,11 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
         return true;
     }
 
-    public boolean addBackpulver(ItemStack stack) {
-        if (!stack.is(CocaItems.BACKPULVER.get())) return false;
+    public boolean addBakingPowder(ItemStack stack) {
+        if (!stack.is(CocaItems.BAKING_POWDER.get())) return false;
         if (isMinigameActive || !outputItem.isEmpty()) return false;
 
-        backpulverCount += stack.getCount();
+        baking_powderCount += stack.getCount();
         setChanged();
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
@@ -78,7 +78,7 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
     }
 
     public boolean canStartCooking() {
-        return cocaineGrams >= 1 && backpulverCount >= 1 && !isMinigameActive && outputItem.isEmpty();
+        return cocaineGrams >= 1 && baking_powderCount >= 1 && !isMinigameActive && outputItem.isEmpty();
     }
 
     public boolean startCooking(UUID playerUUID) {
@@ -123,7 +123,7 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
     private void createCrack(double timingScore) {
         CrackQuality quality = CrackQuality.fromTimingScore(timingScore);
 
-        if (inputQuality == TobaccoQuality.LEGENDAER && quality.getLevel() < CrackQuality.LEGENDAER.getLevel()) {
+        if (inputQuality == TobaccoQuality.LEGENDARY && quality.getLevel() < CrackQuality.LEGENDARY.getLevel()) {
             quality = CrackQuality.fromLevel(quality.getLevel() + 1);
         }
 
@@ -133,7 +133,7 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
         outputItem = CrackRockItem.create(cocaType, quality, crackWeight);
 
         cocaineGrams = 0;
-        backpulverCount = Math.max(0, backpulverCount - 1);
+        baking_powderCount = Math.max(0, baking_powderCount - 1);
 
         isMinigameActive = false;
         startCookTime = -1L;
@@ -197,7 +197,7 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
 
     // Getters
     public int getCocaineGrams() { return cocaineGrams; }
-    public int getBackpulverCount() { return backpulverCount; }
+    public int getBakingPowderCount() { return baking_powderCount; }
     public boolean isMinigameActive() { return isMinigameActive; }
     public boolean isWaitingForRemove() { return waitingForRemove; }
 
@@ -224,7 +224,7 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("CocaineGrams", cocaineGrams);
-        tag.putInt("Backpulver", backpulverCount);
+        tag.putInt("Backpulver", baking_powderCount);
         tag.putString("CocaType", cocaType.name());
         tag.putString("InputQuality", inputQuality.name());
         tag.putBoolean("MinigameActive", isMinigameActive);
@@ -245,11 +245,11 @@ public class CrackCookerBlockEntity extends BlockEntity implements IUtilityConsu
     public void load(CompoundTag tag) {
         super.load(tag);
         cocaineGrams = tag.getInt("CocaineGrams");
-        backpulverCount = tag.getInt("Backpulver");
+        baking_powderCount = tag.getInt("Backpulver");
         try { cocaType = CocaType.valueOf(tag.getString("CocaType")); }
-        catch (IllegalArgumentException e) { cocaType = CocaType.BOLIVIANISCH; }
+        catch (IllegalArgumentException e) { cocaType = CocaType.BOLIVIAN; }
         try { inputQuality = TobaccoQuality.valueOf(tag.getString("InputQuality")); }
-        catch (IllegalArgumentException e) { inputQuality = TobaccoQuality.GUT; }
+        catch (IllegalArgumentException e) { inputQuality = TobaccoQuality.GOOD; }
         isMinigameActive = tag.getBoolean("MinigameActive");
         startCookTime = tag.contains("StartCookTime") ? tag.getLong("StartCookTime") : -1L;
         waitingForRemove = tag.getBoolean("WaitingForRemove");

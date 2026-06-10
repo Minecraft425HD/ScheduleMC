@@ -46,7 +46,7 @@ public class VacuumDryerBlockEntity extends BlockEntity implements IUtilityConsu
             inputs[i] = ItemStack.EMPTY;
             outputs[i] = ItemStack.EMPTY;
             progress[i] = 0;
-            qualities[i] = MethQuality.SCHLECHT;
+            qualities[i] = MethQuality.POOR;
         }
     }
 
@@ -76,7 +76,7 @@ public class VacuumDryerBlockEntity extends BlockEntity implements IUtilityConsu
      */
     public ItemStack extractAllOutput() {
         int totalCount = 0;
-        MethQuality bestQuality = MethQuality.SCHLECHT;
+        MethQuality bestQuality = MethQuality.POOR;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!outputs[i].isEmpty()) {
@@ -90,7 +90,7 @@ public class VacuumDryerBlockEntity extends BlockEntity implements IUtilityConsu
                 outputs[i] = ItemStack.EMPTY;
                 inputs[i] = ItemStack.EMPTY;
                 progress[i] = 0;
-                qualities[i] = MethQuality.SCHLECHT;
+                qualities[i] = MethQuality.POOR;
             }
         }
 
@@ -203,7 +203,7 @@ public class VacuumDryerBlockEntity extends BlockEntity implements IUtilityConsu
      * Gibt die beste Qualität im Trockner zurück
      */
     public MethQuality getBestQuality() {
-        MethQuality best = MethQuality.SCHLECHT;
+        MethQuality best = MethQuality.POOR;
         for (int i = 0; i < CAPACITY; i++) {
             if ((!inputs[i].isEmpty() || !outputs[i].isEmpty()) && qualities[i].getLevel() > best.getLevel()) {
                 best = qualities[i];
@@ -259,7 +259,7 @@ public class VacuumDryerBlockEntity extends BlockEntity implements IUtilityConsu
                 try {
                     qualities[i] = MethQuality.valueOf(tag.getString("Quality" + i));
                 } catch (IllegalArgumentException e) {
-                    qualities[i] = MethQuality.SCHLECHT;
+                    qualities[i] = MethQuality.POOR;
                 }
             }
         }

@@ -184,7 +184,7 @@ public class PoliceAIHandler {
         for (ServerLevel level : server.getAllLevels()) {
             for (net.minecraft.world.entity.Entity entity : level.getAllEntities()) {
                 if (entity instanceof CustomNPCEntity npc
-                        && npc.getNpcType() == NPCType.POLIZEI
+                        && npc.getNpcType() == NPCType.POLICE
                         && !npc.getPersistentData().getBoolean("IsKnockedOut")) {
                     newCache.add(new CachedPoliceData(npc));
                 }
@@ -247,7 +247,7 @@ public class PoliceAIHandler {
     public void onPoliceAI(LivingEvent.LivingTickEvent event) {
         EventHelper.handleLivingTick(event, () -> {
             if (!(event.getEntity() instanceof CustomNPCEntity npc)) return;
-            if (npc.getNpcType() != NPCType.POLIZEI) return;
+            if (npc.getNpcType() != NPCType.POLICE) return;
 
         // Prüfe ob Polizei knockout ist
         if (npc.getPersistentData().getBoolean("IsKnockedOut")) {
@@ -541,7 +541,7 @@ public class PoliceAIHandler {
         }
 
         // ═══════════════════════════════════════════════════════════
-        // POLIZEI RAID - Scanne nach illegalen Items
+        // POLICE RAID - Scanne nach illegalen Items
         // Modus wird über Config gesteuert (POLICE_ROOM_SCAN_ENABLED):
         //   TRUE  = Intelligentes Raum-Scannen (nur gesehene Räume)
         //   FALSE = Klassisches Radius-Scannen (komplette Umgebung)
@@ -570,7 +570,7 @@ public class PoliceAIHandler {
         if (scanResult.hasIllegalActivity()) {
             // Illegale Aktivitäten gefunden!
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("[RAID] Illegale Aktivitäten bei {} festgestellt!", player.getName().getString());
+                LOGGER.info("[RAID] Illegal activities detected at {}!", player.getName().getString());
                 LOGGER.info("[RAID] Pflanzen: {}, Bargeld: {}, Items: {}",
                     scanResult.illegalPlantCount, scanResult.totalCashFound, scanResult.illegalItemCount);
             }

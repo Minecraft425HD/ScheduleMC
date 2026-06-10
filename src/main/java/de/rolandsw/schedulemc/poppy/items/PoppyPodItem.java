@@ -34,9 +34,9 @@ public class PoppyPodItem extends Item {
      */
     public static ItemStack create(PoppyType type, TobaccoQuality quality, int count) {
         Item pod = switch (type) {
-            case AFGHANISCH -> PoppyItems.AFGHANISCH_POPPY_POD.get();
-            case TUERKISCH  -> PoppyItems.TUERKISCH_POPPY_POD.get();
-            case INDISCH    -> PoppyItems.INDISCH_POPPY_POD.get();
+            case AFGHAN -> PoppyItems.AFGHAN_POPPY_POD.get();
+            case TURKISH  -> PoppyItems.TURKISH_POPPY_POD.get();
+            case INDIAN    -> PoppyItems.INDIAN_POPPY_POD.get();
         };
         ItemStack stack = new ItemStack(pod, count);
         CompoundTag tag = stack.getOrCreateTag();
@@ -56,10 +56,10 @@ public class PoppyPodItem extends Item {
             try {
                 return PoppyType.valueOf(stack.getTag().getString("PoppyType"));
             } catch (IllegalArgumentException e) {
-                return PoppyType.TUERKISCH;
+                return PoppyType.TURKISH;
             }
         }
-        return PoppyType.TUERKISCH;
+        return PoppyType.TURKISH;
     }
 
     public static TobaccoQuality getQuality(ItemStack stack) {
@@ -67,10 +67,10 @@ public class PoppyPodItem extends Item {
             try {
                 return TobaccoQuality.valueOf(stack.getTag().getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return TobaccoQuality.SCHLECHT;
+                return TobaccoQuality.POOR;
             }
         }
-        return TobaccoQuality.SCHLECHT;
+        return TobaccoQuality.POOR;
     }
 
     @Override

@@ -125,7 +125,7 @@ public class SmallFermentationBarrelScreen extends AbstractContainerScreen<Small
         int textColor = progress > 0 ? COLOR_TEXT : 0x666666;
         g.drawCenteredString(font, pct, x + 88, y + 35, textColor);
 
-        // Kapazitätstext ("Eingefüllt: X / Y")
+        // Kapazitätstext ("Filled: X / Y")
         g.drawString(font,
             Component.translatable("block.fermentation.capacity",
                 menu.getInputCount(), menu.getCapacity()).getString(),

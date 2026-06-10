@@ -31,9 +31,9 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
     private static final int MIXING_TIME = 600; // 30 Sekunden (600 Ticks)
     private static final int CAPACITY = 4; // Kann 4 Batches gleichzeitig verarbeiten
 
-    private final ItemStack[] ephedrinSlots = new ItemStack[CAPACITY];
+    private final ItemStack[] ephedrineSlots = new ItemStack[CAPACITY];
     private final ItemStack[] phosphorSlots = new ItemStack[CAPACITY];
-    private final ItemStack[] jodSlots = new ItemStack[CAPACITY];
+    private final ItemStack[] iodineSlots = new ItemStack[CAPACITY];
     private final ItemStack[] outputSlots = new ItemStack[CAPACITY];
 
     private final int[] mixingProgress = new int[CAPACITY];
@@ -47,9 +47,9 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
 
     private void initArrays() {
         for (int i = 0; i < CAPACITY; i++) {
-            ephedrinSlots[i] = ItemStack.EMPTY;
+            ephedrineSlots[i] = ItemStack.EMPTY;
             phosphorSlots[i] = ItemStack.EMPTY;
-            jodSlots[i] = ItemStack.EMPTY;
+            iodineSlots[i] = ItemStack.EMPTY;
             outputSlots[i] = ItemStack.EMPTY;
             mixingProgress[i] = 0;
             usedPseudoephedrine[i] = false;
@@ -66,9 +66,9 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
         }
 
         for (int i = 0; i < CAPACITY; i++) {
-            if (ephedrinSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
-                ephedrinSlots[i] = stack.copy();
-                ephedrinSlots[i].setCount(1);
+            if (ephedrineSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
+                ephedrineSlots[i] = stack.copy();
+                ephedrineSlots[i].setCount(1);
                 usedPseudoephedrine[i] = stack.getItem() instanceof PseudoephedrineItem;
                 setChanged();
                 return true;
@@ -86,7 +86,7 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
         }
 
         for (int i = 0; i < CAPACITY; i++) {
-            if (phosphorSlots[i].isEmpty() && !ephedrinSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
+            if (phosphorSlots[i].isEmpty() && !ephedrineSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
                 phosphorSlots[i] = stack.copy();
                 phosphorSlots[i].setCount(1);
                 setChanged();
@@ -105,9 +105,9 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
         }
 
         for (int i = 0; i < CAPACITY; i++) {
-            if (jodSlots[i].isEmpty() && !phosphorSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
-                jodSlots[i] = stack.copy();
-                jodSlots[i].setCount(1);
+            if (iodineSlots[i].isEmpty() && !phosphorSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
+                iodineSlots[i] = stack.copy();
+                iodineSlots[i].setCount(1);
                 setChanged();
                 return true;
             }
@@ -120,7 +120,7 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
      */
     public ItemStack extractAllOutput() {
         int totalCount = 0;
-        MethQuality bestQuality = MethQuality.SCHLECHT;
+        MethQuality bestQuality = MethQuality.POOR;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!outputSlots[i].isEmpty()) {
@@ -132,9 +132,9 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
 
                 // Leere alle Slots
                 outputSlots[i] = ItemStack.EMPTY;
-                ephedrinSlots[i] = ItemStack.EMPTY;
+                ephedrineSlots[i] = ItemStack.EMPTY;
                 phosphorSlots[i] = ItemStack.EMPTY;
-                jodSlots[i] = ItemStack.EMPTY;
+                iodineSlots[i] = ItemStack.EMPTY;
                 mixingProgress[i] = 0;
                 usedPseudoephedrine[i] = false;
             }
@@ -162,8 +162,8 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
 
         for (int i = 0; i < CAPACITY; i++) {
             // Prüfe ob alle Zutaten vorhanden sind
-            if (!ephedrinSlots[i].isEmpty() && !phosphorSlots[i].isEmpty() &&
-                !jodSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
+            if (!ephedrineSlots[i].isEmpty() && !phosphorSlots[i].isEmpty() &&
+                !iodineSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
 
                 anyActive = true;
                 int prevProgress = mixingProgress[i];
@@ -175,9 +175,9 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
                     outputSlots[i] = MethPasteItem.create(quality, 1);
 
                     // Verbrauche Zutaten und setze Progress zurück
-                    ephedrinSlots[i] = ItemStack.EMPTY;
+                    ephedrineSlots[i] = ItemStack.EMPTY;
                     phosphorSlots[i] = ItemStack.EMPTY;
-                    jodSlots[i] = ItemStack.EMPTY;
+                    iodineSlots[i] = ItemStack.EMPTY;
                     mixingProgress[i] = 0;
                     usedPseudoephedrine[i] = false;
 
@@ -210,9 +210,9 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
         double qualityChance = usedPseudoephedrine[slot] ? 0.35 : 0.25;
 
         if (level != null && level.random.nextFloat() < qualityChance) {
-            return MethQuality.GUT; // Chance auf bessere Qualität
+            return MethQuality.GOOD; // Chance auf bessere Qualität
         }
-        return MethQuality.SCHLECHT;
+        return MethQuality.POOR;
     }
 
     public boolean isActive() {
@@ -228,7 +228,7 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
 
     public boolean hasIngredients() {
         for (int i = 0; i < CAPACITY; i++) {
-            if (!ephedrinSlots[i].isEmpty() || !phosphorSlots[i].isEmpty() || !jodSlots[i].isEmpty()) {
+            if (!ephedrineSlots[i].isEmpty() || !phosphorSlots[i].isEmpty() || !iodineSlots[i].isEmpty()) {
                 return true;
             }
         }
@@ -238,7 +238,7 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
     public int getActiveSlots() {
         int count = 0;
         for (int i = 0; i < CAPACITY; i++) {
-            if (!ephedrinSlots[i].isEmpty() && !phosphorSlots[i].isEmpty() && !jodSlots[i].isEmpty()) {
+            if (!ephedrineSlots[i].isEmpty() && !phosphorSlots[i].isEmpty() && !iodineSlots[i].isEmpty()) {
                 count++;
             }
         }
@@ -258,7 +258,7 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
         float totalProgress = 0;
 
         for (int i = 0; i < CAPACITY; i++) {
-            if (!ephedrinSlots[i].isEmpty() && !phosphorSlots[i].isEmpty() && !jodSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
+            if (!ephedrineSlots[i].isEmpty() && !phosphorSlots[i].isEmpty() && !iodineSlots[i].isEmpty() && outputSlots[i].isEmpty()) {
                 activeSlots++;
                 totalProgress += (float) mixingProgress[i] / MIXING_TIME;
             }
@@ -268,13 +268,13 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
     }
 
     public String getIngredientStatus() {
-        int ephedrin = 0, phosphor = 0, jod = 0;
+        int ephedrine = 0, phosphor = 0, iodine = 0;
         for (int i = 0; i < CAPACITY; i++) {
-            if (!ephedrinSlots[i].isEmpty()) ephedrin++;
+            if (!ephedrineSlots[i].isEmpty()) ephedrine++;
             if (!phosphorSlots[i].isEmpty()) phosphor++;
-            if (!jodSlots[i].isEmpty()) jod++;
+            if (!iodineSlots[i].isEmpty()) iodine++;
         }
-        return "E:" + ephedrin + " P:" + phosphor + " J:" + jod;
+        return "E:" + ephedrine + " P:" + phosphor + " J:" + iodine;
     }
 
     @Override
@@ -287,9 +287,9 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
         super.saveAdditional(tag);
 
         for (int i = 0; i < CAPACITY; i++) {
-            if (!ephedrinSlots[i].isEmpty()) {
+            if (!ephedrineSlots[i].isEmpty()) {
                 CompoundTag slotTag = new CompoundTag();
-                ephedrinSlots[i].save(slotTag);
+                ephedrineSlots[i].save(slotTag);
                 tag.put("Ephedrine" + i, slotTag);
             }
             if (!phosphorSlots[i].isEmpty()) {
@@ -297,9 +297,9 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
                 phosphorSlots[i].save(slotTag);
                 tag.put("Phosphor" + i, slotTag);
             }
-            if (!jodSlots[i].isEmpty()) {
+            if (!iodineSlots[i].isEmpty()) {
                 CompoundTag slotTag = new CompoundTag();
-                jodSlots[i].save(slotTag);
+                iodineSlots[i].save(slotTag);
                 tag.put("Iodine" + i, slotTag);
             }
             if (!outputSlots[i].isEmpty()) {
@@ -318,16 +318,16 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
     public void load(CompoundTag tag) {
         super.load(tag);
 
-        if (ephedrinSlots == null) {
+        if (ephedrineSlots == null) {
             initArrays();
         }
 
         for (int i = 0; i < CAPACITY; i++) {
-            ephedrinSlots[i] = tag.contains("Ephedrine" + i) ?
+            ephedrineSlots[i] = tag.contains("Ephedrine" + i) ?
                 ItemStack.of(tag.getCompound("Ephedrine" + i)) : ItemStack.EMPTY;
             phosphorSlots[i] = tag.contains("Phosphor" + i) ?
                 ItemStack.of(tag.getCompound("Phosphor" + i)) : ItemStack.EMPTY;
-            jodSlots[i] = tag.contains("Iodine" + i) ?
+            iodineSlots[i] = tag.contains("Iodine" + i) ?
                 ItemStack.of(tag.getCompound("Iodine" + i)) : ItemStack.EMPTY;
             outputSlots[i] = tag.contains("Output" + i) ?
                 ItemStack.of(tag.getCompound("Output" + i)) : ItemStack.EMPTY;

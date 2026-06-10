@@ -118,7 +118,7 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends AbstractItemHa
             inputStack.setCount(Math.min(stack.getCount(), getCapacity()));
             // Note: Type & quality would be extracted from NBT if CoffeeCherries tracked harvest data
             coffeeType = CoffeeType.ARABICA; // Default
-            quality = CoffeeQuality.SEHR_GUT; // Default
+            quality = CoffeeQuality.VERY_GOOD; // Default
             dryingProgress = 0;
             syncToHandler();
             setChanged();
@@ -203,7 +203,7 @@ public abstract class AbstractCoffeeDryingTrayBlockEntity extends AbstractItemHa
                 // 2 Bohnen pro Kirsche
                 int beanCount = inputStack.getCount() * 2;
                 outputStack = new ItemStack(CoffeeItems.getGreenBeanForType(coffeeType != null ? coffeeType : CoffeeType.ARABICA), beanCount);
-                GreenCoffeeBeanItem.withQuality(outputStack, quality != null ? quality : CoffeeQuality.GUT);
+                GreenCoffeeBeanItem.withQuality(outputStack, quality != null ? quality : CoffeeQuality.GOOD);
                 inputStack = ItemStack.EMPTY;
                 dryingProgress = 0;
                 changed = true;

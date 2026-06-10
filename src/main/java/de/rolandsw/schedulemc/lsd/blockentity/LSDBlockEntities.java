@@ -16,25 +16,25 @@ public class LSDBlockEntities {
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
     public static final RegistryObject<BlockEntityType<FermentationTankBlockEntity>> FERMENTATION_TANK =
-            BLOCK_ENTITIES.register("fermentations_tank", () ->
+            BLOCK_ENTITIES.register("fermentation_tank", () ->
                     BlockEntityType.Builder.of(FermentationTankBlockEntity::new,
                             LSDBlocks.FERMENTATION_TANK.get()
                     ).build(null));
 
     public static final RegistryObject<BlockEntityType<DistillationApparatusBlockEntity>> DISTILLATION_APPARATUS =
-            BLOCK_ENTITIES.register("destillations_apparat", () ->
+            BLOCK_ENTITIES.register("distillation_apparatus", () ->
                     BlockEntityType.Builder.of(DistillationApparatusBlockEntity::new,
                             LSDBlocks.DISTILLATION_APPARATUS.get()
                     ).build(null));
 
     public static final RegistryObject<BlockEntityType<MicroDoserBlockEntity>> MICRO_DOSER =
-            BLOCK_ENTITIES.register("mikro_dosierer", () ->
+            BLOCK_ENTITIES.register("micro_doser", () ->
                     BlockEntityType.Builder.of(MicroDoserBlockEntity::new,
                             LSDBlocks.MICRO_DOSER.get()
                     ).build(null));
 
     public static final RegistryObject<BlockEntityType<PerforationPressBlockEntity>> PERFORATION_PRESS =
-            BLOCK_ENTITIES.register("perforations_presse", () ->
+            BLOCK_ENTITIES.register("perforation_press", () ->
                     BlockEntityType.Builder.of(PerforationPressBlockEntity::new,
                             LSDBlocks.PERFORATION_PRESS.get()
                     ).build(null));

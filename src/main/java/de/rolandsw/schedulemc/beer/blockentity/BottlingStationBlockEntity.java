@@ -126,9 +126,9 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
 
                 if (tag.contains("Quality")) {
                     try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
+                    catch (IllegalArgumentException e) { quality = BeerQuality.POOR; }
                 } else {
-                    quality = BeerQuality.SCHLECHT;
+                    quality = BeerQuality.POOR;
                 }
 
                 if (tag.contains("AgeLevel")) {
@@ -139,7 +139,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
                 }
             } else {
                 beerType = BeerType.PILSNER;
-                quality = BeerQuality.SCHLECHT;
+                quality = BeerQuality.POOR;
                 ageLevel = BeerAgeLevel.YOUNG;
             }
 
@@ -233,7 +233,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
                 // Bottling complete: Create final beer bottle with all NBT data
                 ItemStack filledBeer = BeerBottleItem.create(
                     beerType != null ? beerType : BeerType.PILSNER,
-                    quality != null ? quality : BeerQuality.SCHLECHT,
+                    quality != null ? quality : BeerQuality.POOR,
                     ageLevel != null ? ageLevel : BeerAgeLevel.YOUNG,
                     processingMethod,
                     bottleSize,
@@ -320,7 +320,7 @@ public class BottlingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         }
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = BeerQuality.POOR; }
         }
         if (tag.contains("AgeLevel")) {
             try { ageLevel = BeerAgeLevel.valueOf(tag.getString("AgeLevel")); }

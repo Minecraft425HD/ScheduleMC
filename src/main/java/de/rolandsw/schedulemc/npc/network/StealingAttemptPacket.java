@@ -59,7 +59,7 @@ public class StealingAttemptPacket {
                 if (entity instanceof CustomNPCEntity npc) {
                     // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
                     if (npc.getNpcData() == null) {
-                        LOGGER.warn("[STEALING] NPC {} hat keine NPCData!", npc.getId());
+                        LOGGER.warn("[STEALING] NPC {} has no NPCData!", npc.getId());
                         return;
                     }
 
@@ -131,7 +131,7 @@ public class StealingAttemptPacket {
                         // Null-Safety: Prüfe ob Inventar vorhanden ist
                         var npcInventory = npc.getNpcData().getInventory();
                         if (npcInventory == null) {
-                            LOGGER.warn("[STEALING] NPC {} hat kein Inventar!", npc.getId());
+                            LOGGER.warn("[STEALING] NPC {} has no inventory!", npc.getId());
                             return;
                         }
 
@@ -207,7 +207,7 @@ public class StealingAttemptPacket {
                                 }
                             } else {
                                 player.sendSystemMessage(Component.literal(
-                                        "\u00A7cKein passendes Schloss in der Naehe gefunden!"));
+                                        "\u00A7cNo matching lock found nearby!"));
                             }
                         }
                     } else if (stealType == 3) {
@@ -245,7 +245,7 @@ public class StealingAttemptPacket {
                                 }
                             } else {
                                 player.sendSystemMessage(Component.literal(
-                                        "\u00A7cKein Zahlenschloss in der Naehe gefunden!"));
+                                        "\u00A7cNo combination lock found nearby!"));
                             }
                         }
                     }
@@ -301,10 +301,10 @@ public class StealingAttemptPacket {
                     witnesses.remove(npc);
 
                     if (!witnesses.isEmpty()) {
-                        // Prüfe ob POLIZEI dabei ist
+                        // Prüfe ob POLICE dabei ist
                         boolean policePresent = false;
                         for (CustomNPCEntity witness : witnesses) {
-                            if (witness.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
+                            if (witness.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLICE) {
                                 policePresent = true;
                                 break;
                             }
@@ -312,7 +312,7 @@ public class StealingAttemptPacket {
 
                         double detectionChance;
                         if (policePresent) {
-                            // POLIZEI anwesend = 100% Erkennung!
+                            // POLICE anwesend = 100% Erkennung!
                             detectionChance = 1.0;
                         } else {
                             // Normale Zeugen: 15% pro Zeuge, max 90%
@@ -351,9 +351,9 @@ public class StealingAttemptPacket {
                             player.sendSystemMessage(Component.translatable("message.stealing.wanted_level", stars, currentWantedLevel));
 
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("[CRIME] Player {} gesehen beim Stehlen - Wanted Level: {} ({} Zeugen{})",
+                                LOGGER.debug("[CRIME] Player {} seen stealing - wanted level: {} ({} witnesses{})",
                                     player.getName().getString(), currentWantedLevel, witnesses.size(),
-                                    policePresent ? ", POLIZEI dabei!" : "");
+                                    policePresent ? ", POLICE dabei!" : "");
                             }
                         } else {
                             if (LOGGER.isDebugEnabled()) {

@@ -33,7 +33,7 @@ public class GreenCoffeeBeanItem extends Item {
                 LOGGER.warn("Invalid coffee quality '{}' on GreenCoffeeBeanItem", tag.getString(NBT_QUALITY), exception);
             }
         }
-        return CoffeeQuality.GUT;
+        return CoffeeQuality.GOOD;
     }
 
     public static ItemStack withQuality(ItemStack stack, CoffeeQuality quality) {

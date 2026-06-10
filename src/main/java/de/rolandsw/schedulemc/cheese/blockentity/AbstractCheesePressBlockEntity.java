@@ -128,7 +128,7 @@ public abstract class AbstractCheesePressBlockEntity extends AbstractItemHandler
 
                 ItemStack cheeseWheel = CheeseWheelItem.create(
                     CheeseType.GOUDA, // Default type, can be specialized later
-                    quality != null ? quality : CheeseQuality.SCHLECHT,
+                    quality != null ? quality : CheeseQuality.POOR,
                     CheeseAgeLevel.FRESH,
                     weightKg,
                     1
@@ -181,7 +181,7 @@ public abstract class AbstractCheesePressBlockEntity extends AbstractItemHandler
         lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = CheeseQuality.POOR; }
         }
         syncToHandler();
     }

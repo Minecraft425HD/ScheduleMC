@@ -8,7 +8,7 @@ package de.rolandsw.schedulemc.wine;
 public enum WineProcessingMethod {
     DRY("Trocken", "§f", 1.0),          // Standard (0-9g Restzucker/Liter)
     SEMI_DRY("Halbtrocken", "§e", 1.1), // Leicht süßlich (9-18g)
-    SWEET("Süß", "§6", 1.3),            // Deutlich süß (18-45g)
+    SWEET("Sweet", "§6", 1.3),            // Deutlich süß (18-45g)
     DESSERT("Dessertwein", "§d", 1.8);  // Sehr süß (>45g)
 
     private final String displayName;

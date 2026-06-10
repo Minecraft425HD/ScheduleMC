@@ -125,10 +125,10 @@ public class Main {
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 10, MessageVehicleHorn.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 13, MessageCenterVehicle.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 14, MessageCenterVehicleClient.class);
-            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 16, MessageWerkstattPayment.class);
-            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 17, MessageWerkstattUpgrade.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 16, MessageWorkshopPayment.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 17, MessageWorkshopUpgrade.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 18, MessageContainerOperation.class);
-            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 19, MessageWerkstattCheckout.class);
+            CommonRegistry.registerMessage(SIMPLE_CHANNEL, 19, MessageWorkshopCheckout.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 20, MessageOpenTireChange.class);
             CommonRegistry.registerMessage(SIMPLE_CHANNEL, 21, MessageTireSwap.class);
         }, "commonSetup");
@@ -153,7 +153,7 @@ public class Main {
             ClientRegistry.<ContainerVehicle, GuiVehicle>registerScreen(Main.VEHICLE_CONTAINER_TYPE.get(), GuiVehicle::new);
             ClientRegistry.<ContainerVehicleInventory, GuiVehicleInventory>registerScreen(Main.VEHICLE_INVENTORY_CONTAINER_TYPE.get(), GuiVehicleInventory::new);
             ClientRegistry.<ContainerFuelStation, GuiFuelStation>registerScreen(Main.FUEL_STATION_CONTAINER_TYPE.get(), GuiFuelStation::new);
-            ClientRegistry.<ContainerWerkstatt, GuiWerkstatt>registerScreen(Main.WERKSTATT_CONTAINER_TYPE.get(), GuiWerkstatt::new);
+            ClientRegistry.<ContainerWorkshop, GuiWorkshop>registerScreen(Main.WORKSHOP_CONTAINER_TYPE.get(), GuiWorkshop::new);
 
             MinecraftForge.EVENT_BUS.register(new RenderEvents());
             MinecraftForge.EVENT_BUS.register(new SoundEvents());
@@ -226,8 +226,8 @@ public class Main {
     public static final RegistryObject<MenuType<ContainerFuelStation>> FUEL_STATION_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station", () ->
             IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerFuelStation, TileEntityFuelStation>) ContainerFuelStation::new))
     );
-    public static final RegistryObject<MenuType<ContainerWerkstatt>> WERKSTATT_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("werkstatt", () ->
-            IForgeMenuType.create((windowId, inv, data) -> new ContainerWerkstatt(windowId, inv, data))
+    public static final RegistryObject<MenuType<ContainerWorkshop>> WORKSHOP_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("workshop", () ->
+            IForgeMenuType.create((windowId, inv, data) -> new ContainerWorkshop(windowId, inv, data))
     );
 
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_REGISTER = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Main.MODID);

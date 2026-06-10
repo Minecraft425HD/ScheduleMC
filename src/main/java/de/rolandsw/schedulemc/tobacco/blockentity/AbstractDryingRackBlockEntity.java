@@ -375,7 +375,7 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
             catch (IllegalArgumentException ex) { contentType = ContentType.NONE; }
         }
 
-        // Legacy-Support: "Type" und "Quality" für alte Saves
+        // Legacy-Support: "Type" and "Quality" für alte Saves
         if (tag.contains("Type")) {
             try { tobaccoType = TobaccoType.valueOf(tag.getString("Type")); }  // NOPMD
             catch (IllegalArgumentException exception) {
@@ -384,7 +384,7 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
         }
         if (tag.contains("Quality")) {
             try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("Quality")); }  // NOPMD
-            catch (IllegalArgumentException e) { tobaccoQuality = TobaccoQuality.SCHLECHT; }  // NOPMD - legacy path, may be overwritten by TobaccoQuality tag
+            catch (IllegalArgumentException e) { tobaccoQuality = TobaccoQuality.POOR; }  // NOPMD - legacy path, may be overwritten by TobaccoQuality tag
         }
 
         // Neue Felder
@@ -396,7 +396,7 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
         }
         if (tag.contains("TobaccoQuality")) {
             try { tobaccoQuality = TobaccoQuality.valueOf(tag.getString("TobaccoQuality")); }
-            catch (IllegalArgumentException e) { tobaccoQuality = TobaccoQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { tobaccoQuality = TobaccoQuality.POOR; }
         }
         if (tag.contains("CannabisStrain")) {
             try { cannabisStrain = CannabisStrain.valueOf(tag.getString("CannabisStrain")); }
@@ -406,7 +406,7 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
         }
         if (tag.contains("CannabisQuality")) {
             try { cannabisQuality = CannabisQuality.valueOf(tag.getString("CannabisQuality")); }
-            catch (IllegalArgumentException e) { cannabisQuality = CannabisQuality.GUT; }
+            catch (IllegalArgumentException e) { cannabisQuality = CannabisQuality.GOOD; }
         }
 
         syncToHandler();

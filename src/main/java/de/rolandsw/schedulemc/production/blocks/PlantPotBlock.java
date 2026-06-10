@@ -8,7 +8,7 @@ import de.rolandsw.schedulemc.coca.blocks.CocaPlantBlock;
 import de.rolandsw.schedulemc.coca.items.CocaSeedItem;
 import de.rolandsw.schedulemc.coca.items.FreshCocaLeafItem;
 import de.rolandsw.schedulemc.mushroom.items.FreshMushroomItem;
-import de.rolandsw.schedulemc.mushroom.items.MistBagItem;
+import de.rolandsw.schedulemc.mushroom.items.ManureBagItem;
 import de.rolandsw.schedulemc.mushroom.items.SporeSyringeItem;
 import de.rolandsw.schedulemc.poppy.blocks.PoppyPlantBlock;
 import de.rolandsw.schedulemc.poppy.items.PoppyPodItem;
@@ -135,7 +135,7 @@ public class PlantPotBlock extends Block implements EntityBlock {
         // ═══════════════════════════════════════════════════════════
         // 1b. MIST BEFÜLLEN (für Pilze)
         // ═══════════════════════════════════════════════════════════
-        if (handStack.getItem() instanceof MistBagItem mistBagItem) {
+        if (handStack.getItem() instanceof ManureBagItem manureBagItem) {
             if (potData.hasPlant()) {
                 player.displayClientMessage(Component.translatable(
                     "block.plant_pot.remove_plant_first"
@@ -157,8 +157,8 @@ public class PlantPotBlock extends Block implements EntityBlock {
                 return InteractionResult.FAIL;
             }
 
-            if (MistBagItem.consumeUnits(handStack, 1)) {
-                int plantsPerBag = mistBagItem.getPlantsPerBag();
+            if (ManureBagItem.consumeUnits(handStack, 1)) {
+                int plantsPerBag = manureBagItem.getPlantsPerBag();
                 potData.addMistForPlants(plantsPerBag);
                 potBE.setChanged();
                 level.sendBlockUpdated(pos, state, state, 3);
@@ -566,7 +566,7 @@ public class PlantPotBlock extends Block implements EntityBlock {
                     Component.translatable("block.plant_pot.mushroom_remaining_flushes", remainingFlushes).getString() :
                     Component.translatable("block.plant_pot.mushroom_last_flush").getString();
 
-                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
+                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 quality!)" : "";
                 player.displayClientMessage(Component.translatable(
                     "block.plant_pot.mushroom_harvested",
                     yield,

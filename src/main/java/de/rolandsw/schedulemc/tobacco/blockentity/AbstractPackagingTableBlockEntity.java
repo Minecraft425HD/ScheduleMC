@@ -133,7 +133,7 @@ public abstract class AbstractPackagingTableBlockEntity extends AbstractItemHand
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.tobacco.items.FermentedTobaccoLeafItem.create(
                         de.rolandsw.schedulemc.tobacco.TobaccoType.VIRGINIA,
-                        de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT,
+                        de.rolandsw.schedulemc.tobacco.TobaccoQuality.GOOD,
                         count
                     );
                 }
@@ -146,8 +146,8 @@ public abstract class AbstractPackagingTableBlockEntity extends AbstractItemHand
                 } else {
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.coca.items.CocaineItem.create(
-                        de.rolandsw.schedulemc.coca.CocaType.BOLIVIANISCH,
-                        de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT,
+                        de.rolandsw.schedulemc.coca.CocaType.BOLIVIAN,
+                        de.rolandsw.schedulemc.tobacco.TobaccoQuality.GOOD,
                         count
                     );
                 }
@@ -160,8 +160,8 @@ public abstract class AbstractPackagingTableBlockEntity extends AbstractItemHand
                 } else {
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.coca.items.CrackRockItem.create(
-                        de.rolandsw.schedulemc.coca.CocaType.BOLIVIANISCH,
-                        de.rolandsw.schedulemc.coca.CrackQuality.SCHLECHT,
+                        de.rolandsw.schedulemc.coca.CocaType.BOLIVIAN,
+                        de.rolandsw.schedulemc.coca.CrackQuality.POOR,
                         count
                     );
                 }
@@ -174,8 +174,8 @@ public abstract class AbstractPackagingTableBlockEntity extends AbstractItemHand
                 } else {
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.poppy.items.HeroinItem.create(
-                        de.rolandsw.schedulemc.poppy.PoppyType.TUERKISCH,
-                        de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT,
+                        de.rolandsw.schedulemc.poppy.PoppyType.TURKISH,
+                        de.rolandsw.schedulemc.tobacco.TobaccoQuality.GOOD,
                         count
                     );
                 }
@@ -187,7 +187,7 @@ public abstract class AbstractPackagingTableBlockEntity extends AbstractItemHand
                 } else {
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.meth.items.MethItem.create(
-                        de.rolandsw.schedulemc.meth.MethQuality.SCHLECHT,
+                        de.rolandsw.schedulemc.meth.MethQuality.POOR,
                         count
                     );
                 }
@@ -202,7 +202,7 @@ public abstract class AbstractPackagingTableBlockEntity extends AbstractItemHand
                     if (variant instanceof de.rolandsw.schedulemc.mushroom.MushroomType mushroomType) {
                         result = de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem.create(
                             mushroomType,
-                            de.rolandsw.schedulemc.tobacco.TobaccoQuality.GUT,
+                            de.rolandsw.schedulemc.tobacco.TobaccoQuality.GOOD,
                             count
                         );
                     }
@@ -217,7 +217,7 @@ public abstract class AbstractPackagingTableBlockEntity extends AbstractItemHand
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.cannabis.items.TrimmedBudItem.create(
                         de.rolandsw.schedulemc.cannabis.CannabisStrain.HYBRID,
-                        de.rolandsw.schedulemc.cannabis.CannabisQuality.GUT,
+                        de.rolandsw.schedulemc.cannabis.CannabisQuality.GOOD,
                         count
                     );
                 }
@@ -231,7 +231,7 @@ public abstract class AbstractPackagingTableBlockEntity extends AbstractItemHand
                     // Fallback with defaults
                     result = de.rolandsw.schedulemc.cannabis.items.CuredBudItem.create(
                         de.rolandsw.schedulemc.cannabis.CannabisStrain.HYBRID,
-                        de.rolandsw.schedulemc.cannabis.CannabisQuality.GUT,
+                        de.rolandsw.schedulemc.cannabis.CannabisQuality.GOOD,
                         count,
                         0
                     );

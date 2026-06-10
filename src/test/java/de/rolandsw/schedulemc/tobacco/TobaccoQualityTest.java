@@ -14,33 +14,33 @@ public class TobaccoQualityTest {
 
     @Test
     void testLevels_AreInAscendingOrder() {
-        assertThat(TobaccoQuality.SCHLECHT.getLevel()).isEqualTo(0);
-        assertThat(TobaccoQuality.GUT.getLevel()).isEqualTo(1);
-        assertThat(TobaccoQuality.SEHR_GUT.getLevel()).isEqualTo(2);
-        assertThat(TobaccoQuality.LEGENDAER.getLevel()).isEqualTo(3);
+        assertThat(TobaccoQuality.POOR.getLevel()).isEqualTo(0);
+        assertThat(TobaccoQuality.GOOD.getLevel()).isEqualTo(1);
+        assertThat(TobaccoQuality.VERY_GOOD.getLevel()).isEqualTo(2);
+        assertThat(TobaccoQuality.LEGENDARY.getLevel()).isEqualTo(3);
     }
 
     // ── Preis-Multiplikatoren ─────────────────────────────────────────────────
 
     @Test
-    void testPriceMultiplier_SCHLECHT_IsBelowOne() {
-        assertThat(TobaccoQuality.SCHLECHT.getPriceMultiplier()).isLessThan(1.0);
+    void testPriceMultiplier_POOR_IsBelowOne() {
+        assertThat(TobaccoQuality.POOR.getPriceMultiplier()).isLessThan(1.0);
     }
 
     @Test
     void testPriceMultiplier_GUT_IsOne() {
-        assertThat(TobaccoQuality.GUT.getPriceMultiplier()).isEqualTo(1.0);
+        assertThat(TobaccoQuality.GOOD.getPriceMultiplier()).isEqualTo(1.0);
     }
 
     @Test
-    void testPriceMultiplier_SEHR_GUT_IsAboveOne() {
-        assertThat(TobaccoQuality.SEHR_GUT.getPriceMultiplier()).isGreaterThan(1.0);
+    void testPriceMultiplier_VERY_GOOD_IsAboveOne() {
+        assertThat(TobaccoQuality.VERY_GOOD.getPriceMultiplier()).isGreaterThan(1.0);
     }
 
     @Test
-    void testPriceMultiplier_LEGENDAER_IsHighest() {
-        assertThat(TobaccoQuality.LEGENDAER.getPriceMultiplier())
-            .isGreaterThan(TobaccoQuality.SEHR_GUT.getPriceMultiplier());
+    void testPriceMultiplier_LEGENDARY_IsHighest() {
+        assertThat(TobaccoQuality.LEGENDARY.getPriceMultiplier())
+            .isGreaterThan(TobaccoQuality.VERY_GOOD.getPriceMultiplier());
     }
 
     @Test
@@ -67,28 +67,28 @@ public class TobaccoQualityTest {
 
     @Test
     void testUpgrade_SCHLECHT_BecomesGUT() {
-        assertThat(TobaccoQuality.SCHLECHT.upgrade()).isEqualTo(TobaccoQuality.GUT);
+        assertThat(TobaccoQuality.POOR.upgrade()).isEqualTo(TobaccoQuality.GOOD);
     }
 
     @Test
     void testUpgrade_GUT_BeomesSEHR_GUT() {
-        assertThat(TobaccoQuality.GUT.upgrade()).isEqualTo(TobaccoQuality.SEHR_GUT);
+        assertThat(TobaccoQuality.GOOD.upgrade()).isEqualTo(TobaccoQuality.VERY_GOOD);
     }
 
     @Test
     void testUpgrade_SEHR_GUT_BecomesLEGENDAER() {
-        assertThat(TobaccoQuality.SEHR_GUT.upgrade()).isEqualTo(TobaccoQuality.LEGENDAER);
+        assertThat(TobaccoQuality.VERY_GOOD.upgrade()).isEqualTo(TobaccoQuality.LEGENDARY);
     }
 
     @Test
     void testUpgrade_LEGENDAER_StaysLEGENDAER() {
-        assertThat(TobaccoQuality.LEGENDAER.upgrade()).isEqualTo(TobaccoQuality.LEGENDAER);
+        assertThat(TobaccoQuality.LEGENDARY.upgrade()).isEqualTo(TobaccoQuality.LEGENDARY);
     }
 
     @Test
     void testUpgrade_IncreasesLevel() {
         for (TobaccoQuality q : new TobaccoQuality[]{
-                TobaccoQuality.SCHLECHT, TobaccoQuality.GUT, TobaccoQuality.SEHR_GUT}) {
+                TobaccoQuality.POOR, TobaccoQuality.GOOD, TobaccoQuality.VERY_GOOD}) {
             assertThat(q.upgrade().getLevel())
                 .as("upgrade() should increase level for %s", q)
                 .isGreaterThan(q.getLevel());
@@ -98,29 +98,29 @@ public class TobaccoQualityTest {
     // ── downgrade() ───────────────────────────────────────────────────────────
 
     @Test
-    void testDowngrade_SCHLECHT_StaysSCHLECHT() {
-        assertThat(TobaccoQuality.SCHLECHT.downgrade()).isEqualTo(TobaccoQuality.SCHLECHT);
+    void testDowngrade_POOR_StaysPOOR() {
+        assertThat(TobaccoQuality.POOR.downgrade()).isEqualTo(TobaccoQuality.POOR);
     }
 
     @Test
-    void testDowngrade_GUT_BeomesSCHLECHT() {
-        assertThat(TobaccoQuality.GUT.downgrade()).isEqualTo(TobaccoQuality.SCHLECHT);
+    void testDowngrade_GOOD_BecomesPOOR() {
+        assertThat(TobaccoQuality.GOOD.downgrade()).isEqualTo(TobaccoQuality.POOR);
     }
 
     @Test
-    void testDowngrade_SEHR_GUT_BecomesGUT() {
-        assertThat(TobaccoQuality.SEHR_GUT.downgrade()).isEqualTo(TobaccoQuality.GUT);
+    void testDowngrade_VERY_GOOD_BecomesGOOD() {
+        assertThat(TobaccoQuality.VERY_GOOD.downgrade()).isEqualTo(TobaccoQuality.GOOD);
     }
 
     @Test
-    void testDowngrade_LEGENDAER_BeomesSEHR_GUT() {
-        assertThat(TobaccoQuality.LEGENDAER.downgrade()).isEqualTo(TobaccoQuality.SEHR_GUT);
+    void testDowngrade_LEGENDARY_BecomesVERY_GOOD() {
+        assertThat(TobaccoQuality.LEGENDARY.downgrade()).isEqualTo(TobaccoQuality.VERY_GOOD);
     }
 
     @Test
     void testDowngrade_DecreasesLevel() {
         for (TobaccoQuality q : new TobaccoQuality[]{
-                TobaccoQuality.GUT, TobaccoQuality.SEHR_GUT, TobaccoQuality.LEGENDAER}) {
+                TobaccoQuality.GOOD, TobaccoQuality.VERY_GOOD, TobaccoQuality.LEGENDARY}) {
             assertThat(q.downgrade().getLevel())
                 .as("downgrade() should decrease level for %s", q)
                 .isLessThan(q.getLevel());
@@ -131,29 +131,29 @@ public class TobaccoQualityTest {
 
     @Test
     void testUpgradeThenDowngrade_IsIdentityForGUT() {
-        // GUT → upgrade → SEHR_GUT → downgrade → GUT (symmetrisch)
-        assertThat(TobaccoQuality.GUT.upgrade().downgrade()).isEqualTo(TobaccoQuality.GUT);
+        // GOOD → upgrade → VERY_GOOD → downgrade → GOOD (symmetrisch)
+        assertThat(TobaccoQuality.GOOD.upgrade().downgrade()).isEqualTo(TobaccoQuality.GOOD);
     }
 
     @Test
     void testUpgradeThenDowngrade_IsIdentityForSEHR_GUT() {
-        assertThat(TobaccoQuality.SEHR_GUT.upgrade().downgrade()).isEqualTo(TobaccoQuality.SEHR_GUT);
+        assertThat(TobaccoQuality.VERY_GOOD.upgrade().downgrade()).isEqualTo(TobaccoQuality.VERY_GOOD);
     }
 
     // ── fromLevel() ───────────────────────────────────────────────────────────
 
     @Test
     void testFromLevel_ReturnsCorrectQuality() {
-        assertThat(TobaccoQuality.fromLevel(0)).isEqualTo(TobaccoQuality.SCHLECHT);
-        assertThat(TobaccoQuality.fromLevel(1)).isEqualTo(TobaccoQuality.GUT);
-        assertThat(TobaccoQuality.fromLevel(2)).isEqualTo(TobaccoQuality.SEHR_GUT);
-        assertThat(TobaccoQuality.fromLevel(3)).isEqualTo(TobaccoQuality.LEGENDAER);
+        assertThat(TobaccoQuality.fromLevel(0)).isEqualTo(TobaccoQuality.POOR);
+        assertThat(TobaccoQuality.fromLevel(1)).isEqualTo(TobaccoQuality.GOOD);
+        assertThat(TobaccoQuality.fromLevel(2)).isEqualTo(TobaccoQuality.VERY_GOOD);
+        assertThat(TobaccoQuality.fromLevel(3)).isEqualTo(TobaccoQuality.LEGENDARY);
     }
 
     @Test
-    void testFromLevel_InvalidLevel_ReturnsSCHLECHT() {
-        assertThat(TobaccoQuality.fromLevel(-1)).isEqualTo(TobaccoQuality.SCHLECHT);
-        assertThat(TobaccoQuality.fromLevel(99)).isEqualTo(TobaccoQuality.SCHLECHT);
+    void testFromLevel_InvalidLevel_ReturnsPOOR() {
+        assertThat(TobaccoQuality.fromLevel(-1)).isEqualTo(TobaccoQuality.POOR);
+        assertThat(TobaccoQuality.fromLevel(99)).isEqualTo(TobaccoQuality.POOR);
     }
 
     @Test

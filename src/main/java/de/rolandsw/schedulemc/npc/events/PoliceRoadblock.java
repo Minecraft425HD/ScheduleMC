@@ -113,7 +113,7 @@ public class PoliceRoadblock {
         }
 
         playerBlocks.add(roadblock);
-        LOGGER.info("[ROADBLOCK] Strassensperre erstellt bei {} fuer Spieler {}",
+        LOGGER.info("[ROADBLOCK] Roadblock created at {} for player {}",
             location.toShortString(), targetPlayer);
         return true;
     }

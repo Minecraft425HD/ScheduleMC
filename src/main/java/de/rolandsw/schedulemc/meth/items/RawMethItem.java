@@ -40,10 +40,10 @@ public class RawMethItem extends Item {
             try {
                 return MethQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return MethQuality.SCHLECHT;
+                return MethQuality.POOR;
             }
         }
-        return MethQuality.SCHLECHT;
+        return MethQuality.POOR;
     }
 
     @Override
@@ -52,14 +52,14 @@ public class RawMethItem extends Item {
 
         tooltip.add(Component.translatable("tooltip.quality.label").append(quality.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.roh_meth.impure_powder", quality.getColorDescription().toLowerCase()));
-        tooltip.add(Component.translatable("tooltip.roh_meth.next_step"));
+        tooltip.add(Component.translatable("tooltip.raw_meth.impure_powder", quality.getColorDescription().toLowerCase()));
+        tooltip.add(Component.translatable("tooltip.raw_meth.next_step"));
     }
 
     @Override
     public Component getName(ItemStack stack) {
         MethQuality quality = getQuality(stack);
         return Component.literal(quality.getColorCode())
-            .append(Component.translatable("item.roh_meth.name"));
+            .append(Component.translatable("item.raw_meth.name"));
     }
 }

@@ -1,6 +1,6 @@
 # MDMA/Ecstasy Production System
 
-An arcade-style 4-step production chain featuring safrol extraction, a glowing reaction kettle, a hot drying oven, and an interactive timing minigame for pill pressing with 64 customization combinations.
+An arcade-style 4-step production chain featuring safrole extraction, a glowing reaction kettle, a hot drying oven, and an interactive timing minigame for pill pressing with 64 customization combinations.
 
 **Stats at a Glance:**
 
@@ -66,7 +66,7 @@ Safrol is the base precursor material for MDMA synthesis. Obtain it from NPC sho
 
 ## Step 2: Reaction (Reaktions Kessel)
 
-Synthesize safrol into MDMA base using the Reaktions Kessel (reaction kettle). The block **glows** at light level 4 during operation.
+Synthesize safrole into MDMA base using the Reaktions Kessel (reaction kettle). The block **glows** at light level 4 during operation.
 
 | Property | Value |
 |----------|-------|
@@ -78,7 +78,7 @@ Synthesize safrol into MDMA base using the Reaktions Kessel (reaction kettle). T
 
 ### Quality from Batch Size
 
-The amount of safrol loaded affects base quality chance:
+The amount of safrole loaded affects base quality chance:
 
 | Safrol Count | Gut Quality Chance |
 |-------------|-------------------|
@@ -86,7 +86,7 @@ The amount of safrol loaded affects base quality chance:
 | 4-5 Safrol | 25% |
 | 1-3 Safrol | 10% |
 
-Always load 6+ safrol per batch for the best quality odds.
+Always load 6+ safrole per batch for the best quality odds.
 
 ---
 
@@ -210,7 +210,7 @@ Final quality is the higher of the input crystal quality and the timing quality.
 
 | Block | Description | Function |
 |-------|-------------|----------|
-| Reaktions Kessel | Reaction kettle (**glowing**, light level 4) | Synthesizes safrol into MDMA-Base (8 slots, 50 sec); 40% Gut with 6+ safrol |
+| Reaktions Kessel | Reaction kettle (**glowing**, light level 4) | Synthesizes safrole into MDMA-Base (8 slots, 50 sec); 40% Gut with 6+ safrole |
 | Trocknungs Ofen | Drying oven (**hot**, light level 8, 120 C) | Dries MDMA-Base into crystals (8 slots, 30 sec); quality preserved |
 | Pillen Presse | Pill press (**interactive GUI**) | Timing minigame; combines crystals + binder into pills; color/design selection |
 
@@ -220,7 +220,7 @@ Final quality is the higher of the input crystal quality and the timing quality.
 
 | Modifier | Stage | Effect |
 |----------|-------|--------|
-| Safrol Batch Size | Reaction | 6+ safrol = 40% Gut; 4-5 = 25%; 1-3 = 10% |
+| Safrol Batch Size | Reaction | 6+ safrole = 40% Gut; 4-5 = 25%; 1-3 = 10% |
 | Timing Score | Pill Pressing | Primary quality determinant (0.0 to 1.0) |
 | Input Quality | Pill Pressing | Final quality = max(input quality, timing quality) |
 | Perfect Timing | Pill Pressing | Score 0.95+ = Premium (4.0x price) |
@@ -230,7 +230,7 @@ Final quality is the higher of the input crystal quality and the timing quality.
 
 ## Tips & Tricks
 
-1. **Always load 6+ safrol per reaction batch.** This gives 40% Gut quality chance versus only 10% with smaller batches. The difference is enormous.
+1. **Always load 6+ safrole per reaction batch.** This gives 40% Gut quality chance versus only 10% with smaller batches. The difference is enormous.
 2. **Master the 3-second timing window.** The pill press minigame is a 60-tick cycle. Learn to hit tick 28-32 consistently for Premium quality.
 3. **Count the rhythm.** The indicator moves at constant speed. Practice counting "one... two... PRESS!" to build muscle memory for the center.
 4. **Gut input + perfect timing = guaranteed Premium.** Since final quality is the max of input and timing, starting with Gut crystals means you only need a 0.95+ score for Premium.

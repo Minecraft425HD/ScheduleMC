@@ -41,8 +41,8 @@ public class VacuumDryerBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) return null;
         return (lvl, pos, st, be) -> {
-            if (be instanceof VacuumDryerBlockEntity trockner) {
-                trockner.tick();
+            if (be instanceof VacuumDryerBlockEntity dryer) {
+                dryer.tick();
             }
         };
     }
@@ -53,18 +53,18 @@ public class VacuumDryerBlock extends Block implements EntityBlock {
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof VacuumDryerBlockEntity trockner)) return InteractionResult.PASS;
+        if (!(be instanceof VacuumDryerBlockEntity dryer)) return InteractionResult.PASS;
 
         ItemStack heldItem = player.getItemInHand(hand);
 
         // Kristall-Meth hinzufügen
         if (heldItem.getItem() instanceof CrystalMethItem) {
-            if (trockner.addCrystalMeth(heldItem)) {
+            if (dryer.addCrystalMeth(heldItem)) {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
                 player.displayClientMessage(Component.translatable(
-                        "block.meth.vakuum_input", trockner.getActiveSlots()
+                        "block.meth.vakuum_input", dryer.getActiveSlots()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.IRON_DOOR_CLOSE, 0.5f, 1.5f);
                 return InteractionResult.SUCCESS;
@@ -79,8 +79,8 @@ public class VacuumDryerBlock extends Block implements EntityBlock {
         // Leere Hand
         if (heldItem.isEmpty()) {
             // Produkt entnehmen wenn fertig
-            if (trockner.hasOutput()) {
-                ItemStack output = trockner.extractAllOutput();
+            if (dryer.hasOutput()) {
+                ItemStack output = dryer.extractAllOutput();
                 if (!output.isEmpty()) {
                     if (!player.getInventory().add(output)) {
                         player.drop(output, false);
@@ -88,7 +88,7 @@ public class VacuumDryerBlock extends Block implements EntityBlock {
 
                     // Spezielle Nachricht für Blue Sky
                     MethQuality quality = de.rolandsw.schedulemc.meth.items.MethItem.getQuality(output);
-                    Component message = quality == MethQuality.LEGENDAER ?
+                    Component message = quality == MethQuality.LEGENDARY ?
                             Component.translatable("block.meth.vakuum_output_blue_sky", output.getCount()) :
                             Component.translatable("block.meth.vakuum_output_crystal", output.getCount());
 
@@ -102,24 +102,24 @@ public class VacuumDryerBlock extends Block implements EntityBlock {
             StringBuilder status = new StringBuilder();
             status.append(Component.translatable("block.meth.vakuum_title").getString()).append('\n');
 
-            if (trockner.isActive()) {
-                int progress = (int) (trockner.getAverageProgress() * 100);
-                status.append(Component.translatable("block.meth.vakuum_active", trockner.getActiveSlots()).getString()).append('\n');
+            if (dryer.isActive()) {
+                int progress = (int) (dryer.getAverageProgress() * 100);
+                status.append(Component.translatable("block.meth.vakuum_active", dryer.getActiveSlots()).getString()).append('\n');
                 status.append(Component.translatable("block.meth.vakuum_progress", progress).getString()).append('\n');
 
-                MethQuality best = trockner.getBestQuality();
+                MethQuality best = dryer.getBestQuality();
                 String qualityInfo = switch (best) {
-                    case SCHLECHT -> Component.translatable("block.meth.vakuum_quality_standard").getString();
-                    case GUT -> Component.translatable("block.meth.vakuum_quality_premium").getString();
-                    case SEHR_GUT -> Component.translatable("block.meth.vakuum_quality_premium").getString();
-                    case LEGENDAER -> Component.translatable("block.meth.vakuum_quality_blue_sky").getString();
+                    case POOR -> Component.translatable("block.meth.vakuum_quality_standard").getString();
+                    case GOOD -> Component.translatable("block.meth.vakuum_quality_premium").getString();
+                    case VERY_GOOD -> Component.translatable("block.meth.vakuum_quality_premium").getString();
+                    case LEGENDARY -> Component.translatable("block.meth.vakuum_quality_blue_sky").getString();
                 };
                 status.append(Component.translatable("block.meth.vakuum_best_quality", qualityInfo).getString());
             }
 
-            if (trockner.hasOutput()) {
-                status.append(Component.translatable("block.meth.vakuum_ready", trockner.getOutputCount()).getString());
-            } else if (!trockner.hasInput()) {
+            if (dryer.hasOutput()) {
+                status.append(Component.translatable("block.meth.vakuum_ready", dryer.getOutputCount()).getString());
+            } else if (!dryer.hasInput()) {
                 status.append(Component.translatable("block.meth.vakuum_hint").getString());
             }
 

@@ -16,19 +16,19 @@ public class MDMABlockEntities {
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
     public static final RegistryObject<BlockEntityType<ReactionKettleBlockEntity>> REACTION_KETTLE =
-            BLOCK_ENTITIES.register("reaktions_kessel", () ->
+            BLOCK_ENTITIES.register("reaction_kettle", () ->
                     BlockEntityType.Builder.of(ReactionKettleBlockEntity::new,
                             MDMABlocks.REACTION_KETTLE.get()
                     ).build(null));
 
     public static final RegistryObject<BlockEntityType<DryingOvenBlockEntity>> DRYING_OVEN =
-            BLOCK_ENTITIES.register("trocknungs_ofen", () ->
+            BLOCK_ENTITIES.register("drying_oven", () ->
                     BlockEntityType.Builder.of(DryingOvenBlockEntity::new,
                             MDMABlocks.DRYING_OVEN.get()
                     ).build(null));
 
     public static final RegistryObject<BlockEntityType<PillPressBlockEntity>> PILL_PRESS =
-            BLOCK_ENTITIES.register("pillen_presse", () ->
+            BLOCK_ENTITIES.register("pill_press", () ->
                     BlockEntityType.Builder.of(PillPressBlockEntity::new,
                             MDMABlocks.PILL_PRESS.get()
                     ).build(null));

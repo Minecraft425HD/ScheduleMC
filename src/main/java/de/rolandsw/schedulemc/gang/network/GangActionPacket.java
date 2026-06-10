@@ -100,7 +100,7 @@ public class GangActionPacket {
 
             GangManager manager = GangManager.getInstance();
             if (manager == null) {
-                sendError(player, "Gang-System nicht verfuegbar.");
+                sendError(player, "Gang system not available.");
                 return;
             }
 
@@ -153,7 +153,7 @@ public class GangActionPacket {
             sendSuccess(player, "Gang '" + gang.getName() + "' [" + gang.getTag() + "] gegruendet! (-" + (int) GANG_CREATE_COST + "\u20AC)");
             GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
         } else {
-            sendError(player, "Gang konnte nicht erstellt werden. Name/Tag bereits vergeben oder ungueltig.");
+            sendError(player, "Gang could not be created. Name/tag already taken or invalid.");
         }
     }
 
@@ -171,7 +171,7 @@ public class GangActionPacket {
         } else {
             target = player.getServer().getPlayerList().getPlayer(targetUUID);
         }
-        if (target == null) { sendError(player, "Spieler nicht online."); return; }
+        if (target == null) { sendError(player, "Player not online."); return; }
 
         if (gang.invite(target.getUUID())) {
             sendSuccess(player, target.getGameProfile().getName() + " eingeladen.");
@@ -179,7 +179,7 @@ public class GangActionPacket {
                     "\u00A76Gang-Einladung: \u00A7f" + gang.getName() +
                     " \u00A77| Nutze \u00A7e/gang accept\u00A77 zum Beitreten (5 Min.)"));
         } else {
-            sendError(player, "Einladung fehlgeschlagen (bereits Mitglied oder Gang voll).");
+            sendError(player, "Invitation failed (already a member or gang full).");
         }
     }
 
@@ -208,7 +208,7 @@ public class GangActionPacket {
                 }
             }
         }
-        sendError(player, "Keine gueltige Einladung gefunden.");
+        sendError(player, "No valid invitation found.");
     }
 
     private void handleLeave(ServerPlayer player, GangManager manager) {
@@ -219,7 +219,7 @@ public class GangActionPacket {
             sendSuccess(player, "Du hast die Gang verlassen.");
             GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
         } else {
-            sendError(player, "Konnte Gang nicht verlassen (als Boss zuerst /gang disband oder Boss uebertragen).");
+            sendError(player, "Could not leave gang (as boss, first /gang disband or transfer boss).");
         }
     }
 
@@ -228,7 +228,7 @@ public class GangActionPacket {
             sendSuccess(player, "Spieler aus der Gang entfernt.");
             GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
         } else {
-            sendError(player, "Kick fehlgeschlagen (keine Berechtigung oder Spieler nicht in Gang).");
+            sendError(player, "Kick failed (no permission or player not in gang).");
         }
     }
 
@@ -254,7 +254,7 @@ public class GangActionPacket {
             sendSuccess(player, "Gang aufgeloest.");
             GangSyncHelper.broadcastAllPlayerInfos(player.getServer());
         } else {
-            sendError(player, "Nur der Boss kann die Gang aufloesen.");
+            sendError(player, "Only the boss can disband the gang.");
         }
     }
 
@@ -271,7 +271,7 @@ public class GangActionPacket {
                 manager.markDirty();
                 sendSuccess(player, "Perk '" + perk.getDisplayName() + "' freigeschaltet!");
             } else {
-                sendError(player, "Perk kann nicht freigeschaltet werden (Level/Punkte nicht ausreichend).");
+                sendError(player, "Perk cannot be unlocked (level/points insufficient).");
             }
         } catch (IllegalArgumentException e) {
             sendError(player, "Ungueltiger Perk.");
@@ -283,12 +283,12 @@ public class GangActionPacket {
         if (gang == null) { sendError(player, "Du bist in keiner Gang."); return; }
 
         GangRank rank = gang.getRank(player.getUUID());
-        if (rank != GangRank.BOSS) { sendError(player, "Nur der Boss kann den Beitrag aendern."); return; }
+        if (rank != GangRank.BOSS) { sendError(player, "Only the boss can change the contribution."); return; }
 
         try {
             int fee = Integer.parseInt(stringParam.trim());
             if (fee < 0 || fee > 10000) {
-                sendError(player, "Beitrag muss zwischen 0 und 10.000\u20AC liegen.");
+                sendError(player, "Contribution must be between 0 and 10,000\u20AC.");
                 return;
             }
             gang.setWeeklyFee(fee);
@@ -308,7 +308,7 @@ public class GangActionPacket {
         if (gang == null) { sendError(player, "Du bist in keiner Gang."); return; }
 
         GangMissionManager mm = GangMissionManager.getInstance();
-        if (mm == null) { sendError(player, "Missions-System nicht verfuegbar."); return; }
+        if (mm == null) { sendError(player, "Mission system not available."); return; }
 
         int[] reward = mm.claimReward(gang.getGangId(), stringParam);
         if (reward.length > 0) {
@@ -322,7 +322,7 @@ public class GangActionPacket {
             de.rolandsw.schedulemc.mission.MissionEventBridge.fireGangMissionCompleted(player);
             sendSuccess(player, "Belohnung: +" + reward[0] + " XP" + (reward[1] > 0 ? ", +" + reward[1] + "\u20AC in Gang-Kasse" : ""));
         } else {
-            sendError(player, "Belohnung kann nicht eingeloest werden.");
+            sendError(player, "Reward cannot be redeemed.");
         }
     }
 

@@ -75,10 +75,10 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private BlockPos homeSpawnPoint;
     private boolean spawnPointReleased = false; // Track if spawn point was released when driving away
 
-    // Werkstatt locking system
-    private boolean isLockedInWerkstatt;
+    // Workshop locking system
+    private boolean isLockedInWorkshop;
     @Nullable
-    private BlockPos werkstattPosition;
+    private BlockPos workshopPosition;
 
     // Container installation tracking is via synched data (HAS_HAD_ITEM_CONTAINER / HAS_HAD_FLUID_CONTAINER)
     // First installation is free, reinstallation after removal costs money
@@ -742,30 +742,30 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return getEngineSoundOrDefault(PartEngine::getHornSound, () -> ModSounds.VEHICLE_HORN.get());
     }
 
-    // Werkstatt locking system methods
-    public void lockInWerkstatt(BlockPos werkstattPos) {
-        this.isLockedInWerkstatt = true;
-        this.werkstattPosition = werkstattPos;
+    // Workshop locking system methods
+    public void lockInWorkshop(BlockPos workshopPos) {
+        this.isLockedInWorkshop = true;
+        this.workshopPosition = workshopPos;
         // Stop all movement
         this.setDeltaMovement(Vec3.ZERO);
     }
 
-    public void unlockFromWerkstatt() {
-        this.isLockedInWerkstatt = false;
-        this.werkstattPosition = null;
+    public void unlockFromWorkshop() {
+        this.isLockedInWorkshop = false;
+        this.workshopPosition = null;
     }
 
-    public boolean isLockedInWerkstatt() {
-        return isLockedInWerkstatt;
+    public boolean isLockedInWorkshop() {
+        return isLockedInWorkshop;
     }
 
     @Nullable
-    public BlockPos getWerkstattPosition() {
-        return werkstattPosition;
+    public BlockPos getWorkshopPosition() {
+        return workshopPosition;
     }
 
     public boolean canMove() {
-        return !isLockedInWerkstatt;
+        return !isLockedInWorkshop;
     }
 
     // Container installation tracking (synched so client GUI can show correct cost)
@@ -841,15 +841,15 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             this.spawnPointReleased = compound.getBoolean("SpawnPointReleased");
         }
 
-        // Load werkstatt locking data
+        // Load workshop locking data
         if (compound.contains("IsLockedInWerkstatt")) {
-            this.isLockedInWerkstatt = compound.getBoolean("IsLockedInWerkstatt");
+            this.isLockedInWorkshop = compound.getBoolean("IsLockedInWerkstatt");
         }
         if (compound.contains("WerkstattX")) {
             int x = compound.getInt("WerkstattX");
             int y = compound.getInt("WerkstattY");
             int z = compound.getInt("WerkstattZ");
-            this.werkstattPosition = new BlockPos(x, y, z);
+            this.workshopPosition = new BlockPos(x, y, z);
         }
 
         // Load paint color
@@ -917,12 +917,12 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         }
         compound.putBoolean("SpawnPointReleased", this.spawnPointReleased);
 
-        // Save werkstatt locking data
-        compound.putBoolean("IsLockedInWerkstatt", this.isLockedInWerkstatt);
-        if (this.werkstattPosition != null) {
-            compound.putInt("WerkstattX", this.werkstattPosition.getX());
-            compound.putInt("WerkstattY", this.werkstattPosition.getY());
-            compound.putInt("WerkstattZ", this.werkstattPosition.getZ());
+        // Save workshop locking data
+        compound.putBoolean("IsLockedInWerkstatt", this.isLockedInWorkshop);
+        if (this.workshopPosition != null) {
+            compound.putInt("WerkstattX", this.workshopPosition.getX());
+            compound.putInt("WerkstattY", this.workshopPosition.getY());
+            compound.putInt("WerkstattZ", this.workshopPosition.getZ());
         }
 
         // Save paint color

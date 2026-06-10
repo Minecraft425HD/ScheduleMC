@@ -80,7 +80,7 @@ public class CrimeRecordCommand {
 
         EvidenceManager evidenceManager = EvidenceManager.getInstance();
         if (evidenceManager == null) {
-            source.sendFailure(Component.literal("\u00A7cEvidenceManager nicht verfuegbar!"));
+            source.sendFailure(Component.literal("\u00A7cEvidenceManager not available!"));
             return 0;
         }
 
@@ -125,7 +125,7 @@ public class CrimeRecordCommand {
         }
 
         source.sendSuccess(() ->
-            Component.literal("\u00A7aCrime Record und Beweise fuer " + target.getName().getString() + " geloescht."),
+            Component.literal("\u00A7aCrime record and evidence for " + target.getName().getString() + " geloescht."),
             false);
 
         return 1;

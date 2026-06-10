@@ -18,7 +18,7 @@ import de.rolandsw.schedulemc.honey.items.HoneyJarItem;
 import de.rolandsw.schedulemc.items.ModItems;
 import de.rolandsw.schedulemc.lsd.items.BlotterItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
-import de.rolandsw.schedulemc.lsd.items.LSDLoesungItem;
+import de.rolandsw.schedulemc.lsd.items.LSDSolutionItem;
 import de.rolandsw.schedulemc.mdma.items.*;
 import de.rolandsw.schedulemc.meth.items.*;
 import de.rolandsw.schedulemc.mushroom.items.DriedMushroomItem;
@@ -49,10 +49,10 @@ import java.util.Map;
  * Registriert Item Colors für das Qualitäts-Rahmen-System.
  *
  * Einheitliches 4-Stufen-System:
- * - Level 0: SCHLECHT (Grau)
- * - Level 1: GUT (Gelb)
- * - Level 2: SEHR_GUT (Grün)
- * - Level 3: LEGENDAER (Gold)
+ * - Level 0: POOR (Grau)
+ * - Level 1: GOOD (Gelb)
+ * - Level 2: VERY_GOOD (Grün)
+ * - Level 3: LEGENDARY (Gold)
  *
  * Layer 0: Item-Textur (keine Färbung)
  * Layer 1: Qualitäts-Rahmen (wird basierend auf Qualität eingefärbt)
@@ -62,10 +62,10 @@ public class QualityItemColors {
 
     // Qualitäts-Farben (ARGB Format) - Einheitliches 4-Stufen-System
     // Farben entsprechen exakt den Minecraft Chat-Codes!
-    private static final int COLOR_QUALITY_0 = 0xFFFF5555; // Rot - SCHLECHT (§c)
-    private static final int COLOR_QUALITY_1 = 0xFFFFFF55; // Gelb - GUT (§e)
-    private static final int COLOR_QUALITY_2 = 0xFF55FF55; // Grün - SEHR_GUT (§a)
-    private static final int COLOR_QUALITY_3 = 0xFFFFAA00; // Gold - LEGENDAER (§6)
+    private static final int COLOR_QUALITY_0 = 0xFFFF5555; // Rot - POOR (§c)
+    private static final int COLOR_QUALITY_1 = 0xFFFFFF55; // Gelb - GOOD (§e)
+    private static final int COLOR_QUALITY_2 = 0xFF55FF55; // Grün - VERY_GOOD (§a)
+    private static final int COLOR_QUALITY_3 = 0xFFFFAA00; // Gold - LEGENDARY (§6)
     private static final int COLOR_DEFAULT = 0xFFFFFFFF;   // Weiß - Keine Qualität/Fallback
 
     /**
@@ -110,21 +110,21 @@ public class QualityItemColors {
 
         // Coca Items (8 - Fresh Leaves, Paste (3 types), Cocaine, Crack)
         event.register(QualityItemColors::getQualityColor,
-                CocaItems.FRESH_BOLIVIANISCH_LEAF.get(),
-                CocaItems.FRESH_KOLUMBIANISCH_LEAF.get(),
-                CocaItems.FRESH_PERUANISCH_LEAF.get(),
-                CocaItems.COCA_PASTE_BOLIVIANISCH.get(),
-                CocaItems.COCA_PASTE_KOLUMBIANISCH.get(),
-                CocaItems.COCA_PASTE_PERUANISCH.get(),
+                CocaItems.FRESH_BOLIVIAN_LEAF.get(),
+                CocaItems.FRESH_COLOMBIAN_LEAF.get(),
+                CocaItems.FRESH_PERUVIAN_LEAF.get(),
+                CocaItems.COCA_PASTE_BOLIVIAN.get(),
+                CocaItems.COCA_PASTE_COLOMBIAN.get(),
+                CocaItems.COCA_PASTE_PERUVIAN.get(),
                 CocaItems.COCAINE.get(),
                 CocaItems.CRACK_ROCK.get()
         );
 
         // Poppy Items (6)
         event.register(QualityItemColors::getQualityColor,
-                PoppyItems.AFGHANISCH_POPPY_POD.get(),
-                PoppyItems.INDISCH_POPPY_POD.get(),
-                PoppyItems.TUERKISCH_POPPY_POD.get(),
+                PoppyItems.AFGHAN_POPPY_POD.get(),
+                PoppyItems.INDIAN_POPPY_POD.get(),
+                PoppyItems.TURKISH_POPPY_POD.get(),
                 PoppyItems.RAW_OPIUM.get(),
                 PoppyItems.MORPHINE.get(),
                 PoppyItems.HEROIN.get()
@@ -141,14 +141,14 @@ public class QualityItemColors {
         // MDMA Items (3 - Base, Kristall, Ecstasy Pills)
         event.register(QualityItemColors::getQualityColor,
                 MDMAItems.MDMA_BASE.get(),
-                MDMAItems.MDMA_KRISTALL.get(),
+                MDMAItems.MDMA_CRYSTAL.get(),
                 MDMAItems.ECSTASY_PILL.get()
         );
 
         // LSD Items (2 - Blotter, Lösung)
         event.register(QualityItemColors::getQualityColor,
                 LSDItems.BLOTTER.get(),
-                LSDItems.LSD_LOESUNG.get()
+                LSDItems.LSD_SOLUTION.get()
         );
 
         // Mushroom Items (6)
@@ -180,7 +180,7 @@ public class QualityItemColors {
         event.register(QualityItemColors::getQualityColor,
                 WineItems.WINE_BOTTLE.get(),
                 WineItems.RIESLING_GRAPES.get(),
-                WineItems.SPAETBURGUNDER_GRAPES.get(),
+                WineItems.PINOT_NOIR_GRAPES.get(),
                 WineItems.CHARDONNAY_GRAPES.get(),
                 WineItems.MERLOT_GRAPES.get()
         );
@@ -237,7 +237,7 @@ public class QualityItemColors {
      * da beide die GLEICHE Methode verwenden!
      *
      * Alle Qualitäts-Enums verwenden das einheitliche 4-Stufen-System:
-     * SCHLECHT (0), GUT (1), SEHR_GUT (2), LEGENDAER (3)
+     * POOR (0), GOOD (1), VERY_GOOD (2), LEGENDARY (3)
      */
     private static int extractQualityLevel(ItemStack stack) {
         Item item = stack.getItem();
@@ -383,12 +383,12 @@ public class QualityItemColors {
         if (item instanceof BlotterItem) {
             return BlotterItem.getDosage(stack).ordinal();
         }
-        if (item instanceof LSDLoesungItem) {
-            return LSDLoesungItem.getDosage(stack).ordinal();
+        if (item instanceof LSDSolutionItem) {
+            return LSDSolutionItem.getDosage(stack).ordinal();
         }
 
         // Fallback: Item hat keine Quality
-        return 0; // Default: SCHLECHT
+        return 0; // Default: POOR
     }
 
 
@@ -397,10 +397,10 @@ public class QualityItemColors {
      */
     private static int getColorForLevel(int level) {
         return switch (level) {
-            case 0 -> COLOR_QUALITY_0; // Rot (§c) - SCHLECHT
-            case 1 -> COLOR_QUALITY_1; // Gelb (§e) - GUT
-            case 2 -> COLOR_QUALITY_2; // Grün (§a) - SEHR_GUT
-            case 3 -> COLOR_QUALITY_3; // Gold (§6) - LEGENDAER
+            case 0 -> COLOR_QUALITY_0; // Rot (§c) - POOR
+            case 1 -> COLOR_QUALITY_1; // Gelb (§e) - GOOD
+            case 2 -> COLOR_QUALITY_2; // Grün (§a) - VERY_GOOD
+            case 3 -> COLOR_QUALITY_3; // Gold (§6) - LEGENDARY
             default -> COLOR_DEFAULT;
         };
     }
@@ -437,18 +437,18 @@ public class QualityItemColors {
                 CannabisItems.CANNABIS_OIL.get(),
                 CannabisItems.TRIM.get(),
                 // Coca (8)
-                CocaItems.FRESH_BOLIVIANISCH_LEAF.get(),
-                CocaItems.FRESH_KOLUMBIANISCH_LEAF.get(),
-                CocaItems.FRESH_PERUANISCH_LEAF.get(),
-                CocaItems.COCA_PASTE_BOLIVIANISCH.get(),
-                CocaItems.COCA_PASTE_KOLUMBIANISCH.get(),
-                CocaItems.COCA_PASTE_PERUANISCH.get(),
+                CocaItems.FRESH_BOLIVIAN_LEAF.get(),
+                CocaItems.FRESH_COLOMBIAN_LEAF.get(),
+                CocaItems.FRESH_PERUVIAN_LEAF.get(),
+                CocaItems.COCA_PASTE_BOLIVIAN.get(),
+                CocaItems.COCA_PASTE_COLOMBIAN.get(),
+                CocaItems.COCA_PASTE_PERUVIAN.get(),
                 CocaItems.COCAINE.get(),
                 CocaItems.CRACK_ROCK.get(),
                 // Poppy (6)
-                PoppyItems.AFGHANISCH_POPPY_POD.get(),
-                PoppyItems.INDISCH_POPPY_POD.get(),
-                PoppyItems.TUERKISCH_POPPY_POD.get(),
+                PoppyItems.AFGHAN_POPPY_POD.get(),
+                PoppyItems.INDIAN_POPPY_POD.get(),
+                PoppyItems.TURKISH_POPPY_POD.get(),
                 PoppyItems.RAW_OPIUM.get(),
                 PoppyItems.MORPHINE.get(),
                 PoppyItems.HEROIN.get(),
@@ -459,11 +459,11 @@ public class QualityItemColors {
                 MethItems.METH.get(),
                 // MDMA (3)
                 MDMAItems.MDMA_BASE.get(),
-                MDMAItems.MDMA_KRISTALL.get(),
+                MDMAItems.MDMA_CRYSTAL.get(),
                 MDMAItems.ECSTASY_PILL.get(),
                 // LSD (2)
                 LSDItems.BLOTTER.get(),
-                LSDItems.LSD_LOESUNG.get(),
+                LSDItems.LSD_SOLUTION.get(),
                 // Mushroom (6)
                 MushroomItems.FRESH_CUBENSIS.get(),
                 MushroomItems.FRESH_AZURESCENS.get(),
@@ -479,7 +479,7 @@ public class QualityItemColors {
                 // Wine (5)
                 WineItems.WINE_BOTTLE.get(),
                 WineItems.RIESLING_GRAPES.get(),
-                WineItems.SPAETBURGUNDER_GRAPES.get(),
+                WineItems.PINOT_NOIR_GRAPES.get(),
                 WineItems.CHARDONNAY_GRAPES.get(),
                 WineItems.MERLOT_GRAPES.get(),
                 // Cheese (2)

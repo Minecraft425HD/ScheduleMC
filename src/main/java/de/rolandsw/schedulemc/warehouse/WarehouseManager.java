@@ -160,7 +160,7 @@ public class WarehouseManager {
             }
 
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Prüfen von Warehouse @ {}", pos.toShortString(), e);
+            LOGGER.error("Error checking warehouse @ {}", pos.toShortString(), e);
         }
     }
 
@@ -211,7 +211,7 @@ public class WarehouseManager {
         lastDeliveryDayCache.clear();
 
         if (!dataFile.exists()) {
-            LOGGER.info("★★★ [WarehouseManager] Keine Warehouse-Daten gefunden - warehouses map ist leer! ★★★");
+            LOGGER.info("★★★ [WarehouseManager] No warehouse data found - warehouses map is empty! ★★★");
             return;
         }
 
@@ -235,11 +235,11 @@ public class WarehouseManager {
                 warehouses.put(levelKey, positions);
             }
 
-            LOGGER.info("Warehouse-Daten geladen: {} Levels, {} total Warehouses",
+            LOGGER.info("Warehouse data loaded: {} levels, {} total warehouses",
                 warehouses.size(), warehouses.values().stream().mapToInt(Set::size).sum());
 
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Laden der Warehouse-Daten", e);
+            LOGGER.error("Error loading warehouse data", e);
         }
     }
 
@@ -274,11 +274,11 @@ public class WarehouseManager {
             net.minecraft.nbt.NbtIo.writeCompressed(tag, fos);
 
             int totalWarehouses = warehouses.values().stream().mapToInt(Set::size).sum();
-            LOGGER.info("Warehouse-Daten gespeichert: {} Levels, {} Warehouses", warehouses.size(), totalWarehouses);
+            LOGGER.info("Warehouse data saved: {} levels, {} warehouses", warehouses.size(), totalWarehouses);
             dirty = false;
 
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Speichern der Warehouse-Daten", e);
+            LOGGER.error("Error saving warehouse data", e);
         }
     }
 

@@ -92,3 +92,23 @@ Alle 29 Call-Site-Dateien migriert. NBT-Keys identisch — Spielstände bleiben 
 - Diese Datei wurde im Rahmen der Cannabis-GUI-Überarbeitung erweitert.
 - Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
 
+
+---
+
+## Sprachkonvention (Architekturentscheidung, 2026-06-10)
+
+**Alles im Code ist Englisch.** Verbindlich für:
+- Registry-Keys (Blöcke, Items, BlockEntities, Menüs, Entities)
+- Java-Identifier: Klassen, Methoden, Felder, Enum-Konstanten
+- Übersetzungsschlüssel (lang keys) — Werte in `de_de.json` bleiben deutsch
+- NBT-/Config-Keys, Asset-Dateinamen (Texturen, Models, Blockstates)
+
+**Keine Rückwärtskompatibilität nötig** — die Mod ist in Entwicklung.
+Kein MissingMappings-Remap, keine Legacy-Aliase (NPCType-Duplikate wurden
+zusammengeführt: BEWOHNER→CITIZEN, VERKAEUFER→MERCHANT, POLIZEI→POLICE,
+ABSCHLEPPER→TOW_TRUCK_DRIVER).
+
+**Erledigt (2026-06-10):** Alle hartkodierten deutschen User-facing-
+Strings wurden entfernt (Phasen 1-8, siehe docs/I18N_MIGRATION_PLAN.md).
+Guard gegen Rückfälle: `scripts/check-german-strings.sh`.
+Deutsche Code-Kommentare sind weiterhin erlaubt.

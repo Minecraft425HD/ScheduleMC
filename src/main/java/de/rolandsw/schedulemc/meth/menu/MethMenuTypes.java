@@ -16,6 +16,6 @@ public class MethMenuTypes {
             DeferredRegister.create(ForgeRegistries.MENU_TYPES, ScheduleMC.MOD_ID);
 
     public static final RegistryObject<MenuType<ReductionKettleMenu>> REDUCTION_KETTLE_MENU =
-            MENUS.register("reduktionskessel_menu", () ->
+            MENUS.register("reduction_kettle_menu", () ->
                     IForgeMenuType.create(ReductionKettleMenu::new));
 }

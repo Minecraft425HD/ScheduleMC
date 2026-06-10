@@ -119,10 +119,10 @@ public class ReductionKettleScreen extends AbstractContainerScreen<ReductionKett
         graphics.fill(x, indicatorY, x + THERMO_WIDTH, indicatorY + 2, tempColor | 0xFF000000);
 
         // Temperatur-Labels
-        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.temp_150").getString(), x + THERMO_WIDTH + 5, y + 2, 0xFF5555, false);
-        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.temp_120").getString(), x + THERMO_WIDTH + 5, y + optimalStart - 4, 0xFFAA00, false);
-        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.temp_80").getString(), x + THERMO_WIDTH + 5, y + optimalEnd - 4, 0x55FF55, false);
-        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.temp_20").getString(), x + THERMO_WIDTH + 5, y + THERMO_HEIGHT - 10, 0x5555FF, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduction_kettle.temp_150").getString(), x + THERMO_WIDTH + 5, y + 2, 0xFF5555, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduction_kettle.temp_120").getString(), x + THERMO_WIDTH + 5, y + optimalStart - 4, 0xFFAA00, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduction_kettle.temp_80").getString(), x + THERMO_WIDTH + 5, y + optimalEnd - 4, 0x55FF55, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduction_kettle.temp_20").getString(), x + THERMO_WIDTH + 5, y + THERMO_HEIGHT - 10, 0x5555FF, false);
     }
 
     private void renderHeatButton(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
@@ -156,22 +156,22 @@ public class ReductionKettleScreen extends AbstractContainerScreen<ReductionKett
 
         // Button Text
         String buttonText = isButtonPressed ?
-            Component.translatable("gui.reduktionskessel.button_heating").getString() :
-            Component.translatable("gui.reduktionskessel.button_hold").getString();
+            Component.translatable("gui.reduction_kettle.button_heating").getString() :
+            Component.translatable("gui.reduction_kettle.button_hold").getString();
         int textWidth = this.font.width(buttonText);
         graphics.drawString(this.font, buttonText, x + (BUTTON_WIDTH - textWidth) / 2, y + 12, textColor, true);
 
         // Temperatur-Anzeige auf Button
         int temp = menu.getTemperature();
         String zoneStr = menu.getTemperatureZone();
-        String tempDisplay = Component.translatable("gui.reduktionskessel.temp_display", temp, zoneStr).getString();
+        String tempDisplay = Component.translatable("gui.reduction_kettle.temp_display", temp, zoneStr).getString();
         graphics.drawString(this.font, tempDisplay,
                 x + (BUTTON_WIDTH - this.font.width(tempDisplay)) / 2 + 10,
                 y + 30, 0xFFFFFF, false);
 
         // Warnhinweis
         if (temp > ReductionKettleBlockEntity.TEMP_OPTIMAL_MAX) {
-            graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.warning").getString(), x + (BUTTON_WIDTH - 70) / 2, y + BUTTON_HEIGHT + 5, 0xFF5555, false);
+            graphics.drawString(this.font, Component.translatable("gui.reduction_kettle.warning").getString(), x + (BUTTON_WIDTH - 70) / 2, y + BUTTON_HEIGHT + 5, 0xFF5555, false);
         }
     }
 
@@ -197,11 +197,11 @@ public class ReductionKettleScreen extends AbstractContainerScreen<ReductionKett
 
         // Progress Text
         int percent = (int) (progress * 100);
-        String progressText = menu.isProcessing() ? Component.translatable("gui.progress_percent", percent).getString() : Component.translatable("gui.reduktionskessel.waiting").getString();
+        String progressText = menu.isProcessing() ? Component.translatable("gui.progress_percent", percent).getString() : Component.translatable("gui.reduction_kettle.waiting").getString();
         graphics.drawString(this.font, progressText, x + (barWidth - this.font.width(progressText)) / 2, y + 4, 0xFFFFFF, false);
 
         // Label
-        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.progress").getString(), x, y - 12, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduction_kettle.progress").getString(), x, y - 12, 0xAAAAAA, false);
     }
 
     private void renderQualityIndicator(GuiGraphics graphics, int x, int y) {
@@ -213,16 +213,16 @@ public class ReductionKettleScreen extends AbstractContainerScreen<ReductionKett
 
         // Qualitäts-Farbe
         int qualityColor = switch (expected) {
-            case SCHLECHT -> 0xFFFF5555;  // Rot (00a7c)
-            case GUT -> 0xFFFFFF55;       // Gelb
-            case SEHR_GUT -> 0xFF55FF55;  // Grün
-            case LEGENDAER -> 0xFFFFAA00; // Gold (00a76)
+            case POOR -> 0xFFFF5555;  // Rot (00a7c)
+            case GOOD -> 0xFFFFFF55;       // Gelb
+            case VERY_GOOD -> 0xFF55FF55;  // Grün
+            case LEGENDARY -> 0xFFFFAA00; // Gold (00a76)
         };
 
         graphics.fill(x + 2, y + 2, x + 128, y + 14, qualityColor);
 
         // Qualitäts-Text
-        String qualityText = Component.translatable("gui.reduktionskessel.expected_quality", expected.getDisplayName()).getString();
+        String qualityText = Component.translatable("gui.reduction_kettle.expected_quality", expected.getDisplayName()).getString();
         graphics.drawString(this.font, qualityText, x + 5, y + 4, 0x111111, false);
     }
 
@@ -235,16 +235,16 @@ public class ReductionKettleScreen extends AbstractContainerScreen<ReductionKett
         int y = this.topPos;
 
         // Titel
-        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.title").getString(), x + 10, y + 8, 0xFFAA00, true);
+        graphics.drawString(this.font, Component.translatable("gui.reduction_kettle.title").getString(), x + 10, y + 8, 0xFFAA00, true);
 
         // Anleitung
-        graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.instruction").getString(), x + 100, y + 160, 0xAAAAAA, false);
+        graphics.drawString(this.font, Component.translatable("gui.reduction_kettle.instruction").getString(), x + 100, y + 160, 0xAAAAAA, false);
 
         // Explosionswarnung bei kritischer Temperatur
         if (menu.getTemperature() > ReductionKettleBlockEntity.TEMP_DANGER_MAX) {
             // Blinkender Text
             if (System.currentTimeMillis() % 500 < 250) {
-                graphics.drawString(this.font, Component.translatable("gui.reduktionskessel.explosion_warning").getString(), x + 80, y + 30, 0xFF0000, true);
+                graphics.drawString(this.font, Component.translatable("gui.reduction_kettle.explosion_warning").getString(), x + 80, y + 30, 0xFF0000, true);
             }
         }
     }

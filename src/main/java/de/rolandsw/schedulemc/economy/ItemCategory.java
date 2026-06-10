@@ -29,7 +29,7 @@ public enum ItemCategory {
     WINE("Wein", false, 0.5, 3.0, 0.4, 0.19),
     BEER("Bier", false, 0.5, 3.0, 0.4, 0.19),
     COFFEE("Kaffee", false, 0.5, 3.0, 0.4, 0.19),
-    CHEESE("Käse", false, 0.5, 3.0, 0.4, 0.19),
+    CHEESE("Cheese", false, 0.5, 3.0, 0.4, 0.19),
     CHOCOLATE("Schokolade", false, 0.5, 3.0, 0.4, 0.19),
     HONEY("Honig", false, 0.5, 3.0, 0.4, 0.19),
 
@@ -46,7 +46,7 @@ public enum ItemCategory {
     // ═══════════════════════════════════════════════════════════
     MACHINE_ILLEGAL("Illegale Maschine", true, 0.7, 2.0, 0.2, 0.0),
     MACHINE_LEGAL("Legale Maschine", false, 0.7, 2.0, 0.2, 0.0),
-    POT("Topf/Behälter", false, 0.8, 1.5, 0.15, 0.0),
+    POT("Pot/Container", false, 0.8, 1.5, 0.15, 0.0),
 
     // ═══════════════════════════════════════════════════════════
     // FAHRZEUGE
@@ -155,13 +155,13 @@ public enum ItemCategory {
      */
     public static ItemCategory fromMerchantCategory(de.rolandsw.schedulemc.npc.data.MerchantCategory merchantCategory) {
         return switch (merchantCategory) {
-            case BAUMARKT -> BUILDING_MATERIAL;
-            case WAFFENHAENDLER -> WEAPON;
-            case TANKSTELLE -> SERVICE;
-            case LEBENSMITTEL -> FOOD;
-            case PERSONALMANAGEMENT -> SERVICE;
-            case ILLEGALER_HAENDLER -> CHEMICAL;
-            case AUTOHAENDLER -> VEHICLE;
+            case HARDWARE_STORE -> BUILDING_MATERIAL;
+            case WEAPONS_DEALER -> WEAPON;
+            case GAS_STATION -> SERVICE;
+            case GROCERY -> FOOD;
+            case STAFF_MANAGEMENT -> SERVICE;
+            case ILLEGAL_DEALER -> CHEMICAL;
+            case CAR_DEALER -> VEHICLE;
         };
     }
 }

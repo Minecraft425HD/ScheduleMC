@@ -23,7 +23,7 @@ public class MushroomPlantData {
         this.type = type;
         this.growthStage = 0;
         this.ticksGrown = 0;
-        this.quality = TobaccoQuality.GUT;
+        this.quality = TobaccoQuality.GOOD;
         this.hasFertilizer = false;
         this.hasGrowthBooster = false;
         this.hasQualityBooster = false;
@@ -144,9 +144,9 @@ public class MushroomPlantData {
 
     private void upgradeQuality() {
         switch (quality) {
-            case SCHLECHT -> quality = TobaccoQuality.GUT;
-            case GUT -> quality = TobaccoQuality.SEHR_GUT;
-            case SEHR_GUT -> quality = TobaccoQuality.LEGENDAER;
+            case POOR -> quality = TobaccoQuality.GOOD;
+            case GOOD -> quality = TobaccoQuality.VERY_GOOD;
+            case VERY_GOOD -> quality = TobaccoQuality.LEGENDARY;
             default -> {}
         }
     }

@@ -74,8 +74,8 @@ public class ReductionKettleMenu extends AbstractContainerMenu {
         super(MethMenuTypes.REDUCTION_KETTLE_MENU.get(), containerId);
 
         BlockEntity be = playerInventory.player.level().getBlockEntity(extraData.readBlockPos());
-        if (be instanceof ReductionKettleBlockEntity kessel) {
-            this.blockEntity = kessel;
+        if (be instanceof ReductionKettleBlockEntity kettle) {
+            this.blockEntity = kettle;
         } else {
             this.blockEntity = null;
         }

@@ -76,10 +76,10 @@ public enum HoneyAgeLevel {
      */
     public String getDescription() {
         return switch (this) {
-            case FRESH -> "Frisch geerntet mit leichtem Blütenaroma";
+            case FRESH -> "Freshly harvested with a light floral aroma";
             case MATURE -> "Gereift mit ausgewogenen Aromen";
             case AGED -> "Gut gereift mit komplexen Geschmacksnoten";
-            case VINTAGE -> "Jahrgangshonig mit außergewöhnlicher Tiefe";
+            case VINTAGE -> "Vintage honey with exceptional depth";
         };
     }
 }

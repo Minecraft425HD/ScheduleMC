@@ -29,7 +29,7 @@ public class TrimStationBlockEntity extends BlockEntity {
 
     private int clickCount = 0;
     private CannabisStrain  lastStrain  = CannabisStrain.HYBRID;
-    private CannabisQuality lastQuality = CannabisQuality.GUT;
+    private CannabisQuality lastQuality = CannabisQuality.GOOD;
 
     private ItemStack inputItem       = ItemStack.EMPTY;
     private ItemStack outputTrimmedBud = ItemStack.EMPTY;
@@ -204,7 +204,7 @@ public class TrimStationBlockEntity extends BlockEntity {
         try { lastStrain  = CannabisStrain.valueOf(tag.getString("LastStrain")); }
         catch (IllegalArgumentException e) { lastStrain = CannabisStrain.HYBRID; }
         try { lastQuality = CannabisQuality.valueOf(tag.getString("LastQuality")); }
-        catch (IllegalArgumentException e) { lastQuality = CannabisQuality.GUT; }
+        catch (IllegalArgumentException e) { lastQuality = CannabisQuality.GOOD; }
         inputItem        = tag.contains("InputItem")        ? ItemStack.of(tag.getCompound("InputItem"))        : ItemStack.EMPTY;
         outputTrimmedBud = tag.contains("OutputTrimmedBud") ? ItemStack.of(tag.getCompound("OutputTrimmedBud")) : ItemStack.EMPTY;
         outputTrim       = tag.contains("OutputTrim")       ? ItemStack.of(tag.getCompound("OutputTrim"))       : ItemStack.EMPTY;
