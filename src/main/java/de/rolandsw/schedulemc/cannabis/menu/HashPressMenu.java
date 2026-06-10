@@ -217,7 +217,7 @@ public class HashPressMenu extends AbstractContainerMenu {
 
         @Override
         public @NotNull Component getDisplayName() {
-            return Component.translatable("gui.hash_presse.menu_title");
+            return Component.translatable("gui.hash_press.menu_title");
         }
 
         @Nullable

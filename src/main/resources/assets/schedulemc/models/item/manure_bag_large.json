@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/mist_bag_medium"
+    "layer0": "schedulemc:item/manure_bag_large"
   }
 }

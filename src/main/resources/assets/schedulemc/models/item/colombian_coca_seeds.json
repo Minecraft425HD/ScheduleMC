@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/roter_phosphor"
+    "layer0": "schedulemc:item/colombian_coca_seeds"
   }
 }

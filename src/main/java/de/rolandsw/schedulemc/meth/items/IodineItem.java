@@ -21,7 +21,7 @@ public class IodineItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.jod.catalyst"));
-        tooltip.add(Component.translatable("tooltip.jod.use_mixer"));
+        tooltip.add(Component.translatable("tooltip.iodine.catalyst"));
+        tooltip.add(Component.translatable("tooltip.iodine.use_mixer"));
     }
 }

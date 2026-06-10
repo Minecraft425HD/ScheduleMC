@@ -211,7 +211,7 @@ public class CuringJarMenu extends AbstractContainerMenu {
 
         @Override
         public @NotNull Component getDisplayName() {
-            return Component.translatable("gui.curing_glas.menu_title");
+            return Component.translatable("gui.curing_jar.menu_title");
         }
 
         @Nullable

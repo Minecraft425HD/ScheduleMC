@@ -50,6 +50,6 @@ public class MDMACrystalItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        return Component.translatable("item.mdma_kristall.name");
+        return Component.translatable("item.mdma_crystal.name");
     }
 }

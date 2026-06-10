@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/tuerkisch_poppy_pod",
+    "layer0": "schedulemc:item/afghan_poppy_pod",
     "layer1": "schedulemc:item/quality_frame"
   }
 }

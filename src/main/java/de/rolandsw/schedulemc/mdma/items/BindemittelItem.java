@@ -20,9 +20,9 @@ public class BindemittelItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.bindemittel.tabletting_aid"));
+        tooltip.add(Component.translatable("tooltip.binding_agent.tabletting_aid"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.bindemittel.white_powder"));
-        tooltip.add(Component.translatable("tooltip.bindemittel.use_press"));
+        tooltip.add(Component.translatable("tooltip.binding_agent.white_powder"));
+        tooltip.add(Component.translatable("tooltip.binding_agent.use_press"));
     }
 }

@@ -370,7 +370,7 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 **Speicherort:** `/src/main/resources/assets/schedulemc/textures/gui/`
 
 #### Main GUIs (6 Dateien)
-1. `boerse_gui.png`
+1. `stock_market_gui.png`
 2. `merchant_shop.png`
 3. `npc_interaction.png`
 4. `npc_spawner.png`
@@ -401,8 +401,8 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 **Speicherort:** `/src/main/resources/assets/schedulemc/textures/item/`
 
 #### Seeds (14 Dateien)
-1. `afghanisch_poppy_seeds.png`
-2. `bolivianisch_coca_seeds.png`
+1. `afghan_poppy_seeds.png`
+2. `bolivian_coca_seeds.png`
 3. `burley_seeds.png`
 4. `cannabis_seed.png`
 5. `cannabis_seed_autoflower.png` ⭐ NEU
@@ -410,20 +410,20 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 7. `cannabis_seed_indica.png` ⭐ NEU
 8. `cannabis_seed_sativa.png` ⭐ NEU
 9. `havana_seeds.png`
-10. `indisch_poppy_seeds.png`
-11. `kolumbianisch_coca_seeds.png`
+10. `indian_poppy_seeds.png`
+11. `colombian_coca_seeds.png`
 12. `oriental_seeds.png`
-13. `tuerkisch_poppy_seeds.png`
+13. `turkish_poppy_seeds.png`
 14. `virginia_seeds.png`
 
 #### Fresh Plant Products (12 Dateien)
 11. `fresh_azurescens.png`
-12. `fresh_bolivianisch_coca_leaf.png`
+12. `fresh_bolivian_coca_leaf.png`
 13. `fresh_burley_leaf.png`
 14. `fresh_cannabis_bud.png`
 15. `fresh_cubensis.png`
 16. `fresh_havana_leaf.png`
-17. `fresh_kolumbianisch_coca_leaf.png`
+17. `fresh_colombian_coca_leaf.png`
 18. `fresh_mexicana.png`
 19. `fresh_oriental_leaf.png`
 20. `fresh_virginia_leaf.png`
@@ -463,32 +463,32 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 44. `heroin.png`
 
 #### Methamphetamine Products (4 Dateien)
-45. `roh_meth.png`
+45. `raw_meth.png`
 46. `meth_paste.png`
 47. `meth.png`
-48. `kristall_meth.png`
+48. `crystal_meth.png`
 
 #### MDMA & LSD Products (6 Dateien)
 49. `mdma_base.png`
-50. `mdma_kristall.png`
+50. `mdma_crystal.png`
 51. `ecstasy_pill.png`
-52. `mutterkorn.png`
-53. `lysergsaeure.png`
-54. `lsd_loesung.png`
+52. `ergot.png`
+53. `lysergic_acid.png`
+54. `lsd_solution.png`
 55. `lsd_blotter.png`
 
 #### Chemicals & Precursors (9 Dateien)
-56. `backpulver.png`
-57. `bindemittel.png`
-58. `blotter_papier.png`
-59. `ephedrin.png`
-60. `ergot_kultur.png`
+56. `baking_powder.png`
+57. `binding_agent.png`
+58. `blotter_paper.png`
+59. `ephedrine.png`
+60. `ergot_culture.png`
 61. `extraction_solvent.png`
-62. `jod.png`
-63. `pillen_farbstoff.png`
-64. `pseudoephedrin.png`
-65. `roter_phosphor.png`
-66. `safrol.png`
+62. `iodine.png`
+63. `pill_dye.png`
+64. `pseudoephedrine.png`
+65. `red_phosphorus.png`
+66. `safrole.png`
 67. `scoring_knife.png`
 
 #### Packaging Materials (5 Dateien)
@@ -517,9 +517,9 @@ Aktualisiert am: 2026-01-17 (218 Platzhalter hinzugefügt)
 86. `soil_bag_large.png`
 87. `soil_bag_medium.png`
 88. `soil_bag_small.png`
-89. `mist_bag_large.png`
-90. `mist_bag_medium.png`
-91. `mist_bag_small.png`
+89. `manure_bag_large.png`
+90. `manure_bag_medium.png`
+91. `manure_bag_small.png`
 
 #### Spore Syringes (3 Dateien)
 92. `spore_syringe_azurescens.png`

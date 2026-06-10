@@ -20,10 +20,10 @@ public class MutterkornItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.mutterkorn.fungal_infection"));
+        tooltip.add(Component.translatable("tooltip.ergot.fungal_infection"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.mutterkorn.dark_grains"));
-        tooltip.add(Component.translatable("tooltip.mutterkorn.contains_alkaloids"));
-        tooltip.add(Component.translatable("tooltip.mutterkorn.use_fermentation"));
+        tooltip.add(Component.translatable("tooltip.ergot.dark_grains"));
+        tooltip.add(Component.translatable("tooltip.ergot.contains_alkaloids"));
+        tooltip.add(Component.translatable("tooltip.ergot.use_fermentation"));
     }
 }

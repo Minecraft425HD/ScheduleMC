@@ -19,23 +19,23 @@ public class LSDItems {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Item> MUTTERKORN =
-            ITEMS.register("mutterkorn", MutterkornItem::new);
+            ITEMS.register("ergot", MutterkornItem::new);
 
     public static final RegistryObject<Item> BLOTTER_PAPIER =
-            ITEMS.register("blotter_papier", BlotterPapierItem::new);
+            ITEMS.register("blotter_paper", BlotterPapierItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // ZWISCHENPRODUKTE
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Item> ERGOT_KULTUR =
-            ITEMS.register("ergot_kultur", ErgotKulturItem::new);
+            ITEMS.register("ergot_culture", ErgotKulturItem::new);
 
     public static final RegistryObject<Item> LYSERGSAEURE =
-            ITEMS.register("lysergsaeure", LysergsaeureItem::new);
+            ITEMS.register("lysergic_acid", LysergsaeureItem::new);
 
     public static final RegistryObject<Item> LSD_LOESUNG =
-            ITEMS.register("lsd_loesung", LSDLoesungItem::new);
+            ITEMS.register("lsd_solution", LSDLoesungItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // ENDPRODUKT

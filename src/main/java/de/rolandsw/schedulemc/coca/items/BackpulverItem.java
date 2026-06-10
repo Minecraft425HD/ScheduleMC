@@ -20,8 +20,8 @@ public class BackpulverItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.backpulver.sodium_bicarbonate"));
+        tooltip.add(Component.translatable("tooltip.baking_powder.sodium_bicarbonate"));
         tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("tooltip.backpulver.for_crack"));
+        tooltip.add(Component.translatable("tooltip.baking_powder.for_crack"));
     }
 }

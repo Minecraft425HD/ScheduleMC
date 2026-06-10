@@ -85,16 +85,16 @@ public class HashPressScreen extends AbstractContainerScreen<HashPressMenu> {
         int color;
 
         if (menu.hasOutput()) {
-            text = Component.translatable("gui.hash_presse.hash_ready").getString();
+            text = Component.translatable("gui.hash_press.hash_ready").getString();
             color = 0xFF335533;
         } else if (menu.isPressing()) {
-            text  = Component.translatable("gui.hash_presse.pressing").getString();
+            text  = Component.translatable("gui.hash_press.pressing").getString();
             color = 0xFF2A3A4A;
         } else if (menu.canStart()) {
-            text  = Component.translatable("gui.hash_presse.button_start").getString();
+            text  = Component.translatable("gui.hash_press.button_start").getString();
             color = hovered ? 0xFF55DD55 : 0xFF44AA44;
         } else {
-            text  = Component.translatable("gui.hash_presse.button_start").getString();
+            text  = Component.translatable("gui.hash_press.button_start").getString();
             color = 0xFF2A3A2A;
         }
 
@@ -115,7 +115,7 @@ public class HashPressScreen extends AbstractContainerScreen<HashPressMenu> {
         int y = topPos;
 
         // Title
-        g.drawString(font, Component.translatable("gui.hash_presse.title").getString(),
+        g.drawString(font, Component.translatable("gui.hash_press.title").getString(),
                 x + 8, y + 6, 0xFF88FF88, true);
 
         // Slot labels
@@ -132,13 +132,13 @@ public class HashPressScreen extends AbstractContainerScreen<HashPressMenu> {
 
         // Info rows
         g.drawString(font,
-                Component.translatable("gui.hash_presse.info_trim").getString()
+                Component.translatable("gui.hash_press.info_trim").getString()
                 + menu.getTrimWeight() + "g §7| " + menu.getStrain().getColoredName(),
                 x + 8, y + 66, 0xFFFFFF, false);
         g.drawString(font,
-                Component.translatable("gui.hash_presse.info_hash").getString()
+                Component.translatable("gui.hash_press.info_hash").getString()
                 + menu.getExpectedHashWeight()
-                + Component.translatable("gui.hash_presse.info_quality_sep").getString()
+                + Component.translatable("gui.hash_press.info_quality_sep").getString()
                 + menu.getBaseQuality().getColoredName(),
                 x + 8, y + 76, 0xFFFFFF, false);
 
@@ -146,7 +146,7 @@ public class HashPressScreen extends AbstractContainerScreen<HashPressMenu> {
         if (!menu.isPressing() && !menu.hasOutput()
                 && menu.getTrimWeight() < HashPressBlockEntity.MIN_TRIM_WEIGHT) {
             String warn = String.format(
-                    Component.translatable("gui.hash_presse.hint_min_trim").getString(),
+                    Component.translatable("gui.hash_press.hint_min_trim").getString(),
                     HashPressBlockEntity.MIN_TRIM_WEIGHT);
             g.drawString(font, warn, x + 8, y + 117, 0xAAAAAA, false);
         }

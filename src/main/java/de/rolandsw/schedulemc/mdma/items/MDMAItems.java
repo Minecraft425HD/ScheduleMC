@@ -19,13 +19,13 @@ public class MDMAItems {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Item> SAFROL =
-            ITEMS.register("safrol", SafrolItem::new);
+            ITEMS.register("safrole", SafrolItem::new);
 
     public static final RegistryObject<Item> BINDEMITTEL =
-            ITEMS.register("bindemittel", BindemittelItem::new);
+            ITEMS.register("binding_agent", BindemittelItem::new);
 
     public static final RegistryObject<Item> FARBSTOFF =
-            ITEMS.register("pillen_farbstoff", FarbstoffItem::new);
+            ITEMS.register("pill_dye", FarbstoffItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // ZWISCHENPRODUKTE
@@ -35,7 +35,7 @@ public class MDMAItems {
             ITEMS.register("mdma_base", MDMABaseItem::new);
 
     public static final RegistryObject<Item> MDMA_KRISTALL =
-            ITEMS.register("mdma_kristall", MDMACrystalItem::new);
+            ITEMS.register("mdma_crystal", MDMACrystalItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // ENDPRODUKT

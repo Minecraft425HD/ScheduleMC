@@ -21,9 +21,9 @@ public class EphedrineItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.ephedrin.chemical_base"));
+        tooltip.add(Component.translatable("tooltip.ephedrine.chemical_base"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.ephedrin.white_powder"));
-        tooltip.add(Component.translatable("tooltip.ephedrin.use_mixer"));
+        tooltip.add(Component.translatable("tooltip.ephedrine.white_powder"));
+        tooltip.add(Component.translatable("tooltip.ephedrine.use_mixer"));
     }
 }

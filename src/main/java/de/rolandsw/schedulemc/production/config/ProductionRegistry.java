@@ -423,7 +423,7 @@ public class ProductionRegistry {
             .baseYield(0)
             .category(ProductionConfig.ProductionCategory.CHEMICAL)
             .addProcessingStage("synthesis", new ProductionConfig.ProcessingStageConfig(
-                "Synthese", 4800, "safrol", "mdma_base", false
+                "Synthese", 4800, "safrole", "mdma_base", false
             ))
             .addProcessingStage("crystallization", new ProductionConfig.ProcessingStageConfig(
                 "Kristallisation", 2400, "mdma_base", "mdma_crystal", true

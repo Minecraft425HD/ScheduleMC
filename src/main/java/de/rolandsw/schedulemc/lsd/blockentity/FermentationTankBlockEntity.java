@@ -27,7 +27,7 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
 
     private boolean lastActiveState = false;
     private long lastGameTime = -1L;
-    private int mutterkornCount = 0;
+    private int ergotCount = 0;
     private int fermentationProgress = 0;
     private int outputCount = 0;
     private boolean isActive = false;
@@ -41,10 +41,10 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
      */
     public boolean addMutterkorn(ItemStack stack) {
         if (!(stack.getItem() instanceof MutterkornItem)) return false;
-        if (mutterkornCount >= CAPACITY) return false;
+        if (ergotCount >= CAPACITY) return false;
         if (outputCount > 0) return false; // Erst Output entnehmen
 
-        mutterkornCount = Math.min(mutterkornCount + 1, CAPACITY);
+        ergotCount = Math.min(ergotCount + 1, CAPACITY);
         if (fermentationProgress == 0) {
             isActive = true;
         }
@@ -76,15 +76,15 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
         lastGameTime = now;
         if (ticksPassed == 0) return;
 
-        if (mutterkornCount > 0 && outputCount == 0) {
+        if (ergotCount > 0 && outputCount == 0) {
             isActive = true;  // NOPMD
             int prevProgress = fermentationProgress;
             fermentationProgress = Math.min(fermentationProgress + (int) ticksPassed, FERMENTATION_TIME);
 
             if (fermentationProgress >= FERMENTATION_TIME) {
                 // Fermentation abgeschlossen
-                outputCount = mutterkornCount;
-                mutterkornCount = 0;
+                outputCount = ergotCount;
+                ergotCount = 0;
                 fermentationProgress = 0;
                 isActive = false;
 
@@ -109,7 +109,7 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
     // Getter
     public boolean isActive() { return isActive; }
     public boolean hasOutput() { return outputCount > 0; }
-    public int getMutterkornCount() { return mutterkornCount; }
+    public int getMutterkornCount() { return ergotCount; }
     public int getOutputCount() { return outputCount; }
     public float getProgress() { return (float) fermentationProgress / FERMENTATION_TIME; }
 
@@ -121,7 +121,7 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        tag.putInt("Mutterkorn", mutterkornCount);
+        tag.putInt("Mutterkorn", ergotCount);
         tag.putInt("Progress", fermentationProgress);
         tag.putInt("Output", outputCount);
         tag.putBoolean("Active", isActive);
@@ -131,7 +131,7 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        mutterkornCount = tag.getInt("Mutterkorn");
+        ergotCount = tag.getInt("Mutterkorn");
         fermentationProgress = tag.getInt("Progress");
         outputCount = tag.getInt("Output");
         isActive = tag.getBoolean("Active");

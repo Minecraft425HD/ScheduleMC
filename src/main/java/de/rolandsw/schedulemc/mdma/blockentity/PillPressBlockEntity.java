@@ -45,7 +45,7 @@ public class PillPressBlockEntity extends BlockEntity implements IUtilityConsume
 
     // Zustände
     private int kristallCount = 0;
-    private int bindemittelCount = 0;
+    private int binding_agentCount = 0;
     private MDMAQuality inputQuality = MDMAQuality.SCHLECHT;
     private PillDesign selectedDesign = PillDesign.TESLA;
     private PillColor selectedColor = PillColor.PINK;
@@ -75,9 +75,9 @@ public class PillPressBlockEntity extends BlockEntity implements IUtilityConsume
 
     public boolean addBindemittel(ItemStack stack) {
         if (!(stack.getItem() instanceof BindemittelItem)) return false;
-        if (bindemittelCount >= 16) return false;
+        if (binding_agentCount >= 16) return false;
 
-        bindemittelCount = Math.min(bindemittelCount + 1, 16);
+        binding_agentCount = Math.min(binding_agentCount + 1, 16);
         setChanged();
         return true;
     }
@@ -115,7 +115,7 @@ public class PillPressBlockEntity extends BlockEntity implements IUtilityConsume
      * Startet das Minigame
      */
     public boolean startMinigame(UUID playerUUID) {
-        if (kristallCount <= 0 || bindemittelCount <= 0 || !outputItem.isEmpty() || isMinigameActive) {
+        if (kristallCount <= 0 || binding_agentCount <= 0 || !outputItem.isEmpty() || isMinigameActive) {
             return false;
         }
 
@@ -174,9 +174,9 @@ public class PillPressBlockEntity extends BlockEntity implements IUtilityConsume
         }
 
         // Verbrauche Ressourcen
-        int pillsToMake = Math.min(kristallCount, bindemittelCount);
+        int pillsToMake = Math.min(kristallCount, binding_agentCount);
         kristallCount -= pillsToMake;
-        bindemittelCount -= pillsToMake;
+        binding_agentCount -= pillsToMake;
 
         outputItem = EcstasyPillItem.create(finalQuality, selectedDesign, selectedColor, pillsToMake);
 
@@ -243,9 +243,9 @@ public class PillPressBlockEntity extends BlockEntity implements IUtilityConsume
     public int getPressCycleTicks() { return PRESS_CYCLE_TICKS; }
     public float getMinigameProgress() { return (float) minigameTick / PRESS_CYCLE_TICKS; }
     public boolean hasOutput() { return !outputItem.isEmpty(); }
-    public boolean canStart() { return kristallCount > 0 && bindemittelCount > 0 && outputItem.isEmpty() && !isMinigameActive; }
+    public boolean canStart() { return kristallCount > 0 && binding_agentCount > 0 && outputItem.isEmpty() && !isMinigameActive; }
     public int getKristallCount() { return kristallCount; }
-    public int getBindemittelCount() { return bindemittelCount; }
+    public int getBindemittelCount() { return binding_agentCount; }
     public PillDesign getSelectedDesign() { return selectedDesign; }
     public PillColor getSelectedColor() { return selectedColor; }
     public MDMAQuality getInputQuality() { return inputQuality; }
@@ -272,7 +272,7 @@ public class PillPressBlockEntity extends BlockEntity implements IUtilityConsume
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("Kristall", kristallCount);
-        tag.putInt("Bindemittel", bindemittelCount);
+        tag.putInt("Bindemittel", binding_agentCount);
         tag.putString("Quality", inputQuality.name());
         tag.putString("Design", selectedDesign.name());
         tag.putString("Color", selectedColor.name());
@@ -294,7 +294,7 @@ public class PillPressBlockEntity extends BlockEntity implements IUtilityConsume
     public void load(CompoundTag tag) {
         super.load(tag);
         kristallCount = tag.getInt("Kristall");
-        bindemittelCount = tag.getInt("Bindemittel");
+        binding_agentCount = tag.getInt("Bindemittel");
         if (tag.contains("Quality")) {
             try { inputQuality = MDMAQuality.valueOf(tag.getString("Quality")); }
             catch (IllegalArgumentException e) { inputQuality = MDMAQuality.SCHLECHT; }

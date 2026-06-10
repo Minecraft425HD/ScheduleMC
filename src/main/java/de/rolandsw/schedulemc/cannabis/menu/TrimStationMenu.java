@@ -234,7 +234,7 @@ public class TrimStationMenu extends AbstractContainerMenu {
 
         @Override
         public @NotNull Component getDisplayName() {
-            return Component.translatable("gui.trimm_station.menu_title");
+            return Component.translatable("gui.trim_station.menu_title");
         }
 
         @Nullable

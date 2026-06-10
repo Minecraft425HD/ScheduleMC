@@ -16,18 +16,18 @@ public class CannabisMenuTypes {
             DeferredRegister.create(ForgeRegistries.MENU_TYPES, ScheduleMC.MOD_ID);
 
     public static final RegistryObject<MenuType<TrimStationMenu>> TRIM_STATION_MENU =
-            MENUS.register("trimm_station_menu", () ->
+            MENUS.register("trim_station_menu", () ->
                     IForgeMenuType.create(TrimStationMenu::new));
 
     public static final RegistryObject<MenuType<CuringJarMenu>> CURING_JAR_MENU =
-            MENUS.register("curing_glas_menu", () ->
+            MENUS.register("curing_jar_menu", () ->
                     IForgeMenuType.create(CuringJarMenu::new));
 
     public static final RegistryObject<MenuType<HashPressMenu>> HASH_PRESS_MENU =
-            MENUS.register("hash_presse_menu", () ->
+            MENUS.register("hash_press_menu", () ->
                     IForgeMenuType.create(HashPressMenu::new));
 
     public static final RegistryObject<MenuType<OilExtractorMenu>> OIL_EXTRACTOR_MENU =
-            MENUS.register("oel_extraktor_menu", () ->
+            MENUS.register("oil_extractor_menu", () ->
                     IForgeMenuType.create(OilExtractorMenu::new));
 }

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/tuerkisch_poppy_seeds"
+    "layer0": "schedulemc:item/bolivian_coca_seeds"
   }
 }

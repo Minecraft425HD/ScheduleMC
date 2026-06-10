@@ -20,39 +20,39 @@ public class CocaItems {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Item> BOLIVIANISCH_SEEDS =
-            ITEMS.register("bolivianisch_coca_seeds", () -> new CocaSeedItem(CocaType.BOLIVIANISCH));
+            ITEMS.register("bolivian_coca_seeds", () -> new CocaSeedItem(CocaType.BOLIVIANISCH));
 
     public static final RegistryObject<Item> KOLUMBIANISCH_SEEDS =
-            ITEMS.register("kolumbianisch_coca_seeds", () -> new CocaSeedItem(CocaType.KOLUMBIANISCH));
+            ITEMS.register("colombian_coca_seeds", () -> new CocaSeedItem(CocaType.KOLUMBIANISCH));
 
     public static final RegistryObject<Item> PERUANISCH_SEEDS =
-            ITEMS.register("peruanisch_coca_seeds", () -> new CocaSeedItem(CocaType.PERUANISCH));
+            ITEMS.register("peruvian_coca_seeds", () -> new CocaSeedItem(CocaType.PERUANISCH));
 
     // ═══════════════════════════════════════════════════════════
     // FRISCHE BLÄTTER
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Item> FRESH_BOLIVIANISCH_LEAF =
-            ITEMS.register("fresh_bolivianisch_coca_leaf", () -> new FreshCocaLeafItem(CocaType.BOLIVIANISCH));
+            ITEMS.register("fresh_bolivian_coca_leaf", () -> new FreshCocaLeafItem(CocaType.BOLIVIANISCH));
 
     public static final RegistryObject<Item> FRESH_KOLUMBIANISCH_LEAF =
-            ITEMS.register("fresh_kolumbianisch_coca_leaf", () -> new FreshCocaLeafItem(CocaType.KOLUMBIANISCH));
+            ITEMS.register("fresh_colombian_coca_leaf", () -> new FreshCocaLeafItem(CocaType.KOLUMBIANISCH));
 
     public static final RegistryObject<Item> FRESH_PERUANISCH_LEAF =
-            ITEMS.register("fresh_peruanisch_coca_leaf", () -> new FreshCocaLeafItem(CocaType.PERUANISCH));
+            ITEMS.register("fresh_peruvian_coca_leaf", () -> new FreshCocaLeafItem(CocaType.PERUANISCH));
 
     // ═══════════════════════════════════════════════════════════
     // KOKA-PASTE (braun - Zwischenprodukt)
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Item> COCA_PASTE_BOLIVIANISCH =
-            ITEMS.register("coca_paste_bolivianisch", () -> new CocaPasteItem(CocaType.BOLIVIANISCH));
+            ITEMS.register("coca_paste_bolivian", () -> new CocaPasteItem(CocaType.BOLIVIANISCH));
 
     public static final RegistryObject<Item> COCA_PASTE_KOLUMBIANISCH =
-            ITEMS.register("coca_paste_kolumbianisch", () -> new CocaPasteItem(CocaType.KOLUMBIANISCH));
+            ITEMS.register("coca_paste_colombian", () -> new CocaPasteItem(CocaType.KOLUMBIANISCH));
 
     public static final RegistryObject<Item> COCA_PASTE_PERUANISCH =
-            ITEMS.register("coca_paste_peruanisch", () -> new CocaPasteItem(CocaType.PERUANISCH));
+            ITEMS.register("coca_paste_peruvian", () -> new CocaPasteItem(CocaType.PERUANISCH));
 
     // ═══════════════════════════════════════════════════════════
     // KOKAIN (weiß - Endprodukt)
@@ -73,5 +73,5 @@ public class CocaItems {
             ITEMS.register("crack_rock", CrackRockItem::new);
 
     public static final RegistryObject<Item> BACKPULVER =
-            ITEMS.register("backpulver", BackpulverItem::new);
+            ITEMS.register("baking_powder", BackpulverItem::new);
 }

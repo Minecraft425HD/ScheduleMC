@@ -50,15 +50,15 @@ public class EconomyPricesConfigScreen extends Screen {
         {"TOBACCO_HAVANA",     "tobacco.type.havana"},
         // KOKAIN
         {null, "§7", "gui.economy_prices.cat.cocaine"},
-        {"COCA_BOLIVIANISCH",  "enum.coca_type.bolivianisch"},
-        {"COCA_PERUANISCH",    "enum.coca_type.peruanisch"},
-        {"COCA_KOLUMBIANISCH", "enum.coca_type.kolumbianisch"},
+        {"COCA_BOLIVIANISCH",  "enum.coca_type.bolivian"},
+        {"COCA_PERUANISCH",    "enum.coca_type.peruvian"},
+        {"COCA_KOLUMBIANISCH", "enum.coca_type.colombian"},
         {"CRACK_ROCK",         "gui.economy_prices.product.crack_rock"},
         // HEROIN
         {null, "§5", "gui.economy_prices.cat.heroin"},
-        {"POPPY_INDISCH",      "enum.poppy_type.indisch"},
-        {"POPPY_TUERKISCH",    "enum.poppy_type.tuerkisch"},
-        {"POPPY_AFGHANISCH",   "enum.poppy_type.afghanisch"},
+        {"POPPY_INDISCH",      "enum.poppy_type.indian"},
+        {"POPPY_TUERKISCH",    "enum.poppy_type.turkish"},
+        {"POPPY_AFGHANISCH",   "enum.poppy_type.afghan"},
         // METH
         {null, "§b", "gui.economy_prices.cat.meth"},
         {"METH_STANDARD",      "enum.meth_quality.standard"},

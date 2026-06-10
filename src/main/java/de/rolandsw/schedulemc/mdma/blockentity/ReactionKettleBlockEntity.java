@@ -30,7 +30,7 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
     private static final int SYNTHESIS_TIME = 1000; // 50 Sekunden
     private static final int CAPACITY = 8;
 
-    private int safrolCount = 0;
+    private int safroleCount = 0;
     private int synthesisProgress = 0;
     private int outputCount = 0;
     private MDMAQuality outputQuality = MDMAQuality.SCHLECHT;
@@ -42,9 +42,9 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
 
     public boolean addSafrol(ItemStack stack) {
         if (!(stack.getItem() instanceof SafrolItem)) return false;
-        if (safrolCount >= CAPACITY || outputCount > 0) return false;
+        if (safroleCount >= CAPACITY || outputCount > 0) return false;
 
-        safrolCount = Math.min(safrolCount + 1, CAPACITY);
+        safroleCount = Math.min(safroleCount + 1, CAPACITY);
         if (synthesisProgress == 0) isActive = true;
         setChanged();
         return true;
@@ -71,22 +71,22 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
         lastGameTime = now;
         if (ticksPassed == 0) return;
 
-        if (safrolCount > 0 && outputCount == 0) {
+        if (safroleCount > 0 && outputCount == 0) {
             isActive = true;  // NOPMD
             int prevProgress = synthesisProgress;
             synthesisProgress = Math.min(synthesisProgress + (int) ticksPassed, SYNTHESIS_TIME);
 
             if (synthesisProgress >= SYNTHESIS_TIME) {
                 // Synthese abgeschlossen - Qualität basiert auf Menge
-                double qualityChance = safrolCount >= 6 ? 0.4 : (safrolCount >= 4 ? 0.25 : 0.1);
+                double qualityChance = safroleCount >= 6 ? 0.4 : (safroleCount >= 4 ? 0.25 : 0.1);
                 if (level.random.nextFloat() < qualityChance) {
                     outputQuality = MDMAQuality.GUT;
                 } else {
                     outputQuality = MDMAQuality.SCHLECHT;
                 }
 
-                outputCount = safrolCount;
-                safrolCount = 0;
+                outputCount = safroleCount;
+                safroleCount = 0;
                 synthesisProgress = 0;
                 isActive = false;
 
@@ -111,7 +111,7 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
     // Getter
     public boolean isActive() { return isActive; }
     public boolean hasOutput() { return outputCount > 0; }
-    public int getSafrolCount() { return safrolCount; }
+    public int getSafrolCount() { return safroleCount; }
     public int getOutputCount() { return outputCount; }
     public float getProgress() { return (float) synthesisProgress / SYNTHESIS_TIME; }
 
@@ -123,7 +123,7 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
-        tag.putInt("Safrol", safrolCount);
+        tag.putInt("Safrol", safroleCount);
         tag.putInt("Progress", synthesisProgress);
         tag.putInt("Output", outputCount);
         tag.putString("Quality", outputQuality.name());
@@ -134,7 +134,7 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        safrolCount = tag.getInt("Safrol");
+        safroleCount = tag.getInt("Safrol");
         synthesisProgress = tag.getInt("Progress");
         outputCount = tag.getInt("Output");
         lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;

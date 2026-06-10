@@ -30,7 +30,7 @@ import java.util.List;
 public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
     private static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/boerse_gui.png");
+        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/stock_market_gui.png");
 
     // Selected stock for trading
     private StockTradePacket.StockType selectedStock = StockTradePacket.StockType.GOLD;
@@ -87,17 +87,17 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // === LEFT PANEL: Stock Selection (3 buttons) ===
         goldSelectButton = addRenderableWidget(Button.builder(
-            Component.literal("▶ ").append(Component.translatable("gui.boerse.stock_gold")),
+            Component.literal("▶ ").append(Component.translatable("gui.stock_market.stock_gold")),
             btn -> selectStock(StockTradePacket.StockType.GOLD)
         ).bounds(x + 7, y + 40, 120, 20).build());
 
         diamondSelectButton = addRenderableWidget(Button.builder(
-            Component.literal("  ").append(Component.translatable("gui.boerse.stock_diamond")),
+            Component.literal("  ").append(Component.translatable("gui.stock_market.stock_diamond")),
             btn -> selectStock(StockTradePacket.StockType.DIAMOND)
         ).bounds(x + 7, y + 68, 120, 20).build());
 
         emeraldSelectButton = addRenderableWidget(Button.builder(
-            Component.literal("  ").append(Component.translatable("gui.boerse.stock_emerald")),
+            Component.literal("  ").append(Component.translatable("gui.stock_market.stock_emerald")),
             btn -> selectStock(StockTradePacket.StockType.EMERALD)
         ).bounds(x + 7, y + 96, 120, 20).build());
 
@@ -114,13 +114,13 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // Sell Button
         sellButton = addRenderableWidget(Button.builder(
-            Component.translatable("gui.boerse.sell"),
+            Component.translatable("gui.stock_market.sell"),
             btn -> executeTrade(StockTradePacket.TradeType.SELL)
         ).bounds(x + 194, y + 90, 56, 20).build());
 
         // Max Buy Button (calculates max affordable)
         maxBuyButton = addRenderableWidget(Button.builder(
-            Component.translatable("gui.boerse.max_buy"),
+            Component.translatable("gui.stock_market.max_buy"),
             btn -> {
                 int max = calculateMaxAffordable();
                 quantitySlider.setValue(Math.min(max, 64));
@@ -129,7 +129,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         // Sell All Button
         sellAllButton = addRenderableWidget(Button.builder(
-            Component.translatable("gui.boerse.sell_all"),
+            Component.translatable("gui.stock_market.sell_all"),
             btn -> executeSellAll()
         ).bounds(x + 194, y + 113, 56, 18).build());
 
@@ -146,16 +146,16 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         selectStock(StockTradePacket.StockType.GOLD);
 
         // PERFORMANCE: Cache static translatable strings once in init()
-        cachedStockMarketStr = Component.translatable("gui.boerse.stock_market").getString();
-        cachedTradePanelStr = Component.translatable("gui.boerse.trade_panel").getString();
-        cachedHigh24hStr = Component.translatable("gui.boerse.high_24h").getString();
-        cachedLow24hStr = Component.translatable("gui.boerse.low_24h").getString();
-        cachedTaxHintStr = Component.translatable("gui.boerse.tax_hint").getString();
-        cachedPortfolioStr = Component.translatable("gui.boerse.portfolio").getString();
-        cachedBalanceLabelStr = Component.translatable("gui.boerse.balance_label").getString();
-        cachedHoldingsStr = Component.translatable("gui.boerse.holdings").getString();
-        cachedTotalStr = Component.translatable("gui.boerse.total").getString();
-        cachedTitleStr = Component.translatable("gui.boerse.title").getString();
+        cachedStockMarketStr = Component.translatable("gui.stock_market.stock_market").getString();
+        cachedTradePanelStr = Component.translatable("gui.stock_market.trade_panel").getString();
+        cachedHigh24hStr = Component.translatable("gui.stock_market.high_24h").getString();
+        cachedLow24hStr = Component.translatable("gui.stock_market.low_24h").getString();
+        cachedTaxHintStr = Component.translatable("gui.stock_market.tax_hint").getString();
+        cachedPortfolioStr = Component.translatable("gui.stock_market.portfolio").getString();
+        cachedBalanceLabelStr = Component.translatable("gui.stock_market.balance_label").getString();
+        cachedHoldingsStr = Component.translatable("gui.stock_market.holdings").getString();
+        cachedTotalStr = Component.translatable("gui.stock_market.total").getString();
+        cachedTitleStr = Component.translatable("gui.stock_market.title").getString();
     }
 
     /**
@@ -167,13 +167,13 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         // Update button labels to show selection
         goldSelectButton.setMessage(Component.literal(
             stock == StockTradePacket.StockType.GOLD ? "▶ " : "  "
-        ).append(Component.translatable("gui.boerse.stock_gold")));
+        ).append(Component.translatable("gui.stock_market.stock_gold")));
         diamondSelectButton.setMessage(Component.literal(
             stock == StockTradePacket.StockType.DIAMOND ? "▶ " : "  "
-        ).append(Component.translatable("gui.boerse.stock_diamond")));
+        ).append(Component.translatable("gui.stock_market.stock_diamond")));
         emeraldSelectButton.setMessage(Component.literal(
             stock == StockTradePacket.StockType.EMERALD ? "▶ " : "  "
-        ).append(Component.translatable("gui.boerse.stock_emerald")));
+        ).append(Component.translatable("gui.stock_market.stock_emerald")));
 
         // Reset slider
         quantitySlider.setValue(1);
@@ -294,16 +294,16 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
 
         if (quantity != lastCachedQuantity) {
             lastCachedQuantity = quantity;
-            cachedQuantityStr = Component.translatable("gui.boerse.quantity", quantity).getString();
+            cachedQuantityStr = Component.translatable("gui.stock_market.quantity", quantity).getString();
         }
         String costKey = String.format("%.0f", totalCost);
         if (!costKey.equals(lastCachedCostKey)) {
             lastCachedCostKey = costKey;
-            cachedCostStr = Component.translatable("gui.boerse.cost", costKey).getString();
+            cachedCostStr = Component.translatable("gui.stock_market.cost", costKey).getString();
         }
         if (playerStock != lastCachedPlayerStock) {
             lastCachedPlayerStock = playerStock;
-            cachedOwnStr = Component.translatable("gui.boerse.own", playerStock).getString();
+            cachedOwnStr = Component.translatable("gui.stock_market.own", playerStock).getString();
         }
 
         guiGraphics.drawString(this.font, cachedQuantityStr, x + 137, y + 135, 0x404040, false);
@@ -464,13 +464,13 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
         private static final int MAX = 64;
 
         public QuantitySlider(int x, int y, int width, int height) {
-            super(x, y, width, height, Component.translatable("gui.boerse.qty_label", 1), 0.0);
+            super(x, y, width, height, Component.translatable("gui.stock_market.qty_label", 1), 0.0);
             updateMessage();  // NOPMD
         }
 
         @Override
         protected void updateMessage() {
-            this.setMessage(Component.translatable("gui.boerse.qty_label", getQuantity()));
+            this.setMessage(Component.translatable("gui.stock_market.qty_label", getQuantity()));
         }
 
         @Override

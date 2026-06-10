@@ -21,10 +21,10 @@ public class RedPhosphorusItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.roter_phosphor.catalyst"));
+        tooltip.add(Component.translatable("tooltip.red_phosphorus.catalyst"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.roter_phosphor.red_powder"));
-        tooltip.add(Component.translatable("tooltip.roter_phosphor.use_mixer"));
-        tooltip.add(Component.translatable("tooltip.roter_phosphor.flammable"));
+        tooltip.add(Component.translatable("tooltip.red_phosphorus.red_powder"));
+        tooltip.add(Component.translatable("tooltip.red_phosphorus.use_mixer"));
+        tooltip.add(Component.translatable("tooltip.red_phosphorus.flammable"));
     }
 }

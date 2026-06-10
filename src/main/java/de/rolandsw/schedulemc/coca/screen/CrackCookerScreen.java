@@ -68,7 +68,7 @@ public class CrackCookerScreen extends AbstractContainerScreen<CrackCookerMenu> 
 
         // Input slots
         drawSlot(g, x + 22, y + 30); // cocaine
-        drawSlot(g, x + 44, y + 30); // backpulver
+        drawSlot(g, x + 44, y + 30); // baking_powder
 
         // Output slot
         drawSlot(g, x + 134, y + 30);
@@ -184,7 +184,7 @@ public class CrackCookerScreen extends AbstractContainerScreen<CrackCookerMenu> 
         g.drawString(font, Component.translatable("gui.crack_cooker.title").getString(),
                 x + 8, y + 6, 0xFF88FF88, true);
 
-        // Slot labels — cocaine slot at x+22, backpulver at x+44, output at x+134
+        // Slot labels — cocaine slot at x+22, baking_powder at x+44, output at x+134
         g.drawString(font, Component.translatable("gui.crack_cooker.cocaine_label").getString(),
                 x + 18, y + 19, 0xAAAAAA, false);
         g.drawString(font, Component.translatable("gui.crack_cooker.backpulver_label").getString(),

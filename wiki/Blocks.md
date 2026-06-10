@@ -284,7 +284,7 @@ Quick Navigation:
 #### Crack Kocher
 - **ID:** `crack_cooker`
 - **Function:** Cook crack from cocaine
-- **Input:** 1 cocaine + 1 backpulver (baking soda)
+- **Input:** 1 cocaine + 1 baking_powder (baking soda)
 - **Output:** 2 crack rocks
 - **Time:** 5 minutes
 - **Light Level:** 6 (when active)
@@ -358,7 +358,7 @@ Quick Navigation:
 ### 2. Reduktionskessel (Reduction Kettle)
 - **ID:** `reduction_kettle`
 - **Function:** Reduce paste → raw meth
-- **Input:** Meth paste + roter phosphor + jod
+- **Input:** Meth paste + roter phosphor + iodine
 - **Output:** Raw meth
 - **Time:** 10 minutes
 - **Light Level:** 4 (glowing)
@@ -391,7 +391,7 @@ Quick Navigation:
 
 ### 1. Fermentations Tank
 - **ID:** `fermentation_tank`
-- **Function:** Ferment mutterkorn → ergot culture
+- **Function:** Ferment ergot → ergot culture
 - **Input:** Mutterkorn
 - **Output:** Ergot culture
 - **Time:** 12 minutes
@@ -435,7 +435,7 @@ Quick Navigation:
 
 ### 1. Reaktions Kessel (Reaction Kettle)
 - **ID:** `reaction_kettle`
-- **Function:** Synthesize MDMA base from safrol
+- **Function:** Synthesize MDMA base from safrole
 - **Input:** Safrol + reagents
 - **Output:** MDMA base
 - **Time:** 10 minutes

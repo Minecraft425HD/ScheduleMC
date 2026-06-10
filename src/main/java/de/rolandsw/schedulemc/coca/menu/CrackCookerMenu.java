@@ -91,7 +91,7 @@ public class CrackCookerMenu extends AbstractContainerMenu {
             @Override public boolean mayPlace(@NotNull ItemStack s) { return false; }
             @Override public @NotNull ItemStack remove(int count)   { return ItemStack.EMPTY; }
         });
-        // Slot 1: backpulver input/display
+        // Slot 1: baking_powder input/display
         addSlot(new Slot(dummy, 1, 44, 30) {
             @Override public @NotNull ItemStack getItem() {
                 if (be == null || be.getBackpulverCount() <= 0) return ItemStack.EMPTY;
@@ -152,7 +152,7 @@ public class CrackCookerMenu extends AbstractContainerMenu {
                         setCarried(cursor.isEmpty() ? ItemStack.EMPTY : cursor);
                     }
                 }
-                // cursor empty: can't take backpulver back
+                // cursor empty: can't take baking_powder back
                 return;
             }
             if (slotId == SLOT_OUTPUT) {

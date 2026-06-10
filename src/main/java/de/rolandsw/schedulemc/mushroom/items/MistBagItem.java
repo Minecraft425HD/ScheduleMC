@@ -93,16 +93,16 @@ public class MistBagItem extends Item {
         int units = getUnits(stack);
         float percentage = (float) units / UNITS_PER_BAG;
 
-        tooltip.add(Component.translatable("tooltip.mist_bag.substrate", units, UNITS_PER_BAG));
-        tooltip.add(Component.translatable("tooltip.mist_bag.enough_for", type.getPlantsPerBag()));
+        tooltip.add(Component.translatable("tooltip.manure_bag.substrate", units, UNITS_PER_BAG));
+        tooltip.add(Component.translatable("tooltip.manure_bag.enough_for", type.getPlantsPerBag()));
         tooltip.add(Component.literal(""));
 
         String bar = createBar(percentage);
         tooltip.add(Component.literal("§7" + bar));
 
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.mist_bag.right_click_pot"));
-        tooltip.add(Component.translatable("tooltip.mist_bag.ideal_for_mushrooms"));
+        tooltip.add(Component.translatable("tooltip.manure_bag.right_click_pot"));
+        tooltip.add(Component.translatable("tooltip.manure_bag.ideal_for_mushrooms"));
     }
 
     private String createBar(float percentage) {
@@ -115,10 +115,10 @@ public class MistBagItem extends Item {
     public Component getName(ItemStack stack) {
         int units = getUnits(stack);
         if (units <= 0) {
-            return Component.translatable("item.mist_bag.empty").append(" ").append(type.getDisplayName());
+            return Component.translatable("item.manure_bag.empty").append(" ").append(type.getDisplayName());
         } else if (units >= UNITS_PER_BAG) {
             return Component.literal(type.getColor())
-                .append(Component.translatable("item.mist_bag.full")).append(" ").append(type.getDisplayName());
+                .append(Component.translatable("item.manure_bag.full")).append(" ").append(type.getDisplayName());
         } else {
             return Component.literal(type.getColor())
                 .append(type.getDisplayName());
@@ -161,7 +161,7 @@ enum MistBagType {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.mist_bag_type." + this.name().toLowerCase(Locale.ROOT));
+        return Component.translatable("enum.manure_bag_type." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public String getColor() {

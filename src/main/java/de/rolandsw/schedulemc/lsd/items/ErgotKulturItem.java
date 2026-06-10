@@ -20,10 +20,10 @@ public class ErgotKulturItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.ergot_kultur.fermented_culture"));
+        tooltip.add(Component.translatable("tooltip.ergot_culture.fermented_culture"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.ergot_kultur.dark_mass"));
-        tooltip.add(Component.translatable("tooltip.ergot_kultur.rich_alkaloids"));
-        tooltip.add(Component.translatable("tooltip.ergot_kultur.next_distillation"));
+        tooltip.add(Component.translatable("tooltip.ergot_culture.dark_mass"));
+        tooltip.add(Component.translatable("tooltip.ergot_culture.rich_alkaloids"));
+        tooltip.add(Component.translatable("tooltip.ergot_culture.next_distillation"));
     }
 }

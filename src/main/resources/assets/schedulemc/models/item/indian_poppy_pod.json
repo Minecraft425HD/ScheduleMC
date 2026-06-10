@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "schedulemc:item/roh_meth",
+    "layer0": "schedulemc:item/indian_poppy_pod",
     "layer1": "schedulemc:item/quality_frame"
   }
 }

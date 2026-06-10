@@ -72,19 +72,19 @@ public class LSDLoesungItem extends Item {
         int charges = getCharges(stack);
 
         tooltip.add(Component.translatable("tooltip.lsd.dosage_label").append(dosage.getColoredName()));
-        tooltip.add(Component.translatable("tooltip.lsd_loesung.concentration").append(Component.translatable("tooltip.lsd_loesung.concentration_value", micrograms)));
-        tooltip.add(Component.translatable("tooltip.lsd_loesung.charges").append(Component.translatable("tooltip.lsd_loesung.charges_value", charges)));
+        tooltip.add(Component.translatable("tooltip.lsd_solution.concentration").append(Component.translatable("tooltip.lsd_solution.concentration_value", micrograms)));
+        tooltip.add(Component.translatable("tooltip.lsd_solution.charges").append(Component.translatable("tooltip.lsd_solution.charges_value", charges)));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.lsd_loesung.clear_liquid"));
-        tooltip.add(Component.translatable("tooltip.lsd_loesung.next_press"));
+        tooltip.add(Component.translatable("tooltip.lsd_solution.clear_liquid"));
+        tooltip.add(Component.translatable("tooltip.lsd_solution.next_press"));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.translatable("tooltip.lsd_loesung.light_sensitive"));
+        tooltip.add(Component.translatable("tooltip.lsd_solution.light_sensitive"));
     }
 
     @Override
     public Component getName(ItemStack stack) {
         LSDDosage dosage = getDosage(stack);
         return Component.literal(dosage.getColorCode())
-            .append(Component.translatable("item.lsd_loesung.name", dosage.getDosageString()));
+            .append(Component.translatable("item.lsd_solution.name", dosage.getDosageString()));
     }
 }

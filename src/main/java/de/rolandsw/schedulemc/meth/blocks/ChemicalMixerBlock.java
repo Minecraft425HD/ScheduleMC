@@ -66,7 +66,7 @@ public class ChemicalMixerBlock extends Block implements EntityBlock {
                     heldItem.shrink(1);
                 }
                 String translationKey = heldItem.getItem() instanceof PseudoephedrineItem ?
-                    "block.chemical_mixer.pseudoephedrin_added" : "block.chemical_mixer.ephedrin_added";
+                    "block.chemical_mixer.pseudoephedrine_added" : "block.chemical_mixer.ephedrine_added";
                 player.displayClientMessage(Component.translatable(translationKey, mixer.getIngredientStatus()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 1.2f);
                 return InteractionResult.SUCCESS;
@@ -86,7 +86,7 @@ public class ChemicalMixerBlock extends Block implements EntityBlock {
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 1.0f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.translatable("block.chemical_mixer.no_ephedrin_slot"), true);
+                player.displayClientMessage(Component.translatable("block.chemical_mixer.no_ephedrine_slot"), true);
                 return InteractionResult.FAIL;
             }
         }
