@@ -85,7 +85,7 @@ public final class ServiceRegistry {
     public static <T> T get(Class<T> serviceClass) {
         ServiceEntry<T> entry = (ServiceEntry<T>) services.get(serviceClass);
         if (entry == null) {
-            throw new IllegalStateException("Service nicht registriert: " + serviceClass.getSimpleName());
+            throw new IllegalStateException("Service not registered: " + serviceClass.getSimpleName());
         }
 
         if (!entry.initialized) {
@@ -98,7 +98,7 @@ public final class ServiceRegistry {
                         LOGGER.info("Service initialisiert: {}", serviceClass.getSimpleName());
                     } catch (Exception e) {
                         LOGGER.error("Fehler bei Service-Initialisierung: {}", serviceClass.getSimpleName(), e);
-                        throw new IllegalStateException("Service konnte nicht initialisiert werden: " +
+                        throw new IllegalStateException("Service could not be initialized: " +
                             serviceClass.getSimpleName(), e);
                     }
                 }

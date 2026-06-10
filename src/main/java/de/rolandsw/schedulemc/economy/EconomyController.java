@@ -520,9 +520,9 @@ public class EconomyController {
         String name = event.getName().toLowerCase();
 
         if (name.contains("cannabis")) categories.add(ItemCategory.CANNABIS);
-        if (name.contains("kokain") || name.contains("coca")) categories.add(ItemCategory.COCAINE);
+        if (name.contains("cocaine") || name.contains("coca")) categories.add(ItemCategory.COCAINE);
         if (name.contains("meth")) categories.add(ItemCategory.METH);
-        if (name.contains("heroin") || name.contains("mohn")) categories.add(ItemCategory.HEROIN);
+        if (name.contains("heroin") || name.contains("poppy")) categories.add(ItemCategory.HEROIN);
         if (name.contains("mdma") || name.contains("ecstasy") || name.contains("techno")) {
             categories.add(ItemCategory.MDMA);
             categories.add(ItemCategory.LSD);
@@ -531,15 +531,15 @@ public class EconomyController {
         if (name.contains("festival") || name.contains("party")) {
             categories.addAll(java.util.List.of(ItemCategory.CANNABIS, ItemCategory.MDMA, ItemCategory.LSD, ItemCategory.COCAINE));
         }
-        if (name.contains("konkurrenz") || name.contains("grenz")) {
+        if (name.contains("competition") || name.contains("border")) {
             for (ItemCategory cat : ITEM_CATEGORIES) {
                 if (cat.isIllegal()) categories.add(cat);
             }
         }
-        if (name.contains("dürre") || name.contains("pflanz")) {
+        if (name.contains("drought") || name.contains("plant")) {
             categories.addAll(java.util.List.of(ItemCategory.CANNABIS, ItemCategory.COCAINE, ItemCategory.TOBACCO_PRODUCT));
         }
-        if (name.contains("chemikalien") || name.contains("synthet")) {
+        if (name.contains("chemical") || name.contains("synthet")) {
             categories.addAll(java.util.List.of(ItemCategory.METH, ItemCategory.MDMA, ItemCategory.LSD));
         }
         if (name.contains("uni") || name.contains("stimul")) {
@@ -813,10 +813,10 @@ public class EconomyController {
     public String getEconomySummary() {
         GlobalEconomyTracker tracker = GlobalEconomyTracker.getInstance();
         return String.format(
-                "§6═══ Wirtschafts-Übersicht ═══\n" +
+                "§6═══ Economy Overview ═══\n" +
                 "§7Geldmenge: §f%.0f€\n" +
                 "§7Spieler: §f%d\n" +
-                "§7Ø Vermögen: §f%.0f€\n" +
+                "§7Ø wealth: §f%.0f€\n" +
                 "§7Inflation: §f%.2f%%\n" +
                 "§7Zyklus-Mult.: §f%.2fx\n" +
                 "§7Tages-Volumen: §f%.0f€\n" +

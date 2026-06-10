@@ -67,3 +67,17 @@ grep -rhoP '"[^"]*(?:[äöüÄÖÜß]|\b(?:nicht|wurde|werden|kann|muss|für|fue
 
 **Definition of Done:** Audit-Zähler = 0, `compileJava` grün, alle neuen Keys
 in beiden Lang-Dateien, kein `Component.literal` mit deutschem Text mehr.
+
+## Fortschritt
+
+- [x] **Phase 1** secretdoors (40 Strings → `message.secret_door.*`) — 2026-06-10
+- [x] **Phase 2** config (113 Kommentare inline Englisch) — 2026-06-10
+- [x] **Phase 3** Logger-Sweep (79 Strings, 23 Dateien) — 2026-06-10
+- [x] **Phase 4** util + economy (inline Englisch; Hinweis: Transaktions-
+  Beschreibungen und Markt-Event-Namen werden als Strings gespeichert/
+  gematcht — echte Lang-Key-Externalisierung erfordert Storage-Refactor.
+  Event-Namen-Matching in EconomyController konsistent mitübersetzt.)
+- [ ] **Phase 5** npc (261, in 3 Teil-PRs)
+- [ ] **Phase 6** gang + mission
+- [ ] **Phase 7** weapon/lock/vehicle + Rest
+- [ ] **Phase 8** Guard gegen neue deutsche Literale

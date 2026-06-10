@@ -58,13 +58,13 @@ public class ATMBlockEntity extends BlockEntity implements MenuProvider {
 
         // Transaktion durchführen
         // 1. Ziehe Betrag + Gebühr vom Konto ab (totalCost)
-        if (EconomyManager.withdraw(player.getUUID(), totalCost, TransactionType.ATM_WITHDRAW, "ATM-Auszahlung inkl. Gebühr")) {
+        if (EconomyManager.withdraw(player.getUUID(), totalCost, TransactionType.ATM_WITHDRAW, "ATM withdrawal incl. fee")) {
             // 2. Gib nur den Betrag (ohne Gebühr) ins Wallet (WalletManager!)
             WalletManager.addMoney(player.getUUID(), amount);
 
             // 3. Überweise Gebühr an Staatskasse
             if (level != null && !level.isClientSide()) {
-                StateAccount.getInstance(level.getServer()).deposit(atmFee, "ATM-Gebühr");
+                StateAccount.getInstance(level.getServer()).deposit(atmFee, "ATM fee");
             }
 
             player.displayClientMessage(Component.translatable(

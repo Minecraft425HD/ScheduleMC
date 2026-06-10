@@ -63,12 +63,12 @@ public class PlotTaxService {
         int vatPercent = (int) Math.round(vatRate * 100);
 
         if (!EconomyManager.withdraw(buyerUUID, totalCost, TransactionType.PLOT_PURCHASE,
-                "Grundstückskauf inkl. " + vatPercent + "% MwSt: " + plotName)) {
+                "Plot purchase incl. " + vatPercent + "% MwSt: " + plotName)) {
             return new BuyerCostResult(false, vatAmount, totalCost);
         }
 
         StateAccount.deposit((int) Math.round(vatAmount),
-                "MwSt " + vatPercent + "% Grundstück: " + plotName);
+                "MwSt " + vatPercent + "% plot: " + plotName);
 
         LOGGER.info("Plot VAT: {}€ ({}%) collected for '{}'", String.format("%.2f", vatAmount), vatPercent, plotName);
         return new BuyerCostResult(true, vatAmount, totalCost);

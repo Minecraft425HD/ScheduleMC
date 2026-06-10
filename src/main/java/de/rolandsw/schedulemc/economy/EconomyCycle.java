@@ -256,7 +256,7 @@ public class EconomyCycle implements IncrementalSaveManager.ISaveable {
                 "§7Verbleibend: §f%d Tage\n" +
                 "§7Preis-Multiplikator: §f%.2fx\n" +
                 "§7Gehalt-Multiplikator: §f%.2fx\n" +
-                "§7Nächste Phase: §f%s\n" +
+                "§7Next phase: §f%s\n" +
                 "§7Tag: §f%d §7(Zyklus: §f#%d§7)",
                 currentPhase.getFormattedName(),
                 remainingDays,

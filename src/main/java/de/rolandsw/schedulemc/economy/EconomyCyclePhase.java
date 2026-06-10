@@ -46,7 +46,7 @@ public enum EconomyCyclePhase {
      * Dauer: 2-4 MC-Tage
      */
     UEBERHITZUNG(
-            "Überhitzung", "§6", "⚠",
+            "Overheating", "§6", "⚠",
             1.40,  // Verkaufspreise +40%
             1.25,  // Einkaufspreise +25%
             1.15,  // Gehälter +15%

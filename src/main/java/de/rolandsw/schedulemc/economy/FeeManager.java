@@ -38,8 +38,8 @@ public class FeeManager {
      * @return true wenn erfolgreich, false wenn nicht genug Guthaben
      */
     public static boolean chargeATMFee(UUID playerUUID, MinecraftServer server) {
-        if (EconomyManager.withdraw(playerUUID, ATM_FEE, TransactionType.ATM_FEE, "ATM-Gebühr")) {
-            StateAccount.getInstance(server).deposit(ATM_FEE, "ATM-Gebühr");
+        if (EconomyManager.withdraw(playerUUID, ATM_FEE, TransactionType.ATM_FEE, "ATM fee")) {
+            StateAccount.getInstance(server).deposit(ATM_FEE, "ATM fee");
             LOGGER.debug("ATM fee {} € deducted from {}", ATM_FEE, playerUUID);
             return true;
         }
@@ -53,8 +53,8 @@ public class FeeManager {
     public static boolean chargeTransferFee(UUID playerUUID, double transferAmount, MinecraftServer server) {
         double fee = getTransferFee(transferAmount);
         if (EconomyManager.withdraw(playerUUID, fee, TransactionType.TRANSFER_FEE,
-                String.format("Transfer-Gebühr (%.2f%%)", TRANSFER_FEE_PERCENTAGE * 100))) {
-            StateAccount.getInstance(server).deposit(fee, "Transfer-Gebühr");
+                String.format("Transfer fee (%.2f%%)", TRANSFER_FEE_PERCENTAGE * 100))) {
+            StateAccount.getInstance(server).deposit(fee, "Transfer fee");
             LOGGER.debug("Transfer fee {} € deducted from {}", fee, playerUUID);
             return true;
         }

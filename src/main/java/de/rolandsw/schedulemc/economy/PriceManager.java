@@ -159,53 +159,53 @@ public class PriceManager {
             // ═══════════════════════════════════════════════════════════
             // PREIS-BOOM EVENTS (Preise steigen)
             // ═══════════════════════════════════════════════════════════
-            case 0 -> createEvent("Polizei-Razzia: Cannabis",
+            case 0 -> createEvent("Police Raid: Cannabis",
                     "Cannabis knapp - Preise steigen!",
                     getCannabisItems(), 1.5f, 3);
 
-            case 1 -> createEvent("Polizei-Razzia: Kokain",
+            case 1 -> createEvent("Police Raid: Cocaine",
                     "Kokain knapp - Preise steigen!",
                     getCocaItems(), 1.6f, 3);
 
-            case 2 -> createEvent("Festival-Saison",
+            case 2 -> createEvent("Festival Season",
                     "Party-Drogen sehr gefragt!",
                     getPartyDrugs(), 1.4f, 5);
 
-            case 3 -> createEvent("Chemikalien-Knappheit",
+            case 3 -> createEvent("Chemical Shortage",
                     "Synthetische Drogen teurer!",
                     getSyntheticDrugs(), 1.45f, 4);
 
-            case 4 -> createEvent("Dürre",
+            case 4 -> createEvent("Drought",
                     "Pflanzen-basierte Produkte knapp!",
                     getPlantBasedDrugs(), 1.35f, 4);
 
             // ═══════════════════════════════════════════════════════════
             // PREIS-CRASH EVENTS (Preise fallen)
             // ═══════════════════════════════════════════════════════════
-            case 5 -> createEvent("Überproduktion: Cannabis",
-                    "Markt überschwemmt - Preise fallen!",
+            case 5 -> createEvent("Overproduction: Cannabis",
+                    "Market flooded - prices falling!",
                     getCannabisItems(), 0.7f, 3);
 
-            case 6 -> createEvent("Überproduktion: Meth",
+            case 6 -> createEvent("Overproduction: Meth",
                     "Zu viel Meth auf dem Markt!",
                     getMethItems(), 0.65f, 3);
 
-            case 7 -> createEvent("Neue Konkurrenz",
+            case 7 -> createEvent("New Competition",
                     "Alle Preise unter Druck!",
                     getAllDrugs(), 0.8f, 2);
 
             // ═══════════════════════════════════════════════════════════
             // SPEZIAL-EVENTS
             // ═══════════════════════════════════════════════════════════
-            case 8 -> createEvent("VIP-Nachfrage",
-                    "Reiche Kunden zahlen mehr für Kokain!",
+            case 8 -> createEvent("VIP Demand",
+                    "Rich customers pay more for cocaine!",
                     getCocaItems(), 1.8f, 2);
 
-            case 9 -> createEvent("Uni-Prüfungen",
+            case 9 -> createEvent("University Exams",
                     "Studenten brauchen Aufputschmittel!",
                     getStimulants(), 1.3f, 3);
 
-            case 10 -> createEvent("Techno-Festival",
+            case 10 -> createEvent("Techno Festival",
                     "MDMA & LSD extrem gefragt!",
                     List.of(
                             MDMAItems.ECSTASY_PILL.get(),
@@ -213,7 +213,7 @@ public class PriceManager {
                             LSDItems.BLOTTER.get()
                     ), 1.7f, 2);
 
-            case 11 -> createEvent("Grenzkontrollen",
+            case 11 -> createEvent("Border Controls",
                     "Import schwierig - lokale Ware teurer!",
                     getAllDrugs(), 1.25f, 5);
 

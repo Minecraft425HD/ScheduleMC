@@ -306,7 +306,7 @@ public class WarehouseMarketBridge {
         sb.append("§6═══ Warehouse-Markt ═══\n");
 
         if (itemFillRates.isEmpty()) {
-            sb.append("§7Keine Warehouse-Daten verfügbar\n");
+            sb.append("§7No warehouse data available\n");
             return sb.toString();
         }
 
