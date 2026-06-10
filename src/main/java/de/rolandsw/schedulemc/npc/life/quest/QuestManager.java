@@ -116,7 +116,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         registerTemplate(QuestTemplate.builder("delivery_basic")
             .type(QuestType.DELIVERY)
             .title("Einfache Lieferung")
-            .description("Liefern Sie ein Paket an den Empfänger.")
+            .description("Deliver a package to the recipient.")
             .difficulty(1)
             .baseReward(QuestReward.create().money(50).factionRep(Faction.TRADERS, 2))
             .build());
@@ -124,7 +124,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         registerTemplate(QuestTemplate.builder("delivery_urgent")
             .type(QuestType.DELIVERY)
             .title("Dringende Lieferung")
-            .description("Eine zeitkritische Lieferung muss schnell zugestellt werden!")
+            .description("A time-critical delivery must be made quickly!")
             .difficulty(2)
             .timeLimit(1)
             .baseReward(QuestReward.create().money(150).factionRep(Faction.TRADERS, 5))
@@ -134,7 +134,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         registerTemplate(QuestTemplate.builder("collect_materials")
             .type(QuestType.COLLECTION)
             .title("Materialsammlung")
-            .description("Sammeln Sie die benötigten Materialien.")
+            .description("Collect the required materials.")
             .difficulty(1)
             .baseReward(QuestReward.create().money(75).experience(50))
             .build());
@@ -163,7 +163,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         registerTemplate(QuestTemplate.builder("investigate_crime")
             .type(QuestType.INVESTIGATION)
             .title("Ermittlung")
-            .description("Untersuchen Sie den Vorfall und finden Sie Hinweise.")
+            .description("Investigate the incident and find clues.")
             .difficulty(2)
             .minFactionRep(15)
             .baseReward(QuestReward.create().money(150).factionRep(Faction.LAW, 8))
@@ -183,7 +183,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         registerTemplate(QuestTemplate.builder("underground_delivery")
             .type(QuestType.DELIVERY)
             .title("Diskrete Lieferung")
-            .description("Eine Lieferung, über die niemand etwas erfahren sollte...")
+            .description("A delivery nobody should know about...")
             .difficulty(2)
             .faction(Faction.UNDERWORLD)
             .minFactionRep(10)
@@ -260,7 +260,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
                 net.minecraft.world.item.Item deliveryItem = getDeliveryItemForNPC(questGiver);
                 // Find a different nearby NPC as delivery target, fall back to questGiver
                 UUID deliveryTargetUUID = findNearbyDifferentNPC(questGiver, player);
-                String targetDesc = deliveryTargetUUID != null ? "den Empfänger" : "die Lieferstelle";
+                String targetDesc = deliveryTargetUUID != null ? "the recipient" : "die Lieferstelle";
                 quest.addObjective(QuestObjective.collectItems(
                     "collect_package",
                     deliveryItem,
@@ -342,7 +342,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
                 quest.addObjective(QuestObjective.negotiateDeal(
                     "negotiate_deal",
                     questGiver.getNpcData().getNpcUUID(),
-                    "Schließe den Deal ab"
+                    "Close the deal"
                 ));
             }
             default -> {}
@@ -485,7 +485,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
                     "Quest abgeschlossen: " + quest.getTitle(),
                     6
                 );
-                lifeData.getMemory().addPlayerTag(player.getUUID(), "QuestErfüller");
+                lifeData.getMemory().addPlayerTag(player.getUUID(), "QuestFulfiller");
             }
         }
 

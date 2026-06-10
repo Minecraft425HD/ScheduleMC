@@ -377,9 +377,9 @@ public class NPCBehaviorEngine {
         );
 
         // Tags
-        lifeData.getMemory().addPlayerTag(attacker.getUUID(), "Gefährlich");
+        lifeData.getMemory().addPlayerTag(attacker.getUUID(), "Dangerous");
         if (threatLevel > 5) {
-            lifeData.getMemory().addPlayerTag(attacker.getUUID(), "Gewalttätig");
+            lifeData.getMemory().addPlayerTag(attacker.getUUID(), "Violent");
         }
 
         // Emotion

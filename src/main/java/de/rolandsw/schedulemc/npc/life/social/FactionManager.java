@@ -474,7 +474,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
      */
     public String getPlayerOverview(UUID playerUUID) {
         StringBuilder sb = new StringBuilder();
-        sb.append("=== Fraktions-Übersicht ===\n");
+        sb.append("=== Faction Overview ===\n");
 
         Map<Faction, FactionRelation> relations = getAllRelations(playerUUID);
         for (Faction faction : Faction.values()) {

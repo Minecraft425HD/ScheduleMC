@@ -16,17 +16,17 @@ public final class NPCLifeConstants {
     public static final class PlayerTags {
         public static final String GOOD_CUSTOMER = "GutKunde";
         public static final String REGULAR_CUSTOMER = "Stammkunde";
-        public static final String SUSPICIOUS = "Verdächtig";
+        public static final String SUSPICIOUS = "Suspicious";
         public static final String CRIMINAL = "Kriminell";
-        public static final String DANGEROUS = "Gefährlich";
-        public static final String VIOLENT = "Gewalttätig";
+        public static final String DANGEROUS = "Dangerous";
+        public static final String VIOLENT = "Violent";
         public static final String HELPFUL = "Hilfsbereit";
-        public static final String BENEFACTOR = "Wohltäter";
+        public static final String BENEFACTOR = "Benefactor";
         public static final String FRIEND = "Freund";
         public static final String WANTED = "Gesucht";
         public static final String POLICE_CALLED = "PolizeiGerufen";
-        public static final String QUEST_COMPLETER = "QuestErfüller";
-        public static final String UNRELIABLE = "Unzuverlässig";
+        public static final String QUEST_COMPLETER = "QuestFulfiller";
+        public static final String UNRELIABLE = "Unreliable";
         public static final String BRIBABLE = "Bestechlich";
         public static final String COMPANION_OWNER = "Begleiter-Besitzer";
 

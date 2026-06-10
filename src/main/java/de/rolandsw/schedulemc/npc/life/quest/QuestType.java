@@ -19,7 +19,7 @@ public enum QuestType {
     /**
      * Sammelquest - Sammle bestimmte Items
      */
-    COLLECTION("Sammlung", "Sammeln Sie bestimmte Gegenstände", 1.2f),
+    COLLECTION("Sammlung", "Collect specific items", 1.2f),
 
     /**
      * Eskort - Begleite NPC sicher zu einem Ort

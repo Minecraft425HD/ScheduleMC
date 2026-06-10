@@ -241,7 +241,7 @@ public class NPCLifeSystemIntegration {
 
             Rumor rumor = Rumor.createPlayer(
                 playerUUID,
-                "hat seinen unglücklichen Begleiter entlassen",
+                "has dismissed their unhappy companion",
                 2,
                 3
             );
@@ -261,7 +261,7 @@ public class NPCLifeSystemIntegration {
         // Positive Gerüchte über den Spieler
         Rumor rumor = Rumor.createPlayer(
             playerUUID,
-            "hat die Aufgabe '" + quest.getTitle() + "' erfolgreich abgeschlossen",
+            "hat die Aufgabe '" + quest.getTitle() + "' completed successfully",
             4, // importance
             7  // duration days
         );
@@ -309,7 +309,7 @@ public class NPCLifeSystemIntegration {
                 "Quest fehlgeschlagen: " + quest.getTitle(),
                 4
             );
-            lifeData.getMemory().addPlayerTag(playerUUID, "Unzuverlässig");
+            lifeData.getMemory().addPlayerTag(playerUUID, "Unreliable");
         }
     }
 
@@ -332,7 +332,7 @@ public class NPCLifeSystemIntegration {
             if (totalAmount > 2000) {
                 Rumor rumor = Rumor.createPlayer(
                     playerUUID,
-                    "ist ein großzügiger Kunde mit tiefen Taschen",
+                    "is a generous customer with deep pockets",
                     2,
                     3
                 );
@@ -361,7 +361,7 @@ public class NPCLifeSystemIntegration {
         // Gerücht über das Verbrechen verbreiten
         Rumor rumor = Rumor.createPlayer(
             criminalUUID,
-            "wurde bei " + getCrimeDescription(crimeType) + " beobachtet",
+            "was at " + getCrimeDescription(crimeType) + " beobachtet",
             crimeType.getSeverity() + 2,
             crimeType.getSeverity() * 3
         );
@@ -461,7 +461,7 @@ public class NPCLifeSystemIntegration {
         String npcName = npc.getNpcData().getNpcName();
         Rumor rumor = Rumor.createNPC(
             npcUUID,
-            npcName + " wurde getötet",
+            npcName + " was killed",
             5,
             10
         );

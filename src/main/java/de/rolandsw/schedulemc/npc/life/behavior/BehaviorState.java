@@ -33,7 +33,7 @@ public enum BehaviorState {
     /**
      * NPC führt ein Gespräch
      */
-    CONVERSING("Im Gespräch", false, false),
+    CONVERSING("In conversation", false, false),
 
     /**
      * NPC untersucht etwas Verdächtiges
@@ -68,7 +68,7 @@ public enum BehaviorState {
     /**
      * NPC schläft oder ruht
      */
-    SLEEPING("Schläft", false, false),
+    SLEEPING("Sleeping", false, false),
 
     /**
      * NPC wartet auf etwas
@@ -83,7 +83,7 @@ public enum BehaviorState {
     /**
      * NPC fährt Auto (nicht unterbrechbar)
      */
-    DRIVING("Fährt Auto", false, false);
+    DRIVING("Driving a car", false, false);
 
     private final String displayName;
     private final boolean isEmergency;

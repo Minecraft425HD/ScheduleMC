@@ -297,7 +297,7 @@ public class CreditAdvisorScreen extends AbstractContainerScreen<CreditAdvisorMe
         // Hintergrund-Box
         guiGraphics.fill(x + 10, boxY, x + 270, boxY + 45, 0x44000000);
 
-        // "Ihre Bonität:" Label
+        // "Your credit rating:" Label
         guiGraphics.drawString(this.font, cachedYourRatingText, x + 15, boxY + 5, 0x808080, false);
 
         // Sterne

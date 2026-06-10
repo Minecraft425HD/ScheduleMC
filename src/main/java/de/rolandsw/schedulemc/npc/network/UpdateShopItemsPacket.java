@@ -80,7 +80,7 @@ public class UpdateShopItemsPacket {
                 // Null-Safety: Prüfe ob NPC-Daten und Shop vorhanden sind
                 if (npc.getNpcData() == null || npc.getNpcData().getShopData().getBuyShop() == null) {
                     player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
-                        "§cFehler: NPC-Daten nicht verfügbar!"));
+                        "§cError: NPC data not available!"));
                     return;
                 }
 

@@ -191,7 +191,7 @@ public class NPCLifeData {
                     recentCrime = true;
                 }
                 if (knownCriminal == null && (memory.playerHasTag(p.getUUID(), "Kriminell") ||
-                        memory.playerHasTag(p.getUUID(), "Gefährlich"))) {
+                        memory.playerHasTag(p.getUUID(), "Dangerous"))) {
                     knownCriminal = p;
                 }
                 if (recentCrime && knownCriminal != null) break;
@@ -381,10 +381,10 @@ public class NPCLifeData {
             needs.getEnergy(), needs.getSafety()));
         sb.append(String.format("Emotion: %s (%.0f%%)\n",
             emotions.getCurrentEmotion().getFormattedName(), emotions.getIntensity()));
-        sb.append(String.format("Persönlichkeit: %s\n", traits.getArchetype()));
-        sb.append(String.format("Preis-Mod: ×%.2f | Sozial-Mod: ×%.2f\n",
+        sb.append(String.format("Personality: %s\n", traits.getArchetype()));
+        sb.append(String.format("Price mod: ×%.2f | Social mod: ×%.2f\n",
             getCombinedPriceModifier(), getCombinedSocialModifier()));
-        sb.append(String.format("Handelsbereit: %s | Gesprächsbereit: %s",
+        sb.append(String.format("Ready to trade: %s | Ready to talk: %s",
             isWillingToTrade() ? "Ja" : "Nein", isWillingToTalk() ? "Ja" : "Nein"));
         return sb.toString();
     }

@@ -23,7 +23,7 @@ public enum WorldEventType {
      */
     ECONOMIC_BOOM(
         "Wirtschaftsboom",
-        "Die Wirtschaft blüht! Händler sind optimistisch.",
+        "The economy is booming! Merchants are optimistic.",
         EventCategory.MARKET,
         MarketCondition.BOOM,
         3, 7,  // 3-7 Tage
@@ -35,7 +35,7 @@ public enum WorldEventType {
      */
     ECONOMIC_CRISIS(
         "Wirtschaftskrise",
-        "Die Wirtschaft leidet. Händler sind besorgt.",
+        "The economy is suffering. Merchants are worried.",
         EventCategory.MARKET,
         MarketCondition.RECESSION,
         2, 5,
@@ -46,8 +46,8 @@ public enum WorldEventType {
      * Handelsüberschuss - Viele Waren verfügbar
      */
     TRADE_SURPLUS(
-        "Handelsüberschuss",
-        "Die Märkte sind gut gefüllt!",
+        "Trade surplus",
+        "The markets are well stocked!",
         EventCategory.MARKET,
         MarketCondition.SURPLUS,
         2, 4,
@@ -59,7 +59,7 @@ public enum WorldEventType {
      */
     TRADE_SHORTAGE(
         "Warenknappheit",
-        "Die Waren werden knapp!",
+        "Goods are running low!",
         EventCategory.MARKET,
         MarketCondition.SHORTAGE,
         2, 4,
@@ -87,7 +87,7 @@ public enum WorldEventType {
      */
     FAMINE(
         "Hungersnot",
-        "Eine Hungersnot droht! Lebensmittel werden knapp.",
+        "A famine is looming! Food is becoming scarce.",
         EventCategory.CRISIS,
         MarketCondition.SHORTAGE,
         5, 10,
@@ -110,8 +110,8 @@ public enum WorldEventType {
      * Banditenüberfall - Karawanen werden überfallen
      */
     BANDIT_RAID(
-        "Banditenüberfall",
-        "Banditen überfallen Handelskarawanen!",
+        "Bandit raid",
+        "Bandits are raiding trade caravans!",
         EventCategory.CRISIS,
         MarketCondition.SHORTAGE,
         2, 4,
@@ -134,8 +134,8 @@ public enum WorldEventType {
      * Kriminelle Aktivität - Untergrund wird aktiver
      */
     CRIME_WAVE(
-        "Kriminalitätswelle",
-        "Die Kriminalität steigt! Vorsicht!",
+        "Crime wave",
+        "Crime is rising! Be careful!",
         EventCategory.CRISIS,
         MarketCondition.NORMAL,
         3, 6,
@@ -163,7 +163,7 @@ public enum WorldEventType {
      */
     HOLIDAY(
         "Feiertag",
-        "Heute ist Feiertag. Viele Geschäfte sind geschlossen.",
+        "Today is a holiday. Many shops are closed.",
         EventCategory.SPECIAL,
         MarketCondition.NORMAL,
         1, 1,
@@ -187,7 +187,7 @@ public enum WorldEventType {
      */
     COMPETITION(
         "Wettkampf",
-        "Ein großer Wettkampf findet statt!",
+        "A big competition is taking place!",
         EventCategory.SPECIAL,
         MarketCondition.HIGH_DEMAND,
         1, 2,

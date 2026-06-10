@@ -317,15 +317,15 @@ public class NPCRelationship {
         return String.format(
             "%s%s§r\n" +
             "Level: %d/100\n" +
-            "Preis-Modifier: ×%.2f (%.0f%% %s)\n" +
-            "Käufe: %d | Verkäufe: %d\n" +
-            "Diebstähle: %d | Hilfen: %d",
+            "Price modifier: ×%.2f (%.0f%% %s)\n" +
+            "Purchases: %d | Sales: %d\n" +
+            "Thefts: %d | Helps: %d",
             tier.getColorCode(),
             tier.getDisplayName(),
             relationshipLevel,
             getPriceModifier(),
             Math.abs((getPriceModifier() - 1.0) * 100),
-            getPriceModifier() < 1.0 ? "günstiger" : "teurer",
+            getPriceModifier() < 1.0 ? "cheaper" : "teurer",
             totalPurchases,
             totalSales,
             timesStolen,

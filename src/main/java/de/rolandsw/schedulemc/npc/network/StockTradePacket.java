@@ -135,7 +135,7 @@ public class StockTradePacket {
 
         // Ziehe Geld ab
         if (!EconomyManager.withdraw(player.getUUID(), totalCost, TransactionType.NPC_PURCHASE,
-                "Börsenkauf: " + quantity + "x " + itemName)) {
+                "Stock purchase: " + quantity + "x " + itemName)) {
             player.sendSystemMessage(Component.translatable("message.bank.debit_error")
                 .withStyle(ChatFormatting.RED));
             return;
@@ -237,7 +237,7 @@ public class StockTradePacket {
 
         // Zahle Netto-Betrag an Spieler aus
         EconomyManager.deposit(player.getUUID(), netRevenue, TransactionType.OTHER,
-            "Börsenverkauf: " + quantity + "x " + itemName);
+            "Stock sale: " + quantity + "x " + itemName);
 
         // Erfolgs-Nachricht
         player.sendSystemMessage(Component.literal("═══════════════════════════════")

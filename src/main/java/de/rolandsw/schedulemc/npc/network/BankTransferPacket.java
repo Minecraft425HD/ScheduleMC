@@ -108,7 +108,7 @@ public class BankTransferPacket {
             // Separate Prüfung entfernt wegen TOCTOU Race Condition
 
             // Führe Transfer durch
-            String description = "Überweisung an " + targetPlayerName;
+            String description = "Transfer to " + targetPlayerName;
             if (EconomyManager.transfer(player.getUUID(), targetUUID, amount, description)) {
                 // Update Transfer-Tracker
                 tracker.checkAndUpdateLimit(player.getUUID(), amount);

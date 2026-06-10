@@ -279,7 +279,7 @@ public class PurchaseItemPacket {
                 lifeData.getMemory().addMemory(
                     player.getUUID(),
                     MemoryType.TRADED,
-                    String.format("Kaufte %dx %s für %d",
+                    String.format("Bought %dx %s for %d",
                         quantity,
                         entry.getItem().getHoverName().getString(),
                         totalPrice),

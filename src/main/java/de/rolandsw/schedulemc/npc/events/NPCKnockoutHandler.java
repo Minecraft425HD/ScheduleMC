@@ -127,17 +127,17 @@ public class NPCKnockoutHandler {
                         // Knockout
                         if (npc.getNpcType() == NPCType.POLICE) {
                             starsToAdd = 4; // Polizist knockout
-                            crimeType = "Polizist kampfunfähig geschlagen";
+                            crimeType = "Police officer knocked out";
                             lifeCrimeType = de.rolandsw.schedulemc.npc.life.witness.CrimeType.ARMED_VIOLENCE;
                         } else {
                             starsToAdd = 3; // NPC knockout
-                            crimeType = "NPC kampfunfähig geschlagen";
+                            crimeType = "NPC knocked out";
                             lifeCrimeType = de.rolandsw.schedulemc.npc.life.witness.CrimeType.ASSAULT;
                         }
                     } else {
                         // Nur Schaden
                         starsToAdd = 1;
-                        crimeType = "Körperverletzung";
+                        crimeType = "Assault";
                         lifeCrimeType = de.rolandsw.schedulemc.npc.life.witness.CrimeType.ASSAULT;
                     }
 

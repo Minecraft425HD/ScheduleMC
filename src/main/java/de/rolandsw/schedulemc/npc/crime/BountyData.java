@@ -167,10 +167,10 @@ public class BountyData {
      * Gibt formatierte Beschreibung zurück
      */
     public String getFormattedDescription() {
-        String status = claimed ? "§c✗ Eingelöst" : (isExpired() ? "§7⏱ Abgelaufen" : "§a✓ Aktiv");
+        String status = claimed ? "§c✗ Redeemed" : (isExpired() ? "§7⏱ Abgelaufen" : "§a✓ Active");
 
         return String.format(
-            "§6§l💰 KOPFGELD 💰\n" +
+            "§6§l💰 BOUNTY 💰\n" +
             "§7ID: §f%s\n" +
             "§7Betrag: §a%.2f€\n" +
             "§7Grund: §e%s\n" +

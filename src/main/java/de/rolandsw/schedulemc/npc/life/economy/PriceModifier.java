@@ -155,7 +155,7 @@ public class PriceModifier {
         if (memory.playerHasTag(playerUUID, "Kriminell")) {
             tagPenalty += 0.15f; // 15% teurer
         }
-        if (memory.playerHasTag(playerUUID, "Gefährlich")) {
+        if (memory.playerHasTag(playerUUID, "Dangerous")) {
             tagPenalty += 0.1f;
         }
         if (memory.playerHasTag(playerUUID, "Dieb")) {
@@ -163,10 +163,10 @@ public class PriceModifier {
         }
 
         // Positive Tags?
-        if (memory.playerHasTag(playerUUID, "Vertrauenswürdig")) {
+        if (memory.playerHasTag(playerUUID, "Trustworthy")) {
             tagPenalty -= 0.1f;
         }
-        if (memory.playerHasTag(playerUUID, "Großzügig")) {
+        if (memory.playerHasTag(playerUUID, "Generous")) {
             tagPenalty -= 0.05f;
         }
 
@@ -200,7 +200,7 @@ public class PriceModifier {
     public static String getPriceBreakdown(CustomNPCEntity npc, ServerPlayer player,
                                            ServerLevel level, boolean isBuying) {
         StringBuilder sb = new StringBuilder();
-        sb.append("=== Preis-Aufschlüsselung ===\n");
+        sb.append("=== Price Breakdown ===\n");
 
         float traitMod = getTraitModifier(npc);
         float emotionMod = getEmotionModifier(npc);
@@ -208,18 +208,18 @@ public class PriceModifier {
         float relationMod = getPlayerRelationModifier(npc, player);
         float marketMod = getMarketModifier(level);
 
-        sb.append(String.format("NPC-Persönlichkeit: ×%.2f\n", traitMod));
-        sb.append(String.format("NPC-Stimmung: ×%.2f\n", emotionMod));
-        sb.append(String.format("Fraktions-Standing: ×%.2f\n", factionMod));
-        sb.append(String.format("Persönliche Beziehung: ×%.2f\n", relationMod));
-        sb.append(String.format("Marktbedingungen: ×%.2f\n", marketMod));
+        sb.append(String.format("NPC personality: ×%.2f\n", traitMod));
+        sb.append(String.format("NPC mood: ×%.2f\n", emotionMod));
+        sb.append(String.format("Faction standing: ×%.2f\n", factionMod));
+        sb.append(String.format("Personal relationship: ×%.2f\n", relationMod));
+        sb.append(String.format("Market conditions: ×%.2f\n", marketMod));
 
         if (!isBuying) {
-            sb.append("Verkaufs-Abzug: ×0.70\n");
+            sb.append("Sale deduction: ×0.70\n");
         }
 
         float total = calculateModifier(npc, player, level, isBuying);
-        sb.append(String.format("\nGesamt: ×%.2f", total));
+        sb.append(String.format("\nTotal: ×%.2f", total));
 
         return sb.toString();
     }

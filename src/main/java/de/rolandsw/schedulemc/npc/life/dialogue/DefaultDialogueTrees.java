@@ -37,11 +37,11 @@ public class DefaultDialogueTrees {
             .priority(5)
             .addNodes(
                 DialogueNode.simple("start",
-                    "Hallo, {player_name}! Schön dich zu sehen.",
+                    "Hello, {player_name}! Good to see you.",
                     new DialogueOption("ask_wellbeing", "Wie geht es dir?")
                         .targetNode("wellbeing")
                         .addAction(DialogueAction.modifyNPCFactionReputation(2)),
-                    DialogueOption.exit("Schönen Tag noch!")
+                    DialogueOption.exit("Have a nice day!")
                         .addAction(DialogueAction.modifyNPCFactionReputation(1))
                 ),
                 DialogueNode.simple("wellbeing",
@@ -50,7 +50,7 @@ public class DefaultDialogueTrees {
                         .targetNode(null)
                         .addAction(DialogueAction.endDialogue())
                         .addAction(DialogueAction.modifyNPCFactionReputation(3)),
-                    DialogueOption.exit("Na dann, tschüss.")
+                    DialogueOption.exit("Well then, goodbye.")
                 )
             );
     }
@@ -81,7 +81,7 @@ public class DefaultDialogueTrees {
                     "Hallo, {player_name}! Ich brauche dringend deine Hilfe.",
                     new DialogueOption("ask_mission", "Was ist das Problem?")
                         .targetNode("offer_mission"),
-                    DialogueOption.exit("Schönen Tag noch.")
+                    DialogueOption.exit("Have a nice day.")
                 ),
                 // Mission läuft noch
                 DialogueNode.simple("start_active",
@@ -90,27 +90,27 @@ public class DefaultDialogueTrees {
                 ),
                 // Mission abgeschlossen → Belohnung abholen
                 DialogueNode.simple("start_claim",
-                    "Oh, du bist zurück! Hast du alles erledigt?",
+                    "Oh, you're back! Did you get everything done?",
                     new DialogueOption("claim", "Ja, ich habe alles erledigt!")
                         .targetNode("reward")
                         .addAction(DialogueAction.claimMissionReward(missionId))
                         .addAction(DialogueAction.modifyNPCFactionReputation(20)),
-                    DialogueOption.exit("Noch nicht ganz fertig.")
+                    DialogueOption.exit("Not quite done yet.")
                 ),
                 // Mission anbieten
                 DialogueNode.simple("offer_mission",
-                    "Ich brauche Hilfe mit einem Auftrag. Kannst du das für mich übernehmen?",
+                    "I need help with a job. Can you take care of it for me?",
                     new DialogueOption("accept", "Klar, ich mache das!")
                         .targetNode("accepted")
                         .addAction(DialogueAction.giveMission(missionId))
                         .addAction(DialogueAction.modifyNPCFactionReputation(5)),
-                    DialogueOption.exit("Nein danke, nicht jetzt.")
+                    DialogueOption.exit("No thanks, not now.")
                 ),
                 DialogueNode.end("accepted",
-                    "Wunderbar! Ich zähle auf dich. Viel Erfolg!"
+                    "Wonderful! I'm counting on you. Good luck!"
                 ),
                 DialogueNode.end("reward",
-                    "Großartig! Hier ist deine Belohnung. Du hast das prima gemacht!"
+                    "Great! Here is your reward. You did a fine job!"
                 )
             );
     }
@@ -120,17 +120,17 @@ public class DefaultDialogueTrees {
     // ═══════════════════════════════════════════════════════════
 
     private static DialogueTree buildMerchantTree() {
-        return new DialogueTree("merchant_global", "Verkäufer Standard-Dialog")
+        return new DialogueTree("merchant_global", "Merchant default dialog")
             .addTag("global")
             .startCondition(npcTypeIs(NPCType.MERCHANT))
             .priority(5)
             .addNodes(
                 DialogueNode.simple("start",
                     "Willkommen! Was darf es sein?",
-                    new DialogueOption("buy", "Ich möchte etwas kaufen.")
+                    new DialogueOption("buy", "I want to buy something.")
                         .targetNode(null)
                         .addAction(DialogueAction.openTradeMenu()),
-                    new DialogueOption("sell", "Ich möchte verkaufen.")
+                    new DialogueOption("sell", "I want to sell.")
                         .targetNode("sell_node"),
                     DialogueOption.exit("Nur schauen, danke.")
                 ),
@@ -155,16 +155,16 @@ public class DefaultDialogueTrees {
             .priority(5)
             .addNodes(
                 DialogueNode.simple("start",
-                    "Guten Tag, Bürger. Gibt es ein Problem?",
+                    "Good day, citizen. Is there a problem?",
                     new DialogueOption("no_problem", "Alles gut, danke.")
                         .targetNode(null)
                         .addAction(DialogueAction.endDialogue()),
-                    new DialogueOption("report", "Ich möchte etwas melden.")
+                    new DialogueOption("report", "I want to report something.")
                         .targetNode("report_node")
                 ),
                 DialogueNode.simple("report_node",
-                    "Ich nehme das zu Protokoll. Was möchten Sie melden?",
-                    new DialogueOption("crime", "Ein Verbrechen wurde begangen.")
+                    "I'll take this down. What would you like to report?",
+                    new DialogueOption("crime", "A crime has been committed.")
                         .targetNode("noted")
                         .addAction(DialogueAction.addMemory(
                             de.rolandsw.schedulemc.npc.life.core.MemoryType.CRIME_WITNESSED,
@@ -172,7 +172,7 @@ public class DefaultDialogueTrees {
                     DialogueOption.exit("Vergessen Sie es.")
                 ),
                 DialogueNode.end("noted",
-                    "Vielen Dank für die Meldung. Wir werden dem nachgehen."
+                    "Thank you for the report. We will look into it."
                 )
             );
     }
@@ -188,11 +188,11 @@ public class DefaultDialogueTrees {
             .priority(5)
             .addNodes(
                 DialogueNode.simple("start",
-                    "Guten Tag! Wie kann ich Ihnen dienen?",
-                    new DialogueOption("deposit", "Ich möchte einzahlen.")
+                    "Good day! How can I serve you?",
+                    new DialogueOption("deposit", "I want to deposit.")
                         .targetNode(null)
                         .addAction(DialogueAction.endDialogue()),
-                    new DialogueOption("withdraw", "Ich möchte abheben.")
+                    new DialogueOption("withdraw", "I want to withdraw.")
                         .targetNode(null)
                         .addAction(DialogueAction.endDialogue()),
                     DialogueOption.exit("Auf Wiedersehen.")
@@ -205,13 +205,13 @@ public class DefaultDialogueTrees {
     // ═══════════════════════════════════════════════════════════
 
     private static DialogueTree buildTowTruckTree() {
-        return new DialogueTree("tow_truck_driver_global", "Abschlepper Standard-Dialog")
+        return new DialogueTree("tow_truck_driver_global", "Tow truck driver default dialog")
             .addTag("global")
             .startCondition(npcTypeIs(NPCType.TOW_TRUCK_DRIVER))
             .priority(5)
             .addNodes(
                 DialogueNode.simple("start",
-                    "Was kann ich für Sie tun?",
+                    "What can I do for you?",
                     new DialogueOption("vehicle", "Ich brauche Hilfe mit einem Fahrzeug.")
                         .targetNode(null)
                         .addAction(DialogueAction.openTradeMenu()),

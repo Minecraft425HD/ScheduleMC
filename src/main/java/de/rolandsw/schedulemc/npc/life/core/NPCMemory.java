@@ -197,7 +197,7 @@ public class NPCMemory {
         private int crimeCount;
         private int helpCount;
         private long lastInteraction;
-        private final Set<String> reputationTags; // "Großzügig", "Dieb", etc.
+        private final Set<String> reputationTags; // "Generous", "Dieb", etc.
 
         public PlayerProfile(UUID playerId) {
             this.playerId = playerId;

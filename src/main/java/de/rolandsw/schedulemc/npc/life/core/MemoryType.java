@@ -25,7 +25,7 @@ public enum MemoryType {
     /**
      * Gespräch - Unterhaltung mit dem Spieler
      */
-    CONVERSATION("Gespräch", 2, false),
+    CONVERSATION("Conversation", 2, false),
 
     /**
      * Geschenk erhalten - Spieler hat NPC etwas geschenkt
@@ -50,7 +50,7 @@ public enum MemoryType {
     /**
      * Gerücht gehört - NPC hat ein Gerücht über den Spieler gehört
      */
-    RUMOR_HEARD("Gerücht", 4, false),
+    RUMOR_HEARD("Rumor", 4, false),
 
     /**
      * Quest-bezogen - Interaktion im Rahmen einer Quest

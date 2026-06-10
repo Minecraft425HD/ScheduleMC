@@ -72,7 +72,7 @@ public class TradeEventHelper {
 
         // 1. Erinnerung speichern
         String itemName = item.getHoverName().getString();
-        String memoryText = String.format("%s: %s für %d",
+        String memoryText = String.format("%s: %s for %d",
             playerIsBuying ? "Verkauf" : "Kauf", itemName, price);
 
         lifeData.getMemory().addMemory(
@@ -101,14 +101,14 @@ public class TradeEventHelper {
             // Faire Transaktion - positive Auswirkung
             if (price > basePrice * 1.1f && playerIsBuying) {
                 // Spieler hat mehr bezahlt als nötig
-                lifeData.getMemory().addPlayerTag(playerUUID, "Großzügig");
+                lifeData.getMemory().addPlayerTag(playerUUID, "Generous");
                 lifeData.getEmotions().trigger(EmotionState.HAPPY, 20.0f, 600);
 
                 // Gerücht verbreiten
                 RumorNetwork.getNetwork(level).createRumor(
                     playerUUID,
                     RumorType.GENEROUS,
-                    "Großzügiger Käufer",
+                    "Generous buyer",
                     level.getDayTime() / 24000,
                     npc.getNpcData().getNpcUUID()
                 );
@@ -167,13 +167,13 @@ public class TradeEventHelper {
         );
 
         // Tags
-        lifeData.getMemory().addPlayerTag(playerUUID, "IllegalerKäufer");
+        lifeData.getMemory().addPlayerTag(playerUUID, "IllegalBuyer");
 
         // Gerücht
         RumorNetwork.getNetwork(level).createRumor(
             playerUUID,
             RumorType.DRUG_DEALING,
-            "Illegale Geschäfte",
+            "Illegal business",
             level.getDayTime() / 24000,
             npc.getNpcData().getNpcUUID()
         );
@@ -202,7 +202,7 @@ public class TradeEventHelper {
         );
 
         // Positive Tags
-        lifeData.getMemory().addPlayerTag(playerUUID, "Großzügig");
+        lifeData.getMemory().addPlayerTag(playerUUID, "Generous");
         if (estimatedValue >= 500) {
             lifeData.getMemory().addPlayerTag(playerUUID, "Wohlwollend");
         }
@@ -246,7 +246,7 @@ public class TradeEventHelper {
 
         // Negative Tags
         lifeData.getMemory().addPlayerTag(playerUUID, "Dieb");
-        lifeData.getMemory().addPlayerTag(playerUUID, "Unzuverlässig");
+        lifeData.getMemory().addPlayerTag(playerUUID, "Unreliable");
 
         // Negative Emotion
         lifeData.getEmotions().trigger(EmotionState.ANGRY, 70.0f);

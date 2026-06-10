@@ -51,7 +51,7 @@ public class DialogueHelper {
         boolean isGoodCustomer = lifeData.getMemory().hasPlayerTag(playerUUID, "GutKunde");
         boolean isRegular = lifeData.getMemory().hasPlayerTag(playerUUID, "Stammkunde");
         boolean isCriminal = lifeData.getMemory().hasPlayerTag(playerUUID, "Kriminell");
-        boolean isDangerous = lifeData.getMemory().hasPlayerTag(playerUUID, "Gefährlich");
+        boolean isDangerous = lifeData.getMemory().hasPlayerTag(playerUUID, "Dangerous");
 
         // Priorisiere nach Wichtigkeit
         if (isDangerous && intensity > 30) {
@@ -80,24 +80,24 @@ public class DialogueHelper {
             if (isGoodCustomer) {
                 return "Ah, " + playerName + "! Mein bester Kunde! Was darf es heute sein?";
             }
-            return "Willkommen! Was für ein schöner Tag!";
+            return "Welcome! What a beautiful day!";
         }
 
         // Bekannte Kunden
         if (isRegular) {
-            return "Hallo " + playerName + "! Schön Sie wiederzusehen!";
+            return "Hallo " + playerName + "! Nice to see you again!";
         }
 
         if (isGoodCustomer) {
-            return "Willkommen zurück, " + playerName + "! Was kann ich für Sie tun?";
+            return "Welcome back, " + playerName + "! What can I do for you?";
         }
 
         if (isKnown) {
-            return "Ah, Sie kenne ich doch. Was führt Sie her?";
+            return "Ah, I know you. What brings you here?";
         }
 
         // Standard-Begrüßung
-        return "Guten Tag! Wie kann ich Ihnen helfen?";
+        return "Good day! How can I help you?";
     }
 
     /**
@@ -113,10 +113,10 @@ public class DialogueHelper {
                     npc.getLifeData().getMemory().hasPlayerTag(player.getUUID(), "Gesucht")) {
                     return "Halt! Sie sind zur Fahndung ausgeschrieben!";
                 }
-                return "Guten Tag, Bürger. Alles in Ordnung?";
+                return "Good day, citizen. Everything all right?";
             }
             case MERCHANT -> {
-                return baseGreeting.isEmpty() ? "Willkommen in meinem Geschäft!" : baseGreeting;
+                return baseGreeting.isEmpty() ? "Welcome to my shop!" : baseGreeting;
             }
             case CITIZEN -> {
                 return baseGreeting;
@@ -144,10 +144,10 @@ public class DialogueHelper {
         // Händler-spezifisch
         if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT) {
             if (npc.isWillingToTrade()) {
-                options.add(new DialogueOptionInfo("trade", "Handeln", "Kaufen oder verkaufen Sie Waren"));
+                options.add(new DialogueOptionInfo("trade", "Handeln", "Buy or sell goods"));
             } else {
-                options.add(new DialogueOptionInfo("trade_disabled", "Handeln (nicht verfügbar)",
-                    "Der Händler ist momentan nicht bereit zu handeln"));
+                options.add(new DialogueOptionInfo("trade_disabled", "Trade (not available)",
+                    "The merchant is currently not willing to trade"));
             }
         }
 
@@ -160,14 +160,14 @@ public class DialogueHelper {
 
             // Gerüchte teilen (bei ausreichend Reputation)
             if (reputation >= 20) {
-                options.add(new DialogueOptionInfo("rumors", "Nach Gerüchten fragen",
+                options.add(new DialogueOptionInfo("rumors", "Ask about rumors",
                     "Fragen Sie nach interessanten Neuigkeiten"));
             }
 
             // Quest anbieten (bei ausreichend Reputation)
             if (reputation >= 10) {
                 options.add(new DialogueOptionInfo("quest", "Nach Aufgaben fragen",
-                    "Fragen Sie ob der NPC Hilfe benötigt"));
+                    "Ask if the NPC needs help"));
             }
         }
 

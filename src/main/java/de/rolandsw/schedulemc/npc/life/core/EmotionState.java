@@ -16,7 +16,7 @@ public enum EmotionState {
     /**
      * Glücklich - Gute Interaktion, Geschenk, Quest abgeschlossen
      */
-    HAPPY("Glücklich", 0.9f, 1.3f, "§a", 1),
+    HAPPY("Happy", 0.9f, 1.3f, "§a", 1),
 
     /**
      * Traurig - Ignoriert, Verlust, schlechte Nachricht
@@ -26,12 +26,12 @@ public enum EmotionState {
     /**
      * Wütend - Beleidigt, bestohlen, betrogen
      */
-    ANGRY("Wütend", 1.3f, 0.3f, "§c", 3),
+    ANGRY("Angry", 1.3f, 0.3f, "§c", 3),
 
     /**
      * Ängstlich - Bedrohung, Verbrechen, Waffe gesehen
      */
-    FEARFUL("Ängstlich", 1.5f, 0.1f, "§5", 4),
+    FEARFUL("Fearful", 1.5f, 0.1f, "§5", 4),
 
     /**
      * Misstrauisch - Verdächtiges Verhalten, Gerücht gehört

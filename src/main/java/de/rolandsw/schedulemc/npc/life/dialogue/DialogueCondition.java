@@ -50,7 +50,7 @@ public class DialogueCondition {
     // ═══════════════════════════════════════════════════════════
 
     public static DialogueCondition npcIsHappy() {
-        return new DialogueCondition("npc_happy", "NPC ist glücklich",
+        return new DialogueCondition("npc_happy", "NPC is happy",
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 return life != null && life.getEmotions().getCurrentEmotion() == EmotionState.HAPPY;
@@ -58,7 +58,7 @@ public class DialogueCondition {
     }
 
     public static DialogueCondition npcIsAngry() {
-        return new DialogueCondition("npc_angry", "NPC ist verärgert",
+        return new DialogueCondition("npc_angry", "NPC is upset",
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 return life != null && life.getEmotions().getCurrentEmotion() == EmotionState.ANGRY;
@@ -94,7 +94,7 @@ public class DialogueCondition {
     }
 
     public static DialogueCondition playerDoesNotHaveTag(String tag) {
-        return new DialogueCondition("player_no_tag_" + tag, "Spieler hat nicht Tag: " + tag,
+        return new DialogueCondition("player_no_tag_" + tag, "Player does not have tag: " + tag,
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 return life == null || !life.getMemory().playerHasTag(ctx.getPlayer().getUUID(), tag);
@@ -158,7 +158,7 @@ public class DialogueCondition {
      */
     public static DialogueCondition npcEmotion(EmotionState emotion, int minIntensity) {
         return new DialogueCondition("npc_emotion_" + emotion.name() + "_" + minIntensity,
-            "NPC fühlt " + emotion.getDisplayName() + " >= " + minIntensity,
+            "NPC feels " + emotion.getDisplayName() + " >= " + minIntensity,
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 if (life == null) return false;
@@ -172,7 +172,7 @@ public class DialogueCondition {
      */
     public static DialogueCondition random(float chance) {
         return new DialogueCondition("random_" + (int)(chance * 100),
-            "Zufällig " + (int)(chance * 100) + "%",
+            "Random " + (int)(chance * 100) + "%",
             (ctx, npc) -> ThreadLocalRandom.current().nextDouble() < chance);
     }
 
@@ -272,12 +272,12 @@ public class DialogueCondition {
     }
 
     public static DialogueCondition hasNotVisitedNode(String nodeId) {
-        return new DialogueCondition("not_visited_" + nodeId, "Node nicht besucht: " + nodeId,
+        return new DialogueCondition("not_visited_" + nodeId, "Node not visited: " + nodeId,
             (ctx, npc) -> !ctx.hasVisitedNode(nodeId));
     }
 
     public static DialogueCondition isFirstConversation() {
-        return new DialogueCondition("first_conversation", "Erstes Gespräch",
+        return new DialogueCondition("first_conversation", "First conversation",
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 return life == null || life.getMemory().getPlayerProfile(ctx.getPlayer().getUUID())
@@ -295,7 +295,7 @@ public class DialogueCondition {
     // ═══════════════════════════════════════════════════════════
 
     public static DialogueCondition and(DialogueCondition... conditions) {
-        return new DialogueCondition("and", "Alle Bedingungen erfüllt",
+        return new DialogueCondition("and", "All conditions fulfilled",
             (ctx, npc) -> {
                 for (DialogueCondition c : conditions) {
                     if (!c.test(ctx, npc)) return false;
@@ -305,7 +305,7 @@ public class DialogueCondition {
     }
 
     public static DialogueCondition or(DialogueCondition... conditions) {
-        return new DialogueCondition("or", "Eine Bedingung erfüllt",
+        return new DialogueCondition("or", "One condition fulfilled",
             (ctx, npc) -> {
                 for (DialogueCondition c : conditions) {
                     if (c.test(ctx, npc)) return true;

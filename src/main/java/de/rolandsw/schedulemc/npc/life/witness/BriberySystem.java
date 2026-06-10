@@ -45,7 +45,7 @@ public class BriberySystem {
     /** Bestechungs-Hinweis: unter diesem Betrag gilt es als "kleiner Betrag" */
     private static final int BRIBE_HINT_LOW_THRESHOLD = 200;
 
-    /** Bestechungs-Hinweis: unter diesem Betrag gilt es als "nicht billig" */
+    /** Bestechungs-Hinweis: unter diesem Betrag gilt es als "not cheap" */
     private static final int BRIBE_HINT_MEDIUM_THRESHOLD = 500;
 
     /** Bestechungs-Hinweis: unter diesem Betrag gilt es als "sehr teuer" */
@@ -271,7 +271,7 @@ public class BriberySystem {
         int minimum = calculateMinimumBribe(npc, report);
 
         NPCLifeData lifeData = npc.getLifeData();
-        if (lifeData == null) return "Der NPC scheint nicht interessiert.";
+        if (lifeData == null) return "The NPC doesn't seem interested.";
 
         NPCTraits traits = lifeData.getTraits();
 
@@ -280,13 +280,13 @@ public class BriberySystem {
         }
 
         if (minimum < BRIBE_HINT_LOW_THRESHOLD) {
-            return "Ein kleiner Betrag könnte helfen.";
+            return "A small amount could help.";
         } else if (minimum < BRIBE_HINT_MEDIUM_THRESHOLD) {
-            return "Das wird nicht billig...";
+            return "That won't be cheap...";
         } else if (minimum < BRIBE_HINT_HIGH_THRESHOLD) {
-            return "Das wird sehr teuer.";
+            return "That will be very expensive.";
         } else {
-            return "Das wird ein Vermögen kosten!";
+            return "That will cost a fortune!";
         }
     }
 
@@ -308,10 +308,10 @@ public class BriberySystem {
         REFUSED("Bestechung abgelehnt"),
 
         /** Bestechung abgelehnt und gemeldet (Polizei) */
-        REFUSED_AND_REPORTED("Bestechung abgelehnt und gemeldet"),
+        REFUSED_AND_REPORTED("Bribe rejected and reported"),
 
         /** NPC ist prinzipiell nicht bestechlich */
-        UNBRIBEABLE("NPC ist nicht bestechlich");
+        UNBRIBEABLE("NPC is not bribable");
 
         private final String displayName;
 

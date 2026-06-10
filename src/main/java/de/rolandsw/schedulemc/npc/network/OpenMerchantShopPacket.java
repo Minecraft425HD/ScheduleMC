@@ -281,7 +281,7 @@ public class OpenMerchantShopPacket {
                 }
 
                 // Setze Namen mit Formatierung
-                billItem.setHoverName(Component.literal("🚗 Abschlepprechnung - " + yardName)
+                billItem.setHoverName(Component.literal("🚗 Towing invoice - " + yardName)
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
                 // Erstelle Shop-Entry

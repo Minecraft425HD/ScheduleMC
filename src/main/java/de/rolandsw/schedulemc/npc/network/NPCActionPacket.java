@@ -109,7 +109,7 @@ public class NPCActionPacket {
                 "§a[Mission] §fMission angenommen: §e" + missionId));
         } else {
             player.sendSystemMessage(Component.literal(
-                "§c[Mission] §fMission nicht verfuegbar oder Voraussetzungen fehlen."));
+                "§c[Mission] §fMission not available or requirements missing."));
         }
     }
 
@@ -124,7 +124,7 @@ public class NPCActionPacket {
                 "§a[Mission] §fBelohnung erhalten!"));
         } else {
             player.sendSystemMessage(Component.literal(
-                "§c[Mission] §fMission noch nicht abgeschlossen."));
+                "§c[Mission] §fMission not yet completed."));
         }
     }
 
@@ -135,7 +135,7 @@ public class NPCActionPacket {
         MissionEventBridge.firePackageDelivered(player);
         MissionEventBridge.fireTransactionCompleted(player);
         player.sendSystemMessage(Component.literal(
-            "§a[Lieferung] §f" + count + " Item(s) erfolgreich uebergeben."));
+            "§a[Lieferung] §f" + count + " item(s) handed over successfully."));
     }
 
     /** Spieler bezahlt NPC (transaction_completed tracking). */
@@ -174,7 +174,7 @@ public class NPCActionPacket {
 
         CompanionManager mgr = CompanionManager.getInstance();
         if (mgr == null) {
-            player.sendSystemMessage(Component.literal("§c[Rekrutierung] §fCompanion-System nicht verfuegbar."));
+            player.sendSystemMessage(Component.literal("§c[Recruitment] §fCompanion system not available."));
             return;
         }
         mgr.recruit(player, type, npc, npc.getNpcData().getNpcName());

@@ -232,7 +232,7 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
         // Tags hinzufügen
         lifeData.getMemory().addPlayerTag(criminal.getUUID(), "Kriminell");
         if (crimeType.isViolent()) {
-            lifeData.getMemory().addPlayerTag(criminal.getUUID(), "Gefährlich");
+            lifeData.getMemory().addPlayerTag(criminal.getUUID(), "Dangerous");
         }
 
         // Emotion auslösen

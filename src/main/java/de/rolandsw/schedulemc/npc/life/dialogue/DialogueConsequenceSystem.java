@@ -193,26 +193,26 @@ public class DialogueConsequenceSystem {
     public String getContextualGreeting(UUID npcUUID, UUID playerUUID) {
         ConversationMemory memory = getMemory(npcUUID, playerUUID);
         if (memory == null) {
-            return "Hallo! Ich glaube, wir haben uns noch nicht kennengelernt.";
+            return "Hello! I don't think we've met yet.";
         }
 
         if (memory.lieCount > 3) {
-            return "Du schon wieder... Ich traue dir nicht.";
+            return "You again... I don't trust you.";
         }
 
         if (memory.helpCount > 5) {
-            return "Mein Freund! Schoen dich zu sehen! Ich habe einen Rabatt fuer dich.";
+            return "My friend! Good to see you! I have a discount for you.";
         }
 
         if (memory.conversationCount > 10) {
-            return "Hey, lange nicht gesehen! Was kann ich fuer dich tun?";
+            return "Hey, long time no see! What can I do for you?";
         }
 
         if (memory.conversationCount > 3) {
             return "Ah, du bist es wieder. Was brauchst du?";
         }
 
-        return "Willkommen zurueck. Wie kann ich helfen?";
+        return "Welcome back. How can I help?";
     }
 
     /**
