@@ -276,7 +276,7 @@ public class PlayerMissionManager {
                     LOGGER.error("Error loading mission data for player '{}'", entry.getKey(), e);
                 }
             }
-            LOGGER.info("Missions-Daten geladen: {} Spieler", playerMissions.size());
+            LOGGER.info("Mission data loaded: {} players", playerMissions.size());
         } catch (IOException e) {
             if (isBackupAttempt) {
                 LOGGER.error("Backup file could not be read either - mission data unavailable", e);

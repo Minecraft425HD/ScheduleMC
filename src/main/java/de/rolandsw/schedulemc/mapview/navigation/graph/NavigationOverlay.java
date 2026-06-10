@@ -264,7 +264,7 @@ public class NavigationOverlay {
         if (navigationService != null && navigationService.hasGraph()) {
             return navigationService.getGraph().getStatistics();
         }
-        return "Kein Graph geladen";
+        return "No graph loaded";
     }
 
     // ═══════════════════════════════════════════════════════════

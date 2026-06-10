@@ -136,7 +136,7 @@ public class IllegalActivityScanner {
             );
         } else {
             com.mojang.logging.LogUtils.getLogger().info(
-                "[ROOM-SCAN] Kein Konterband im initialen Raum gefunden - Durchsuchung beendet"
+                "[ROOM-SCAN] No contraband found in initial room - search ended"
             );
         }
 

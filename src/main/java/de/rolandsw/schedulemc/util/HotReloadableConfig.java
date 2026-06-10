@@ -298,7 +298,7 @@ public class HotReloadableConfig<T> {
             Files.move(tempFile.toPath(), configFile.toPath(),
                 StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             lastModified = configFile.lastModified();
-            LOGGER.debug("Config gespeichert: {}", configFile.getName());
+            LOGGER.debug("Config saved: {}", configFile.getName());
         } catch (IOException e) {
             LOGGER.error("Error saving config: {}", configFile.getName(), e);
         }

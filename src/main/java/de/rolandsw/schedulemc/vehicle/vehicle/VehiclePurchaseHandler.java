@@ -101,7 +101,7 @@ public class VehiclePurchaseHandler {
             return false;
         }
 
-        LOGGER.info("Freien Spawn-Punkt gefunden: {}", spawnPoint.getPosition());
+        LOGGER.info("Free spawn point found: {}", spawnPoint.getPosition());
 
         // Spawn das Fahrzeug
         EntityGenericVehicle vehicle = spawnVehicle(player, (ServerLevel) level, vehicleItem, spawnPoint.getPosition(), spawnPoint.getYaw());

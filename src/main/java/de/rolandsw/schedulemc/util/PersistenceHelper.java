@@ -115,7 +115,7 @@ public class PersistenceHelper {
      */
     public static <T> LoadResult<T> load(File file, Gson gson, Type type, String componentName) {
         if (!file.exists()) {
-            LOGGER.info("{}: Keine Datei gefunden, starte mit leeren Daten", componentName);
+            LOGGER.info("{}: no file found, starting with empty data", componentName);
             return LoadResult.noFile();
         }
 

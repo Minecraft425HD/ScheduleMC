@@ -56,7 +56,7 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
      */
     public void load() {
         if (!dataFile.exists()) {
-            LOGGER.info("{}: Keine Datei gefunden, starte mit leeren Daten", getComponentName());
+            LOGGER.info("{}: no file found, starting with empty data", getComponentName());
             isHealthy = true;
             onNoDataFileFound();
             return;

@@ -207,7 +207,7 @@ public class StealingAttemptPacket {
                                 }
                             } else {
                                 player.sendSystemMessage(Component.literal(
-                                        "\u00A7cKein passendes Schloss in der Naehe gefunden!"));
+                                        "\u00A7cNo matching lock found nearby!"));
                             }
                         }
                     } else if (stealType == 3) {
@@ -245,7 +245,7 @@ public class StealingAttemptPacket {
                                 }
                             } else {
                                 player.sendSystemMessage(Component.literal(
-                                        "\u00A7cKein Zahlenschloss in der Naehe gefunden!"));
+                                        "\u00A7cNo combination lock found nearby!"));
                             }
                         }
                     }

@@ -108,8 +108,7 @@ Kein MissingMappings-Remap, keine Legacy-Aliase (NPCType-Duplikate wurden
 zusammengeführt: BEWOHNER→CITIZEN, VERKAEUFER→MERCHANT, POLIZEI→POLICE,
 ABSCHLEPPER→TOW_TRUCK_DRIVER).
 
-**Noch offen:** ~800 hartkodierte deutsche User-facing-Strings
-(Chat-Nachrichten, Config-Kommentare) in ~200 Dateien. Diese sollen
-modulweise in Übersetzungsschlüssel externalisiert werden
-(siehe docs/I18N_MIGRATION_PLAN.md). Deutsche Code-Kommentare
-sind erlaubt.
+**Erledigt (2026-06-10):** Alle hartkodierten deutschen User-facing-
+Strings wurden entfernt (Phasen 1-8, siehe docs/I18N_MIGRATION_PLAN.md).
+Guard gegen Rückfälle: `scripts/check-german-strings.sh`.
+Deutsche Code-Kommentare sind weiterhin erlaubt.

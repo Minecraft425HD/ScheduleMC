@@ -72,7 +72,7 @@ public class SavePlayerMissionPacket {
                         ? (def.getCategory() == MissionCategory.HAUPT ? "Hauptmission" : "Nebenmission")
                         : "?";
                 player.sendSystemMessage(Component.literal(
-                        "\u00A7a[Mission-Editor] '" + scenario.getName() + "' gespeichert! "
+                        "\u00A7a[Mission-Editor] '" + scenario.getName() + "' saved! "
                         + "(" + catLabel + ", " + scenario.getStepCount() + " Schritte, "
                         + scenario.getDifficultyStars() + ")"));
 

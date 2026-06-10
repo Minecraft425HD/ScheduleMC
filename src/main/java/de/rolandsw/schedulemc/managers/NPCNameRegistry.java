@@ -200,7 +200,7 @@ public class NPCNameRegistry {
                 if (loaded != null) {
                     nameToEntityId.clear();
                     nameToEntityId.putAll(loaded);
-                    LOGGER.info("NPC-Namen geladen: {} NPCs", nameToEntityId.size());
+                    LOGGER.info("NPC names loaded: {} NPCs", nameToEntityId.size());
                 } else {
                     LOGGER.warn("Leere NPC-Namen-Datei");
                 }
@@ -230,7 +230,7 @@ public class NPCNameRegistry {
                 StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 
             dirty = false;
-            LOGGER.info("NPC-Namen gespeichert: {} NPCs", nameToEntityId.size());
+            LOGGER.info("NPC names saved: {} NPCs", nameToEntityId.size());
 
         } catch (Exception e) {
             LOGGER.error("Error saving NPC names", e);

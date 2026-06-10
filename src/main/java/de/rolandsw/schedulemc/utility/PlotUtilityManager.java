@@ -64,7 +64,7 @@ public class PlotUtilityManager {
         positionCache.clear();
 
         if (!DATA_FILE.exists()) {
-            LOGGER.info("Keine Utility-Daten gefunden, starte mit leeren Daten");
+            LOGGER.info("No utility data found, starting with empty data");
             return;
         }
 
@@ -77,7 +77,7 @@ public class PlotUtilityManager {
                 plotData.put(data.getPlotId(), data);
             }
 
-            LOGGER.info("Utility-Daten geladen: {} Plots", plotData.size());
+            LOGGER.info("Utility data loaded: {} plots", plotData.size());
         } catch (Exception e) {
             LOGGER.error("Error loading utility data", e);
         }
@@ -114,7 +114,7 @@ public class PlotUtilityManager {
                 StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 
             dirty = false;
-            LOGGER.debug("Utility-Daten gespeichert: {} Plots", plotData.size());
+            LOGGER.debug("Utility data saved: {} plots", plotData.size());
         } catch (Exception e) {
             LOGGER.error("Error saving utility data", e);
         }
@@ -477,7 +477,7 @@ public class PlotUtilityManager {
         if (found > 0) {
             data.calculateCurrentConsumption();
             dirty = true;
-            LOGGER.info("Plot {} gescannt: {} Verbraucher gefunden", plotId, found);
+            LOGGER.info("Plot {} scanned: {} consumers found", plotId, found);
         }
     }
 
@@ -500,7 +500,7 @@ public class PlotUtilityManager {
         }
 
         long duration = System.currentTimeMillis() - startTime;
-        LOGGER.info("Batch-Scan abgeschlossen: {} Verbraucher in {} Plots gefunden ({}ms)",
+        LOGGER.info("Batch scan completed: {} consumers found in {} plots ({}ms)",
             totalFound, plots.size(), duration);
     }
 

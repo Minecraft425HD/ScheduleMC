@@ -208,7 +208,7 @@ public class GangActionPacket {
                 }
             }
         }
-        sendError(player, "Keine gueltige Einladung gefunden.");
+        sendError(player, "No valid invitation found.");
     }
 
     private void handleLeave(ServerPlayer player, GangManager manager) {

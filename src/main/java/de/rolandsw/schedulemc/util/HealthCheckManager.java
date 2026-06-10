@@ -155,7 +155,7 @@ public class HealthCheckManager {
             () -> CrimeManager.isHealthy(), CrimeManager::getHealthInfo, CrimeManager::getLastError);
         registerManagerCheck("bounty", "NPC & Crime", "Bounty", BountyManager::getInstance);
         registerCheck("npc", "NPC & Crime", () ->
-            new ComponentHealth("NPC Registry", SystemHealth.HEALTHY, "Aktiv, Name-Registry geladen"));
+            new ComponentHealth("NPC Registry", SystemHealth.HEALTHY, "Active, name registry loaded"));
         registerCheck("prison", "NPC & Crime", () -> {
             PrisonManager mgr = PrisonManager.getInstance();
             if (mgr == null) return notInitialized("Prison");

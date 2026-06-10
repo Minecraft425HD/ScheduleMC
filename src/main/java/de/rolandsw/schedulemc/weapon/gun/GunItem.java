@@ -355,7 +355,7 @@ public abstract class GunItem extends Item {
                 return;
             }
         }
-        player.displayClientMessage(Component.literal("§cKein Magazin gefunden!"), true);
+        player.displayClientMessage(Component.literal("§cNo magazine found!"), true);
     }
 
     private int getShotsFired(ItemStack stack) {

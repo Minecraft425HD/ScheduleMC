@@ -38,7 +38,7 @@ public class VehicleSpawnRegistry {
      */
     public static void load() {
         if (!SPAWN_FILE.exists()) {
-            LOGGER.info("Keine Fahrzeug-Spawn-Daten gefunden, starte mit leerer Datenbank");
+            LOGGER.info("No vehicle spawn data found, starting with empty database");
             return;
         }
 
@@ -76,7 +76,7 @@ public class VehicleSpawnRegistry {
             Files.move(tempFile.toPath(), SPAWN_FILE.toPath(),
                 StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             isDirty = false;
-            LOGGER.info("Fahrzeug-Spawn-Punkte gespeichert");
+            LOGGER.info("Vehicle spawn points saved");
         } catch (Exception e) {
             LOGGER.error("Error saving vehicle spawn points!", e);
         }

@@ -228,7 +228,7 @@ public class GangCommand {
         player.sendSystemMessage(Component.literal("\u00A77XP: \u00A7f" + gang.getGangXP() + " \u00A77(" + gang.getXPToNextLevel() + " bis naechstes Level)"));
         player.sendSystemMessage(Component.literal("\u00A77Mitglieder: \u00A7f" + gang.getMemberCount() + "/" + gang.getMaxMembers()));
         player.sendSystemMessage(Component.literal("\u00A77Territory: \u00A7f" + gang.getTerritoryCount() + "/" + gang.getMaxTerritory()));
-        player.sendSystemMessage(Component.literal("\u00A77Perks: \u00A7f" + gang.getUsedPerkPoints() + " genutzt, " + gang.getAvailablePerkPoints() + " verfuegbar"));
+        player.sendSystemMessage(Component.literal("\u00A77Perks: \u00A7f" + gang.getUsedPerkPoints() + " genutzt, " + gang.getAvailablePerkPoints() + " available"));
         player.sendSystemMessage(Component.literal("\u00A77Reputation: " + gang.getReputation().getFormattedName()));
 
         // Mitglieder
