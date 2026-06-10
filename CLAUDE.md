@@ -111,5 +111,5 @@ ABSCHLEPPER→TOW_TRUCK_DRIVER).
 **Noch offen:** ~800 hartkodierte deutsche User-facing-Strings
 (Chat-Nachrichten, Config-Kommentare) in ~200 Dateien. Diese sollen
 modulweise in Übersetzungsschlüssel externalisiert werden
-(siehe docs/HARDCODED_STRING_SCAN_2026-04-14.md). Deutsche Code-Kommentare
+(siehe docs/I18N_MIGRATION_PLAN.md). Deutsche Code-Kommentare
 sind erlaubt.
