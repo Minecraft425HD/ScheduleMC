@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-3.8.0--beta-blue?style=for-the-badge" />
+  <img alt="Version" src="https://img.shields.io/badge/version-3.9.0--beta-blue?style=for-the-badge" />
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-1.20.1-green?style=for-the-badge&logo=mojangstudios" />
   <img alt="Forge" src="https://img.shields.io/badge/Forge-47.4.0-orange?style=for-the-badge" />
   <img alt="Java" src="https://img.shields.io/badge/Java-17-red?style=for-the-badge&logo=openjdk" />
@@ -122,9 +122,9 @@ Für alle weiteren Detailzahlen (inkl. Historie) bitte `docs/REPO_METRICS.md` ve
 ### Server Installation
 
 1. Download and install [Minecraft Forge 47.4.0](https://files.minecraftforge.net/) for Minecraft 1.20.1.
-2. Download the latest `schedulemc-3.8.0-beta.jar` release from [GitHub Releases](https://github.com/Minecraft425HD/ScheduleMC/releases).
+2. Download the latest `schedulemc-3.9.0-beta.jar` release from [GitHub Releases](https://github.com/Minecraft425HD/ScheduleMC/releases).
 3. Download [CoreLib 1.20.1-1.1.1](https://maven.maxhenkel.de/repository/public/de/maxhenkel/corelib/) and place it in your `mods/` folder.
-4. Place `schedulemc-3.8.0-beta.jar` into the server's `mods/` folder.
+4. Place `schedulemc-3.9.0-beta.jar` into the server's `mods/` folder.
 5. Start the server once to generate default configuration files.
 6. Edit configuration files in `config/schedulemc/` to match your server's needs.
 7. Restart the server.
@@ -143,18 +143,6 @@ Für alle weiteren Detailzahlen (inkl. Historie) bitte `docs/REPO_METRICS.md` ve
     schedulemc-3.8.0-beta.jar
     corelib-1.20.1-1.1.1.jar
 ```
-
-### Optional Dependencies
-
-These mods are not required but provide additional integration features when present:
-
-| Mod | Version | Purpose |
-|---|---|---|
-| [JEI (Just Enough Items)](https://modrinth.com/mod/jei) | 15.2.0.27 | Recipe viewing integration for production chains |
-| [Jade](https://modrinth.com/mod/jade) | 11.8.0 | Block tooltip overlay showing production status, lock info, etc. |
-| [The One Probe](https://modrinth.com/mod/the-one-probe) | 1.20.1-10.0.2 | Alternative block information overlay |
-
----
 
 ## Quick Start
 
@@ -1510,7 +1498,7 @@ cd ScheduleMC
 ./gradlew build
 
 # The compiled JAR will be located at:
-# build/libs/schedulemc-3.8.0-beta.jar
+# build/libs/schedulemc-3.9.0-beta.jar
 ```
 
 ### Running in Development
@@ -4775,7 +4763,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <p align="center">
   Built for the Minecraft roleplay community.
   <br />
-  <strong>ScheduleMC v3.8.0-beta</strong> -- Minecraft 1.20.1 -- Forge 47.4.0
+  <strong>ScheduleMC 3.9.0-beta</strong> -- Minecraft 1.20.1 -- Forge 47.4.0
   <br />
   <br />
   <a href="https://github.com/Minecraft425HD/ScheduleMC">GitHub</a>
