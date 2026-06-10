@@ -148,17 +148,17 @@ public class SecretDoorEventHandler {
         if (!level.getBlockState(pos).getBlock().getClass().getSuperclass()
             .isAssignableFrom(AbstractSecretDoorBlock.class)
             && !(level.getBlockState(pos).getBlock() instanceof AbstractSecretDoorBlock)) {
-            player.sendSystemMessage(Component.literal("§cKein Geheimtür-Block an dieser Position!"));
+            player.sendSystemMessage(Component.translatable("message.secret_door.not_a_secret_door"));
             return;
         }
 
         if (!(level.getBlockEntity(pos) instanceof SecretDoorBlockEntity be)) {
-            player.sendSystemMessage(Component.literal("§cKein BlockEntity gefunden!"));
+            player.sendSystemMessage(Component.translatable("message.secret_door.no_block_entity"));
             return;
         }
 
         if (!be.canUse(player)) {
-            player.sendSystemMessage(Component.literal("§cKeine Berechtigung!"));
+            player.sendSystemMessage(Component.translatable("message.secret_door.no_permission"));
             return;
         }
 
@@ -170,7 +170,6 @@ public class SecretDoorEventHandler {
         doorBlock.spawnFillers(level, pos, be, w, h, level.getBlockState(pos)
             .getValue(AbstractSecretDoorBlock.FACING));
 
-        player.sendSystemMessage(Component.literal(
-            "§a[Geheimtür] Größe auf §e" + w + "×" + h + "§a gesetzt."));
+        player.sendSystemMessage(Component.translatable("message.secret_door.size_set_simple", w, h));
     }
 }

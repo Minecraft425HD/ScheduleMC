@@ -106,11 +106,9 @@ public class HiddenSwitchBlock extends BaseEntityBlock {
             be.setLinkingMode(linking);
             be.setChanged();
             if (linking) {
-                player.sendSystemMessage(Component.literal(
-                    "§a[Schalter] Verknüpfungs-Modus §eAN§a. Klicke auf eine Geheimtür, um sie zu verknüpfen/trennen."));
+                player.sendSystemMessage(Component.translatable("message.secret_door.switch_link_on"));
             } else {
-                player.sendSystemMessage(Component.literal(
-                    "§7[Schalter] Verknüpfungs-Modus §cAUS§7."));
+                player.sendSystemMessage(Component.translatable("message.secret_door.switch_link_off"));
             }
             return InteractionResult.SUCCESS;
         }
@@ -120,18 +118,16 @@ public class HiddenSwitchBlock extends BaseEntityBlock {
             // Der Schalter selbst wurde angeklickt, nicht eine Tür → Modus beenden
             be.setLinkingMode(false);
             be.setChanged();
-            player.sendSystemMessage(Component.literal("§7[Schalter] Verknüpfungs-Modus beendet."));
+            player.sendSystemMessage(Component.translatable("message.secret_door.switch_link_ended"));
             return InteractionResult.SUCCESS;
         }
 
         // Normaler Rechtsklick: alle verknüpften Türen toggeln
         if (be.getLinkedDoorCount() == 0) {
-            player.sendSystemMessage(Component.literal(
-                "§7[Schalter] Keine Türen verknüpft. §eShift+Rechtsklick §7zum Verknüpfen."));
+            player.sendSystemMessage(Component.translatable("message.secret_door.switch_no_doors"));
         } else {
             be.toggleLinkedDoors(level, player);
-            player.sendSystemMessage(Component.literal(
-                "§a[Schalter] §e" + be.getLinkedDoorCount() + " §aTür(en) geschaltet."));
+            player.sendSystemMessage(Component.translatable("message.secret_door.switch_toggled", be.getLinkedDoorCount()));
         }
 
         return InteractionResult.SUCCESS;
@@ -147,26 +143,22 @@ public class HiddenSwitchBlock extends BaseEntityBlock {
 
         BlockState doorState = level.getBlockState(doorPos);
         if (!(doorState.getBlock() instanceof AbstractSecretDoorBlock)) {
-            player.sendSystemMessage(Component.literal("§cDas ist keine Geheimtür!"));
+            player.sendSystemMessage(Component.translatable("message.secret_door.not_a_door"));
             return;
         }
 
         boolean linked = be.linkDoor(doorPos, player);
         if (linked) {
-            player.sendSystemMessage(Component.literal(
-                "§a[Schalter] Tür bei §e" + doorPos.toShortString() + "§a verknüpft. " +
-                "Gesamt: §e" + be.getLinkedDoorCount()));
+            player.sendSystemMessage(Component.translatable("message.secret_door.switch_door_linked", doorPos.toShortString(), be.getLinkedDoorCount()));
             // Schalter auch im Türen-BE registrieren
             if (level.getBlockEntity(doorPos) instanceof SecretDoorBlockEntity doorBe) {
                 doorBe.addLinkedSwitch(switchPos);
                 doorBe.setChanged();
                 be.adoptCredentialsFromDoor(doorBe);
-                player.sendSystemMessage(Component.literal(
-                    "§b[Schalter] Lock-ID synchronisiert: §f" + doorBe.getLockId() + " §7(Code: " + doorBe.getAccessCode() + ")"));
+                player.sendSystemMessage(Component.translatable("message.secret_door.lock_synced", doorBe.getLockId(), doorBe.getAccessCode()));
             }
         } else {
-            player.sendSystemMessage(Component.literal(
-                "§7[Schalter] Tür bei §e" + doorPos.toShortString() + "§7 getrennt."));
+            player.sendSystemMessage(Component.translatable("message.secret_door.switch_door_unlinked", doorPos.toShortString()));
             if (level.getBlockEntity(doorPos) instanceof SecretDoorBlockEntity doorBe) {
                 doorBe.removeLinkedSwitch(switchPos);
                 doorBe.setChanged();

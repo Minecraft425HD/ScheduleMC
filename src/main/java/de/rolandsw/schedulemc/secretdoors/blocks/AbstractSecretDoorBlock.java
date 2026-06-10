@@ -308,13 +308,9 @@ public abstract class AbstractSecretDoorBlock extends BaseEntityBlock {
         if (level.isClientSide) return;
         int w = be.getDoorWidth();
         int h = be.getDoorHeight();
-        player.sendSystemMessage(Component.literal(
-            "§6=== Türgröße konfigurieren ===\n" +
-            "§7Aktuelle Größe: §e" + w + "×" + h + "\n" +
-            "§7Tipp: §aSchneide mit §eFernbedienung§a oder nutze\n" +
-            "§7/secretdoor size " + pos.getX() + " " + pos.getY() + " " + pos.getZ() +
-            " <breite 1-20> <höhe 1-20>\n" +
-            "§7Besitzer: §b" + (be.getOwnerName().isEmpty() ? "Niemand" : be.getOwnerName())
+        player.sendSystemMessage(Component.translatable("message.secret_door.size_config", w, h,
+            pos.getX(), pos.getY(), pos.getZ(),
+            be.getOwnerName().isEmpty() ? Component.translatable("message.secret_door.owner_none") : Component.literal(be.getOwnerName())
         ));
     }
 
