@@ -86,7 +86,7 @@ public class CommandExecutor {
             return 1;
         } catch (Exception e) {
             LOGGER.error(errorMessage, e);
-            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", errorMessage, e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", Component.translatable(errorMessage), e.getMessage()));
             return 0;
         }
     }
@@ -109,7 +109,7 @@ public class CommandExecutor {
             return 1;
         } catch (Exception e) {
             LOGGER.error(errorMessage, e);
-            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", errorMessage, e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", Component.translatable(errorMessage), e.getMessage()));
             return 0;
         }
     }
@@ -136,7 +136,7 @@ public class CommandExecutor {
             return 1;
         } catch (Exception e) {
             LOGGER.error(errorMessage, e);
-            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", errorMessage, e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", Component.translatable(errorMessage), e.getMessage()));
             return 0;
         }
     }
@@ -165,7 +165,7 @@ public class CommandExecutor {
             return 1;
         } catch (Exception e) {
             LOGGER.error(errorMessage, e);
-            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", errorMessage, e.getMessage()));
+            ctx.getSource().sendFailure(Component.translatable("error.command.with_exception", Component.translatable(errorMessage), e.getMessage()));
             return 0;
         }
     }
