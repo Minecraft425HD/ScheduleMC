@@ -70,7 +70,7 @@ public class TobaccoConfig {
                 .defineInRange("fermenting_time", 500, 100, 72000);
         
         FERMENTATION_QUALITY_CHANCE = builder
-                .comment("Chance auf Qualitätsverbesserung bei Fermentierung (0.3 = 30%)")
+                .comment("Chance of quality improvement during fermentation (0.3 = 30%)")
                 .defineInRange("fermentation_quality_chance", 0.3, 0.0, 1.0);
 
         builder.pop();
@@ -80,15 +80,15 @@ public class TobaccoConfig {
                 .push("drying_rack_capacities");
 
         SMALL_DRYING_RACK_CAPACITY = builder
-                .comment("Kapazität des kleinen Trocknungsgestells")
+                .comment("Capacity of the small drying rack")
                 .defineInRange("small_capacity", 6, 1, 64);
 
         MEDIUM_DRYING_RACK_CAPACITY = builder
-                .comment("Kapazität des mittleren Trocknungsgestells")
+                .comment("Capacity of the medium drying rack")
                 .defineInRange("medium_capacity", 8, 1, 64);
 
         BIG_DRYING_RACK_CAPACITY = builder
-                .comment("Kapazität des großen Trocknungsgestells")
+                .comment("Capacity of the large drying rack")
                 .defineInRange("big_capacity", 10, 1, 64);
 
         builder.pop();
@@ -98,15 +98,15 @@ public class TobaccoConfig {
                 .push("fermentation_barrel_capacities");
 
         SMALL_FERMENTATION_BARREL_CAPACITY = builder
-                .comment("Kapazität des kleinen Fermentierungsfasses")
+                .comment("Capacity of the small fermentation barrel")
                 .defineInRange("small_capacity", 6, 1, 64);
 
         MEDIUM_FERMENTATION_BARREL_CAPACITY = builder
-                .comment("Kapazität des mittleren Fermentierungsfasses")
+                .comment("Capacity of the medium fermentation barrel")
                 .defineInRange("medium_capacity", 8, 1, 64);
 
         BIG_FERMENTATION_BARREL_CAPACITY = builder
-                .comment("Kapazität des großen Fermentierungsfasses")
+                .comment("Capacity of the large fermentation barrel")
                 .defineInRange("big_capacity", 10, 1, 64);
 
         builder.pop();
@@ -140,7 +140,7 @@ public class TobaccoConfig {
                 .push("bottle_effects");
         
         FERTILIZER_YIELD_BONUS = builder
-                .comment("Dünger Ertrags-Bonus (0.5 = +50%)")
+                .comment("Fertilizer yield bonus (0.5 = +50%)")
                 .defineInRange("fertilizer_yield_bonus", 0.5, 0.0, 5.0);
         
         GROWTH_BOOSTER_SPEED_MULTIPLIER = builder
@@ -154,11 +154,11 @@ public class TobaccoConfig {
                 .push("grow_lights");
 
         REQUIRE_LIGHT_FOR_GROWTH = builder
-                .comment("Pflanzen benötigen Licht zum Wachsen")
+                .comment("Plants need light to grow")
                 .define("require_light", true);
 
         MIN_LIGHT_LEVEL = builder
-                .comment("Minimales Lichtlevel für Wachstum (9 = Fackeln ausreichend)")
+                .comment("Minimum light level for growth (9 = torches sufficient)")
                 .defineInRange("min_light_level", 9, 0, 15);
 
         BASIC_GROW_LIGHT_LEVEL = builder
@@ -186,7 +186,7 @@ public class TobaccoConfig {
                 .defineInRange("premium_speed", 1.5, 0.1, 10.0);
 
         PREMIUM_GROW_LIGHT_QUALITY_BONUS = builder
-                .comment("Qualitätsbonus unter Premium UV Grow Light (0.1 = +10% Chance)")
+                .comment("Quality bonus under premium UV grow light (0.1 = +10% chance)")
                 .defineInRange("premium_quality_bonus", 0.1, 0.0, 1.0);
 
         builder.pop();

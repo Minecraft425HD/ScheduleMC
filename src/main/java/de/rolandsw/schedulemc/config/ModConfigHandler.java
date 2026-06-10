@@ -280,7 +280,7 @@ public class ModConfigHandler {
                     .push("economy");
 
             START_BALANCE = builder
-                    .comment("Startguthaben für neue Spieler")
+                    .comment("Starting balance for new players")
                     .defineInRange("start_balance", 1000.0, 0.0, 1000000.0);
 
             SAVE_INTERVAL_MINUTES = builder
@@ -297,7 +297,7 @@ public class ModConfigHandler {
                     .defineInRange("max_per_player", 50000.0, 1000.0, 10000000.0);
 
             SAVINGS_MIN_DEPOSIT = builder
-                    .comment("Mindesteinlage für neues Sparkonto")
+                    .comment("Minimum deposit for a new savings account")
                     .defineInRange("min_deposit", 1000.0, 100.0, 100000.0);
 
             SAVINGS_INTEREST_RATE = builder
@@ -309,15 +309,15 @@ public class ModConfigHandler {
                     .defineInRange("lock_period_weeks", 4, 1, 52);
 
             SAVINGS_EARLY_WITHDRAWAL_PENALTY = builder
-                    .comment("Strafe für vorzeitige Abhebung (0.10 = 10%)")
+                    .comment("Penalty for early withdrawal (0.10 = 10%)")
                     .defineInRange("early_withdrawal_penalty", 0.10, 0.0, 0.5);
 
             builder.pop();
 
             builder.comment("Overdraft Settings (Dispo - UNBEGRENZT!)",
-                            "Spieler können unbegrenzt ins Minus gehen.",
+                            "Players can go into unlimited overdraft.",
                             "Tag 7: Auto-Ausgleich (Bargeld -> Sparkonto)",
-                            "Tag 28: Gefängnis (1000€ = 1 Minute)")
+                            "Day 28: prison (1000€ = 1 minute)")
                     .push("overdraft");
 
             OVERDRAFT_INTEREST_RATE = builder
@@ -326,11 +326,11 @@ public class ModConfigHandler {
 
             builder.pop();
 
-            builder.comment("Recurring Payments Settings (Daueraufträge)")
+            builder.comment("Recurring payments settings (standing orders)")
                     .push("recurring");
 
             RECURRING_MAX_PER_PLAYER = builder
-                    .comment("Maximale Daueraufträge pro Spieler")
+                    .comment("Maximum standing orders per player")
                     .defineInRange("max_per_player", 10, 1, 100);
 
             builder.pop();
@@ -352,11 +352,11 @@ public class ModConfigHandler {
                     .push("plots");
 
             MIN_PLOT_SIZE = builder
-                    .comment("Minimale Plot-Größe in Blöcken")
+                    .comment("Minimum plot size in blocks")
                     .defineInRange("min_plot_size", 64L, 1L, 1000000L);
 
             MAX_PLOT_SIZE = builder
-                    .comment("Maximale Plot-Größe in Blöcken")
+                    .comment("Maximum plot size in blocks")
                     .defineInRange("max_plot_size", 1000000L, 1L, 100000000L);
 
             MIN_PLOT_PRICE = builder
@@ -372,26 +372,26 @@ public class ModConfigHandler {
                     .defineInRange("max_trusted_players", 10, 1, 100);
 
             ALLOW_PLOT_TRANSFER = builder
-                    .comment("Plots können übertragen werden")
+                    .comment("Plots can be transferred")
                     .define("allow_plot_transfer", true);
 
             REFUND_ON_ABANDON = builder
-                    .comment("Rückerstattung beim Aufgeben (0.0-1.0, 0.5 = 50%)")
+                    .comment("Refund when abandoning (0.0-1.0, 0.5 = 50%)")
                     .defineInRange("refund_on_abandon", 0.5, 0.0, 1.0);
 
-            builder.comment("Plot-Typ Blocklisten (ALL = keine Einschränkung für diesen Typ)")
+            builder.comment("Plot type block lists (ALL = no restriction for this type)")
                     .push("block_restrictions");
 
             RESIDENTIAL_PLOT_BLOCKS = builder
-                    .comment("Blöcke für RESIDENTIAL-Plots. Default: ALL")
+                    .comment("Blocks for RESIDENTIAL plots. Default: ALL")
                     .defineList("residential", java.util.List.of("ALL"), obj -> obj instanceof String);
 
             COMMERCIAL_PLOT_BLOCKS = builder
-                    .comment("Blöcke für COMMERCIAL-Plots. Default: ALL")
+                    .comment("Blocks for COMMERCIAL plots. Default: ALL")
                     .defineList("commercial", java.util.List.of("ALL"), obj -> obj instanceof String);
 
             INDUSTRIAL_PLOT_BLOCKS = builder
-                    .comment("Blöcke, die NUR in INDUSTRIAL-Plots erlaubt sind (Factory-Floor-Pflicht).")
+                    .comment("Blocks that are ONLY allowed in INDUSTRIAL plots (factory floor required).")
                     .defineList("industrial", java.util.Arrays.asList(
                         "terracotta_pot", "ceramic_pot", "iron_pot", "golden_pot",
                         "small_drying_rack", "medium_drying_rack", "big_drying_rack",
@@ -436,27 +436,27 @@ public class ModConfigHandler {
                     ), obj -> obj instanceof String);
 
             SHOP_PLOT_BLOCKS = builder
-                    .comment("Blöcke für SHOP-Plots. Default: ALL")
+                    .comment("Blocks for SHOP plots. Default: ALL")
                     .defineList("shop", java.util.List.of("ALL"), obj -> obj instanceof String);
 
             PUBLIC_PLOT_BLOCKS = builder
-                    .comment("Blöcke für PUBLIC-Plots. Default: ALL")
+                    .comment("Blocks for PUBLIC plots. Default: ALL")
                     .defineList("public", java.util.List.of("ALL"), obj -> obj instanceof String);
 
             GOVERNMENT_PLOT_BLOCKS = builder
-                    .comment("Blöcke für GOVERNMENT-Plots. Default: ALL")
+                    .comment("Blocks for GOVERNMENT plots. Default: ALL")
                     .defineList("government", java.util.List.of("ALL"), obj -> obj instanceof String);
 
             PRISON_PLOT_BLOCKS = builder
-                    .comment("Blöcke für PRISON-Plots. Default: ALL")
+                    .comment("Blocks for PRISON plots. Default: ALL")
                     .defineList("prison", java.util.List.of("ALL"), obj -> obj instanceof String);
 
             TOWING_YARD_PLOT_BLOCKS = builder
-                    .comment("Blöcke für TOWING_YARD-Plots. Default: ALL")
+                    .comment("Blocks for TOWING_YARD plots. Default: ALL")
                     .defineList("towing_yard", java.util.List.of("ALL"), obj -> obj instanceof String);
 
             SECRET_DOOR_ALLOWED_PLOT_TYPES = builder
-                    .comment("Erlaubte Plot-Typen für HiddenSwitch/SecretDoor/Hatch (für Nicht-OP).",
+                    .comment("Allowed plot types for HiddenSwitch/SecretDoor/Hatch (for non-OP).",
                         "Nutzung/Platzierung nur auf besessenem/vermietetem Plot mit Access.",
                         "Standard: RESIDENTIAL, INDUSTRIAL.")
                     .defineList("secret_door_allowed_plot_types",
@@ -467,14 +467,14 @@ public class ModConfigHandler {
 
             builder.pop();
 
-            builder.comment("Utility Consumer Blocks - Blöcke die Strom/Wasser verbrauchen",
-                            "Entferne einen Eintrag um den Block aus der Verbrauchsabrechnung auszuschließen.",
-                            "Neue Blöcke können mit ihrer vollen Registry-ID hinzugefügt werden (z.B. schedulemc:small_drying_rack).",
-                            "Verbrauchswerte werden weiterhin intern verwaltet.")
+            builder.comment("Utility consumer blocks - blocks that consume power/water",
+                            "Remove an entry to exclude the block from consumption billing.",
+                            "New blocks can be added with their full registry ID (e.g. schedulemc:small_drying_rack).",
+                            "Consumption values are still managed internally.")
                     .push("utility");
 
             UTILITY_CONSUMER_BLOCKS = builder
-                    .comment("Liste aller Blöcke die Strom/Wasser verbrauchen.")
+                    .comment("List of all blocks that consume power/water.")
                     .defineList("consumer_blocks", java.util.Arrays.asList(
                         "schedulemc:basic_grow_light_slab", "schedulemc:advanced_grow_light_slab", "schedulemc:premium_grow_light_slab",
                         "schedulemc:climate_lamp_small", "schedulemc:climate_lamp_medium", "schedulemc:climate_lamp_large",
@@ -536,7 +536,7 @@ public class ModConfigHandler {
                     .defineInRange("streak_bonus", 10.0, 0.0, 1000.0);
 
             MAX_STREAK_DAYS = builder
-                    .comment("Maximale Streak-Tage für Bonus")
+                    .comment("Maximum streak days for bonus")
                     .defineInRange("max_streak", 30, 1, 365);
 
             builder.pop();
@@ -545,7 +545,7 @@ public class ModConfigHandler {
                     .push("rent");
 
             RENT_ENABLED = builder
-                    .comment("Mietsystem aktiviert")
+                    .comment("Rental system enabled")
                     .define("enabled", true);
 
             MIN_RENT_PRICE = builder
@@ -561,7 +561,7 @@ public class ModConfigHandler {
                     .defineInRange("max_rent_days", 30, 1, 365);
 
             AUTO_EVICT_EXPIRED = builder
-                    .comment("Automatisch räumen bei abgelaufener Miete")
+                    .comment("Automatically evict when rent has expired")
                     .define("auto_evict", true);
 
             builder.pop();
@@ -570,7 +570,7 @@ public class ModConfigHandler {
                     .push("shop");
 
             SHOP_ENABLED = builder
-                    .comment("Shop-System aktiviert")
+                    .comment("Shop system enabled")
                     .define("enabled", true);
 
             BUY_MULTIPLIER = builder
@@ -587,11 +587,11 @@ public class ModConfigHandler {
                     .push("ratings");
 
             RATINGS_ENABLED = builder
-                    .comment("Rating-System aktiviert")
+                    .comment("Rating system enabled")
                     .define("enabled", true);
 
             ALLOW_MULTIPLE_RATINGS = builder
-                    .comment("Spieler können mehrfach bewerten")
+                    .comment("Players can rate multiple times")
                     .define("allow_multiple", false);
 
             MIN_RATING = builder
@@ -608,7 +608,7 @@ public class ModConfigHandler {
                     .push("npc");
 
             NPC_WALKABLE_BLOCKS = builder
-                    .comment("Blocktypen, auf denen NPCs laufen dürfen (Beispiel: minecraft:stone, minecraft:grass_block)")
+                    .comment("Block types NPCs are allowed to walk on (example: minecraft:stone, minecraft:grass_block)")
                     .defineList("walkable_blocks",
                         java.util.Arrays.asList(
                             "minecraft:stone",
@@ -640,11 +640,11 @@ public class ModConfigHandler {
 
             builder.pop();
 
-            builder.comment("Map Navigation System Settings - Straßen-Navigation auf der Karte")
+            builder.comment("Map navigation system settings - road navigation on the map")
                     .push("navigation");
 
             NAVIGATION_ROAD_BLOCKS = builder
-                    .comment("Blocktypen, die als Straße für die Karten-Navigation erkannt werden")
+                    .comment("Block types recognized as roads for map navigation")
                     .defineList("road_blocks",
                         java.util.Arrays.asList(
                             "minecraft:cobblestone",
@@ -664,15 +664,15 @@ public class ModConfigHandler {
                         obj -> obj instanceof String);
 
             NAVIGATION_SCAN_RADIUS = builder
-                    .comment("Radius in Blöcken, in dem Straßen für die Navigation gescannt werden")
+                    .comment("Radius in blocks in which roads are scanned for navigation")
                     .defineInRange("scan_radius", 500, 100, 2000);
 
             NAVIGATION_PATH_UPDATE_INTERVAL = builder
-                    .comment("Intervall in Millisekunden, wie oft der Pfad bei beweglichen Zielen aktualisiert wird")
+                    .comment("Interval in milliseconds for how often the path is updated for moving targets")
                     .defineInRange("path_update_interval", 2000, 500, 10000);
 
             NAVIGATION_ARRIVAL_DISTANCE = builder
-                    .comment("Distanz in Blöcken, ab der das Ziel als erreicht gilt")
+                    .comment("Distance in blocks at which the target counts as reached")
                     .defineInRange("arrival_distance", 5.0, 1.0, 50.0);
 
             builder.pop();
@@ -681,15 +681,15 @@ public class ModConfigHandler {
                     .push("police");
 
             POLICE_ARREST_COOLDOWN_SECONDS = builder
-                    .comment("Cooldown in Sekunden, bevor Polizei einen Spieler verhaften kann")
+                    .comment("Cooldown in seconds before police can arrest a player")
                     .defineInRange("arrest_cooldown_seconds", 5, 1, 60);
 
             POLICE_DETECTION_RADIUS = builder
-                    .comment("Erkennungsradius der Polizei in Blöcken")
+                    .comment("Police detection radius in blocks")
                     .defineInRange("detection_radius", 32, 8, 128);
 
             POLICE_ARREST_DISTANCE = builder
-                    .comment("Distanz in Blöcken, bei der Festnahme möglich ist")
+                    .comment("Distance in blocks at which an arrest is possible")
                     .defineInRange("arrest_distance", 2.0, 1.0, 10.0);
 
             POLICE_SEARCH_DURATION_SECONDS = builder
@@ -697,35 +697,35 @@ public class ModConfigHandler {
                     .defineInRange("search_duration_seconds", 60, 10, 300);
 
             POLICE_SEARCH_RADIUS = builder
-                    .comment("Suchradius in Blöcken, in dem Polizei nach Spieler sucht")
+                    .comment("Search radius in blocks in which police search for players")
                     .defineInRange("search_radius", 50, 10, 100);
 
             POLICE_SEARCH_TARGET_UPDATE_SECONDS = builder
-                    .comment("Intervall in Sekunden, wie oft Polizei ein neues Suchziel wählt")
+                    .comment("Interval in seconds for how often police pick a new search target")
                     .defineInRange("search_target_update_seconds", 10, 5, 60);
 
             POLICE_BACKUP_SEARCH_RADIUS = builder
-                    .comment("Suchradius für Backup-Polizei in Blöcken (Performance: kleiner = besser)")
+                    .comment("Search radius for backup police in blocks (performance: smaller = better)")
                     .defineInRange("backup_search_radius", 50, 20, 100);
 
             POLICE_INDOOR_HIDING_ENABLED = builder
-                    .comment("Aktiviert Versteck-System in Gebäuden (Spieler können sich vor Polizei verstecken)")
+                    .comment("Enables hiding system in buildings (players can hide from police)")
                     .define("indoor_hiding_enabled", true);
 
             POLICE_BLOCK_DOORS_DURING_PURSUIT = builder
-                    .comment("Blockiert Türöffnen während aktiver Verfolgung")
+                    .comment("Blocks opening doors during active pursuit")
                     .define("block_doors_during_pursuit", true);
 
             POLICE_RAID_SCAN_RADIUS = builder
-                    .comment("Scan-Radius für illegale Items bei Verhaftung (in Blöcken)")
+                    .comment("Scan radius for illegal items on arrest (in blocks)")
                     .defineInRange("raid_scan_radius", 20, 5, 50);
 
             POLICE_ILLEGAL_CASH_THRESHOLD = builder
-                    .comment("Bargeld-Schwellenwert für illegales Bargeld (über diesem Wert ist es illegal)")
+                    .comment("Cash threshold for illegal cash (above this value it is illegal)")
                     .defineInRange("illegal_cash_threshold", 10000.0, 1000.0, 100000.0);
 
             POLICE_RAID_ACCOUNT_PERCENTAGE = builder
-                    .comment("Prozentsatz vom Kontostand für Geldstrafe (0.1 = 10%)")
+                    .comment("Percentage of account balance for fines (0.1 = 10%)")
                     .defineInRange("raid_account_percentage", 0.1, 0.01, 0.5);
 
             POLICE_RAID_MIN_FINE = builder
@@ -733,19 +733,19 @@ public class ModConfigHandler {
                     .defineInRange("raid_min_fine", 1000.0, 100.0, 50000.0);
 
             POLICE_ROOM_SCAN_ENABLED = builder
-                    .comment("Aktiviert intelligentes Raum-basiertes Scannen (true = nur gesehene Räume, false = kompletter Radius)")
+                    .comment("Enables smart room-based scanning (true = only seen rooms, false = full radius)")
                     .define("room_scan_enabled", true);
 
             POLICE_ROOM_SCAN_MAX_SIZE = builder
-                    .comment("Maximale Raum-Größe in Blöcken (Sicherheits-Limit gegen Performance-Probleme)")
+                    .comment("Maximum room size in blocks (safety limit against performance issues)")
                     .defineInRange("room_scan_max_size", 500, 50, 2000);
 
             POLICE_ROOM_SCAN_MAX_DEPTH = builder
-                    .comment("Maximale Y-Achsen Tiefe für Raum-Suche (verhindert vertikale Explosionen)")
+                    .comment("Maximum Y-axis depth for room search (prevents vertical explosions)")
                     .defineInRange("room_scan_max_depth", 50, 10, 100);
 
             POLICE_ROOM_SCAN_MAX_ADDITIONAL_ROOMS = builder
-                    .comment("Maximale Anzahl zusätzlicher Räume, die durchsucht werden wenn Konterband gefunden wurde")
+                    .comment("Maximum number of additional rooms searched when contraband was found")
                     .defineInRange("room_scan_max_additional_rooms", 3, 0, 10);
 
             POLICE_STATION_WAIT_MINUTES = builder
@@ -753,7 +753,7 @@ public class ModConfigHandler {
                     .defineInRange("station_wait_minutes", 5, 1, 60);
 
             POLICE_STATION_RADIUS = builder
-                    .comment("Radius in Blöcken, in dem sich Polizisten um die Station bewegen")
+                    .comment("Radius in blocks in which police officers move around the station")
                     .defineInRange("station_radius", 10, 3, 50);
 
             POLICE_PATROL_WAIT_MINUTES = builder
@@ -761,7 +761,7 @@ public class ModConfigHandler {
                     .defineInRange("patrol_wait_minutes", 1, 1, 30);
 
             POLICE_PATROL_RADIUS = builder
-                    .comment("Radius in Blöcken, in dem sich Polizisten um Patrouillenpunkte bewegen")
+                    .comment("Radius in blocks in which police officers move around patrol points")
                     .defineInRange("patrol_radius", 3, 1, 20);
 
             // NEW: Police Overhaul Features
@@ -769,10 +769,10 @@ public class ModConfigHandler {
                     .comment("Aktiviert Fahrzeugverfolgung durch Polizei")
                     .define("vehicle_pursuit_enabled", true);
             POLICE_VEHICLE_SPEED_MULTIPLIER = builder
-                    .comment("Geschwindigkeits-Multiplikator fuer Polizei-Fahrzeuge")
+                    .comment("Speed multiplier for police vehicles")
                     .defineInRange("vehicle_speed_multiplier", 1.3, 1.0, 3.0);
             POLICE_SIREN_ENABLED = builder
-                    .comment("Aktiviert Polizeisirene und Blaulicht")
+                    .comment("Enables police siren and emergency lights")
                     .define("siren_enabled", true);
             POLICE_SIREN_SOUND_RADIUS = builder
                     .comment("Hoerweite der Sirene in Bloecken")
@@ -790,25 +790,25 @@ public class ModConfigHandler {
                     .comment("Aktiviert Verwarnungssystem bei Wanted 1-2")
                     .define("warning_enabled", true);
             POLICE_WARNING_TIMEOUT_SECONDS = builder
-                    .comment("Sekunden fuer Verwarnungs-Frist")
+                    .comment("Seconds for the warning grace period")
                     .defineInRange("warning_timeout_seconds", 10, 5, 60);
             POLICE_TRAFFIC_VIOLATIONS_ENABLED = builder
                     .comment("Aktiviert Verkehrsdelikte (NPC ueberfahren etc.)")
                     .define("traffic_violations_enabled", true);
             POLICE_SPEED_LIMIT_DEFAULT = builder
-                    .comment("Standard-Geschwindigkeitslimit fuer Verkehrsdelikte")
+                    .comment("Default speed limit for traffic violations")
                     .defineInRange("speed_limit_default", 0.5, 0.1, 2.0);
             POLICE_CONTAINER_SCAN_DEPTH = builder
-                    .comment("Maximale Rekursionstiefe fuer Container-Scanning (Shulker-Boxen)")
+                    .comment("Maximum recursion depth for container scanning (shulker boxes)")
                     .defineInRange("container_scan_depth", 2, 0, 5);
             POLICE_EVIDENCE_MULTIPLIER_ENABLED = builder
                     .comment("Aktiviert Strafmultiplikator basierend auf Beweisstaerke")
                     .define("evidence_multiplier_enabled", true);
             POLICE_FLANKING_ENABLED = builder
-                    .comment("Aktiviert strategische Flanking-Koordination fuer Polizei")
+                    .comment("Enables strategic flanking coordination for police")
                     .define("flanking_enabled", true);
             POLICE_WANTED_POSTERS_MIN_LEVEL = builder
-                    .comment("Minimum Wanted-Level fuer Fahndungsplakate auf Smartphone")
+                    .comment("Minimum wanted level for wanted posters on smartphone")
                     .defineInRange("wanted_posters_min_level", 3, 1, 5);
 
             builder.pop();
@@ -817,7 +817,7 @@ public class ModConfigHandler {
                     .push("stealing");
 
             STEALING_INDICATOR_SPEED = builder
-                    .comment("Geschwindigkeit des roten Indikators (höher = schneller, Standard: 0.04)")
+                    .comment("Speed of the red indicator (higher = faster, default: 0.04)")
                     .defineInRange("indicator_speed", 0.04, 0.001, 0.2);
 
             STEALING_MAX_ATTEMPTS = builder
@@ -825,11 +825,11 @@ public class ModConfigHandler {
                     .defineInRange("max_attempts", 3, 1, 10);
 
             STEALING_MIN_ZONE_SIZE = builder
-                    .comment("Minimale Größe der Erfolgszone (schwer, hoher Wert, 0.05 = 5%)")
+                    .comment("Minimum size of the success zone (hard, high value, 0.05 = 5%)")
                     .defineInRange("min_zone_size", 0.05, 0.01, 0.5);
 
             STEALING_MAX_ZONE_SIZE = builder
-                    .comment("Maximale Größe der Erfolgszone (einfach, niedriger Wert, 0.15 = 15%)")
+                    .comment("Maximum size of the success zone (easy, low value, 0.15 = 15%)")
                     .defineInRange("max_zone_size", 0.15, 0.01, 0.5);
 
             builder.pop();
@@ -850,13 +850,13 @@ public class ModConfigHandler {
                     .defineInRange("delivery_interval_days", 3, 1, 30);
 
             WAREHOUSE_DEFAULT_DELIVERY_PRICE = builder
-                    .comment("Standard-Lieferpreis für Items ohne spezifischen Preis")
+                    .comment("Default delivery price for items without a specific price")
                     .defineInRange("default_delivery_price", 5, 1, 10000);
 
             builder.pop();
 
             builder.comment("Plot Utility Pricing Settings",
-                            "Strom- und Wasserpreise für das Grundstücks-Nutzungssystem")
+                            "Power and water prices for the plot utility system")
                     .push("utility");
 
             UTILITY_ELECTRICITY_PRICE_PER_KWH = builder
@@ -873,7 +873,7 @@ public class ModConfigHandler {
                     .push("workshop");
 
             WORKSHOP_BASE_INSPECTION_FEE = builder
-                    .comment("Basis-Inspektionsgebühr in Euro (wird immer berechnet)")
+                    .comment("Base inspection fee in euros (always charged)")
                     .defineInRange("base_inspection_fee", 25.0, 0.0, 1000.0);
 
             WORKSHOP_REPAIR_COST_PER_PERCENT = builder
@@ -885,39 +885,39 @@ public class ModConfigHandler {
                     .defineInRange("battery_cost_per_percent", 0.5, 0.1, 50.0);
 
             WORKSHOP_OIL_CHANGE_COST = builder
-                    .comment("Ölwechsel-Kosten in Euro")
+                    .comment("Oil change cost in euros")
                     .defineInRange("oil_change_cost", 15.0, 1.0, 500.0);
 
             WORKSHOP_MOTOR_UPGRADE_COST_LVL2 = builder
-                    .comment("Kosten für Motor-Upgrade Level 2 (Normal -> Performance)")
+                    .comment("Cost for motor upgrade level 2 (Normal -> Performance)")
                     .defineInRange("motor_upgrade_cost_lvl2", 500.0, 10.0, 10000.0);
 
             WORKSHOP_MOTOR_UPGRADE_COST_LVL3 = builder
-                    .comment("Kosten für Motor-Upgrade Level 3 (Performance -> Performance 2)")
+                    .comment("Cost for motor upgrade level 3 (Performance -> Performance 2)")
                     .defineInRange("motor_upgrade_cost_lvl3", 1000.0, 10.0, 20000.0);
 
             WORKSHOP_TANK_UPGRADE_COST_LVL2 = builder
-                    .comment("Kosten für Tank-Upgrade Level 2 (15L -> 30L)")
+                    .comment("Cost for tank upgrade level 2 (15L -> 30L)")
                     .defineInRange("tank_upgrade_cost_lvl2", 200.0, 10.0, 5000.0);
 
             WORKSHOP_TANK_UPGRADE_COST_LVL3 = builder
-                    .comment("Kosten für Tank-Upgrade Level 3 (30L -> 50L)")
+                    .comment("Cost for tank upgrade level 3 (30L -> 50L)")
                     .defineInRange("tank_upgrade_cost_lvl3", 400.0, 10.0, 10000.0);
 
             WORKSHOP_TIRE_UPGRADE_COST = builder
-                    .comment("Kosten für Reifen-Upgrade (pro Level)")
+                    .comment("Cost for tire upgrade (per level)")
                     .defineInRange("tire_upgrade_cost", 150.0, 10.0, 5000.0);
 
             WORKSHOP_PAINT_CHANGE_COST = builder
-                    .comment("Kosten für Lackierungswechsel")
+                    .comment("Cost for paint change")
                     .defineInRange("paint_change_cost", 100.0, 10.0, 5000.0);
 
             WORKSHOP_FENDER_UPGRADE_COST_LVL2 = builder
-                    .comment("Kosten für Fender-Upgrade Level 2 (Basic -> Chrome)")
+                    .comment("Cost for fender upgrade level 2 (Basic -> Chrome)")
                     .defineInRange("fender_upgrade_cost_lvl2", 250.0, 10.0, 5000.0);
 
             WORKSHOP_FENDER_UPGRADE_COST_LVL3 = builder
-                    .comment("Kosten für Fender-Upgrade Level 3 (Chrome -> Sport)")
+                    .comment("Cost for fender upgrade level 3 (Chrome -> Sport)")
                     .defineInRange("fender_upgrade_cost_lvl3", 500.0, 10.0, 10000.0);
 
             builder.pop();
@@ -930,28 +930,28 @@ public class ModConfigHandler {
                     .defineInRange("deposit_limit", 9999.0, 100.0, 1000000.0);
 
             BANK_TRANSFER_DAILY_LIMIT = builder
-                    .comment("Maximaler Überweisungsbetrag pro Tag")
+                    .comment("Maximum transfer amount per day")
                     .defineInRange("transfer_daily_limit", 999.0, 10.0, 100000.0);
 
             builder.pop();
 
-            builder.comment("Stock Market Settings (Börse)")
+            builder.comment("Stock market settings")
                     .push("stock_market");
 
             STOCK_GOLD_BASE_PRICE = builder
-                    .comment("Basispreis für Goldbarren")
+                    .comment("Base price for gold ingots")
                     .defineInRange("gold_base_price", 250.0, 10.0, 10000.0);
 
             STOCK_DIAMOND_BASE_PRICE = builder
-                    .comment("Basispreis für Diamanten")
+                    .comment("Base price for diamonds")
                     .defineInRange("diamond_base_price", 450.0, 10.0, 10000.0);
 
             STOCK_EMERALD_BASE_PRICE = builder
-                    .comment("Basispreis für Smaragde")
+                    .comment("Base price for emeralds")
                     .defineInRange("emerald_base_price", 180.0, 10.0, 10000.0);
 
             STOCK_MAX_PRICE_CHANGE_PERCENT = builder
-                    .comment("Maximale Preisänderung pro Tag in Prozent (0.10 = 10%)")
+                    .comment("Maximum price change per day in percent (0.10 = 10%)")
                     .defineInRange("max_price_change_percent", 0.10, 0.01, 0.50);
 
             builder.pop();
@@ -981,7 +981,7 @@ public class ModConfigHandler {
                     .defineInRange("max_multiplier", 5.0, 1.0, 20.0);
 
             DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES = builder
-                    .comment("Update-Intervall für Preisberechnung in Minuten")
+                    .comment("Update interval for price calculation in minutes")
                     .defineInRange("update_interval_minutes", 5, 1, 30);
 
             DYNAMIC_PRICING_SD_DECAY_RATE = builder
@@ -989,11 +989,11 @@ public class ModConfigHandler {
                     .defineInRange("sd_decay_rate", 0.02, 0.001, 0.1);
 
             DYNAMIC_PRICING_DAILY_FOOD_COST = builder
-                    .comment("Erwartete tägliche Essenskosten auf Hard-Difficulty")
+                    .comment("Expected daily food costs on hard difficulty")
                     .defineInRange("daily_food_cost", 20.0, 5.0, 200.0);
 
             DYNAMIC_PRICING_DAILY_REFERENCE_INCOME = builder
-                    .comment("Referenz-Tageseinkommen für Preiskalibrierung")
+                    .comment("Reference daily income for price calibration")
                     .defineInRange("daily_reference_income", 150.0, 50.0, 1000.0);
 
             builder.pop();
@@ -1015,13 +1015,13 @@ public class ModConfigHandler {
                     .defineInRange("max_duration_days", 10, 2, 60);
 
             ECONOMY_CYCLE_EVENT_BASE_CHANCE = builder
-                    .comment("Basis-Chance für Wirtschafts-Events pro Tag (0.1 = 10%)")
+                    .comment("Base chance for economy events per day (0.1 = 10%)")
                     .defineInRange("event_base_chance", 0.10, 0.0, 1.0);
 
             builder.pop();
 
             builder.comment("Producer Level System Settings",
-                            "Spieler-Fortschritt durch Produktion und Verkauf")
+                            "Player progression through production and sales")
                     .push("level_system");
 
             LEVEL_SYSTEM_ENABLED = builder
@@ -1033,45 +1033,45 @@ public class ModConfigHandler {
                     .defineInRange("max_level", 30, 10, 100);
 
             LEVEL_BASE_XP = builder
-                    .comment("Basis-XP fuer Level 1")
+                    .comment("Base XP for level 1")
                     .defineInRange("base_xp", 100, 10, 10000);
 
             LEVEL_XP_EXPONENT = builder
-                    .comment("Exponent fuer XP-Kurve (hoeher = steilere Kurve)")
+                    .comment("Exponent for XP curve (higher = steeper curve)")
                     .defineInRange("xp_exponent", 1.8, 1.0, 3.0);
 
             LEVEL_ILLEGAL_XP_MULTIPLIER = builder
-                    .comment("XP-Multiplikator fuer illegale Verkaeufe (hoeher = schnellerer Aufstieg)")
+                    .comment("XP multiplier for illegal sales (higher = faster progression)")
                     .defineInRange("illegal_xp_multiplier", 1.5, 0.5, 5.0);
 
             LEVEL_LEGAL_XP_MULTIPLIER = builder
-                    .comment("XP-Multiplikator fuer legale Verkaeufe")
+                    .comment("XP multiplier for legal sales")
                     .defineInRange("legal_xp_multiplier", 1.0, 0.5, 5.0);
 
             builder.pop();
 
             builder.comment("Risk Premium Settings",
-                            "Risiko-Aufschlaege fuer illegale Produkte")
+                            "Risk surcharges for illegal products")
                     .push("risk_premium");
 
             RISK_BASE_CANNABIS = builder
-                    .comment("Basis-Risiko-Multiplikator fuer Cannabis (1.15 = 15% Aufschlag)")
+                    .comment("Base risk multiplier for cannabis (1.15 = 15% surcharge)")
                     .defineInRange("base_cannabis", 1.15, 1.0, 3.0);
 
             RISK_BASE_COCAINE = builder
-                    .comment("Basis-Risiko-Multiplikator fuer Kokain")
+                    .comment("Base risk multiplier for cocaine")
                     .defineInRange("base_cocaine", 1.40, 1.0, 3.0);
 
             RISK_BASE_HEROIN = builder
-                    .comment("Basis-Risiko-Multiplikator fuer Heroin")
+                    .comment("Base risk multiplier for heroin")
                     .defineInRange("base_heroin", 1.50, 1.0, 3.0);
 
             RISK_BASE_METH = builder
-                    .comment("Basis-Risiko-Multiplikator fuer Methamphetamin")
+                    .comment("Base risk multiplier for methamphetamine")
                     .defineInRange("base_meth", 1.45, 1.0, 3.0);
 
             RISK_CONFISCATION_MULTIPLIER = builder
-                    .comment("Konfiszierungs-Risiko-Aufschlag fuer illegale Maschinen")
+                    .comment("Confiscation risk surcharge for illegal machines")
                     .defineInRange("confiscation_multiplier", 1.25, 1.0, 3.0);
 
             builder.pop();
@@ -1162,9 +1162,9 @@ public class ModConfigHandler {
             // ═══════════════════════════════════════════════════════════
             // BLOCK PRICES
             // ═══════════════════════════════════════════════════════════
-            builder.comment("Kaufpreise und Level-Voraussetzungen aller Produktionsblöcke").push("block_prices");
+            builder.comment("Purchase prices and level requirements of all production blocks").push("block_prices");
             BLOCK_PRICES = builder
-                .comment("Format: schedulemc:blockname=Preis:Level  |  Level 0 = keine Voraussetzung")
+                .comment("Format: schedulemc:blockname=price:level  |  Level 0 = no requirement")
                 .defineList("prices", java.util.Arrays.asList(
                     // Cannabis
                     "schedulemc:cannabis_trim_station=200:1",
