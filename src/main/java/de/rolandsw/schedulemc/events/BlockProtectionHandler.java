@@ -536,7 +536,7 @@ public class BlockProtectionHandler {
         PlotRegion plot = PlotManager.getPlotAt(pos);
         if (plot == null) {
             player.displayClientMessage(
-                Component.literal("§cHidden Switch/Tür/Luke nur auf gekauftem oder gemietetem Grundstück erlaubt."),
+                Component.literal("§cHidden switch/door/hatch only allowed on a bought or rented plot."),
                 true
             );
             return false;
@@ -545,7 +545,7 @@ public class BlockProtectionHandler {
         Set<PlotType> allowedTypes = getConfiguredSecretDoorPlotTypes();
         if (!allowedTypes.contains(plot.getType())) {
             player.displayClientMessage(
-                Component.literal("§cDieser Block ist auf diesem Grundstückstyp nicht erlaubt."),
+                Component.literal("§cThis block is not allowed on this plot type."),
                 true
             );
             return false;
@@ -553,7 +553,7 @@ public class BlockProtectionHandler {
 
         if (!plot.hasOwner() && !plot.isRented()) {
             player.displayClientMessage(
-                Component.literal("§cGrundstück muss gekauft oder gemietet sein."),
+                Component.literal("§cPlot must be bought or rented."),
                 true
             );
             return false;
@@ -561,7 +561,7 @@ public class BlockProtectionHandler {
 
         if (!plot.hasAccess(player.getUUID())) {
             player.displayClientMessage(
-                Component.literal("§cDu hast keinen Zugriff auf dieses Grundstück."),
+                Component.literal("§cYou have no access to this plot."),
                 true
             );
             return false;

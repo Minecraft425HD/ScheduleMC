@@ -58,7 +58,7 @@ public class SaveScenarioPacket {
                         + scenario.getDifficultyStars() + ")"));
             } catch (Exception e) {
                 player.sendSystemMessage(Component.literal(
-                        "\u00A7c[Szenario-Editor] Fehler beim Speichern: " + e.getMessage()));
+                        "\u00A7c[Scenario Editor] Error while saving: " + e.getMessage()));
             }
         });
         ctx.get().setPacketHandled(true);

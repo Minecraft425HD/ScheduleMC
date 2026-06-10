@@ -532,7 +532,7 @@ public class PlotUtilityManager {
             totalWater += data.get7DayAverageWater();
         }
 
-        return String.format("Utility-Stats: %d Plots, %s Strom, %s Wasser (7-Tage-Ø)",
+        return String.format("Utility stats: %d plots, %s power, %s water (7-day avg)",
                 plotData.size(), formatElectricity(totalElec), formatWater(totalWater));
     }
 

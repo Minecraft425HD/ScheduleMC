@@ -130,7 +130,7 @@ public class PlotAppScreen extends Screen {
     private String cachedHistory7day;
     private String[] cachedDayLabels;
     private String cachedPrices;
-    // Währungssymbol (locale-abhängig: "€" für de_de, "$" für en_us)
+    // Währungssymbol (locale-abhängig: "€" for de_de, "$" für en_us)
     private String cachedCurrencySymbol;
     // Neue Übersetzungsschlüssel für vormals hardcodierte Strings
     private String cachedPayBills;

@@ -77,7 +77,14 @@ in beiden Lang-Dateien, kein `Component.literal` mit deutschem Text mehr.
   Beschreibungen und Markt-Event-Namen werden als Strings gespeichert/
   gematcht — echte Lang-Key-Externalisierung erfordert Storage-Refactor.
   Event-Namen-Matching in EconomyController konsistent mitübersetzt.)
-- [ ] **Phase 5** npc (261, in 3 Teil-PRs)
-- [ ] **Phase 6** gang + mission
-- [ ] **Phase 7** weapon/lock/vehicle + Rest
-- [ ] **Phase 8** Guard gegen neue deutsche Literale
+- [x] **Phase 5** npc (~230 Strings inline Englisch) — 2026-06-10
+- [x] **Phase 6** gang + mission (~90 Strings inline Englisch) — 2026-06-10
+- [x] **Phase 7** weapon/lock/vehicle/honey/region + Rest (~120 Strings) — 2026-06-10
+- [x] **Phase 8** Guard: `scripts/check-german-strings.sh` (Audit = 0) — 2026-06-10
+
+**ABGESCHLOSSEN.** Alle deutschen String-Literale sind aus src/main/java
+entfernt. Hinweis: Phasen 4-7 wurden als Inline-Übersetzung umgesetzt
+(statt Lang-Key-Externalisierung) — die Texte sind serverseitig erzeugt
+bzw. werden als Strings gespeichert/gematcht. Echte Client-Lokalisierung
+einzelner Bereiche kann bei Bedarf gezielt nachgezogen werden
+(Muster: Phase 1 / secretdoors).

@@ -61,15 +61,15 @@ public class PlotUtilityBillingPacket {
                         player.sendSystemMessage(Component.literal(String.format("Utility-Rechnungen bezahlt: %.2f€", paid))
                             .withStyle(ChatFormatting.GREEN));
                     } else {
-                        player.sendSystemMessage(Component.literal(String.format("Nicht genug Guthaben (fällig: %.2f€)", outstanding))
+                        player.sendSystemMessage(Component.literal(String.format("Insufficient balance (due: %.2f€)", outstanding))
                             .withStyle(ChatFormatting.RED));
                     }
                 }
                 case SET_AUTOPAY -> {
                     PlotUtilityManager.setAutoPayForOwner(player.getUUID(), msg.enabled);
                     player.sendSystemMessage(Component.literal(msg.enabled
-                            ? "AutoPay für Utility-Rechnungen aktiviert"
-                            : "AutoPay für Utility-Rechnungen deaktiviert")
+                            ? "AutoPay for utility bills enabled"
+                            : "AutoPay for utility bills disabled")
                         .withStyle(ChatFormatting.YELLOW));
                 }
             }

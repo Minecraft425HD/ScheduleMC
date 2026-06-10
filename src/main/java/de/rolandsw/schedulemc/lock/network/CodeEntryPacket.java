@@ -79,7 +79,7 @@ public class CodeEntryPacket {
             LockData lockData = mgr.getLock(posKey);
 
             if (lockData == null) {
-                player.sendSystemMessage(Component.literal("\u00A7cDiese Tuer ist nicht mehr gesperrt."));
+                player.sendSystemMessage(Component.literal("\u00A7cThis door is no longer locked."));
                 return;
             }
 

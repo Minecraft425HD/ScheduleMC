@@ -229,7 +229,7 @@ public class TobaccoPotHudOverlay {
             int bannerBg = blink ? 0xDD00FF00 : 0xDD00AA00;
             guiGraphics.fill(x + 1, currentY - 1, x + BOX_WIDTH - 1, currentY + LINE_HEIGHT + 1, bannerBg);
 
-            drawScaledText(guiGraphics, mc, "§l✅ ERNTEBEREIT!", x + PADDING, currentY, 0x000000);
+            drawScaledText(guiGraphics, mc, "§l✅ READY TO HARVEST!", x + PADDING, currentY, 0x000000);
             currentY += LINE_HEIGHT + 2;
             drawHorizontalLine(guiGraphics, x + PADDING, currentY, BOX_WIDTH - PADDING * 2, 0x88FFFFFF);
             currentY += 2;
@@ -258,7 +258,7 @@ public class TobaccoPotHudOverlay {
         // Wasser
         int waterLevel = potData.getWaterLevel();
         int maxWater = potData.getMaxWater();
-        drawScaledText(guiGraphics, mc, "💧 WASSER    §b" + waterLevel, x + PADDING, currentY, 0xFFFFFF);
+        drawScaledText(guiGraphics, mc, "💧 WATER    §b" + waterLevel, x + PADDING, currentY, 0xFFFFFF);
         currentY += LINE_HEIGHT;
 
         float waterRatio = (float) waterLevel / maxWater;
@@ -271,7 +271,7 @@ public class TobaccoPotHudOverlay {
         int maxSoil = potData.getMaxSoil();
         int plantsCapacity = currentSoil / PotType.SOIL_PER_PLANT;
 
-        String soilLabel = potData.hasMist() ? "🍄 SUBSTRAT §d" + currentSoil : "🌱 ERDE     §6" + currentSoil;
+        String soilLabel = potData.hasMist() ? "🍄 SUBSTRATE §d" + currentSoil : "🌱 SOIL     §6" + currentSoil;
         drawScaledText(guiGraphics, mc, soilLabel, x + PADDING, currentY, 0xFFFFFF);
         currentY += LINE_HEIGHT;
 
@@ -330,14 +330,14 @@ public class TobaccoPotHudOverlay {
             currentY += LINE_HEIGHT;
 
             String qualityInfo = getQualityInfo(potData);
-            drawScaledText(guiGraphics, mc, "⭐ Qualität: " + qualityInfo, x + PADDING, currentY, 0xFFFFFF);
+            drawScaledText(guiGraphics, mc, "⭐ Quality: " + qualityInfo, x + PADDING, currentY, 0xFFFFFF);
             currentY += LINE_HEIGHT;
 
             int growthStage = getPlantGrowthStage(potData);
             int maxStage = getPlantMaxStage(potData);
             int growthPercent = (growthStage * 100) / maxStage;
 
-            drawScaledText(guiGraphics, mc, "📊 Wachstum  §e" + growthPercent + "%", x + PADDING, currentY, 0xFFFFFF);
+            drawScaledText(guiGraphics, mc, "📊 Growth   §e" + growthPercent + "%", x + PADDING, currentY, 0xFFFFFF);
             currentY += LINE_HEIGHT;
 
             drawCompactBar(guiGraphics, x + PADDING, currentY, growthPercent / 100.0f, 0xFFFDD835);

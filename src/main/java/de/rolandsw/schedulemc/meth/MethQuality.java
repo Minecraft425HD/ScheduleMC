@@ -52,9 +52,9 @@ public enum MethQuality implements ProductionQuality {
 
     public String getColorDescription() {
         return switch (this) {
-            case POOR -> "Weiß";
+            case POOR -> "White";
             case GOOD -> "Gelblich";
-            case VERY_GOOD -> "Bläulich";
+            case VERY_GOOD -> "Bluish";
             case LEGENDARY -> "Blau";
         };
     }

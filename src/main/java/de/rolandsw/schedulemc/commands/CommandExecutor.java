@@ -37,7 +37,7 @@ import org.slf4j.Logger;
  * NACHHER (mit CommandExecutor):
  * ```java
  * private static int commandMethod(CommandContext<CommandSourceStack> ctx) {
- *     return CommandExecutor.executePlayerCommand(ctx, "Fehler beim Command",
+ *     return CommandExecutor.executePlayerCommand(ctx, "Error in command",
  *         player -> {
  *             // Command logic...
  *             ctx.getSource().sendSuccess(() -> Component.literal("§a✓ ..."), false);

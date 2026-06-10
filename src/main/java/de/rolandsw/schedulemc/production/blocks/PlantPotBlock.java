@@ -566,7 +566,7 @@ public class PlantPotBlock extends Block implements EntityBlock {
                     Component.translatable("block.plant_pot.mushroom_remaining_flushes", remainingFlushes).getString() :
                     Component.translatable("block.plant_pot.mushroom_last_flush").getString();
 
-                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
+                String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 quality!)" : "";
                 player.displayClientMessage(Component.translatable(
                     "block.plant_pot.mushroom_harvested",
                     yield,

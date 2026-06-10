@@ -171,7 +171,7 @@ public class ProductionEventManager {
 
         eventTemplates.add(new ProductionEventTemplate(
             "perfect_conditions", "Perfekte Bedingungen",
-            "Ideale Temperatur und Feuchtigkeit - Qualitaet steigt!",
+            "Ideal temperature and humidity - quality is rising!",
             EventSeverity.POSITIVE, EventCategory.ALL,
             24000, 36000,
             1.0f, 1.0f, 1.0f, 1, 1.0f

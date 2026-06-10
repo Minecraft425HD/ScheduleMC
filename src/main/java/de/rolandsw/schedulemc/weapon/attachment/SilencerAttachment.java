@@ -21,12 +21,12 @@ public class SilencerAttachment extends BaseAttachmentItem {
         if (mainHand.getItem() instanceof GunItem gun) {
             if (!level.isClientSide) {
                 if (gun.hasAttachmentType(mainHand, Attachment.Type.SILENCER)) {
-                    player.displayClientMessage(Component.literal("§cSchalldämpfer bereits montiert!"), true);
+                    player.displayClientMessage(Component.literal("§cSilencer already mounted!"), true);
                 } else if (!gun.addAttachment(mainHand, WeaponAttachments.SILENCER)) {
-                    player.displayClientMessage(Component.literal("§cMaximal 2 Zubehörteile pro Waffe!"), true);
+                    player.displayClientMessage(Component.literal("§cAt most 2 attachments per weapon!"), true);
                 } else {
                     attachmentStack.shrink(1);
-                    player.displayClientMessage(Component.literal("§aSchalldämpfer angebracht!"), true);
+                    player.displayClientMessage(Component.literal("§aSilencer attached!"), true);
                 }
             }
             return InteractionResultHolder.success(attachmentStack);

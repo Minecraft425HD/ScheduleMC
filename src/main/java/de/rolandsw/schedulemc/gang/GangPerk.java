@@ -40,7 +40,7 @@ public enum GangPerk {
     ECONOMY_LAUNDERING("Geldwaesche", PerkBranch.ECONOMY, 21,
             "Reduced taxes for gang members"),
     ECONOMY_MONOPOLY("Monopol", PerkBranch.ECONOMY, 27,
-            "15% Preisbonus beim Verkauf in eigenem Territory"),
+            "15% price bonus when selling in own territory"),
 
     // ═══════════════════════════════════════════════════════════
     // CRIME-ZWEIG
@@ -52,7 +52,7 @@ public enum GangPerk {
     CRIME_ESCAPE("Fluchtrouten", PerkBranch.CRIME, 17,
             "Flucht-Timer 25% kuerzer"),
     CRIME_INTIMIDATION("Einschuechterung", PerkBranch.CRIME, 23,
-            "NPCs in Gang-Territory melden keine Verbrechen"),
+            "NPCs in gang territory do not report crimes"),
     CRIME_UNTOUCHABLE("Unberuehrbar", PerkBranch.CRIME, 29,
             "Max Wanted-Level in eigenem Territory: 3 statt 5"),
 

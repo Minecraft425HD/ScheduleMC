@@ -48,7 +48,7 @@ public enum TerritoryType {
     public String getDisplayName() {
         return switch (this) {
             case COLOR_RED -> "Farbe #1 (Rot)";
-            case COLOR_GREEN -> "Farbe #2 (Grün)";
+            case COLOR_GREEN -> "Color #2 (green)";
             case COLOR_ORANGE -> "Farbe #3 (Orange)";
             case COLOR_BLUE -> "Farbe #4 (Blau)";
             case COLOR_YELLOW -> "Farbe #5 (Gelb)";
@@ -56,7 +56,7 @@ public enum TerritoryType {
             case COLOR_CYAN -> "Farbe #7 (Cyan)";
             case COLOR_GRAY -> "Farbe #8 (Grau)";
             case COLOR_DARK_RED -> "Farbe #9 (Dunkelrot)";
-            case COLOR_LIME -> "Farbe #10 (Hellgrün)";
+            case COLOR_LIME -> "Color #10 (light green)";
         };
     }
 }

@@ -65,14 +65,14 @@ public class LockCommand {
 
     private static int enterCode(CommandSourceStack src, String lockId, String code) {
         LockManager mgr = LockManager.getInstance();
-        if (mgr == null) { src.sendFailure(Component.literal("Lock-System nicht verfuegbar")); return 0; }
+        if (mgr == null) { src.sendFailure(Component.literal("Lock system not available")); return 0; }
 
         // Schloss mit dieser ID finden
         LockData data = findLockById(mgr, lockId);
-        if (data == null) { src.sendFailure(Component.literal("\u00A7cSchloss nicht gefunden: " + lockId)); return 0; }
+        if (data == null) { src.sendFailure(Component.literal("\u00A7cLock not found: " + lockId)); return 0; }
         if (!data.getType().hasCode()) { src.sendFailure(Component.literal("\u00A7cDieses Schloss hat keinen Code.")); return 0; }
 
-        if (code.length() != 4) { src.sendFailure(Component.literal("\u00A7cCode muss 4-stellig sein!")); return 0; }
+        if (code.length() != 4) { src.sendFailure(Component.literal("\u00A7cCode must be 4 digits!")); return 0; }
 
         if (data.getCode() != null && data.getCode().equals(code)) {
             src.sendSuccess(() -> Component.literal("\u00A7a\u2714 Code korrekt! Tuer entriegelt."), false);
@@ -90,17 +90,17 @@ public class LockCommand {
         if (mgr == null) return 0;
 
         LockData data = findLockById(mgr, lockId);
-        if (data == null) { src.sendFailure(Component.literal("\u00A7cSchloss nicht gefunden.")); return 0; }
+        if (data == null) { src.sendFailure(Component.literal("\u00A7cLock not found.")); return 0; }
         if (!data.getType().hasCode()) { src.sendFailure(Component.literal("\u00A7cKein Zahlenschloss.")); return 0; }
 
         ServerPlayer player = src.getPlayer();
         if (player == null || !data.getOwnerUUID().equals(player.getUUID())) {
-            src.sendFailure(Component.literal("\u00A7cNur der Besitzer kann den Code aendern!"));
+            src.sendFailure(Component.literal("\u00A7cOnly the owner can change the code!"));
             return 0;
         }
 
         if (code.length() != 4 || !FOUR_DIGITS.matcher(code).matches()) {
-            src.sendFailure(Component.literal("\u00A7cCode muss 4 Ziffern haben!"));
+            src.sendFailure(Component.literal("\u00A7cCode must have 4 digits!"));
             return 0;
         }
 
@@ -115,21 +115,21 @@ public class LockCommand {
         if (mgr == null) return 0;
 
         LockData data = findLockById(mgr, lockId);
-        if (data == null) { src.sendFailure(Component.literal("\u00A7cSchloss nicht gefunden.")); return 0; }
+        if (data == null) { src.sendFailure(Component.literal("\u00A7cLock not found.")); return 0; }
 
         ServerPlayer owner = src.getPlayer();
         if (owner == null || !data.getOwnerUUID().equals(owner.getUUID())) {
-            src.sendFailure(Component.literal("\u00A7cNur der Besitzer kann Spieler autorisieren!"));
+            src.sendFailure(Component.literal("\u00A7cOnly the owner can authorize players!"));
             return 0;
         }
 
         ServerPlayer target = src.getServer().getPlayerList().getPlayerByName(playerName);
-        if (target == null) { src.sendFailure(Component.literal("\u00A7cSpieler nicht gefunden: " + playerName)); return 0; }
+        if (target == null) { src.sendFailure(Component.literal("\u00A7cPlayer not found: " + playerName)); return 0; }
 
         data.addAuthorized(target.getUUID());
         mgr.markDirty();
         src.sendSuccess(() -> Component.literal(
-                "\u00A7a\u2714 " + playerName + " kann jetzt Schluessel erstellen fuer Lock " + lockId), false);
+                "\u00A7a\u2714 " + playerName + " can now create keys for lock " + lockId), false);
         return 1;
     }
 
@@ -138,7 +138,7 @@ public class LockCommand {
         if (mgr == null) return 0;
 
         LockData data = findLockById(mgr, lockId);
-        if (data == null) { src.sendFailure(Component.literal("\u00A7cSchloss nicht gefunden.")); return 0; }
+        if (data == null) { src.sendFailure(Component.literal("\u00A7cLock not found.")); return 0; }
 
         src.sendSuccess(() -> Component.literal(
                 "\u00A76\u2550\u2550\u2550 Lock: " + lockId + " \u2550\u2550\u2550"), false);
@@ -168,11 +168,11 @@ public class LockCommand {
         if (mgr == null) return 0;
 
         LockData data = findLockById(mgr, lockId);
-        if (data == null) { src.sendFailure(Component.literal("\u00A7cSchloss nicht gefunden.")); return 0; }
+        if (data == null) { src.sendFailure(Component.literal("\u00A7cLock not found.")); return 0; }
 
         ServerPlayer player = src.getPlayer();
         if (player == null || !data.getOwnerUUID().equals(player.getUUID())) {
-            src.sendFailure(Component.literal("\u00A7cNur der Besitzer kann das Schloss entfernen!"));
+            src.sendFailure(Component.literal("\u00A7cOnly the owner can remove the lock!"));
             return 0;
         }
 
@@ -189,7 +189,7 @@ public class LockCommand {
 
         var locks = mgr.getPlayerLocks(player.getUUID());
         if (locks.isEmpty()) {
-            src.sendSuccess(() -> Component.literal("\u00A77Du hast keine Schloesser."), false);
+            src.sendSuccess(() -> Component.literal("\u00A77You have no locks."), false);
             return 1;
         }
 
@@ -208,7 +208,7 @@ public class LockCommand {
         if (mgr == null) return 0;
 
         LockData data = findLockById(mgr, lockId);
-        if (data == null) { src.sendFailure(Component.literal("\u00A7cSchloss nicht gefunden.")); return 0; }
+        if (data == null) { src.sendFailure(Component.literal("\u00A7cLock not found.")); return 0; }
 
         String posKey = LockManager.posKey(data.getDimension(), data.getDoorX(), data.getDoorY(), data.getDoorZ());
         mgr.removeLockForce(posKey);

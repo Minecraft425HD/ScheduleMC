@@ -195,7 +195,7 @@ public class MissionRegistry {
         register(new MissionDefinition(
             "neben_polizeiflucht",
             "Entkommen!",
-            "Entkomme 5-mal erfolgreich der Polizei.",
+            "Successfully escape the police 5 times.",
             MissionCategory.NEBEN,
             380, 1100,
             5, "mission_completed"
@@ -279,7 +279,7 @@ public class MissionRegistry {
         register(new MissionDefinition(
             "neben_safeknacker",
             "Safeknacker",
-            "Knacke 3 Safes erfolgreich.",
+            "Successfully crack 3 safes.",
             MissionCategory.NEBEN,
             420, 1200,
             3, "robbery_completed"

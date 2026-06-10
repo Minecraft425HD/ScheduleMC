@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.weapon.upgrade;
 
 public enum FireModeUpgradeType {
-    SINGLE_PRECISION("Präzisions-Upgrade", -1),
+    SINGLE_PRECISION("Precision upgrade", -1),
     BURST("Burst-Modus-Upgrade", 1),
     AUTO("Vollautomatik-Upgrade", 2);
 

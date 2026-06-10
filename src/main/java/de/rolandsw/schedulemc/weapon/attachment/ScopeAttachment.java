@@ -21,9 +21,9 @@ public class ScopeAttachment extends BaseAttachmentItem {
         if (mainHand.getItem() instanceof GunItem gun) {
             if (!level.isClientSide) {
                 if (gun.hasAttachmentType(mainHand, Attachment.Type.SCOPE)) {
-                    player.displayClientMessage(Component.literal("§cVisier bereits montiert!"), true);
+                    player.displayClientMessage(Component.literal("§cScope already mounted!"), true);
                 } else if (!gun.addAttachment(mainHand, WeaponAttachments.SCOPE)) {
-                    player.displayClientMessage(Component.literal("§cMaximal 2 Zubehörteile pro Waffe!"), true);
+                    player.displayClientMessage(Component.literal("§cAt most 2 attachments per weapon!"), true);
                 } else {
                     attachmentStack.shrink(1);
                     player.displayClientMessage(Component.literal("§aVisier angebracht!"), true);

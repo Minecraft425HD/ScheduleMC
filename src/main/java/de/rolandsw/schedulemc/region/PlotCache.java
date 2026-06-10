@@ -141,7 +141,7 @@ public class PlotCache {
      * Fügt Plot für Position in Cache ein
      *
      * @param pos Position
-     * @param plot Plot (oder null für explizites "kein Plot hier")
+     * @param plot Plot (oder null für explizites "no plot here")
      */
     public void put(BlockPos pos, @Nullable PlotRegion plot) {
         if (plot != null) {
@@ -385,7 +385,7 @@ public class PlotCache {
          */
         public String toDisplayString() {
             return String.format(
-                "§7Cache: §f%d/%d §7Einträge | §aHit-Rate: §f%.1f%% §7| §eHits: §f%d §7| §cMisses: §f%d",
+                "§7Cache: §f%d/%d §7entries | §aHit rate: §f%.1f%% §7| §eHits: §f%d §7| §cMisses: §f%d",
                 currentSize, maxSize, hitRate, hits, misses
             );
         }

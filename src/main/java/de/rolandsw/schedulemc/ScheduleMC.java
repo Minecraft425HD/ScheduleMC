@@ -975,7 +975,7 @@ public class ScheduleMC {
                 BlockPos pos = event.getPos();
                 PlotSelectionTool.setPosition1(player.getUUID(), pos);
                 player.displayClientMessage(Component.literal(
-                    "§a✓ Position 1 gesetzt!\n§7Koordinaten: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()
+                    "§a✓ Position 1 set!\n§7Coordinates: §f" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
                 event.setCanceled(true);

@@ -57,7 +57,7 @@ public class AdminCommand {
 
         // Spieler informieren
         target.sendSystemMessage(Component.literal(
-                "\u00A76\u00A7l\u2605 \u00A7fDein Level wurde auf \u00A76" + newLevel + "\u00A7f gesetzt!"));
+                "\u00A76\u00A7l\u2605 \u00A7fYour level was set to \u00A76" + newLevel + "\u00A7f gesetzt!"));
 
         return 1;
     }

@@ -117,7 +117,7 @@ public class PlotPurchasePacket {
                         } else {
                             // Staatseigenes Grundstück → Nettokaufpreis an Staatskasse
                             StateAccount.deposit((int) Math.round(salePrice),
-                                "Grundstücksverkauf: " + plot.getPlotName());
+                                "Plot sale: " + plot.getPlotName());
                         }
 
                         // purchaseTime für neuen Besitzer stempeln + Eigentumsübertrag

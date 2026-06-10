@@ -242,7 +242,7 @@ public class PoppyPlantBlock extends Block {
                             potBE.setChanged();
                             level.sendBlockUpdated(potPos, level.getBlockState(potPos), level.getBlockState(potPos), 3);
 
-                            String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 Qualität!)" : "";
+                            String qualityBoostMsg = potType.hasQualityBoost() ? " §d(+1 quality!)" : "";
                             player.displayClientMessage(Component.translatable(
                                 "block.plant_pot.poppy_harvested",
                                 harvested.getHarvestYield(),

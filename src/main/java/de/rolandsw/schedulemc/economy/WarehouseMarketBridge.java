@@ -316,7 +316,7 @@ public class WarehouseMarketBridge {
             int stock = totalItemStock.getOrDefault(itemKey, 0);
             int capacity = totalItemCapacity.getOrDefault(itemKey, 0);
 
-            sb.append(String.format("§f%s: %s §7(%d/%d) §7Preis: §f×%.2f\n",
+            sb.append(String.format("§f%s: %s §7(%d/%d) §7Price: §f×%.2f\n",
                     itemKey, level.getFormattedName(), stock, capacity, level.getPriceMultiplier()));
         }
 

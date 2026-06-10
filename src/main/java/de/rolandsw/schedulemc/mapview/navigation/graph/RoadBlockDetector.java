@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * RoadBlockDetector - Erkennt Straßenblöcke für die Navigation
  *
  * Lädt konfigurierbare Blocktypen aus der Config und prüft,
- * ob ein Block als "Straße" für die Navigation gilt.
+ * ob ein Block als "Street" für die Navigation gilt.
  * SICHERHEIT: Thread-safe Set für concurrent access
  */
 public class RoadBlockDetector {

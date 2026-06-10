@@ -375,7 +375,7 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
             catch (IllegalArgumentException ex) { contentType = ContentType.NONE; }
         }
 
-        // Legacy-Support: "Type" und "Quality" für alte Saves
+        // Legacy-Support: "Type" and "Quality" für alte Saves
         if (tag.contains("Type")) {
             try { tobaccoType = TobaccoType.valueOf(tag.getString("Type")); }  // NOPMD
             catch (IllegalArgumentException exception) {

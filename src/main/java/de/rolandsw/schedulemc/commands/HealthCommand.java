@@ -195,7 +195,7 @@ public class HealthCommand {
         // Zeitstempel
         long checkAge = (System.currentTimeMillis() - health.getLastCheckTime()) / 1000;
         context.getSource().sendSuccess(() ->
-            Component.literal("  §7Geprüft vor: §f" + checkAge + "s"), false);
+            Component.literal("  §7Checked ago: §f" + checkAge + "s"), false);
 
         // Footer
         context.getSource().sendSuccess(() ->
@@ -219,7 +219,7 @@ public class HealthCommand {
         File economyFile = new File("config/plotmod_economy.json");
         int backupCount = BackupManager.getBackupCount(economyFile);
         context.getSource().sendSuccess(() ->
-            Component.literal("  §7Backups: §f" + backupCount + " verfügbar"), false);
+            Component.literal("  §7Backups: §f" + backupCount + " available"), false);
 
         if (backupCount > 0) {
             File latestBackup = BackupManager.getLatestBackup(economyFile);
@@ -254,7 +254,7 @@ public class HealthCommand {
         File plotFile = new File("config/plotmod_plots.json");
         int backupCount = BackupManager.getBackupCount(plotFile);
         context.getSource().sendSuccess(() ->
-            Component.literal("  §7Backups: §f" + backupCount + " verfügbar"), false);
+            Component.literal("  §7Backups: §f" + backupCount + " available"), false);
 
         if (backupCount > 0) {
             File latestBackup = BackupManager.getLatestBackup(plotFile);
@@ -282,7 +282,7 @@ public class HealthCommand {
         context.getSource().sendSuccess(() ->
             Component.literal("§e§l══════════════════════════════════"), false);
         context.getSource().sendSuccess(() ->
-            Component.literal("§6§l     BACKUP ÜBERSICHT"), false);
+            Component.literal("§6§l     BACKUP OVERVIEW"), false);
         context.getSource().sendSuccess(() ->
             Component.literal("§e§l══════════════════════════════════"), false);
 
@@ -336,7 +336,7 @@ public class HealthCommand {
             if (backups.length > 3) {
                 final int remaining = backups.length - 3;
                 context.getSource().sendSuccess(() ->
-                    Component.literal("    §7... und " + remaining + " weitere"), false);
+                    Component.literal("    §7... and " + remaining + " weitere"), false);
             }
         }
     }
@@ -352,7 +352,7 @@ public class HealthCommand {
         HealthCheckManager.logHealthCheck();
 
         context.getSource().sendSuccess(() ->
-            Component.literal("§aHealth-Check wurde in die Server-Console geloggt."), false);
+            Component.literal("§aHealth check was logged to the server console."), false);
 
         context.getSource().sendSuccess(() ->
             Component.literal(HealthCheckManager.getQuickStatus()), false);

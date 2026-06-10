@@ -218,12 +218,12 @@ public class NegotiationEngine {
         } else if (round <= 3) {
             return "In Ordnung, das ist fair!";
         } else {
-            return "Na gut, Sie haben mich überzeugt. Deal!";
+            return "All right, you have convinced me. Deal!";
         }
     }
 
     private String getOutrageousMessage(double counterOffer) {
-        return String.format("Das ist absurd! Höchstens %.2f€!", counterOffer);
+        return String.format("That is absurd! At most %.2f€!", counterOffer);
     }
 
     private String getCounterMessage(double counterOffer, int round) {
@@ -232,7 +232,7 @@ public class NegotiationEngine {
         } else if (round == 2) {
             return String.format("Immer noch zu hoch. Mein Angebot: %.2f€.", counterOffer);
         } else {
-            return String.format("Ich erhöhe auf %.2f€. Das ist mein bestes Angebot!", counterOffer);
+            return String.format("I will raise to %.2f€. That is my best offer!", counterOffer);
         }
     }
 
@@ -242,7 +242,7 @@ public class NegotiationEngine {
 
     private String getMeetMiddleMessage(double offer, int round) {
         if (round <= 2) {
-            return String.format("Fast! Wie wäre es mit %.2f€?", offer);
+            return String.format("Almost! How about %.2f€?", offer);
         } else {
             return String.format("Ich komme Ihnen entgegen: %.2f€!", offer);
         }
@@ -400,7 +400,7 @@ public class NegotiationEngine {
             return new NPCResponse(
                 false,
                 0.0,
-                String.format("Ich will nicht mehr mit dir handeln! Komm in %d Minuten wieder.", remainingMinutes),
+                String.format("I do not want to trade with you anymore! Come back in %d minutes.", remainingMinutes),
                 0
             );
         }
@@ -555,7 +555,7 @@ public class NegotiationEngine {
         // Erstelle neue Response mit Mood und Round
         String moodHint = "";
         if (newMood < 30) {
-            moodHint = " [NPC wird ungeduldig!]";
+            moodHint = " [NPC is getting impatient!]";
         } else if (newMood < 50) {
             moodHint = " [NPC wirkt genervt]";
         }
@@ -575,11 +575,11 @@ public class NegotiationEngine {
      */
     private static String getMoodAbortMessage() {
         String[] messages = {
-            "Das reicht! Ich habe keine Lust mehr auf dieses Spiel!",
+            "That is enough! I am done with this game!",
             "Vergiss es! Du verschwendest meine Zeit!",
-            "Gespräch beendet! Komm wieder wenn du seriöse Angebote hast!",
-            "Ich bin raus! Das ist mir zu blöd!",
-            "Nein! Ich handle nicht weiter mit dir!"
+            "Conversation over! Come back when you have serious offers!",
+            "I am out! This is ridiculous!",
+            "No! I am not trading with you anymore!"
         };
         return messages[ThreadLocalRandom.current().nextInt(messages.length)];
     }

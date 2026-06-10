@@ -104,15 +104,15 @@ public class UtilityCommand {
         StringBuilder msg = new StringBuilder();
         msg.append("§6§l═══ UTILITY VERBRAUCH ═══\n");
         msg.append("§7Plot: §f").append(plotId).append('\n');
-        msg.append("§7Verbraucher: §f").append(data.getConsumerCount()).append(" Blöcke\n\n");
+        msg.append("§7Verbraucher: §f").append(data.getConsumerCount()).append(" blocks\n\n");
 
         msg.append("§e⚡ STROM:\n");
         msg.append("  §7Aktuell: §f").append(PlotUtilityManager.formatElectricity(data.getCurrentElectricity())).append("/Tag\n");
-        msg.append("  §77-Tage-Ø: §f").append(PlotUtilityManager.formatElectricity(data.get7DayAverageElectricity())).append("/Tag\n\n");
+        msg.append("  §77-day avg: §f").append(PlotUtilityManager.formatElectricity(data.get7DayAverageElectricity())).append("/Tag\n\n");
 
-        msg.append("§b💧 WASSER:\n");
+        msg.append("§b💧 WATER:\n");
         msg.append("  §7Aktuell: §f").append(PlotUtilityManager.formatWater(data.getCurrentWater())).append("/Tag\n");
-        msg.append("  §77-Tage-Ø: §f").append(PlotUtilityManager.formatWater(data.get7DayAverageWater())).append("/Tag\n");
+        msg.append("  §77-day avg: §f").append(PlotUtilityManager.formatWater(data.get7DayAverageWater())).append("/Tag\n");
 
         source.sendSuccess(() -> Component.literal(msg.toString()), false);
         return 1;
@@ -130,7 +130,7 @@ public class UtilityCommand {
         data.calculateCurrentConsumption();
 
         StringBuilder msg = new StringBuilder();
-        msg.append("§6§l═══ AUFSCHLÜSSELUNG ═══\n");
+        msg.append("§6§l═══ BREAKDOWN ═══\n");
         msg.append("§7Plot: §f").append(plotId).append("\n\n");
 
         msg.append("§e⚡ STROM nach Kategorie:\n");
@@ -142,7 +142,7 @@ public class UtilityCommand {
             }
         }
 
-        msg.append("\n§b💧 WASSER nach Kategorie:\n");
+        msg.append("\n§b💧 WATER by category:\n");
         Map<UtilityCategory, Double> waterByCategory = data.getCategoryWater();
         for (Map.Entry<UtilityCategory, Double> entry : waterByCategory.entrySet()) {
             if (entry.getValue() > 0) {

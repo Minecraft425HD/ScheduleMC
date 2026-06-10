@@ -86,7 +86,7 @@ public class ContactDetailScreen extends Screen {
                 boolean added = favorites.add(contact.getUuid());
                 if (added) {
                     minecraft.player.sendSystemMessage(Component.literal(
-                        "§a" + contact.getName() + " zu Favoriten hinzugefügt."
+                        "§a" + contact.getName() + " added to favorites."
                     ));
                 } else {
                     favorites.remove(contact.getUuid());

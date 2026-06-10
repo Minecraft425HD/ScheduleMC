@@ -342,7 +342,7 @@ public class ScenarioEditorScreen extends Screen {
         // Lade-Anzeige fuer Spieler-Szenarien
         if (viewMode == ViewMode.PLAYER_MISSIONS && playerScenariosLoading) {
             g.fill(0, TOOLBAR_H, this.width, this.height, 0xFF0A0A1A);
-            g.drawCenteredString(this.font, "\u00A77Spieler-Missionen werden geladen...",
+            g.drawCenteredString(this.font, "\u00A77Player missions are loading...",
                     this.width / 2, this.height / 2 - 4, 0x555555);
         } else {
             // Hovered Block finden
@@ -644,7 +644,7 @@ public class ScenarioEditorScreen extends Screen {
             case DROPDOWN_LOCK -> {
                 for (var l : serverLocks) {
                     if (l.lockId().equals(val)) {
-                        String lockPart = "NO_LOCK".equalsIgnoreCase(l.lockId()) ? "kein lock_id" : ("lock_id=" + l.lockId());
+                        String lockPart = "NO_LOCK".equalsIgnoreCase(l.lockId()) ? "no lock_id" : ("lock_id=" + l.lockId());
                         yield l.lockType() + " @ " + l.x() + "," + l.y() + "," + l.z() + " (" + lockPart + ")";
                     }
                 }

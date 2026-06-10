@@ -109,7 +109,7 @@ public class PlotInfoHudOverlay {
             if (cachedAvailableCount > 0) {
                 totalLines += Math.min(cachedAvailableCount, 3); // Max 3 Apartments anzeigen
                 if (cachedAvailableCount > 3) {
-                    totalLines += 1; // "... und X weitere"
+                    totalLines += 1; // "... and X more"
                 }
             }
         }
@@ -208,7 +208,7 @@ public class PlotInfoHudOverlay {
                     shown++;
                 }
 
-                // "... und X weitere"
+                // "... and X more"
                 if (cachedAvailableCount > 3) {
                     drawLine(gui, mc, net.minecraft.network.chat.Component.translatable("hud.plot.apartments_more", cachedAvailableCount - 3).getString(), currentY);
                     currentY += LINE_HEIGHT;
