@@ -14,6 +14,9 @@ import java.util.UUID;
  */
 public class TransactionHistoryTest {
 
+    @org.junit.jupiter.api.io.TempDir
+    java.io.File tempDir;
+
     private TransactionHistory history;
     private MinecraftServer mockServer;
     private UUID player1;
@@ -21,8 +24,9 @@ public class TransactionHistoryTest {
 
     @BeforeEach
     public void setUp() {
-        // Mock MinecraftServer
+        // Mock MinecraftServer mit temporärem Server-Verzeichnis
         mockServer = Mockito.mock(MinecraftServer.class);
+        Mockito.when(mockServer.getServerDirectory()).thenReturn(tempDir);
 
         player1 = UUID.randomUUID();
         player2 = UUID.randomUUID();
@@ -36,7 +40,7 @@ public class TransactionHistoryTest {
             // Ignore if field doesn't exist
         }
 
-        history = TransactionHistory.getInstance(mockServer);
+        history = TransactionHistory.initialize(mockServer);
 
         // Clear any existing transactions
         history.clearTransactions(player1);
