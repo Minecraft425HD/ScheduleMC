@@ -437,7 +437,7 @@ public class EconomyController {
                     }
                 }
             }
-            LOGGER.info("EconomyController: {} Preise aus Config übernommen", applied);
+            LOGGER.info("EconomyController: {} prices applied from config", applied);
         } catch (Exception e) {
             LOGGER.warn("applyConfigPrices fehlgeschlagen: {}", e.getMessage());
         }

@@ -51,10 +51,10 @@ public class VehicleSpawnRegistry {
                 for (Map.Entry<String, List<VehicleSpawnPoint>> entry : loaded.entrySet()) {
                     dealerSpawnPoints.put(UUID.fromString(entry.getKey()), new CopyOnWriteArrayList<>(entry.getValue()));
                 }
-                LOGGER.info("Fahrzeug-Spawn-Punkte geladen: {} Händler", dealerSpawnPoints.size());
+                LOGGER.info("Vehicle spawn points loaded: {} merchants", dealerSpawnPoints.size());
             }
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Fahrzeug-Spawn-Punkte!", e);
+            LOGGER.error("Error loading vehicle spawn points!", e);
         }
     }
 
@@ -78,7 +78,7 @@ public class VehicleSpawnRegistry {
             isDirty = false;
             LOGGER.info("Fahrzeug-Spawn-Punkte gespeichert");
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der Fahrzeug-Spawn-Punkte!", e);
+            LOGGER.error("Error saving vehicle spawn points!", e);
         }
     }
 

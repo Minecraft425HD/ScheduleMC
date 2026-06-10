@@ -79,7 +79,7 @@ public class PlotUtilityManager {
 
             LOGGER.info("Utility-Daten geladen: {} Plots", plotData.size());
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Utility-Daten", e);
+            LOGGER.error("Error loading utility data", e);
         }
 
         // Position-Cache rebuilden
@@ -116,7 +116,7 @@ public class PlotUtilityManager {
             dirty = false;
             LOGGER.debug("Utility-Daten gespeichert: {} Plots", plotData.size());
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der Utility-Daten", e);
+            LOGGER.error("Error saving utility data", e);
         }
     }
 
@@ -604,7 +604,7 @@ public class PlotUtilityManager {
         try {
             ownerUUID = UUID.fromString(plot.getOwnerUUID());
         } catch (IllegalArgumentException ex) {
-            LOGGER.warn("Ungültige Owner-UUID für Plot {}: {}", plot.getPlotId(), plot.getOwnerUUID());
+            LOGGER.warn("Invalid owner UUID for plot {}: {}", plot.getPlotId(), plot.getOwnerUUID());
             return;
         }
 

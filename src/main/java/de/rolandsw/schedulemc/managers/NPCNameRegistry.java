@@ -58,7 +58,7 @@ public class NPCNameRegistry {
 
         // Prüfe ob Name bereits existiert
         if (nameToEntityId.containsKey(normalizedName)) {
-            LOGGER.warn("NPC-Name bereits vergeben: {}", normalizedName);
+            LOGGER.warn("NPC name already taken: {}", normalizedName);
             return false;
         }
 
@@ -186,7 +186,7 @@ public class NPCNameRegistry {
     public static void loadRegistry() {
         try {
             if (!REGISTRY_FILE.exists()) {
-                LOGGER.info("NPC-Namen-Datei existiert nicht, erstelle neue");
+                LOGGER.info("NPC name file does not exist, creating new one");
                 REGISTRY_FILE.getParentFile().mkdirs();
                 saveRegistry();
                 return;
@@ -209,7 +209,7 @@ public class NPCNameRegistry {
             dirty = false;
 
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der NPC-Namen", e);
+            LOGGER.error("Error loading NPC names", e);
         }
     }
 
@@ -233,7 +233,7 @@ public class NPCNameRegistry {
             LOGGER.info("NPC-Namen gespeichert: {} NPCs", nameToEntityId.size());
 
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der NPC-Namen", e);
+            LOGGER.error("Error saving NPC names", e);
         }
     }
 

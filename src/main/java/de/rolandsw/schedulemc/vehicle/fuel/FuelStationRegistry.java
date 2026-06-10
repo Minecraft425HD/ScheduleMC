@@ -39,7 +39,7 @@ public class FuelStationRegistry {
      */
     public static void load() {
         if (!REGISTRY_FILE.exists()) {
-            LOGGER.info("Keine Zapfsäulen-Registry gefunden, starte mit leerer Datenbank");
+            LOGGER.info("No fuel pump registry found, starting with empty database");
             return;
         }
 
@@ -54,10 +54,10 @@ public class FuelStationRegistry {
                     fuelStations.put(entry.id, entry);
                     positionToId.put(entry.position, entry.id);
                 }
-                LOGGER.info("Zapfsäulen-Registry geladen: {} Zapfsäulen", fuelStations.size());
+                LOGGER.info("Fuel pump registry loaded: {} pumps", fuelStations.size());
             }
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Laden der Zapfsäulen-Registry!", e);
+            LOGGER.error("Error loading fuel pump registry!", e);
         }
     }
 
@@ -76,9 +76,9 @@ public class FuelStationRegistry {
             Files.move(tempFile.toPath(), REGISTRY_FILE.toPath(),
                 StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             isDirty = false;
-            LOGGER.info("Zapfsäulen-Registry gespeichert");
+            LOGGER.info("Fuel pump registry saved");
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Speichern der Zapfsäulen-Registry!", e);
+            LOGGER.error("Error saving fuel pump registry!", e);
         }
     }
 
@@ -112,7 +112,7 @@ public class FuelStationRegistry {
         positionToId.put(position, id);
         isDirty = true;
 
-        LOGGER.info("Neue Zapfsäule registriert: {} at {}", displayName, position);
+        LOGGER.info("New fuel pump registered: {} at {}", displayName, position);
         return id;
     }
 
@@ -165,7 +165,7 @@ public class FuelStationRegistry {
         if (id != null) {
             fuelStations.remove(id);
             isDirty = true;
-            LOGGER.info("Zapfsäule entfernt: {}", position);
+            LOGGER.info("Fuel pump removed: {}", position);
         }
     }
 

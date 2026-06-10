@@ -275,7 +275,7 @@ public class WarehouseBlockEntity extends BlockEntity {
                 statePaid = remaining;
             } else {
                 // Auch Staatskasse kann nicht zahlen - Lieferung schlägt fehl
-                LOGGER.warn("Warehouse-Lieferung fehlgeschlagen @ {}: Shop zahlte {}€, Staatskasse kann {}€ nicht decken",
+                LOGGER.warn("Warehouse delivery failed @ {}: shop paid {}€, state treasury cannot cover {}€",
                     worldPosition.toShortString(), shopPaid, remaining);
 
                 // Shop-Konto Geld zurückgeben falls teilgezahlt
@@ -307,7 +307,7 @@ public class WarehouseBlockEntity extends BlockEntity {
             toDeliver.size(), shopPaid, statePaid);
         addExpense(level.getGameTime(), totalCost, costBreakdown);
 
-        LOGGER.info("Warehouse-Lieferung erfolgreich @ {}: {}€ gesamt (Shop: {}€, Staat: {}€), {} Items",
+        LOGGER.info("Warehouse delivery successful @ {}: {}€ total (shop: {}€, state: {}€), {} items",
             worldPosition.toShortString(), totalCost, shopPaid, statePaid, toDeliver.size());
 
         // Benachrichtige nahe Spieler
@@ -592,7 +592,7 @@ public class WarehouseBlockEntity extends BlockEntity {
                     try {
                         linkedSellers.add(UUID.fromString(uuidStr));
                     } catch (IllegalArgumentException e) {
-                        LOGGER.warn("Ungültige UUID beim Laden von Warehouse: {}", uuidStr);
+                        LOGGER.warn("Invalid UUID while loading warehouse: {}", uuidStr);
                     }
                 }
             }

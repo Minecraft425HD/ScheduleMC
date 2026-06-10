@@ -444,7 +444,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
             sorted.get(i).setLastKnownRank(i + 1);
         }
         markDirty();
-        LOGGER.info("Rang-Snapshot aktualisiert fuer {} Gangs", sorted.size());
+        LOGGER.info("Rank snapshot updated for {} gangs", sorted.size());
     }
 
     // ═══════════════════════════════════════════════════════════

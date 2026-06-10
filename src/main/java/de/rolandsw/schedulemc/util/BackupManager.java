@@ -101,7 +101,7 @@ public class BackupManager {
             LOGGER.info("Backup wiederhergestellt von: {} nach {}", latestBackup.getName(), targetFile.getName());
             return true;
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Wiederherstellen des Backups", e);
+            LOGGER.error("Error restoring backup", e);
             return false;
         }
     }

@@ -140,7 +140,7 @@ public class ShopAccount {
         shopBalance += amount;
         // Expense-Tracking rückgängig machen
         todayRecord.addRevenue(amount);
-        LOGGER.info("Shop {}: +{}€ Rückerstattung ({}), Balance: {}€", shopId, amount, reason, shopBalance);
+        LOGGER.info("Shop {}: +{}€ refund ({}), balance: {}€", shopId, amount, reason, shopBalance);
     }
 
     /**

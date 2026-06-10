@@ -121,11 +121,11 @@ public class PersistenceHelper {
 
         try {
             T data = loadFromFile(file, gson, type);
-            LOGGER.info("{}: Daten erfolgreich geladen", componentName);
+            LOGGER.info("{}: data loaded successfully", componentName);
             return LoadResult.success(data);
 
         } catch (Exception e) {
-            LOGGER.error("{}: Fehler beim Laden der Daten", componentName, e);
+            LOGGER.error("{}: error loading data", componentName, e);
 
             // Versuch Backup wiederherzustellen
             if (BackupManager.restoreFromBackup(file)) {
@@ -179,11 +179,11 @@ public class PersistenceHelper {
                 StandardCopyOption.REPLACE_EXISTING,
                 StandardCopyOption.ATOMIC_MOVE);
 
-            LOGGER.debug("{}: Daten erfolgreich gespeichert", componentName);
+            LOGGER.debug("{}: data saved successfully", componentName);
             return SaveResult.success();
 
         } catch (Exception e) {
-            LOGGER.error("{}: KRITISCH: Fehler beim Speichern!", componentName, e);
+            LOGGER.error("{}: CRITICAL: error while saving!", componentName, e);
 
             // Retry einmal
             SaveResult retryResult = retrySave(file, gson, data, componentName);
@@ -233,7 +233,7 @@ public class PersistenceHelper {
                 StandardCopyOption.REPLACE_EXISTING,
                 StandardCopyOption.ATOMIC_MOVE);
 
-            LOGGER.info("{}: Retry erfolgreich", componentName);
+            LOGGER.info("{}: retry successful", componentName);
             return SaveResult.success();
 
         } catch (Exception retryError) {
@@ -250,7 +250,7 @@ public class PersistenceHelper {
                 Files.copy(file.toPath(), corruptBackup.toPath());
                 LOGGER.info("{}: Korrupte Datei gesichert nach: {}", componentName, corruptBackup.getName());
             } catch (IOException e) {
-                LOGGER.error("{}: Konnte korrupte Datei nicht sichern", componentName, e);
+                LOGGER.error("{}: could not back up corrupted file", componentName, e);
             }
         }
     }

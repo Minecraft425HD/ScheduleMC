@@ -223,7 +223,7 @@ public class PurchaseItemPacket {
         if (merchant.getMerchantCategory() == MerchantCategory.CAR_DEALER &&
             entry.getItem().getItem() instanceof ItemSpawnVehicle) {
 
-            LOGGER.info("Fahrzeugkauf-Paket empfangen: Spieler={}, Händler-Category={}, Item={}",
+            LOGGER.info("Vehicle purchase packet received: player={}, merchant category={}, item={}",
                 player.getName().getString(), merchant.getMerchantCategory(), entry.getItem().getHoverName().getString());
 
             // Fahrzeug-Kauf über VehiclePurchaseHandler
@@ -235,11 +235,11 @@ public class PurchaseItemPacket {
             );
 
             if (success) {
-                LOGGER.info("Fahrzeugkauf erfolgreich, reduziere Lagerbestand");
+                LOGGER.info("Vehicle purchase successful, reducing stock");
                 // Reduziere Lagerbestand (nutze Warehouse-Integration)
                 merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, quantity, totalPrice);
             } else {
-                LOGGER.warn("Fahrzeugkauf fehlgeschlagen (VehiclePurchaseHandler gab false zurück)");
+                LOGGER.warn("Vehicle purchase failed (VehiclePurchaseHandler returned false)");
             }
             return;
         }

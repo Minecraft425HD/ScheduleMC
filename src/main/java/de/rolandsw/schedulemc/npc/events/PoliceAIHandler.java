@@ -570,7 +570,7 @@ public class PoliceAIHandler {
         if (scanResult.hasIllegalActivity()) {
             // Illegale Aktivitäten gefunden!
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("[RAID] Illegale Aktivitäten bei {} festgestellt!", player.getName().getString());
+                LOGGER.info("[RAID] Illegal activities detected at {}!", player.getName().getString());
                 LOGGER.info("[RAID] Pflanzen: {}, Bargeld: {}, Items: {}",
                     scanResult.illegalPlantCount, scanResult.totalCashFound, scanResult.illegalItemCount);
             }

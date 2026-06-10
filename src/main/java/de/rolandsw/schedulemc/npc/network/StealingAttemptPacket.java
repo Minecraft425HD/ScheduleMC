@@ -59,7 +59,7 @@ public class StealingAttemptPacket {
                 if (entity instanceof CustomNPCEntity npc) {
                     // Null-Safety: Prüfe ob NPC-Daten vorhanden sind
                     if (npc.getNpcData() == null) {
-                        LOGGER.warn("[STEALING] NPC {} hat keine NPCData!", npc.getId());
+                        LOGGER.warn("[STEALING] NPC {} has no NPCData!", npc.getId());
                         return;
                     }
 
@@ -131,7 +131,7 @@ public class StealingAttemptPacket {
                         // Null-Safety: Prüfe ob Inventar vorhanden ist
                         var npcInventory = npc.getNpcData().getInventory();
                         if (npcInventory == null) {
-                            LOGGER.warn("[STEALING] NPC {} hat kein Inventar!", npc.getId());
+                            LOGGER.warn("[STEALING] NPC {} has no inventory!", npc.getId());
                             return;
                         }
 
@@ -351,7 +351,7 @@ public class StealingAttemptPacket {
                             player.sendSystemMessage(Component.translatable("message.stealing.wanted_level", stars, currentWantedLevel));
 
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("[CRIME] Player {} gesehen beim Stehlen - Wanted Level: {} ({} Zeugen{})",
+                                LOGGER.debug("[CRIME] Player {} seen stealing - wanted level: {} ({} witnesses{})",
                                     player.getName().getString(), currentWantedLevel, witnesses.size(),
                                     policePresent ? ", POLICE dabei!" : "");
                             }

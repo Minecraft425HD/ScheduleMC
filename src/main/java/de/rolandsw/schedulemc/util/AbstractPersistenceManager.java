@@ -67,9 +67,9 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
             onDataLoaded(data);
             isHealthy = true;  // NOPMD
             lastError = null;  // NOPMD – success-state; only overwritten in catch-path, not in success-path
-            LOGGER.info("{}: Daten erfolgreich geladen", getComponentName());
+            LOGGER.info("{}: data loaded successfully", getComponentName());
         } catch (Exception e) {
-            LOGGER.error("{}: Fehler beim Laden der Daten", getComponentName(), e);
+            LOGGER.error("{}: error loading data", getComponentName(), e);
             lastError = "Failed to load: " + e.getMessage();  // NOPMD
 
             // Backup-Wiederherstellung
@@ -111,7 +111,7 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
      * Behandelt kritische Ladefehler mit Graceful Degradation
      */
     private void handleCriticalLoadFailure() {
-        LOGGER.error("{}: KRITISCH: System konnte nicht geladen werden!", getComponentName());
+        LOGGER.error("{}: CRITICAL: system could not be loaded!", getComponentName());
         LOGGER.error("{}: Starte mit leeren Daten als Fallback", getComponentName());
 
         onCriticalLoadFailure();
@@ -127,7 +127,7 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
                 java.nio.file.Files.copy(dataFile.toPath(), corruptBackup.toPath());
                 LOGGER.info("{}: Korrupte Datei gesichert nach: {}", getComponentName(), corruptBackup.getName());
             } catch (IOException e) {
-                LOGGER.error("{}: Konnte korrupte Datei nicht sichern", getComponentName(), e);
+                LOGGER.error("{}: could not back up corrupted file", getComponentName(), e);
             }
         }
     }
@@ -161,10 +161,10 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
             needsSave = false;  // NOPMD
             isHealthy = true;  // NOPMD
             lastError = null;  // NOPMD – success-state; only overwritten in catch-path, not in success-path
-            LOGGER.info("{}: Daten erfolgreich gespeichert", getComponentName());
+            LOGGER.info("{}: data saved successfully", getComponentName());
 
         } catch (Exception e) {
-            LOGGER.error("{}: KRITISCH: Fehler beim Speichern!", getComponentName(), e);
+            LOGGER.error("{}: CRITICAL: error while saving!", getComponentName(), e);
             isHealthy = false;
             lastError = "Save failed: " + e.getMessage();
             needsSave = true; // Keep dirty flag for retry

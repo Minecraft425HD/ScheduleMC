@@ -89,7 +89,7 @@ public class PlayerMissionManager {
         UUID uuid = player.getUUID();
         MissionDefinition def = MissionRegistry.getById(definitionId);
         if (def == null) {
-            LOGGER.warn("acceptMission: unbekannte Mission '{}' für {}", definitionId, uuid);
+            LOGGER.warn("acceptMission: unknown mission '{}' for {}", definitionId, uuid);
             return false;
         }
 
@@ -153,7 +153,7 @@ public class PlayerMissionManager {
                 // XP und Geld auszahlen
                 MissionDefinition def = mission.getDefinition();
                 if (def == null) {
-                    LOGGER.warn("claimMission: keine MissionDefinition für '{}' ({})", missionId, uuid);
+                    LOGGER.warn("claimMission: no MissionDefinition for '{}' ({})", missionId, uuid);
                     return false;
                 }
                 player.giveExperiencePoints(def.getXpReward());
@@ -163,7 +163,7 @@ public class PlayerMissionManager {
                         uuid, (double) def.getMoneyReward()
                     );
                 } catch (Exception e) {
-                    LOGGER.error("Fehler beim Auszahlen der Mission-Belohnung für {}", uuid, e);
+                    LOGGER.error("Error paying out mission reward for {}", uuid, e);
                 }
                 MissionEventBridge.fireMissionCompleted(player);
                 SecretDoorMissionAccessManager.clearPlayerAccess(player);
@@ -238,7 +238,7 @@ public class PlayerMissionManager {
             }
             Files.move(tmpFile, saveFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
-            LOGGER.error("Fehler beim Speichern der Missions-Daten", e);
+            LOGGER.error("Error saving mission data", e);
         }
     }
 
@@ -261,7 +261,7 @@ public class PlayerMissionManager {
                     for (MissionSaveEntry saved : entry.getValue()) {
                         MissionDefinition def = MissionRegistry.getById(saved.definitionId);
                         if (def == null) {
-                            LOGGER.warn("Mission '{}' nicht mehr in Registry, wird übersprungen", saved.definitionId);
+                            LOGGER.warn("Mission '{}' no longer in registry, skipping", saved.definitionId);
                             continue;
                         }
                         MissionStatus status = MissionStatus.valueOf(saved.status);
@@ -273,15 +273,15 @@ public class PlayerMissionManager {
                     }
                     playerMissions.put(uuid, missions);
                 } catch (Exception e) {
-                    LOGGER.error("Fehler beim Laden von Mission-Daten für Spieler '{}'", entry.getKey(), e);
+                    LOGGER.error("Error loading mission data for player '{}'", entry.getKey(), e);
                 }
             }
             LOGGER.info("Missions-Daten geladen: {} Spieler", playerMissions.size());
         } catch (IOException e) {
             if (isBackupAttempt) {
-                LOGGER.error("Backup-Datei konnte ebenfalls nicht gelesen werden – Missions-Daten nicht verfügbar", e);
+                LOGGER.error("Backup file could not be read either - mission data unavailable", e);
             } else {
-                LOGGER.error("Fehler beim Lesen der Missions-Datei, versuche Backup", e);
+                LOGGER.error("Error reading mission file, trying backup", e);
                 loadBackup();
             }
         }
