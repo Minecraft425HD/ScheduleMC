@@ -322,7 +322,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             LOGGER.info("Auto-Repay: Used {}€ from wallet", useWallet);
         }
 
-        // 2. SPARKONTO nutzen (falls Bargeld nicht reicht)
+        // 2. SAVINGS_ACCOUNT nutzen (falls Bargeld nicht reicht)
         if (debt > 0 && server != null) {
             SavingsAccountManager savingsManager = SavingsAccountManager.getInstance(server);
             if (savingsManager != null) {

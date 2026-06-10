@@ -107,12 +107,12 @@ public class QuestTemplateTest {
         QuestTemplate t = QuestTemplate.builder("faction_test")
             .type(QuestType.ESCORT)
             .title("Faction Quest")
-            .faction(Faction.HAENDLER)
+            .faction(Faction.TRADERS)
             .minFactionRep(25)
             .baseReward(QuestReward.create().money(200))
             .build();
 
-        assertEquals(Faction.HAENDLER, t.getFaction());
+        assertEquals(Faction.TRADERS, t.getFaction());
         assertEquals(25, t.getMinFactionRep());
     }
 

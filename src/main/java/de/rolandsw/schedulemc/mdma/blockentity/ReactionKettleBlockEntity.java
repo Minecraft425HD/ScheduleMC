@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.mdma.blockentity;
 import de.rolandsw.schedulemc.mdma.MDMAQuality;
 import de.rolandsw.schedulemc.mdma.items.MDMABaseItem;
 import de.rolandsw.schedulemc.mdma.items.MDMAItems;
-import de.rolandsw.schedulemc.mdma.items.SafrolItem;
+import de.rolandsw.schedulemc.mdma.items.SafroleItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
@@ -33,15 +33,15 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
     private int safroleCount = 0;
     private int synthesisProgress = 0;
     private int outputCount = 0;
-    private MDMAQuality outputQuality = MDMAQuality.SCHLECHT;
+    private MDMAQuality outputQuality = MDMAQuality.POOR;
     private boolean isActive = false;
 
     public ReactionKettleBlockEntity(BlockPos pos, BlockState state) {
         super(MDMABlockEntities.REACTION_KETTLE.get(), pos, state);
     }
 
-    public boolean addSafrol(ItemStack stack) {
-        if (!(stack.getItem() instanceof SafrolItem)) return false;
+    public boolean addSafrole(ItemStack stack) {
+        if (!(stack.getItem() instanceof SafroleItem)) return false;
         if (safroleCount >= CAPACITY || outputCount > 0) return false;
 
         safroleCount = Math.min(safroleCount + 1, CAPACITY);
@@ -80,9 +80,9 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
                 // Synthese abgeschlossen - Qualität basiert auf Menge
                 double qualityChance = safroleCount >= 6 ? 0.4 : (safroleCount >= 4 ? 0.25 : 0.1);
                 if (level.random.nextFloat() < qualityChance) {
-                    outputQuality = MDMAQuality.GUT;
+                    outputQuality = MDMAQuality.GOOD;
                 } else {
-                    outputQuality = MDMAQuality.SCHLECHT;
+                    outputQuality = MDMAQuality.POOR;
                 }
 
                 outputCount = safroleCount;
@@ -111,7 +111,7 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
     // Getter
     public boolean isActive() { return isActive; }
     public boolean hasOutput() { return outputCount > 0; }
-    public int getSafrolCount() { return safroleCount; }
+    public int getSafroleCount() { return safroleCount; }
     public int getOutputCount() { return outputCount; }
     public float getProgress() { return (float) synthesisProgress / SYNTHESIS_TIME; }
 
@@ -142,7 +142,7 @@ public class ReactionKettleBlockEntity extends BlockEntity implements IUtilityCo
             try {
                 outputQuality = MDMAQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                outputQuality = MDMAQuality.SCHLECHT;
+                outputQuality = MDMAQuality.POOR;
             }
         }
         isActive = tag.getBoolean("Active");

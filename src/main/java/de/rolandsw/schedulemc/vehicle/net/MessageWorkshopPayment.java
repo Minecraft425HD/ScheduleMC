@@ -14,7 +14,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 
-public class MessageWerkstattPayment implements Message<MessageWerkstattPayment> {
+public class MessageWorkshopPayment implements Message<MessageWorkshopPayment> {
 
     private UUID playerUuid;
     private UUID vehicleUuid;
@@ -22,10 +22,10 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
     private boolean chargeBattery;
     private boolean changeOil;
 
-    public MessageWerkstattPayment() {
+    public MessageWorkshopPayment() {
     }
 
-    public MessageWerkstattPayment(UUID playerUuid, UUID vehicleUuid, boolean repairDamage, boolean chargeBattery, boolean changeOil) {
+    public MessageWorkshopPayment(UUID playerUuid, UUID vehicleUuid, boolean repairDamage, boolean chargeBattery, boolean changeOil) {
         this.playerUuid = playerUuid;
         this.vehicleUuid = vehicleUuid;
         this.repairDamage = repairDamage;
@@ -84,7 +84,7 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
             );
 
             // Revert vehicle changes (currently just unlock it)
-            vehicle.unlockFromWerkstatt();
+            vehicle.unlockFromWorkshop();
             player.closeContainer();
             return;
         }
@@ -101,7 +101,7 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
             );
 
             // Unlock vehicle
-            vehicle.unlockFromWerkstatt();
+            vehicle.unlockFromWorkshop();
 
             // Close GUI
             player.closeContainer();
@@ -110,13 +110,13 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
 
     private double calculateServiceCost(EntityGenericVehicle vehicle, boolean repairDamage, boolean chargeBattery, boolean changeOil) {
         // Base inspection fee (always charged)
-        double cost = ModConfigHandler.COMMON.WERKSTATT_BASE_INSPECTION_FEE.get();
+        double cost = ModConfigHandler.COMMON.WORKSHOP_BASE_INSPECTION_FEE.get();
 
         // Repair cost based on damage
         if (repairDamage) {
             float damage = vehicle.getDamageComponent().getDamage();
             if (damage > 0) {
-                cost += damage * ModConfigHandler.COMMON.WERKSTATT_REPAIR_COST_PER_PERCENT.get();
+                cost += damage * ModConfigHandler.COMMON.WORKSHOP_REPAIR_COST_PER_PERCENT.get();
             }
         }
 
@@ -124,13 +124,13 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
         if (chargeBattery) {
             float batteryPercent = vehicle.getBatteryComponent().getBatteryPercentage() * 100F;
             if (batteryPercent < 50) {
-                cost += (50 - batteryPercent) * ModConfigHandler.COMMON.WERKSTATT_BATTERY_COST_PER_PERCENT.get();
+                cost += (50 - batteryPercent) * ModConfigHandler.COMMON.WORKSHOP_BATTERY_COST_PER_PERCENT.get();
             }
         }
 
         // Oil change cost
         if (changeOil) {
-            cost += ModConfigHandler.COMMON.WERKSTATT_OIL_CHANGE_COST.get();
+            cost += ModConfigHandler.COMMON.WORKSHOP_OIL_CHANGE_COST.get();
         }
 
         return cost;
@@ -155,7 +155,7 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
     }
 
     @Override
-    public MessageWerkstattPayment fromBytes(FriendlyByteBuf buf) {
+    public MessageWorkshopPayment fromBytes(FriendlyByteBuf buf) {
         playerUuid = buf.readUUID();
         vehicleUuid = buf.readUUID();
         repairDamage = buf.readBoolean();

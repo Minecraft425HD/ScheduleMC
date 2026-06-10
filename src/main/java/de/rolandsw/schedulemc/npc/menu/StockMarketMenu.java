@@ -11,21 +11,21 @@ import net.minecraft.world.item.ItemStack;
  * Menu für Börsen-NPC Interaktion
  * Ermöglicht Aktienhandel (Gold, Diamanten, Smaragde)
  */
-public class BoerseMenu extends AbstractContainerMenu {
+public class StockMarketMenu extends AbstractContainerMenu {
 
     private final CustomNPCEntity npc;
     private final int entityId;
 
     // Server-side constructor
-    public BoerseMenu(int containerId, Inventory playerInventory, CustomNPCEntity npc) {  // NOPMD
-        super(NPCMenuTypes.BOERSE_MENU.get(), containerId);
+    public StockMarketMenu(int containerId, Inventory playerInventory, CustomNPCEntity npc) {  // NOPMD
+        super(NPCMenuTypes.STOCK_MARKET_MENU.get(), containerId);
         this.npc = npc;
         this.entityId = npc.getId();
     }
 
     // Client-side constructor
-    public BoerseMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
-        super(NPCMenuTypes.BOERSE_MENU.get(), containerId);
+    public StockMarketMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
+        super(NPCMenuTypes.STOCK_MARKET_MENU.get(), containerId);
         this.entityId = extraData.readInt();
 
         // Client-side: Entity muss aus der Welt geholt werden

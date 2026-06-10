@@ -12,9 +12,9 @@ import java.util.List;
  * Lysergsäure - Destilliertes Ergot-Extrakt
  * Grundsubstanz für LSD-Synthese
  */
-public class LysergsaeureItem extends Item {
+public class LysergicAcidItem extends Item {
 
-    public LysergsaeureItem() {
+    public LysergicAcidItem() {
         super(new Properties().stacksTo(16));
     }
 

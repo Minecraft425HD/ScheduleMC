@@ -222,12 +222,12 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
                 progress[i] = (int) Math.min((long) progress[i] + ticksPassed, PROCESS_TIME);
 
                 if (progress[i] >= PROCESS_TIME) {
-                    TobaccoQuality quality = qualities[i] != null ? qualities[i] : TobaccoQuality.SCHLECHT;
+                    TobaccoQuality quality = qualities[i] != null ? qualities[i] : TobaccoQuality.POOR;
                     int yield = switch (quality) {
-                        case SCHLECHT -> 2;
-                        case GUT -> 3;
-                        case SEHR_GUT -> 4;
-                        case LEGENDAER -> 5;
+                        case POOR -> 2;
+                        case GOOD -> 3;
+                        case VERY_GOOD -> 4;
+                        case LEGENDARY -> 5;
                     };
                     outputs[i] = RawOpiumItem.create(types[i], quality, yield);
                     inputs[i] = ItemStack.EMPTY;
@@ -307,11 +307,11 @@ public class OpiumPressBlockEntity extends BlockEntity implements IUtilityConsum
 
             if (tag.contains("Type" + i)) {
                 try { types[i] = PoppyType.valueOf(tag.getString("Type" + i)); }
-                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHANISCH; }
+                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHAN; }
             }
             if (tag.contains("Quality" + i)) {
                 try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
-                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.SCHLECHT; }
+                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.POOR; }
             }
         }
     }

@@ -48,7 +48,7 @@ public class CocaineItem extends Item {
                 LOGGER.warn("Invalid CocaType '{}' on CocaineItem", tag.getString("CocaType"), exception);
             }
         }
-        return CocaType.BOLIVIANISCH; // Default
+        return CocaType.BOLIVIAN; // Default
     }
 
     /**
@@ -63,7 +63,7 @@ public class CocaineItem extends Item {
                 LOGGER.warn("Invalid Quality '{}' on CocaineItem", tag.getString("Quality"), exception);
             }
         }
-        return TobaccoQuality.GUT; // Default
+        return TobaccoQuality.GOOD; // Default
     }
 
     @Override

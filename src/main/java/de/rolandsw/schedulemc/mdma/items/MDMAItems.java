@@ -18,14 +18,14 @@ public class MDMAItems {
     // GRUNDZUTATEN
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Item> SAFROL =
-            ITEMS.register("safrole", SafrolItem::new);
+    public static final RegistryObject<Item> SAFROLE =
+            ITEMS.register("safrole", SafroleItem::new);
 
-    public static final RegistryObject<Item> BINDEMITTEL =
-            ITEMS.register("binding_agent", BindemittelItem::new);
+    public static final RegistryObject<Item> BINDING_AGENT =
+            ITEMS.register("binding_agent", BindingAgentItem::new);
 
-    public static final RegistryObject<Item> FARBSTOFF =
-            ITEMS.register("pill_dye", FarbstoffItem::new);
+    public static final RegistryObject<Item> PILL_DYE =
+            ITEMS.register("pill_dye", PillDyeItem::new);
 
     // ═══════════════════════════════════════════════════════════
     // ZWISCHENPRODUKTE
@@ -34,7 +34,7 @@ public class MDMAItems {
     public static final RegistryObject<Item> MDMA_BASE =
             ITEMS.register("mdma_base", MDMABaseItem::new);
 
-    public static final RegistryObject<Item> MDMA_KRISTALL =
+    public static final RegistryObject<Item> MDMA_CRYSTAL =
             ITEMS.register("mdma_crystal", MDMACrystalItem::new);
 
     // ═══════════════════════════════════════════════════════════

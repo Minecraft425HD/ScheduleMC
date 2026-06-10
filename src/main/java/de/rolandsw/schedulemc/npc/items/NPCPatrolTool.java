@@ -68,7 +68,7 @@ public class NPCPatrolTool extends Item {
             }
 
             // Prüfe ob es ein Polizist ist
-            if (npc.getNpcData().getNpcType() != NPCType.POLIZEI) {
+            if (npc.getNpcData().getNpcType() != NPCType.POLICE) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.not_police")
                         .withStyle(ChatFormatting.RED)
@@ -130,7 +130,7 @@ public class NPCPatrolTool extends Item {
 
         if (!player.level().isClientSide) {
             // Prüfe ob es ein Polizist ist
-            if (npc.getNpcData().getNpcType() != NPCType.POLIZEI) {
+            if (npc.getNpcData().getNpcType() != NPCType.POLICE) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.patrol_tool_police_only")
                         .withStyle(ChatFormatting.RED)

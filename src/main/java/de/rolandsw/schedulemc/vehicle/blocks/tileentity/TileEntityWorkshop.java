@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.vehicle.blocks.tileentity;
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
-import de.rolandsw.schedulemc.vehicle.gui.ContainerWerkstatt;
+import de.rolandsw.schedulemc.vehicle.gui.ContainerWorkshop;
 import de.rolandsw.schedulemc.vehicle.gui.TileEntityContainerProvider;
 import de.maxhenkel.corelib.blockentity.ITickableBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class TileEntityWerkstatt extends TileEntityBase implements ITickableBlockEntity {
+public class TileEntityWorkshop extends TileEntityBase implements ITickableBlockEntity {
 
     private static final double DETECTION_RADIUS = 1.5D;
     private static final double PRE_SCAN_RADIUS = 3.0D;
@@ -54,8 +54,8 @@ public class TileEntityWerkstatt extends TileEntityBase implements ITickableBloc
         }
     };
 
-    public TileEntityWerkstatt(BlockPos pos, BlockState state) {
-        super(ModBlocks.WERKSTATT_TILE_ENTITY_TYPE.get(), pos, state);
+    public TileEntityWorkshop(BlockPos pos, BlockState state) {
+        super(ModBlocks.WORKSHOP_TILE_ENTITY_TYPE.get(), pos, state);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class TileEntityWerkstatt extends TileEntityBase implements ITickableBloc
 
                 // Lock the vehicle if it has a driver and isn't already locked
                 if (nearestVehicle.getControllingPassenger() instanceof Player driver) {
-                    if (!nearestVehicle.isLockedInWerkstatt()) {
+                    if (!nearestVehicle.isLockedInWorkshop()) {
                         lockVehicle(nearestVehicle, driver);
                     }
                 }
@@ -147,7 +147,7 @@ public class TileEntityWerkstatt extends TileEntityBase implements ITickableBloc
     }
 
     private void lockVehicle(EntityGenericVehicle vehicle, Player driver) {
-        vehicle.lockInWerkstatt(getBlockPos());
+        vehicle.lockInWorkshop(getBlockPos());
 
         // Play lock sound
         level.playSound(null, getBlockPos(), SoundEvents.IRON_DOOR_CLOSE,
@@ -162,14 +162,14 @@ public class TileEntityWerkstatt extends TileEntityBase implements ITickableBloc
         // Open GUI automatically ONLY if it hasn't been opened for this vehicle yet
         if (driver instanceof ServerPlayer serverPlayer && !guiOpenedForCurrentVehicle) {
             guiOpenedForCurrentVehicle = true; // Set flag BEFORE opening GUI
-            openWerkstattGUI(serverPlayer, vehicle);
+            openWorkshopGUI(serverPlayer, vehicle);
         }
     }
 
     private void unlockTrackedVehicle() {
         EntityGenericVehicle vehicle = getTrackedVehicle();
         if (vehicle != null) {
-            vehicle.unlockFromWerkstatt();
+            vehicle.unlockFromWorkshop();
 
             // Play unlock sound
             level.playSound(null, getBlockPos(), SoundEvents.IRON_DOOR_OPEN,
@@ -223,12 +223,12 @@ public class TileEntityWerkstatt extends TileEntityBase implements ITickableBloc
             .orElse(null);
     }
 
-    public void openWerkstattGUI(ServerPlayer player, EntityGenericVehicle vehicle) {
+    public void openWorkshopGUI(ServerPlayer player, EntityGenericVehicle vehicle) {
         TileEntityContainerProvider.openGui(player, this, packetBuffer -> {
             // Send vehicle UUID to client
             packetBuffer.writeUUID(vehicle.getUUID());
         }, (i, playerInventory, playerEntity) ->
-            new ContainerWerkstatt(i, vehicle, this, playerInventory)
+            new ContainerWorkshop(i, vehicle, this, playerInventory)
         );
     }
 

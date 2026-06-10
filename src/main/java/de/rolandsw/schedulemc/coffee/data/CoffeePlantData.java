@@ -11,7 +11,7 @@ public class CoffeePlantData {
 
     public CoffeePlantData(CoffeeType type) {
         this.type = type;
-        this.quality = CoffeeQuality.GUT;
+        this.quality = CoffeeQuality.GOOD;
         this.growthStage = 0;
         this.ticksGrown = 0;
     }

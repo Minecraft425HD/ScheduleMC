@@ -10,10 +10,10 @@ import java.util.Locale;
 public enum PillDesign {
     TESLA("§c", "T"),
     SUPERMAN("§9", "S"),
-    TOTENKOPF("§8", "☠"),
+    SKULL("§8", "☠"),
     HERZ("§d", "♥"),
     SCHMETTERLING("§e", "🦋"),
-    STERN("§6", "★"),
+    STAR("§6", "★"),
     PEACE("§a", "☮"),
     DIAMANT("§b", "◆");
 

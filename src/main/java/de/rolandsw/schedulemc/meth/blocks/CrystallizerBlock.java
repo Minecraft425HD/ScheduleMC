@@ -40,8 +40,8 @@ public class CrystallizerBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) return null;
         return (lvl, pos, st, be) -> {
-            if (be instanceof CrystallizerBlockEntity kristall) {
-                kristall.tick();
+            if (be instanceof CrystallizerBlockEntity crystal) {
+                crystal.tick();
             }
         };
     }
@@ -52,18 +52,18 @@ public class CrystallizerBlock extends Block implements EntityBlock {
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof CrystallizerBlockEntity kristall)) return InteractionResult.PASS;
+        if (!(be instanceof CrystallizerBlockEntity crystal)) return InteractionResult.PASS;
 
         ItemStack heldItem = player.getItemInHand(hand);
 
         // Roh-Meth hinzufügen
         if (heldItem.getItem() instanceof RawMethItem) {
-            if (kristall.addRawMeth(heldItem)) {
+            if (crystal.addRawMeth(heldItem)) {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
                 player.displayClientMessage(Component.translatable(
-                        "block.meth.crystallizer_input", kristall.getActiveSlots()
+                        "block.meth.crystallizer_input", crystal.getActiveSlots()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.GLASS_PLACE, 0.5f, 1.2f);
                 return InteractionResult.SUCCESS;
@@ -78,8 +78,8 @@ public class CrystallizerBlock extends Block implements EntityBlock {
         // Leere Hand
         if (heldItem.isEmpty()) {
             // Produkt entnehmen wenn fertig
-            if (kristall.hasOutput()) {
-                ItemStack output = kristall.extractAllOutput();
+            if (crystal.hasOutput()) {
+                ItemStack output = crystal.extractAllOutput();
                 if (!output.isEmpty()) {
                     if (!player.getInventory().add(output)) {
                         player.drop(output, false);
@@ -96,15 +96,15 @@ public class CrystallizerBlock extends Block implements EntityBlock {
             StringBuilder status = new StringBuilder();
             status.append(Component.translatable("block.meth.crystallizer_title").getString()).append('\n');
 
-            if (kristall.isActive()) {
-                int progress = (int) (kristall.getAverageProgress() * 100);
-                status.append(Component.translatable("block.meth.crystallizer_active", kristall.getActiveSlots()).getString()).append('\n');
+            if (crystal.isActive()) {
+                int progress = (int) (crystal.getAverageProgress() * 100);
+                status.append(Component.translatable("block.meth.crystallizer_active", crystal.getActiveSlots()).getString()).append('\n');
                 status.append(Component.translatable("block.meth.crystallizer_progress", progress).getString()).append('\n');
             }
 
-            if (kristall.hasOutput()) {
-                status.append(Component.translatable("block.meth.crystallizer_ready", kristall.getOutputCount()).getString());
-            } else if (!kristall.hasInput()) {
+            if (crystal.hasOutput()) {
+                status.append(Component.translatable("block.meth.crystallizer_ready", crystal.getOutputCount()).getString());
+            } else if (!crystal.hasInput()) {
                 status.append(Component.translatable("block.meth.crystallizer_hint").getString());
             }
 

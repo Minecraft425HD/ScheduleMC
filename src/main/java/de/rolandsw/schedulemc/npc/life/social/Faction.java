@@ -20,28 +20,28 @@ public enum Faction {
      * Normale Bürger - Die Mehrheit der NPCs
      * Neutral zu allen, arbeitet ehrlich
      */
-    BUERGER("Bürger", "Rechtschaffene Bürger der Stadt",
+    CITIZENS("Citizens", "Law-abiding citizens of the city",
         ChatFormatting.WHITE, 0, true),
 
     /**
      * Händler-Gilde - Reiche Kaufleute und Geschäftsleute
      * Fokus auf Profit, weitreichende Verbindungen
      */
-    HAENDLER("Händler-Gilde", "Die Handelsvereinigung der Stadt",
+    TRADERS("Traders' Guild", "The city's trade association",
         ChatFormatting.GOLD, 10, true),
 
     /**
      * Ordnungshüter - Polizei und Sicherheitskräfte
      * Setzen Gesetze durch, jagen Kriminelle
      */
-    ORDNUNG("Ordnungshüter", "Polizei und Wachen der Stadt",
+    LAW("Law Enforcement", "Police and guards of the city",
         ChatFormatting.BLUE, 5, true),
 
     /**
      * Untergrund - Kriminelle, Schmuggler, Dealer
      * Illegale Geschäfte, Informationshandel
      */
-    UNTERGRUND("Untergrund", "Das kriminelle Netzwerk",
+    UNDERWORLD("Underworld", "The criminal network",
         ChatFormatting.DARK_GRAY, -5, false);
 
     private final String displayName;
@@ -112,28 +112,28 @@ public enum Faction {
         if (this == other) return 100; // Eigene Fraktion
 
         return switch (this) {
-            case BUERGER -> switch (other) {
-                case HAENDLER -> 30;   // Gute Kunden
-                case ORDNUNG -> 50;    // Vertrauen in Polizei
-                case UNTERGRUND -> -30; // Misstrauen
+            case CITIZENS -> switch (other) {
+                case TRADERS -> 30;   // Gute Kunden
+                case LAW -> 50;    // Vertrauen in Polizei
+                case UNDERWORLD -> -30; // Misstrauen
                 default -> 0;
             };
-            case HAENDLER -> switch (other) {
-                case BUERGER -> 30;    // Kunden
-                case ORDNUNG -> 20;    // Geschäftsbeziehung
-                case UNTERGRUND -> -10; // Manchmal nützlich, aber riskant
+            case TRADERS -> switch (other) {
+                case CITIZENS -> 30;    // Kunden
+                case LAW -> 20;    // Geschäftsbeziehung
+                case UNDERWORLD -> -10; // Manchmal nützlich, aber riskant
                 default -> 0;
             };
-            case ORDNUNG -> switch (other) {
-                case BUERGER -> 50;    // Zu beschützen
-                case HAENDLER -> 20;   // Steuerzahler
-                case UNTERGRUND -> -80; // Hauptfeinde
+            case LAW -> switch (other) {
+                case CITIZENS -> 50;    // Zu beschützen
+                case TRADERS -> 20;   // Steuerzahler
+                case UNDERWORLD -> -80; // Hauptfeinde
                 default -> 0;
             };
-            case UNTERGRUND -> switch (other) {
-                case BUERGER -> -20;   // Potentielle Opfer/Kunden
-                case HAENDLER -> 10;   // Manchmal Geschäftspartner
-                case ORDNUNG -> -80;   // Feinde
+            case UNDERWORLD -> switch (other) {
+                case CITIZENS -> -20;   // Potentielle Opfer/Kunden
+                case TRADERS -> 10;   // Manchmal Geschäftspartner
+                case LAW -> -80;   // Feinde
                 default -> 0;
             };
         };
@@ -164,7 +164,7 @@ public enum Faction {
      * Prüft ob diese Fraktion mit dem Untergrund handeln würde
      */
     public boolean wouldTradeWithUnderground() {
-        return this == UNTERGRUND || this == HAENDLER;
+        return this == UNDERWORLD || this == TRADERS;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -186,7 +186,7 @@ public enum Faction {
         if (ordinal >= 0 && ordinal < values.length) {
             return values[ordinal];
         }
-        return BUERGER;
+        return CITIZENS;
     }
 
     /**
@@ -196,7 +196,7 @@ public enum Faction {
         try {
             return valueOf(name.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
-            return BUERGER;
+            return CITIZENS;
         }
     }
 
@@ -205,11 +205,11 @@ public enum Faction {
      */
     public static Faction forNPCType(de.rolandsw.schedulemc.npc.data.NPCType npcType) {
         return switch (npcType) {
-            case POLIZEI, POLICE -> ORDNUNG;
-            case VERKAEUFER, MERCHANT -> HAENDLER;
-            case BANKER, BANK -> HAENDLER;
-            case DRUG_DEALER -> UNTERGRUND;
-            default -> BUERGER;
+            case POLICE -> LAW;
+            case MERCHANT -> TRADERS;
+            case BANKER, BANK -> TRADERS;
+            case DRUG_DEALER -> UNDERWORLD;
+            default -> CITIZENS;
         };
     }
 }

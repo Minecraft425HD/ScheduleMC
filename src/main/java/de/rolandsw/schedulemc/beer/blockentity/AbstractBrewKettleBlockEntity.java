@@ -98,9 +98,9 @@ public abstract class AbstractBrewKettleBlockEntity extends AbstractItemHandlerB
             CompoundTag tag = handlerWort.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
+                catch (IllegalArgumentException e) { quality = BeerQuality.POOR; }
             } else {
-                quality = BeerQuality.SCHLECHT;
+                quality = BeerQuality.POOR;
             }
 
             brewingProgress = 0;
@@ -163,7 +163,7 @@ public abstract class AbstractBrewKettleBlockEntity extends AbstractItemHandlerB
 
                 // Quality upgrade: can improve by 1 level (max PREMIUM)
                 BeerQuality outputQuality = quality;
-                if (outputQuality != null && outputQuality.getLevel() < BeerQuality.SEHR_GUT.getLevel()) {
+                if (outputQuality != null && outputQuality.getLevel() < BeerQuality.VERY_GOOD.getLevel()) {
                     outputQuality = (BeerQuality) outputQuality.upgrade();
                 }
 
@@ -226,7 +226,7 @@ public abstract class AbstractBrewKettleBlockEntity extends AbstractItemHandlerB
         lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = BeerQuality.POOR; }
         }
         syncToHandler();
     }

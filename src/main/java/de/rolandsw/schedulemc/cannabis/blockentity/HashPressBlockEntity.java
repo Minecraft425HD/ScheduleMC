@@ -32,7 +32,7 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
     public static final float CONVERSION_RATE = 0.25f; // 20g Trim -> 5g Hash
 
     private int trimWeight = 0;
-    private CannabisQuality trimQuality = CannabisQuality.GUT;
+    private CannabisQuality trimQuality = CannabisQuality.GOOD;
     private CannabisStrain strain = CannabisStrain.HYBRID;
     private long startDayTime = -1L;
     private boolean isPressing = false;
@@ -155,7 +155,7 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
     public ItemStack getOutputItem() { return outputItem; }
     public void clearTrim() {
         trimWeight = 0;
-        trimQuality = CannabisQuality.GUT;
+        trimQuality = CannabisQuality.GOOD;
         strain = CannabisStrain.HYBRID;
         setChanged();
         if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -189,7 +189,7 @@ public class HashPressBlockEntity extends BlockEntity implements IUtilityConsume
         try { strain = CannabisStrain.valueOf(tag.getString("Strain")); }
         catch (IllegalArgumentException e) { strain = CannabisStrain.HYBRID; }
         try { trimQuality = CannabisQuality.valueOf(tag.getString("TrimQuality")); }
-        catch (IllegalArgumentException e) { trimQuality = CannabisQuality.GUT; }
+        catch (IllegalArgumentException e) { trimQuality = CannabisQuality.GOOD; }
         startDayTime = tag.contains("StartDayTime") ? tag.getLong("StartDayTime") : -1L;
         isPressing = tag.getBoolean("IsPressing");
         outputItem = tag.contains("Output") ? ItemStack.of(tag.getCompound("Output")) : ItemStack.EMPTY;

@@ -25,12 +25,12 @@ public class PoppyBlocks {
             DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
 
     // Pflanzen-Blöcke (keine Items, nur intern verwendet)
-    public static final RegistryObject<Block> AFGHANISCH_PLANT = BLOCKS.register("afghan_poppy_plant",
-            () -> new PoppyPlantBlock(PoppyType.AFGHANISCH));
-    public static final RegistryObject<Block> TUERKISCH_PLANT = BLOCKS.register("turkish_poppy_plant",
-            () -> new PoppyPlantBlock(PoppyType.TUERKISCH));
-    public static final RegistryObject<Block> INDISCH_PLANT = BLOCKS.register("indian_poppy_plant",
-            () -> new PoppyPlantBlock(PoppyType.INDISCH));
+    public static final RegistryObject<Block> AFGHAN_PLANT = BLOCKS.register("afghan_poppy_plant",
+            () -> new PoppyPlantBlock(PoppyType.AFGHAN));
+    public static final RegistryObject<Block> TURKISH_PLANT = BLOCKS.register("turkish_poppy_plant",
+            () -> new PoppyPlantBlock(PoppyType.TURKISH));
+    public static final RegistryObject<Block> INDIAN_PLANT = BLOCKS.register("indian_poppy_plant",
+            () -> new PoppyPlantBlock(PoppyType.INDIAN));
 
     // Verarbeitungs-Blöcke
     public static final RegistryObject<Block> SCORING_MACHINE = registerBlockWithItem("scoring_machine",

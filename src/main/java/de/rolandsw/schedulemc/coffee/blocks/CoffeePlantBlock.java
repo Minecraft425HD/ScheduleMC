@@ -218,9 +218,9 @@ public class CoffeePlantBlock extends Block {
 
     private static CoffeeQuality randomHarvestQuality(net.minecraft.util.RandomSource random) {
         int roll = random.nextInt(10);
-        if (roll < 2) return CoffeeQuality.SCHLECHT;
-        if (roll < 7) return CoffeeQuality.GUT;
-        return CoffeeQuality.SEHR_GUT;
+        if (roll < 2) return CoffeeQuality.POOR;
+        if (roll < 7) return CoffeeQuality.GOOD;
+        return CoffeeQuality.VERY_GOOD;
     }
 
     /**

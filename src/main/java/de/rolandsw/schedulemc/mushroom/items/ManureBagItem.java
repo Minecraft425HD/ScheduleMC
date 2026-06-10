@@ -13,17 +13,17 @@ import java.util.Locale;
 /**
  * Mist-Sack-Item für Pilzzucht (3 Stufen)
  */
-public class MistBagItem extends Item {
+public class ManureBagItem extends Item {
 
-    private final MistBagType type;
+    private final ManureBagType type;
     private static final int UNITS_PER_BAG = 1;
 
-    public MistBagItem(MistBagType type) {
+    public ManureBagItem(ManureBagType type) {
         super(new Properties().stacksTo(1));
         this.type = type;
     }
 
-    public MistBagType getType() {
+    public ManureBagType getType() {
         return type;
     }
 
@@ -37,7 +37,7 @@ public class MistBagItem extends Item {
     /**
      * Erstellt neuen vollen Mist-Sack
      */
-    public static ItemStack createFull(MistBagType type) {
+    public static ItemStack createFull(ManureBagType type) {
         ItemStack stack = new ItemStack(getItemForType(type));
         setUnits(stack, UNITS_PER_BAG);
         return stack;
@@ -80,11 +80,11 @@ public class MistBagItem extends Item {
     /**
      * Gibt Item für Typ zurück
      */
-    private static Item getItemForType(MistBagType type) {
+    private static Item getItemForType(ManureBagType type) {
         return switch (type) {
-            case SMALL -> MushroomItems.MIST_BAG_SMALL.get();
-            case MEDIUM -> MushroomItems.MIST_BAG_MEDIUM.get();
-            case LARGE -> MushroomItems.MIST_BAG_LARGE.get();
+            case SMALL -> MushroomItems.MANURE_BAG_SMALL.get();
+            case MEDIUM -> MushroomItems.MANURE_BAG_MEDIUM.get();
+            case LARGE -> MushroomItems.MANURE_BAG_LARGE.get();
         };
     }
 
@@ -145,7 +145,7 @@ public class MistBagItem extends Item {
 /**
  * Verschiedene Mist-Sack-Typen
  */
-enum MistBagType {
+enum ManureBagType {
     SMALL("§7", 1, 15.0),
     MEDIUM("§2", 2, 35.0),
     LARGE("§6", 3, 60.0);
@@ -154,7 +154,7 @@ enum MistBagType {
     private final int plantsPerBag;
     private final double basePrice;
 
-    MistBagType(String color, int plantsPerBag, double basePrice) {
+    ManureBagType(String color, int plantsPerBag, double basePrice) {
         this.color = color;
         this.plantsPerBag = plantsPerBag;
         this.basePrice = basePrice;

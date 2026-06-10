@@ -36,10 +36,10 @@ public class CrackRockItem extends Item {
             try {
                 return CocaType.valueOf(stack.getTag().getString("CocaType"));
             } catch (IllegalArgumentException e) {
-                return CocaType.BOLIVIANISCH;
+                return CocaType.BOLIVIAN;
             }
         }
-        return CocaType.BOLIVIANISCH;
+        return CocaType.BOLIVIAN;
     }
 
     public static CrackQuality getQuality(ItemStack stack) {
@@ -47,10 +47,10 @@ public class CrackRockItem extends Item {
             try {
                 return CrackQuality.valueOf(stack.getTag().getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return CrackQuality.SCHLECHT;
+                return CrackQuality.POOR;
             }
         }
-        return CrackQuality.SCHLECHT;
+        return CrackQuality.POOR;
     }
 
     public static int getWeight(ItemStack stack) {
@@ -76,7 +76,7 @@ public class CrackRockItem extends Item {
     public Component getName(ItemStack stack) {
         CrackQuality quality = getQuality(stack);
 
-        String icon = quality == CrackQuality.LEGENDAER ? "§b💎" : "§f🪨";
+        String icon = quality == CrackQuality.LEGENDARY ? "§b💎" : "§f🪨";
         return Component.literal(icon + " ")
             .append(Component.translatable("item.crack_rock.name"));
     }
@@ -95,7 +95,7 @@ public class CrackRockItem extends Item {
         tooltip.add(Component.translatable("tooltip.crack.value").append(Component.translatable("tooltip.cannabis.value", String.format("%.2f", price))));
         tooltip.add(Component.empty());
 
-        if (quality == CrackQuality.LEGENDAER) {
+        if (quality == CrackQuality.LEGENDARY) {
             tooltip.add(Component.translatable("tooltip.crack.fishscale_shine"));
         }
 

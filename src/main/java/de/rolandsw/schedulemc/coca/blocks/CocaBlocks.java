@@ -28,14 +28,14 @@ public class CocaBlocks {
     // PFLANZEN-BLÖCKE (2 Koka-Typen, KEIN BlockItem!)
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> BOLIVIANISCH_PLANT = BLOCKS.register(
+    public static final RegistryObject<Block> BOLIVIAN_PLANT = BLOCKS.register(
             "bolivian_coca_plant",
-            () -> new CocaPlantBlock(CocaType.BOLIVIANISCH)
+            () -> new CocaPlantBlock(CocaType.BOLIVIAN)
     );
 
-    public static final RegistryObject<Block> KOLUMBIANISCH_PLANT = BLOCKS.register(
+    public static final RegistryObject<Block> COLOMBIAN_PLANT = BLOCKS.register(
             "colombian_coca_plant",
-            () -> new CocaPlantBlock(CocaType.KOLUMBIANISCH)
+            () -> new CocaPlantBlock(CocaType.COLOMBIAN)
     );
 
     // ═══════════════════════════════════════════════════════════
@@ -113,7 +113,7 @@ public class CocaBlocks {
     // CRACK-KOCHER
     // ═══════════════════════════════════════════════════════════
 
-    public static final RegistryObject<Block> CRACK_KOCHER = registerBlockWithItem(
+    public static final RegistryObject<Block> CRACK_COOKER = registerBlockWithItem(
             "crack_cooker",
             () -> new CrackCookerBlock(
                     BlockBehaviour.Properties.of()

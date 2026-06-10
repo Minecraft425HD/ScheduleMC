@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.mdma.blocks;
 
 import de.rolandsw.schedulemc.mdma.blockentity.ReactionKettleBlockEntity;
-import de.rolandsw.schedulemc.mdma.items.SafrolItem;
+import de.rolandsw.schedulemc.mdma.items.SafroleItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -35,7 +35,7 @@ public class ReactionKettleBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) return null;
         return (lvl, pos, st, be) -> {
-            if (be instanceof ReactionKettleBlockEntity kessel) kessel.tick();
+            if (be instanceof ReactionKettleBlockEntity kettle) kettle.tick();
         };
     }
 
@@ -45,23 +45,23 @@ public class ReactionKettleBlock extends Block implements EntityBlock {
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof ReactionKettleBlockEntity kessel)) return InteractionResult.PASS;
+        if (!(be instanceof ReactionKettleBlockEntity kettle)) return InteractionResult.PASS;
 
         ItemStack heldItem = player.getItemInHand(hand);
 
-        if (heldItem.getItem() instanceof SafrolItem) {
-            if (kessel.addSafrol(heldItem)) {
+        if (heldItem.getItem() instanceof SafroleItem) {
+            if (kettle.addSafrole(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
                 player.displayClientMessage(Component.translatable(
-                        "block.mdma.reaction_input", kessel.getSafrolCount()
+                        "block.mdma.reaction_input", kettle.getSafroleCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
         }
 
         if (heldItem.isEmpty()) {
-            if (kessel.hasOutput()) {
-                ItemStack output = kessel.extractOutput();
+            if (kettle.hasOutput()) {
+                ItemStack output = kettle.extractOutput();
                 if (!player.getInventory().add(output)) player.drop(output, false);
                 player.displayClientMessage(Component.translatable(
                         "block.mdma.reaction_output", output.getCount()
@@ -70,9 +70,9 @@ public class ReactionKettleBlock extends Block implements EntityBlock {
             }
 
             player.displayClientMessage(Component.translatable("gui.reaktion.status_header").append(Component.literal("\n"))
-                    .append(Component.translatable("block.mdma.reaction_count", kessel.getSafrolCount()))
+                    .append(Component.translatable("block.mdma.reaction_count", kettle.getSafroleCount()))
                     .append(Component.literal("\n"))
-                    .append(kessel.isActive() ? Component.translatable("gui.block.progress", (int)(kessel.getProgress() * 100)) : Component.literal(""))
+                    .append(kettle.isActive() ? Component.translatable("gui.block.progress", (int)(kettle.getProgress() * 100)) : Component.literal(""))
             , true);
             return InteractionResult.SUCCESS;
         }

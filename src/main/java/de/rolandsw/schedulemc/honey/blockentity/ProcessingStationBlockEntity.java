@@ -103,7 +103,7 @@ public class ProcessingStationBlockEntity extends AbstractItemHandlerBlockEntity
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+                    catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
                 }
                 if (tag.contains("AgeLevel")) {
                     try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }
@@ -195,12 +195,12 @@ public class ProcessingStationBlockEntity extends AbstractItemHandlerBlockEntity
     }
 
     private HoneyQuality upgradeQuality(HoneyQuality current) {
-        if (current == null) return HoneyQuality.SEHR_GUT;
+        if (current == null) return HoneyQuality.VERY_GOOD;
         return switch (current) {
-            case SCHLECHT -> HoneyQuality.GUT;
-            case GUT -> HoneyQuality.SEHR_GUT;
-            case SEHR_GUT -> HoneyQuality.LEGENDAER;
-            case LEGENDAER -> HoneyQuality.LEGENDAER; // Already max
+            case POOR -> HoneyQuality.GOOD;
+            case GOOD -> HoneyQuality.VERY_GOOD;
+            case VERY_GOOD -> HoneyQuality.LEGENDARY;
+            case LEGENDARY -> HoneyQuality.LEGENDARY; // Already max
         };
     }
 
@@ -237,7 +237,7 @@ public class ProcessingStationBlockEntity extends AbstractItemHandlerBlockEntity
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
         }
         if (tag.contains("AgeLevel")) {
             try { ageLevel = HoneyAgeLevel.valueOf(tag.getString("AgeLevel")); }

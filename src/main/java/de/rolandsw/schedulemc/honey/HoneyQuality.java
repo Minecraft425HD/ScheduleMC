@@ -9,16 +9,16 @@ import java.util.Locale;
  * Honig-Qualitätsstufen
  *
  * Einheitliches 4-Stufen-System:
- * - SCHLECHT (Level 0)
- * - GUT (Level 1)
- * - SEHR_GUT (Level 2)
- * - LEGENDAER (Level 3)
+ * - POOR (Level 0)
+ * - GOOD (Level 1)
+ * - VERY_GOOD (Level 2)
+ * - LEGENDARY (Level 3)
  */
 public enum HoneyQuality implements ProductionQuality {
-    SCHLECHT("§c", 0, 0.7),
-    GUT("§e", 1, 1.0),
-    SEHR_GUT("§a", 2, 1.5),
-    LEGENDAER("§6§l", 3, 2.5);
+    POOR("§c", 0, 0.7),
+    GOOD("§e", 1, 1.0),
+    VERY_GOOD("§a", 2, 1.5),
+    LEGENDARY("§6§l", 3, 2.5);
 
     private final String colorCode;
     private final int level;
@@ -62,18 +62,18 @@ public enum HoneyQuality implements ProductionQuality {
     @Override
     public HoneyQuality upgrade() {
         return switch (this) {
-            case SCHLECHT -> GUT;
-            case GUT -> SEHR_GUT;
-            case SEHR_GUT, LEGENDAER -> LEGENDAER;
+            case POOR -> GOOD;
+            case GOOD -> VERY_GOOD;
+            case VERY_GOOD, LEGENDARY -> LEGENDARY;
         };
     }
 
     @Override
     public HoneyQuality downgrade() {
         return switch (this) {
-            case SCHLECHT, GUT -> SCHLECHT;
-            case SEHR_GUT -> GUT;
-            case LEGENDAER -> SEHR_GUT;
+            case POOR, GOOD -> POOR;
+            case VERY_GOOD -> GOOD;
+            case LEGENDARY -> VERY_GOOD;
         };
     }
 
@@ -83,10 +83,10 @@ public enum HoneyQuality implements ProductionQuality {
     public static HoneyQuality determineQuality(double qualityFactor, java.util.Random random) {
         double roll = random.nextDouble() * qualityFactor;
 
-        if (roll >= 0.95) return LEGENDAER;
-        if (roll >= 0.75) return SEHR_GUT;
-        if (roll >= 0.45) return GUT;
-        return SCHLECHT;
+        if (roll >= 0.95) return LEGENDARY;
+        if (roll >= 0.75) return VERY_GOOD;
+        if (roll >= 0.45) return GOOD;
+        return POOR;
     }
 
     public static HoneyQuality fromLevel(int level) {
@@ -95,6 +95,6 @@ public enum HoneyQuality implements ProductionQuality {
                 return quality;
             }
         }
-        return SCHLECHT;
+        return POOR;
     }
 }

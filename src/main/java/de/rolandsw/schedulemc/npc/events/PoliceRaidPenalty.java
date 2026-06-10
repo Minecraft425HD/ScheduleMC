@@ -56,7 +56,7 @@ public class PoliceRaidPenalty {
                 var policeNPCs = serverLevel.getEntitiesOfClass(
                     de.rolandsw.schedulemc.npc.entity.CustomNPCEntity.class,
                     player.getBoundingBox().inflate(50),
-                    npc -> npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI
+                    npc -> npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLICE
                 );
                 if (!policeNPCs.isEmpty()) {
                     integration.onCrimeWitnessed(player,

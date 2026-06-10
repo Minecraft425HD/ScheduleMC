@@ -20,7 +20,7 @@ public enum WineType implements ProductionType {
     CHARDONNAY("Chardonnay", "§6", 22.0, 110, 0.9, 8, 20),
 
     // Rotweine
-    SPAETBURGUNDER("Spätburgunder", "§c", 28.0, 140, 0.85, 9, 16),
+    PINOT_NOIR("Pinot Noir", "§c", 28.0, 140, 0.85, 9, 16),
     MERLOT("Merlot", "§4", 35.0, 130, 0.95, 7, 22);
 
     private final String displayName;
@@ -72,7 +72,7 @@ public enum WineType implements ProductionType {
     }
 
     public boolean isRedWine() {
-        return this == SPAETBURGUNDER || this == MERLOT;
+        return this == PINOT_NOIR || this == MERLOT;
     }
 
     public boolean isWhiteWine() {

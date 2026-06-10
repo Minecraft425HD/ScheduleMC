@@ -52,7 +52,7 @@ public enum XPSource {
     SELL_LEGAL("Legal item sold", 4, false),
 
     // Admin
-    ADMIN_GRANT("Admin-Vergabe", 1, false);
+    ADMIN_GRANT("Admin grant", 1, false);
 
     private final String displayName;
     private final int baseXP;

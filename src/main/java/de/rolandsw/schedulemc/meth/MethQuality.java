@@ -9,16 +9,16 @@ import java.util.Locale;
  * Meth-Qualitätsstufen
  *
  * Einheitliches 4-Stufen-System:
- * - SCHLECHT (Level 0)
- * - GUT (Level 1)
- * - SEHR_GUT (Level 2)
- * - LEGENDAER (Level 3) - Blue Sky
+ * - POOR (Level 0)
+ * - GOOD (Level 1)
+ * - VERY_GOOD (Level 2)
+ * - LEGENDARY (Level 3) - Blue Sky
  */
 public enum MethQuality implements ProductionQuality {
-    SCHLECHT("§c", 0, 0.7),
-    GUT("§e", 1, 1.0),
-    SEHR_GUT("§a", 2, 2.0),
-    LEGENDAER("§6§l", 3, 5.0);  // Gold-Farbe (Blue Sky entfernt für Konsistenz)
+    POOR("§c", 0, 0.7),
+    GOOD("§e", 1, 1.0),
+    VERY_GOOD("§a", 2, 2.0),
+    LEGENDARY("§6§l", 3, 5.0);  // Gold-Farbe (Blue Sky entfernt für Konsistenz)
 
     private final String colorCode;
     private final int level;
@@ -52,10 +52,10 @@ public enum MethQuality implements ProductionQuality {
 
     public String getColorDescription() {
         return switch (this) {
-            case SCHLECHT -> "Weiß";
-            case GUT -> "Gelblich";
-            case SEHR_GUT -> "Bläulich";
-            case LEGENDAER -> "Blau";
+            case POOR -> "Weiß";
+            case GOOD -> "Gelblich";
+            case VERY_GOOD -> "Bläulich";
+            case LEGENDARY -> "Blau";
         };
     }
 
@@ -67,18 +67,18 @@ public enum MethQuality implements ProductionQuality {
     @Override
     public MethQuality upgrade() {
         return switch (this) {
-            case SCHLECHT -> GUT;
-            case GUT -> SEHR_GUT;
-            case SEHR_GUT, LEGENDAER -> LEGENDAER;
+            case POOR -> GOOD;
+            case GOOD -> VERY_GOOD;
+            case VERY_GOOD, LEGENDARY -> LEGENDARY;
         };
     }
 
     @Override
     public MethQuality downgrade() {
         return switch (this) {
-            case SCHLECHT, GUT -> SCHLECHT;
-            case SEHR_GUT -> GUT;
-            case LEGENDAER -> SEHR_GUT;
+            case POOR, GOOD -> POOR;
+            case VERY_GOOD -> GOOD;
+            case LEGENDARY -> VERY_GOOD;
         };
     }
 
@@ -88,7 +88,7 @@ public enum MethQuality implements ProductionQuality {
                 return quality;
             }
         }
-        return SCHLECHT;
+        return POOR;
     }
 
     /**
@@ -96,9 +96,9 @@ public enum MethQuality implements ProductionQuality {
      * @param optimalTimePercent Prozentsatz der Zeit im optimalen Temperaturbereich (0.0 - 1.0)
      */
     public static MethQuality fromTemperaturePerformance(double optimalTimePercent) {
-        if (optimalTimePercent >= 0.95) return LEGENDAER;
-        if (optimalTimePercent >= 0.80) return SEHR_GUT;
-        if (optimalTimePercent >= 0.60) return GUT;
-        return SCHLECHT;
+        if (optimalTimePercent >= 0.95) return LEGENDARY;
+        if (optimalTimePercent >= 0.80) return VERY_GOOD;
+        if (optimalTimePercent >= 0.60) return GOOD;
+        return POOR;
     }
 }

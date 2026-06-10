@@ -73,7 +73,7 @@ public class NPCDailySalaryHandler {
             List<ServerPlayer> levelPlayers = serverLevel.players();
 
             for (CustomNPCEntity npc : NPCEntityRegistry.getAllNPCs(serverLevel)) {
-                    // Nur BEWOHNER und VERKAEUFER (nicht Polizei)
+                    // Nur CITIZEN und MERCHANT (nicht Polizei)
                     if (!npc.getNpcData().hasInventoryAndWallet()) {
                         continue;
                     }

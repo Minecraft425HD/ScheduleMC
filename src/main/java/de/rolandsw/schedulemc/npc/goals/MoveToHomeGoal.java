@@ -28,7 +28,7 @@ public class MoveToHomeGoal extends Goal {
     @Override
     public boolean canUse() {
         // NICHT für Polizei-NPCs (die haben eigene Goals)
-        if (npc.getNpcData().getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
+        if (npc.getNpcData().getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLICE) {
             return false;
         }
 

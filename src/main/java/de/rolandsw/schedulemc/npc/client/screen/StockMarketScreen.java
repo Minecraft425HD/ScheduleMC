@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.npc.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.network.ClientBankDataCache;
-import de.rolandsw.schedulemc.npc.menu.BoerseMenu;
+import de.rolandsw.schedulemc.npc.menu.StockMarketMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.npc.network.RequestStockDataPacket;
@@ -27,7 +27,7 @@ import java.util.List;
  * Multi-Panel Layout mit Charts, Slider und Portfolio
  */
 @OnlyIn(Dist.CLIENT)
-public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
+public class StockMarketScreen extends AbstractContainerScreen<StockMarketMenu> {
 
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/stock_market_gui.png");
@@ -72,7 +72,7 @@ public class BoerseScreen extends AbstractContainerScreen<BoerseMenu> {
     private int lastCachedPlayerStock = -1;
     private String cachedOwnStr = "";
 
-    public BoerseScreen(BoerseMenu menu, Inventory playerInventory, Component title) {
+    public StockMarketScreen(StockMarketMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 256;
         this.imageHeight = 220;

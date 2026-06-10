@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.lsd.blockentity;
 
-import de.rolandsw.schedulemc.lsd.items.ErgotKulturItem;
+import de.rolandsw.schedulemc.lsd.items.ErgotCultureItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
-import de.rolandsw.schedulemc.lsd.items.MutterkornItem;
+import de.rolandsw.schedulemc.lsd.items.ErgotItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;
@@ -39,8 +39,8 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
     /**
      * Fügt Mutterkorn hinzu
      */
-    public boolean addMutterkorn(ItemStack stack) {
-        if (!(stack.getItem() instanceof MutterkornItem)) return false;
+    public boolean addErgot(ItemStack stack) {
+        if (!(stack.getItem() instanceof ErgotItem)) return false;
         if (ergotCount >= CAPACITY) return false;
         if (outputCount > 0) return false; // Erst Output entnehmen
 
@@ -58,7 +58,7 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
     public ItemStack extractOutput() {
         if (outputCount <= 0) return ItemStack.EMPTY;
 
-        ItemStack result = new ItemStack(LSDItems.ERGOT_KULTUR.get(), outputCount);
+        ItemStack result = new ItemStack(LSDItems.ERGOT_CULTURE.get(), outputCount);
         outputCount = 0;
         setChanged();
         if (level != null) {
@@ -109,7 +109,7 @@ public class FermentationTankBlockEntity extends BlockEntity implements IUtility
     // Getter
     public boolean isActive() { return isActive; }
     public boolean hasOutput() { return outputCount > 0; }
-    public int getMutterkornCount() { return ergotCount; }
+    public int getErgotCount() { return ergotCount; }
     public int getOutputCount() { return outputCount; }
     public float getProgress() { return (float) fermentationProgress / FERMENTATION_TIME; }
 

@@ -12,9 +12,9 @@ import net.minecraft.network.chat.Component;
  * Koka-Sorten mit unterschiedlichen Eigenschaften
  */
 public enum CocaType implements ProductionType {
-    BOLIVIANISCH("§a", 20.0, 100, 0.8, 6),
-    KOLUMBIANISCH("§2", 35.0, 140, 1.0, 6),
-    PERUANISCH("§6", 27.5, 120, 0.9, 6);
+    BOLIVIAN("§a", 20.0, 100, 0.8, 6),
+    COLOMBIAN("§2", 35.0, 140, 1.0, 6),
+    PERUVIAN("§6", 27.5, 120, 0.9, 6);
 
     private final String colorCode;
     private final double seedPrice;

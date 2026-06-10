@@ -47,9 +47,9 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     private enum Tab {
         UEBERSICHT,
-        GIROKONTO,
-        SPARKONTO,
-        UEBERWEISUNG,
+        CHECKING_ACCOUNT,
+        SAVINGS_ACCOUNT,
+        TRANSFER,
         HISTORIE,
         DAUERAUFTRAEGE
     }
@@ -58,9 +58,9 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
     // Tab Buttons
     private Button uebersichtTabButton;
-    private Button girokontoTabButton;
-    private Button sparkontoTabButton;
-    private Button ueberweisungTabButton;
+    private Button checkingAccountTabButton;
+    private Button savingsAccountTabButton;
+    private Button transferTabButton;
     private Button historieTabButton;
     private Button dauerauftraegeTabButton;
 
@@ -161,18 +161,18 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }).bounds(currentX, y + 20, 40, 18).build());
         currentX += 41;
 
-        girokontoTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.checking"), button -> {
-            switchTab(Tab.GIROKONTO);
+        checkingAccountTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.checking"), button -> {
+            switchTab(Tab.CHECKING_ACCOUNT);
         }).bounds(currentX, y + 20, 40, 18).build());
         currentX += 41;
 
-        sparkontoTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.savings"), button -> {
-            switchTab(Tab.SPARKONTO);
+        savingsAccountTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.savings"), button -> {
+            switchTab(Tab.SAVINGS_ACCOUNT);
         }).bounds(currentX, y + 20, 40, 18).build());
         currentX += 41;
 
-        ueberweisungTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.tab_transfer"), button -> {
-            switchTab(Tab.UEBERWEISUNG);
+        transferTabButton = addRenderableWidget(Button.builder(Component.translatable("gui.bank.tab_transfer"), button -> {
+            switchTab(Tab.TRANSFER);
         }).bounds(currentX, y + 20, 50, 18).build());
         currentX += 51;
 
@@ -327,26 +327,26 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     }
 
     private void updateComponentVisibility() {
-        boolean isGirokonto = currentTab == Tab.GIROKONTO;
-        boolean isSparkonto = currentTab == Tab.SPARKONTO;
-        boolean isUeberweisung = currentTab == Tab.UEBERWEISUNG;
+        boolean isCheckingAccount = currentTab == Tab.CHECKING_ACCOUNT;
+        boolean isSavingsAccount = currentTab == Tab.SAVINGS_ACCOUNT;
+        boolean isTransfer = currentTab == Tab.TRANSFER;
         boolean isHistorie = currentTab == Tab.HISTORIE;
         boolean isDauerauftraege = currentTab == Tab.DAUERAUFTRAEGE;
 
-        giroDepositAmountInput.visible = isGirokonto;
-        giroDepositButton.visible = isGirokonto;
-        giroWithdrawAmountInput.visible = isGirokonto;
-        giroWithdrawButton.visible = isGirokonto;
+        giroDepositAmountInput.visible = isCheckingAccount;
+        giroDepositButton.visible = isCheckingAccount;
+        giroWithdrawAmountInput.visible = isCheckingAccount;
+        giroWithdrawButton.visible = isCheckingAccount;
 
-        savingsDepositAmountInput.visible = isSparkonto;
-        savingsDepositButton.visible = isSparkonto;
-        savingsWithdrawAmountInput.visible = isSparkonto;
-        savingsWithdrawButton.visible = isSparkonto;
-        savingsForceWithdrawCheckbox.visible = isSparkonto;
+        savingsDepositAmountInput.visible = isSavingsAccount;
+        savingsDepositButton.visible = isSavingsAccount;
+        savingsWithdrawAmountInput.visible = isSavingsAccount;
+        savingsWithdrawButton.visible = isSavingsAccount;
+        savingsForceWithdrawCheckbox.visible = isSavingsAccount;
 
-        transferTargetInput.visible = isUeberweisung;
-        transferAmountInput.visible = isUeberweisung;
-        transferButton.visible = isUeberweisung;
+        transferTargetInput.visible = isTransfer;
+        transferAmountInput.visible = isTransfer;
+        transferButton.visible = isTransfer;
 
         recurringRecipientInput.visible = isDauerauftraege;
         recurringAmountInput.visible = isDauerauftraege;
@@ -432,9 +432,9 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
 
         switch (currentTab) {
             case UEBERSICHT -> renderUebersichtTab(guiGraphics, x, y);
-            case GIROKONTO -> renderGirokontoTab(guiGraphics, x, y);
-            case SPARKONTO -> renderSparkontoTab(guiGraphics, x, y);
-            case UEBERWEISUNG -> renderUeberweisungTab(guiGraphics, x, y);
+            case CHECKING_ACCOUNT -> renderCheckingAccountTab(guiGraphics, x, y);
+            case SAVINGS_ACCOUNT -> renderSavingsAccountTab(guiGraphics, x, y);
+            case TRANSFER -> renderTransferTab(guiGraphics, x, y);
             case HISTORIE -> renderHistorieTab(guiGraphics, x, y);
             case DAUERAUFTRAEGE -> renderDauerauftraegeTab(guiGraphics, x, y);
         }
@@ -447,21 +447,21 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
     private void renderUebersichtTab(GuiGraphics g, int x, int y) {
         g.drawString(font, cachedOverviewTitle, x + 55, y + 45, 0x404040, false);
 
-        double bargeld = ClientBankDataCache.getWalletBalance();
+        double cash = ClientBankDataCache.getWalletBalance();
         g.drawString(font, cachedCash, x + 30, y + 65, 0x808080, false);
-        g.drawString(font, MoneyFormat.format(bargeld), x + 125, y + 65, 0xFFAA00, false);
+        g.drawString(font, MoneyFormat.format(cash), x + 125, y + 65, 0xFFAA00, false);
 
-        double girokonto = ClientBankDataCache.getBalance();
+        double checkingAccount = ClientBankDataCache.getBalance();
         g.drawString(font, cachedCheckingBalance, x + 30, y + 85, 0x808080, false);
-        g.drawString(font, MoneyFormat.format(girokonto), x + 125, y + 85, 0x00AA00, false);
+        g.drawString(font, MoneyFormat.format(checkingAccount), x + 125, y + 85, 0x00AA00, false);
 
-        double sparkonto = ClientBankDataCache.getSavingsBalance();
+        double savingsAccount = ClientBankDataCache.getSavingsBalance();
         g.drawString(font, cachedSavings, x + 30, y + 105, 0x808080, false);
-        g.drawString(font, MoneyFormat.format(sparkonto), x + 125, y + 105, 0x6666FF, false);
+        g.drawString(font, MoneyFormat.format(savingsAccount), x + 125, y + 105, 0x6666FF, false);
 
         g.fill(x + 20, y + 120, x + 200, y + 121, 0x44FFFFFF);
 
-        double gesamt = bargeld + girokonto + sparkonto;
+        double gesamt = cash + checkingAccount + savingsAccount;
         g.drawString(font, cachedTotal, x + 30, y + 130, 0x404040, false);
         g.drawString(font, MoneyFormat.format(gesamt), x + 125, y + 130, 0xFFD700, false);
 
@@ -470,16 +470,16 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }
     }
 
-    private void renderGirokontoTab(GuiGraphics g, int x, int y) {
+    private void renderCheckingAccountTab(GuiGraphics g, int x, int y) {
         g.drawString(font, cachedCheckingTitle, x + 75, y + 45, 0x404040, false);
 
-        double girokonto = ClientBankDataCache.getBalance();
+        double checkingAccount = ClientBankDataCache.getBalance();
         g.drawString(font, cachedBalance, x + 20, y + 60, 0x808080, false);
-        g.drawString(font, MoneyFormat.format(girokonto), x + 125, y + 60, 0x00AA00, false);
+        g.drawString(font, MoneyFormat.format(checkingAccount), x + 125, y + 60, 0x00AA00, false);
 
-        double bargeld = ClientBankDataCache.getWalletBalance();
+        double cash = ClientBankDataCache.getWalletBalance();
         g.drawString(font, cachedCashBalance, x + 20, y + 72, 0x808080, false);
-        g.drawString(font, MoneyFormat.format(bargeld), x + 125, y + 72, 0xFFAA00, false);
+        g.drawString(font, MoneyFormat.format(cash), x + 125, y + 72, 0xFFAA00, false);
 
         g.drawString(font, cachedDepositFromCash, x + 15, y + 85, 0x808080, false);
         g.drawString(font, cachedWithdrawToCash, x + 15, y + 128, 0x808080, false);
@@ -514,16 +514,16 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         }
     }
 
-    private void renderSparkontoTab(GuiGraphics g, int x, int y) {
+    private void renderSavingsAccountTab(GuiGraphics g, int x, int y) {
         g.drawString(font, cachedSavingsTitle, x + 75, y + 45, 0x404040, false);
 
-        double sparkonto = ClientBankDataCache.getSavingsBalance();
+        double savingsAccount = ClientBankDataCache.getSavingsBalance();
         g.drawString(font, cachedBalance, x + 20, y + 60, 0x808080, false);
-        g.drawString(font, MoneyFormat.format(sparkonto), x + 125, y + 60, 0x6666FF, false);
+        g.drawString(font, MoneyFormat.format(savingsAccount), x + 125, y + 60, 0x6666FF, false);
 
-        double girokonto = ClientBankDataCache.getBalance();
+        double checkingAccount = ClientBankDataCache.getBalance();
         g.drawString(font, cachedCheckingBalance, x + 20, y + 72, 0x808080, false);
-        g.drawString(font, MoneyFormat.format(girokonto), x + 125, y + 72, 0x00AA00, false);
+        g.drawString(font, MoneyFormat.format(checkingAccount), x + 125, y + 72, 0x00AA00, false);
 
         g.drawString(font, cachedDepositFromChecking, x + 15, y + 85, 0x808080, false);
         g.drawString(font, cachedWithdrawToChecking, x + 15, y + 128, 0x808080, false);
@@ -536,7 +536,7 @@ public class BankerScreen extends AbstractContainerScreen<BankerMenu> {
         g.drawString(font, cachedLockPeriod, x + 15, y + 194, 0x606060, false);
     }
 
-    private void renderUeberweisungTab(GuiGraphics g, int x, int y) {
+    private void renderTransferTab(GuiGraphics g, int x, int y) {
         g.drawString(font, cachedTransferTitle, x + 70, y + 45, 0x404040, false);
         g.drawString(font, cachedRecipientName, x + 15, y + 58, 0x808080, false);
         g.drawString(font, cachedAmountLabel, x + 15, y + 96, 0x808080, false);

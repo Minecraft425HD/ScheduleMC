@@ -23,20 +23,20 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Processes a complete Werkstatt checkout: all selected services and upgrades
+ * Processes a complete Workshop checkout: all selected services and upgrades
  * are applied atomically and paid from the player's bank account.
  */
-public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckout> {
+public class MessageWorkshopCheckout implements Message<MessageWorkshopCheckout> {
 
     private UUID playerUuid;
     private UUID vehicleUuid;
-    private List<WerkstattCartItem> cartItems;
+    private List<WorkshopCartItem> cartItems;
 
-    public MessageWerkstattCheckout() {
+    public MessageWorkshopCheckout() {
         this.cartItems = new ArrayList<>();
     }
 
-    public MessageWerkstattCheckout(UUID playerUuid, UUID vehicleUuid, List<WerkstattCartItem> cartItems) {
+    public MessageWorkshopCheckout(UUID playerUuid, UUID vehicleUuid, List<WorkshopCartItem> cartItems) {
         this.playerUuid = playerUuid;
         this.vehicleUuid = vehicleUuid;
         this.cartItems = cartItems;
@@ -79,15 +79,15 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
 
         // Empty cart = just leave (no inspection fee)
         if (cartItems.isEmpty()) {
-            vehicle.unlockFromWerkstatt();
+            vehicle.unlockFromWorkshop();
             player.closeContainer();
             return;
         }
 
         // Calculate total cost: inspection fee + all cart items
-        double inspectionFee = ModConfigHandler.COMMON.WERKSTATT_BASE_INSPECTION_FEE.get();
+        double inspectionFee = ModConfigHandler.COMMON.WORKSHOP_BASE_INSPECTION_FEE.get();
         double itemsTotal = 0.0;
-        for (WerkstattCartItem item : cartItems) {
+        for (WorkshopCartItem item : cartItems) {
             itemsTotal += item.calculateCost(vehicle);
         }
         double totalCost = inspectionFee + itemsTotal;
@@ -106,8 +106,8 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
         }
 
         // Withdraw from bank account
-        if (!EconomyManager.withdraw(player.getUUID(), totalCost, TransactionType.WERKSTATT_FEE,
-                "Werkstatt-Auftrag: " + cartItems.size() + " Leistungen")) {
+        if (!EconomyManager.withdraw(player.getUUID(), totalCost, TransactionType.WORKSHOP_FEE,
+                "Workshop-Auftrag: " + cartItems.size() + " Leistungen")) {
             player.displayClientMessage(
                     Component.translatable("message.workshop.payment_failed").withStyle(ChatFormatting.RED),
                     false
@@ -117,7 +117,7 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
 
         // Apply all cart items
         boolean partsChanged = false;
-        for (WerkstattCartItem item : cartItems) {
+        for (WorkshopCartItem item : cartItems) {
             switch (item.getType()) {
                 case SERVICE_REPAIR -> {
                     vehicle.getDamageComponent().setDamage(0);
@@ -231,7 +231,7 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
         );
 
         // Unlock vehicle and close GUI
-        vehicle.unlockFromWerkstatt();
+        vehicle.unlockFromWorkshop();
         player.closeContainer();
     }
 
@@ -365,13 +365,13 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
     }
 
     @Override
-    public MessageWerkstattCheckout fromBytes(FriendlyByteBuf buf) {
+    public MessageWorkshopCheckout fromBytes(FriendlyByteBuf buf) {
         playerUuid = buf.readUUID();
         vehicleUuid = buf.readUUID();
         int count = buf.readInt();
         cartItems = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            cartItems.add(WerkstattCartItem.fromBytes(buf));
+            cartItems.add(WorkshopCartItem.fromBytes(buf));
         }
         return this;
     }
@@ -381,7 +381,7 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
         buf.writeUUID(playerUuid);
         buf.writeUUID(vehicleUuid);
         buf.writeInt(cartItems.size());
-        for (WerkstattCartItem item : cartItems) {
+        for (WorkshopCartItem item : cartItems) {
             item.toBytes(buf);
         }
     }

@@ -185,9 +185,9 @@ public class NegotiationPacket {
                         tobaccoType = TobaccoType.VIRGINIA;
                     }
                     try {
-                        tobaccoQuality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GUT;
+                        tobaccoQuality = qualityStr != null ? TobaccoQuality.valueOf(qualityStr.split("\\.")[1]) : TobaccoQuality.GOOD;
                     } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
-                        tobaccoQuality = TobaccoQuality.GUT;
+                        tobaccoQuality = TobaccoQuality.GOOD;
                     }
                 }
 

@@ -31,13 +31,13 @@ public class GangReputationTest {
     }
 
     @Test
-    void testGetForLevel_27_ReturnsLegendaer() {
-        assertThat(GangReputation.getForLevel(27)).isEqualTo(GangReputation.LEGENDAER);
+    void testGetForLevel_27_ReturnsLegendary() {
+        assertThat(GangReputation.getForLevel(27)).isEqualTo(GangReputation.LEGENDARY);
     }
 
     @Test
-    void testGetForLevel_30_ReturnsLegendaer() {
-        assertThat(GangReputation.getForLevel(30)).isEqualTo(GangReputation.LEGENDAER);
+    void testGetForLevel_30_ReturnsLegendary() {
+        assertThat(GangReputation.getForLevel(30)).isEqualTo(GangReputation.LEGENDARY);
     }
 
     // ── getStarsForLevel ────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ public class GangReputationTest {
 
     @Test
     void testGetStarsForLevel_27_HasStars() {
-        // LEGENDAER hat 4 Sterne
+        // LEGENDARY hat 4 Sterne
         String stars = GangReputation.getStarsForLevel(27);
         assertThat(stars).isNotEmpty();
         // Enthält Stern-Zeichen (★)

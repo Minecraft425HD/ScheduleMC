@@ -107,24 +107,24 @@ public class MicroDoserScreen extends AbstractContainerScreen<MicroDoserMenu> {
         // Dosierung anzeigen
         String dosageText = Component.translatable("gui.micro_doser.dose_display", micrograms, dosage.getDisplayName()).getString();
         int textColor = switch (dosage) {
-            case SCHLECHT -> 0xFFFF5555;  // Rot (00a7c)
-            case GUT -> 0xFFFFFF55;       // Gelb
-            case SEHR_GUT -> 0xFF55FF55;  // Grün
-            case LEGENDAER -> 0xFFFFAA00; // Gold (00a76)
+            case POOR -> 0xFFFF5555;  // Rot (00a7c)
+            case GOOD -> 0xFFFFFF55;       // Gelb
+            case VERY_GOOD -> 0xFF55FF55;  // Grün
+            case LEGENDARY -> 0xFFFFAA00; // Gold (00a76)
         };
 
         int textWidth = this.font.width(dosageText);
         graphics.drawString(this.font, dosageText, x + GUI_WIDTH / 2 - textWidth / 2, infoY + 6, textColor, true);
 
         // Lysergsäure-Anzahl
-        graphics.drawString(this.font, Component.translatable("gui.micro_doser.lysergic_acid", menu.getLysergsaeureCount()).getString(),
+        graphics.drawString(this.font, Component.translatable("gui.micro_doser.lysergic_acid", menu.getLysergicAcidCount()).getString(),
                 x + 30, y + 140, 0xFFFFFF, false);
     }
 
     private void renderStartButton(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
         boolean hovered = mouseX >= x && mouseX < x + BUTTON_WIDTH &&
                           mouseY >= y && mouseY < y + BUTTON_HEIGHT;
-        boolean canStart = menu.getLysergsaeureCount() > 0 && !menu.isProcessing();
+        boolean canStart = menu.getLysergicAcidCount() > 0 && !menu.isProcessing();
 
         int buttonColor;
         if (menu.isProcessing()) {
@@ -196,7 +196,7 @@ public class MicroDoserScreen extends AbstractContainerScreen<MicroDoserMenu> {
             int buttonY = y + BUTTON_Y;
             if (mouseX >= buttonX && mouseX < buttonX + BUTTON_WIDTH &&
                 mouseY >= buttonY && mouseY < buttonY + BUTTON_HEIGHT) {
-                if (menu.getLysergsaeureCount() > 0 && !menu.isProcessing()) {
+                if (menu.getLysergicAcidCount() > 0 && !menu.isProcessing()) {
                     menu.startProcess();
                     return true;
                 }

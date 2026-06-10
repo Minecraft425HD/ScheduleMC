@@ -125,8 +125,8 @@ public class BlockProtectionHandler {
                 return;
             }
 
-            // Setze Arbeitsort nur für VERKAEUFER
-            if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
+            // Setze Arbeitsort nur für MERCHANT
+            if (npc.getNpcData().getNpcType() == NPCType.MERCHANT) {
                 npc.getNpcData().getLocationData().setWorkLocation(clickedPos);
                 player.sendSystemMessage(
                     Component.translatable("message.npc.workplace_set")
@@ -136,7 +136,7 @@ public class BlockProtectionHandler {
                         .append(Component.translatable("message.common.at_location", clickedPos.toShortString())
                             .withStyle(ChatFormatting.WHITE))
                 );
-            } else if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
+            } else if (npc.getNpcData().getNpcType() == NPCType.CITIZEN) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.residents_no_workplace")
                         .withStyle(ChatFormatting.YELLOW)
@@ -213,7 +213,7 @@ public class BlockProtectionHandler {
                 );
 
                 // Unterschiedliche Hinweise je nach NPC-Typ
-                if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
+                if (npc.getNpcData().getNpcType() == NPCType.CITIZEN) {
                     player.sendSystemMessage(
                         Component.translatable("message.npc.right_click_set_home")
                             .withStyle(ChatFormatting.GRAY)
@@ -222,12 +222,12 @@ public class BlockProtectionHandler {
                         Component.translatable("message.npc.residents_no_work")
                             .withStyle(ChatFormatting.YELLOW)
                     );
-                } else if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
+                } else if (npc.getNpcData().getNpcType() == NPCType.MERCHANT) {
                     player.sendSystemMessage(
                         Component.translatable("message.npc.right_click_home_shift_work")
                             .withStyle(ChatFormatting.GRAY)
                     );
-                } else if (npc.getNpcData().getNpcType() == NPCType.POLIZEI) {
+                } else if (npc.getNpcData().getNpcType() == NPCType.POLICE) {
                     player.sendSystemMessage(
                         Component.translatable("message.npc.police_use_patrol_tool")
                             .withStyle(ChatFormatting.RED)
@@ -237,8 +237,8 @@ public class BlockProtectionHandler {
             // Handle LeisureTool
             else if (holdsLeisureTool) {
                 // Prüfe ob NPC Freizeitorte haben kann
-                if (npc.getNpcData().getNpcType() != NPCType.BEWOHNER
-                    && npc.getNpcData().getNpcType() != NPCType.VERKAEUFER) {
+                if (npc.getNpcData().getNpcType() != NPCType.CITIZEN
+                    && npc.getNpcData().getNpcType() != NPCType.MERCHANT) {
                     player.sendSystemMessage(
                         Component.translatable("message.npc.type_no_leisure")
                             .withStyle(ChatFormatting.RED)
@@ -279,7 +279,7 @@ public class BlockProtectionHandler {
             // Handle PatrolTool
             else if (holdsPatrolTool) {
                 // Prüfe ob es ein Polizist ist
-                if (npc.getNpcData().getNpcType() != NPCType.POLIZEI) {
+                if (npc.getNpcData().getNpcType() != NPCType.POLICE) {
                     player.sendSystemMessage(
                         Component.translatable("message.npc.patrol_tool_police_only")
                             .withStyle(ChatFormatting.RED)

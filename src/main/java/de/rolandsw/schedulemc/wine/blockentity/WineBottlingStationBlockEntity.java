@@ -89,7 +89,7 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
                 }
                 if (tag.contains("Quality")) {
                     try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
+                    catch (IllegalArgumentException e) { quality = WineQuality.POOR; }
                 }
                 if (tag.contains("AgeLevel")) {
                     try { ageLevel = WineAgeLevel.valueOf(tag.getString("AgeLevel")); }
@@ -235,7 +235,7 @@ public class WineBottlingStationBlockEntity extends AbstractItemHandlerBlockEnti
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = WineQuality.POOR; }
         }
         if (tag.contains("AgeLevel")) {
             try { ageLevel = WineAgeLevel.valueOf(tag.getString("AgeLevel")); }

@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.lsd.blocks;
 
 import de.rolandsw.schedulemc.lsd.blockentity.DistillationApparatusBlockEntity;
-import de.rolandsw.schedulemc.lsd.items.ErgotKulturItem;
+import de.rolandsw.schedulemc.lsd.items.ErgotCultureItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -52,8 +52,8 @@ public class DistillationApparatusBlock extends Block implements EntityBlock {
         ItemStack heldItem = player.getItemInHand(hand);
 
         // Ergot-Kultur hinzufügen
-        if (heldItem.getItem() instanceof ErgotKulturItem) {
-            if (apparat.addErgotKultur(heldItem)) {
+        if (heldItem.getItem() instanceof ErgotCultureItem) {
+            if (apparat.addErgotCulture(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
                 player.displayClientMessage(Component.translatable(
                         "block.lsd.distillation_input", apparat.getErgotCount()

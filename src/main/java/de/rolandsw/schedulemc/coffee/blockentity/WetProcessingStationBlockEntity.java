@@ -73,7 +73,7 @@ public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEnt
         if (!handlerInput.isEmpty() && inputStack.isEmpty()) {
             inputStack = handlerInput.copy();
             coffeeType = CoffeeType.ARABICA;
-            quality = CoffeeQuality.SEHR_GUT;
+            quality = CoffeeQuality.VERY_GOOD;
             currentStage = ProcessingStage.IDLE;
             processingProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -122,7 +122,7 @@ public class WetProcessingStationBlockEntity extends AbstractItemHandlerBlockEnt
                     ProcessingStage nextStage = currentStage.next();
 
                     if (nextStage == ProcessingStage.IDLE) {
-                        if (quality == null) quality = CoffeeQuality.SEHR_GUT;
+                        if (quality == null) quality = CoffeeQuality.VERY_GOOD;
                         CoffeeQuality finalQuality = quality.upgrade();  // NOPMD
                         int beanCount = inputStack.getCount() * 2;
                         outputStack = new ItemStack(de.rolandsw.schedulemc.coffee.items.CoffeeItems.GREEN_ARABICA_BEANS.get(), beanCount);

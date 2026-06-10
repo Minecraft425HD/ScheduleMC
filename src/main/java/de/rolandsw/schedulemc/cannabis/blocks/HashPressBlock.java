@@ -54,9 +54,9 @@ public class HashPressBlock extends BaseEntityBlock {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
-        if (!(level.getBlockEntity(pos) instanceof HashPressBlockEntity presse)) return InteractionResult.PASS;
+        if (!(level.getBlockEntity(pos) instanceof HashPressBlockEntity press)) return InteractionResult.PASS;
         if (player instanceof ServerPlayer serverPlayer) {
-            NetworkHooks.openScreen(serverPlayer, new HashPressMenu.Provider(presse), presse.getBlockPos());
+            NetworkHooks.openScreen(serverPlayer, new HashPressMenu.Provider(press), press.getBlockPos());
         }
         return InteractionResult.CONSUME;
     }
@@ -65,8 +65,8 @@ public class HashPressBlock extends BaseEntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof HashPressBlockEntity presse && presse.hasOutput()) {
-                ItemStack hash = presse.extractHash();
+            if (be instanceof HashPressBlockEntity press && press.hasOutput()) {
+                ItemStack hash = press.extractHash();
                 if (!hash.isEmpty()) {
                     Block.popResource(level, pos, hash);
                 }

@@ -12,9 +12,9 @@ import java.util.List;
  * Safrol - Grundzutat für MDMA
  * Gewonnen aus Sassafras-Öl
  */
-public class SafrolItem extends Item {
+public class SafroleItem extends Item {
 
-    public SafrolItem() {
+    public SafroleItem() {
         super(new Properties().stacksTo(64));
     }
 

@@ -127,7 +127,7 @@ public class CrushingStationBlockEntity extends AbstractItemHandlerBlockEntity i
                 // Crushing complete: Grapes → Mash
                 ItemStack mash = switch (wineType) {
                     case RIESLING -> new ItemStack(WineItems.RIESLING_MASH.get(), inputStack.getCount());
-                    case SPAETBURGUNDER -> new ItemStack(WineItems.SPAETBURGUNDER_MASH.get(), inputStack.getCount());
+                    case PINOT_NOIR -> new ItemStack(WineItems.PINOT_NOIR_MASH.get(), inputStack.getCount());
                     case CHARDONNAY -> new ItemStack(WineItems.CHARDONNAY_MASH.get(), inputStack.getCount());
                     case MERLOT -> new ItemStack(WineItems.MERLOT_MASH.get(), inputStack.getCount());
                 };
@@ -189,7 +189,7 @@ public class CrushingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = WineQuality.POOR; }
         }
         syncToHandler();
     }

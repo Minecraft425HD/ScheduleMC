@@ -68,10 +68,10 @@ public class ChocolateBarItem extends Item {
             try {
                 return ChocolateQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return ChocolateQuality.GUT;
+                return ChocolateQuality.GOOD;
             }
         }
-        return ChocolateQuality.GUT;
+        return ChocolateQuality.GOOD;
     }
 
     public static ChocolateAgeLevel getAgeLevel(ItemStack stack) {

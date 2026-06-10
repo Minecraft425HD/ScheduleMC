@@ -12,9 +12,9 @@ import java.util.List;
 /**
  * Backpulver (Natriumbicarbonat) - Zutat für Crack
  */
-public class BackpulverItem extends Item {
+public class BakingPowderItem extends Item {
 
-    public BackpulverItem() {
+    public BakingPowderItem() {
         super(new Properties().stacksTo(64));
     }
 

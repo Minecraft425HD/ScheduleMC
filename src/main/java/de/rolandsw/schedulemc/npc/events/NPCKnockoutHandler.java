@@ -98,10 +98,10 @@ public class NPCKnockoutHandler {
             witnesses.remove(npc);
 
             if (!witnesses.isEmpty()) {
-                // Prüfe ob POLIZEI dabei ist
+                // Prüfe ob POLICE dabei ist
                 boolean policePresent = false;
                 for (CustomNPCEntity witness : witnesses) {
-                    if (witness.getNpcType() == NPCType.POLIZEI) {
+                    if (witness.getNpcType() == NPCType.POLICE) {
                         policePresent = true;
                         break;
                     }
@@ -109,7 +109,7 @@ public class NPCKnockoutHandler {
 
                 double detectionChance;
                 if (policePresent) {
-                    // POLIZEI anwesend = 100% Erkennung!
+                    // POLICE anwesend = 100% Erkennung!
                     detectionChance = 1.0;
                 } else {
                     // Normale Zeugen: 15% pro Zeuge, max 90%
@@ -125,7 +125,7 @@ public class NPCKnockoutHandler {
 
                     if (isKnockout) {
                         // Knockout
-                        if (npc.getNpcType() == NPCType.POLIZEI) {
+                        if (npc.getNpcType() == NPCType.POLICE) {
                             starsToAdd = 4; // Polizist knockout
                             crimeType = "Polizist kampfunfähig geschlagen";
                             lifeCrimeType = de.rolandsw.schedulemc.npc.life.witness.CrimeType.ARMED_VIOLENCE;
@@ -173,7 +173,7 @@ public class NPCKnockoutHandler {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("[CRIME] Player {} - {} - Wanted Level: {} (+{} Sterne{})",
                             player.getName().getString(), crimeType, currentWantedLevel, starsToAdd,
-                            policePresent ? ", POLIZEI dabei!" : "");
+                            policePresent ? ", POLICE dabei!" : "");
                     }
                 }
             }

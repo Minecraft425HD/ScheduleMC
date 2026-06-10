@@ -34,10 +34,10 @@ public class RawOpiumItem extends Item {
             try {
                 return PoppyType.valueOf(stack.getTag().getString("PoppyType"));
             } catch (IllegalArgumentException e) {
-                return PoppyType.TUERKISCH;
+                return PoppyType.TURKISH;
             }
         }
-        return PoppyType.TUERKISCH;
+        return PoppyType.TURKISH;
     }
 
     public static TobaccoQuality getQuality(ItemStack stack) {
@@ -45,10 +45,10 @@ public class RawOpiumItem extends Item {
             try {
                 return TobaccoQuality.valueOf(stack.getTag().getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return TobaccoQuality.SCHLECHT;
+                return TobaccoQuality.POOR;
             }
         }
-        return TobaccoQuality.SCHLECHT;
+        return TobaccoQuality.POOR;
     }
 
     @Override

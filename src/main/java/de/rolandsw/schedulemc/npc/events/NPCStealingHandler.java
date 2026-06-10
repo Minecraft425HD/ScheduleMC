@@ -32,7 +32,7 @@ public class NPCStealingHandler {
             // Prüfe ob Target ein CustomNPC ist
             if (event.getTarget() instanceof CustomNPCEntity npc) {
             // Prüfe ob es kein Polizist ist
-            if (npc.getNpcType() == NPCType.POLIZEI) {
+            if (npc.getNpcType() == NPCType.POLICE) {
                 player.displayClientMessage(Component.translatable("message.stealing.cannot_steal_police"), true);
                 event.setCanceled(true);
                 return;

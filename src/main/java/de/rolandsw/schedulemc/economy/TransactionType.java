@@ -17,7 +17,7 @@ public enum TransactionType {
     ADMIN_TAKE,
     NPC_PURCHASE,
     VEHICLE_PURCHASE,
-    WERKSTATT_FEE,
+    WORKSHOP_FEE,
     ATM_FEE,
     TRANSFER_FEE,
     TAX_INCOME,

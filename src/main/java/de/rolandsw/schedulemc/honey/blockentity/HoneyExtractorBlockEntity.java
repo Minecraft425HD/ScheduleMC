@@ -91,7 +91,7 @@ public class HoneyExtractorBlockEntity extends AbstractItemHandlerBlockEntity im
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+                    catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
                 }
             }
             processingProgress = 0;
@@ -208,7 +208,7 @@ public class HoneyExtractorBlockEntity extends AbstractItemHandlerBlockEntity im
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
         }
         syncToHandler();
     }

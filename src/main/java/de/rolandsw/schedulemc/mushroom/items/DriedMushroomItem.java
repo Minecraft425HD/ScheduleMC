@@ -44,10 +44,10 @@ public class DriedMushroomItem extends Item {
             try {
                 return TobaccoQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException ex) {
-                return TobaccoQuality.GUT;
+                return TobaccoQuality.GOOD;
             }
         }
-        return TobaccoQuality.GUT;
+        return TobaccoQuality.GOOD;
     }
 
     private static Item getItemForType(MushroomType type) {

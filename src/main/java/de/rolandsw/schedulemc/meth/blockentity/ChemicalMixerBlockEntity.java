@@ -120,7 +120,7 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
      */
     public ItemStack extractAllOutput() {
         int totalCount = 0;
-        MethQuality bestQuality = MethQuality.SCHLECHT;
+        MethQuality bestQuality = MethQuality.POOR;
 
         for (int i = 0; i < CAPACITY; i++) {
             if (!outputSlots[i].isEmpty()) {
@@ -210,9 +210,9 @@ public class ChemicalMixerBlockEntity extends BlockEntity implements IUtilityCon
         double qualityChance = usedPseudoephedrine[slot] ? 0.35 : 0.25;
 
         if (level != null && level.random.nextFloat() < qualityChance) {
-            return MethQuality.GUT; // Chance auf bessere Qualität
+            return MethQuality.GOOD; // Chance auf bessere Qualität
         }
-        return MethQuality.SCHLECHT;
+        return MethQuality.POOR;
     }
 
     public boolean isActive() {

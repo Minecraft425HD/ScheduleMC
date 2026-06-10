@@ -10,7 +10,7 @@ import de.rolandsw.schedulemc.npc.client.screen.MerchantShopScreen;
 import de.rolandsw.schedulemc.npc.client.screen.ShopEditorScreen;
 import de.rolandsw.schedulemc.npc.client.screen.StealingScreen;
 import de.rolandsw.schedulemc.npc.client.screen.BankerScreen;
-import de.rolandsw.schedulemc.npc.client.screen.BoerseScreen;
+import de.rolandsw.schedulemc.npc.client.screen.StockMarketScreen;
 import de.rolandsw.schedulemc.npc.client.screen.CreditAdvisorScreen;
 import de.rolandsw.schedulemc.npc.entity.NPCEntities;
 import de.rolandsw.schedulemc.npc.menu.NPCMenuTypes;
@@ -39,7 +39,7 @@ public class NPCClientEvents {
                 MenuScreens.register(NPCMenuTypes.SHOP_EDITOR_MENU.get(), ShopEditorScreen::new);
                 MenuScreens.register(NPCMenuTypes.STEALING_MENU.get(), StealingScreen::new);
                 MenuScreens.register(NPCMenuTypes.BANKER_MENU.get(), BankerScreen::new);
-                MenuScreens.register(NPCMenuTypes.BOERSE_MENU.get(), BoerseScreen::new);
+                MenuScreens.register(NPCMenuTypes.STOCK_MARKET_MENU.get(), StockMarketScreen::new);
                 MenuScreens.register(NPCMenuTypes.CREDIT_ADVISOR_MENU.get(), CreditAdvisorScreen::new);
 
                 // Register Entity Renderer

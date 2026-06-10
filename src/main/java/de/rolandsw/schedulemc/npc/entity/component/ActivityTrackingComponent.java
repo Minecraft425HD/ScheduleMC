@@ -46,7 +46,7 @@ public class ActivityTrackingComponent implements NPCComponent {
         NPCType type = entity.getNpcType();
 
         // Polizei-NPCs
-        if (type == NPCType.POLIZEI) {
+        if (type == NPCType.POLICE) {
             if (entity.getNpcData().getPoliceData().getPatrolPoints() != null &&
                 !entity.getNpcData().getPoliceData().getPatrolPoints().isEmpty()) {
                 return NPCActivityStatus.ON_PATROL;

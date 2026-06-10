@@ -257,22 +257,22 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue UTILITY_WATER_PRICE_PER_LITER;
 
         // ═══════════════════════════════════════════════════════════
-        // WERKSTATT SYSTEM
+        // WORKSHOP SYSTEM
         // ═══════════════════════════════════════════════════════════
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_BASE_INSPECTION_FEE;
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_REPAIR_COST_PER_PERCENT;
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_BATTERY_COST_PER_PERCENT;
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_OIL_CHANGE_COST;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_BASE_INSPECTION_FEE;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_REPAIR_COST_PER_PERCENT;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_BATTERY_COST_PER_PERCENT;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_OIL_CHANGE_COST;
 
         // Upgrade costs
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_MOTOR_UPGRADE_COST_LVL2;
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_MOTOR_UPGRADE_COST_LVL3;
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_TANK_UPGRADE_COST_LVL2;
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_TANK_UPGRADE_COST_LVL3;
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_TIRE_UPGRADE_COST;
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_PAINT_CHANGE_COST;
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_FENDER_UPGRADE_COST_LVL2;
-        public final ForgeConfigSpec.DoubleValue WERKSTATT_FENDER_UPGRADE_COST_LVL3;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_MOTOR_UPGRADE_COST_LVL2;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_MOTOR_UPGRADE_COST_LVL3;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_TANK_UPGRADE_COST_LVL2;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_TANK_UPGRADE_COST_LVL3;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_TIRE_UPGRADE_COST;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_PAINT_CHANGE_COST;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_FENDER_UPGRADE_COST_LVL2;
+        public final ForgeConfigSpec.DoubleValue WORKSHOP_FENDER_UPGRADE_COST_LVL3;
 
         public Common(ForgeConfigSpec.Builder builder) {
             
@@ -869,54 +869,54 @@ public class ModConfigHandler {
 
             builder.pop();
 
-            builder.comment("Werkstatt System Settings")
+            builder.comment("Workshop System Settings")
                     .push("workshop");
 
-            WERKSTATT_BASE_INSPECTION_FEE = builder
+            WORKSHOP_BASE_INSPECTION_FEE = builder
                     .comment("Basis-Inspektionsgebühr in Euro (wird immer berechnet)")
                     .defineInRange("base_inspection_fee", 25.0, 0.0, 1000.0);
 
-            WERKSTATT_REPAIR_COST_PER_PERCENT = builder
+            WORKSHOP_REPAIR_COST_PER_PERCENT = builder
                     .comment("Reparaturkosten pro Prozent Schaden in Euro")
                     .defineInRange("repair_cost_per_percent", 2.0, 0.1, 100.0);
 
-            WERKSTATT_BATTERY_COST_PER_PERCENT = builder
+            WORKSHOP_BATTERY_COST_PER_PERCENT = builder
                     .comment("Batterieladungskosten pro Prozent in Euro")
                     .defineInRange("battery_cost_per_percent", 0.5, 0.1, 50.0);
 
-            WERKSTATT_OIL_CHANGE_COST = builder
+            WORKSHOP_OIL_CHANGE_COST = builder
                     .comment("Ölwechsel-Kosten in Euro")
                     .defineInRange("oil_change_cost", 15.0, 1.0, 500.0);
 
-            WERKSTATT_MOTOR_UPGRADE_COST_LVL2 = builder
+            WORKSHOP_MOTOR_UPGRADE_COST_LVL2 = builder
                     .comment("Kosten für Motor-Upgrade Level 2 (Normal -> Performance)")
                     .defineInRange("motor_upgrade_cost_lvl2", 500.0, 10.0, 10000.0);
 
-            WERKSTATT_MOTOR_UPGRADE_COST_LVL3 = builder
+            WORKSHOP_MOTOR_UPGRADE_COST_LVL3 = builder
                     .comment("Kosten für Motor-Upgrade Level 3 (Performance -> Performance 2)")
                     .defineInRange("motor_upgrade_cost_lvl3", 1000.0, 10.0, 20000.0);
 
-            WERKSTATT_TANK_UPGRADE_COST_LVL2 = builder
+            WORKSHOP_TANK_UPGRADE_COST_LVL2 = builder
                     .comment("Kosten für Tank-Upgrade Level 2 (15L -> 30L)")
                     .defineInRange("tank_upgrade_cost_lvl2", 200.0, 10.0, 5000.0);
 
-            WERKSTATT_TANK_UPGRADE_COST_LVL3 = builder
+            WORKSHOP_TANK_UPGRADE_COST_LVL3 = builder
                     .comment("Kosten für Tank-Upgrade Level 3 (30L -> 50L)")
                     .defineInRange("tank_upgrade_cost_lvl3", 400.0, 10.0, 10000.0);
 
-            WERKSTATT_TIRE_UPGRADE_COST = builder
+            WORKSHOP_TIRE_UPGRADE_COST = builder
                     .comment("Kosten für Reifen-Upgrade (pro Level)")
                     .defineInRange("tire_upgrade_cost", 150.0, 10.0, 5000.0);
 
-            WERKSTATT_PAINT_CHANGE_COST = builder
+            WORKSHOP_PAINT_CHANGE_COST = builder
                     .comment("Kosten für Lackierungswechsel")
                     .defineInRange("paint_change_cost", 100.0, 10.0, 5000.0);
 
-            WERKSTATT_FENDER_UPGRADE_COST_LVL2 = builder
+            WORKSHOP_FENDER_UPGRADE_COST_LVL2 = builder
                     .comment("Kosten für Fender-Upgrade Level 2 (Basic -> Chrome)")
                     .defineInRange("fender_upgrade_cost_lvl2", 250.0, 10.0, 5000.0);
 
-            WERKSTATT_FENDER_UPGRADE_COST_LVL3 = builder
+            WORKSHOP_FENDER_UPGRADE_COST_LVL3 = builder
                     .comment("Kosten für Fender-Upgrade Level 3 (Chrome -> Sport)")
                     .defineInRange("fender_upgrade_cost_lvl3", 500.0, 10.0, 10000.0);
 
@@ -1112,10 +1112,10 @@ public class ModConfigHandler {
                     "TOBACCO_VIRGINIA=6.0", "TOBACCO_BURLEY=8.0",
                     "TOBACCO_ORIENTAL=10.0", "TOBACCO_HAVANA=14.0",
                     // Kokain
-                    "COCA_BOLIVIANISCH=25.0", "COCA_PERUANISCH=35.0",
-                    "COCA_KOLUMBIANISCH=50.0", "CRACK_ROCK=40.0",
+                    "COCA_BOLIVIAN=25.0", "COCA_PERUVIAN=35.0",
+                    "COCA_COLOMBIAN=50.0", "CRACK_ROCK=40.0",
                     // Heroin (Mohn)
-                    "POPPY_INDISCH=20.0", "POPPY_TUERKISCH=35.0", "POPPY_AFGHANISCH=55.0",
+                    "POPPY_INDIAN=20.0", "POPPY_TURKISH=35.0", "POPPY_AFGHAN=55.0",
                     // Meth
                     "METH_STANDARD=30.0", "METH_GUT=50.0", "METH_BLUE_SKY=80.0",
                     // MDMA
@@ -1128,7 +1128,7 @@ public class ModConfigHandler {
                     "MUSHROOM_MEXICANA=10.0", "MUSHROOM_CUBENSIS=18.0", "MUSHROOM_AZURESCENS=35.0",
                     // Wein
                     "WINE_RIESLING=8.0", "WINE_CHARDONNAY=12.0",
-                    "WINE_SPAETBURGUNDER=15.0", "WINE_MERLOT=20.0",
+                    "WINE_PINOT_NOIR=15.0", "WINE_MERLOT=20.0",
                     // Bier
                     "BEER_PILSNER=5.0", "BEER_WEIZEN=6.0",
                     "BEER_ALE=7.0", "BEER_STOUT=9.0",

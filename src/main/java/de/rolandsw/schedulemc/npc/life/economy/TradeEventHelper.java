@@ -179,7 +179,7 @@ public class TradeEventHelper {
         );
 
         // Untergrund-Reputation steigt
-        FactionManager.getManager(level).modifyReputation(playerUUID, Faction.UNTERGRUND, 5);
+        FactionManager.getManager(level).modifyReputation(playerUUID, Faction.UNDERWORLD, 5);
     }
 
     /**

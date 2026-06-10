@@ -100,7 +100,7 @@ public class SpawnNPCPacket {
             }
 
             // SICHERHEIT: Prüfe Permission für spezielle NPC-Typen
-            if (npcType == NPCType.POLIZEI && !player.hasPermissions(2)) {
+            if (npcType == NPCType.POLICE && !player.hasPermissions(2)) {
                 player.sendSystemMessage(Component.translatable("message.npc.no_permission_type"));
                 return;
             }
@@ -165,13 +165,13 @@ public class SpawnNPCPacket {
      */
     private static void setupDialogForType(NPCData data, String npcName, NPCType npcType, MerchantCategory merchantCategory, BankCategory bankCategory, ServiceCategory serviceCategory) {
         switch (npcType) {
-            case BEWOHNER:
+            case CITIZEN:
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.resident.intro", npcName).getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.resident.help").getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.resident.goodbye").getString(), ""));
                 break;
 
-            case VERKAEUFER:
+            case MERCHANT:
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.merchant.welcome", merchantCategory.getDisplayName()).getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.merchant.intro", npcName).getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.merchant.offer").getString(), ""));
@@ -181,7 +181,7 @@ public class SpawnNPCPacket {
                 MerchantShopDefaults.setupShopItems(data, merchantCategory);
                 break;
 
-            case POLIZEI:
+            case POLICE:
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.police.intro", npcName).getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.police.help").getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.police.goodbye").getString(), ""));
@@ -194,7 +194,7 @@ public class SpawnNPCPacket {
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.bank.thanks").getString(), ""));
                 break;
 
-            case ABSCHLEPPER:
+            case TOW_TRUCK_DRIVER:
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.service.welcome", serviceCategory.getDisplayName()).getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.service.intro", npcName).getString(), ""));
                 data.addDialogEntry(new NPCData.DialogEntry(Component.translatable("npc.dialog.service.help").getString(), ""));

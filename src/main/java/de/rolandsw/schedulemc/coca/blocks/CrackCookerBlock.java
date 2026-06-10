@@ -46,7 +46,7 @@ public class CrackCookerBlock extends BaseEntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) return null;
-        return createTickerHelper(type, CocaBlockEntities.CRACK_KOCHER.get(),
+        return createTickerHelper(type, CocaBlockEntities.CRACK_COOKER.get(),
                 (lvl, pos, st, be) -> be.tick());
     }
 
@@ -54,9 +54,9 @@ public class CrackCookerBlock extends BaseEntityBlock {
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof CrackCookerBlockEntity kocher)) return InteractionResult.PASS;
+        if (!(be instanceof CrackCookerBlockEntity cooker)) return InteractionResult.PASS;
         if (player instanceof ServerPlayer serverPlayer) {
-            NetworkHooks.openScreen(serverPlayer, new CrackCookerMenu.Provider(kocher), buf -> buf.writeBlockPos(pos));
+            NetworkHooks.openScreen(serverPlayer, new CrackCookerMenu.Provider(cooker), buf -> buf.writeBlockPos(pos));
         }
         return InteractionResult.SUCCESS;
     }
@@ -65,8 +65,8 @@ public class CrackCookerBlock extends BaseEntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof CrackCookerBlockEntity kocher && kocher.hasOutput()) {
-                ItemStack crack = kocher.extractCrack();
+            if (be instanceof CrackCookerBlockEntity cooker && cooker.hasOutput()) {
+                ItemStack crack = cooker.extractCrack();
                 if (!crack.isEmpty()) {
                     Block.popResource(level, pos, crack);
                 }

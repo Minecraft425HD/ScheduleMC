@@ -155,13 +155,13 @@ public enum ItemCategory {
      */
     public static ItemCategory fromMerchantCategory(de.rolandsw.schedulemc.npc.data.MerchantCategory merchantCategory) {
         return switch (merchantCategory) {
-            case BAUMARKT -> BUILDING_MATERIAL;
-            case WAFFENHAENDLER -> WEAPON;
-            case TANKSTELLE -> SERVICE;
-            case LEBENSMITTEL -> FOOD;
-            case PERSONALMANAGEMENT -> SERVICE;
-            case ILLEGALER_HAENDLER -> CHEMICAL;
-            case AUTOHAENDLER -> VEHICLE;
+            case HARDWARE_STORE -> BUILDING_MATERIAL;
+            case WEAPONS_DEALER -> WEAPON;
+            case GAS_STATION -> SERVICE;
+            case GROCERY -> FOOD;
+            case STAFF_MANAGEMENT -> SERVICE;
+            case ILLEGAL_DEALER -> CHEMICAL;
+            case CAR_DEALER -> VEHICLE;
         };
     }
 }

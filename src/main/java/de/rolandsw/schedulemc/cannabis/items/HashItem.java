@@ -47,10 +47,10 @@ public class HashItem extends Item {
             try {
                 return CannabisQuality.valueOf(stack.getTag().getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return CannabisQuality.GUT;
+                return CannabisQuality.GOOD;
             }
         }
-        return CannabisQuality.GUT;
+        return CannabisQuality.GOOD;
     }
 
     public static int getWeight(ItemStack stack) {

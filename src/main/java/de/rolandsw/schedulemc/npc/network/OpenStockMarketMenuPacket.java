@@ -3,7 +3,7 @@ package de.rolandsw.schedulemc.npc.network;
 import de.rolandsw.schedulemc.npc.data.BankCategory;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
-import de.rolandsw.schedulemc.npc.menu.BoerseMenu;
+import de.rolandsw.schedulemc.npc.menu.StockMarketMenu;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -17,10 +17,10 @@ import java.util.function.Supplier;
 /**
  * Packet zum Öffnen des Börsen-Menüs
  */
-public class OpenBoerseMenuPacket {
+public class OpenStockMarketMenuPacket {
     private final int npcEntityId;
 
-    public OpenBoerseMenuPacket(int npcEntityId) {
+    public OpenStockMarketMenuPacket(int npcEntityId) {
         this.npcEntityId = npcEntityId;
     }
 
@@ -28,8 +28,8 @@ public class OpenBoerseMenuPacket {
         buf.writeInt(npcEntityId);
     }
 
-    public static OpenBoerseMenuPacket decode(FriendlyByteBuf buf) {
-        return new OpenBoerseMenuPacket(buf.readInt());
+    public static OpenStockMarketMenuPacket decode(FriendlyByteBuf buf) {
+        return new OpenStockMarketMenuPacket(buf.readInt());
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -37,9 +37,9 @@ public class OpenBoerseMenuPacket {
             Entity entity = player.level().getEntity(npcEntityId);
             if (entity instanceof CustomNPCEntity npc) {
                 // Prüfe ob es ein Bank-NPC mit Börse-Kategorie ist
-                if (npc.getNpcType() == NPCType.BANK && npc.getBankCategory() == BankCategory.BOERSE) {
+                if (npc.getNpcType() == NPCType.BANK && npc.getBankCategory() == BankCategory.STOCK_MARKET) {
                     NetworkHooks.openScreen(player, new SimpleMenuProvider(
-                        (id, playerInventory, p) -> new BoerseMenu(id, playerInventory, npc),
+                        (id, playerInventory, p) -> new StockMarketMenu(id, playerInventory, npc),
                         Component.translatable("gui.npc.stockbroker")
                     ), buf -> {
                         buf.writeInt(npc.getId());

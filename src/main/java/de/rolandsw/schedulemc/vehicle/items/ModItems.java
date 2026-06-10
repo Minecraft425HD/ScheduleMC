@@ -45,7 +45,7 @@ public class ModItems {
     public static final RegistryObject<ItemCarJack> WAGON_JACK = ITEM_REGISTER.register("wagon_jack", ItemCarJack::new);
 
     public static final RegistryObject<Item> FUEL_STATION = ITEM_REGISTER.register("fuel_station", () -> ModBlocks.FUEL_STATION.get().toItem());
-    public static final RegistryObject<Item> WERKSTATT = ITEM_REGISTER.register("workshop", () -> ModBlocks.WERKSTATT.get().toItem());
+    public static final RegistryObject<Item> WORKSHOP = ITEM_REGISTER.register("workshop", () -> ModBlocks.WORKSHOP.get().toItem());
 
     public static void init(IEventBus modEventBus) {
         ITEM_REGISTER.register(modEventBus);

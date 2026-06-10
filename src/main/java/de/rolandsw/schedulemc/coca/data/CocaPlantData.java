@@ -18,7 +18,7 @@ public class CocaPlantData {
 
     public CocaPlantData(CocaType type) {
         this.type = type;
-        this.quality = TobaccoQuality.GUT; // Standard-Qualität
+        this.quality = TobaccoQuality.GOOD; // Standard-Qualität
         this.growthStage = 0;
         this.ticksGrown = 0;
         this.hasFertilizer = false;

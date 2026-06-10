@@ -34,9 +34,9 @@ public class CocaPasteItem extends Item {
     public static ItemStack create(CocaType type, TobaccoQuality quality, int count) {
         // Wähle das richtige Item basierend auf dem CocaType
         Item pasteItem = switch (type) {
-            case BOLIVIANISCH -> CocaItems.COCA_PASTE_BOLIVIANISCH.get();
-            case KOLUMBIANISCH -> CocaItems.COCA_PASTE_KOLUMBIANISCH.get();
-            case PERUANISCH -> CocaItems.COCA_PASTE_PERUANISCH.get();
+            case BOLIVIAN -> CocaItems.COCA_PASTE_BOLIVIAN.get();
+            case COLOMBIAN -> CocaItems.COCA_PASTE_COLOMBIAN.get();
+            case PERUVIAN -> CocaItems.COCA_PASTE_PERUVIAN.get();
         };
 
         ItemStack stack = new ItemStack(pasteItem, count);
@@ -64,7 +64,7 @@ public class CocaPasteItem extends Item {
                 LOGGER.warn("Invalid CocaType '{}' on CocaPasteItem", tag.getString("CocaType"), exception);
             }
         }
-        return CocaType.BOLIVIANISCH; // Default
+        return CocaType.BOLIVIAN; // Default
     }
 
     /**
@@ -79,7 +79,7 @@ public class CocaPasteItem extends Item {
                 LOGGER.warn("Invalid Quality '{}' on CocaPasteItem", tag.getString("Quality"), exception);
             }
         }
-        return TobaccoQuality.GUT; // Default
+        return TobaccoQuality.GOOD; // Default
     }
 
     @Override

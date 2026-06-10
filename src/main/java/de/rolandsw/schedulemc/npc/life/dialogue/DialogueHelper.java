@@ -108,17 +108,17 @@ public class DialogueHelper {
 
         // NPC-Typ-spezifische Varianten
         switch (npc.getNpcType()) {
-            case POLIZEI -> {
+            case POLICE -> {
                 if (npc.getLifeData() != null &&
                     npc.getLifeData().getMemory().hasPlayerTag(player.getUUID(), "Gesucht")) {
                     return "Halt! Sie sind zur Fahndung ausgeschrieben!";
                 }
                 return "Guten Tag, Bürger. Alles in Ordnung?";
             }
-            case VERKAEUFER -> {
+            case MERCHANT -> {
                 return baseGreeting.isEmpty() ? "Willkommen in meinem Geschäft!" : baseGreeting;
             }
-            case BEWOHNER -> {
+            case CITIZEN -> {
                 return baseGreeting;
             }
             default -> {
@@ -142,7 +142,7 @@ public class DialogueHelper {
         options.add(new DialogueOptionInfo("talk", "Reden", "Unterhalten Sie sich mit dem NPC"));
 
         // Händler-spezifisch
-        if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER) {
+        if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT) {
             if (npc.isWillingToTrade()) {
                 options.add(new DialogueOptionInfo("trade", "Handeln", "Kaufen oder verkaufen Sie Waren"));
             } else {
@@ -192,8 +192,8 @@ public class DialogueHelper {
      * Prüft ob ein NPC als Begleiter rekrutiert werden kann
      */
     private static boolean canBecomeCompanion(CustomNPCEntity npc, ServerPlayer player) {
-        // NPCs vom Typ BEWOHNER können potentiell Begleiter werden
-        if (npc.getNpcType() != de.rolandsw.schedulemc.npc.data.NPCType.BEWOHNER) {
+        // NPCs vom Typ CITIZEN können potentiell Begleiter werden
+        if (npc.getNpcType() != de.rolandsw.schedulemc.npc.data.NPCType.CITIZEN) {
             return false;
         }
 

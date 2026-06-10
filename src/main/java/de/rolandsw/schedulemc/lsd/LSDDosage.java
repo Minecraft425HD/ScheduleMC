@@ -9,16 +9,16 @@ import java.util.Locale;
  * LSD-Qualitätsstufen (basierend auf Dosierung)
  *
  * Einheitliches 4-Stufen-System:
- * - SCHLECHT (Level 0) - 50μg
- * - GUT (Level 1) - 100μg
- * - SEHR_GUT (Level 2) - 200μg
- * - LEGENDAER (Level 3) - 300μg (Bicycle Day)
+ * - POOR (Level 0) - 50μg
+ * - GOOD (Level 1) - 100μg
+ * - VERY_GOOD (Level 2) - 200μg
+ * - LEGENDARY (Level 3) - 300μg (Bicycle Day)
  */
 public enum LSDDosage implements ProductionQuality {
-    SCHLECHT("§c", 0, 50, 0.7),
-    GUT("§e", 1, 100, 1.0),
-    SEHR_GUT("§a", 2, 200, 2.0),
-    LEGENDAER("§6§l", 3, 300, 4.0);
+    POOR("§c", 0, 50, 0.7),
+    GOOD("§e", 1, 100, 1.0),
+    VERY_GOOD("§a", 2, 200, 2.0),
+    LEGENDARY("§6§l", 3, 300, 4.0);
 
     private final String colorCode;
     private final int level;
@@ -67,18 +67,18 @@ public enum LSDDosage implements ProductionQuality {
     @Override
     public LSDDosage upgrade() {
         return switch (this) {
-            case SCHLECHT -> GUT;
-            case GUT -> SEHR_GUT;
-            case SEHR_GUT, LEGENDAER -> LEGENDAER;
+            case POOR -> GOOD;
+            case GOOD -> VERY_GOOD;
+            case VERY_GOOD, LEGENDARY -> LEGENDARY;
         };
     }
 
     @Override
     public LSDDosage downgrade() {
         return switch (this) {
-            case SCHLECHT, GUT -> SCHLECHT;
-            case SEHR_GUT -> GUT;
-            case LEGENDAER -> SEHR_GUT;
+            case POOR, GOOD -> POOR;
+            case VERY_GOOD -> GOOD;
+            case LEGENDARY -> VERY_GOOD;
         };
     }
 
@@ -88,17 +88,17 @@ public enum LSDDosage implements ProductionQuality {
                 return dosage;
             }
         }
-        return SCHLECHT;
+        return POOR;
     }
 
     /**
      * Berechnet Dosierung basierend auf Slider-Wert (0-100)
      */
     public static LSDDosage fromSliderValue(int sliderValue) {
-        if (sliderValue >= 75) return LEGENDAER;
-        if (sliderValue >= 50) return SEHR_GUT;
-        if (sliderValue >= 25) return GUT;
-        return SCHLECHT;
+        if (sliderValue >= 75) return LEGENDARY;
+        if (sliderValue >= 50) return VERY_GOOD;
+        if (sliderValue >= 25) return GOOD;
+        return POOR;
     }
 
     /**

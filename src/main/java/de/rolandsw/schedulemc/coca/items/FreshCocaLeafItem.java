@@ -34,9 +34,9 @@ public class FreshCocaLeafItem extends Item {
     public static ItemStack create(CocaType type, TobaccoQuality quality, int count) {
         // Wähle das richtige Item basierend auf dem CocaType
         Item leafItem = switch (type) {
-            case BOLIVIANISCH -> CocaItems.FRESH_BOLIVIANISCH_LEAF.get();
-            case KOLUMBIANISCH -> CocaItems.FRESH_KOLUMBIANISCH_LEAF.get();
-            case PERUANISCH -> CocaItems.FRESH_PERUANISCH_LEAF.get();
+            case BOLIVIAN -> CocaItems.FRESH_BOLIVIAN_LEAF.get();
+            case COLOMBIAN -> CocaItems.FRESH_COLOMBIAN_LEAF.get();
+            case PERUVIAN -> CocaItems.FRESH_PERUVIAN_LEAF.get();
         };
 
         ItemStack stack = new ItemStack(leafItem, count);
@@ -64,7 +64,7 @@ public class FreshCocaLeafItem extends Item {
                 LOGGER.warn("Invalid CocaType '{}' on FreshCocaLeafItem", tag.getString("CocaType"), exception);
             }
         }
-        return CocaType.BOLIVIANISCH; // Default
+        return CocaType.BOLIVIAN; // Default
     }
 
     /**
@@ -79,7 +79,7 @@ public class FreshCocaLeafItem extends Item {
                 LOGGER.warn("Invalid Quality '{}' on FreshCocaLeafItem", tag.getString("Quality"), exception);
             }
         }
-        return TobaccoQuality.GUT; // Default
+        return TobaccoQuality.GOOD; // Default
     }
 
     @Override

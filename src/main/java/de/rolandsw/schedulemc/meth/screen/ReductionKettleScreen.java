@@ -213,10 +213,10 @@ public class ReductionKettleScreen extends AbstractContainerScreen<ReductionKett
 
         // Qualitäts-Farbe
         int qualityColor = switch (expected) {
-            case SCHLECHT -> 0xFFFF5555;  // Rot (00a7c)
-            case GUT -> 0xFFFFFF55;       // Gelb
-            case SEHR_GUT -> 0xFF55FF55;  // Grün
-            case LEGENDAER -> 0xFFFFAA00; // Gold (00a76)
+            case POOR -> 0xFFFF5555;  // Rot (00a7c)
+            case GOOD -> 0xFFFFFF55;       // Gelb
+            case VERY_GOOD -> 0xFF55FF55;  // Grün
+            case LEGENDARY -> 0xFFFFAA00; // Gold (00a76)
         };
 
         graphics.fill(x + 2, y + 2, x + 128, y + 14, qualityColor);

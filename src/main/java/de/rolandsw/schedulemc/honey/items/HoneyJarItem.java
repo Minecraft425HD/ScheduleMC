@@ -82,10 +82,10 @@ public class HoneyJarItem extends Item {
             try {
                 return HoneyQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return HoneyQuality.GUT;
+                return HoneyQuality.GOOD;
             }
         }
-        return HoneyQuality.GUT;
+        return HoneyQuality.GOOD;
     }
 
     public static HoneyAgeLevel getAgeLevel(ItemStack stack) {

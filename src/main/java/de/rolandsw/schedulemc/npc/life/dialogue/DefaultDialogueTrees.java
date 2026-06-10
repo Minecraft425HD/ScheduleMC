@@ -18,22 +18,22 @@ public class DefaultDialogueTrees {
     public static void registerAll(DialogueManager mgr) {
         if (mgr == null) return;
 
-        mgr.registerTree(buildBewohnerTree());
-        mgr.registerTree(buildBewohnerMissionTree());
-        mgr.registerTree(buildVerkaeuferTree());
-        mgr.registerTree(buildPolizeiTree());
+        mgr.registerTree(buildCitizenTree());
+        mgr.registerTree(buildCitizenMissionTree());
+        mgr.registerTree(buildMerchantTree());
+        mgr.registerTree(buildPoliceTree());
         mgr.registerTree(buildBankTree());
-        mgr.registerTree(buildAbschlepperTree());
+        mgr.registerTree(buildTowTruckTree());
     }
 
     // ═══════════════════════════════════════════════════════════
-    // BEWOHNER
+    // CITIZEN
     // ═══════════════════════════════════════════════════════════
 
-    private static DialogueTree buildBewohnerTree() {
-        return new DialogueTree("bewohner_global", "Bewohner Standard-Dialog")
+    private static DialogueTree buildCitizenTree() {
+        return new DialogueTree("citizen_global", "Bewohner Standard-Dialog")
             .addTag("global")
-            .startCondition(npcTypeIs(NPCType.BEWOHNER))
+            .startCondition(npcTypeIs(NPCType.CITIZEN))
             .priority(5)
             .addNodes(
                 DialogueNode.simple("start",
@@ -56,14 +56,14 @@ public class DefaultDialogueTrees {
     }
 
     /**
-     * Höherprioritäter Baum wenn BEWOHNER Missionen in seiner NPCData hat.
+     * Höherprioritäter Baum wenn CITIZEN Missionen in seiner NPCData hat.
      */
-    private static DialogueTree buildBewohnerMissionTree() {
+    private static DialogueTree buildCitizenMissionTree() {
         String missionId = "neben_handel_01";
-        return new DialogueTree("bewohner_mission_global", "Bewohner Mission-Dialog")
+        return new DialogueTree("citizen_mission_global", "Bewohner Mission-Dialog")
             .addTag("global")
             .startCondition(DialogueCondition.and(
-                npcTypeIs(NPCType.BEWOHNER),
+                npcTypeIs(NPCType.CITIZEN),
                 DialogueCondition.npcHasMission(missionId)
             ))
             .priority(10)
@@ -116,13 +116,13 @@ public class DefaultDialogueTrees {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // VERKAEUFER
+    // MERCHANT
     // ═══════════════════════════════════════════════════════════
 
-    private static DialogueTree buildVerkaeuferTree() {
-        return new DialogueTree("verkaeufer_global", "Verkäufer Standard-Dialog")
+    private static DialogueTree buildMerchantTree() {
+        return new DialogueTree("merchant_global", "Verkäufer Standard-Dialog")
             .addTag("global")
-            .startCondition(npcTypeIs(NPCType.VERKAEUFER))
+            .startCondition(npcTypeIs(NPCType.MERCHANT))
             .priority(5)
             .addNodes(
                 DialogueNode.simple("start",
@@ -145,13 +145,13 @@ public class DefaultDialogueTrees {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // POLIZEI
+    // POLICE
     // ═══════════════════════════════════════════════════════════
 
-    private static DialogueTree buildPolizeiTree() {
-        return new DialogueTree("polizei_global", "Polizei Standard-Dialog")
+    private static DialogueTree buildPoliceTree() {
+        return new DialogueTree("police_global", "Polizei Standard-Dialog")
             .addTag("global")
-            .startCondition(npcTypeIs(NPCType.POLIZEI))
+            .startCondition(npcTypeIs(NPCType.POLICE))
             .priority(5)
             .addNodes(
                 DialogueNode.simple("start",
@@ -201,13 +201,13 @@ public class DefaultDialogueTrees {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // ABSCHLEPPER
+    // TOW_TRUCK_DRIVER
     // ═══════════════════════════════════════════════════════════
 
-    private static DialogueTree buildAbschlepperTree() {
-        return new DialogueTree("abschlepper_global", "Abschlepper Standard-Dialog")
+    private static DialogueTree buildTowTruckTree() {
+        return new DialogueTree("tow_truck_driver_global", "Abschlepper Standard-Dialog")
             .addTag("global")
-            .startCondition(npcTypeIs(NPCType.ABSCHLEPPER))
+            .startCondition(npcTypeIs(NPCType.TOW_TRUCK_DRIVER))
             .priority(5)
             .addNodes(
                 DialogueNode.simple("start",

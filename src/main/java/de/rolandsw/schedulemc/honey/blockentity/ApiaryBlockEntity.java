@@ -37,7 +37,7 @@ public class ApiaryBlockEntity extends AbstractItemHandlerBlockEntity implements
 
     private int tickCount = 0;
     private HoneyType honeyType = HoneyType.WILDFLOWER;
-    private HoneyQuality quality = HoneyQuality.LEGENDAER;
+    private HoneyQuality quality = HoneyQuality.LEGENDARY;
 
     private static final int PRODUCTION_TIME = 600; // 30 seconds
 
@@ -132,16 +132,16 @@ public class ApiaryBlockEntity extends AbstractItemHandlerBlockEntity implements
         // Apiary produces premium quality
         if (temperature > 1.5f) {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.LEGENDAER;
+            quality = HoneyQuality.LEGENDARY;
         } else if (temperature < 0.3f) {
             honeyType = HoneyType.FOREST;
-            quality = HoneyQuality.LEGENDAER;
+            quality = HoneyQuality.LEGENDARY;
         } else if (temperature >= 0.6f && temperature <= 0.95f) {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.LEGENDAER;
+            quality = HoneyQuality.LEGENDARY;
         } else {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.LEGENDAER;
+            quality = HoneyQuality.LEGENDARY;
         }
     }
 
@@ -174,7 +174,7 @@ public class ApiaryBlockEntity extends AbstractItemHandlerBlockEntity implements
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
         }
     }
 

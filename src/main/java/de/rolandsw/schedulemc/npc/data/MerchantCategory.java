@@ -6,16 +6,16 @@ import java.util.Locale;
 
 /**
  * Enum für verschiedene Verkäufer-Kategorien
- * Nur relevant wenn NPCType == VERKAEUFER
+ * Nur relevant wenn NPCType == MERCHANT
  */
 public enum MerchantCategory {
-    BAUMARKT,
-    WAFFENHAENDLER,
-    TANKSTELLE,
-    LEBENSMITTEL,
-    PERSONALMANAGEMENT,
-    ILLEGALER_HAENDLER,
-    AUTOHAENDLER;
+    HARDWARE_STORE,
+    WEAPONS_DEALER,
+    GAS_STATION,
+    GROCERY,
+    STAFF_MANAGEMENT,
+    ILLEGAL_DEALER,
+    CAR_DEALER;
 
     public String getDisplayName() {
         return Component.translatable("enum.merchant_category." + this.name().toLowerCase(Locale.ROOT)).getString();
@@ -25,6 +25,6 @@ public enum MerchantCategory {
         if (ordinal >= 0 && ordinal < values().length) {
             return values()[ordinal];
         }
-        return BAUMARKT; // Default
+        return HARDWARE_STORE; // Default
     }
 }

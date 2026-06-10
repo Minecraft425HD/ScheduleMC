@@ -8,15 +8,11 @@ import java.util.Locale;
  * Enum für verschiedene NPC-Typen
  */
 public enum NPCType {
-    BEWOHNER,
-    VERKAEUFER,
-    POLIZEI,
-    BANK,
-    ABSCHLEPPER,
-    // Aliase für englische Namen (API Kompatibilität)
     CITIZEN,
     MERCHANT,
     POLICE,
+    BANK,
+    TOW_TRUCK_DRIVER,
     BANKER,
     DRUG_DEALER;
 
@@ -28,6 +24,6 @@ public enum NPCType {
         if (ordinal >= 0 && ordinal < values().length) {
             return values()[ordinal];
         }
-        return BEWOHNER; // Default
+        return CITIZEN; // Default
     }
 }

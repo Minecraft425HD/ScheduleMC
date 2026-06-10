@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.vehicle.gui;
 
 import de.rolandsw.schedulemc.vehicle.Main;
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityWerkstatt;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityWorkshop;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -11,14 +11,14 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class ContainerWerkstatt extends ContainerBase {
+public class ContainerWorkshop extends ContainerBase {
 
     private final EntityGenericVehicle vehicle;
-    private final TileEntityWerkstatt workshop;
+    private final TileEntityWorkshop workshop;
 
     // Server-side constructor
-    public ContainerWerkstatt(int id, EntityGenericVehicle vehicle, TileEntityWerkstatt workshop, Inventory playerInv) {
-        super(Main.WERKSTATT_CONTAINER_TYPE.get(), id, playerInv, null);
+    public ContainerWorkshop(int id, EntityGenericVehicle vehicle, TileEntityWorkshop workshop, Inventory playerInv) {
+        super(Main.WORKSHOP_CONTAINER_TYPE.get(), id, playerInv, null);
         this.vehicle = vehicle;
         this.workshop = workshop;
 
@@ -29,8 +29,8 @@ public class ContainerWerkstatt extends ContainerBase {
     }
 
     // Client-side constructor
-    public ContainerWerkstatt(int id, Inventory playerInv, FriendlyByteBuf extraData) {
-        super(Main.WERKSTATT_CONTAINER_TYPE.get(), id, playerInv, null);
+    public ContainerWorkshop(int id, Inventory playerInv, FriendlyByteBuf extraData) {
+        super(Main.WORKSHOP_CONTAINER_TYPE.get(), id, playerInv, null);
 
         // Read block position (from default TileEntityContainerProvider)
         extraData.readBlockPos();
@@ -43,7 +43,7 @@ public class ContainerWerkstatt extends ContainerBase {
         this.vehicle = findVehicleByUUID(level, vehicleUUID);
 
         // Get workshop tile entity
-        this.workshop = null; // Werkstatt reference not needed on client
+        this.workshop = null; // Workshop reference not needed on client
 
         // Add dummy data slots to match server-side (1 slot for isActive)
         addDataSlots(new net.minecraft.world.inventory.SimpleContainerData(1));
@@ -70,7 +70,7 @@ public class ContainerWerkstatt extends ContainerBase {
         return vehicle;
     }
 
-    public TileEntityWerkstatt getWerkstatt() {
+    public TileEntityWorkshop getWorkshop() {
         return workshop;
     }
 

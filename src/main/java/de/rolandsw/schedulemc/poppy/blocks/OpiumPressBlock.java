@@ -34,8 +34,8 @@ public class OpiumPressBlock extends Block implements EntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide ? null : (lvl, pos, st, be) -> {
-            if (be instanceof OpiumPressBlockEntity presseBE) {
-                presseBE.tick();
+            if (be instanceof OpiumPressBlockEntity pressBE) {
+                pressBE.tick();
             }
         };
     }
@@ -45,9 +45,9 @@ public class OpiumPressBlock extends Block implements EntityBlock {
                                  InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof OpiumPressBlockEntity presseBE)) return InteractionResult.PASS;
+        if (!(be instanceof OpiumPressBlockEntity pressBE)) return InteractionResult.PASS;
         if (player instanceof ServerPlayer serverPlayer) {
-            NetworkHooks.openScreen(serverPlayer, new OpiumPressMenu.Provider(presseBE), buf -> buf.writeBlockPos(pos));
+            NetworkHooks.openScreen(serverPlayer, new OpiumPressMenu.Provider(pressBE), buf -> buf.writeBlockPos(pos));
         }
         return InteractionResult.SUCCESS;
     }

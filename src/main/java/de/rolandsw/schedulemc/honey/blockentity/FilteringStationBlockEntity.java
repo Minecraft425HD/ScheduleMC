@@ -90,7 +90,7 @@ public class FilteringStationBlockEntity extends AbstractItemHandlerBlockEntity 
                 }
                 if (tag.contains("Quality")) {
                     try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+                    catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
                 }
             }
             processingProgress = 0;
@@ -172,12 +172,12 @@ public class FilteringStationBlockEntity extends AbstractItemHandlerBlockEntity 
     }
 
     private HoneyQuality upgradeQuality(HoneyQuality current) {
-        if (current == null) return HoneyQuality.GUT;
+        if (current == null) return HoneyQuality.GOOD;
         return switch (current) {
-            case SCHLECHT -> HoneyQuality.GUT;
-            case GUT -> HoneyQuality.SEHR_GUT;
-            case SEHR_GUT -> HoneyQuality.SEHR_GUT; // Max at SEHR_GUT for filtering
-            case LEGENDAER -> HoneyQuality.LEGENDAER; // Already max
+            case POOR -> HoneyQuality.GOOD;
+            case GOOD -> HoneyQuality.VERY_GOOD;
+            case VERY_GOOD -> HoneyQuality.VERY_GOOD; // Max at VERY_GOOD for filtering
+            case LEGENDARY -> HoneyQuality.LEGENDARY; // Already max
         };
     }
 
@@ -213,7 +213,7 @@ public class FilteringStationBlockEntity extends AbstractItemHandlerBlockEntity 
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
         }
         syncToHandler();
     }

@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.vehicle.blocks;
 
 import de.rolandsw.schedulemc.vehicle.Main;
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityWerkstatt;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityWorkshop;
 import de.maxhenkel.corelib.block.IItemBlock;
 import de.maxhenkel.corelib.reflection.ReflectionUtils;
 import net.minecraft.world.level.block.Block;
@@ -18,9 +18,9 @@ public class ModBlocks {
 
     public static final RegistryObject<BlockFuelStation> FUEL_STATION = BLOCK_REGISTER.register("fuel_station", () -> new BlockFuelStation());
     public static final RegistryObject<BlockFuelStationTop> FUEL_STATION_TOP = BLOCK_REGISTER.register("fuel_station_top", () -> new BlockFuelStationTop());
-    public static final RegistryObject<BlockWerkstatt> WERKSTATT = BLOCK_REGISTER.register("workshop", () -> new BlockWerkstatt());
-    public static final RegistryObject<BlockEntityType<TileEntityWerkstatt>> WERKSTATT_TILE_ENTITY_TYPE = BLOCK_ENTITY_REGISTER.register("workshop", () ->
-            BlockEntityType.Builder.of(TileEntityWerkstatt::new, WERKSTATT.get()).build(null)
+    public static final RegistryObject<BlockWorkshop> WORKSHOP = BLOCK_REGISTER.register("workshop", () -> new BlockWorkshop());
+    public static final RegistryObject<BlockEntityType<TileEntityWorkshop>> WORKSHOP_TILE_ENTITY_TYPE = BLOCK_ENTITY_REGISTER.register("workshop", () ->
+            BlockEntityType.Builder.of(TileEntityWorkshop::new, WORKSHOP.get()).build(null)
     );
 
     public static void init(IEventBus modEventBus) {

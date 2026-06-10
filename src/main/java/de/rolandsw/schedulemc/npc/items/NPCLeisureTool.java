@@ -72,8 +72,8 @@ public class NPCLeisureTool extends Item {
             }
 
             // Prüfe ob NPC Freizeitorte haben kann
-            if (npc.getNpcData().getNpcType() != NPCType.BEWOHNER
-                && npc.getNpcData().getNpcType() != NPCType.VERKAEUFER) {
+            if (npc.getNpcData().getNpcType() != NPCType.CITIZEN
+                && npc.getNpcData().getNpcType() != NPCType.MERCHANT) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.type_no_leisure")
                         .withStyle(ChatFormatting.RED)
@@ -140,8 +140,8 @@ public class NPCLeisureTool extends Item {
 
         if (!player.level().isClientSide) {
             // Prüfe ob NPC Freizeitorte haben kann
-            if (npc.getNpcData().getNpcType() != NPCType.BEWOHNER
-                && npc.getNpcData().getNpcType() != NPCType.VERKAEUFER) {
+            if (npc.getNpcData().getNpcType() != NPCType.CITIZEN
+                && npc.getNpcData().getNpcType() != NPCType.MERCHANT) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.type_no_leisure")
                         .withStyle(ChatFormatting.RED)
@@ -230,12 +230,12 @@ public class NPCLeisureTool extends Item {
         }
 
         // Typ-spezifische Info
-        if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
+        if (npc.getNpcData().getNpcType() == NPCType.CITIZEN) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.leisure_info_residents")
                     .withStyle(ChatFormatting.DARK_GRAY)
             );
-        } else if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
+        } else if (npc.getNpcData().getNpcType() == NPCType.MERCHANT) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.leisure_info_sellers")
                     .withStyle(ChatFormatting.DARK_GRAY)

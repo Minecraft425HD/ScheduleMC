@@ -12,9 +12,9 @@ import java.util.List;
  * Blotter-Papier - Leeres Löschpapier für LSD
  * Wird in der Perforations-Presse mit LSD-Lösung versehen
  */
-public class BlotterPapierItem extends Item {
+public class BlotterPaperItem extends Item {
 
-    public BlotterPapierItem() {
+    public BlotterPaperItem() {
         super(new Properties().stacksTo(64));
     }
 

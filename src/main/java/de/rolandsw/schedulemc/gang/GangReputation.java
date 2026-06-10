@@ -10,7 +10,7 @@ public enum GangReputation {
     BEKANNT("Bekannt", "\u00A7e", 5, 1),
     RESPEKTIERT("Respektiert", "\u00A76", 12, 2),
     GEFUERCHTET("Gefuerchtet", "\u00A7c", 20, 3),
-    LEGENDAER("Legendaer", "\u00A74", 27, 4);
+    LEGENDARY("Legendaer", "\u00A74", 27, 4);
 
     private static final int LEVELS_PER_STAR = 6;
 

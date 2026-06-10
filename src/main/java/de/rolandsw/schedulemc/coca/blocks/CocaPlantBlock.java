@@ -135,11 +135,11 @@ public class CocaPlantBlock extends Block {
             if (age >= 7) {
                 // Voll ausgewachsen - voller Ertrag
                 int yield = cocaType.getBaseYield();
-                drops.add(FreshCocaLeafItem.create(cocaType, TobaccoQuality.GUT, yield));
+                drops.add(FreshCocaLeafItem.create(cocaType, TobaccoQuality.GOOD, yield));
             } else if (age >= 4) {
                 // Teilweise gewachsen - reduzierter Ertrag
                 int yield = (int) (cocaType.getBaseYield() * 0.5);
-                drops.add(FreshCocaLeafItem.create(cocaType, TobaccoQuality.SCHLECHT, yield));
+                drops.add(FreshCocaLeafItem.create(cocaType, TobaccoQuality.POOR, yield));
             }
             // Stufe 0-3: kein Drop
         }
@@ -334,10 +334,10 @@ public class CocaPlantBlock extends Block {
      */
     private static Block getPlantBlockForType(CocaType type) {
         return switch (type) {
-            case BOLIVIANISCH -> CocaBlocks.BOLIVIANISCH_PLANT.get();
-            case KOLUMBIANISCH -> CocaBlocks.KOLUMBIANISCH_PLANT.get();
-            // PERUANISCH verwendet vorerst den bolivianischen Block
-            default -> CocaBlocks.BOLIVIANISCH_PLANT.get();
+            case BOLIVIAN -> CocaBlocks.BOLIVIAN_PLANT.get();
+            case COLOMBIAN -> CocaBlocks.COLOMBIAN_PLANT.get();
+            // PERUVIAN verwendet vorerst den bolivianischen Block
+            default -> CocaBlocks.BOLIVIAN_PLANT.get();
         };
     }
 }

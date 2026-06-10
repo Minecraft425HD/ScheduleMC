@@ -263,7 +263,7 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
     }
 
     private TobaccoQuality calculateFinalQuality(TobaccoQuality quality) {
-        if (quality == TobaccoQuality.LEGENDAER) {
+        if (quality == TobaccoQuality.LEGENDARY) {
             return quality;
         }
 
@@ -320,11 +320,11 @@ public class HeroinRefineryBlockEntity extends BlockEntity implements IUtilityCo
 
             if (tag.contains("Type" + i)) {
                 try { types[i] = PoppyType.valueOf(tag.getString("Type" + i)); }
-                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHANISCH; }
+                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHAN; }
             }
             if (tag.contains("Quality" + i)) {
                 try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
-                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.SCHLECHT; }
+                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.POOR; }
             }
         }
     }

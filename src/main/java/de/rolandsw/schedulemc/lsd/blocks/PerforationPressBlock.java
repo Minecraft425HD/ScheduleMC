@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.lsd.blocks;
 
 import de.rolandsw.schedulemc.lsd.blockentity.PerforationPressBlockEntity;
-import de.rolandsw.schedulemc.lsd.items.BlotterPapierItem;
-import de.rolandsw.schedulemc.lsd.items.LSDLoesungItem;
+import de.rolandsw.schedulemc.lsd.items.BlotterPaperItem;
+import de.rolandsw.schedulemc.lsd.items.LSDSolutionItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -36,8 +36,8 @@ public class PerforationPressBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) return null;
         return (lvl, pos, st, be) -> {
-            if (be instanceof PerforationPressBlockEntity presse) {
-                presse.tick();
+            if (be instanceof PerforationPressBlockEntity press) {
+                press.tick();
             }
         };
     }
@@ -48,13 +48,13 @@ public class PerforationPressBlock extends Block implements EntityBlock {
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof PerforationPressBlockEntity presse)) return InteractionResult.PASS;
+        if (!(be instanceof PerforationPressBlockEntity press)) return InteractionResult.PASS;
 
         ItemStack heldItem = player.getItemInHand(hand);
 
         // LSD-Lösung hinzufügen
-        if (heldItem.getItem() instanceof LSDLoesungItem) {
-            if (presse.addLSDLoesung(heldItem)) {
+        if (heldItem.getItem() instanceof LSDSolutionItem) {
+            if (press.addLSDSolution(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
                 player.displayClientMessage(Component.translatable(
                         "block.lsd.perforation_solution"
@@ -65,11 +65,11 @@ public class PerforationPressBlock extends Block implements EntityBlock {
         }
 
         // Blotter-Papier hinzufügen
-        if (heldItem.getItem() instanceof BlotterPapierItem) {
-            if (presse.addBlotterPapier(heldItem)) {
+        if (heldItem.getItem() instanceof BlotterPaperItem) {
+            if (press.addBlotterPaper(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
                 player.displayClientMessage(Component.translatable(
-                        "block.lsd.perforation_paper", presse.getBlotterPapierCount()
+                        "block.lsd.perforation_paper", press.getBlotterPaperCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -78,8 +78,8 @@ public class PerforationPressBlock extends Block implements EntityBlock {
         // Leere Hand
         if (heldItem.isEmpty()) {
             // Output entnehmen
-            if (presse.hasOutput()) {
-                ItemStack output = presse.extractOutput();
+            if (press.hasOutput()) {
+                ItemStack output = press.extractOutput();
                 if (!player.getInventory().add(output)) {
                     player.drop(output, false);
                 }
@@ -90,20 +90,20 @@ public class PerforationPressBlock extends Block implements EntityBlock {
             }
 
             // Schleichen = Design wechseln
-            if (player.isShiftKeyDown() && !presse.isPressing()) {
-                presse.cycleDesign();
+            if (player.isShiftKeyDown() && !press.isPressing()) {
+                press.cycleDesign();
                 player.displayClientMessage(Component.translatable(
-                        "block.lsd.perforation_design", presse.getSelectedDesign().getColoredName(), presse.getSelectedDesign().getSymbol()
+                        "block.lsd.perforation_design", press.getSelectedDesign().getColoredName(), press.getSelectedDesign().getSymbol()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.value(), 0.5f, 1.0f);
                 return InteractionResult.SUCCESS;
             }
 
             // Starten wenn bereit
-            if (presse.hasLoesung() && presse.hasPapier() && !presse.isPressing()) {
-                if (presse.startPressing()) {
+            if (press.hasSolution() && press.hasPaper() && !press.isPressing()) {
+                if (press.startPressing()) {
                     player.displayClientMessage(Component.translatable(
-                            "block.lsd.perforation_started", presse.getExpectedTabs()
+                            "block.lsd.perforation_started", press.getExpectedTabs()
                     ), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.PISTON_EXTEND, 0.5f, 1.0f);
                     return InteractionResult.SUCCESS;
@@ -113,16 +113,16 @@ public class PerforationPressBlock extends Block implements EntityBlock {
             // Status
             net.minecraft.network.chat.MutableComponent message = Component.translatable("block.perforation_press.title")
                     .append(Component.literal("\n"))
-                    .append(Component.translatable("block.perforation_press.design", presse.getSelectedDesign().getColoredName(), presse.getSelectedDesign().getSymbol()))
+                    .append(Component.translatable("block.perforation_press.design", press.getSelectedDesign().getColoredName(), press.getSelectedDesign().getSymbol()))
                     .append(Component.literal("\n"))
-                    .append(Component.translatable("block.lsd.perforation_paper_count", presse.getBlotterPapierCount()))
+                    .append(Component.translatable("block.lsd.perforation_paper_count", press.getBlotterPaperCount()))
                     .append(Component.literal("\n"))
-                    .append(Component.translatable("block.perforation_press.solution", (presse.hasLoesung() ? "✓" : "✗")))
+                    .append(Component.translatable("block.perforation_press.solution", (press.hasSolution() ? "✓" : "✗")))
                     .append(Component.literal("\n"));
 
-            if (presse.isPressing()) {
-                message = message.append(Component.translatable("block.perforation_press.progress", (int)(presse.getProgress() * 100)));
-            } else if (presse.hasLoesung() && presse.hasPapier()) {
+            if (press.isPressing()) {
+                message = message.append(Component.translatable("block.perforation_press.progress", (int)(press.getProgress() * 100)));
+            } else if (press.hasSolution() && press.hasPaper()) {
                 message = message.append(Component.translatable("block.lsd.perforation_ready"));
             }
 

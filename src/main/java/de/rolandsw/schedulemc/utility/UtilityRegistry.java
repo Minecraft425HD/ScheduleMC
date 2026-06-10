@@ -477,7 +477,7 @@ public class UtilityRegistry {
         tryResolve("schedulemc:big_refinery",
                 de.rolandsw.schedulemc.coca.blocks.CocaBlocks.BIG_REFINERY);
         tryResolve("schedulemc:crack_cooker",
-                de.rolandsw.schedulemc.coca.blocks.CocaBlocks.CRACK_KOCHER);
+                de.rolandsw.schedulemc.coca.blocks.CocaBlocks.CRACK_COOKER);
 
         // Poppy Blocks
         tryResolve("schedulemc:scoring_machine",

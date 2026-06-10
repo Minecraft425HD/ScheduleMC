@@ -19,30 +19,30 @@ public class ScenarioTemplates {
      */
     public static List<MissionScenario> getAll() {
         List<MissionScenario> templates = new ArrayList<>();
-        templates.add(bankUeberfall());
+        templates.add(bankRobbery());
         templates.add(ladenRaub());
         templates.add(juwelenHeist());
         templates.add(lieferjobStandard());
-        templates.add(drogenLieferung());
-        templates.add(tankstellenRaub());
+        templates.add(drugDelivery());
+        templates.add(gasStationRobbery());
         templates.add(gangKrieg());
-        templates.add(schutzgeldEintreiben());
-        templates.add(waffenHandel());
+        templates.add(protectionRacket());
+        templates.add(armsTrade());
         templates.add(autoKlau());
-        templates.add(geldWaesche());
+        templates.add(moneyLaundering());
         templates.add(fabrikSabotage());
         templates.add(entfuehrung());
         templates.add(undercoverOp());
         templates.add(autobahnFlucht());
         templates.add(kasino());
         templates.add(politikerKorruption());
-        templates.add(drogenKueche());
+        templates.add(drugKitchen());
         templates.add(geiseldrama());
         templates.add(netzwerkHack());
         templates.add(reputationsaufbau());
         templates.add(mafiaAufstieg());
         templates.add(zeugenschutz());
-        templates.add(polizeiBestechung());
+        templates.add(policeBribery());
         return templates;
     }
 
@@ -84,7 +84,7 @@ public class ScenarioTemplates {
     public static List<MissionScenario> getPlayerTemplates() {
         List<MissionScenario> templates = new ArrayList<>();
         templates.add(playerErsterAuftrag());
-        templates.add(playerGeheimeLieferung());
+        templates.add(playerSecretDelivery());
         templates.add(playerInformant());
         templates.add(playerTerritoriumAuftrag());
         templates.add(playerNotfallAuftrag());
@@ -124,7 +124,7 @@ public class ScenarioTemplates {
     // VORLAGEN
     // ═══════════════════════════════════════════════════════════
 
-    public static MissionScenario bankUeberfall() {
+    public static MissionScenario bankRobbery() {
         List<ScenarioObjective> objs = new ArrayList<>();
         int y = 20;
 
@@ -246,7 +246,7 @@ public class ScenarioTemplates {
         ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y);
         y += STEP;
         ScenarioObjective goNPC = new ScenarioObjective("o1", ObjectiveType.GOTO_NPC, CX, y);
-        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "VERKAEUFER");
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "MERCHANT");
         y += STEP;
         ScenarioObjective collect = new ScenarioObjective("o2", ObjectiveType.COLLECT_ITEMS, CX, y);
         collect.setParam("item_id", "minecraft:paper"); collect.setParam("amount", "3");
@@ -269,7 +269,7 @@ public class ScenarioTemplates {
                 1, 0, false, "HOURLY", objs);
     }
 
-    public static MissionScenario drogenLieferung() {
+    public static MissionScenario drugDelivery() {
         List<ScenarioObjective> objs = new ArrayList<>();
         int y = 20;
 
@@ -305,7 +305,7 @@ public class ScenarioTemplates {
                 3, 5, false, "DAILY", objs);
     }
 
-    public static MissionScenario tankstellenRaub() {
+    public static MissionScenario gasStationRobbery() {
         List<ScenarioObjective> objs = new ArrayList<>();
         int y = 20;
 
@@ -372,17 +372,17 @@ public class ScenarioTemplates {
                 4, 10, false, "WEEKLY", objs);
     }
 
-    public static MissionScenario schutzgeldEintreiben() {
+    public static MissionScenario protectionRacket() {
         List<ScenarioObjective> objs = new ArrayList<>();
         int y = 20;
 
         ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y);
         y += STEP;
         ScenarioObjective goNPC = new ScenarioObjective("o1", ObjectiveType.GOTO_NPC, CX, y);
-        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "VERKAEUFER");
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "MERCHANT");
         y += STEP;
         ScenarioObjective talk = new ScenarioObjective("o2", ObjectiveType.TALK_TO_NPC, CX, y);
-        talk.setParam("npc_name", ""); talk.setParam("npc_type", "VERKAEUFER");
+        talk.setParam("npc_name", ""); talk.setParam("npc_type", "MERCHANT");
         talk.setParam("dialog_id", "extortion");
         y += STEP;
         ScenarioObjective earn = new ScenarioObjective("o3", ObjectiveType.EARN_MONEY, CX, y);
@@ -407,13 +407,13 @@ public class ScenarioTemplates {
     // NEUE GANG-VORLAGEN
     // ═══════════════════════════════════════════════════════════
 
-    public static MissionScenario waffenHandel() {
+    public static MissionScenario armsTrade() {
         List<ScenarioObjective> objs = new ArrayList<>();
         int y = 20;
 
         ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
         ScenarioObjective goNPC = new ScenarioObjective("o1", ObjectiveType.GOTO_NPC, CX, y);
-        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "WAFFENHAENDLER"); y += STEP;
+        goNPC.setParam("npc_name", ""); goNPC.setParam("npc_type", "WEAPONS_DEALER"); y += STEP;
         ScenarioObjective buy = new ScenarioObjective("o2", ObjectiveType.BUY_ITEM, CX, y);
         buy.setParam("item_id", "schedulemc:pistol"); buy.setParam("amount", "5"); buy.setParam("price", "500"); y += STEP;
         ScenarioObjective goto2 = new ScenarioObjective("o3", ObjectiveType.GOTO_LOCATION, CX, y);
@@ -457,7 +457,7 @@ public class ScenarioTemplates {
                 "Fahrzeug stehlen und zu einem geheimen Treff bringen", 2, 4, false, "DAILY", objs);
     }
 
-    public static MissionScenario geldWaesche() {
+    public static MissionScenario moneyLaundering() {
         List<ScenarioObjective> objs = new ArrayList<>();
         int y = 20;
 
@@ -651,7 +651,7 @@ public class ScenarioTemplates {
                 "Einfache Hauptmission: NPC gibt Auftrag, Tracking, Abgabe", 1, 0, false, "STORY_MAIN", objs);
     }
 
-    public static MissionScenario playerGeheimeLieferung() {
+    public static MissionScenario playerSecretDelivery() {
         List<ScenarioObjective> objs = new ArrayList<>();
         int y = 20;
 
@@ -858,7 +858,7 @@ public class ScenarioTemplates {
                 "Politiker beschatten, Material sammeln und erpressen", 4, 10, false, "WEEKLY", objs);
     }
 
-    public static MissionScenario drogenKueche() {
+    public static MissionScenario drugKitchen() {
         List<ScenarioObjective> objs = new ArrayList<>();
         int y = 20;
         ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;
@@ -917,7 +917,7 @@ public class ScenarioTemplates {
         ScenarioObjective disable = new ScenarioObjective("o2", ObjectiveType.DISABLE_SECURITY, CX, y);
         disable.setParam("plot_id", ""); disable.setParam("duration", "180"); y += STEP;
         ScenarioObjective hack = new ScenarioObjective("o3", ObjectiveType.HACK_NETWORK, CX, y);
-        hack.setParam("target_system", "polizei_db"); hack.setParam("difficulty", "4"); hack.setParam("time_limit", "120"); y += STEP;
+        hack.setParam("target_system", "police_db"); hack.setParam("difficulty", "4"); hack.setParam("time_limit", "120"); y += STEP;
         ScenarioObjective decrypt = new ScenarioObjective("o4", ObjectiveType.DECRYPT_FILE, CX, y);
         decrypt.setParam("file_id", "geheimdaten"); decrypt.setParam("difficulty", "3"); y += STEP;
         ScenarioObjective escape = new ScenarioObjective("o5", ObjectiveType.ESCAPE_ZONE, CX, y);
@@ -996,7 +996,7 @@ public class ScenarioTemplates {
                 "Zeugen aufsuchen, sichern, eskorieren und Verfolger abschuetteln", 3, 7, false, "DAILY", objs);
     }
 
-    public static MissionScenario polizeiBestechung() {
+    public static MissionScenario policeBribery() {
         List<ScenarioObjective> objs = new ArrayList<>();
         int y = 20;
         ScenarioObjective start = new ScenarioObjective("s0", ObjectiveType.START, CX, y); y += STEP;

@@ -79,9 +79,9 @@ public class PressingStationBlockEntity extends AbstractItemHandlerBlockEntity i
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
             } else {
-                quality = ChocolateQuality.GUT;
+                quality = ChocolateQuality.GOOD;
             }
             pressingProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -178,7 +178,7 @@ public class PressingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         pressingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
         }
         syncToHandler();
     }

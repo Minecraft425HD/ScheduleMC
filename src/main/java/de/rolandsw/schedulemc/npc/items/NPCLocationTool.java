@@ -22,10 +22,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * Tool zum Setzen von Home- und Arbeitsstätte für NPCs
  * - Rechtsklick auf NPC: NPC auswählen
  * - Rechtsklick auf Block: Wohnort setzen
- * - Shift+Rechtsklick auf Block: Arbeitsort setzen (nur VERKAEUFER)
+ * - Shift+Rechtsklick auf Block: Arbeitsort setzen (nur MERCHANT)
  * - Shift+Rechtsklick auf NPC: Info anzeigen (Locations und Zeiten)
  *
- * BEWOHNER arbeiten nicht und brauchen daher keinen Arbeitsort.
+ * CITIZEN arbeiten nicht und brauchen daher keinen Arbeitsort.
  * Verwende das NPCLeisureTool für Freizeitorte!
  * SICHERHEIT: Thread-safe Map für concurrent access von mehreren Spielern
  */
@@ -70,11 +70,11 @@ public class NPCLocationTool extends Item {
                 return InteractionResult.FAIL;
             }
 
-            // Shift+Rechtsklick = Arbeitsort (nur für VERKAEUFER)
+            // Shift+Rechtsklick = Arbeitsort (nur für MERCHANT)
             // Rechtsklick = Wohnort
             if (player.isCrouching()) {
                 // Arbeitsort setzen
-                if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
+                if (npc.getNpcData().getNpcType() == NPCType.MERCHANT) {
                     npc.getNpcData().getLocationData().setWorkLocation(clickedPos);
                     player.sendSystemMessage(
                         Component.translatable("message.npc.work_location_set")
@@ -84,7 +84,7 @@ public class NPCLocationTool extends Item {
                             .append(Component.translatable("message.common.at_location", clickedPos.toShortString())
                                 .withStyle(ChatFormatting.WHITE))
                     );
-                } else if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
+                } else if (npc.getNpcData().getNpcType() == NPCType.CITIZEN) {
                     player.sendSystemMessage(
                         Component.translatable("message.npc.residents_no_workplace")
                             .withStyle(ChatFormatting.YELLOW)
@@ -146,7 +146,7 @@ public class NPCLocationTool extends Item {
             );
 
             // Unterschiedliche Hinweise je nach NPC-Typ
-            if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
+            if (npc.getNpcData().getNpcType() == NPCType.CITIZEN) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.right_click_set_home")
                         .withStyle(ChatFormatting.GRAY)
@@ -155,12 +155,12 @@ public class NPCLocationTool extends Item {
                     Component.translatable("message.npc.residents_no_work")
                         .withStyle(ChatFormatting.YELLOW)
                 );
-            } else if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
+            } else if (npc.getNpcData().getNpcType() == NPCType.MERCHANT) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.right_click_home_shift_work")
                         .withStyle(ChatFormatting.GRAY)
                 );
-            } else if (npc.getNpcData().getNpcType() == NPCType.POLIZEI) {
+            } else if (npc.getNpcData().getNpcType() == NPCType.POLICE) {
                 player.sendSystemMessage(
                     Component.translatable("message.npc.police_use_patrol_tool")
                         .withStyle(ChatFormatting.RED)
@@ -207,7 +207,7 @@ public class NPCLocationTool extends Item {
         }
 
         // Arbeitsort nur für Verkäufer anzeigen
-        if (npc.getNpcData().getNpcType() == NPCType.VERKAEUFER) {
+        if (npc.getNpcData().getNpcType() == NPCType.MERCHANT) {
             BlockPos work = npc.getNpcData().getLocationData().getWorkLocation();
             if (work != null) {
                 player.sendSystemMessage(
@@ -242,7 +242,7 @@ public class NPCLocationTool extends Item {
                     .append(Component.translatable("message.common.from_time", ticksToTime(homeTime))
                         .withStyle(ChatFormatting.WHITE))
             );
-        } else if (npc.getNpcData().getNpcType() == NPCType.BEWOHNER) {
+        } else if (npc.getNpcData().getNpcType() == NPCType.CITIZEN) {
             player.sendSystemMessage(
                 Component.translatable("message.npc.workplace_label")
                     .withStyle(ChatFormatting.AQUA)

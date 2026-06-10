@@ -197,7 +197,7 @@ public class StandardActions {
             var policeNPCs = serverLevel.getEntitiesOfClass(
                 CustomNPCEntity.class,
                 npc.getBoundingBox().inflate(100),
-                police -> police.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI
+                police -> police.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLICE
             );
 
             // 2. Wenn Polizei in der Nähe und Ziel ist ein Spieler

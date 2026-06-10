@@ -97,7 +97,7 @@ public class ChemicalMixerBlock extends Block implements EntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.translatable("block.chemical_mixer.jod_added", mixer.getIngredientStatus()), true);
+                player.displayClientMessage(Component.translatable("block.chemical_mixer.iodine_added", mixer.getIngredientStatus()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 0.8f);
                 return InteractionResult.SUCCESS;
             } else {

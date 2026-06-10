@@ -10,8 +10,8 @@ import java.util.Locale;
  */
 public enum BankCategory {
     BANKER,
-    BOERSE,
-    KREDITBERATER;
+    STOCK_MARKET,
+    CREDIT_ADVISOR;
 
     public Component getDisplayName() {
         return Component.translatable("enum.bank_category." + this.name().toLowerCase(Locale.ROOT));

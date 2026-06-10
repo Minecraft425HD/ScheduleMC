@@ -37,10 +37,10 @@ public class EcstasyPillItem extends Item {
             try {
                 return MDMAQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return MDMAQuality.SCHLECHT;
+                return MDMAQuality.POOR;
             }
         }
-        return MDMAQuality.SCHLECHT;
+        return MDMAQuality.POOR;
     }
 
     public static PillDesign getDesign(ItemStack stack) {

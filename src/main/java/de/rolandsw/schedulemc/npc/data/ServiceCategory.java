@@ -6,10 +6,10 @@ import java.util.Locale;
 
 /**
  * Enum für verschiedene Service-Kategorien
- * Nur relevant wenn NPCType == ABSCHLEPPER
+ * Nur relevant wenn NPCType == TOW_TRUCK_DRIVER
  */
 public enum ServiceCategory {
-    ABSCHLEPPDIENST,
+    TOWING_SERVICE,
     PANNENHILFE,
     TAXI,
     NOTDIENST;
@@ -22,6 +22,6 @@ public enum ServiceCategory {
         if (ordinal >= 0 && ordinal < values().length) {
             return values()[ordinal];
         }
-        return ABSCHLEPPDIENST; // Default
+        return TOWING_SERVICE; // Default
     }
 }

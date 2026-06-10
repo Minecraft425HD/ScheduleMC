@@ -11,9 +11,9 @@ import java.util.Locale;
  * Mohn-Sorten mit unterschiedlichen Eigenschaften
  */
 public enum PoppyType implements ProductionType {
-    AFGHANISCH("§4", 50.0, 160, 1.2, 6, 1.5),  // Höchste Potenz, langsam
-    TUERKISCH("§6", 35.0, 120, 1.0, 6, 1.0),   // Ausgewogen
-    INDISCH("§5", 20.0, 80, 0.8, 6, 0.8);      // Schnell, niedrige Potenz
+    AFGHAN("§4", 50.0, 160, 1.2, 6, 1.5),  // Höchste Potenz, langsam
+    TURKISH("§6", 35.0, 120, 1.0, 6, 1.0),   // Ausgewogen
+    INDIAN("§5", 20.0, 80, 0.8, 6, 0.8);      // Schnell, niedrige Potenz
 
     private final String colorCode;
     private final double seedPrice;

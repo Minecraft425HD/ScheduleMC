@@ -85,7 +85,7 @@ public class NPCDialogueProvider {
                 .addOption(DialogueOption.builder("negotiate")
                     .setText("Können wir über die Preise verhandeln?")
                     .setTargetNode("negotiate_start")
-                    .addCondition(DialogueCondition.factionStanding(Faction.HAENDLER, 20))
+                    .addCondition(DialogueCondition.factionStanding(Faction.TRADERS, 20))
                     .build())
                 .addOption(DialogueOption.exit("Auf Wiedersehen."))
                 .build())
@@ -186,7 +186,7 @@ public class NPCDialogueProvider {
                 .addOption(DialogueOption.builder("surrender")
                     .setText("[Ergeben]")
                     .addAction(DialogueAction.triggerEmotion(EmotionState.FEARFUL, 40))
-                    .addAction(DialogueAction.modifyFaction(Faction.ORDNUNG, 5))
+                    .addAction(DialogueAction.modifyFaction(Faction.LAW, 5))
                     .addAction(DialogueAction.removePlayerTag("Gesucht"))
                     .setEndNode(true)
                     .build())
@@ -207,7 +207,7 @@ public class NPCDialogueProvider {
             .addNode(DialogueNode.builder("resist_arrest")
                 .addText("Widerstand gegen die Staatsgewalt? Das wird Ihnen teuer zu stehen kommen!")
                 .addEntryAction(DialogueAction.alertNearbyNPCs("dangerous"))
-                .addEntryAction(DialogueAction.modifyFaction(Faction.ORDNUNG, -20))
+                .addEntryAction(DialogueAction.modifyFaction(Faction.LAW, -20))
                 .setEndNode(true)
                 .build())
 
@@ -223,7 +223,7 @@ public class NPCDialogueProvider {
             // Verbrechen gemeldet
             .addNode(DialogueNode.builder("crime_reported")
                 .addText("Danke für die Meldung. Wir werden der Sache nachgehen.")
-                .addEntryAction(DialogueAction.modifyFaction(Faction.ORDNUNG, 5))
+                .addEntryAction(DialogueAction.modifyFaction(Faction.LAW, 5))
                 .addEntryAction(DialogueAction.addPlayerTag("Hilfreich"))
                 .addOption(DialogueOption.exit("Danke, Offizier."))
                 .build())
@@ -265,7 +265,7 @@ public class NPCDialogueProvider {
             // Bestechung abgelehnt
             .addNode(DialogueNode.builder("bribe_rejected")
                 .addText("Bestechung eines Beamten! Das ist eine schwere Straftat!")
-                .addEntryAction(DialogueAction.modifyFaction(Faction.ORDNUNG, -15))
+                .addEntryAction(DialogueAction.modifyFaction(Faction.LAW, -15))
                 .addEntryAction(DialogueAction.addPlayerTag("Bestecher"))
                 .addOption(DialogueOption.exit("[Schnell verschwinden]"))
                 .build());
@@ -320,7 +320,7 @@ public class NPCDialogueProvider {
             // Gespräch fortsetzen
             .addNode(DialogueNode.builder("chat_continue")
                 .addText("Wissen Sie, früher war alles einfacher. Aber was kann man tun...")
-                .addEntryAction(DialogueAction.modifyFaction(Faction.BUERGER, 2))
+                .addEntryAction(DialogueAction.modifyFaction(Faction.CITIZENS, 2))
                 .addOption(DialogueOption.exit("Ich verstehe. Passen Sie auf sich auf!"))
                 .build())
 
@@ -390,7 +390,7 @@ public class NPCDialogueProvider {
             .addNode(DialogueNode.builder("start")
                 .addText("*mustert Sie misstrauisch* Was wollen Sie?")
                 .addConditionalText(
-                    DialogueCondition.factionStanding(Faction.UNTERGRUND, 30),
+                    DialogueCondition.factionStanding(Faction.UNDERWORLD, 30),
                     "Ah, ein bekanntes Gesicht. Was führt Sie her?"
                 )
                 .addConditionalText(
@@ -400,13 +400,13 @@ public class NPCDialogueProvider {
                 .addOption(DialogueOption.builder("business")
                     .setText("Ich suche nach... speziellen Waren.")
                     .setTargetNode("special_goods")
-                    .addCondition(DialogueCondition.factionStanding(Faction.UNTERGRUND, 10))
+                    .addCondition(DialogueCondition.factionStanding(Faction.UNDERWORLD, 10))
                     .build())
                 .addOption(DialogueOption.simple("info", "Ich brauche Informationen.", "underworld_info"))
                 .addOption(DialogueOption.builder("join")
                     .setText("Ich will mitmachen.")
                     .setTargetNode("join_underworld")
-                    .addCondition(DialogueCondition.factionStanding(Faction.UNTERGRUND, 50))
+                    .addCondition(DialogueCondition.factionStanding(Faction.UNDERWORLD, 50))
                     .build())
                 .addOption(DialogueOption.exit("Nichts. Vergessen Sie es."))
                 .build())
@@ -442,7 +442,7 @@ public class NPCDialogueProvider {
             .addNode(DialogueNode.builder("paid_info")
                 .addText("Gut. *flüstert* Hören Sie genau zu...")
                 .addEntryAction(DialogueAction.shareRumors())
-                .addEntryAction(DialogueAction.modifyFaction(Faction.UNTERGRUND, 3))
+                .addEntryAction(DialogueAction.modifyFaction(Faction.UNDERWORLD, 3))
                 .addOption(DialogueOption.exit("Danke für die Info."))
                 .build())
 
@@ -450,7 +450,7 @@ public class NPCDialogueProvider {
             .addNode(DialogueNode.builder("trade_info")
                 .addText("Ah, ein Kollege. Dann lass uns tauschen.")
                 .addEntryAction(DialogueAction.shareRumors())
-                .addEntryAction(DialogueAction.modifyFaction(Faction.UNTERGRUND, 5))
+                .addEntryAction(DialogueAction.modifyFaction(Faction.UNDERWORLD, 5))
                 .addOption(DialogueOption.exit("Ein fairer Tausch."))
                 .build())
 

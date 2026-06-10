@@ -151,7 +151,7 @@ public class BriberySystem {
                 }
 
                 // Bei Polizei: Zusätzliches Verbrechen
-                if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
+                if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLICE) {
                     return BriberyResult.REFUSED_AND_REPORTED;
                 }
 
@@ -179,7 +179,7 @@ public class BriberySystem {
         }
 
         // Polizei ist schwerer zu bestechen
-        if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
+        if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLICE) {
             if (traits.getHonesty() > POLICE_HONESTY_THRESHOLD) {
                 return false;
             }
@@ -222,7 +222,7 @@ public class BriberySystem {
 
         // Polizei-Faktor
         float policeFactor = 1.0f;
-        if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
+        if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLICE) {
             policeFactor = POLICE_BRIBE_FACTOR; // Polizei will 3x so viel
         }
 

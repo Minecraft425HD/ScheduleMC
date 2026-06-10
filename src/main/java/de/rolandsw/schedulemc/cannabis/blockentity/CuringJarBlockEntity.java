@@ -33,7 +33,7 @@ public class CuringJarBlockEntity extends BlockEntity implements IUtilityConsume
     private ItemStack storedItem = ItemStack.EMPTY;
     private ItemStack outputItem = ItemStack.EMPTY;
     private CannabisStrain strain = CannabisStrain.HYBRID;
-    private CannabisQuality baseQuality = CannabisQuality.GUT;
+    private CannabisQuality baseQuality = CannabisQuality.GOOD;
     private int weight = 0;
     private long startDayTime = -1L; // absolute world-DayTime bei Einlegen
 
@@ -73,7 +73,7 @@ public class CuringJarBlockEntity extends BlockEntity implements IUtilityConsume
         outputItem  = ItemStack.EMPTY;
         weight      = 0;
         strain      = CannabisStrain.HYBRID;
-        baseQuality = CannabisQuality.GUT;
+        baseQuality = CannabisQuality.GOOD;
         setChanged();
         if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         return result;
@@ -164,7 +164,7 @@ public class CuringJarBlockEntity extends BlockEntity implements IUtilityConsume
         try { strain = CannabisStrain.valueOf(tag.getString("Strain")); }
         catch (IllegalArgumentException e) { strain = CannabisStrain.HYBRID; }
         try { baseQuality = CannabisQuality.valueOf(tag.getString("Quality")); }
-        catch (IllegalArgumentException e) { baseQuality = CannabisQuality.GUT; }
+        catch (IllegalArgumentException e) { baseQuality = CannabisQuality.GOOD; }
         weight       = tag.getInt("Weight");
         startDayTime = tag.contains("StartDayTime") ? tag.getLong("StartDayTime") : -1L;
     }

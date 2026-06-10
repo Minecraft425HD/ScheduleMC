@@ -409,7 +409,7 @@ public class NegotiationEngine {
         DrugType drugType = PackagedDrugItem.getDrugType(drugItem);
 
         TobaccoType type = TobaccoType.VIRGINIA;  // Default
-        TobaccoQuality quality = TobaccoQuality.GUT;  // Default
+        TobaccoQuality quality = TobaccoQuality.GOOD;  // Default
 
         if (drugType == DrugType.TOBACCO) {
             String variantStr = PackagedDrugItem.getVariant(drugItem);
@@ -428,7 +428,7 @@ public class NegotiationEngine {
                     String[] qParts = qualityStr.split("\\.");
                     if (qParts.length >= 2) quality = TobaccoQuality.valueOf(qParts[1]);
                 } catch (IllegalArgumentException e) {
-                    quality = TobaccoQuality.GUT;
+                    quality = TobaccoQuality.GOOD;
                 }
             }
         }

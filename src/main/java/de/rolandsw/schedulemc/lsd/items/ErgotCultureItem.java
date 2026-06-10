@@ -12,9 +12,9 @@ import java.util.List;
  * Ergot-Kultur - Fermentiertes Mutterkorn
  * Zwischenprodukt aus dem Fermentations-Tank
  */
-public class ErgotKulturItem extends Item {
+public class ErgotCultureItem extends Item {
 
-    public ErgotKulturItem() {
+    public ErgotCultureItem() {
         super(new Properties().stacksTo(32));
     }
 

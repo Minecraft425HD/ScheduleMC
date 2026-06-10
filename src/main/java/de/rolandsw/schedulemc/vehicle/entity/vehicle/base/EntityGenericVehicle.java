@@ -75,8 +75,8 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     private BlockPos homeSpawnPoint;
     private boolean spawnPointReleased = false; // Track if spawn point was released when driving away
 
-    // Werkstatt locking system
-    private boolean isLockedInWerkstatt;
+    // Workshop locking system
+    private boolean isLockedInWorkshop;
     @Nullable
     private BlockPos workshopPosition;
 
@@ -742,30 +742,30 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         return getEngineSoundOrDefault(PartEngine::getHornSound, () -> ModSounds.VEHICLE_HORN.get());
     }
 
-    // Werkstatt locking system methods
-    public void lockInWerkstatt(BlockPos workshopPos) {
-        this.isLockedInWerkstatt = true;
+    // Workshop locking system methods
+    public void lockInWorkshop(BlockPos workshopPos) {
+        this.isLockedInWorkshop = true;
         this.workshopPosition = workshopPos;
         // Stop all movement
         this.setDeltaMovement(Vec3.ZERO);
     }
 
-    public void unlockFromWerkstatt() {
-        this.isLockedInWerkstatt = false;
+    public void unlockFromWorkshop() {
+        this.isLockedInWorkshop = false;
         this.workshopPosition = null;
     }
 
-    public boolean isLockedInWerkstatt() {
-        return isLockedInWerkstatt;
+    public boolean isLockedInWorkshop() {
+        return isLockedInWorkshop;
     }
 
     @Nullable
-    public BlockPos getWerkstattPosition() {
+    public BlockPos getWorkshopPosition() {
         return workshopPosition;
     }
 
     public boolean canMove() {
-        return !isLockedInWerkstatt;
+        return !isLockedInWorkshop;
     }
 
     // Container installation tracking (synched so client GUI can show correct cost)
@@ -843,7 +843,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
         // Load workshop locking data
         if (compound.contains("IsLockedInWerkstatt")) {
-            this.isLockedInWerkstatt = compound.getBoolean("IsLockedInWerkstatt");
+            this.isLockedInWorkshop = compound.getBoolean("IsLockedInWerkstatt");
         }
         if (compound.contains("WerkstattX")) {
             int x = compound.getInt("WerkstattX");
@@ -918,7 +918,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         compound.putBoolean("SpawnPointReleased", this.spawnPointReleased);
 
         // Save workshop locking data
-        compound.putBoolean("IsLockedInWerkstatt", this.isLockedInWerkstatt);
+        compound.putBoolean("IsLockedInWerkstatt", this.isLockedInWorkshop);
         if (this.workshopPosition != null) {
             compound.putInt("WerkstattX", this.workshopPosition.getX());
             compound.putInt("WerkstattY", this.workshopPosition.getY());

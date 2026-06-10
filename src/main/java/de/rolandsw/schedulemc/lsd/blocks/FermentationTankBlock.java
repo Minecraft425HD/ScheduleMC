@@ -1,7 +1,7 @@
 package de.rolandsw.schedulemc.lsd.blocks;
 
 import de.rolandsw.schedulemc.lsd.blockentity.FermentationTankBlockEntity;
-import de.rolandsw.schedulemc.lsd.items.MutterkornItem;
+import de.rolandsw.schedulemc.lsd.items.ErgotItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -52,11 +52,11 @@ public class FermentationTankBlock extends Block implements EntityBlock {
         ItemStack heldItem = player.getItemInHand(hand);
 
         // Mutterkorn hinzufügen
-        if (heldItem.getItem() instanceof MutterkornItem) {
-            if (tank.addMutterkorn(heldItem)) {
+        if (heldItem.getItem() instanceof ErgotItem) {
+            if (tank.addErgot(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
                 player.displayClientMessage(Component.translatable(
-                        "block.lsd.fermentation_input", tank.getMutterkornCount()
+                        "block.lsd.fermentation_input", tank.getErgotCount()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 1.0f);
                 return InteractionResult.SUCCESS;
@@ -79,7 +79,7 @@ public class FermentationTankBlock extends Block implements EntityBlock {
             // Status
             player.displayClientMessage(Component.translatable("block.lsd.fermentation_title")
                     .append(Component.literal("\n"))
-                    .append(Component.translatable("block.lsd.fermentation_count", tank.getMutterkornCount()))
+                    .append(Component.translatable("block.lsd.fermentation_count", tank.getErgotCount()))
                     .append(Component.literal("\n"))
                     .append(tank.isActive() ? Component.translatable("block.lsd.fermentation_progress", (int)(tank.getProgress() * 100)) : tank.hasOutput() ? Component.translatable("block.lsd.fermentation_ready", tank.getOutputCount()) : Component.literal(""))
             , true);

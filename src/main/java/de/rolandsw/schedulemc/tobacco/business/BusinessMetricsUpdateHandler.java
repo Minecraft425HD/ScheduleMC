@@ -48,7 +48,7 @@ public class BusinessMetricsUpdateHandler {
     private static void updateAllNPCMetrics(ServerLevel level, long currentDay) {
         for (CustomNPCEntity npc : NPCEntityRegistry.getAllNPCs(level)) {
             if (!npc.getNpcData().hasInventoryAndWallet()) {
-                continue; // Nur BEWOHNER und VERKÄUFER
+                continue; // Nur CITIZEN und VERKÄUFER
             }
 
                 NPCBusinessMetrics metrics = new NPCBusinessMetrics(npc);

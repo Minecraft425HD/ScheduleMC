@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
+public class GuiWorkshop extends ScreenBase<ContainerWorkshop> {
 
-    private static final ResourceLocation WERKSTATT_GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_workshop.png");
+    private static final ResourceLocation WORKSHOP_GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_workshop.png");
 
     // Colors
     private static final int COL_BLACK = 0xFF000000;
@@ -53,7 +53,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private Tab currentTab = Tab.OVERVIEW;
 
     // Shopping cart
-    private final List<WerkstattCartItem> cart = new ArrayList<>();
+    private final List<WorkshopCartItem> cart = new ArrayList<>();
 
     // Tab buttons (only tabContainer stored — needed to set visibility for truck mode)
     private Button tabContainer;
@@ -104,9 +104,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         return "?";
     }
 
-    public GuiWerkstatt(ContainerWerkstatt containerWerkstatt, Inventory playerInv, Component title) {
-        super(WERKSTATT_GUI_TEXTURE, containerWerkstatt, playerInv, title);
-        this.vehicle = containerWerkstatt.getVehicle();
+    public GuiWorkshop(ContainerWorkshop containerWorkshop, Inventory playerInv, Component title) {
+        super(WORKSHOP_GUI_TEXTURE, containerWorkshop, playerInv, title);
+        this.vehicle = containerWorkshop.getVehicle();
         this.vehicleRenderer = new VehicleUtils.VehicleRenderer(1.0F);
 
         imageWidth = 370;
@@ -173,23 +173,23 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         btnAddRepair = addRenderableWidget(Button.builder(
                 Component.translatable("workshop.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.SERVICE_REPAIR)))
+                b -> addToCart(new WorkshopCartItem(WorkshopCartItem.Type.SERVICE_REPAIR)))
                 .bounds(btnX, topPos + 68, btnW, btnH).build());
 
         btnAddBattery = addRenderableWidget(Button.builder(
                 Component.translatable("workshop.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.SERVICE_BATTERY)))
+                b -> addToCart(new WorkshopCartItem(WorkshopCartItem.Type.SERVICE_BATTERY)))
                 .bounds(btnX, topPos + 114, btnW, btnH).build());
 
         btnAddOil = addRenderableWidget(Button.builder(
                 Component.translatable("workshop.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.SERVICE_OIL)))
+                b -> addToCart(new WorkshopCartItem(WorkshopCartItem.Type.SERVICE_OIL)))
                 .bounds(btnX, topPos + 160, btnW, btnH).build());
 
         // Sommer/Winter-Tausch
         btnTireSeasonSwitch = addRenderableWidget(Button.builder(
                 Component.translatable("workshop.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.TIRE_SEASON_SWITCH)))
+                b -> addToCart(new WorkshopCartItem(WorkshopCartItem.Type.TIRE_SEASON_SWITCH)))
                 .bounds(btnX, topPos + 206, btnW, btnH).build());
     }
 
@@ -202,25 +202,25 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int motorLevel = getCurrentMotorLevel();
         btnAddMotor = addRenderableWidget(Button.builder(
                 Component.translatable("workshop.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.UPGRADE_MOTOR, motorLevel + 1)))
+                b -> addToCart(new WorkshopCartItem(WorkshopCartItem.Type.UPGRADE_MOTOR, motorLevel + 1)))
                 .bounds(btnX, topPos + 68, btnW, btnH).build());
 
         int tankLevel = getCurrentTankLevel();
         btnAddTank = addRenderableWidget(Button.builder(
                 Component.translatable("workshop.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.UPGRADE_TANK, tankLevel + 1)))
+                b -> addToCart(new WorkshopCartItem(WorkshopCartItem.Type.UPGRADE_TANK, tankLevel + 1)))
                 .bounds(btnX, topPos + 68 + spacing, btnW, btnH).build());
 
         int tireIdx = getCurrentTireIndex();
         btnAddTire = addRenderableWidget(Button.builder(
                 Component.translatable("workshop.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.UPGRADE_TIRE, tireIdx + 1)))
+                b -> addToCart(new WorkshopCartItem(WorkshopCartItem.Type.UPGRADE_TIRE, tireIdx + 1)))
                 .bounds(btnX, topPos + 68 + spacing * 2, btnW, btnH).build());
 
         int fenderLevel = getCurrentFenderLevel();
         btnAddFender = addRenderableWidget(Button.builder(
                 Component.translatable("workshop.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.UPGRADE_FENDER, fenderLevel + 1)))
+                b -> addToCart(new WorkshopCartItem(WorkshopCartItem.Type.UPGRADE_FENDER, fenderLevel + 1)))
                 .bounds(btnX, topPos + 68 + spacing * 3, btnW, btnH).build());
 
     }
@@ -248,8 +248,8 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 b -> {
                     if (selectedPaintColor >= 0 && selectedPaintColor != vehicle.getPaintColor()) {
                         // Remove existing paint item from cart
-                        cart.removeIf(item -> item.getType() == WerkstattCartItem.Type.PAINT_CHANGE);
-                        addToCart(new WerkstattCartItem(WerkstattCartItem.Type.PAINT_CHANGE, selectedPaintColor));
+                        cart.removeIf(item -> item.getType() == WorkshopCartItem.Type.PAINT_CHANGE);
+                        addToCart(new WorkshopCartItem(WorkshopCartItem.Type.PAINT_CHANGE, selectedPaintColor));
                     }
                 })
                 .bounds(leftPos + 8, topPos + 178, 96, 16).build());
@@ -263,7 +263,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         // Install buttons add to cart (checkout required)
         btnInstallItemContainer = addRenderableWidget(Button.builder(
                 Component.translatable("workshop.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.CONTAINER_ITEM)))
+                b -> addToCart(new WorkshopCartItem(WorkshopCartItem.Type.CONTAINER_ITEM)))
                 .bounds(btnX, topPos + 80, btnW, btnH).build());
 
         // Remove buttons are direct operations (no cart needed)
@@ -274,7 +274,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         btnInstallFluidContainer = addRenderableWidget(Button.builder(
                 Component.translatable("workshop.btn.add_to_cart"),
-                b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.CONTAINER_FLUID)))
+                b -> addToCart(new WorkshopCartItem(WorkshopCartItem.Type.CONTAINER_FLUID)))
                 .bounds(btnX, topPos + 150, btnW, btnH).build());
 
         btnRemoveFluidContainer = addRenderableWidget(Button.builder(
@@ -367,30 +367,30 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         if (tabContainer != null) tabContainer.visible = isTruck;
 
         // Service buttons
-        if (btnAddRepair != null) btnAddRepair.visible = isService && !isInCart(WerkstattCartItem.Type.SERVICE_REPAIR);
-        if (btnAddBattery != null) btnAddBattery.visible = isService && !isInCart(WerkstattCartItem.Type.SERVICE_BATTERY);
-        if (btnAddOil != null) btnAddOil.visible = isService && !isInCart(WerkstattCartItem.Type.SERVICE_OIL);
+        if (btnAddRepair != null) btnAddRepair.visible = isService && !isInCart(WorkshopCartItem.Type.SERVICE_REPAIR);
+        if (btnAddBattery != null) btnAddBattery.visible = isService && !isInCart(WorkshopCartItem.Type.SERVICE_BATTERY);
+        if (btnAddOil != null) btnAddOil.visible = isService && !isInCart(WorkshopCartItem.Type.SERVICE_OIL);
 
         // Upgrade buttons
-        if (btnAddMotor != null) btnAddMotor.visible = isUpgrade && getCurrentMotorLevel() < 3 && !isInCart(WerkstattCartItem.Type.UPGRADE_MOTOR);
-        if (btnAddTank != null) btnAddTank.visible = isUpgrade && getCurrentTankLevel() < 3 && !isInCart(WerkstattCartItem.Type.UPGRADE_TANK);
-        if (btnAddTire != null) btnAddTire.visible = isUpgrade && getCurrentTireIndex() < 2 && !isInCart(WerkstattCartItem.Type.UPGRADE_TIRE);
+        if (btnAddMotor != null) btnAddMotor.visible = isUpgrade && getCurrentMotorLevel() < 3 && !isInCart(WorkshopCartItem.Type.UPGRADE_MOTOR);
+        if (btnAddTank != null) btnAddTank.visible = isUpgrade && getCurrentTankLevel() < 3 && !isInCart(WorkshopCartItem.Type.UPGRADE_TANK);
+        if (btnAddTire != null) btnAddTire.visible = isUpgrade && getCurrentTireIndex() < 2 && !isInCart(WorkshopCartItem.Type.UPGRADE_TIRE);
         boolean canHaveFender = !isTruckVehicle() && !isSportVehicle();
-        if (btnAddFender != null) btnAddFender.visible = isUpgrade && canHaveFender && getCurrentFenderLevel() < 3 && !isInCart(WerkstattCartItem.Type.UPGRADE_FENDER);
-        if (btnTireSeasonSwitch != null) btnTireSeasonSwitch.visible = isService && !isTruckVehicle() && isSeasonSwitchApplicable() && !isInCart(WerkstattCartItem.Type.TIRE_SEASON_SWITCH);
+        if (btnAddFender != null) btnAddFender.visible = isUpgrade && canHaveFender && getCurrentFenderLevel() < 3 && !isInCart(WorkshopCartItem.Type.UPGRADE_FENDER);
+        if (btnTireSeasonSwitch != null) btnTireSeasonSwitch.visible = isService && !isTruckVehicle() && isSeasonSwitchApplicable() && !isInCart(WorkshopCartItem.Type.TIRE_SEASON_SWITCH);
 
         // Paint buttons
         for (Button pb : paintButtons) pb.visible = isPaint;
         if (btnAddPaint != null) btnAddPaint.visible = isPaint
                 && selectedPaintColor >= 0
                 && selectedPaintColor != vehicle.getPaintColor()
-                && !isInCart(WerkstattCartItem.Type.PAINT_CHANGE);
+                && !isInCart(WorkshopCartItem.Type.PAINT_CHANGE);
 
         // Container buttons - use direct inventory scan for reliable detection after install/remove
         boolean hasItemContainer = hasInstalledItemContainer();
         boolean hasFluidContainer = hasInstalledFluidContainer();
-        boolean itemInCart = isInCart(WerkstattCartItem.Type.CONTAINER_ITEM);
-        boolean fluidInCart = isInCart(WerkstattCartItem.Type.CONTAINER_FLUID);
+        boolean itemInCart = isInCart(WorkshopCartItem.Type.CONTAINER_ITEM);
+        boolean fluidInCart = isInCart(WorkshopCartItem.Type.CONTAINER_FLUID);
         if (btnInstallItemContainer != null) btnInstallItemContainer.visible = isContainer && isTruck && !hasItemContainer && !hasFluidContainer && !itemInCart && !fluidInCart;
         if (btnRemoveItemContainer != null) btnRemoveItemContainer.visible = isContainer && isTruck && hasItemContainer;
         if (btnInstallFluidContainer != null) btnInstallFluidContainer.visible = isContainer && isTruck && !hasFluidContainer && !hasItemContainer && !fluidInCart && !itemInCart;
@@ -452,7 +452,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
     // === Cart Management ===
 
-    private void addToCart(WerkstattCartItem item) {
+    private void addToCart(WorkshopCartItem item) {
         // Don't add duplicates of same type
         if (isInCart(item.getType())) return;
         cart.add(item);
@@ -461,15 +461,15 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         updateWidgetVisibility();
     }
 
-    private boolean isInCart(WerkstattCartItem.Type type) {
+    private boolean isInCart(WorkshopCartItem.Type type) {
         return cart.stream().anyMatch(item -> item.getType() == type);
     }
 
     private double calculateCartTotal() {
         if (vehicle == null) return 0;
-        double inspectionFee = cart.isEmpty() ? 0 : ModConfigHandler.COMMON.WERKSTATT_BASE_INSPECTION_FEE.get();
+        double inspectionFee = cart.isEmpty() ? 0 : ModConfigHandler.COMMON.WORKSHOP_BASE_INSPECTION_FEE.get();
         double itemsTotal = 0;
-        for (WerkstattCartItem item : cart) {
+        for (WorkshopCartItem item : cart) {
             itemsTotal += item.calculateCost(vehicle);
         }
         return inspectionFee + itemsTotal;
@@ -480,7 +480,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     private void sendCheckout() {
         if (checkoutSent || vehicle == null || minecraft == null || minecraft.player == null || cart.isEmpty()) return;
         checkoutSent = true;
-        Main.SIMPLE_CHANNEL.sendToServer(new MessageWerkstattCheckout(
+        Main.SIMPLE_CHANNEL.sendToServer(new MessageWorkshopCheckout(
                 minecraft.player.getUUID(),
                 vehicle.getUUID(),
                 new ArrayList<>(cart)
@@ -491,7 +491,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         if (checkoutSent || vehicle == null || minecraft == null || minecraft.player == null) return;
         checkoutSent = true;
         // Send empty checkout = just unlock and leave
-        Main.SIMPLE_CHANNEL.sendToServer(new MessageWerkstattCheckout(
+        Main.SIMPLE_CHANNEL.sendToServer(new MessageWorkshopCheckout(
                 minecraft.player.getUUID(),
                 vehicle.getUUID(),
                 new ArrayList<>()
@@ -665,22 +665,22 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         // Repair card
         drawServiceCard(g, x, y, tr("workshop.gui.service.repair"),
                 tr("workshop.gui.service.repair_status", getDamagePercent()),
-                getDamagePercent() > 0 ? getDamagePercent() * ModConfigHandler.COMMON.WERKSTATT_REPAIR_COST_PER_PERCENT.get() : 0,
-                isInCart(WerkstattCartItem.Type.SERVICE_REPAIR));
+                getDamagePercent() > 0 ? getDamagePercent() * ModConfigHandler.COMMON.WORKSHOP_REPAIR_COST_PER_PERCENT.get() : 0,
+                isInCart(WorkshopCartItem.Type.SERVICE_REPAIR));
         y += 46;
 
         // Battery card
         drawServiceCard(g, x, y, tr("workshop.gui.service.battery"),
                 tr("workshop.gui.service.battery_status", getBatteryPercent()),
-                getBatteryPercent() < 100 ? (100 - getBatteryPercent()) * ModConfigHandler.COMMON.WERKSTATT_BATTERY_COST_PER_PERCENT.get() : 0,
-                isInCart(WerkstattCartItem.Type.SERVICE_BATTERY));
+                getBatteryPercent() < 100 ? (100 - getBatteryPercent()) * ModConfigHandler.COMMON.WORKSHOP_BATTERY_COST_PER_PERCENT.get() : 0,
+                isInCart(WorkshopCartItem.Type.SERVICE_BATTERY));
         y += 46;
 
         // Oil card
         drawServiceCard(g, x, y, tr("workshop.gui.service.oil"),
                 tr("workshop.gui.service.oil_hint"),
-                ModConfigHandler.COMMON.WERKSTATT_OIL_CHANGE_COST.get(),
-                isInCart(WerkstattCartItem.Type.SERVICE_OIL));
+                ModConfigHandler.COMMON.WORKSHOP_OIL_CHANGE_COST.get(),
+                isInCart(WorkshopCartItem.Type.SERVICE_OIL));
         y += 46;
 
         // Sommer/Winter-Tausch (nur für Nicht-LKW mit Sommer/Winterreifen)
@@ -688,10 +688,10 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             boolean isWinter = isCurrentTireWinter();
             String currentLabel = isWinter ? tr("workshop.gui.tire.current_winter") : tr("workshop.gui.tire.current_summer");
             String nextLabel    = isWinter ? tr("workshop.gui.tire.switch_to_summer") : tr("workshop.gui.tire.switch_to_winter");
-            double cost = ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get();
+            double cost = ModConfigHandler.COMMON.WORKSHOP_TIRE_UPGRADE_COST.get();
             drawUpgradeCard(g, x, y, tr("workshop.gui.tire.season_switch"),
                     currentLabel, nextLabel, cost, false,
-                    isInCart(WerkstattCartItem.Type.TIRE_SEASON_SWITCH));
+                    isInCart(WorkshopCartItem.Type.TIRE_SEASON_SWITCH));
         }
     }
 
@@ -727,7 +727,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 motorLevel < 3 ? tr("workshop.gui.upgrade.next", getMotorNameByLevel(motorLevel + 1), motorLevel + 1) : null,
                 motorLevel < 3 ? getMotorUpgradeCost(motorLevel) : -1,
                 motorLevel >= 3,
-                isInCart(WerkstattCartItem.Type.UPGRADE_MOTOR));
+                isInCart(WorkshopCartItem.Type.UPGRADE_MOTOR));
         y += spacing;
 
         // Tank
@@ -737,7 +737,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 tankLevel < 3 ? tr("workshop.gui.upgrade.next", getTankNameByLevel(tankLevel + 1), tankLevel + 1) : null,
                 tankLevel < 3 ? getTankUpgradeCost(tankLevel) : -1,
                 tankLevel >= 3,
-                isInCart(WerkstattCartItem.Type.UPGRADE_TANK));
+                isInCart(WorkshopCartItem.Type.UPGRADE_TANK));
         y += spacing;
 
         // Tire
@@ -745,9 +745,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         drawUpgradeCard(g, x, y, tr("workshop.gui.upgrade.tire"),
                 tr("workshop.gui.upgrade.current", getTireName(), tireIdx + 1),
                 tireIdx < 2 ? tr("workshop.gui.upgrade.next", getTireNameByIndex(tireIdx + 1), tireIdx + 2) : null,
-                tireIdx < 2 ? ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get() : -1,
+                tireIdx < 2 ? ModConfigHandler.COMMON.WORKSHOP_TIRE_UPGRADE_COST.get() : -1,
                 tireIdx >= 2,
-                isInCart(WerkstattCartItem.Type.UPGRADE_TIRE));
+                isInCart(WorkshopCartItem.Type.UPGRADE_TIRE));
         y += spacing;
 
         // Fender (not available for trucks and sports cars)
@@ -758,7 +758,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                     fenderLevel < 3 ? tr("workshop.gui.upgrade.next", getFenderNameByLevel(fenderLevel + 1), fenderLevel + 1) : null,
                     fenderLevel < 3 ? getFenderUpgradeCost(fenderLevel) : -1,
                     fenderLevel >= 3,
-                    isInCart(WerkstattCartItem.Type.UPGRADE_FENDER));
+                    isInCart(WorkshopCartItem.Type.UPGRADE_FENDER));
             y += spacing;  // NOPMD
         }
 
@@ -828,8 +828,8 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             if (selectedPaintColor == vehicle.getPaintColor()) {
                 g.drawString(font, tr("workshop.gui.paint.same_color"), x, infoY + 12, COL_TEXT_LIGHT, false);
             } else {
-                g.drawString(font, tr("workshop.gui.paint.cost", ModConfigHandler.COMMON.WERKSTATT_PAINT_CHANGE_COST.get()), x, infoY + 12, COL_PRICE, false);
-                if (isInCart(WerkstattCartItem.Type.PAINT_CHANGE)) {
+                g.drawString(font, tr("workshop.gui.paint.cost", ModConfigHandler.COMMON.WORKSHOP_PAINT_CHANGE_COST.get()), x, infoY + 12, COL_PRICE, false);
+                if (isInCart(WorkshopCartItem.Type.PAINT_CHANGE)) {
                     g.drawString(font, tr("workshop.gui.in_order"), x, infoY + 24, COL_GREEN, false);
                 }
             }
@@ -855,8 +855,8 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         boolean hadItem = vehicle.hasHadItemContainer();
         boolean hadFluid = vehicle.hasHadFluidContainer();
 
-        boolean itemInCart = isInCart(WerkstattCartItem.Type.CONTAINER_ITEM);
-        boolean fluidInCart = isInCart(WerkstattCartItem.Type.CONTAINER_FLUID);
+        boolean itemInCart = isInCart(WorkshopCartItem.Type.CONTAINER_ITEM);
+        boolean fluidInCart = isInCart(WorkshopCartItem.Type.CONTAINER_FLUID);
 
         // Item Container card
         drawContainerCard(g, x, y,
@@ -909,7 +909,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             // Cart items
             int visibleCount = Math.min(cart.size() - cartScrollOffset, CART_VISIBLE_ITEMS);
             for (int i = 0; i < visibleCount; i++) {
-                WerkstattCartItem item = cart.get(i + cartScrollOffset);
+                WorkshopCartItem item = cart.get(i + cartScrollOffset);
                 String name = getCartItemDisplayName(item);
                 double cost = item.calculateCost(vehicle);
                 g.drawString(font, name, cartX, y, COL_TEXT, false);
@@ -929,9 +929,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         y += 4;
 
         if (!cart.isEmpty()) {
-            double inspectionFee = ModConfigHandler.COMMON.WERKSTATT_BASE_INSPECTION_FEE.get();
+            double inspectionFee = ModConfigHandler.COMMON.WORKSHOP_BASE_INSPECTION_FEE.get();
             double itemsTotal = 0;
-            for (WerkstattCartItem item : cart) {
+            for (WorkshopCartItem item : cart) {
                 itemsTotal += item.calculateCost(vehicle);
             }
             double total = inspectionFee + itemsTotal;
@@ -966,7 +966,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         }
     }
 
-    private String getCartItemDisplayName(WerkstattCartItem item) {
+    private String getCartItemDisplayName(WorkshopCartItem item) {
         return switch (item.getType()) {
             case SERVICE_REPAIR -> tr("workshop.gui.cart.item.repair");
             case SERVICE_BATTERY -> tr("workshop.gui.cart.item.battery");
@@ -1160,20 +1160,20 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     // === Cost Helpers ===
 
     private double getMotorUpgradeCost(int currentLevel) {
-        return currentLevel == 1 ? ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL2.get()
-                : ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL3.get();
+        return currentLevel == 1 ? ModConfigHandler.COMMON.WORKSHOP_MOTOR_UPGRADE_COST_LVL2.get()
+                : ModConfigHandler.COMMON.WORKSHOP_MOTOR_UPGRADE_COST_LVL3.get();
     }
 
     private double getTankUpgradeCost(int currentLevel) {
-        return currentLevel == 1 ? ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL2.get()
-                : ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL3.get();
+        return currentLevel == 1 ? ModConfigHandler.COMMON.WORKSHOP_TANK_UPGRADE_COST_LVL2.get()
+                : ModConfigHandler.COMMON.WORKSHOP_TANK_UPGRADE_COST_LVL3.get();
     }
 
     private double getFenderUpgradeCost(int currentLevel) {
         return switch (currentLevel) {
             case 0 -> 0.0; // Basic fender is free for vehicles without one
-            case 1 -> ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL2.get();
-            default -> ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL3.get();
+            case 1 -> ModConfigHandler.COMMON.WORKSHOP_FENDER_UPGRADE_COST_LVL2.get();
+            default -> ModConfigHandler.COMMON.WORKSHOP_FENDER_UPGRADE_COST_LVL3.get();
         };
     }
 

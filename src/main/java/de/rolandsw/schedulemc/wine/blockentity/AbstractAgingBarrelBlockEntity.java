@@ -61,7 +61,7 @@ public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandler
                 }
                 if (tag.contains("Quality")) {
                     try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
+                    catch (IllegalArgumentException e) { quality = WineQuality.POOR; }
                 }
             }
             agingTicks = 0;
@@ -120,7 +120,7 @@ public abstract class AbstractAgingBarrelBlockEntity extends AbstractItemHandler
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = WineQuality.POOR; }
         }
         if (!storedWine.isEmpty()) itemHandler.setStackInSlot(0, storedWine.copy());
     }

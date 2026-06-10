@@ -34,9 +34,9 @@ public class WineItems {
         () -> new GrapeSeedlingItem(WineType.RIESLING, new Item.Properties())
     );
 
-    public static final RegistryObject<Item> SPAETBURGUNDER_GRAPE_SEEDLING = ITEMS.register(
-        "spaetburgunder_grape_seedling",
-        () -> new GrapeSeedlingItem(WineType.SPAETBURGUNDER, new Item.Properties())
+    public static final RegistryObject<Item> PINOT_NOIR_GRAPE_SEEDLING = ITEMS.register(
+        "pinot_noir_grape_seedling",
+        () -> new GrapeSeedlingItem(WineType.PINOT_NOIR, new Item.Properties())
     );
 
     public static final RegistryObject<Item> CHARDONNAY_GRAPE_SEEDLING = ITEMS.register(
@@ -58,9 +58,9 @@ public class WineItems {
             .food(new FoodProperties.Builder().nutrition(2).saturationMod(0.3f).build()))
     );
 
-    public static final RegistryObject<Item> SPAETBURGUNDER_GRAPES = ITEMS.register(
-        "spaetburgunder_grapes",
-        () -> new GrapeItem(WineType.SPAETBURGUNDER, new Item.Properties()
+    public static final RegistryObject<Item> PINOT_NOIR_GRAPES = ITEMS.register(
+        "pinot_noir_grapes",
+        () -> new GrapeItem(WineType.PINOT_NOIR, new Item.Properties()
             .food(new FoodProperties.Builder().nutrition(2).saturationMod(0.3f).build()))
     );
 
@@ -84,8 +84,8 @@ public class WineItems {
         () -> new Item(new Item.Properties())
     );
 
-    public static final RegistryObject<Item> SPAETBURGUNDER_MASH = ITEMS.register(
-        "spaetburgunder_mash",
+    public static final RegistryObject<Item> PINOT_NOIR_MASH = ITEMS.register(
+        "pinot_noir_mash",
         () -> new Item(new Item.Properties())
     );
 
@@ -107,8 +107,8 @@ public class WineItems {
         () -> new Item(new Item.Properties())
     );
 
-    public static final RegistryObject<Item> SPAETBURGUNDER_JUICE = ITEMS.register(
-        "spaetburgunder_juice",
+    public static final RegistryObject<Item> PINOT_NOIR_JUICE = ITEMS.register(
+        "pinot_noir_juice",
         () -> new Item(new Item.Properties())
     );
 

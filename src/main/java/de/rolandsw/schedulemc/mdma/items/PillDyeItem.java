@@ -13,14 +13,14 @@ import java.util.List;
 /**
  * Farbstoff - Für farbige Pillen
  */
-public class FarbstoffItem extends Item {
+public class PillDyeItem extends Item {
 
-    public FarbstoffItem() {
+    public PillDyeItem() {
         super(new Properties().stacksTo(64));
     }
 
     public static ItemStack create(PillColor color, int count) {
-        ItemStack stack = new ItemStack(MDMAItems.FARBSTOFF.get(), count);
+        ItemStack stack = new ItemStack(MDMAItems.PILL_DYE.get(), count);
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("Color", color.name());
         return stack;
@@ -41,16 +41,16 @@ public class FarbstoffItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         PillColor color = getColor(stack);
-        tooltip.add(Component.translatable("tooltip.farbstoff.color_label").append(color.getColoredName()));
+        tooltip.add(Component.translatable("tooltip.pill_dye.color_label").append(color.getColoredName()));
         tooltip.add(Component.literal(""));
-        tooltip.add(Component.literal(color.getColorCode()).append(Component.translatable("tooltip.farbstoff.food_dye")));
-        tooltip.add(Component.translatable("tooltip.farbstoff.use_press"));
+        tooltip.add(Component.literal(color.getColorCode()).append(Component.translatable("tooltip.pill_dye.food_dye")));
+        tooltip.add(Component.translatable("tooltip.pill_dye.use_press"));
     }
 
     @Override
     public Component getName(ItemStack stack) {
         PillColor color = getColor(stack);
         return Component.literal(color.getColorCode())
-            .append(Component.translatable("item.farbstoff.name", color.getDisplayName()));
+            .append(Component.translatable("item.pill_dye.name", color.getDisplayName()));
     }
 }

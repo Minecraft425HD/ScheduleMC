@@ -71,7 +71,7 @@ public class FreshTobaccoLeafItem extends Item {
                 LOGGER.warn("Invalid Quality '{}' on FreshTobaccoLeafItem", tag.getString("Quality"), exception);
             }
         }
-        return TobaccoQuality.GUT; // Default
+        return TobaccoQuality.GOOD; // Default
     }
     
     @Override

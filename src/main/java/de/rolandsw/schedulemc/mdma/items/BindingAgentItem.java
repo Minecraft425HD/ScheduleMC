@@ -12,9 +12,9 @@ import java.util.List;
  * Bindemittel - Für die Pillen-Presse
  * Hält die Pille zusammen
  */
-public class BindemittelItem extends Item {
+public class BindingAgentItem extends Item {
 
-    public BindemittelItem() {
+    public BindingAgentItem() {
         super(new Properties().stacksTo(64));
     }
 

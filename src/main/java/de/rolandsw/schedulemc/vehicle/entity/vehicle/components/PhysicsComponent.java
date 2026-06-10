@@ -123,7 +123,7 @@ public class PhysicsComponent extends VehicleComponent {
         }
 
         // Don't allow movement if locked in workshop
-        if (vehicle.isLockedInWerkstatt()) {
+        if (vehicle.isLockedInWorkshop()) {
             vehicle.setDeltaMovement(Vec3.ZERO);
             setSpeed(0F);
         } else {

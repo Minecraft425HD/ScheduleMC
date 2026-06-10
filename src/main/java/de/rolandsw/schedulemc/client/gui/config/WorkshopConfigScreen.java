@@ -10,14 +10,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
- * Werkstatt/Workshop Config Screen - 12 Vehicle Workshop Options
+ * Workshop/Workshop Config Screen - 12 Vehicle Workshop Options
  */
 @OnlyIn(Dist.CLIENT)
-public class WerkstattConfigScreen extends Screen {
+public class WorkshopConfigScreen extends Screen {
     private final Screen parent;
 
-    public WerkstattConfigScreen(Screen parent) {
-        super(Component.literal("Werkstatt/Workshop Settings"));
+    public WorkshopConfigScreen(Screen parent) {
+        super(Component.literal("Workshop/Workshop Settings"));
         this.parent = parent;
     }
 
@@ -35,59 +35,59 @@ public class WerkstattConfigScreen extends Screen {
 
         this.addRenderableWidget(new DoubleSlider(leftCol, y, w,
             "Inspection: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_BASE_INSPECTION_FEE, 1, 1000));
+            ModConfigHandler.COMMON.WORKSHOP_BASE_INSPECTION_FEE, 1, 1000));
 
         this.addRenderableWidget(new DoubleSlider(rightCol, y, w,
             "Repair/%%: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_REPAIR_COST_PER_PERCENT, 1, 500));
+            ModConfigHandler.COMMON.WORKSHOP_REPAIR_COST_PER_PERCENT, 1, 500));
 
         this.addRenderableWidget(new DoubleSlider(leftCol, y + s, w,
             "Battery/%%: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_BATTERY_COST_PER_PERCENT, 1, 500));
+            ModConfigHandler.COMMON.WORKSHOP_BATTERY_COST_PER_PERCENT, 1, 500));
 
         this.addRenderableWidget(new DoubleSlider(rightCol, y + s, w,
             "Oil Change: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_OIL_CHANGE_COST, 1, 1000));
+            ModConfigHandler.COMMON.WORKSHOP_OIL_CHANGE_COST, 1, 1000));
 
         // === MOTOR UPGRADES ===
 
         this.addRenderableWidget(new DoubleSlider(leftCol, y + s * 2, w,
             "Motor Lvl2: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL2, 100, 100000));
+            ModConfigHandler.COMMON.WORKSHOP_MOTOR_UPGRADE_COST_LVL2, 100, 100000));
 
         this.addRenderableWidget(new DoubleSlider(rightCol, y + s * 2, w,
             "Motor Lvl3: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL3, 100, 100000));
+            ModConfigHandler.COMMON.WORKSHOP_MOTOR_UPGRADE_COST_LVL3, 100, 100000));
 
         // === TANK UPGRADES ===
 
         this.addRenderableWidget(new DoubleSlider(leftCol, y + s * 3, w,
             "Tank Lvl2: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL2, 100, 100000));
+            ModConfigHandler.COMMON.WORKSHOP_TANK_UPGRADE_COST_LVL2, 100, 100000));
 
         this.addRenderableWidget(new DoubleSlider(rightCol, y + s * 3, w,
             "Tank Lvl3: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL3, 100, 100000));
+            ModConfigHandler.COMMON.WORKSHOP_TANK_UPGRADE_COST_LVL3, 100, 100000));
 
         // === OTHER UPGRADES ===
 
         this.addRenderableWidget(new DoubleSlider(leftCol, y + s * 4, w,
             "Tires: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST, 100, 50000));
+            ModConfigHandler.COMMON.WORKSHOP_TIRE_UPGRADE_COST, 100, 50000));
 
         this.addRenderableWidget(new DoubleSlider(rightCol, y + s * 4, w,
             "Paint: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_PAINT_CHANGE_COST, 100, 50000));
+            ModConfigHandler.COMMON.WORKSHOP_PAINT_CHANGE_COST, 100, 50000));
 
         // === FENDER UPGRADES ===
 
         this.addRenderableWidget(new DoubleSlider(leftCol, y + s * 5, w,
             "Fender Lvl2: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL2, 100, 100000));
+            ModConfigHandler.COMMON.WORKSHOP_FENDER_UPGRADE_COST_LVL2, 100, 100000));
 
         this.addRenderableWidget(new DoubleSlider(rightCol, y + s * 5, w,
             "Fender Lvl3: §e%.0f€",
-            ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL3, 100, 100000));
+            ModConfigHandler.COMMON.WORKSHOP_FENDER_UPGRADE_COST_LVL3, 100, 100000));
 
         // Back Button
         this.addRenderableWidget(Button.builder(

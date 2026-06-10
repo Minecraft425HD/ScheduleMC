@@ -1,6 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.blocks;
 
-import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityWerkstatt;
+import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityWorkshop;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.gui.TileEntityContainerProvider;
 import de.maxhenkel.corelib.blockentity.SimpleBlockEntityTicker;
@@ -20,9 +20,9 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class BlockWerkstatt extends BlockOrientableHorizontal {
+public class BlockWorkshop extends BlockOrientableHorizontal {
 
-    public BlockWerkstatt() {
+    public BlockWorkshop() {
         super(MapColor.METAL, SoundType.METAL, 4.5F, 60F);
     }
 
@@ -30,14 +30,14 @@ public class BlockWerkstatt extends BlockOrientableHorizontal {
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide && hand == InteractionHand.MAIN_HAND) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof TileEntityWerkstatt workshop) {
+            if (blockEntity instanceof TileEntityWorkshop workshop) {
                 // Try to find a vehicle near the workshop
                 EntityGenericVehicle vehicle = workshop.getTrackedVehicle();
 
                 if (vehicle != null && !vehicle.isRemoved()) {
                     // Open workshop GUI with the tracked vehicle
                     if (player instanceof ServerPlayer serverPlayer) {
-                        workshop.openWerkstattGUI(serverPlayer, vehicle);
+                        workshop.openWorkshopGUI(serverPlayer, vehicle);
                     }
                     return InteractionResult.SUCCESS;
                 } else {
@@ -55,7 +55,7 @@ public class BlockWerkstatt extends BlockOrientableHorizontal {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TileEntityWerkstatt(pos, state);
+        return new TileEntityWorkshop(pos, state);
     }
 
     @Nullable

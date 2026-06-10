@@ -37,7 +37,7 @@ public class AdvancedBeehiveBlockEntity extends AbstractItemHandlerBlockEntity i
 
     private int tickCount = 0;
     private HoneyType honeyType = HoneyType.WILDFLOWER;
-    private HoneyQuality quality = HoneyQuality.SEHR_GUT;
+    private HoneyQuality quality = HoneyQuality.VERY_GOOD;
 
     private static final int PRODUCTION_TIME = 800; // 40 seconds
 
@@ -132,16 +132,16 @@ public class AdvancedBeehiveBlockEntity extends AbstractItemHandlerBlockEntity i
         // Advanced hive produces better quality
         if (temperature > 1.5f) {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.SEHR_GUT;
+            quality = HoneyQuality.VERY_GOOD;
         } else if (temperature < 0.3f) {
             honeyType = HoneyType.FOREST;
-            quality = HoneyQuality.LEGENDAER;
+            quality = HoneyQuality.LEGENDARY;
         } else if (temperature >= 0.6f && temperature <= 0.95f) {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.LEGENDAER;
+            quality = HoneyQuality.LEGENDARY;
         } else {
             honeyType = HoneyType.WILDFLOWER;
-            quality = HoneyQuality.SEHR_GUT;
+            quality = HoneyQuality.VERY_GOOD;
         }
     }
 
@@ -174,7 +174,7 @@ public class AdvancedBeehiveBlockEntity extends AbstractItemHandlerBlockEntity i
         }
         if (tag.contains("Quality")) {
             try { quality = HoneyQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = HoneyQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = HoneyQuality.POOR; }
         }
     }
 

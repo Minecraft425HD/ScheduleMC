@@ -53,7 +53,7 @@ public class ConfigCategoryScreen extends Screen {
             "§2⚘ Tobacco Settings", () -> new TobaccoConfigScreen(this)
         );
         categoryList.addCategoryRow(
-            "§6⚒ Werkstatt/Workshop", () -> new WerkstattConfigScreen(this),
+            "§6⚒ Workshop/Workshop", () -> new WorkshopConfigScreen(this),
             "§4⚠ Stealing/Crime", () -> new StealingConfigScreen(this)
         );
         categoryList.addCategoryRow(

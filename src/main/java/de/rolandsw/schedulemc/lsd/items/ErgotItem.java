@@ -12,9 +12,9 @@ import java.util.List;
  * Mutterkorn (Ergot) - Grundzutat für LSD
  * Enthält Ergot-Alkaloide die zu Lysergsäure verarbeitet werden
  */
-public class MutterkornItem extends Item {
+public class ErgotItem extends Item {
 
-    public MutterkornItem() {
+    public ErgotItem() {
         super(new Properties().stacksTo(64));
     }
 

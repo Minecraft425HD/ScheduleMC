@@ -50,25 +50,25 @@ public class EconomyPricesConfigScreen extends Screen {
         {"TOBACCO_HAVANA",     "tobacco.type.havana"},
         // KOKAIN
         {null, "§7", "gui.economy_prices.cat.cocaine"},
-        {"COCA_BOLIVIANISCH",  "enum.coca_type.bolivian"},
-        {"COCA_PERUANISCH",    "enum.coca_type.peruvian"},
-        {"COCA_KOLUMBIANISCH", "enum.coca_type.colombian"},
+        {"COCA_BOLIVIAN",  "enum.coca_type.bolivian"},
+        {"COCA_PERUVIAN",    "enum.coca_type.peruvian"},
+        {"COCA_COLOMBIAN", "enum.coca_type.colombian"},
         {"CRACK_ROCK",         "gui.economy_prices.product.crack_rock"},
         // HEROIN
         {null, "§5", "gui.economy_prices.cat.heroin"},
-        {"POPPY_INDISCH",      "enum.poppy_type.indian"},
-        {"POPPY_TUERKISCH",    "enum.poppy_type.turkish"},
-        {"POPPY_AFGHANISCH",   "enum.poppy_type.afghan"},
+        {"POPPY_INDIAN",      "enum.poppy_type.indian"},
+        {"POPPY_TURKISH",    "enum.poppy_type.turkish"},
+        {"POPPY_AFGHAN",   "enum.poppy_type.afghan"},
         // METH
         {null, "§b", "gui.economy_prices.cat.meth"},
         {"METH_STANDARD",      "enum.meth_quality.standard"},
-        {"METH_GUT",           "enum.meth_quality.gut"},
+        {"METH_GUT",           "enum.meth_quality.good"},
         {"METH_BLUE_SKY",      "enum.meth_quality.blue_sky"},
         // MDMA
         {null, "§d", "gui.economy_prices.cat.mdma"},
-        {"MDMA_SCHLECHT",      "enum.mdma_quality.schlecht"},
+        {"MDMA_SCHLECHT",      "enum.mdma_quality.poor"},
         {"MDMA_STANDARD",      "enum.mdma_quality.standard"},
-        {"MDMA_GUT",           "enum.mdma_quality.gut"},
+        {"MDMA_GUT",           "enum.mdma_quality.good"},
         {"MDMA_PREMIUM",       "enum.mdma_quality.premium"},
         // LSD
         {null, "§e", "gui.economy_prices.cat.lsd"},
@@ -85,7 +85,7 @@ public class EconomyPricesConfigScreen extends Screen {
         {null, "§9", "gui.economy_prices.cat.wine"},
         {"WINE_RIESLING",      "wine.type.riesling"},
         {"WINE_CHARDONNAY",    "wine.type.chardonnay"},
-        {"WINE_SPAETBURGUNDER","wine.type.spaetburgunder"},
+        {"WINE_PINOT_NOIR","wine.type.pinot_noir"},
         {"WINE_MERLOT",        "wine.type.merlot"},
         // BIER
         {null, "§8", "gui.economy_prices.cat.beer"},

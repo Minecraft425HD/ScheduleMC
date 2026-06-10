@@ -304,7 +304,7 @@ public class MissionRegistry {
         ));
 
         register(new MissionDefinition(
-            "neben_haendler",
+            "neben_traders",
             "Großhändler",
             "Verkaufe 50 Waren an NPCs.",
             MissionCategory.NEBEN,

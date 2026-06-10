@@ -20,61 +20,61 @@ public enum CrimeType {
     // THEFT (Diebstahl)
     // ═══════════════════════════════════════════════════════════
 
-    PETTY_THEFT("Kleindiebstahl", 2, 50, RumorType.THEFT, 1, 500.0, 1),
-    SHOPLIFTING("Ladendiebstahl", 3, 100, RumorType.THEFT, 1, 500.0, 1),
-    BURGLARY("Einbruch", 6, 500, RumorType.BURGLARY, 2, 2000.0, 3),
-    ROBBERY("Raub", 7, 750, RumorType.ASSAULT, 2, 2500.0, 3),
+    PETTY_THEFT("Petty theft", 2, 50, RumorType.THEFT, 1, 500.0, 1),
+    SHOPLIFTING("Shoplifting", 3, 100, RumorType.THEFT, 1, 500.0, 1),
+    BURGLARY("Burglary", 6, 500, RumorType.BURGLARY, 2, 2000.0, 3),
+    ROBBERY("Robbery", 7, 750, RumorType.ASSAULT, 2, 2500.0, 3),
 
     // ═══════════════════════════════════════════════════════════
     // VIOLENCE (Gewalt)
     // ═══════════════════════════════════════════════════════════
 
-    THREAT("Bedrohung", 3, 100, RumorType.ASSAULT, 1, 300.0, 1),
-    ASSAULT("Koerperverletzung", 5, 300, RumorType.ASSAULT, 2, 2000.0, 3),
-    AGGRAVATED_ASSAULT("Schwere Koerperverletzung", 8, 1000, RumorType.ASSAULT, 3, 5000.0, 5),
-    ARMED_VIOLENCE("Bewaffnete Gewalt", 9, 2000, RumorType.ASSAULT, 4, 20000.0, 10),
+    THREAT("Threat", 3, 100, RumorType.ASSAULT, 1, 300.0, 1),
+    ASSAULT("Assault", 5, 300, RumorType.ASSAULT, 2, 2000.0, 3),
+    AGGRAVATED_ASSAULT("Aggravated assault", 8, 1000, RumorType.ASSAULT, 3, 5000.0, 5),
+    ARMED_VIOLENCE("Armed violence", 9, 2000, RumorType.ASSAULT, 4, 20000.0, 10),
 
     // ═══════════════════════════════════════════════════════════
     // DRUGS (Drogen)
     // ═══════════════════════════════════════════════════════════
 
-    DRUG_USE("Drogenkonsum", 2, 50, RumorType.DRUG_DEALING, 1, 300.0, 1),
-    DRUG_DEALING_SMALL("Drogenhandel (klein)", 4, 200, RumorType.DRUG_DEALING, 2, 3000.0, 4),
-    DRUG_DEALING_LARGE("Drogenhandel (gross)", 7, 1000, RumorType.DRUG_DEALING, 2, 3000.0, 4),
+    DRUG_USE("Drug use", 2, 50, RumorType.DRUG_DEALING, 1, 300.0, 1),
+    DRUG_DEALING_SMALL("Drug dealing (small)", 4, 200, RumorType.DRUG_DEALING, 2, 3000.0, 4),
+    DRUG_DEALING_LARGE("Drug dealing (large)", 7, 1000, RumorType.DRUG_DEALING, 2, 3000.0, 4),
 
     // ═══════════════════════════════════════════════════════════
     // OTHER (Sonstige)
     // ═══════════════════════════════════════════════════════════
 
-    VANDALISM("Vandalismus", 2, 75, RumorType.VANDALISM, 1, 400.0, 1),
-    TRESPASSING("Hausfriedensbruch", 3, 100, RumorType.UNRELIABLE, 1, 300.0, 1),
-    BRIBERY("Bestechung", 4, 250, RumorType.UNFAIR_TRADER, 1, 1000.0, 2),
-    FRAUD("Betrug", 5, 400, RumorType.UNFAIR_TRADER, 1, 1000.0, 2),
-    EVADING_POLICE("Flucht vor Polizei", 4, 200, RumorType.WANTED_BY_POLICE, 1, 500.0, 1),
+    VANDALISM("Vandalism", 2, 75, RumorType.VANDALISM, 1, 400.0, 1),
+    TRESPASSING("Trespassing", 3, 100, RumorType.UNRELIABLE, 1, 300.0, 1),
+    BRIBERY("Bribery", 4, 250, RumorType.UNFAIR_TRADER, 1, 1000.0, 2),
+    FRAUD("Fraud", 5, 400, RumorType.UNFAIR_TRADER, 1, 1000.0, 2),
+    EVADING_POLICE("Evading police", 4, 200, RumorType.WANTED_BY_POLICE, 1, 500.0, 1),
 
     // ═══════════════════════════════════════════════════════════
     // SEVERE (Schwere Verbrechen - aus altem CrimeType)
     // ═══════════════════════════════════════════════════════════
 
-    MURDER("Mord", 10, 5000, RumorType.ASSAULT, 3, 10000.0, 7),
-    GANG_VIOLENCE("Bandengewalt", 8, 2500, RumorType.ASSAULT, 3, 5000.0, 5),
-    ARSON("Brandstiftung", 8, 3000, RumorType.VANDALISM, 3, 7000.0, 6),
-    BLACK_MARKET("Schwarzmarkt", 4, 500, RumorType.UNFAIR_TRADER, 1, 1000.0, 2),
+    MURDER("Murder", 10, 5000, RumorType.ASSAULT, 3, 10000.0, 7),
+    GANG_VIOLENCE("Gang violence", 8, 2500, RumorType.ASSAULT, 3, 5000.0, 5),
+    ARSON("Arson", 8, 3000, RumorType.VANDALISM, 3, 7000.0, 6),
+    BLACK_MARKET("Black market", 4, 500, RumorType.UNFAIR_TRADER, 1, 1000.0, 2),
 
     // ═══════════════════════════════════════════════════════════
     // EXTREME (Hoechste Stufe - aus altem CrimeType)
     // ═══════════════════════════════════════════════════════════
 
-    PRISON_ESCAPE("Gefaengnisausbruch", 9, 5000, RumorType.WANTED_BY_POLICE, 4, 20000.0, 10),
-    POLICE_ASSAULT("Angriff auf Polizei", 10, 10000, RumorType.WANTED_BY_POLICE, 5, 50000.0, 14),
-    TERRORISM("Terrorismus", 10, 20000, RumorType.WANTED_BY_POLICE, 5, 100000.0, 20),
+    PRISON_ESCAPE("Prison escape", 9, 5000, RumorType.WANTED_BY_POLICE, 4, 20000.0, 10),
+    POLICE_ASSAULT("Police assault", 10, 10000, RumorType.WANTED_BY_POLICE, 5, 50000.0, 14),
+    TERRORISM("Terrorism", 10, 20000, RumorType.WANTED_BY_POLICE, 5, 100000.0, 20),
 
     // ═══════════════════════════════════════════════════════════
     // TRAFFIC (Verkehrsdelikte - NEU)
     // ═══════════════════════════════════════════════════════════
 
-    TRAFFIC_VIOLATION("Verkehrsdelikt", 1, 25, RumorType.UNRELIABLE, 1, 200.0, 0),
-    RECKLESS_DRIVING("Rücksichtsloses Fahren", 3, 100, RumorType.UNRELIABLE, 1, 500.0, 1),
+    TRAFFIC_VIOLATION("Traffic violation", 1, 25, RumorType.UNRELIABLE, 1, 200.0, 0),
+    RECKLESS_DRIVING("Reckless driving", 3, 100, RumorType.UNRELIABLE, 1, 500.0, 1),
     HIT_AND_RUN("Fahrerflucht", 6, 500, RumorType.ASSAULT, 2, 3000.0, 3);
 
     private final String displayName;

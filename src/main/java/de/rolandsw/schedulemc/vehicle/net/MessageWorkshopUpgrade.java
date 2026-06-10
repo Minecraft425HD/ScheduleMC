@@ -15,17 +15,17 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 
-public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade> {
+public class MessageWorkshopUpgrade implements Message<MessageWorkshopUpgrade> {
 
     private UUID playerUuid;
     private UUID vehicleUuid;
     private UpgradeType upgradeType;
     private int value; // Used for: motor/tank/fender level, tire type index, or paint color
 
-    public MessageWerkstattUpgrade() {
+    public MessageWorkshopUpgrade() {
     }
 
-    public MessageWerkstattUpgrade(UUID playerUuid, UUID vehicleUuid, UpgradeType upgradeType, int value) {
+    public MessageWorkshopUpgrade(UUID playerUuid, UUID vehicleUuid, UpgradeType upgradeType, int value) {
         this.playerUuid = playerUuid;
         this.vehicleUuid = vehicleUuid;
         this.upgradeType = upgradeType;
@@ -115,26 +115,26 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
     private double calculateUpgradeCost(UpgradeType type, int value, EntityGenericVehicle vehicle) {
         return switch (type) {
             case MOTOR -> {
-                if (value == 2) yield ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL2.get();
-                if (value == 3) yield ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL3.get();
+                if (value == 2) yield ModConfigHandler.COMMON.WORKSHOP_MOTOR_UPGRADE_COST_LVL2.get();
+                if (value == 3) yield ModConfigHandler.COMMON.WORKSHOP_MOTOR_UPGRADE_COST_LVL3.get();
                 yield -1.0;
             }
             case TANK -> {
-                if (value == 2) yield ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL2.get();
-                if (value == 3) yield ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL3.get();
+                if (value == 2) yield ModConfigHandler.COMMON.WORKSHOP_TANK_UPGRADE_COST_LVL2.get();
+                if (value == 3) yield ModConfigHandler.COMMON.WORKSHOP_TANK_UPGRADE_COST_LVL3.get();
                 yield -1.0;
             }
-            case TIRE -> ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get();
+            case TIRE -> ModConfigHandler.COMMON.WORKSHOP_TIRE_UPGRADE_COST.get();
             case PAINT -> {
                 // Only charge if color is different from current
                 if (vehicle.getPaintColor() == value) {
                     yield 0.0;
                 }
-                yield ModConfigHandler.COMMON.WERKSTATT_PAINT_CHANGE_COST.get();
+                yield ModConfigHandler.COMMON.WORKSHOP_PAINT_CHANGE_COST.get();
             }
             case FENDER -> {
-                if (value == 2) yield ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL2.get();
-                if (value == 3) yield ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL3.get();
+                if (value == 2) yield ModConfigHandler.COMMON.WORKSHOP_FENDER_UPGRADE_COST_LVL2.get();
+                if (value == 3) yield ModConfigHandler.COMMON.WORKSHOP_FENDER_UPGRADE_COST_LVL3.get();
                 yield -1.0;
             }
         };
@@ -311,7 +311,7 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
     }
 
     @Override
-    public MessageWerkstattUpgrade fromBytes(FriendlyByteBuf buf) {
+    public MessageWorkshopUpgrade fromBytes(FriendlyByteBuf buf) {
         playerUuid = buf.readUUID();
         vehicleUuid = buf.readUUID();
         upgradeType = buf.readEnum(UpgradeType.class);

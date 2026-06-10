@@ -18,10 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * Abschluss einer Quest gibt +15 Reputation bei der betroffenen Fraktion.
  *
  * Quest-Typen:
- * - Community Service: Hilf der Stadt (ORDNUNG/BUERGER)
+ * - Community Service: Hilf der Stadt (LAW/CITIZENS)
  * - Spende: Zahle eine Geldstrafe (alle Fraktionen)
- * - Kurierdienst: Liefere Waren (HAENDLER)
- * - Wachpatrouille: Patrouiliere ein Gebiet (ORDNUNG)
+ * - Kurierdienst: Liefere Waren (TRADERS)
+ * - Wachpatrouille: Patrouiliere ein Gebiet (LAW)
  */
 public class RedemptionQuestManager {
 

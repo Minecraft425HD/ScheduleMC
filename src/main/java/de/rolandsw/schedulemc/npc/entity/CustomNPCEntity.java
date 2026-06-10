@@ -154,10 +154,10 @@ public class CustomNPCEntity extends PathfinderMob {
         super.defineSynchedData();
         this.entityData.define(NPC_NAME, "NPC");
         this.entityData.define(SKIN_FILE, "default.png");
-        this.entityData.define(NPC_TYPE_ORDINAL, 0); // BEWOHNER
-        this.entityData.define(MERCHANT_CATEGORY_ORDINAL, 0); // BAUMARKT
+        this.entityData.define(NPC_TYPE_ORDINAL, 0); // CITIZEN
+        this.entityData.define(MERCHANT_CATEGORY_ORDINAL, 0); // HARDWARE_STORE
         this.entityData.define(BANK_CATEGORY_ORDINAL, 0); // BANKER
-        this.entityData.define(SERVICE_CATEGORY_ORDINAL, 0); // ABSCHLEPPDIENST
+        this.entityData.define(SERVICE_CATEGORY_ORDINAL, 0); // TOWING_SERVICE
         this.entityData.define(PERSONALITY, NPCPersonality.AUSGEWOGEN.name()); // Standard-Persönlichkeit
         this.entityData.define(ACTIVITY_STATUS, NPCActivityStatus.ROAMING.ordinal()); // Standard: Unterwegs
         // NPC Life System - Emotion syncing für Client-Rendering
@@ -178,11 +178,11 @@ public class CustomNPCEntity extends PathfinderMob {
         this.goalSelector.addGoal(1, new OpenDoorGoal(this, true)); // Türen öffnen (und schließen)
 
         // Registriere ALLE Goals - die Goals prüfen selbst ob sie aktiv sein sollen
-        // Police Goals (nur aktiv für POLIZEI NPCs)
+        // Police Goals (nur aktiv für POLICE NPCs)
         this.goalSelector.addGoal(2, new PolicePatrolGoal(this)); // Patrouillieren zwischen Punkten
         this.goalSelector.addGoal(3, new PoliceStationGoal(this)); // An Station bleiben (wenn keine Patrol)
 
-        // Normal NPC Goals (nur aktiv für BEWOHNER/VERKAEUFER)
+        // Normal NPC Goals (nur aktiv für CITIZEN/MERCHANT)
         this.goalSelector.addGoal(4, new MoveToHomeGoal(this)); // Nach Hause gehen (Heimzeit)
         this.goalSelector.addGoal(5, new MoveToWorkGoal(this)); // Zur Arbeit gehen (Arbeitszeit)
         this.goalSelector.addGoal(6, new MoveToLeisureGoal(this)); // Zu Freizeitorten gehen (Freizeit)
@@ -206,7 +206,7 @@ public class CustomNPCEntity extends PathfinderMob {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (!this.level().isClientSide && player instanceof ServerPlayer serverPlayer) {
-            // Normal: Öffne Interaktions-GUI (auch für ABSCHLEPPER)
+            // Normal: Öffne Interaktions-GUI (auch für TOW_TRUCK_DRIVER)
             // Rechnungen können über die GUI aufgerufen werden
             openInteractionMenu(serverPlayer);
             return InteractionResult.SUCCESS;
@@ -222,8 +222,8 @@ public class CustomNPCEntity extends PathfinderMob {
 
             // Vehicle Spawn Tool: Linksklick verknüpft das Tool
             if (heldItem.getItem() instanceof de.rolandsw.schedulemc.vehicle.items.VehicleSpawnTool) {
-                boolean isCarDealer = getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.AUTOHAENDLER;
-                boolean isTowingService = getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.ABSCHLEPPER;
+                boolean isCarDealer = getMerchantCategory() == de.rolandsw.schedulemc.npc.data.MerchantCategory.CAR_DEALER;
+                boolean isTowingService = getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.TOW_TRUCK_DRIVER;
 
                 if (isCarDealer) {
                     // Autohändler: Verknüpfe für Fahrzeug-Spawn-Punkte
@@ -251,10 +251,10 @@ public class CustomNPCEntity extends PathfinderMob {
                 }
             }
 
-            // Shop-Editor für Admins (VERKAEUFER und ABSCHLEPPER)
+            // Shop-Editor für Admins (MERCHANT und TOW_TRUCK_DRIVER)
             if (serverPlayer.isShiftKeyDown() && serverPlayer.hasPermissions(2)) {
-                if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER ||
-                    getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.ABSCHLEPPER) {
+                if (getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT ||
+                    getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.TOW_TRUCK_DRIVER) {
                     openShopEditor(serverPlayer);
                     return false; // Verhindere Schaden + Animation
                 }
@@ -391,7 +391,7 @@ public class CustomNPCEntity extends PathfinderMob {
         NPCType type = getNpcType();
 
         // Polizei-NPCs haben spezielle Status
-        if (type == NPCType.POLIZEI) {
+        if (type == NPCType.POLICE) {
             // Prüfe ob an der Polizeistation oder auf Patrouille
             if (npcData.getPoliceData().getPatrolPoints() != null && !npcData.getPoliceData().getPatrolPoints().isEmpty()) {
                 return NPCActivityStatus.ON_PATROL;

@@ -106,12 +106,12 @@ public enum QuestType {
         return switch (this) {
             case DELIVERY -> true; // Jeder kann Lieferquests geben
             case COLLECTION -> true;
-            case ESCORT -> npcType != de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI;
-            case ELIMINATION -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI ||
-                               npcType == de.rolandsw.schedulemc.npc.data.NPCType.BEWOHNER;
-            case INVESTIGATION -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI ||
-                                 npcType == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER;
-            case NEGOTIATION -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.VERKAEUFER ||
+            case ESCORT -> npcType != de.rolandsw.schedulemc.npc.data.NPCType.POLICE;
+            case ELIMINATION -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.POLICE ||
+                               npcType == de.rolandsw.schedulemc.npc.data.NPCType.CITIZEN;
+            case INVESTIGATION -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.POLICE ||
+                                 npcType == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT;
+            case NEGOTIATION -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT ||
                                npcType == de.rolandsw.schedulemc.npc.data.NPCType.BANK;
         };
     }

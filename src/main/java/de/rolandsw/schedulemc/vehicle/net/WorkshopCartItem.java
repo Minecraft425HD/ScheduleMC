@@ -6,10 +6,10 @@ import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
 import net.minecraft.network.FriendlyByteBuf;
 
 /**
- * Represents a single item in the Werkstatt shopping cart.
+ * Represents a single item in the Workshop shopping cart.
  * Each item has a type and an optional value (e.g. target upgrade level or paint color).
  */
-public class WerkstattCartItem {
+public class WorkshopCartItem {
 
     public enum Type {
         SERVICE_REPAIR,
@@ -28,12 +28,12 @@ public class WerkstattCartItem {
     private final Type type;
     private final int value; // target level for upgrades, color index for paint, 0 for services
 
-    public WerkstattCartItem(Type type, int value) {
+    public WorkshopCartItem(Type type, int value) {
         this.type = type;
         this.value = value;
     }
 
-    public WerkstattCartItem(Type type) {
+    public WorkshopCartItem(Type type) {
         this(type, 0);
     }
 
@@ -52,38 +52,38 @@ public class WerkstattCartItem {
         return switch (type) {
             case SERVICE_REPAIR -> {
                 float damage = Math.min(vehicle.getDamageComponent().getDamage(), 100);
-                yield damage > 0 ? damage * ModConfigHandler.COMMON.WERKSTATT_REPAIR_COST_PER_PERCENT.get() : 0.0;
+                yield damage > 0 ? damage * ModConfigHandler.COMMON.WORKSHOP_REPAIR_COST_PER_PERCENT.get() : 0.0;
             }
             case SERVICE_BATTERY -> {
                 float battery = vehicle.getBatteryComponent().getBatteryPercentage() * 100F;
-                yield battery < 100 ? (100 - battery) * ModConfigHandler.COMMON.WERKSTATT_BATTERY_COST_PER_PERCENT.get() : 0.0;
+                yield battery < 100 ? (100 - battery) * ModConfigHandler.COMMON.WORKSHOP_BATTERY_COST_PER_PERCENT.get() : 0.0;
             }
-            case SERVICE_OIL -> ModConfigHandler.COMMON.WERKSTATT_OIL_CHANGE_COST.get();
+            case SERVICE_OIL -> ModConfigHandler.COMMON.WORKSHOP_OIL_CHANGE_COST.get();
             case UPGRADE_MOTOR -> {
-                if (value == 2) yield ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL2.get();
-                if (value == 3) yield ModConfigHandler.COMMON.WERKSTATT_MOTOR_UPGRADE_COST_LVL3.get();
+                if (value == 2) yield ModConfigHandler.COMMON.WORKSHOP_MOTOR_UPGRADE_COST_LVL2.get();
+                if (value == 3) yield ModConfigHandler.COMMON.WORKSHOP_MOTOR_UPGRADE_COST_LVL3.get();
                 yield 0.0;
             }
             case UPGRADE_TANK -> {
-                if (value == 2) yield ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL2.get();
-                if (value == 3) yield ModConfigHandler.COMMON.WERKSTATT_TANK_UPGRADE_COST_LVL3.get();
+                if (value == 2) yield ModConfigHandler.COMMON.WORKSHOP_TANK_UPGRADE_COST_LVL2.get();
+                if (value == 3) yield ModConfigHandler.COMMON.WORKSHOP_TANK_UPGRADE_COST_LVL3.get();
                 yield 0.0;
             }
-            case UPGRADE_TIRE -> ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get();
+            case UPGRADE_TIRE -> ModConfigHandler.COMMON.WORKSHOP_TIRE_UPGRADE_COST.get();
             case UPGRADE_FENDER -> {
-                if (value == 2) yield ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL2.get();
-                if (value == 3) yield ModConfigHandler.COMMON.WERKSTATT_FENDER_UPGRADE_COST_LVL3.get();
+                if (value == 2) yield ModConfigHandler.COMMON.WORKSHOP_FENDER_UPGRADE_COST_LVL2.get();
+                if (value == 3) yield ModConfigHandler.COMMON.WORKSHOP_FENDER_UPGRADE_COST_LVL3.get();
                 yield 0.0;
             }
             case PAINT_CHANGE -> {
                 if (vehicle.getPaintColor() == value) yield 0.0;
-                yield ModConfigHandler.COMMON.WERKSTATT_PAINT_CHANGE_COST.get();
+                yield ModConfigHandler.COMMON.WORKSHOP_PAINT_CHANGE_COST.get();
             }
             case CONTAINER_ITEM -> vehicle.hasHadItemContainer()
                     ? ModConfigHandler.VEHICLE_SERVER.containerReinstallationCost.get() : 0.0;
             case CONTAINER_FLUID -> vehicle.hasHadFluidContainer()
                     ? ModConfigHandler.VEHICLE_SERVER.containerReinstallationCost.get() : 0.0;
-            case TIRE_SEASON_SWITCH -> ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get();
+            case TIRE_SEASON_SWITCH -> ModConfigHandler.COMMON.WORKSHOP_TIRE_UPGRADE_COST.get();
         };
     }
 
@@ -111,9 +111,9 @@ public class WerkstattCartItem {
         buf.writeInt(value);
     }
 
-    public static WerkstattCartItem fromBytes(FriendlyByteBuf buf) {
+    public static WorkshopCartItem fromBytes(FriendlyByteBuf buf) {
         Type type = buf.readEnum(Type.class);
         int value = buf.readInt();
-        return new WerkstattCartItem(type, value);
+        return new WorkshopCartItem(type, value);
     }
 }

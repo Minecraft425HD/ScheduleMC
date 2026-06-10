@@ -40,10 +40,10 @@ public class RawMethItem extends Item {
             try {
                 return MethQuality.valueOf(tag.getString("Quality"));
             } catch (IllegalArgumentException e) {
-                return MethQuality.SCHLECHT;
+                return MethQuality.POOR;
             }
         }
-        return MethQuality.SCHLECHT;
+        return MethQuality.POOR;
     }
 
     @Override

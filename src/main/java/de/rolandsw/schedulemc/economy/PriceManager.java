@@ -209,7 +209,7 @@ public class PriceManager {
                     "MDMA & LSD extrem gefragt!",
                     List.of(
                             MDMAItems.ECSTASY_PILL.get(),
-                            MDMAItems.MDMA_KRISTALL.get(),
+                            MDMAItems.MDMA_CRYSTAL.get(),
                             LSDItems.BLOTTER.get()
                     ), 1.7f, 2);
 
@@ -255,9 +255,9 @@ public class PriceManager {
         return List.of(
                 CocaItems.COCAINE.get(),
                 CocaItems.CRACK_ROCK.get(),
-                CocaItems.COCA_PASTE_BOLIVIANISCH.get(),
-                CocaItems.COCA_PASTE_KOLUMBIANISCH.get(),
-                CocaItems.COCA_PASTE_PERUANISCH.get()
+                CocaItems.COCA_PASTE_BOLIVIAN.get(),
+                CocaItems.COCA_PASTE_COLOMBIAN.get(),
+                CocaItems.COCA_PASTE_PERUVIAN.get()
         );
     }
 
@@ -271,7 +271,7 @@ public class PriceManager {
     private static List<Item> getPartyDrugs() {
         List<Item> items = new ArrayList<>();
         items.add(MDMAItems.ECSTASY_PILL.get());
-        items.add(MDMAItems.MDMA_KRISTALL.get());
+        items.add(MDMAItems.MDMA_CRYSTAL.get());
         items.add(LSDItems.BLOTTER.get());
         items.add(CocaItems.COCAINE.get());
         items.addAll(getCannabisItems());
@@ -282,9 +282,9 @@ public class PriceManager {
         List<Item> items = new ArrayList<>();
         items.addAll(getMethItems());
         items.add(MDMAItems.ECSTASY_PILL.get());
-        items.add(MDMAItems.MDMA_KRISTALL.get());
+        items.add(MDMAItems.MDMA_CRYSTAL.get());
         items.add(LSDItems.BLOTTER.get());
-        items.add(LSDItems.LSD_LOESUNG.get());
+        items.add(LSDItems.LSD_SOLUTION.get());
         return items;
     }
 
@@ -308,7 +308,7 @@ public class PriceManager {
         items.addAll(getCocaItems());
         items.addAll(getMethItems());
         items.add(MDMAItems.ECSTASY_PILL.get());
-        items.add(MDMAItems.MDMA_KRISTALL.get());
+        items.add(MDMAItems.MDMA_CRYSTAL.get());
         items.add(LSDItems.BLOTTER.get());
         return items;
     }

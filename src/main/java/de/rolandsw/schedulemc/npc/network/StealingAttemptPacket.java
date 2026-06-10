@@ -301,10 +301,10 @@ public class StealingAttemptPacket {
                     witnesses.remove(npc);
 
                     if (!witnesses.isEmpty()) {
-                        // Prüfe ob POLIZEI dabei ist
+                        // Prüfe ob POLICE dabei ist
                         boolean policePresent = false;
                         for (CustomNPCEntity witness : witnesses) {
-                            if (witness.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLIZEI) {
+                            if (witness.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLICE) {
                                 policePresent = true;
                                 break;
                             }
@@ -312,7 +312,7 @@ public class StealingAttemptPacket {
 
                         double detectionChance;
                         if (policePresent) {
-                            // POLIZEI anwesend = 100% Erkennung!
+                            // POLICE anwesend = 100% Erkennung!
                             detectionChance = 1.0;
                         } else {
                             // Normale Zeugen: 15% pro Zeuge, max 90%
@@ -353,7 +353,7 @@ public class StealingAttemptPacket {
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("[CRIME] Player {} gesehen beim Stehlen - Wanted Level: {} ({} Zeugen{})",
                                     player.getName().getString(), currentWantedLevel, witnesses.size(),
-                                    policePresent ? ", POLIZEI dabei!" : "");
+                                    policePresent ? ", POLICE dabei!" : "");
                             }
                         } else {
                             if (LOGGER.isDebugEnabled()) {

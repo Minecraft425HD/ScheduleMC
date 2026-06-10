@@ -78,9 +78,9 @@ public class RoastingStationBlockEntity extends AbstractItemHandlerBlockEntity i
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
             } else {
-                quality = ChocolateQuality.GUT;
+                quality = ChocolateQuality.GOOD;
             }
             roastingProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -177,7 +177,7 @@ public class RoastingStationBlockEntity extends AbstractItemHandlerBlockEntity i
         lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
         }
         syncToHandler();
     }

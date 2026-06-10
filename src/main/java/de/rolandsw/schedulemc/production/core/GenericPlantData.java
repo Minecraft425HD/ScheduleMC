@@ -139,10 +139,10 @@ public class GenericPlantData<T extends ProductionType, Q extends ProductionQual
      */
     protected double getQualityYieldMultiplier() {
         return switch (quality.getLevel()) {
-            case 0 -> 0.7;   // SCHLECHT
-            case 1 -> 1.0;   // GUT
-            case 2 -> 1.3;   // SEHR_GUT
-            case 3 -> 1.6;   // LEGENDAER
+            case 0 -> 0.7;   // POOR
+            case 1 -> 1.0;   // GOOD
+            case 2 -> 1.3;   // VERY_GOOD
+            case 3 -> 1.6;   // LEGENDARY
             default -> 1.0;
         };
     }

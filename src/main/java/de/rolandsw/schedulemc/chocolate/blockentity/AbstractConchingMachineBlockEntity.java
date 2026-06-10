@@ -116,9 +116,9 @@ public abstract class AbstractConchingMachineBlockEntity extends AbstractItemHan
             CompoundTag tag = handlerCocoaMass.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+                catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
             } else {
-                quality = ChocolateQuality.GUT;
+                quality = ChocolateQuality.GOOD;
             }
             conchingProgress = 0;
         } else if (handlerCocoaMass.isEmpty()) {
@@ -189,12 +189,12 @@ public abstract class AbstractConchingMachineBlockEntity extends AbstractItemHan
                 ItemStack conchedChocolate = new ItemStack(ChocolateItems.CONCHED_CHOCOLATE.get(), cocoaMassInput.getCount());
 
                 // Upgrade quality by 1 level (max PREMIUM)
-                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.SCHLECHT;
+                ChocolateQuality upgradedQuality = quality != null ? quality : ChocolateQuality.POOR;
                 upgradedQuality = (ChocolateQuality) upgradedQuality.upgrade();
 
                 // Cap at PREMIUM quality for conching
-                if (upgradedQuality.getLevel() > ChocolateQuality.LEGENDAER.getLevel()) {
-                    upgradedQuality = ChocolateQuality.LEGENDAER;
+                if (upgradedQuality.getLevel() > ChocolateQuality.LEGENDARY.getLevel()) {
+                    upgradedQuality = ChocolateQuality.LEGENDARY;
                 }
 
                 CompoundTag tag = conchedChocolate.getOrCreateTag();
@@ -293,7 +293,7 @@ public abstract class AbstractConchingMachineBlockEntity extends AbstractItemHan
         lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
         }
         syncToHandler();
     }

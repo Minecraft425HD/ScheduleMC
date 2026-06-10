@@ -101,14 +101,14 @@ public abstract class AbstractMoldingStationBlockEntity extends AbstractItemHand
             if (tag != null) {
                 if (tag.contains("Quality")) {
                     try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-                    catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+                    catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
                 } else {
-                    quality = ChocolateQuality.GUT;
+                    quality = ChocolateQuality.GOOD;
                 }
                 hasMilk = tag.getBoolean("HasMilk");
                 hasVanilla = tag.getBoolean("HasVanilla");
             } else {
-                quality = ChocolateQuality.GUT;
+                quality = ChocolateQuality.GOOD;
                 hasMilk = false;
                 hasVanilla = false;
             }
@@ -253,7 +253,7 @@ public abstract class AbstractMoldingStationBlockEntity extends AbstractItemHand
         moldingProgress = tag.getInt("Progress");
         if (tag.contains("Quality")) {
             try { quality = ChocolateQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = ChocolateQuality.GUT; }
+            catch (IllegalArgumentException e) { quality = ChocolateQuality.GOOD; }
         }
         hasMilk = tag.getBoolean("HasMilk");
         hasVanilla = tag.getBoolean("HasVanilla");

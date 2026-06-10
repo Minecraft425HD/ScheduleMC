@@ -527,7 +527,7 @@ public class EconomyController {
             categories.add(ItemCategory.MDMA);
             categories.add(ItemCategory.LSD);
         }
-        if (name.contains("pilz") || name.contains("mushroom")) categories.add(ItemCategory.MUSHROOM);
+        if (name.contains("mushroom") || name.contains("mushroom")) categories.add(ItemCategory.MUSHROOM);
         if (name.contains("festival") || name.contains("party")) {
             categories.addAll(java.util.List.of(ItemCategory.CANNABIS, ItemCategory.MDMA, ItemCategory.LSD, ItemCategory.COCAINE));
         }
@@ -610,16 +610,16 @@ public class EconomyController {
 
         // ═══ KOKAIN ═══
         // Höhere Investition, höherer Gewinn, höheres Risiko
-        registerProduct("COCA_BOLIVIANISCH", 25.0, ItemCategory.COCAINE);
-        registerProduct("COCA_PERUANISCH", 35.0, ItemCategory.COCAINE);
-        registerProduct("COCA_KOLUMBIANISCH", 50.0, ItemCategory.COCAINE);
+        registerProduct("COCA_BOLIVIAN", 25.0, ItemCategory.COCAINE);
+        registerProduct("COCA_PERUVIAN", 35.0, ItemCategory.COCAINE);
+        registerProduct("COCA_COLOMBIAN", 50.0, ItemCategory.COCAINE);
         registerProduct("CRACK_ROCK", 40.0, ItemCategory.COCAINE); // Verarbeitungsprodukt
 
         // ═══ HEROIN (Mohn) ═══
         // Höchste Investition, höchster Gewinn, höchstes Risiko
-        registerProduct("POPPY_INDISCH", 20.0, ItemCategory.HEROIN);
-        registerProduct("POPPY_TUERKISCH", 35.0, ItemCategory.HEROIN);
-        registerProduct("POPPY_AFGHANISCH", 55.0, ItemCategory.HEROIN);
+        registerProduct("POPPY_INDIAN", 20.0, ItemCategory.HEROIN);
+        registerProduct("POPPY_TURKISH", 35.0, ItemCategory.HEROIN);
+        registerProduct("POPPY_AFGHAN", 55.0, ItemCategory.HEROIN);
 
         // ═══ METH ═══
         registerProduct("METH_STANDARD", 30.0, ItemCategory.METH);
@@ -647,7 +647,7 @@ public class EconomyController {
         // Legal, kein Risiko, niedrigere Marge
         registerProduct("WINE_RIESLING", 8.0, ItemCategory.WINE);
         registerProduct("WINE_CHARDONNAY", 12.0, ItemCategory.WINE);
-        registerProduct("WINE_SPAETBURGUNDER", 15.0, ItemCategory.WINE);
+        registerProduct("WINE_PINOT_NOIR", 15.0, ItemCategory.WINE);
         registerProduct("WINE_MERLOT", 20.0, ItemCategory.WINE);
 
         // ═══ BIER ═══

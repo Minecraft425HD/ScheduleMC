@@ -27,8 +27,8 @@ public class PillPressMenu extends AbstractContainerMenu {
     private static final int DATA_CYCLE_TICKS = 1;
     private static final int DATA_IS_ACTIVE = 2;
     private static final int DATA_WAITING_PRESS = 3;
-    private static final int DATA_KRISTALL_COUNT = 4;
-    private static final int DATA_BINDEMITTEL_COUNT = 5;
+    private static final int DATA_CRYSTAL_COUNT = 4;
+    private static final int DATA_BINDING_AGENT_COUNT = 5;
     private static final int DATA_DESIGN = 6;
     private static final int DATA_COLOR = 7;
     private static final int DATA_LAST_SCORE = 8;
@@ -48,8 +48,8 @@ public class PillPressMenu extends AbstractContainerMenu {
                     case DATA_CYCLE_TICKS -> blockEntity.getPressCycleTicks();
                     case DATA_IS_ACTIVE -> blockEntity.isMinigameActive() ? 1 : 0;
                     case DATA_WAITING_PRESS -> blockEntity.isWaitingForPress() ? 1 : 0;
-                    case DATA_KRISTALL_COUNT -> blockEntity.getKristallCount();
-                    case DATA_BINDEMITTEL_COUNT -> blockEntity.getBindemittelCount();
+                    case DATA_CRYSTAL_COUNT -> blockEntity.getCrystalCount();
+                    case DATA_BINDING_AGENT_COUNT -> blockEntity.getBindingAgentCount();
                     case DATA_DESIGN -> blockEntity.getSelectedDesign().ordinal();
                     case DATA_COLOR -> blockEntity.getSelectedColor().ordinal();
                     case DATA_LAST_SCORE -> (int) (blockEntity.getLastTimingScore() * 100);
@@ -77,8 +77,8 @@ public class PillPressMenu extends AbstractContainerMenu {
         super(MDMAMenuTypes.PILL_PRESS_MENU.get(), containerId);
 
         BlockEntity be = playerInventory.player.level().getBlockEntity(extraData.readBlockPos());
-        if (be instanceof PillPressBlockEntity presse) {
-            this.blockEntity = presse;
+        if (be instanceof PillPressBlockEntity press) {
+            this.blockEntity = press;
         } else {
             this.blockEntity = null;
         }
@@ -120,12 +120,12 @@ public class PillPressMenu extends AbstractContainerMenu {
         return this.data.get(DATA_WAITING_PRESS) == 1;
     }
 
-    public int getKristallCount() {
-        return this.data.get(DATA_KRISTALL_COUNT);
+    public int getCrystalCount() {
+        return this.data.get(DATA_CRYSTAL_COUNT);
     }
 
-    public int getBindemittelCount() {
-        return this.data.get(DATA_BINDEMITTEL_COUNT);
+    public int getBindingAgentCount() {
+        return this.data.get(DATA_BINDING_AGENT_COUNT);
     }
 
     public PillDesign getSelectedDesign() {

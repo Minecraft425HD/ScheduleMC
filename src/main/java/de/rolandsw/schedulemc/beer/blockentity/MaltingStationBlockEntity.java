@@ -83,9 +83,9 @@ public class MaltingStationBlockEntity extends AbstractItemHandlerBlockEntity im
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
+                catch (IllegalArgumentException e) { quality = BeerQuality.POOR; }
             } else {
-                quality = BeerQuality.SCHLECHT;
+                quality = BeerQuality.POOR;
             }
 
             maltingProgress = 0;
@@ -194,7 +194,7 @@ public class MaltingStationBlockEntity extends AbstractItemHandlerBlockEntity im
         lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = BeerQuality.POOR; }
         }
         syncToHandler();
     }

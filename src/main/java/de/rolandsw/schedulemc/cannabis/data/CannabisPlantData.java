@@ -18,7 +18,7 @@ public class CannabisPlantData {
 
     public CannabisPlantData(CannabisStrain strain) {
         this.strain = strain;
-        this.quality = CannabisQuality.SEHR_GUT; // Standard-Qualität
+        this.quality = CannabisQuality.VERY_GOOD; // Standard-Qualität
         this.growthStage = 0;
         this.ticksGrown = 0;
         this.hasFertilizer = false;

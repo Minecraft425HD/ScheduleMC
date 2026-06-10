@@ -118,7 +118,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             .title("Einfache Lieferung")
             .description("Liefern Sie ein Paket an den Empfänger.")
             .difficulty(1)
-            .baseReward(QuestReward.create().money(50).factionRep(Faction.HAENDLER, 2))
+            .baseReward(QuestReward.create().money(50).factionRep(Faction.TRADERS, 2))
             .build());
 
         registerTemplate(QuestTemplate.builder("delivery_urgent")
@@ -127,7 +127,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             .description("Eine zeitkritische Lieferung muss schnell zugestellt werden!")
             .difficulty(2)
             .timeLimit(1)
-            .baseReward(QuestReward.create().money(150).factionRep(Faction.HAENDLER, 5))
+            .baseReward(QuestReward.create().money(150).factionRep(Faction.TRADERS, 5))
             .build());
 
         // Sammelquests
@@ -146,7 +146,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             .description("Begleiten Sie den NPC sicher zu seinem Ziel.")
             .difficulty(3)
             .minFactionRep(10)
-            .baseReward(QuestReward.create().money(200).factionRep(Faction.BUERGER, 10))
+            .baseReward(QuestReward.create().money(200).factionRep(Faction.CITIZENS, 10))
             .build());
 
         // Eliminierungs-Quests
@@ -156,7 +156,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             .description("Eliminieren Sie die Bedrohung in der Gegend.")
             .difficulty(3)
             .minFactionRep(20)
-            .baseReward(QuestReward.create().money(300).factionRep(Faction.ORDNUNG, 15))
+            .baseReward(QuestReward.create().money(300).factionRep(Faction.LAW, 15))
             .build());
 
         // Ermittlungs-Quests
@@ -166,7 +166,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             .description("Untersuchen Sie den Vorfall und finden Sie Hinweise.")
             .difficulty(2)
             .minFactionRep(15)
-            .baseReward(QuestReward.create().money(150).factionRep(Faction.ORDNUNG, 8))
+            .baseReward(QuestReward.create().money(150).factionRep(Faction.LAW, 8))
             .build());
 
         // Verhandlungs-Quests
@@ -176,7 +176,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             .description("Verhandeln Sie einen Deal zwischen den Parteien.")
             .difficulty(4)
             .minFactionRep(25)
-            .baseReward(QuestReward.create().money(250).factionRep(Faction.HAENDLER, 12))
+            .baseReward(QuestReward.create().money(250).factionRep(Faction.TRADERS, 12))
             .build());
 
         // Untergrund-Quests
@@ -185,9 +185,9 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             .title("Diskrete Lieferung")
             .description("Eine Lieferung, über die niemand etwas erfahren sollte...")
             .difficulty(2)
-            .faction(Faction.UNTERGRUND)
+            .faction(Faction.UNDERWORLD)
             .minFactionRep(10)
-            .baseReward(QuestReward.create().money(200).factionRep(Faction.UNTERGRUND, 8))
+            .baseReward(QuestReward.create().money(200).factionRep(Faction.UNDERWORLD, 8))
             .build());
     }
 
@@ -355,8 +355,8 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
     private net.minecraft.world.item.Item getDeliveryItemForNPC(CustomNPCEntity npc) {
         return switch (npc.getNpcType()) {
             case BANK, BANKER -> Items.GOLD_INGOT;
-            case VERKAEUFER, MERCHANT -> Items.PAPER;
-            case POLIZEI, POLICE -> Items.IRON_INGOT;
+            case MERCHANT -> Items.PAPER;
+            case POLICE -> Items.IRON_INGOT;
             default -> Items.PAPER;
         };
     }
@@ -366,9 +366,9 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
      */
     private net.minecraft.world.item.Item getCollectionItemForNPC(CustomNPCEntity npc) {
         return switch (npc.getNpcType()) {
-            case VERKAEUFER, MERCHANT -> Items.EMERALD;
+            case MERCHANT -> Items.EMERALD;
             case BANK, BANKER -> Items.GOLD_NUGGET;
-            case POLIZEI, POLICE -> Items.IRON_NUGGET;
+            case POLICE -> Items.IRON_NUGGET;
             default -> Items.COAL;
         };
     }

@@ -130,10 +130,10 @@ public abstract class AbstractConditioningTankBlockEntity extends AbstractItemHa
                     // If aged enough, convert to conditioned beer
                     if (stack.getItem() == BeerItems.GREEN_BEER.get() && days >= 15) {
                         // Extract quality
-                        BeerQuality quality = BeerQuality.SCHLECHT;
+                        BeerQuality quality = BeerQuality.POOR;
                         if (tag.contains("Quality")) {
                             try { quality = BeerQuality.valueOf(tag.getString("Quality")); }
-                        catch (IllegalArgumentException e) { quality = BeerQuality.SCHLECHT; }
+                        catch (IllegalArgumentException e) { quality = BeerQuality.POOR; }
                         }
 
                         // Create conditioned beer

@@ -1,8 +1,8 @@
 package de.rolandsw.schedulemc.mdma.blocks;
 
 import de.rolandsw.schedulemc.mdma.blockentity.PillPressBlockEntity;
-import de.rolandsw.schedulemc.mdma.items.BindemittelItem;
-import de.rolandsw.schedulemc.mdma.items.FarbstoffItem;
+import de.rolandsw.schedulemc.mdma.items.BindingAgentItem;
+import de.rolandsw.schedulemc.mdma.items.PillDyeItem;
 import de.rolandsw.schedulemc.mdma.items.MDMACrystalItem;
 import de.rolandsw.schedulemc.mdma.menu.PillPressMenu;
 import net.minecraft.core.BlockPos;
@@ -43,7 +43,7 @@ public class PillPressBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide) return null;
         return (lvl, pos, st, be) -> {
-            if (be instanceof PillPressBlockEntity presse) presse.tick();
+            if (be instanceof PillPressBlockEntity press) press.tick();
         };
     }
 
@@ -53,38 +53,38 @@ public class PillPressBlock extends Block implements EntityBlock {
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof PillPressBlockEntity presse)) return InteractionResult.PASS;
+        if (!(be instanceof PillPressBlockEntity press)) return InteractionResult.PASS;
 
         ItemStack heldItem = player.getItemInHand(hand);
 
         // MDMA-Kristalle hinzufügen
         if (heldItem.getItem() instanceof MDMACrystalItem) {
-            if (presse.addMDMACrystal(heldItem)) {
+            if (press.addMDMACrystal(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
                 player.displayClientMessage(Component.translatable(
-                        "block.mdma.press_crystal", presse.getKristallCount()
+                        "block.mdma.press_crystal", press.getCrystalCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
         }
 
         // Bindemittel hinzufügen
-        if (heldItem.getItem() instanceof BindemittelItem) {
-            if (presse.addBindemittel(heldItem)) {
+        if (heldItem.getItem() instanceof BindingAgentItem) {
+            if (press.addBindingAgent(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
                 player.displayClientMessage(Component.translatable(
-                        "block.mdma.press_binder", presse.getBindemittelCount()
+                        "block.mdma.press_binder", press.getBindingAgentCount()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
         }
 
         // Farbstoff hinzufügen
-        if (heldItem.getItem() instanceof FarbstoffItem) {
-            if (presse.addFarbstoff(heldItem)) {
+        if (heldItem.getItem() instanceof PillDyeItem) {
+            if (press.addPillDye(heldItem)) {
                 if (!player.isCreative()) heldItem.shrink(1);
                 player.displayClientMessage(Component.translatable(
-                        "block.mdma.press_color", presse.getSelectedColor().getColoredName()
+                        "block.mdma.press_color", press.getSelectedColor().getColoredName()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
@@ -93,8 +93,8 @@ public class PillPressBlock extends Block implements EntityBlock {
         // Leere Hand
         if (heldItem.isEmpty()) {
             // Output entnehmen
-            if (presse.hasOutput()) {
-                ItemStack output = presse.extractOutput();
+            if (press.hasOutput()) {
+                ItemStack output = press.extractOutput();
                 if (!player.getInventory().add(output)) player.drop(output, false);
                 player.displayClientMessage(Component.translatable(
                         "block.mdma.press_output", output.getCount()
@@ -103,30 +103,30 @@ public class PillPressBlock extends Block implements EntityBlock {
             }
 
             // Schleichen = Design/Farbe wechseln
-            if (player.isShiftKeyDown() && !presse.isMinigameActive()) {
-                presse.cycleDesign();
+            if (player.isShiftKeyDown() && !press.isMinigameActive()) {
+                press.cycleDesign();
                 player.displayClientMessage(Component.translatable(
-                        "block.mdma.press_design", presse.getSelectedDesign().getColoredName(),
-                        presse.getSelectedDesign().getSymbol()
+                        "block.mdma.press_design", press.getSelectedDesign().getColoredName(),
+                        press.getSelectedDesign().getSymbol()
                 ), true);
                 return InteractionResult.SUCCESS;
             }
 
             // GUI öffnen wenn bereit
-            if (presse.canStart()) {
-                openGui(player, presse, pos);
+            if (press.canStart()) {
+                openGui(player, press, pos);
                 return InteractionResult.SUCCESS;
             }
 
             // Status
             player.displayClientMessage(Component.translatable("gui.pill_press.status_header").append(Component.literal("\n"))
-                    .append(Component.translatable("gui.pill_press.status_design", presse.getSelectedDesign().getColoredName(), presse.getSelectedDesign().getSymbol())).append(Component.literal("\n"))
-                    .append(Component.translatable("gui.pill_press.status_color", presse.getSelectedColor().getColoredName())).append(Component.literal("\n"))
-                    .append(Component.translatable("block.mdma.press_crystal_count", presse.getKristallCount()))
+                    .append(Component.translatable("gui.pill_press.status_design", press.getSelectedDesign().getColoredName(), press.getSelectedDesign().getSymbol())).append(Component.literal("\n"))
+                    .append(Component.translatable("gui.pill_press.status_color", press.getSelectedColor().getColoredName())).append(Component.literal("\n"))
+                    .append(Component.translatable("block.mdma.press_crystal_count", press.getCrystalCount()))
                     .append(Component.literal("\n"))
-                    .append(Component.translatable("block.mdma.press_binder_count", presse.getBindemittelCount()))
+                    .append(Component.translatable("block.mdma.press_binder_count", press.getBindingAgentCount()))
                     .append(Component.literal("\n"))
-                    .append(presse.canStart() ? Component.translatable("block.mdma.press_ready") : Component.literal(""))
+                    .append(press.canStart() ? Component.translatable("block.mdma.press_ready") : Component.literal(""))
             , true);
             return InteractionResult.SUCCESS;
         }
@@ -134,11 +134,11 @@ public class PillPressBlock extends Block implements EntityBlock {
         return InteractionResult.PASS;
     }
 
-    private void openGui(Player player, PillPressBlockEntity presse, BlockPos pos) {
+    private void openGui(Player player, PillPressBlockEntity press, BlockPos pos) {
         if (!(player instanceof ServerPlayer serverPlayer)) return;
 
         // Starte das Minigame
-        presse.startMinigame(player.getUUID());
+        press.startMinigame(player.getUUID());
 
         NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
             @Override
@@ -148,7 +148,7 @@ public class PillPressBlock extends Block implements EntityBlock {
 
             @Override
             public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-                return new PillPressMenu(containerId, playerInventory, presse);
+                return new PillPressMenu(containerId, playerInventory, press);
             }
         }, pos);
     }
@@ -157,8 +157,8 @@ public class PillPressBlock extends Block implements EntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
-            if (be instanceof PillPressBlockEntity presse) {
-                presse.cancelMinigame();
+            if (be instanceof PillPressBlockEntity press) {
+                press.cancelMinigame();
             }
         }
         super.onRemove(state, level, pos, newState, isMoving);

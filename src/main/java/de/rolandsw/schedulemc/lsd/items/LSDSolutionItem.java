@@ -14,9 +14,9 @@ import java.util.List;
  * LSD-Lösung - Dosierte Flüssigkeit
  * Wird auf Blotter-Papier getropft
  */
-public class LSDLoesungItem extends Item {
+public class LSDSolutionItem extends Item {
 
-    public LSDLoesungItem() {
+    public LSDSolutionItem() {
         super(new Properties().stacksTo(1));
     }
 
@@ -24,7 +24,7 @@ public class LSDLoesungItem extends Item {
      * Erstellt ItemStack mit Dosierung
      */
     public static ItemStack create(LSDDosage dosage, int micrograms, int charges) {
-        ItemStack stack = new ItemStack(LSDItems.LSD_LOESUNG.get());
+        ItemStack stack = new ItemStack(LSDItems.LSD_SOLUTION.get());
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("Dosage", dosage.name());
         tag.putInt("Micrograms", micrograms);
@@ -38,10 +38,10 @@ public class LSDLoesungItem extends Item {
             try {
                 return LSDDosage.valueOf(tag.getString("Dosage"));
             } catch (IllegalArgumentException e) {
-                return LSDDosage.GUT;
+                return LSDDosage.GOOD;
             }
         }
-        return LSDDosage.GUT;
+        return LSDDosage.GOOD;
     }
 
     public static int getMicrograms(ItemStack stack) {

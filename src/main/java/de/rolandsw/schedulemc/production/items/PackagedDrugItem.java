@@ -137,7 +137,7 @@ public class PackagedDrugItem extends Item {
         if (tag != null && tag.contains("Quality")) {
             return tag.getString("Quality");
         }
-        return "TobaccoQuality.GUT";
+        return "TobaccoQuality.GOOD";
     }
 
     @Nullable
@@ -176,11 +176,11 @@ public class PackagedDrugItem extends Item {
      */
     public static ProductionQuality parseQuality(String qualityStr) {
         if (qualityStr == null || !qualityStr.contains(".")) {
-            return TobaccoQuality.GUT;
+            return TobaccoQuality.GOOD;
         }
 
         String[] parts = qualityStr.split("\\.");
-        if (parts.length < 2) return TobaccoQuality.GUT;
+        if (parts.length < 2) return TobaccoQuality.GOOD;
         String className = parts[0];
         String enumValue = parts[1];
 
@@ -191,10 +191,10 @@ public class PackagedDrugItem extends Item {
                 case "CannabisQuality" -> CannabisQuality.valueOf(enumValue);
                 case "CrackQuality" -> CrackQuality.valueOf(enumValue);
                 case "MDMAQuality" -> MDMAQuality.valueOf(enumValue);
-                default -> TobaccoQuality.GUT;
+                default -> TobaccoQuality.GOOD;
             };
         } catch (IllegalArgumentException e) {
-            return TobaccoQuality.GUT;
+            return TobaccoQuality.GOOD;
         }
     }
 

@@ -63,7 +63,7 @@ public enum Unlockable {
     // LEVEL 11-15: HARTE DROGEN & MITTELSTUFE
     // ═══════════════════════════════════════════════════════════
     POT_IRON(11, UnlockCategory.POT, "gui.app.level.unlock.pot_iron.desc"),
-    COCA_BOLIVIANISCH(11, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.coca_bolivian.desc"),
+    COCA_BOLIVIAN(11, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.coca_bolivian.desc"),
     MDMA_PRODUCTION(11, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.mdma_production.desc"),
     CHEESE_CAMEMBERT(11, UnlockCategory.STRAIN, "gui.app.level.unlock.cheese_camembert.desc"),
     BEER_STOUT(11, UnlockCategory.STRAIN, "gui.app.level.unlock.beer_stout.desc"),
@@ -71,12 +71,12 @@ public enum Unlockable {
     CANNABIS_HYBRID(13, UnlockCategory.STRAIN, "gui.app.level.unlock.cannabis_hybrid.desc"),
     MUSHROOM_CUBENSIS(13, UnlockCategory.STRAIN, "gui.app.level.unlock.mushroom_cubensis.desc"),
     LSD_PRODUCTION(13, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.lsd_production.desc"),
-    WINE_SPAETBURGUNDER(13, UnlockCategory.STRAIN, "gui.app.level.unlock.wine_spaetburgunder.desc"),
+    WINE_PINOT_NOIR(13, UnlockCategory.STRAIN, "gui.app.level.unlock.wine_pinot_noir.desc"),
     COFFEE_LIBERICA(13, UnlockCategory.STRAIN, "gui.app.level.unlock.coffee_liberica.desc"),
 
     GANG_CREATE(15, UnlockCategory.GANG, "gui.app.level.unlock.gang_create.desc"),
-    POPPY_INDISCH(15, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.poppy_indian.desc"),
-    COCA_PERUANISCH(15, UnlockCategory.STRAIN, "gui.app.level.unlock.coca_peruvian.desc"),
+    POPPY_INDIAN(15, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.poppy_indian.desc"),
+    COCA_PERUVIAN(15, UnlockCategory.STRAIN, "gui.app.level.unlock.coca_peruvian.desc"),
     METH_PRODUCTION(15, UnlockCategory.PRODUCTION_CHAIN, "gui.app.level.unlock.meth_production.desc"),
     CHOCOLATE_RUBY(15, UnlockCategory.STRAIN, "gui.app.level.unlock.chocolate_ruby.desc"),
 
@@ -89,8 +89,8 @@ public enum Unlockable {
     COFFEE_EXCELSA(16, UnlockCategory.STRAIN, "gui.app.level.unlock.coffee_excelsa.desc"),
     CHEESE_PARMESAN(16, UnlockCategory.STRAIN, "gui.app.level.unlock.cheese_parmesan.desc"),
 
-    POPPY_TUERKISCH(18, UnlockCategory.STRAIN, "gui.app.level.unlock.poppy_turkish.desc"),
-    COCA_KOLUMBIANISCH(18, UnlockCategory.STRAIN, "gui.app.level.unlock.coca_colombian.desc"),
+    POPPY_TURKISH(18, UnlockCategory.STRAIN, "gui.app.level.unlock.poppy_turkish.desc"),
+    COCA_COLOMBIAN(18, UnlockCategory.STRAIN, "gui.app.level.unlock.coca_colombian.desc"),
     MUSHROOM_AZURESCENS(18, UnlockCategory.STRAIN, "gui.app.level.unlock.mushroom_azurescens.desc"),
     HONEY_MANUKA(18, UnlockCategory.STRAIN, "gui.app.level.unlock.honey_manuka.desc"),
 
@@ -102,7 +102,7 @@ public enum Unlockable {
     // ═══════════════════════════════════════════════════════════
     // LEVEL 21-25: EXPERTE
     // ═══════════════════════════════════════════════════════════
-    POPPY_AFGHANISCH(22, UnlockCategory.STRAIN, "gui.app.level.unlock.poppy_afghan.desc"),
+    POPPY_AFGHAN(22, UnlockCategory.STRAIN, "gui.app.level.unlock.poppy_afghan.desc"),
     MACHINE_SIZE_MEDIUM(22, UnlockCategory.MACHINE, "gui.app.level.unlock.machine_size_medium.desc"),
     VEHICLE_SUV(22, UnlockCategory.VEHICLE, "gui.app.level.unlock.vehicle_suv.desc"),
     VEHICLE_TRANSPORTER(22, UnlockCategory.VEHICLE, "gui.app.level.unlock.vehicle_transporter.desc"),

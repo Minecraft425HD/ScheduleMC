@@ -39,10 +39,10 @@ public class BlotterItem extends Item {
             try {
                 return LSDDosage.valueOf(tag.getString("Dosage"));
             } catch (IllegalArgumentException e) {
-                return LSDDosage.GUT;
+                return LSDDosage.GOOD;
             }
         }
-        return LSDDosage.GUT;
+        return LSDDosage.GOOD;
     }
 
     public static int getMicrograms(ItemStack stack) {
@@ -59,10 +59,10 @@ public class BlotterItem extends Item {
             try {
                 return BlotterDesign.valueOf(tag.getString("Design"));
             } catch (IllegalArgumentException e) {
-                return BlotterDesign.TOTENKOPF;
+                return BlotterDesign.SKULL;
             }
         }
-        return BlotterDesign.TOTENKOPF;
+        return BlotterDesign.SKULL;
     }
 
     /**
@@ -87,7 +87,7 @@ public class BlotterItem extends Item {
         tooltip.add(Component.translatable("tooltip.blotter.paper_with_design"));
         tooltip.add(Component.translatable("tooltip.blotter.can_consume_sell"));
 
-        if (dosage == LSDDosage.LEGENDAER) {
+        if (dosage == LSDDosage.LEGENDARY) {
             tooltip.add(Component.literal(""));
             tooltip.add(Component.translatable("tooltip.blotter.bicycle_day"));
         }

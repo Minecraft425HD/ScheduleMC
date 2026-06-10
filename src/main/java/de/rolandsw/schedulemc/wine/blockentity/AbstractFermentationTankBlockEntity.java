@@ -58,7 +58,7 @@ public abstract class AbstractFermentationTankBlockEntity extends AbstractItemHa
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 if (slot == 0) {
                     return stack.getItem() == WineItems.RIESLING_JUICE.get() ||
-                           stack.getItem() == WineItems.SPAETBURGUNDER_JUICE.get() ||
+                           stack.getItem() == WineItems.PINOT_NOIR_JUICE.get() ||
                            stack.getItem() == WineItems.CHARDONNAY_JUICE.get() ||
                            stack.getItem() == WineItems.MERLOT_JUICE.get();
                 }
@@ -80,16 +80,16 @@ public abstract class AbstractFermentationTankBlockEntity extends AbstractItemHa
             inputStack = handlerInput.copy();
             // Determine wine type from juice
             if (handlerInput.getItem() == WineItems.RIESLING_JUICE.get()) wineType = WineType.RIESLING;
-            else if (handlerInput.getItem() == WineItems.SPAETBURGUNDER_JUICE.get()) wineType = WineType.SPAETBURGUNDER;
+            else if (handlerInput.getItem() == WineItems.PINOT_NOIR_JUICE.get()) wineType = WineType.PINOT_NOIR;
             else if (handlerInput.getItem() == WineItems.CHARDONNAY_JUICE.get()) wineType = WineType.CHARDONNAY;
             else if (handlerInput.getItem() == WineItems.MERLOT_JUICE.get()) wineType = WineType.MERLOT;
 
             CompoundTag tag = handlerInput.getTag();
             if (tag != null && tag.contains("Quality")) {
                 try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-                catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
+                catch (IllegalArgumentException e) { quality = WineQuality.POOR; }
             } else {
-                quality = WineQuality.SCHLECHT;
+                quality = WineQuality.POOR;
             }
             fermentationProgress = 0;
         } else if (handlerInput.isEmpty()) {
@@ -206,7 +206,7 @@ public abstract class AbstractFermentationTankBlockEntity extends AbstractItemHa
         }
         if (tag.contains("Quality")) {
             try { quality = WineQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = WineQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = WineQuality.POOR; }
         }
         syncToHandler();
     }

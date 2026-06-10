@@ -321,11 +321,11 @@ public class CookingStationBlockEntity extends BlockEntity implements IUtilityCo
 
             if (tag.contains("Type" + i)) {
                 try { types[i] = PoppyType.valueOf(tag.getString("Type" + i)); }
-                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHANISCH; }
+                catch (IllegalArgumentException e) { types[i] = PoppyType.AFGHAN; }
             }
             if (tag.contains("Quality" + i)) {
                 try { qualities[i] = TobaccoQuality.valueOf(tag.getString("Quality" + i)); }
-                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.SCHLECHT; }
+                catch (IllegalArgumentException e) { qualities[i] = TobaccoQuality.POOR; }
             }
         }
     }

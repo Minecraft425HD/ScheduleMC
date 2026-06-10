@@ -199,7 +199,7 @@ public class CurdlingVatBlockEntity extends AbstractItemHandlerBlockEntity imple
         lastGameTime = tag.contains("LastGameTime") ? tag.getLong("LastGameTime") : -1L;
         if (tag.contains("Quality")) {
             try { quality = CheeseQuality.valueOf(tag.getString("Quality")); }
-            catch (IllegalArgumentException e) { quality = CheeseQuality.SCHLECHT; }
+            catch (IllegalArgumentException e) { quality = CheeseQuality.POOR; }
         }
         syncToHandler();
     }
