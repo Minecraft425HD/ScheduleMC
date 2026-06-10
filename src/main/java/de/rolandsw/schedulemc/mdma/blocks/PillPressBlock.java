@@ -143,7 +143,7 @@ public class PillPressBlock extends Block implements EntityBlock {
         NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
             @Override
             public Component getDisplayName() {
-                return Component.translatable("block.schedulemc.pillen_presse");
+                return Component.translatable("block.schedulemc.pill_press");
             }
 
             @Override

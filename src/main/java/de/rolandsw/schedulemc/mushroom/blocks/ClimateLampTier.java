@@ -25,7 +25,7 @@ public enum ClimateLampTier {
     }
 
     public Component getDisplayName() {
-        return Component.translatable("enum.klimalampe_tier." + this.name().toLowerCase(Locale.ROOT));
+        return Component.translatable("enum.climate_lamp_tier." + this.name().toLowerCase(Locale.ROOT));
     }
 
     public String getColorCode() {

@@ -17,28 +17,28 @@ public class MethBlockEntities {
 
     // Chemie-Mixer
     public static final RegistryObject<BlockEntityType<ChemicalMixerBlockEntity>> CHEMICAL_MIXER =
-            BLOCK_ENTITIES.register("chemie_mixer", () ->
+            BLOCK_ENTITIES.register("chemical_mixer", () ->
                     BlockEntityType.Builder.of(ChemicalMixerBlockEntity::new,
                             MethBlocks.CHEMICAL_MIXER.get()
                     ).build(null));
 
     // ReductionKettle
     public static final RegistryObject<BlockEntityType<ReductionKettleBlockEntity>> REDUCTION_KETTLE =
-            BLOCK_ENTITIES.register("reduktionskessel", () ->
+            BLOCK_ENTITIES.register("reduction_kettle", () ->
                     BlockEntityType.Builder.of(ReductionKettleBlockEntity::new,
                             MethBlocks.REDUCTION_KETTLE.get()
                     ).build(null));
 
     // Crystallizer
     public static final RegistryObject<BlockEntityType<CrystallizerBlockEntity>> CRYSTALLIZER =
-            BLOCK_ENTITIES.register("kristallisator", () ->
+            BLOCK_ENTITIES.register("crystallizer", () ->
                     BlockEntityType.Builder.of(CrystallizerBlockEntity::new,
                             MethBlocks.CRYSTALLIZER.get()
                     ).build(null));
 
     // Vakuum-Trockner
     public static final RegistryObject<BlockEntityType<VacuumDryerBlockEntity>> VACUUM_DRYER =
-            BLOCK_ENTITIES.register("vakuum_trockner", () ->
+            BLOCK_ENTITIES.register("vacuum_dryer", () ->
                     BlockEntityType.Builder.of(VacuumDryerBlockEntity::new,
                             MethBlocks.VACUUM_DRYER.get()
                     ).build(null));

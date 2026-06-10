@@ -76,7 +76,7 @@ public class TileEntityWerkstatt extends TileEntityBase implements ITickableBloc
     }
 
     private void scanForVehicles() {
-        // Get the position in front of the werkstatt (based on facing direction)
+        // Get the position in front of the workshop (based on facing direction)
         BlockPos scanPos = getBlockPos();
         Vec3 scanCenter = new Vec3(scanPos.getX() + 0.5, scanPos.getY() + 0.5, scanPos.getZ() + 0.5);
 
@@ -155,7 +155,7 @@ public class TileEntityWerkstatt extends TileEntityBase implements ITickableBloc
 
         // Notify player
         driver.displayClientMessage(
-            Component.translatable("message.schedulemc.werkstatt.vehicle_locked"),
+            Component.translatable("message.schedulemc.workshop.vehicle_locked"),
             true
         );
 
@@ -234,7 +234,7 @@ public class TileEntityWerkstatt extends TileEntityBase implements ITickableBloc
 
     @Override
     public Component getTranslatedName() {
-        return Component.translatable("container.schedulemc.werkstatt");
+        return Component.translatable("container.schedulemc.workshop");
     }
 
     @Override

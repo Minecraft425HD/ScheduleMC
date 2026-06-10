@@ -338,8 +338,8 @@ fuel_consumption_per_km = 0.5  # Liter
 tank_capacity_default = 50     # Liter
 
 # Werkstatt
-werkstatt_repair_cost_per_damage = 10
-werkstatt_refuel_cost_per_liter = 2
+workshop_repair_cost_per_damage = 10
+workshop_refuel_cost_per_liter = 2
 
 # ───────────────────────────────────────────────────────────
 # PERFORMANCE & OPTIMIZATION

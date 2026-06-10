@@ -116,7 +116,7 @@ public class ReductionKettleBlock extends Block implements EntityBlock {
         NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
             @Override
             public Component getDisplayName() {
-                return Component.translatable("block.schedulemc.reduktionskessel");
+                return Component.translatable("block.schedulemc.reduction_kettle");
             }
 
             @Override

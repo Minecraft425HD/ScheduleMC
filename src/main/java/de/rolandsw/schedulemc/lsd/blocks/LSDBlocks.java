@@ -28,7 +28,7 @@ public class LSDBlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> FERMENTATION_TANK = registerBlockWithItem(
-            "fermentations_tank",
+            "fermentation_tank",
             () -> new FermentationTankBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.0f)
@@ -42,7 +42,7 @@ public class LSDBlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> DISTILLATION_APPARATUS = registerBlockWithItem(
-            "destillations_apparat",
+            "distillation_apparatus",
             () -> new DistillationApparatusBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.0f)
@@ -57,7 +57,7 @@ public class LSDBlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> MICRO_DOSER = registerBlockWithItem(
-            "mikro_dosierer",
+            "micro_doser",
             () -> new MicroDoserBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
@@ -71,7 +71,7 @@ public class LSDBlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> PERFORATION_PRESS = registerBlockWithItem(
-            "perforations_presse",
+            "perforation_press",
             () -> new PerforationPressBlock(
                     BlockBehaviour.Properties.of()
                             .strength(4.0f)

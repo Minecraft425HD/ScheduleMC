@@ -16,25 +16,25 @@ public class CannabisBlockEntities {
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
     public static final RegistryObject<BlockEntityType<TrimStationBlockEntity>> TRIM_STATION =
-            BLOCK_ENTITIES.register("cannabis_trimm_station", () ->
+            BLOCK_ENTITIES.register("cannabis_trim_station", () ->
                     BlockEntityType.Builder.of(TrimStationBlockEntity::new,
                             CannabisBlocks.TRIM_STATION.get()
                     ).build(null));
 
     public static final RegistryObject<BlockEntityType<CuringJarBlockEntity>> CURING_JAR =
-            BLOCK_ENTITIES.register("cannabis_curing_glas", () ->
+            BLOCK_ENTITIES.register("cannabis_curing_jar", () ->
                     BlockEntityType.Builder.of(CuringJarBlockEntity::new,
                             CannabisBlocks.CURING_JAR.get()
                     ).build(null));
 
     public static final RegistryObject<BlockEntityType<HashPressBlockEntity>> HASH_PRESS =
-            BLOCK_ENTITIES.register("cannabis_hash_presse", () ->
+            BLOCK_ENTITIES.register("cannabis_hash_press", () ->
                     BlockEntityType.Builder.of(HashPressBlockEntity::new,
                             CannabisBlocks.HASH_PRESS.get()
                     ).build(null));
 
     public static final RegistryObject<BlockEntityType<OilExtractorBlockEntity>> OIL_EXTRACTOR =
-            BLOCK_ENTITIES.register("cannabis_oel_extraktor", () ->
+            BLOCK_ENTITIES.register("cannabis_oil_extractor", () ->
                     BlockEntityType.Builder.of(OilExtractorBlockEntity::new,
                             CannabisBlocks.OIL_EXTRACTOR.get()
                     ).build(null));

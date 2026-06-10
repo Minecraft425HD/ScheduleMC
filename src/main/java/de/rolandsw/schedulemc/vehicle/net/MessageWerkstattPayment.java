@@ -61,7 +61,7 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
 
         if (vehicle == null) {
             player.displayClientMessage(
-                Component.translatable("message.werkstatt.vehicle_not_found").withStyle(ChatFormatting.RED),
+                Component.translatable("message.workshop.vehicle_not_found").withStyle(ChatFormatting.RED),
                 false
             );
             player.closeContainer();
@@ -76,7 +76,7 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
 
         if (playerBalance < totalCost) {
             player.displayClientMessage(
-                Component.translatable("message.werkstatt.insufficient_funds",
+                Component.translatable("message.workshop.insufficient_funds",
                     String.format("%.2f€", totalCost),
                     String.format("%.2f€", playerBalance))
                     .withStyle(ChatFormatting.RED),
@@ -95,7 +95,7 @@ public class MessageWerkstattPayment implements Message<MessageWerkstattPayment>
             applyServices(vehicle, repairDamage, chargeBattery, changeOil);
 
             player.displayClientMessage(
-                Component.translatable("message.werkstatt.payment_success", String.format("%.2f€", totalCost))
+                Component.translatable("message.workshop.payment_success", String.format("%.2f€", totalCost))
                     .withStyle(ChatFormatting.GREEN),
                 false
             );

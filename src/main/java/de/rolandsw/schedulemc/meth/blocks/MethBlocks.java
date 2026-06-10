@@ -28,7 +28,7 @@ public class MethBlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> CHEMICAL_MIXER = registerBlockWithItem(
-            "chemie_mixer",
+            "chemical_mixer",
             () -> new ChemicalMixerBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.0f)
@@ -42,7 +42,7 @@ public class MethBlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> REDUCTION_KETTLE = registerBlockWithItem(
-            "reduktionskessel",
+            "reduction_kettle",
             () -> new ReductionKettleBlock(
                     BlockBehaviour.Properties.of()
                             .strength(4.0f)
@@ -57,7 +57,7 @@ public class MethBlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> CRYSTALLIZER = registerBlockWithItem(
-            "kristallisator",
+            "crystallizer",
             () -> new CrystallizerBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)
@@ -71,7 +71,7 @@ public class MethBlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> VACUUM_DRYER = registerBlockWithItem(
-            "vakuum_trockner",
+            "vacuum_dryer",
             () -> new VacuumDryerBlock(
                     BlockBehaviour.Properties.of()
                             .strength(3.5f)

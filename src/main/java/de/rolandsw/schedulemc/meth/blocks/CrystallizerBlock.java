@@ -63,13 +63,13 @@ public class CrystallizerBlock extends Block implements EntityBlock {
                     heldItem.shrink(1);
                 }
                 player.displayClientMessage(Component.translatable(
-                        "block.meth.kristallisator_input", kristall.getActiveSlots()
+                        "block.meth.crystallizer_input", kristall.getActiveSlots()
                 ), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.GLASS_PLACE, 0.5f, 1.2f);
                 return InteractionResult.SUCCESS;
             } else {
                 player.displayClientMessage(Component.translatable(
-                        "block.meth.kristallisator_full"
+                        "block.meth.crystallizer_full"
                 ), true);
                 return InteractionResult.FAIL;
             }
@@ -85,7 +85,7 @@ public class CrystallizerBlock extends Block implements EntityBlock {
                         player.drop(output, false);
                     }
                     player.displayClientMessage(Component.translatable(
-                            "block.meth.kristallisator_output", output.getCount()
+                            "block.meth.crystallizer_output", output.getCount()
                     ), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
@@ -94,18 +94,18 @@ public class CrystallizerBlock extends Block implements EntityBlock {
 
             // Status anzeigen
             StringBuilder status = new StringBuilder();
-            status.append(Component.translatable("block.meth.kristallisator_title").getString()).append('\n');
+            status.append(Component.translatable("block.meth.crystallizer_title").getString()).append('\n');
 
             if (kristall.isActive()) {
                 int progress = (int) (kristall.getAverageProgress() * 100);
-                status.append(Component.translatable("block.meth.kristallisator_active", kristall.getActiveSlots()).getString()).append('\n');
-                status.append(Component.translatable("block.meth.kristallisator_progress", progress).getString()).append('\n');
+                status.append(Component.translatable("block.meth.crystallizer_active", kristall.getActiveSlots()).getString()).append('\n');
+                status.append(Component.translatable("block.meth.crystallizer_progress", progress).getString()).append('\n');
             }
 
             if (kristall.hasOutput()) {
-                status.append(Component.translatable("block.meth.kristallisator_ready", kristall.getOutputCount()).getString());
+                status.append(Component.translatable("block.meth.crystallizer_ready", kristall.getOutputCount()).getString());
             } else if (!kristall.hasInput()) {
-                status.append(Component.translatable("block.meth.kristallisator_hint").getString());
+                status.append(Component.translatable("block.meth.crystallizer_hint").getString());
             }
 
             player.displayClientMessage(Component.literal(status.toString()), true);

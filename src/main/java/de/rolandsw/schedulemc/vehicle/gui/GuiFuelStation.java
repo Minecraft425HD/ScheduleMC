@@ -144,7 +144,7 @@ public class GuiFuelStation extends ScreenBase<ContainerFuelStation> {
             // Odometer
             if (entity instanceof EntityGenericVehicle vehicle) {
                 long odo = vehicle.getOdometer();
-                String sep = Component.translatable("werkstatt.gui.thousand_sep").getString();
+                String sep = Component.translatable("workshop.gui.thousand_sep").getString();
                 String odometerText = Component.translatable("fuel_station.odometer_format",
                         String.format("%,d", odo).replace(",", sep)).getString();
                 g.drawString(font, Component.translatable("fuel_station.odometer",

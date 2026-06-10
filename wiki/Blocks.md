@@ -207,7 +207,7 @@ Quick Navigation:
 ### Processing Blocks
 
 #### Trimm Station
-- **ID:** `cannabis_trimm_station`
+- **ID:** `cannabis_trim_station`
 - **Function:** Convert DriedBuds → TrimmedBuds + Trim (5 button-clicks per bud)
 - **GUI Slots:** Input (DriedBud), Output-Bud (TrimmedBud), Output-Trim (Trim)
 - **Interaction:** Right-click with DriedBud = fill; Shift+Right-click = collect output
@@ -215,7 +215,7 @@ Quick Navigation:
 - **BlockEntity:** TrimStationBlockEntity
 
 #### Curing Glas (Curing Jar)
-- **ID:** `cannabis_curing_glas`
+- **ID:** `cannabis_curing_jar`
 - **Function:** Cure trimmed buds to improve quality over time
 - **Capacity:** Up to 10g (same strain + quality only)
 - **Quality Upgrade:** +1 tier at 14 days, +2 tiers at 28 days
@@ -224,7 +224,7 @@ Quick Navigation:
 - **BlockEntity:** CuringJarBlockEntity
 
 #### Hash Presse
-- **ID:** `cannabis_hash_presse`
+- **ID:** `cannabis_hash_press`
 - **Function:** Press Trim into Hash
 - **Input:** 20g Trim (single strain, exact amount)
 - **Output:** 5g Hash (25% conversion rate)
@@ -234,7 +234,7 @@ Quick Navigation:
 - **BlockEntity:** HashPressBlockEntity
 
 #### Öl Extraktor
-- **ID:** `cannabis_oel_extraktor`
+- **ID:** `cannabis_oil_extractor`
 - **Function:** Extract Cannabis Oil from buds or trim using solvent
 - **Input:** 10g TrimmedBud or Trim + 1 Extraction Solvent
 - **Output:** 1–2ml Cannabis Oil
@@ -252,8 +252,8 @@ Quick Navigation:
 
 | Block ID | Type | Growth Time | Yield |
 |----------|------|-------------|-------|
-| `bolivianisch_coca_plant` | Bolivianisch | 15 min | 3-5 leaves |
-| `kolumbianisch_coca_plant` | Kolumbianisch | 18 min | 2-4 leaves |
+| `bolivian_coca_plant` | Bolivianisch | 15 min | 3-5 leaves |
+| `colombian_coca_plant` | Kolumbianisch | 18 min | 2-4 leaves |
 
 ### Extraction Vats (3 Sizes)
 
@@ -282,7 +282,7 @@ Quick Navigation:
 ### Crack Production
 
 #### Crack Kocher
-- **ID:** `crack_kocher`
+- **ID:** `crack_cooker`
 - **Function:** Cook crack from cocaine
 - **Input:** 1 cocaine + 1 backpulver (baking soda)
 - **Output:** 2 crack rocks
@@ -298,14 +298,14 @@ Quick Navigation:
 
 | Block ID | Type | Growth Time | Opium Quality |
 |----------|------|-------------|---------------|
-| `afghanisch_poppy_plant` | Afghanisch | 12 min | High yield |
-| `tuerkisch_poppy_plant` | Türkisch | 15 min | Medium |
-| `indisch_poppy_plant` | Indisch | 18 min | Premium |
+| `afghan_poppy_plant` | Afghanisch | 12 min | High yield |
+| `turkish_poppy_plant` | Türkisch | 15 min | Medium |
+| `indian_poppy_plant` | Indisch | 18 min | Premium |
 
 ### Processing Blocks
 
 #### Ritzmaschine (Scoring Machine)
-- **ID:** `ritzmaschine`
+- **ID:** `scoring_machine`
 - **Function:** Score poppy pods for opium
 - **Capacity:** 9 pods
 - **Output:** Raw opium
@@ -314,7 +314,7 @@ Quick Navigation:
 - **BlockEntity:** RitzmaschineBlockEntity
 
 #### Opium Presse
-- **ID:** `opium_presse`
+- **ID:** `opium_press`
 - **Function:** Press raw opium
 - **Input:** 5 raw opium
 - **Output:** 1 pressed opium
@@ -323,7 +323,7 @@ Quick Navigation:
 - **BlockEntity:** OpiumPresseBlockEntity
 
 #### Kochstation (Cooking Station)
-- **ID:** `kochstation`
+- **ID:** `cooking_station`
 - **Function:** Cook pressed opium → morphine
 - **Input:** 2 pressed opium
 - **Output:** 1 morphine
@@ -332,7 +332,7 @@ Quick Navigation:
 - **BlockEntity:** KochstationBlockEntity
 
 #### Heroin Raffinerie
-- **ID:** `heroin_raffinerie`
+- **ID:** `heroin_refinery`
 - **Function:** Refine morphine → heroin
 - **Input:** 1 morphine + chemicals
 - **Output:** 1 heroin
@@ -347,7 +347,7 @@ Quick Navigation:
 **Complete 4-Step Production Chain:**
 
 ### 1. Chemie Mixer
-- **ID:** `chemie_mixer`
+- **ID:** `chemical_mixer`
 - **Function:** Mix base chemicals
 - **Input:** Ephedrin/Pseudoephedrin + reagents
 - **Output:** Meth paste
@@ -356,7 +356,7 @@ Quick Navigation:
 - **BlockEntity:** ChemieMixerBlockEntity
 
 ### 2. Reduktionskessel (Reduction Kettle)
-- **ID:** `reduktionskessel`
+- **ID:** `reduction_kettle`
 - **Function:** Reduce paste → raw meth
 - **Input:** Meth paste + roter phosphor + jod
 - **Output:** Raw meth
@@ -366,7 +366,7 @@ Quick Navigation:
 - **BlockEntity:** ReduktionskesselBlockEntity
 
 ### 3. Kristallisator (Crystallizer)
-- **ID:** `kristallisator`
+- **ID:** `crystallizer`
 - **Function:** Crystallize raw meth
 - **Input:** Raw meth
 - **Output:** Crystal meth
@@ -375,7 +375,7 @@ Quick Navigation:
 - **BlockEntity:** KristallisatorBlockEntity
 
 ### 4. Vakuum Trockner (Vacuum Dryer)
-- **ID:** `vakuum_trockner`
+- **ID:** `vacuum_dryer`
 - **Function:** Final drying
 - **Input:** Crystal meth
 - **Output:** Meth (95-99% pure)
@@ -390,7 +390,7 @@ Quick Navigation:
 **Precision Laboratory Production Chain:**
 
 ### 1. Fermentations Tank
-- **ID:** `fermentations_tank`
+- **ID:** `fermentation_tank`
 - **Function:** Ferment mutterkorn → ergot culture
 - **Input:** Mutterkorn
 - **Output:** Ergot culture
@@ -399,7 +399,7 @@ Quick Navigation:
 - **BlockEntity:** FermentationsTankBlockEntity
 
 ### 2. Destillations Apparat (Distillation Apparatus)
-- **ID:** `destillations_apparat`
+- **ID:** `distillation_apparatus`
 - **Function:** Distill culture → lysergic acid
 - **Input:** Ergot culture
 - **Output:** Lysergsäure
@@ -409,7 +409,7 @@ Quick Navigation:
 - **BlockEntity:** DestillationsApparatBlockEntity
 
 ### 3. Mikro Dosierer (Micro Doser)
-- **ID:** `mikro_dosierer`
+- **ID:** `micro_doser`
 - **Function:** Apply solution to blotter paper
 - **Input:** LSD solution + blotter paper
 - **Output:** Soaked blotter
@@ -419,7 +419,7 @@ Quick Navigation:
 - **BlockEntity:** MikroDosiererBlockEntity
 
 ### 4. Perforations Presse (Perforation Press)
-- **ID:** `perforations_presse`
+- **ID:** `perforation_press`
 - **Function:** Cut blotter into tabs
 - **Input:** Soaked blotter
 - **Output:** 100 LSD tabs
@@ -434,7 +434,7 @@ Quick Navigation:
 **Arcade-Style Production:**
 
 ### 1. Reaktions Kessel (Reaction Kettle)
-- **ID:** `reaktions_kessel`
+- **ID:** `reaction_kettle`
 - **Function:** Synthesize MDMA base from safrol
 - **Input:** Safrol + reagents
 - **Output:** MDMA base
@@ -444,7 +444,7 @@ Quick Navigation:
 - **BlockEntity:** ReaktionsKesselBlockEntity
 
 ### 2. Trocknungs Ofen (Drying Oven)
-- **ID:** `trocknungs_ofen`
+- **ID:** `drying_oven`
 - **Function:** Dry MDMA base → crystals
 - **Input:** MDMA base
 - **Output:** MDMA crystals
@@ -454,7 +454,7 @@ Quick Navigation:
 - **BlockEntity:** TrocknungsOfenBlockEntity
 
 ### 3. Pillen Presse (Pill Press)
-- **ID:** `pillen_presse`
+- **ID:** `pill_press`
 - **Function:** Press ecstasy pills
 - **Input:** MDMA crystal + binder + dye
 - **Output:** Ecstasy pills
@@ -471,16 +471,16 @@ Quick Navigation:
 
 | Block ID | Tier | Light Level | Heat | Growth Bonus | Power |
 |----------|------|-------------|------|--------------|-------|
-| `klimalampe_small` | Small | 10 | Low | +15% | 8 W |
-| `klimalampe_medium` | Medium | 12 | Medium | +30% | 15 W |
-| `klimalampe_large` | Large | 14 | High | +50% | 25 W |
+| `climate_lamp_small` | Small | 10 | Low | +15% | 8 W |
+| `climate_lamp_medium` | Medium | 12 | Medium | +30% | 15 W |
+| `climate_lamp_large` | Large | 14 | High | +50% | 25 W |
 
 **BlockEntity:** KlimalampeBlockEntity
 **Required:** Utility System (power + water)
 **Effect:** Humidity + warmth control
 
 ### Wassertank (Water Tank)
-- **ID:** `wassertank`
+- **ID:** `water_tank`
 - **Function:** Provide water/humidity
 - **Capacity:** 10,000 water units
 - **Coverage:** 5x5 area

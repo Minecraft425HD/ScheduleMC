@@ -18,8 +18,8 @@ public class ModBlocks {
 
     public static final RegistryObject<BlockFuelStation> FUEL_STATION = BLOCK_REGISTER.register("fuel_station", () -> new BlockFuelStation());
     public static final RegistryObject<BlockFuelStationTop> FUEL_STATION_TOP = BLOCK_REGISTER.register("fuel_station_top", () -> new BlockFuelStationTop());
-    public static final RegistryObject<BlockWerkstatt> WERKSTATT = BLOCK_REGISTER.register("werkstatt", () -> new BlockWerkstatt());
-    public static final RegistryObject<BlockEntityType<TileEntityWerkstatt>> WERKSTATT_TILE_ENTITY_TYPE = BLOCK_ENTITY_REGISTER.register("werkstatt", () ->
+    public static final RegistryObject<BlockWerkstatt> WERKSTATT = BLOCK_REGISTER.register("workshop", () -> new BlockWerkstatt());
+    public static final RegistryObject<BlockEntityType<TileEntityWerkstatt>> WERKSTATT_TILE_ENTITY_TYPE = BLOCK_ENTITY_REGISTER.register("workshop", () ->
             BlockEntityType.Builder.of(TileEntityWerkstatt::new, WERKSTATT.get()).build(null)
     );
 

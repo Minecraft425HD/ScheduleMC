@@ -673,16 +673,16 @@ Vehicle settings are split between `ServerConfig` (gameplay) and `ClientConfig` 
 
 ### 6.12 Werkstatt (Workshop) System
 
-Located under `[werkstatt]`:
+Located under `[workshop]`:
 
 **Service Costs:**
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `werkstatt.base_inspection_fee` | `25.0` | Base inspection fee (always charged) |
-| `werkstatt.repair_cost_per_percent` | `2.0` | Repair cost per percent damage |
-| `werkstatt.battery_cost_per_percent` | `0.5` | Battery charge cost per percent |
-| `werkstatt.oil_change_cost` | `15.0` | Oil change cost |
+| `workshop.base_inspection_fee` | `25.0` | Base inspection fee (always charged) |
+| `workshop.repair_cost_per_percent` | `2.0` | Repair cost per percent damage |
+| `workshop.battery_cost_per_percent` | `0.5` | Battery charge cost per percent |
+| `workshop.oil_change_cost` | `15.0` | Oil change cost |
 
 **Upgrade Costs:**
 

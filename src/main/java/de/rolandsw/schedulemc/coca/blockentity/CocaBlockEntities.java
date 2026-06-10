@@ -64,7 +64,7 @@ public class CocaBlockEntities {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<BlockEntityType<CrackCookerBlockEntity>> CRACK_KOCHER =
-            BLOCK_ENTITIES.register("crack_kocher", () ->
+            BLOCK_ENTITIES.register("crack_cooker", () ->
                     BlockEntityType.Builder.of(CrackCookerBlockEntity::new,
                             CocaBlocks.CRACK_KOCHER.get()
                     ).build(null));

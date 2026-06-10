@@ -77,15 +77,15 @@ public class DistillationApparatusBlock extends Block implements EntityBlock {
             }
 
             // Status
-            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.destillations_apparat.title")
+            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.distillation_apparatus.title")
                     .append(Component.literal("\n"))
                     .append(Component.translatable("block.lsd.distillation_count", apparat.getErgotCount()))
                     .append(Component.literal("\n"));
 
             if (apparat.isActive()) {
-                message = message.append(Component.translatable("block.destillations_apparat.progress", (int)(apparat.getProgress() * 100)));
+                message = message.append(Component.translatable("block.distillation_apparatus.progress", (int)(apparat.getProgress() * 100)));
             } else if (apparat.hasOutput()) {
-                message = message.append(Component.translatable("block.destillations_apparat.output_ready", apparat.getOutputCount()));
+                message = message.append(Component.translatable("block.distillation_apparatus.output_ready", apparat.getOutputCount()));
             }
 
             player.displayClientMessage(message, true);

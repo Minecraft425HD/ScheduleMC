@@ -60,7 +60,7 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
 
         if (vehicle == null) {
             player.displayClientMessage(
-                Component.translatable("message.werkstatt.vehicle_not_found").withStyle(ChatFormatting.RED),
+                Component.translatable("message.workshop.vehicle_not_found").withStyle(ChatFormatting.RED),
                 false
             );
             return;
@@ -71,7 +71,7 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
 
         if (upgradeCost < 0) {
             player.displayClientMessage(
-                Component.translatable("message.werkstatt.invalid_upgrade").withStyle(ChatFormatting.RED),
+                Component.translatable("message.workshop.invalid_upgrade").withStyle(ChatFormatting.RED),
                 false
             );
             return;
@@ -82,7 +82,7 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
 
         if (playerBalance < upgradeCost) {
             player.displayClientMessage(
-                Component.translatable("message.werkstatt.insufficient_funds",
+                Component.translatable("message.workshop.insufficient_funds",
                     String.format("%.2f€", upgradeCost),
                     String.format("%.2f€", playerBalance))
                     .withStyle(ChatFormatting.RED),
@@ -97,7 +97,7 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
 
             if (success) {
                 player.displayClientMessage(
-                    Component.translatable("message.werkstatt.upgrade_success", String.format("%.2f€", upgradeCost))
+                    Component.translatable("message.workshop.upgrade_success", String.format("%.2f€", upgradeCost))
                         .withStyle(ChatFormatting.GREEN),
                     false
                 );
@@ -105,7 +105,7 @@ public class MessageWerkstattUpgrade implements Message<MessageWerkstattUpgrade>
                 // Refund if upgrade failed
                 EconomyManager.deposit(player.getUUID(), upgradeCost);
                 player.displayClientMessage(
-                    Component.translatable("message.werkstatt.upgrade_failed").withStyle(ChatFormatting.RED),
+                    Component.translatable("message.workshop.upgrade_failed").withStyle(ChatFormatting.RED),
                     false
                 );
             }

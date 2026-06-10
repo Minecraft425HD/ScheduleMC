@@ -17,7 +17,7 @@ public class MushroomBlockEntities {
 
     // ClimateLamp (alle 3 Stufen)
     public static final RegistryObject<BlockEntityType<ClimateLampBlockEntity>> CLIMATE_LAMP =
-            BLOCK_ENTITIES.register("klimalampe", () ->
+            BLOCK_ENTITIES.register("climate_lamp", () ->
                     BlockEntityType.Builder.of(ClimateLampBlockEntity::new,
                             MushroomBlocks.CLIMATE_LAMP_SMALL.get(),
                             MushroomBlocks.CLIMATE_LAMP_MEDIUM.get(),
@@ -26,7 +26,7 @@ public class MushroomBlockEntities {
 
     // WaterTank
     public static final RegistryObject<BlockEntityType<WaterTankBlockEntity>> WATER_TANK =
-            BLOCK_ENTITIES.register("wassertank", () ->
+            BLOCK_ENTITIES.register("water_tank", () ->
                     BlockEntityType.Builder.of(WaterTankBlockEntity::new,
                             MushroomBlocks.WATER_TANK.get()
                     ).build(null));

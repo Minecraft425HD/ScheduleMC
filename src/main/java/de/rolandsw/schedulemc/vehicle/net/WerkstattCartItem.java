@@ -92,17 +92,17 @@ public class WerkstattCartItem {
      */
     public String getDisplayKey() {
         return switch (type) {
-            case SERVICE_REPAIR -> "werkstatt.cart.repair";
-            case SERVICE_BATTERY -> "werkstatt.cart.battery";
-            case SERVICE_OIL -> "werkstatt.cart.oil_change";
-            case UPGRADE_MOTOR -> "werkstatt.cart.motor_upgrade";
-            case UPGRADE_TANK -> "werkstatt.cart.tank_upgrade";
-            case UPGRADE_TIRE -> "werkstatt.cart.tire_upgrade";
-            case UPGRADE_FENDER -> "werkstatt.cart.fender_upgrade";
-            case PAINT_CHANGE -> "werkstatt.cart.paint_change";
-            case CONTAINER_ITEM -> "werkstatt.cart.container_item";
-            case CONTAINER_FLUID -> "werkstatt.cart.container_fluid";
-            case TIRE_SEASON_SWITCH -> "werkstatt.cart.tire_season_switch";
+            case SERVICE_REPAIR -> "workshop.cart.repair";
+            case SERVICE_BATTERY -> "workshop.cart.battery";
+            case SERVICE_OIL -> "workshop.cart.oil_change";
+            case UPGRADE_MOTOR -> "workshop.cart.motor_upgrade";
+            case UPGRADE_TANK -> "workshop.cart.tank_upgrade";
+            case UPGRADE_TIRE -> "workshop.cart.tire_upgrade";
+            case UPGRADE_FENDER -> "workshop.cart.fender_upgrade";
+            case PAINT_CHANGE -> "workshop.cart.paint_change";
+            case CONTAINER_ITEM -> "workshop.cart.container_item";
+            case CONTAINER_FLUID -> "workshop.cart.container_fluid";
+            case TIRE_SEASON_SWITCH -> "workshop.cart.tire_season_switch";
         };
     }
 

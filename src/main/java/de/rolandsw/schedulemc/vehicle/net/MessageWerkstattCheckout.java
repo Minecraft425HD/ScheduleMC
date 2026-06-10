@@ -70,7 +70,7 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
 
         if (vehicle == null) {
             player.displayClientMessage(
-                    Component.translatable("message.werkstatt.vehicle_not_found").withStyle(ChatFormatting.RED),
+                    Component.translatable("message.workshop.vehicle_not_found").withStyle(ChatFormatting.RED),
                     false
             );
             player.closeContainer();
@@ -96,7 +96,7 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
         double balance = EconomyManager.getBalance(player.getUUID());
         if (balance < totalCost) {
             player.displayClientMessage(
-                    Component.translatable("message.werkstatt.insufficient_funds",
+                    Component.translatable("message.workshop.insufficient_funds",
                             String.format("%.2f\u20AC", totalCost),
                             String.format("%.2f\u20AC", balance))
                             .withStyle(ChatFormatting.RED),
@@ -109,7 +109,7 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
         if (!EconomyManager.withdraw(player.getUUID(), totalCost, TransactionType.WERKSTATT_FEE,
                 "Werkstatt-Auftrag: " + cartItems.size() + " Leistungen")) {
             player.displayClientMessage(
-                    Component.translatable("message.werkstatt.payment_failed").withStyle(ChatFormatting.RED),
+                    Component.translatable("message.workshop.payment_failed").withStyle(ChatFormatting.RED),
                     false
             );
             return;
@@ -224,7 +224,7 @@ public class MessageWerkstattCheckout implements Message<MessageWerkstattCheckou
 
         // Success message
         player.displayClientMessage(
-                Component.translatable("message.werkstatt.checkout_success",
+                Component.translatable("message.workshop.checkout_success",
                         String.format("%.2f\u20AC", totalCost))
                         .withStyle(ChatFormatting.GREEN),
                 false

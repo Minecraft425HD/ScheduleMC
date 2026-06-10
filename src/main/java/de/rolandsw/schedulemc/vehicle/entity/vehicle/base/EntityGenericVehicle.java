@@ -78,7 +78,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     // Werkstatt locking system
     private boolean isLockedInWerkstatt;
     @Nullable
-    private BlockPos werkstattPosition;
+    private BlockPos workshopPosition;
 
     // Container installation tracking is via synched data (HAS_HAD_ITEM_CONTAINER / HAS_HAD_FLUID_CONTAINER)
     // First installation is free, reinstallation after removal costs money
@@ -743,16 +743,16 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     // Werkstatt locking system methods
-    public void lockInWerkstatt(BlockPos werkstattPos) {
+    public void lockInWerkstatt(BlockPos workshopPos) {
         this.isLockedInWerkstatt = true;
-        this.werkstattPosition = werkstattPos;
+        this.workshopPosition = workshopPos;
         // Stop all movement
         this.setDeltaMovement(Vec3.ZERO);
     }
 
     public void unlockFromWerkstatt() {
         this.isLockedInWerkstatt = false;
-        this.werkstattPosition = null;
+        this.workshopPosition = null;
     }
 
     public boolean isLockedInWerkstatt() {
@@ -761,7 +761,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     @Nullable
     public BlockPos getWerkstattPosition() {
-        return werkstattPosition;
+        return workshopPosition;
     }
 
     public boolean canMove() {
@@ -841,7 +841,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             this.spawnPointReleased = compound.getBoolean("SpawnPointReleased");
         }
 
-        // Load werkstatt locking data
+        // Load workshop locking data
         if (compound.contains("IsLockedInWerkstatt")) {
             this.isLockedInWerkstatt = compound.getBoolean("IsLockedInWerkstatt");
         }
@@ -849,7 +849,7 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
             int x = compound.getInt("WerkstattX");
             int y = compound.getInt("WerkstattY");
             int z = compound.getInt("WerkstattZ");
-            this.werkstattPosition = new BlockPos(x, y, z);
+            this.workshopPosition = new BlockPos(x, y, z);
         }
 
         // Load paint color
@@ -917,12 +917,12 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
         }
         compound.putBoolean("SpawnPointReleased", this.spawnPointReleased);
 
-        // Save werkstatt locking data
+        // Save workshop locking data
         compound.putBoolean("IsLockedInWerkstatt", this.isLockedInWerkstatt);
-        if (this.werkstattPosition != null) {
-            compound.putInt("WerkstattX", this.werkstattPosition.getX());
-            compound.putInt("WerkstattY", this.werkstattPosition.getY());
-            compound.putInt("WerkstattZ", this.werkstattPosition.getZ());
+        if (this.workshopPosition != null) {
+            compound.putInt("WerkstattX", this.workshopPosition.getX());
+            compound.putInt("WerkstattY", this.workshopPosition.getY());
+            compound.putInt("WerkstattZ", this.workshopPosition.getZ());
         }
 
         // Save paint color

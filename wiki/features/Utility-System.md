@@ -329,9 +329,9 @@ The following blocks are registered by default in `UtilityRegistry.registerDefau
 
 | Block | Electricity Active | Electricity Idle | Water Active | Water Idle |
 |-------|-------------------|-----------------|-------------|-----------|
-| `klimalampe_small` | 30 kWh | 15 kWh | 5 L | 2.5 L |
-| `klimalampe_medium` | 60 kWh | 30 kWh | 10 L | 5 L |
-| `klimalampe_large` | 120 kWh | 60 kWh | 20 L | 10 L |
+| `climate_lamp_small` | 30 kWh | 15 kWh | 5 L | 2.5 L |
+| `climate_lamp_medium` | 60 kWh | 30 kWh | 10 L | 5 L |
+| `climate_lamp_large` | 120 kWh | 60 kWh | 20 L | 10 L |
 
 ### Irrigation (Constant)
 
@@ -341,7 +341,7 @@ The following blocks are registered by default in `UtilityRegistry.registerDefau
 | `ceramic_pot` | 0 | 15 L |
 | `iron_pot` | 0 | 20 L |
 | `golden_pot` | 0 | 25 L |
-| `wassertank` | 5 kWh | 50 L |
+| `water_tank` | 5 kWh | 50 L |
 
 ### Drying Equipment
 
@@ -350,8 +350,8 @@ The following blocks are registered by default in `UtilityRegistry.registerDefau
 | `small_drying_rack` | 10 kWh | 5 kWh |
 | `medium_drying_rack` | 20 kWh | 10 kWh |
 | `big_drying_rack` | 40 kWh | 20 kWh |
-| `vakuum_trockner` (Meth) | 120 kWh | 60 kWh |
-| `trocknungs_ofen` (MDMA) | 150 kWh | 75 kWh |
+| `vacuum_dryer` (Meth) | 120 kWh | 60 kWh |
+| `drying_oven` (MDMA) | 150 kWh | 75 kWh |
 
 ### Fermentation
 
@@ -360,8 +360,8 @@ The following blocks are registered by default in `UtilityRegistry.registerDefau
 | `small_fermentation_barrel` | 15 kWh | 5 L |
 | `medium_fermentation_barrel` | 30 kWh | 10 L |
 | `big_fermentation_barrel` | 60 kWh | 20 L |
-| `fermentations_tank` (LSD) | 80 kWh | 30 L |
-| `cannabis_curing_glas` | 5 kWh | 0 |
+| `fermentation_tank` (LSD) | 80 kWh | 30 L |
+| `cannabis_curing_jar` | 5 kWh | 0 |
 
 ### Chemical Processing
 
@@ -373,27 +373,27 @@ The following blocks are registered by default in `UtilityRegistry.registerDefau
 | `small_refinery` (Coca) | 60 kWh | 20 L |
 | `medium_refinery` | 120 kWh | 40 L |
 | `big_refinery` | 240 kWh | 80 L |
-| `crack_kocher` | 100 kWh | 10 L |
-| `kochstation` (Poppy) | 80 kWh | 40 L |
-| `heroin_raffinerie` | 150 kWh | 50 L |
-| `chemie_mixer` (Meth) | 100 kWh | 30 L |
-| `reduktionskessel` | 250 kWh | 50 L |
-| `kristallisator` | 180 kWh | 100 L |
-| `destillations_apparat` (LSD) | 150 kWh | 60 L |
-| `mikro_dosierer` | 80 kWh | 10 L |
-| `reaktions_kessel` (MDMA) | 200 kWh | 40 L |
-| `cannabis_oel_extraktor` | 120 kWh | 20 L |
+| `crack_cooker` | 100 kWh | 10 L |
+| `cooking_station` (Poppy) | 80 kWh | 40 L |
+| `heroin_refinery` | 150 kWh | 50 L |
+| `chemical_mixer` (Meth) | 100 kWh | 30 L |
+| `reduction_kettle` | 250 kWh | 50 L |
+| `crystallizer` | 180 kWh | 100 L |
+| `distillation_apparatus` (LSD) | 150 kWh | 60 L |
+| `micro_doser` | 80 kWh | 10 L |
+| `reaction_kettle` (MDMA) | 200 kWh | 40 L |
+| `cannabis_oil_extractor` | 120 kWh | 20 L |
 
 ### Mechanical
 
 | Block | Electricity Active | Water |
 |-------|-------------------|-------|
-| `ritzmaschine` (Poppy) | 20 kWh | 5 L |
-| `opium_presse` | 50 kWh | 0 |
-| `perforations_presse` (LSD) | 40 kWh | 0 |
-| `pillen_presse` (MDMA) | 60 kWh | 0 |
-| `cannabis_trimm_station` | 10 kWh | 5 L |
-| `cannabis_hash_presse` | 80 kWh | 0 |
+| `scoring_machine` (Poppy) | 20 kWh | 5 L |
+| `opium_press` | 50 kWh | 0 |
+| `perforation_press` (LSD) | 40 kWh | 0 |
+| `pill_press` (MDMA) | 60 kWh | 0 |
+| `cannabis_trim_station` | 10 kWh | 5 L |
+| `cannabis_hash_press` | 80 kWh | 0 |
 
 ### Packaging
 

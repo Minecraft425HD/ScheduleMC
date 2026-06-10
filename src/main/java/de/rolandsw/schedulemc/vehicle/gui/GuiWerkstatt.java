@@ -26,7 +26,7 @@ import java.util.List;
 
 public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
-    private static final ResourceLocation WERKSTATT_GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_werkstatt.png");
+    private static final ResourceLocation WERKSTATT_GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Main.MODID, "textures/gui/gui_workshop.png");
 
     // Colors
     private static final int COL_BLACK = 0xFF000000;
@@ -88,9 +88,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
     // Color translation keys (indexed by paint color ID)
     private static final String[] COLOR_KEYS = {
-            "werkstatt.gui.color.white", "werkstatt.gui.color.black",
-            "werkstatt.gui.color.red", "werkstatt.gui.color.blue",
-            "werkstatt.gui.color.yellow"
+            "workshop.gui.color.white", "workshop.gui.color.black",
+            "workshop.gui.color.red", "workshop.gui.color.blue",
+            "workshop.gui.color.yellow"
     };
 
     private String tr(String key, Object... args) {
@@ -127,31 +127,31 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int tabX = leftPos + 5;
 
         addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.tab.overview"),
+                Component.translatable("workshop.tab.overview"),
                 b -> switchTab(Tab.OVERVIEW))
                 .bounds(tabX, tabY, tabW, tabH).build());
         tabX += tabW + 2;
 
         addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.tab.service"),
+                Component.translatable("workshop.tab.service"),
                 b -> switchTab(Tab.SERVICE))
                 .bounds(tabX, tabY, tabW, tabH).build());
         tabX += tabW + 2;
 
         addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.tab.upgrades"),
+                Component.translatable("workshop.tab.upgrades"),
                 b -> switchTab(Tab.UPGRADE))
                 .bounds(tabX, tabY, tabW + 5, tabH).build());
         tabX += tabW + 7;
 
         addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.tab.paint"),
+                Component.translatable("workshop.tab.paint"),
                 b -> switchTab(Tab.PAINT))
                 .bounds(tabX, tabY, tabW, tabH).build());
         tabX += tabW + 2;
 
         tabContainer = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.container.tab"),
+                Component.translatable("workshop.container.tab"),
                 b -> switchTab(Tab.CONTAINER))
                 .bounds(tabX, tabY, tabW + 5, tabH).build());
 
@@ -172,23 +172,23 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int btnX = leftPos + 100;
 
         btnAddRepair = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.SERVICE_REPAIR)))
                 .bounds(btnX, topPos + 68, btnW, btnH).build());
 
         btnAddBattery = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.SERVICE_BATTERY)))
                 .bounds(btnX, topPos + 114, btnW, btnH).build());
 
         btnAddOil = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.SERVICE_OIL)))
                 .bounds(btnX, topPos + 160, btnW, btnH).build());
 
         // Sommer/Winter-Tausch
         btnTireSeasonSwitch = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.TIRE_SEASON_SWITCH)))
                 .bounds(btnX, topPos + 206, btnW, btnH).build());
     }
@@ -201,25 +201,25 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         int motorLevel = getCurrentMotorLevel();
         btnAddMotor = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.UPGRADE_MOTOR, motorLevel + 1)))
                 .bounds(btnX, topPos + 68, btnW, btnH).build());
 
         int tankLevel = getCurrentTankLevel();
         btnAddTank = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.UPGRADE_TANK, tankLevel + 1)))
                 .bounds(btnX, topPos + 68 + spacing, btnW, btnH).build());
 
         int tireIdx = getCurrentTireIndex();
         btnAddTire = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.UPGRADE_TIRE, tireIdx + 1)))
                 .bounds(btnX, topPos + 68 + spacing * 2, btnW, btnH).build());
 
         int fenderLevel = getCurrentFenderLevel();
         btnAddFender = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.UPGRADE_FENDER, fenderLevel + 1)))
                 .bounds(btnX, topPos + 68 + spacing * 3, btnW, btnH).build());
 
@@ -244,7 +244,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         }
 
         btnAddPaint = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> {
                     if (selectedPaintColor >= 0 && selectedPaintColor != vehicle.getPaintColor()) {
                         // Remove existing paint item from cart
@@ -262,23 +262,23 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         // Install buttons add to cart (checkout required)
         btnInstallItemContainer = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.CONTAINER_ITEM)))
                 .bounds(btnX, topPos + 80, btnW, btnH).build());
 
         // Remove buttons are direct operations (no cart needed)
         btnRemoveItemContainer = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.container.remove"),
+                Component.translatable("workshop.container.remove"),
                 b -> sendContainerRemove(MessageContainerOperation.Operation.REMOVE_ITEM))
                 .bounds(btnX, topPos + 80, btnW, btnH).build());
 
         btnInstallFluidContainer = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.add_to_cart"),
+                Component.translatable("workshop.btn.add_to_cart"),
                 b -> addToCart(new WerkstattCartItem(WerkstattCartItem.Type.CONTAINER_FLUID)))
                 .bounds(btnX, topPos + 150, btnW, btnH).build());
 
         btnRemoveFluidContainer = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.container.remove"),
+                Component.translatable("workshop.container.remove"),
                 b -> sendContainerRemove(MessageContainerOperation.Operation.REMOVE_FLUID))
                 .bounds(btnX, topPos + 150, btnW, btnH).build());
     }
@@ -325,12 +325,12 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int centerX = leftPos + (imageWidth - 160) / 2 - 80;  // NOPMD
 
         btnCheckout = addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.checkout"),
+                Component.translatable("workshop.btn.checkout"),
                 b -> { sendCheckout(); onClose(); })
                 .bounds(leftPos + 10, topPos + imageHeight - 28, btnW, btnH).build());
 
         addRenderableWidget(Button.builder(
-                Component.translatable("werkstatt.btn.leave"),
+                Component.translatable("workshop.btn.leave"),
                 b -> onClose())
                 .bounds(leftPos + 180, topPos + imageHeight - 28, btnW, btnH).build());
 
@@ -342,10 +342,10 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         double total = calculateCartTotal();
         if (cart.isEmpty()) {
             btnCheckout.active = false;
-            btnCheckout.setMessage(Component.translatable("werkstatt.btn.checkout_empty"));
+            btnCheckout.setMessage(Component.translatable("workshop.btn.checkout_empty"));
         } else {
             btnCheckout.active = true;
-            btnCheckout.setMessage(Component.literal(tr("werkstatt.gui.checkout_total", total)));
+            btnCheckout.setMessage(Component.literal(tr("workshop.gui.checkout_total", total)));
         }
     }
 
@@ -529,7 +529,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             return true;
         }
         if (this.minecraft != null && this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {  // NOPMD
-            return true; // Block inventory key while in werkstatt
+            return true; // Block inventory key while in workshop
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
@@ -587,7 +587,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
     @Override
     protected void renderLabels(GuiGraphics g, int mouseX, int mouseY) {
         if (vehicle == null || vehicle.isRemoved()) {
-            g.drawString(font, tr("werkstatt.gui.no_vehicle"), 10, 30, COL_RED, false);
+            g.drawString(font, tr("workshop.gui.no_vehicle"), 10, 30, COL_RED, false);
             return;
         }
 
@@ -623,34 +623,34 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         // Odometer
         long odo = vehicle.getOdometer();
-        String odoFormatted = String.format("%,d", odo).replace(",", tr("werkstatt.gui.thousand_sep"));
-        g.drawString(font, tr("werkstatt.gui.odometer", odoFormatted), x, y, COL_TEXT, false);
+        String odoFormatted = String.format("%,d", odo).replace(",", tr("workshop.gui.thousand_sep"));
+        g.drawString(font, tr("workshop.gui.odometer", odoFormatted), x, y, COL_TEXT, false);
         y += 14;
 
         // Status bars
-        g.drawString(font, tr("werkstatt.gui.condition_header"), x, y, COL_TEXT, false);
+        g.drawString(font, tr("workshop.gui.condition_header"), x, y, COL_TEXT, false);
         y += 12;
-        renderBar(g, x, y, tr("werkstatt.gui.damage"), 100 - getDamagePercent());
+        renderBar(g, x, y, tr("workshop.gui.damage"), 100 - getDamagePercent());
         y += 16;
-        renderBar(g, x, y, tr("werkstatt.gui.battery_label"), getBatteryPercent());
+        renderBar(g, x, y, tr("workshop.gui.battery_label"), getBatteryPercent());
         y += 18;
 
         // Current parts
-        g.drawString(font, tr("werkstatt.gui.parts_header"), x, y, COL_TEXT, false);
+        g.drawString(font, tr("workshop.gui.parts_header"), x, y, COL_TEXT, false);
         y += 12;
 
-        g.drawString(font, tr("werkstatt.gui.part_motor", getMotorName()), x, y, COL_TEXT_LIGHT, false);
+        g.drawString(font, tr("workshop.gui.part_motor", getMotorName()), x, y, COL_TEXT_LIGHT, false);
         y += 10;
-        g.drawString(font, tr("werkstatt.gui.part_tank", getTankName()), x, y, COL_TEXT_LIGHT, false);
+        g.drawString(font, tr("workshop.gui.part_tank", getTankName()), x, y, COL_TEXT_LIGHT, false);
         y += 10;
-        g.drawString(font, tr("werkstatt.gui.part_tire", getTireName()), x, y, COL_TEXT_LIGHT, false);
+        g.drawString(font, tr("workshop.gui.part_tire", getTireName()), x, y, COL_TEXT_LIGHT, false);
         y += 10;
         if (!isTruckVehicle() && !isSportVehicle()) {
-            g.drawString(font, tr("werkstatt.gui.part_fender", getFenderName()), x, y, COL_TEXT_LIGHT, false);
+            g.drawString(font, tr("workshop.gui.part_fender", getFenderName()), x, y, COL_TEXT_LIGHT, false);
             y += 10;
         }
 
-        g.drawString(font, tr("werkstatt.gui.part_paint", getColorName(vehicle.getPaintColor())), x, y, COL_TEXT_LIGHT, false);
+        g.drawString(font, tr("workshop.gui.part_paint", getColorName(vehicle.getPaintColor())), x, y, COL_TEXT_LIGHT, false);
     }
 
     // === Tab: Service ===
@@ -659,26 +659,26 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int x = 8;
         int y = 28;
 
-        g.drawString(font, tr("werkstatt.gui.service_title"), x, y, COL_TEXT, false);
+        g.drawString(font, tr("workshop.gui.service_title"), x, y, COL_TEXT, false);
         y += 16;
 
         // Repair card
-        drawServiceCard(g, x, y, tr("werkstatt.gui.service.repair"),
-                tr("werkstatt.gui.service.repair_status", getDamagePercent()),
+        drawServiceCard(g, x, y, tr("workshop.gui.service.repair"),
+                tr("workshop.gui.service.repair_status", getDamagePercent()),
                 getDamagePercent() > 0 ? getDamagePercent() * ModConfigHandler.COMMON.WERKSTATT_REPAIR_COST_PER_PERCENT.get() : 0,
                 isInCart(WerkstattCartItem.Type.SERVICE_REPAIR));
         y += 46;
 
         // Battery card
-        drawServiceCard(g, x, y, tr("werkstatt.gui.service.battery"),
-                tr("werkstatt.gui.service.battery_status", getBatteryPercent()),
+        drawServiceCard(g, x, y, tr("workshop.gui.service.battery"),
+                tr("workshop.gui.service.battery_status", getBatteryPercent()),
                 getBatteryPercent() < 100 ? (100 - getBatteryPercent()) * ModConfigHandler.COMMON.WERKSTATT_BATTERY_COST_PER_PERCENT.get() : 0,
                 isInCart(WerkstattCartItem.Type.SERVICE_BATTERY));
         y += 46;
 
         // Oil card
-        drawServiceCard(g, x, y, tr("werkstatt.gui.service.oil"),
-                tr("werkstatt.gui.service.oil_hint"),
+        drawServiceCard(g, x, y, tr("workshop.gui.service.oil"),
+                tr("workshop.gui.service.oil_hint"),
                 ModConfigHandler.COMMON.WERKSTATT_OIL_CHANGE_COST.get(),
                 isInCart(WerkstattCartItem.Type.SERVICE_OIL));
         y += 46;
@@ -686,10 +686,10 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         // Sommer/Winter-Tausch (nur für Nicht-LKW mit Sommer/Winterreifen)
         if (!isTruckVehicle() && isSeasonSwitchApplicable()) {
             boolean isWinter = isCurrentTireWinter();
-            String currentLabel = isWinter ? tr("werkstatt.gui.tire.current_winter") : tr("werkstatt.gui.tire.current_summer");
-            String nextLabel    = isWinter ? tr("werkstatt.gui.tire.switch_to_summer") : tr("werkstatt.gui.tire.switch_to_winter");
+            String currentLabel = isWinter ? tr("workshop.gui.tire.current_winter") : tr("workshop.gui.tire.current_summer");
+            String nextLabel    = isWinter ? tr("workshop.gui.tire.switch_to_summer") : tr("workshop.gui.tire.switch_to_winter");
             double cost = ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get();
-            drawUpgradeCard(g, x, y, tr("werkstatt.gui.tire.season_switch"),
+            drawUpgradeCard(g, x, y, tr("workshop.gui.tire.season_switch"),
                     currentLabel, nextLabel, cost, false,
                     isInCart(WerkstattCartItem.Type.TIRE_SEASON_SWITCH));
         }
@@ -704,9 +704,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         g.drawString(font, subtitle, x + 4, y + 14, COL_TEXT_LIGHT, false);
 
         if (inCart) {
-            g.drawString(font, tr("werkstatt.gui.in_order"), x + 4, y + 26, COL_GREEN, false);
+            g.drawString(font, tr("workshop.gui.in_order"), x + 4, y + 26, COL_GREEN, false);
         } else {
-            g.drawString(font, tr("werkstatt.gui.price_format", cost), x + 4, y + 26, COL_PRICE, false);
+            g.drawString(font, tr("workshop.gui.price_format", cost), x + 4, y + 26, COL_PRICE, false);
         }
     }
 
@@ -717,14 +717,14 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int y = 28;
         int spacing = 48;
 
-        g.drawString(font, tr("werkstatt.gui.upgrade_title"), x, y, COL_TEXT, false);
+        g.drawString(font, tr("workshop.gui.upgrade_title"), x, y, COL_TEXT, false);
         y += 16;
 
         // Motor
         int motorLevel = getCurrentMotorLevel();
-        drawUpgradeCard(g, x, y, tr("werkstatt.gui.upgrade.motor"),
-                tr("werkstatt.gui.upgrade.current", getMotorName(), motorLevel),
-                motorLevel < 3 ? tr("werkstatt.gui.upgrade.next", getMotorNameByLevel(motorLevel + 1), motorLevel + 1) : null,
+        drawUpgradeCard(g, x, y, tr("workshop.gui.upgrade.motor"),
+                tr("workshop.gui.upgrade.current", getMotorName(), motorLevel),
+                motorLevel < 3 ? tr("workshop.gui.upgrade.next", getMotorNameByLevel(motorLevel + 1), motorLevel + 1) : null,
                 motorLevel < 3 ? getMotorUpgradeCost(motorLevel) : -1,
                 motorLevel >= 3,
                 isInCart(WerkstattCartItem.Type.UPGRADE_MOTOR));
@@ -732,9 +732,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         // Tank
         int tankLevel = getCurrentTankLevel();
-        drawUpgradeCard(g, x, y, tr("werkstatt.gui.upgrade.tank"),
-                tr("werkstatt.gui.upgrade.current", getTankName(), tankLevel),
-                tankLevel < 3 ? tr("werkstatt.gui.upgrade.next", getTankNameByLevel(tankLevel + 1), tankLevel + 1) : null,
+        drawUpgradeCard(g, x, y, tr("workshop.gui.upgrade.tank"),
+                tr("workshop.gui.upgrade.current", getTankName(), tankLevel),
+                tankLevel < 3 ? tr("workshop.gui.upgrade.next", getTankNameByLevel(tankLevel + 1), tankLevel + 1) : null,
                 tankLevel < 3 ? getTankUpgradeCost(tankLevel) : -1,
                 tankLevel >= 3,
                 isInCart(WerkstattCartItem.Type.UPGRADE_TANK));
@@ -742,9 +742,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         // Tire
         int tireIdx = getCurrentTireIndex();
-        drawUpgradeCard(g, x, y, tr("werkstatt.gui.upgrade.tire"),
-                tr("werkstatt.gui.upgrade.current", getTireName(), tireIdx + 1),
-                tireIdx < 2 ? tr("werkstatt.gui.upgrade.next", getTireNameByIndex(tireIdx + 1), tireIdx + 2) : null,
+        drawUpgradeCard(g, x, y, tr("workshop.gui.upgrade.tire"),
+                tr("workshop.gui.upgrade.current", getTireName(), tireIdx + 1),
+                tireIdx < 2 ? tr("workshop.gui.upgrade.next", getTireNameByIndex(tireIdx + 1), tireIdx + 2) : null,
                 tireIdx < 2 ? ModConfigHandler.COMMON.WERKSTATT_TIRE_UPGRADE_COST.get() : -1,
                 tireIdx >= 2,
                 isInCart(WerkstattCartItem.Type.UPGRADE_TIRE));
@@ -753,9 +753,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         // Fender (not available for trucks and sports cars)
         if (!isTruckVehicle() && !isSportVehicle()) {
             int fenderLevel = getCurrentFenderLevel();
-            drawUpgradeCard(g, x, y, tr("werkstatt.gui.upgrade.fender"),
-                    tr("werkstatt.gui.upgrade.current", getFenderName(), fenderLevel),
-                    fenderLevel < 3 ? tr("werkstatt.gui.upgrade.next", getFenderNameByLevel(fenderLevel + 1), fenderLevel + 1) : null,
+            drawUpgradeCard(g, x, y, tr("workshop.gui.upgrade.fender"),
+                    tr("workshop.gui.upgrade.current", getFenderName(), fenderLevel),
+                    fenderLevel < 3 ? tr("workshop.gui.upgrade.next", getFenderNameByLevel(fenderLevel + 1), fenderLevel + 1) : null,
                     fenderLevel < 3 ? getFenderUpgradeCost(fenderLevel) : -1,
                     fenderLevel >= 3,
                     isInCart(WerkstattCartItem.Type.UPGRADE_FENDER));
@@ -769,7 +769,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         g.fill(x + 1, y + 1, x + 189, y + 41, 0xFFBBBBBB);
 
         if (isMax) {
-            g.drawString(font, title + "  " + tr("werkstatt.gui.upgrade.max"), x + 4, y + 3, COL_GREEN, false);
+            g.drawString(font, title + "  " + tr("workshop.gui.upgrade.max"), x + 4, y + 3, COL_GREEN, false);
             g.drawString(font, current, x + 4, y + 14, COL_TEXT_LIGHT, false);
         } else {
             g.drawString(font, title, x + 4, y + 3, COL_TEXT, false);
@@ -778,7 +778,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 g.drawString(font, next, x + 4, y + 24, COL_TEXT_LIGHT, false);
             }
             if (inCart) {
-                g.drawString(font, tr("werkstatt.gui.in_order"), x + 100, y + 3, COL_GREEN, false);
+                g.drawString(font, tr("workshop.gui.in_order"), x + 100, y + 3, COL_GREEN, false);
             }
         }
     }
@@ -789,11 +789,11 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int x = 8;
         int y = 28;
 
-        g.drawString(font, tr("werkstatt.gui.paint_title"), x, y, COL_TEXT, false);
+        g.drawString(font, tr("workshop.gui.paint_title"), x, y, COL_TEXT, false);
         y += 14;
 
         int currentColor = vehicle.getPaintColor();
-        g.drawString(font, tr("werkstatt.gui.paint.current", getColorName(currentColor)), x, y, COL_TEXT_LIGHT, false);
+        g.drawString(font, tr("workshop.gui.paint.current", getColorName(currentColor)), x, y, COL_TEXT_LIGHT, false);
         y += 18;
 
         // Paint color swatches (rendered over the buttons)
@@ -824,13 +824,13 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         // Cost info below swatches
         int infoY = startY + 2 * (size + gap) + 5;
         if (selectedPaintColor >= 0 && selectedPaintColor < COLOR_KEYS.length) {
-            g.drawString(font, tr("werkstatt.gui.paint.selection", getColorName(selectedPaintColor)), x, infoY, COL_TEXT, false);
+            g.drawString(font, tr("workshop.gui.paint.selection", getColorName(selectedPaintColor)), x, infoY, COL_TEXT, false);
             if (selectedPaintColor == vehicle.getPaintColor()) {
-                g.drawString(font, tr("werkstatt.gui.paint.same_color"), x, infoY + 12, COL_TEXT_LIGHT, false);
+                g.drawString(font, tr("workshop.gui.paint.same_color"), x, infoY + 12, COL_TEXT_LIGHT, false);
             } else {
-                g.drawString(font, tr("werkstatt.gui.paint.cost", ModConfigHandler.COMMON.WERKSTATT_PAINT_CHANGE_COST.get()), x, infoY + 12, COL_PRICE, false);
+                g.drawString(font, tr("workshop.gui.paint.cost", ModConfigHandler.COMMON.WERKSTATT_PAINT_CHANGE_COST.get()), x, infoY + 12, COL_PRICE, false);
                 if (isInCart(WerkstattCartItem.Type.PAINT_CHANGE)) {
-                    g.drawString(font, tr("werkstatt.gui.in_order"), x, infoY + 24, COL_GREEN, false);
+                    g.drawString(font, tr("workshop.gui.in_order"), x, infoY + 24, COL_GREEN, false);
                 }
             }
         }
@@ -842,11 +842,11 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int x = 8;
         int y = 28;
 
-        g.drawString(font, tr("werkstatt.container.tab"), x, y, COL_TEXT, false);
+        g.drawString(font, tr("workshop.container.tab"), x, y, COL_TEXT, false);
         y += 16;
 
         if (!isTruckVehicle()) {
-            g.drawString(font, tr("werkstatt.container.truck_only"), x, y, COL_RED, false);
+            g.drawString(font, tr("workshop.container.truck_only"), x, y, COL_RED, false);
             return;
         }
 
@@ -860,15 +860,15 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
         // Item Container card
         drawContainerCard(g, x, y,
-                tr("werkstatt.container.item_container"),
-                tr("werkstatt.container.item_slots", "12"),
+                tr("workshop.container.item_container"),
+                tr("workshop.container.item_slots", "12"),
                 hasItemContainer, hadItem, itemInCart);
         y += 70;
 
         // Fluid Container card
         drawContainerCard(g, x, y,
-                tr("werkstatt.container.fluid_container"),
-                tr("werkstatt.container.fluid_capacity", "100"),
+                tr("workshop.container.fluid_container"),
+                tr("workshop.container.fluid_capacity", "100"),
                 hasFluidContainer, hadFluid, fluidInCart);
     }
 
@@ -880,16 +880,16 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         g.drawString(font, info, x + 4, y + 14, COL_TEXT_LIGHT, false);
 
         if (installed) {
-            g.drawString(font, tr("werkstatt.container.status_installed"), x + 4, y + 26, COL_GREEN, false);
+            g.drawString(font, tr("workshop.container.status_installed"), x + 4, y + 26, COL_GREEN, false);
         } else if (inCart) {
-            g.drawString(font, tr("werkstatt.gui.in_order"), x + 4, y + 26, COL_GREEN, false);
+            g.drawString(font, tr("workshop.gui.in_order"), x + 4, y + 26, COL_GREEN, false);
         } else {
-            g.drawString(font, tr("werkstatt.container.status_not_installed"), x + 4, y + 26, COL_TEXT_LIGHT, false);
+            g.drawString(font, tr("workshop.container.status_not_installed"), x + 4, y + 26, COL_TEXT_LIGHT, false);
             if (hadBefore) {
                 double cost = ModConfigHandler.VEHICLE_SERVER.containerReinstallationCost.get();
-                g.drawString(font, tr("werkstatt.gui.price_format_short", cost), x + 4, y + 38, COL_PRICE, false);
+                g.drawString(font, tr("workshop.gui.price_format_short", cost), x + 4, y + 38, COL_PRICE, false);
             } else {
-                g.drawString(font, tr("werkstatt.container.cost_free"), x + 4, y + 38, COL_PRICE, false);
+                g.drawString(font, tr("workshop.container.cost_free"), x + 4, y + 38, COL_PRICE, false);
             }
         }
     }
@@ -900,11 +900,11 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int cartX = imageWidth - 157;
         int y = 27;
 
-        g.drawString(font, tr("werkstatt.gui.cart_title"), cartX, y, COL_TEXT, false);
+        g.drawString(font, tr("workshop.gui.cart_title"), cartX, y, COL_TEXT, false);
         y += 13;
 
         if (cart.isEmpty()) {
-            g.drawString(font, tr("werkstatt.gui.cart.empty"), cartX, y, COL_TEXT_LIGHT, false);
+            g.drawString(font, tr("workshop.gui.cart.empty"), cartX, y, COL_TEXT_LIGHT, false);
         } else {
             // Cart items
             int visibleCount = Math.min(cart.size() - cartScrollOffset, CART_VISIBLE_ITEMS);
@@ -913,7 +913,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 String name = getCartItemDisplayName(item);
                 double cost = item.calculateCost(vehicle);
                 g.drawString(font, name, cartX, y, COL_TEXT, false);
-                g.drawString(font, tr("werkstatt.gui.price_format_short", cost), cartX + 100, y, COL_PRICE, false);
+                g.drawString(font, tr("workshop.gui.price_format_short", cost), cartX + 100, y, COL_PRICE, false);
                 y += 14;
             }
 
@@ -936,18 +936,18 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
             }
             double total = inspectionFee + itemsTotal;
 
-            g.drawString(font, tr("werkstatt.gui.cart.inspection"), cartX, y, COL_TEXT_LIGHT, false);
-            g.drawString(font, tr("werkstatt.gui.price_format", inspectionFee), cartX + 90, y, COL_TEXT_LIGHT, false);
+            g.drawString(font, tr("workshop.gui.cart.inspection"), cartX, y, COL_TEXT_LIGHT, false);
+            g.drawString(font, tr("workshop.gui.price_format", inspectionFee), cartX + 90, y, COL_TEXT_LIGHT, false);
             y += 11;
 
-            g.drawString(font, tr("werkstatt.gui.cart.services"), cartX, y, COL_TEXT_LIGHT, false);
-            g.drawString(font, tr("werkstatt.gui.price_format", itemsTotal), cartX + 90, y, COL_TEXT_LIGHT, false);
+            g.drawString(font, tr("workshop.gui.cart.services"), cartX, y, COL_TEXT_LIGHT, false);
+            g.drawString(font, tr("workshop.gui.price_format", itemsTotal), cartX + 90, y, COL_TEXT_LIGHT, false);
             y += 13;
 
             // Total line
             g.fill(cartX, y - 2, cartX + 148, y - 1, COL_TEXT);
-            g.drawString(font, tr("werkstatt.gui.cart.total"), cartX, y, COL_TEXT, false);
-            g.drawString(font, tr("werkstatt.gui.price_format", total), cartX + 90, y, COL_TEXT, false);
+            g.drawString(font, tr("workshop.gui.cart.total"), cartX, y, COL_TEXT, false);
+            g.drawString(font, tr("workshop.gui.price_format", total), cartX + 90, y, COL_TEXT, false);
             y += 16;
 
             // Balance info
@@ -955,30 +955,30 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 double balance = EconomyManager.getBalance(minecraft.player.getUUID());
                 double afterPayment = balance - total;
 
-                g.drawString(font, tr("werkstatt.gui.cart.balance"), cartX, y, COL_TEXT_LIGHT, false);
-                g.drawString(font, tr("werkstatt.gui.price_format", balance), cartX + 90, y, COL_TEXT_LIGHT, false);
+                g.drawString(font, tr("workshop.gui.cart.balance"), cartX, y, COL_TEXT_LIGHT, false);
+                g.drawString(font, tr("workshop.gui.price_format", balance), cartX + 90, y, COL_TEXT_LIGHT, false);
                 y += 11;
 
-                g.drawString(font, tr("werkstatt.gui.cart.after"), cartX, y, COL_TEXT_LIGHT, false);
+                g.drawString(font, tr("workshop.gui.cart.after"), cartX, y, COL_TEXT_LIGHT, false);
                 int balColor = afterPayment >= 0 ? COL_GREEN : COL_RED;
-                g.drawString(font, tr("werkstatt.gui.price_format", afterPayment), cartX + 90, y, balColor, false);
+                g.drawString(font, tr("workshop.gui.price_format", afterPayment), cartX + 90, y, balColor, false);
             }
         }
     }
 
     private String getCartItemDisplayName(WerkstattCartItem item) {
         return switch (item.getType()) {
-            case SERVICE_REPAIR -> tr("werkstatt.gui.cart.item.repair");
-            case SERVICE_BATTERY -> tr("werkstatt.gui.cart.item.battery");
-            case SERVICE_OIL -> tr("werkstatt.gui.cart.item.oil");
-            case UPGRADE_MOTOR -> tr("werkstatt.gui.cart.item.motor", item.getValue());
-            case UPGRADE_TANK -> tr("werkstatt.gui.cart.item.tank", item.getValue());
-            case UPGRADE_TIRE -> tr("werkstatt.gui.cart.item.tire", item.getValue() + 1);
-            case UPGRADE_FENDER -> tr("werkstatt.gui.cart.item.fender", item.getValue());
-            case PAINT_CHANGE -> tr("werkstatt.gui.cart.item.paint");
-            case CONTAINER_ITEM -> tr("werkstatt.cart.container_item");
-            case CONTAINER_FLUID -> tr("werkstatt.cart.container_fluid");
-            case TIRE_SEASON_SWITCH -> tr("werkstatt.cart.tire_season_switch");
+            case SERVICE_REPAIR -> tr("workshop.gui.cart.item.repair");
+            case SERVICE_BATTERY -> tr("workshop.gui.cart.item.battery");
+            case SERVICE_OIL -> tr("workshop.gui.cart.item.oil");
+            case UPGRADE_MOTOR -> tr("workshop.gui.cart.item.motor", item.getValue());
+            case UPGRADE_TANK -> tr("workshop.gui.cart.item.tank", item.getValue());
+            case UPGRADE_TIRE -> tr("workshop.gui.cart.item.tire", item.getValue() + 1);
+            case UPGRADE_FENDER -> tr("workshop.gui.cart.item.fender", item.getValue());
+            case PAINT_CHANGE -> tr("workshop.gui.cart.item.paint");
+            case CONTAINER_ITEM -> tr("workshop.cart.container_item");
+            case CONTAINER_FLUID -> tr("workshop.cart.container_fluid");
+            case TIRE_SEASON_SWITCH -> tr("workshop.cart.tire_season_switch");
         };
     }
 
@@ -998,7 +998,7 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
         int barColor = clampedPercent > 75 ? COL_BAR_GOOD : clampedPercent > 40 ? COL_BAR_MED : COL_BAR_BAD;
         g.fill(barX, barY, barX + fillW, barY + barH, barColor);
 
-        g.drawString(font, tr("werkstatt.gui.percent_format", clampedPercent), barX + barW + 4, y, COL_TEXT_LIGHT, false);
+        g.drawString(font, tr("workshop.gui.percent_format", clampedPercent), barX + barW + 4, y, COL_TEXT_LIGHT, false);
     }
 
     // === Vehicle Data Helpers ===
@@ -1098,9 +1098,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
     private String getMotorNameByLevel(int level) {
         return switch (level) {
-            case 1 -> tr("werkstatt.gui.motor.normal");
-            case 2 -> tr("werkstatt.gui.motor.performance");
-            case 3 -> tr("werkstatt.gui.motor.performance2");
+            case 1 -> tr("workshop.gui.motor.normal");
+            case 2 -> tr("workshop.gui.motor.performance");
+            case 3 -> tr("workshop.gui.motor.performance2");
             default -> "?";
         };
     }
@@ -1111,9 +1111,9 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
     private String getTankNameByLevel(int level) {
         return switch (level) {
-            case 1 -> tr("werkstatt.gui.tank.11l");
-            case 2 -> tr("werkstatt.gui.tank.15l");
-            case 3 -> tr("werkstatt.gui.tank.20l");
+            case 1 -> tr("workshop.gui.tank.11l");
+            case 2 -> tr("workshop.gui.tank.15l");
+            case 3 -> tr("workshop.gui.tank.20l");
             default -> "?";
         };
     }
@@ -1128,16 +1128,16 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
                 || body.getTranslationKey().contains("delivery"));
         if (isTruck) {
             return switch (index) {
-                case 0 -> tr("werkstatt.gui.tire.offroad");
-                case 1 -> tr("werkstatt.gui.tire.allterrain");
-                case 2 -> tr("werkstatt.gui.tire.heavyduty");
+                case 0 -> tr("workshop.gui.tire.offroad");
+                case 1 -> tr("workshop.gui.tire.allterrain");
+                case 2 -> tr("workshop.gui.tire.heavyduty");
                 default -> "?";
             };
         } else {
             return switch (index) {
-                case 0 -> tr("werkstatt.gui.tire.standard");
-                case 1 -> tr("werkstatt.gui.tire.sport");
-                case 2 -> tr("werkstatt.gui.tire.premium");
+                case 0 -> tr("workshop.gui.tire.standard");
+                case 1 -> tr("workshop.gui.tire.sport");
+                case 2 -> tr("workshop.gui.tire.premium");
                 default -> "?";
             };
         }
@@ -1149,10 +1149,10 @@ public class GuiWerkstatt extends ScreenBase<ContainerWerkstatt> {
 
     private String getFenderNameByLevel(int level) {
         return switch (level) {
-            case 0 -> tr("werkstatt.gui.fender.none");
-            case 1 -> tr("werkstatt.gui.fender.basic");
-            case 2 -> tr("werkstatt.gui.fender.chrome");
-            case 3 -> tr("werkstatt.gui.fender.sport");
+            case 0 -> tr("workshop.gui.fender.none");
+            case 1 -> tr("workshop.gui.fender.basic");
+            case 2 -> tr("workshop.gui.fender.chrome");
+            case 3 -> tr("workshop.gui.fender.sport");
             default -> "?";
         };
     }

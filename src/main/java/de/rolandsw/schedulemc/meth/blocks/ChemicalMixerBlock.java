@@ -66,12 +66,12 @@ public class ChemicalMixerBlock extends Block implements EntityBlock {
                     heldItem.shrink(1);
                 }
                 String translationKey = heldItem.getItem() instanceof PseudoephedrineItem ?
-                    "block.chemie_mixer.pseudoephedrin_added" : "block.chemie_mixer.ephedrin_added";
+                    "block.chemical_mixer.pseudoephedrin_added" : "block.chemical_mixer.ephedrin_added";
                 player.displayClientMessage(Component.translatable(translationKey, mixer.getIngredientStatus()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 1.2f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.translatable("block.chemie_mixer.full"), true);
+                player.displayClientMessage(Component.translatable("block.chemical_mixer.full"), true);
                 return InteractionResult.FAIL;
             }
         }
@@ -82,11 +82,11 @@ public class ChemicalMixerBlock extends Block implements EntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.translatable("block.chemie_mixer.phosphor_added", mixer.getIngredientStatus()), true);
+                player.displayClientMessage(Component.translatable("block.chemical_mixer.phosphor_added", mixer.getIngredientStatus()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 1.0f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.translatable("block.chemie_mixer.no_ephedrin_slot"), true);
+                player.displayClientMessage(Component.translatable("block.chemical_mixer.no_ephedrin_slot"), true);
                 return InteractionResult.FAIL;
             }
         }
@@ -97,11 +97,11 @@ public class ChemicalMixerBlock extends Block implements EntityBlock {
                 if (!player.isCreative()) {
                     heldItem.shrink(1);
                 }
-                player.displayClientMessage(Component.translatable("block.chemie_mixer.jod_added", mixer.getIngredientStatus()), true);
+                player.displayClientMessage(Component.translatable("block.chemical_mixer.jod_added", mixer.getIngredientStatus()), true);
                 player.playSound(net.minecraft.sounds.SoundEvents.BREWING_STAND_BREW, 0.5f, 0.8f);
                 return InteractionResult.SUCCESS;
             } else {
-                player.displayClientMessage(Component.translatable("block.chemie_mixer.no_phosphor_slot"), true);
+                player.displayClientMessage(Component.translatable("block.chemical_mixer.no_phosphor_slot"), true);
                 return InteractionResult.FAIL;
             }
         }
@@ -114,28 +114,28 @@ public class ChemicalMixerBlock extends Block implements EntityBlock {
                     if (!player.getInventory().add(output)) {
                         player.drop(output, false);
                     }
-                    player.displayClientMessage(Component.translatable("block.chemie_mixer.output_extracted", output.getCount()), true);
+                    player.displayClientMessage(Component.translatable("block.chemical_mixer.output_extracted", output.getCount()), true);
                     player.playSound(net.minecraft.sounds.SoundEvents.ITEM_PICKUP, 1.0f, 1.0f);
                     return InteractionResult.SUCCESS;
                 }
             }
 
             // Status anzeigen
-            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.chemie_mixer.title")
+            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.chemical_mixer.title")
                 .append(Component.literal("\n"))
-                .append(Component.translatable("block.chemie_mixer.ingredients", mixer.getIngredientStatus()))
+                .append(Component.translatable("block.chemical_mixer.ingredients", mixer.getIngredientStatus()))
                 .append(Component.literal("\n"));
 
             if (mixer.isActive()) {
                 int progress = (int)(mixer.getAverageProgress() * 100);
-                message = message.append(Component.translatable("block.chemie_mixer.progress", progress))
+                message = message.append(Component.translatable("block.chemical_mixer.progress", progress))
                     .append(Component.literal("\n"));
             }
 
             if (mixer.hasOutput()) {
-                message = message.append(Component.translatable("block.chemie_mixer.output_ready", mixer.getOutputCount()));
+                message = message.append(Component.translatable("block.chemical_mixer.output_ready", mixer.getOutputCount()));
             } else if (!mixer.hasIngredients()) {
-                message = message.append(Component.translatable("block.chemie_mixer.empty"));
+                message = message.append(Component.translatable("block.chemical_mixer.empty"));
             }
 
             player.displayClientMessage(message, true);

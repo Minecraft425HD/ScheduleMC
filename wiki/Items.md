@@ -833,7 +833,7 @@ Modular vehicle system with complete vehicles, individual parts, fuel, tools, an
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
 | Fuel Station | `fuel_station` | Item form of the Fuel Station block. Place to create a vehicle refueling point. | Admin command or crafting |
-| Garage | `werkstatt` | Item form of the Garage (Werkstatt) block. Place to create a vehicle repair station. | Admin command or crafting |
+| Garage | `workshop` | Item form of the Garage (Werkstatt) block. Place to create a vehicle repair station. | Admin command or crafting |
 
 ---
 

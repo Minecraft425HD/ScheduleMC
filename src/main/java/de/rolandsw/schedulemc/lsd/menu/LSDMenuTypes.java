@@ -16,6 +16,6 @@ public class LSDMenuTypes {
             DeferredRegister.create(ForgeRegistries.MENU_TYPES, ScheduleMC.MOD_ID);
 
     public static final RegistryObject<MenuType<MicroDoserMenu>> MICRO_DOSER_MENU =
-            MENUS.register("mikro_dosierer_menu", () ->
+            MENUS.register("micro_doser_menu", () ->
                     IForgeMenuType.create(MicroDoserMenu::new));
 }

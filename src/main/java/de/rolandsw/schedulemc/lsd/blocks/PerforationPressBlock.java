@@ -111,17 +111,17 @@ public class PerforationPressBlock extends Block implements EntityBlock {
             }
 
             // Status
-            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.perforations_presse.title")
+            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.perforation_press.title")
                     .append(Component.literal("\n"))
-                    .append(Component.translatable("block.perforations_presse.design", presse.getSelectedDesign().getColoredName(), presse.getSelectedDesign().getSymbol()))
+                    .append(Component.translatable("block.perforation_press.design", presse.getSelectedDesign().getColoredName(), presse.getSelectedDesign().getSymbol()))
                     .append(Component.literal("\n"))
                     .append(Component.translatable("block.lsd.perforation_paper_count", presse.getBlotterPapierCount()))
                     .append(Component.literal("\n"))
-                    .append(Component.translatable("block.perforations_presse.solution", (presse.hasLoesung() ? "✓" : "✗")))
+                    .append(Component.translatable("block.perforation_press.solution", (presse.hasLoesung() ? "✓" : "✗")))
                     .append(Component.literal("\n"));
 
             if (presse.isPressing()) {
-                message = message.append(Component.translatable("block.perforations_presse.progress", (int)(presse.getProgress() * 100)));
+                message = message.append(Component.translatable("block.perforation_press.progress", (int)(presse.getProgress() * 100)));
             } else if (presse.hasLoesung() && presse.hasPapier()) {
                 message = message.append(Component.translatable("block.lsd.perforation_ready"));
             }

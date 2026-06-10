@@ -226,7 +226,7 @@ public class Main {
     public static final RegistryObject<MenuType<ContainerFuelStation>> FUEL_STATION_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("fuel_station", () ->
             IForgeMenuType.create(new ContainerFactoryTileEntity((ContainerFactoryTileEntity.ContainerCreator<ContainerFuelStation, TileEntityFuelStation>) ContainerFuelStation::new))
     );
-    public static final RegistryObject<MenuType<ContainerWerkstatt>> WERKSTATT_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("werkstatt", () ->
+    public static final RegistryObject<MenuType<ContainerWerkstatt>> WERKSTATT_CONTAINER_TYPE = MENU_TYPE_REGISTER.register("workshop", () ->
             IForgeMenuType.create((windowId, inv, data) -> new ContainerWerkstatt(windowId, inv, data))
     );
 

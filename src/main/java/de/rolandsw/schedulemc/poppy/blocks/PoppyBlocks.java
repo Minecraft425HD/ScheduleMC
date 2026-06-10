@@ -25,30 +25,30 @@ public class PoppyBlocks {
             DeferredRegister.create(ForgeRegistries.ITEMS, ScheduleMC.MOD_ID);
 
     // Pflanzen-Blöcke (keine Items, nur intern verwendet)
-    public static final RegistryObject<Block> AFGHANISCH_PLANT = BLOCKS.register("afghanisch_poppy_plant",
+    public static final RegistryObject<Block> AFGHANISCH_PLANT = BLOCKS.register("afghan_poppy_plant",
             () -> new PoppyPlantBlock(PoppyType.AFGHANISCH));
-    public static final RegistryObject<Block> TUERKISCH_PLANT = BLOCKS.register("tuerkisch_poppy_plant",
+    public static final RegistryObject<Block> TUERKISCH_PLANT = BLOCKS.register("turkish_poppy_plant",
             () -> new PoppyPlantBlock(PoppyType.TUERKISCH));
-    public static final RegistryObject<Block> INDISCH_PLANT = BLOCKS.register("indisch_poppy_plant",
+    public static final RegistryObject<Block> INDISCH_PLANT = BLOCKS.register("indian_poppy_plant",
             () -> new PoppyPlantBlock(PoppyType.INDISCH));
 
     // Verarbeitungs-Blöcke
-    public static final RegistryObject<Block> SCORING_MACHINE = registerBlockWithItem("ritzmaschine",
+    public static final RegistryObject<Block> SCORING_MACHINE = registerBlockWithItem("scoring_machine",
             () -> new ScoringMachineBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
                     .strength(3.5F, 6.0F)
                     .requiresCorrectToolForDrops()));
 
-    public static final RegistryObject<Block> OPIUM_PRESS = registerBlockWithItem("opium_presse",
+    public static final RegistryObject<Block> OPIUM_PRESS = registerBlockWithItem("opium_press",
             () -> new OpiumPressBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
                     .strength(4.0F, 6.0F)
                     .requiresCorrectToolForDrops()));
 
-    public static final RegistryObject<Block> COOKING_STATION = registerBlockWithItem("kochstation",
+    public static final RegistryObject<Block> COOKING_STATION = registerBlockWithItem("cooking_station",
             () -> new CookingStationBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
                     .strength(3.0F, 6.0F)
                     .requiresCorrectToolForDrops()));
 
-    public static final RegistryObject<Block> HEROIN_REFINERY = registerBlockWithItem("heroin_raffinerie",
+    public static final RegistryObject<Block> HEROIN_REFINERY = registerBlockWithItem("heroin_refinery",
             () -> new HeroinRefineryBlock(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
                     .strength(4.0F, 6.0F)
                     .requiresCorrectToolForDrops()));

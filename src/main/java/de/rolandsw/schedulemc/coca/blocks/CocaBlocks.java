@@ -29,12 +29,12 @@ public class CocaBlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> BOLIVIANISCH_PLANT = BLOCKS.register(
-            "bolivianisch_coca_plant",
+            "bolivian_coca_plant",
             () -> new CocaPlantBlock(CocaType.BOLIVIANISCH)
     );
 
     public static final RegistryObject<Block> KOLUMBIANISCH_PLANT = BLOCKS.register(
-            "kolumbianisch_coca_plant",
+            "colombian_coca_plant",
             () -> new CocaPlantBlock(CocaType.KOLUMBIANISCH)
     );
 
@@ -114,7 +114,7 @@ public class CocaBlocks {
     // ═══════════════════════════════════════════════════════════
 
     public static final RegistryObject<Block> CRACK_KOCHER = registerBlockWithItem(
-            "crack_kocher",
+            "crack_cooker",
             () -> new CrackCookerBlock(
                     BlockBehaviour.Properties.of()
                             .strength(2.5f)

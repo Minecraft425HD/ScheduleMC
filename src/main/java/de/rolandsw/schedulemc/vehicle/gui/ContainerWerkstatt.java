@@ -14,18 +14,18 @@ import java.util.UUID;
 public class ContainerWerkstatt extends ContainerBase {
 
     private final EntityGenericVehicle vehicle;
-    private final TileEntityWerkstatt werkstatt;
+    private final TileEntityWerkstatt workshop;
 
     // Server-side constructor
-    public ContainerWerkstatt(int id, EntityGenericVehicle vehicle, TileEntityWerkstatt werkstatt, Inventory playerInv) {
+    public ContainerWerkstatt(int id, EntityGenericVehicle vehicle, TileEntityWerkstatt workshop, Inventory playerInv) {
         super(Main.WERKSTATT_CONTAINER_TYPE.get(), id, playerInv, null);
         this.vehicle = vehicle;
-        this.werkstatt = werkstatt;
+        this.workshop = workshop;
 
-        // Add werkstatt data slots
-        addDataSlots(werkstatt.getFields());
+        // Add workshop data slots
+        addDataSlots(workshop.getFields());
 
-        // No player inventory slots needed in werkstatt GUI
+        // No player inventory slots needed in workshop GUI
     }
 
     // Client-side constructor
@@ -42,13 +42,13 @@ public class ContainerWerkstatt extends ContainerBase {
         Level level = playerInv.player.level();
         this.vehicle = findVehicleByUUID(level, vehicleUUID);
 
-        // Get werkstatt tile entity
-        this.werkstatt = null; // Werkstatt reference not needed on client
+        // Get workshop tile entity
+        this.workshop = null; // Werkstatt reference not needed on client
 
         // Add dummy data slots to match server-side (1 slot for isActive)
         addDataSlots(new net.minecraft.world.inventory.SimpleContainerData(1));
 
-        // No player inventory slots needed in werkstatt GUI
+        // No player inventory slots needed in workshop GUI
     }
 
     @Nullable
@@ -71,11 +71,11 @@ public class ContainerWerkstatt extends ContainerBase {
     }
 
     public TileEntityWerkstatt getWerkstatt() {
-        return werkstatt;
+        return workshop;
     }
 
     @Override
     public int getInvOffset() {
-        return 0; // No inventory in werkstatt GUI
+        return 0; // No inventory in workshop GUI
     }
 }

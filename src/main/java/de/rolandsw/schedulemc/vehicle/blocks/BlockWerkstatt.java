@@ -30,19 +30,19 @@ public class BlockWerkstatt extends BlockOrientableHorizontal {
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide && hand == InteractionHand.MAIN_HAND) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof TileEntityWerkstatt werkstatt) {
-                // Try to find a vehicle near the werkstatt
-                EntityGenericVehicle vehicle = werkstatt.getTrackedVehicle();
+            if (blockEntity instanceof TileEntityWerkstatt workshop) {
+                // Try to find a vehicle near the workshop
+                EntityGenericVehicle vehicle = workshop.getTrackedVehicle();
 
                 if (vehicle != null && !vehicle.isRemoved()) {
-                    // Open werkstatt GUI with the tracked vehicle
+                    // Open workshop GUI with the tracked vehicle
                     if (player instanceof ServerPlayer serverPlayer) {
-                        werkstatt.openWerkstattGUI(serverPlayer, vehicle);
+                        workshop.openWerkstattGUI(serverPlayer, vehicle);
                     }
                     return InteractionResult.SUCCESS;
                 } else {
                     player.displayClientMessage(
-                        net.minecraft.network.chat.Component.translatable("message.schedulemc.werkstatt.no_vehicle"),
+                        net.minecraft.network.chat.Component.translatable("message.schedulemc.workshop.no_vehicle"),
                         true
                     );
                     return InteractionResult.FAIL;

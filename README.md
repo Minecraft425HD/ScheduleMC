@@ -3264,62 +3264,62 @@ ScheduleMC/
 │   │       │   └── schedulemc
 │   │       │       ├── blockstates
 │   │       │       │   ├── advanced_grow_light_slab.json
-│   │       │       │   ├── afghanisch_poppy_plant.json
+│   │       │       │   ├── afghan_poppy_plant.json
 │   │       │       │   ├── atm.json
 │   │       │       │   ├── basic_grow_light_slab.json
 │   │       │       │   ├── big_drying_rack.json
 │   │       │       │   ├── big_extraction_vat.json
 │   │       │       │   ├── big_fermentation_barrel.json
 │   │       │       │   ├── big_refinery.json
-│   │       │       │   ├── bolivianisch_coca_plant.json
+│   │       │       │   ├── bolivian_coca_plant.json
 │   │       │       │   ├── burley_plant.json
 │   │       │       │   ├── cannabis_autoflower_plant.json
-│   │       │       │   ├── cannabis_curing_glas.json
-│   │       │       │   ├── cannabis_hash_presse.json
+│   │       │       │   ├── cannabis_curing_jar.json
+│   │       │       │   ├── cannabis_hash_press.json
 │   │       │       │   ├── cannabis_hybrid_plant.json
 │   │       │       │   ├── cannabis_indica_plant.json
-│   │       │       │   ├── cannabis_oel_extraktor.json
+│   │       │       │   ├── cannabis_oil_extractor.json
 │   │       │       │   ├── cannabis_sativa_plant.json
-│   │       │       │   ├── cannabis_trimm_station.json
+│   │       │       │   ├── cannabis_trim_station.json
 │   │       │       │   ├── cannabis_trocknungsnetz.json
 │   │       │       │   ├── cash_block.json
 │   │       │       │   ├── ceramic_pot.json
-│   │       │       │   ├── chemie_mixer.json
-│   │       │       │   ├── crack_kocher.json
-│   │       │       │   ├── destillations_apparat.json
+│   │       │       │   ├── chemical_mixer.json
+│   │       │       │   ├── crack_cooker.json
+│   │       │       │   ├── distillation_apparatus.json
 │   │       │       │   ├── diesel.json
 │   │       │       │   ├── fermentation_barrel.json
-│   │       │       │   ├── fermentations_tank.json
+│   │       │       │   ├── fermentation_tank.json
 │   │       │       │   ├── fuel_station.json
 │   │       │       │   ├── fuel_station_top.json
 │   │       │       │   ├── golden_pot.json
 │   │       │       │   ├── havana_plant.json
-│   │       │       │   ├── heroin_raffinerie.json
-│   │       │       │   ├── indisch_poppy_plant.json
+│   │       │       │   ├── heroin_refinery.json
+│   │       │       │   ├── indian_poppy_plant.json
 │   │       │       │   ├── iron_pot.json
-│   │       │       │   ├── klimalampe_large.json
-│   │       │       │   ├── klimalampe_medium.json
-│   │       │       │   ├── klimalampe_small.json
-│   │       │       │   ├── kochstation.json
-│   │       │       │   ├── kolumbianisch_coca_plant.json
-│   │       │       │   ├── kristallisator.json
+│   │       │       │   ├── climate_lamp_large.json
+│   │       │       │   ├── climate_lamp_medium.json
+│   │       │       │   ├── climate_lamp_small.json
+│   │       │       │   ├── cooking_station.json
+│   │       │       │   ├── colombian_coca_plant.json
+│   │       │       │   ├── crystallizer.json
 │   │       │       │   ├── large_packaging_table.json
 │   │       │       │   ├── medium_drying_rack.json
 │   │       │       │   ├── medium_extraction_vat.json
 │   │       │       │   ├── medium_fermentation_barrel.json
 │   │       │       │   ├── medium_packaging_table.json
 │   │       │       │   ├── medium_refinery.json
-│   │       │       │   ├── mikro_dosierer.json
-│   │       │       │   ├── opium_presse.json
+│   │       │       │   ├── micro_doser.json
+│   │       │       │   ├── opium_press.json
 │   │       │       │   ├── oriental_plant.json
 │   │       │       │   ├── packaging_table.json
-│   │       │       │   ├── perforations_presse.json
-│   │       │       │   ├── pillen_presse.json
+│   │       │       │   ├── perforation_press.json
+│   │       │       │   ├── pill_press.json
 │   │       │       │   ├── plot_info_block.json
 │   │       │       │   ├── premium_grow_light_slab.json
-│   │       │       │   ├── reaktions_kessel.json
-│   │       │       │   ├── reduktionskessel.json
-│   │       │       │   ├── ritzmaschine.json
+│   │       │       │   ├── reaction_kettle.json
+│   │       │       │   ├── reduction_kettle.json
+│   │       │       │   ├── scoring_machine.json
 │   │       │       │   ├── sink.json
 │   │       │       │   ├── small_drying_rack.json
 │   │       │       │   ├── small_extraction_vat.json
@@ -3327,13 +3327,13 @@ ScheduleMC/
 │   │       │       │   ├── small_packaging_table.json
 │   │       │       │   ├── small_refinery.json
 │   │       │       │   ├── terracotta_pot.json
-│   │       │       │   ├── trocknungs_ofen.json
-│   │       │       │   ├── tuerkisch_poppy_plant.json
-│   │       │       │   ├── vakuum_trockner.json
+│   │       │       │   ├── drying_oven.json
+│   │       │       │   ├── turkish_poppy_plant.json
+│   │       │       │   ├── vacuum_dryer.json
 │   │       │       │   ├── virginia_plant.json
 │   │       │       │   ├── warehouse.json
-│   │       │       │   ├── wassertank.json
-│   │       │       │   └── werkstatt.json
+│   │       │       │   ├── water_tank.json
+│   │       │       │   └── workshop.json
 │   │       │       ├── lang
 │   │       │       │   ├── de_de.json
 │   │       │       │   ├── de_de.json.FULL_BACKUP
@@ -3354,22 +3354,22 @@ ScheduleMC/
 │   │       │       ├── models
 │   │       │       │   ├── block
 │   │       │       │   │   ├── advanced_grow_light_slab.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage0.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage0_top.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage1.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage1_top.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage2.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage2_top.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage3.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage3_top.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage4.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage4_top.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage5.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage5_top.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage6.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage6_top.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage7.json
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage7_top.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage0.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage0_top.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage1.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage1_top.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage2.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage2_top.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage3.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage3_top.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage4.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage4_top.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage5.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage5_top.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage6.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage6_top.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage7.json
+│   │       │       │   │   ├── afghan_poppy_plant_stage7_top.json
 │   │       │       │   │   ├── atm_lower.json
 │   │       │       │   │   ├── atm_upper.json
 │   │       │       │   │   ├── basic_grow_light_slab.json
@@ -3378,22 +3378,22 @@ ScheduleMC/
 │   │       │       │   │   ├── big_fermentation_barrel.json
 │   │       │       │   │   ├── big_refinery.json
 │   │       │       │   │   ├── block_big.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage0.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage0_top.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage1.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage1_top.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage2.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage2_top.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage3.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage3_top.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage4.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage4_top.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage5.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage5_top.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage6.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage6_top.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage7.json
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage7_top.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage0.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage0_top.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage1.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage1_top.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage2.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage2_top.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage3.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage3_top.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage4.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage4_top.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage5.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage5_top.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage6.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage6_top.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage7.json
+│   │       │       │   │   ├── bolivian_coca_plant_stage7_top.json
 │   │       │       │   │   ├── burley_plant_stage0.json
 │   │       │       │   │   ├── burley_plant_stage0_top.json
 │   │       │       │   │   ├── burley_plant_stage1.json
@@ -3426,8 +3426,8 @@ ScheduleMC/
 │   │       │       │   │   ├── cannabis_autoflower_plant_stage6_top.json
 │   │       │       │   │   ├── cannabis_autoflower_plant_stage7.json
 │   │       │       │   │   ├── cannabis_autoflower_plant_stage7_top.json
-│   │       │       │   │   ├── cannabis_curing_glas.json
-│   │       │       │   │   ├── cannabis_hash_presse.json
+│   │       │       │   │   ├── cannabis_curing_jar.json
+│   │       │       │   │   ├── cannabis_hash_press.json
 │   │       │       │   │   ├── cannabis_hybrid_plant_stage0.json
 │   │       │       │   │   ├── cannabis_hybrid_plant_stage0_top.json
 │   │       │       │   │   ├── cannabis_hybrid_plant_stage1.json
@@ -3460,7 +3460,7 @@ ScheduleMC/
 │   │       │       │   │   ├── cannabis_indica_plant_stage6_top.json
 │   │       │       │   │   ├── cannabis_indica_plant_stage7.json
 │   │       │       │   │   ├── cannabis_indica_plant_stage7_top.json
-│   │       │       │   │   ├── cannabis_oel_extraktor.json
+│   │       │       │   │   ├── cannabis_oil_extractor.json
 │   │       │       │   │   ├── cannabis_sativa_plant_stage0.json
 │   │       │       │   │   ├── cannabis_sativa_plant_stage0_top.json
 │   │       │       │   │   ├── cannabis_sativa_plant_stage1.json
@@ -3477,17 +3477,17 @@ ScheduleMC/
 │   │       │       │   │   ├── cannabis_sativa_plant_stage6_top.json
 │   │       │       │   │   ├── cannabis_sativa_plant_stage7.json
 │   │       │       │   │   ├── cannabis_sativa_plant_stage7_top.json
-│   │       │       │   │   ├── cannabis_trimm_station.json
+│   │       │       │   │   ├── cannabis_trim_station.json
 │   │       │       │   │   ├── cannabis_trocknungsnetz.json
 │   │       │       │   │   ├── cash_block.json
 │   │       │       │   │   ├── ceramic_pot.json
-│   │       │       │   │   ├── chemie_mixer.json
-│   │       │       │   │   ├── crack_kocher.json
-│   │       │       │   │   ├── destillations_apparat.json
+│   │       │       │   │   ├── chemical_mixer.json
+│   │       │       │   │   ├── crack_cooker.json
+│   │       │       │   │   ├── distillation_apparatus.json
 │   │       │       │   │   ├── diesel.json
 │   │       │       │   │   ├── drying_rack_empty.json
 │   │       │       │   │   ├── fermentation_barrel.json
-│   │       │       │   │   ├── fermentations_tank.json
+│   │       │       │   │   ├── fermentation_tank.json
 │   │       │       │   │   ├── fuel_station.json
 │   │       │       │   │   ├── fuel_station_top.json
 │   │       │       │   │   ├── golden_pot.json
@@ -3507,59 +3507,59 @@ ScheduleMC/
 │   │       │       │   │   ├── havana_plant_stage6_top.json
 │   │       │       │   │   ├── havana_plant_stage7.json
 │   │       │       │   │   ├── havana_plant_stage7_top.json
-│   │       │       │   │   ├── heroin_raffinerie.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage0.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage0_top.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage1.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage1_top.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage2.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage2_top.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage3.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage3_top.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage4.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage4_top.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage5.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage5_top.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage6.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage6_top.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage7.json
-│   │       │       │   │   ├── indisch_poppy_plant_stage7_top.json
+│   │       │       │   │   ├── heroin_refinery.json
+│   │       │       │   │   ├── indian_poppy_plant_stage0.json
+│   │       │       │   │   ├── indian_poppy_plant_stage0_top.json
+│   │       │       │   │   ├── indian_poppy_plant_stage1.json
+│   │       │       │   │   ├── indian_poppy_plant_stage1_top.json
+│   │       │       │   │   ├── indian_poppy_plant_stage2.json
+│   │       │       │   │   ├── indian_poppy_plant_stage2_top.json
+│   │       │       │   │   ├── indian_poppy_plant_stage3.json
+│   │       │       │   │   ├── indian_poppy_plant_stage3_top.json
+│   │       │       │   │   ├── indian_poppy_plant_stage4.json
+│   │       │       │   │   ├── indian_poppy_plant_stage4_top.json
+│   │       │       │   │   ├── indian_poppy_plant_stage5.json
+│   │       │       │   │   ├── indian_poppy_plant_stage5_top.json
+│   │       │       │   │   ├── indian_poppy_plant_stage6.json
+│   │       │       │   │   ├── indian_poppy_plant_stage6_top.json
+│   │       │       │   │   ├── indian_poppy_plant_stage7.json
+│   │       │       │   │   ├── indian_poppy_plant_stage7_top.json
 │   │       │       │   │   ├── iron_pot.json
-│   │       │       │   │   ├── klimalampe_large_cold.json
-│   │       │       │   │   ├── klimalampe_large_off.json
-│   │       │       │   │   ├── klimalampe_large_warm.json
-│   │       │       │   │   ├── klimalampe_medium_cold.json
-│   │       │       │   │   ├── klimalampe_medium_off.json
-│   │       │       │   │   ├── klimalampe_medium_warm.json
-│   │       │       │   │   ├── klimalampe_small_cold.json
-│   │       │       │   │   ├── klimalampe_small_off.json
-│   │       │       │   │   ├── klimalampe_small_warm.json
-│   │       │       │   │   ├── kochstation.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage0.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage0_top.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage1.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage1_top.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage2.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage2_top.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage3.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage3_top.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage4.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage4_top.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage5.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage5_top.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage6.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage6_top.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage7.json
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage7_top.json
-│   │       │       │   │   ├── kristallisator.json
+│   │       │       │   │   ├── climate_lamp_large_cold.json
+│   │       │       │   │   ├── climate_lamp_large_off.json
+│   │       │       │   │   ├── climate_lamp_large_warm.json
+│   │       │       │   │   ├── climate_lamp_medium_cold.json
+│   │       │       │   │   ├── climate_lamp_medium_off.json
+│   │       │       │   │   ├── climate_lamp_medium_warm.json
+│   │       │       │   │   ├── climate_lamp_small_cold.json
+│   │       │       │   │   ├── climate_lamp_small_off.json
+│   │       │       │   │   ├── climate_lamp_small_warm.json
+│   │       │       │   │   ├── cooking_station.json
+│   │       │       │   │   ├── colombian_coca_plant_stage0.json
+│   │       │       │   │   ├── colombian_coca_plant_stage0_top.json
+│   │       │       │   │   ├── colombian_coca_plant_stage1.json
+│   │       │       │   │   ├── colombian_coca_plant_stage1_top.json
+│   │       │       │   │   ├── colombian_coca_plant_stage2.json
+│   │       │       │   │   ├── colombian_coca_plant_stage2_top.json
+│   │       │       │   │   ├── colombian_coca_plant_stage3.json
+│   │       │       │   │   ├── colombian_coca_plant_stage3_top.json
+│   │       │       │   │   ├── colombian_coca_plant_stage4.json
+│   │       │       │   │   ├── colombian_coca_plant_stage4_top.json
+│   │       │       │   │   ├── colombian_coca_plant_stage5.json
+│   │       │       │   │   ├── colombian_coca_plant_stage5_top.json
+│   │       │       │   │   ├── colombian_coca_plant_stage6.json
+│   │       │       │   │   ├── colombian_coca_plant_stage6_top.json
+│   │       │       │   │   ├── colombian_coca_plant_stage7.json
+│   │       │       │   │   ├── colombian_coca_plant_stage7_top.json
+│   │       │       │   │   ├── crystallizer.json
 │   │       │       │   │   ├── large_packaging_table.json
 │   │       │       │   │   ├── medium_drying_rack.json
 │   │       │       │   │   ├── medium_extraction_vat.json
 │   │       │       │   │   ├── medium_fermentation_barrel.json
 │   │       │       │   │   ├── medium_packaging_table.json
 │   │       │       │   │   ├── medium_refinery.json
-│   │       │       │   │   ├── mikro_dosierer.json
-│   │       │       │   │   ├── opium_presse.json
+│   │       │       │   │   ├── micro_doser.json
+│   │       │       │   │   ├── opium_press.json
 │   │       │       │   │   ├── oriental_plant_stage0.json
 │   │       │       │   │   ├── oriental_plant_stage0_top.json
 │   │       │       │   │   ├── oriental_plant_stage1.json
@@ -3577,13 +3577,13 @@ ScheduleMC/
 │   │       │       │   │   ├── oriental_plant_stage7.json
 │   │       │       │   │   ├── oriental_plant_stage7_top.json
 │   │       │       │   │   ├── packaging_table_empty.json
-│   │       │       │   │   ├── perforations_presse.json
-│   │       │       │   │   ├── pillen_presse.json
+│   │       │       │   │   ├── perforation_press.json
+│   │       │       │   │   ├── pill_press.json
 │   │       │       │   │   ├── plot_info_block.json
 │   │       │       │   │   ├── premium_grow_light_slab.json
-│   │       │       │   │   ├── reaktions_kessel.json
-│   │       │       │   │   ├── reduktionskessel.json
-│   │       │       │   │   ├── ritzmaschine.json
+│   │       │       │   │   ├── reaction_kettle.json
+│   │       │       │   │   ├── reduction_kettle.json
+│   │       │       │   │   ├── scoring_machine.json
 │   │       │       │   │   ├── sink.json
 │   │       │       │   │   ├── slope.json
 │   │       │       │   │   ├── small_drying_rack.json
@@ -3592,24 +3592,24 @@ ScheduleMC/
 │   │       │       │   │   ├── small_packaging_table.json
 │   │       │       │   │   ├── small_refinery.json
 │   │       │       │   │   ├── terracotta_pot.json
-│   │       │       │   │   ├── trocknungs_ofen.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage0.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage0_top.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage1.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage1_top.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage2.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage2_top.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage3.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage3_top.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage4.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage4_top.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage5.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage5_top.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage6.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage6_top.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage7.json
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage7_top.json
-│   │       │       │   │   ├── vakuum_trockner.json
+│   │       │       │   │   ├── drying_oven.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage0.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage0_top.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage1.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage1_top.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage2.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage2_top.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage3.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage3_top.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage4.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage4_top.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage5.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage5_top.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage6.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage6_top.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage7.json
+│   │       │       │   │   ├── turkish_poppy_plant_stage7_top.json
+│   │       │       │   │   ├── vacuum_dryer.json
 │   │       │       │   │   ├── virginia_plant_stage0.json
 │   │       │       │   │   ├── virginia_plant_stage0_top.json
 │   │       │       │   │   ├── virginia_plant_stage1.json
@@ -3627,8 +3627,8 @@ ScheduleMC/
 │   │       │       │   │   ├── virginia_plant_stage7.json
 │   │       │       │   │   ├── virginia_plant_stage7_top.json
 │   │       │       │   │   ├── warehouse.json
-│   │       │       │   │   ├── wassertank.json
-│   │       │       │   │   └── werkstatt.json
+│   │       │       │   │   ├── water_tank.json
+│   │       │       │   │   └── workshop.json
 │   │       │       │   ├── entity
 │   │       │       │   │   ├── big_wheel.mtl
 │   │       │       │   │   ├── big_wheel.obj
@@ -3672,14 +3672,14 @@ ScheduleMC/
 │   │       │       │       ├── burley_seeds.json
 │   │       │       │       ├── camembert_wedge.json
 │   │       │       │       ├── camembert_wheel.json
-│   │       │       │       ├── cannabis_curing_glas.json
+│   │       │       │       ├── cannabis_curing_jar.json
 │   │       │       │       ├── cannabis_hash.json
-│   │       │       │       ├── cannabis_hash_presse.json
-│   │       │       │       ├── cannabis_oel_extraktor.json
+│   │       │       │       ├── cannabis_hash_press.json
+│   │       │       │       ├── cannabis_oil_extractor.json
 │   │       │       │       ├── cannabis_oil.json
 │   │       │       │       ├── cannabis_seed.json
 │   │       │       │       ├── cannabis_trim.json
-│   │       │       │       ├── cannabis_trimm_station.json
+│   │       │       │       ├── cannabis_trim_station.json
 │   │       │       │       ├── cannabis_trocknungsnetz.json
 │   │       │       │       ├── cargo_module.json
 │   │       │       │       ├── cash.json
@@ -3689,7 +3689,7 @@ ScheduleMC/
 │   │       │       │       ├── cheese_curd.json
 │   │       │       │       ├── cheese_wedge.json
 │   │       │       │       ├── cheese_wheel.json
-│   │       │       │       ├── chemie_mixer.json
+│   │       │       │       ├── chemical_mixer.json
 │   │       │       │       ├── chocolate_bar_100g.json
 │   │       │       │       ├── chocolate_bar_200g.json
 │   │       │       │       ├── chocolate_bar_500g.json
@@ -3698,10 +3698,10 @@ ScheduleMC/
 │   │       │       │       ├── coffee_package_1kg.json
 │   │       │       │       ├── coffee_package_250g.json
 │   │       │       │       ├── coffee_package_500g.json
-│   │       │       │       ├── crack_kocher.json
+│   │       │       │       ├── crack_cooker.json
 │   │       │       │       ├── crack_rock.json
 │   │       │       │       ├── cured_cannabis_bud.json
-│   │       │       │       ├── destillations_apparat.json
+│   │       │       │       ├── distillation_apparatus.json
 │   │       │       │       ├── diesel_bucket.json
 │   │       │       │       ├── diesel_canister.json
 │   │       │       │       ├── dried_azurescens.json
@@ -3725,7 +3725,7 @@ ScheduleMC/
 │   │       │       │       ├── fender_chrome.json
 │   │       │       │       ├── fender_sport.json
 │   │       │       │       ├── fermentation_barrel.json
-│   │       │       │       ├── fermentations_tank.json
+│   │       │       │       ├── fermentation_tank.json
 │   │       │       │       ├── fermented_burley_leaf.json
 │   │       │       │       ├── fermented_havana_leaf.json
 │   │       │       │       ├── fermented_oriental_leaf.json
@@ -3755,7 +3755,7 @@ ScheduleMC/
 │   │       │       │       ├── heavyduty_tire.json
 │   │       │       │       ├── herb_cheese.json
 │   │       │       │       ├── heroin.json
-│   │       │       │       ├── heroin_raffinerie.json
+│   │       │       │       ├── heroin_refinery.json
 │   │       │       │       ├── honey_jar_1kg.json
 │   │       │       │       ├── honey_jar_250g.json
 │   │       │       │       ├── honey_jar_500g.json
@@ -3763,13 +3763,13 @@ ScheduleMC/
 │   │       │       │       ├── iron_pot.json
 │   │       │       │       ├── jod.json
 │   │       │       │       ├── key.json
-│   │       │       │       ├── klimalampe_large.json
-│   │       │       │       ├── klimalampe_medium.json
-│   │       │       │       ├── klimalampe_small.json
-│   │       │       │       ├── kochstation.json
+│   │       │       │       ├── climate_lamp_large.json
+│   │       │       │       ├── climate_lamp_medium.json
+│   │       │       │       ├── climate_lamp_small.json
+│   │       │       │       ├── cooking_station.json
 │   │       │       │       ├── kolumbianisch_coca_seeds.json
 │   │       │       │       ├── kristall_meth.json
-│   │       │       │       ├── kristallisator.json
+│   │       │       │       ├── crystallizer.json
 │   │       │       │       ├── large_packaging_table.json
 │   │       │       │       ├── license_sign.json
 │   │       │       │       ├── license_sign_mount.json
@@ -3790,7 +3790,7 @@ ScheduleMC/
 │   │       │       │       ├── merlot_grapes.json
 │   │       │       │       ├── meth.json
 │   │       │       │       ├── meth_paste.json
-│   │       │       │       ├── mikro_dosierer.json
+│   │       │       │       ├── micro_doser.json
 │   │       │       │       ├── mist_bag_large.json
 │   │       │       │       ├── mist_bag_medium.json
 │   │       │       │       ├── mist_bag_small.json
@@ -3803,7 +3803,7 @@ ScheduleMC/
 │   │       │       │       ├── npc_spawner_tool.json
 │   │       │       │       ├── offroad_chassis.json
 │   │       │       │       ├── offroad_tire.json
-│   │       │       │       ├── opium_presse.json
+│   │       │       │       ├── opium_press.json
 │   │       │       │       ├── oriental_seeds.json
 │   │       │       │       ├── packaged_drug.json
 │   │       │       │       ├── packaged_tobacco.json
@@ -3815,12 +3815,12 @@ ScheduleMC/
 │   │       │       │       ├── parmesan_wheel.json
 │   │       │       │       ├── path_staff.json
 │   │       │       │       ├── path_staff_model.json
-│   │       │       │       ├── perforations_presse.json
+│   │       │       │       ├── perforation_press.json
 │   │       │       │       ├── performance_2_motor.json
 │   │       │       │       ├── performance_motor.json
 │   │       │       │       ├── peruanisch_coca_seeds.json
 │   │       │       │       ├── pillen_farbstoff.json
-│   │       │       │       ├── pillen_presse.json
+│   │       │       │       ├── pill_press.json
 │   │       │       │       ├── plot_info_block.json
 │   │       │       │       ├── plot_selection_tool.json
 │   │       │       │       ├── pollen_press_mold.json
@@ -3830,10 +3830,10 @@ ScheduleMC/
 │   │       │       │       ├── pseudoephedrin.json
 │   │       │       │       ├── quality_booster_bottle.json
 │   │       │       │       ├── raw_opium.json
-│   │       │       │       ├── reaktions_kessel.json
-│   │       │       │       ├── reduktionskessel.json
+│   │       │       │       ├── reaction_kettle.json
+│   │       │       │       ├── reduction_kettle.json
 │   │       │       │       ├── riesling_grapes.json
-│   │       │       │       ├── ritzmaschine.json
+│   │       │       │       ├── scoring_machine.json
 │   │       │       │       ├── roasted_coffee_beans.json
 │   │       │       │       ├── roh_meth.json
 │   │       │       │       ├── roter_phosphor.json
@@ -3865,18 +3865,18 @@ ScheduleMC/
 │   │       │       │       ├── tank_50l.json
 │   │       │       │       ├── terracotta_pot.json
 │   │       │       │       ├── trimmed_cannabis_bud.json
-│   │       │       │       ├── trocknungs_ofen.json
+│   │       │       │       ├── drying_oven.json
 │   │       │       │       ├── truck.json
 │   │       │       │       ├── truck_chassis.json
 │   │       │       │       ├── tuerkisch_poppy_seeds.json
-│   │       │       │       ├── vakuum_trockner.json
+│   │       │       │       ├── vacuum_dryer.json
 │   │       │       │       ├── van.json
 │   │       │       │       ├── van_chassis.json
 │   │       │       │       ├── virginia_seeds.json
 │   │       │       │       ├── warehouse.json
-│   │       │       │       ├── wassertank.json
+│   │       │       │       ├── water_tank.json
 │   │       │       │       ├── watering_can.json
-│   │       │       │       ├── werkstatt.json
+│   │       │       │       ├── workshop.json
 │   │       │       │       ├── wine_bottle_1500ml.json
 │   │       │       │       ├── wine_bottle_375ml.json
 │   │       │       │       ├── wine_bottle_750ml.json
@@ -3918,44 +3918,44 @@ ScheduleMC/
 │   │       │       ├── textures
 │   │       │       │   ├── block
 │   │       │       │   │   ├── advanced_grow_light_slab.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage0.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage0_top.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage1.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage1_top.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage2.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage2_top.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage3.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage3_top.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage4.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage4_top.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage5.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage5_top.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage6.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage6_top.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage7.png
-│   │       │       │   │   ├── afghanisch_poppy_plant_stage7_top.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage0.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage0_top.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage1.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage1_top.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage2.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage2_top.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage3.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage3_top.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage4.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage4_top.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage5.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage5_top.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage6.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage6_top.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage7.png
+│   │       │       │   │   ├── afghan_poppy_plant_stage7_top.png
 │   │       │       │   │   ├── atm.png
 │   │       │       │   │   ├── basic_grow_light_slab.png
 │   │       │       │   │   ├── big_drying_rack.png
 │   │       │       │   │   ├── big_extraction_vat.png
 │   │       │       │   │   ├── big_fermentation_barrel.png
 │   │       │       │   │   ├── big_refinery.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage0.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage0_top.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage1.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage1_top.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage2.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage2_top.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage3.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage3_top.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage4.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage4_top.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage5.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage5_top.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage6.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage6_top.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage7.png
-│   │       │       │   │   ├── bolivianisch_coca_plant_stage7_top.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage0.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage0_top.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage1.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage1_top.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage2.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage2_top.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage3.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage3_top.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage4.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage4_top.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage5.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage5_top.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage6.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage6_top.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage7.png
+│   │       │       │   │   ├── bolivian_coca_plant_stage7_top.png
 │   │       │       │   │   ├── burley_plant_stage0.png
 │   │       │       │   │   ├── burley_plant_stage0_top.png
 │   │       │       │   │   ├── burley_plant_stage1.png
@@ -3988,8 +3988,8 @@ ScheduleMC/
 │   │       │       │   │   ├── cannabis_autoflower_plant_stage6_top.png
 │   │       │       │   │   ├── cannabis_autoflower_plant_stage7.png
 │   │       │       │   │   ├── cannabis_autoflower_plant_stage7_top.png
-│   │       │       │   │   ├── cannabis_curing_glas.png
-│   │       │       │   │   ├── cannabis_hash_presse.png
+│   │       │       │   │   ├── cannabis_curing_jar.png
+│   │       │       │   │   ├── cannabis_hash_press.png
 │   │       │       │   │   ├── cannabis_hybrid_plant_stage0.png
 │   │       │       │   │   ├── cannabis_hybrid_plant_stage0_top.png
 │   │       │       │   │   ├── cannabis_hybrid_plant_stage1.png
@@ -4022,7 +4022,7 @@ ScheduleMC/
 │   │       │       │   │   ├── cannabis_indica_plant_stage6_top.png
 │   │       │       │   │   ├── cannabis_indica_plant_stage7.png
 │   │       │       │   │   ├── cannabis_indica_plant_stage7_top.png
-│   │       │       │   │   ├── cannabis_oel_extraktor.png
+│   │       │       │   │   ├── cannabis_oil_extractor.png
 │   │       │       │   │   ├── cannabis_sativa_plant_stage0.png
 │   │       │       │   │   ├── cannabis_sativa_plant_stage0_top.png
 │   │       │       │   │   ├── cannabis_sativa_plant_stage1.png
@@ -4039,20 +4039,20 @@ ScheduleMC/
 │   │       │       │   │   ├── cannabis_sativa_plant_stage6_top.png
 │   │       │       │   │   ├── cannabis_sativa_plant_stage7.png
 │   │       │       │   │   ├── cannabis_sativa_plant_stage7_top.png
-│   │       │       │   │   ├── cannabis_trimm_station.png
+│   │       │       │   │   ├── cannabis_trim_station.png
 │   │       │       │   │   ├── cannabis_trocknungsnetz.png
 │   │       │       │   │   ├── cash_block.png
 │   │       │       │   │   ├── ceramic_pot.png
-│   │       │       │   │   ├── chemie_mixer.png
-│   │       │       │   │   ├── crack_kocher.png
-│   │       │       │   │   ├── destillations_apparat.png
+│   │       │       │   │   ├── chemical_mixer.png
+│   │       │       │   │   ├── crack_cooker.png
+│   │       │       │   │   ├── distillation_apparatus.png
 │   │       │       │   │   ├── diesel.png
 │   │       │       │   │   ├── diesel_flowing.png
 │   │       │       │   │   ├── diesel_flowing.png.mcmeta
 │   │       │       │   │   ├── diesel_still.png
 │   │       │       │   │   ├── diesel_still.png.mcmeta
 │   │       │       │   │   ├── fermentation_barrel.png
-│   │       │       │   │   ├── fermentations_tank.png
+│   │       │       │   │   ├── fermentation_tank.png
 │   │       │       │   │   ├── fuel_station.png
 │   │       │       │   │   ├── fuel_station_arms.png
 │   │       │       │   │   ├── fuel_station_base_north_south.png
@@ -4078,59 +4078,59 @@ ScheduleMC/
 │   │       │       │   │   ├── havana_plant_stage6_top.png
 │   │       │       │   │   ├── havana_plant_stage7.png
 │   │       │       │   │   ├── havana_plant_stage7_top.png
-│   │       │       │   │   ├── heroin_raffinerie.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage0.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage0_top.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage1.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage1_top.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage2.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage2_top.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage3.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage3_top.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage4.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage4_top.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage5.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage5_top.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage6.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage6_top.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage7.png
-│   │       │       │   │   ├── indisch_poppy_plant_stage7_top.png
+│   │       │       │   │   ├── heroin_refinery.png
+│   │       │       │   │   ├── indian_poppy_plant_stage0.png
+│   │       │       │   │   ├── indian_poppy_plant_stage0_top.png
+│   │       │       │   │   ├── indian_poppy_plant_stage1.png
+│   │       │       │   │   ├── indian_poppy_plant_stage1_top.png
+│   │       │       │   │   ├── indian_poppy_plant_stage2.png
+│   │       │       │   │   ├── indian_poppy_plant_stage2_top.png
+│   │       │       │   │   ├── indian_poppy_plant_stage3.png
+│   │       │       │   │   ├── indian_poppy_plant_stage3_top.png
+│   │       │       │   │   ├── indian_poppy_plant_stage4.png
+│   │       │       │   │   ├── indian_poppy_plant_stage4_top.png
+│   │       │       │   │   ├── indian_poppy_plant_stage5.png
+│   │       │       │   │   ├── indian_poppy_plant_stage5_top.png
+│   │       │       │   │   ├── indian_poppy_plant_stage6.png
+│   │       │       │   │   ├── indian_poppy_plant_stage6_top.png
+│   │       │       │   │   ├── indian_poppy_plant_stage7.png
+│   │       │       │   │   ├── indian_poppy_plant_stage7_top.png
 │   │       │       │   │   ├── iron_pot.png
-│   │       │       │   │   ├── klimalampe_large_cold.png
-│   │       │       │   │   ├── klimalampe_large_off.png
-│   │       │       │   │   ├── klimalampe_large_warm.png
-│   │       │       │   │   ├── klimalampe_medium_cold.png
-│   │       │       │   │   ├── klimalampe_medium_off.png
-│   │       │       │   │   ├── klimalampe_medium_warm.png
-│   │       │       │   │   ├── klimalampe_small_cold.png
-│   │       │       │   │   ├── klimalampe_small_off.png
-│   │       │       │   │   ├── klimalampe_small_warm.png
-│   │       │       │   │   ├── kochstation.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage0.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage0_top.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage1.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage1_top.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage2.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage2_top.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage3.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage3_top.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage4.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage4_top.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage5.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage5_top.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage6.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage6_top.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage7.png
-│   │       │       │   │   ├── kolumbianisch_coca_plant_stage7_top.png
-│   │       │       │   │   ├── kristallisator.png
+│   │       │       │   │   ├── climate_lamp_large_cold.png
+│   │       │       │   │   ├── climate_lamp_large_off.png
+│   │       │       │   │   ├── climate_lamp_large_warm.png
+│   │       │       │   │   ├── climate_lamp_medium_cold.png
+│   │       │       │   │   ├── climate_lamp_medium_off.png
+│   │       │       │   │   ├── climate_lamp_medium_warm.png
+│   │       │       │   │   ├── climate_lamp_small_cold.png
+│   │       │       │   │   ├── climate_lamp_small_off.png
+│   │       │       │   │   ├── climate_lamp_small_warm.png
+│   │       │       │   │   ├── cooking_station.png
+│   │       │       │   │   ├── colombian_coca_plant_stage0.png
+│   │       │       │   │   ├── colombian_coca_plant_stage0_top.png
+│   │       │       │   │   ├── colombian_coca_plant_stage1.png
+│   │       │       │   │   ├── colombian_coca_plant_stage1_top.png
+│   │       │       │   │   ├── colombian_coca_plant_stage2.png
+│   │       │       │   │   ├── colombian_coca_plant_stage2_top.png
+│   │       │       │   │   ├── colombian_coca_plant_stage3.png
+│   │       │       │   │   ├── colombian_coca_plant_stage3_top.png
+│   │       │       │   │   ├── colombian_coca_plant_stage4.png
+│   │       │       │   │   ├── colombian_coca_plant_stage4_top.png
+│   │       │       │   │   ├── colombian_coca_plant_stage5.png
+│   │       │       │   │   ├── colombian_coca_plant_stage5_top.png
+│   │       │       │   │   ├── colombian_coca_plant_stage6.png
+│   │       │       │   │   ├── colombian_coca_plant_stage6_top.png
+│   │       │       │   │   ├── colombian_coca_plant_stage7.png
+│   │       │       │   │   ├── colombian_coca_plant_stage7_top.png
+│   │       │       │   │   ├── crystallizer.png
 │   │       │       │   │   ├── large_packaging_table.png
 │   │       │       │   │   ├── medium_drying_rack.png
 │   │       │       │   │   ├── medium_extraction_vat.png
 │   │       │       │   │   ├── medium_fermentation_barrel.png
 │   │       │       │   │   ├── medium_packaging_table.png
 │   │       │       │   │   ├── medium_refinery.png
-│   │       │       │   │   ├── mikro_dosierer.png
-│   │       │       │   │   ├── opium_presse.png
+│   │       │       │   │   ├── micro_doser.png
+│   │       │       │   │   ├── opium_press.png
 │   │       │       │   │   ├── oriental_plant_stage0.png
 │   │       │       │   │   ├── oriental_plant_stage0_top.png
 │   │       │       │   │   ├── oriental_plant_stage1.png
@@ -4147,13 +4147,13 @@ ScheduleMC/
 │   │       │       │   │   ├── oriental_plant_stage6_top.png
 │   │       │       │   │   ├── oriental_plant_stage7.png
 │   │       │       │   │   ├── oriental_plant_stage7_top.png
-│   │       │       │   │   ├── perforations_presse.png
-│   │       │       │   │   ├── pillen_presse.png
+│   │       │       │   │   ├── perforation_press.png
+│   │       │       │   │   ├── pill_press.png
 │   │       │       │   │   ├── plot_info_block.png
 │   │       │       │   │   ├── premium_grow_light_slab.png
-│   │       │       │   │   ├── reaktions_kessel.png
-│   │       │       │   │   ├── reduktionskessel.png
-│   │       │       │   │   ├── ritzmaschine.png
+│   │       │       │   │   ├── reaction_kettle.png
+│   │       │       │   │   ├── reduction_kettle.png
+│   │       │       │   │   ├── scoring_machine.png
 │   │       │       │   │   ├── sink.png
 │   │       │       │   │   ├── small_drying_rack.png
 │   │       │       │   │   ├── small_extraction_vat.png
@@ -4161,24 +4161,24 @@ ScheduleMC/
 │   │       │       │   │   ├── small_packaging_table.png
 │   │       │       │   │   ├── small_refinery.png
 │   │       │       │   │   ├── terracotta_pot.png
-│   │       │       │   │   ├── trocknungs_ofen.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage0.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage0_top.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage1.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage1_top.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage2.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage2_top.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage3.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage3_top.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage4.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage4_top.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage5.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage5_top.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage6.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage6_top.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage7.png
-│   │       │       │   │   ├── tuerkisch_poppy_plant_stage7_top.png
-│   │       │       │   │   ├── vakuum_trockner.png
+│   │       │       │   │   ├── drying_oven.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage0.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage0_top.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage1.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage1_top.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage2.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage2_top.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage3.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage3_top.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage4.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage4_top.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage5.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage5_top.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage6.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage6_top.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage7.png
+│   │       │       │   │   ├── turkish_poppy_plant_stage7_top.png
+│   │       │       │   │   ├── vacuum_dryer.png
 │   │       │       │   │   ├── virginia_plant_stage0.png
 │   │       │       │   │   ├── virginia_plant_stage0_top.png
 │   │       │       │   │   ├── virginia_plant_stage1.png
@@ -4196,8 +4196,8 @@ ScheduleMC/
 │   │       │       │   │   ├── virginia_plant_stage7.png
 │   │       │       │   │   ├── virginia_plant_stage7_top.png
 │   │       │       │   │   ├── warehouse.png
-│   │       │       │   │   ├── wassertank.png
-│   │       │       │   │   └── werkstatt.png
+│   │       │       │   │   ├── water_tank.png
+│   │       │       │   │   └── workshop.png
 │   │       │       │   ├── entity
 │   │       │       │   │   ├── npc
 │   │       │       │   │   │   └── default.png
@@ -4254,7 +4254,7 @@ ScheduleMC/
 │   │       │       │   │   ├── gui_fuel_station.png
 │   │       │       │   │   ├── gui_generator.png
 │   │       │       │   │   ├── gui_vehicle.png
-│   │       │       │   │   ├── gui_werkstatt.png
+│   │       │       │   │   ├── gui_workshop.png
 │   │       │       │   │   ├── merchant_shop.png
 │   │       │       │   │   ├── npc_interaction.png
 │   │       │       │   │   ├── npc_spawner.png
@@ -4277,17 +4277,17 @@ ScheduleMC/
 │   │       │       │   │   ├── burley_seeds.png
 │   │       │       │   │   ├── camembert_wedge.png
 │   │       │       │   │   ├── camembert_wheel.png
-│   │       │       │   │   ├── cannabis_curing_glas.png
+│   │       │       │   │   ├── cannabis_curing_jar.png
 │   │       │       │   │   ├── cannabis_hash.png
-│   │       │       │   │   ├── cannabis_hash_presse.png
-│   │       │       │   │   ├── cannabis_oel_extraktor.png
+│   │       │       │   │   ├── cannabis_hash_press.png
+│   │       │       │   │   ├── cannabis_oil_extractor.png
 │   │       │       │   │   ├── cannabis_oil.png
 │   │       │       │   │   ├── cannabis_seed_autoflower.png
 │   │       │       │   │   ├── cannabis_seed_hybrid.png
 │   │       │       │   │   ├── cannabis_seed_indica.png
 │   │       │       │   │   ├── cannabis_seed_sativa.png
 │   │       │       │   │   ├── cannabis_trim.png
-│   │       │       │   │   ├── cannabis_trimm_station.png
+│   │       │       │   │   ├── cannabis_trim_station.png
 │   │       │       │   │   ├── cannabis_trocknungsnetz.png
 │   │       │       │   │   ├── cargo_module.png
 │   │       │       │   │   ├── cash.png
@@ -4297,7 +4297,7 @@ ScheduleMC/
 │   │       │       │   │   ├── cheese_curd.png
 │   │       │       │   │   ├── cheese_wedge.png
 │   │       │       │   │   ├── cheese_wheel.png
-│   │       │       │   │   ├── chemie_mixer.png
+│   │       │       │   │   ├── chemical_mixer.png
 │   │       │       │   │   ├── chocolate_bar_100g.png
 │   │       │       │   │   ├── chocolate_bar_200g.png
 │   │       │       │   │   ├── chocolate_bar_500g.png
@@ -4308,7 +4308,7 @@ ScheduleMC/
 │   │       │       │   │   ├── coffee_package_500g.png
 │   │       │       │   │   ├── crack_rock.png
 │   │       │       │   │   ├── cured_cannabis_bud.png
-│   │       │       │   │   ├── destillations_apparat.png
+│   │       │       │   │   ├── distillation_apparatus.png
 │   │       │       │   │   ├── diesel_bucket.png
 │   │       │       │   │   ├── diesel_canister.png
 │   │       │       │   │   ├── dried_azurescens.png
@@ -4331,7 +4331,7 @@ ScheduleMC/
 │   │       │       │   │   ├── fender_chrome.png
 │   │       │       │   │   ├── fender_sport.png
 │   │       │       │   │   ├── fermentation_barrel.png
-│   │       │       │   │   ├── fermentations_tank.png
+│   │       │       │   │   ├── fermentation_tank.png
 │   │       │       │   │   ├── fermented_burley_leaf.png
 │   │       │       │   │   ├── fermented_havana_leaf.png
 │   │       │       │   │   ├── fermented_oriental_leaf.png
@@ -4359,7 +4359,7 @@ ScheduleMC/
 │   │       │       │   │   ├── heavyduty_tire.png
 │   │       │       │   │   ├── herb_cheese.png
 │   │       │       │   │   ├── heroin.png
-│   │       │       │   │   ├── heroin_raffinerie.png
+│   │       │       │   │   ├── heroin_refinery.png
 │   │       │       │   │   ├── honey_jar_1kg.png
 │   │       │       │   │   ├── honey_jar_250g.png
 │   │       │       │   │   ├── honey_jar_500g.png
@@ -4367,12 +4367,12 @@ ScheduleMC/
 │   │       │       │   │   ├── iron_pot.png
 │   │       │       │   │   ├── jod.png
 │   │       │       │   │   ├── key.png
-│   │       │       │   │   ├── klimalampe_large.png
-│   │       │       │   │   ├── klimalampe_medium.png
-│   │       │       │   │   ├── klimalampe_small.png
-│   │       │       │   │   ├── kochstation.png
+│   │       │       │   │   ├── climate_lamp_large.png
+│   │       │       │   │   ├── climate_lamp_medium.png
+│   │       │       │   │   ├── climate_lamp_small.png
+│   │       │       │   │   ├── cooking_station.png
 │   │       │       │   │   ├── kolumbianisch_coca_seeds.png
-│   │       │       │   │   ├── kristallisator.png
+│   │       │       │   │   ├── crystallizer.png
 │   │       │       │   │   ├── large_packaging_table.png
 │   │       │       │   │   ├── license_sign.png
 │   │       │       │   │   ├── license_sign_mount.png
@@ -4391,7 +4391,7 @@ ScheduleMC/
 │   │       │       │   │   ├── merlot_grapes.png
 │   │       │       │   │   ├── meth.png
 │   │       │       │   │   ├── meth_paste.png
-│   │       │       │   │   ├── mikro_dosierer.png
+│   │       │       │   │   ├── micro_doser.png
 │   │       │       │   │   ├── mist_bag_large.png
 │   │       │       │   │   ├── mist_bag_medium.png
 │   │       │       │   │   ├── mist_bag_small.png
@@ -4404,7 +4404,7 @@ ScheduleMC/
 │   │       │       │   │   ├── npc_spawner_tool.png
 │   │       │       │   │   ├── offroad_chassis.png
 │   │       │       │   │   ├── offroad_tire.png
-│   │       │       │   │   ├── opium_presse.png
+│   │       │       │   │   ├── opium_press.png
 │   │       │       │   │   ├── oriental_seeds.png
 │   │       │       │   │   ├── packaging_bag.png
 │   │       │       │   │   ├── packaging_box.png
@@ -4412,12 +4412,12 @@ ScheduleMC/
 │   │       │       │   │   ├── parmesan_wedge.png
 │   │       │       │   │   ├── parmesan_wheel.png
 │   │       │       │   │   ├── path_staff.png
-│   │       │       │   │   ├── perforations_presse.png
+│   │       │       │   │   ├── perforation_press.png
 │   │       │       │   │   ├── performance_2_motor.png
 │   │       │       │   │   ├── performance_motor.png
 │   │       │       │   │   ├── peruanisch_coca_seeds.png
 │   │       │       │   │   ├── pillen_farbstoff.png
-│   │       │       │   │   ├── pillen_presse.png
+│   │       │       │   │   ├── pill_press.png
 │   │       │       │   │   ├── plot_info_block.png
 │   │       │       │   │   ├── plot_selection_tool.png
 │   │       │       │   │   ├── pollen_press_mold.png
@@ -4428,10 +4428,10 @@ ScheduleMC/
 │   │       │       │   │   ├── quality_booster_bottle.png
 │   │       │       │   │   ├── quality_frame.png
 │   │       │       │   │   ├── raw_opium.png
-│   │       │       │   │   ├── reaktions_kessel.png
-│   │       │       │   │   ├── reduktionskessel.png
+│   │       │       │   │   ├── reaction_kettle.png
+│   │       │       │   │   ├── reduction_kettle.png
 │   │       │       │   │   ├── riesling_grapes.png
-│   │       │       │   │   ├── ritzmaschine.png
+│   │       │       │   │   ├── scoring_machine.png
 │   │       │       │   │   ├── roasted_coffee_beans.png
 │   │       │       │   │   ├── roh_meth.png
 │   │       │       │   │   ├── roter_phosphor.png
@@ -4461,16 +4461,16 @@ ScheduleMC/
 │   │       │       │   │   ├── tank_50l.png
 │   │       │       │   │   ├── terracotta_pot.png
 │   │       │       │   │   ├── trimmed_cannabis_bud.png
-│   │       │       │   │   ├── trocknungs_ofen.png
+│   │       │       │   │   ├── drying_oven.png
 │   │       │       │   │   ├── truck.png
 │   │       │       │   │   ├── truck_chassis.png
 │   │       │       │   │   ├── tuerkisch_poppy_seeds.png
-│   │       │       │   │   ├── vakuum_trockner.png
+│   │       │       │   │   ├── vacuum_dryer.png
 │   │       │       │   │   ├── van.png
 │   │       │       │   │   ├── van_chassis.png
 │   │       │       │   │   ├── virginia_seeds.png
 │   │       │       │   │   ├── warehouse.png
-│   │       │       │   │   ├── wassertank.png
+│   │       │       │   │   ├── water_tank.png
 │   │       │       │   │   ├── watering_can.png
 │   │       │       │   │   ├── wine_bottle_1500ml.png
 │   │       │       │   │   ├── wine_bottle_375ml.png

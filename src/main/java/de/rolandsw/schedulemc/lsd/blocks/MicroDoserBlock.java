@@ -89,15 +89,15 @@ public class MicroDoserBlock extends Block implements EntityBlock {
             }
 
             // Status
-            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.mikro_dosierer.title")
+            net.minecraft.network.chat.MutableComponent message = Component.translatable("block.micro_doser.title")
                     .append(Component.literal("\n"))
                     .append(Component.translatable("block.lsd.mikro_count", dosierer.getLysergsaeureCount()))
                     .append(Component.literal("\n"))
-                    .append(Component.translatable("block.mikro_dosierer.dosage", dosierer.getCurrentMicrograms()))
+                    .append(Component.translatable("block.micro_doser.dosage", dosierer.getCurrentMicrograms()))
                     .append(Component.literal("\n"));
 
             if (dosierer.isProcessing()) {
-                message = message.append(Component.translatable("block.mikro_dosierer.progress", (int)(dosierer.getProgress() * 100)));
+                message = message.append(Component.translatable("block.micro_doser.progress", (int)(dosierer.getProgress() * 100)));
             }
 
             player.displayClientMessage(message, true);
@@ -113,7 +113,7 @@ public class MicroDoserBlock extends Block implements EntityBlock {
         NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
             @Override
             public Component getDisplayName() {
-                return Component.translatable("block.mikro_dosierer.display_name");
+                return Component.translatable("block.micro_doser.display_name");
             }
 
             @Override

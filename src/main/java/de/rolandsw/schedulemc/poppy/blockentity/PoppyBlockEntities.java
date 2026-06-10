@@ -16,22 +16,22 @@ public class PoppyBlockEntities {
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ScheduleMC.MOD_ID);
 
     public static final RegistryObject<BlockEntityType<ScoringMachineBlockEntity>> SCORING_MACHINE =
-            BLOCK_ENTITIES.register("ritzmaschine",
+            BLOCK_ENTITIES.register("scoring_machine",
                     () -> BlockEntityType.Builder.of(ScoringMachineBlockEntity::new,
                             PoppyBlocks.SCORING_MACHINE.get()).build(null));
 
     public static final RegistryObject<BlockEntityType<OpiumPressBlockEntity>> OPIUM_PRESS =
-            BLOCK_ENTITIES.register("opium_presse",
+            BLOCK_ENTITIES.register("opium_press",
                     () -> BlockEntityType.Builder.of(OpiumPressBlockEntity::new,
                             PoppyBlocks.OPIUM_PRESS.get()).build(null));
 
     public static final RegistryObject<BlockEntityType<CookingStationBlockEntity>> COOKING_STATION =
-            BLOCK_ENTITIES.register("kochstation",
+            BLOCK_ENTITIES.register("cooking_station",
                     () -> BlockEntityType.Builder.of(CookingStationBlockEntity::new,
                             PoppyBlocks.COOKING_STATION.get()).build(null));
 
     public static final RegistryObject<BlockEntityType<HeroinRefineryBlockEntity>> HEROIN_REFINERY =
-            BLOCK_ENTITIES.register("heroin_raffinerie",
+            BLOCK_ENTITIES.register("heroin_refinery",
                     () -> BlockEntityType.Builder.of(HeroinRefineryBlockEntity::new,
                             PoppyBlocks.HEROIN_REFINERY.get()).build(null));
 }
