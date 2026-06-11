@@ -101,25 +101,19 @@ public class StealingAttemptPacket {
                                 // Performance-Optimierung: Sync nur Wallet statt Full NPC Data
                                 npc.syncWalletToClient();
 
-                                // Geld zum Wallet hinzufügen (WalletManager)
-                                ItemStack walletItem = player.getInventory().getItem(8);
-                                if (walletItem.getItem() instanceof CashItem) {
-                                    double previousValue = de.rolandsw.schedulemc.economy.WalletManager.getBalance(player.getUUID());
-                                    if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("[STEALING] Wallet vorher: {}€", previousValue);
-                                    }
+                                // Geld zum Wallet hinzufügen (WalletManager) — unabhängig davon,
+                                // wo das Wallet-Item liegt: das Guthaben ist UUID-basiert
+                                de.rolandsw.schedulemc.economy.WalletManager.addMoney(player.getUUID(), stolenMoney);
+                                de.rolandsw.schedulemc.economy.WalletManager.save();
 
-                                    // Füge Geld im WalletManager hinzu
-                                    de.rolandsw.schedulemc.economy.WalletManager.addMoney(player.getUUID(), stolenMoney);
-                                    de.rolandsw.schedulemc.economy.WalletManager.save();
-
-                                    double newValue = de.rolandsw.schedulemc.economy.WalletManager.getBalance(player.getUUID());
-                                    if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("[STEALING] Wallet nachher: {}€", newValue);
-                                    }
-                                } else {
-                                    LOGGER.warn("[STEALING] WARNUNG: Kein Wallet-Item in Slot 8!");
-                                }
+                                // Client sofort synchronisieren, damit das gestohlene Geld
+                                // direkt in der Geldbörse sichtbar ist
+                                double newWalletBalance = de.rolandsw.schedulemc.economy.WalletManager.getBalance(player.getUUID());
+                                double bankBalance = de.rolandsw.schedulemc.economy.EconomyManager.getBalance(player.getUUID());
+                                de.rolandsw.schedulemc.economy.network.EconomyNetworkHandler.INSTANCE.send(
+                                    net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
+                                    new de.rolandsw.schedulemc.economy.network.SyncATMDataPacket(bankBalance, newWalletBalance, true, "")
+                                );
                             }
                         }
                     } else if (stealType == 1) {

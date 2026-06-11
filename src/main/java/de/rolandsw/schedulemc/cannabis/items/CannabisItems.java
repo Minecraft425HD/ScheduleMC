@@ -20,16 +20,16 @@ public class CannabisItems {
 
     // Verarbeitungsstufen
     public static final RegistryObject<Item> FRESH_BUD = ITEMS.register("fresh_cannabis_bud",
-            () -> new FreshBudItem(new Item.Properties().stacksTo(16)));
+            () -> new FreshBudItem(new Item.Properties().stacksTo(20)));
 
     public static final RegistryObject<Item> DRIED_BUD = ITEMS.register("dried_cannabis_bud",
-            () -> new DriedBudItem(new Item.Properties().stacksTo(16)));
+            () -> new DriedBudItem(new Item.Properties().stacksTo(20)));
 
     public static final RegistryObject<Item> TRIMMED_BUD = ITEMS.register("trimmed_cannabis_bud",
-            () -> new TrimmedBudItem(new Item.Properties().stacksTo(16)));
+            () -> new TrimmedBudItem(new Item.Properties().stacksTo(20)));
 
     public static final RegistryObject<Item> CURED_BUD = ITEMS.register("cured_cannabis_bud",
-            () -> new CuredBudItem(new Item.Properties().stacksTo(16)));
+            () -> new CuredBudItem(new Item.Properties().stacksTo(20)));
 
     // Nebenprodukte
     public static final RegistryObject<Item> TRIM = ITEMS.register("cannabis_trim",
@@ -37,15 +37,12 @@ public class CannabisItems {
 
     // Konzentrate
     public static final RegistryObject<Item> HASH = ITEMS.register("cannabis_hash",
-            () -> new HashItem(new Item.Properties().stacksTo(16)));
+            () -> new HashItem(new Item.Properties().stacksTo(20)));
 
     public static final RegistryObject<Item> CANNABIS_OIL = ITEMS.register("cannabis_oil",
-            () -> new CannabisOilItem(new Item.Properties().stacksTo(16)));
+            () -> new CannabisOilItem(new Item.Properties().stacksTo(20)));
 
-    // Zusätzliche Items für Verarbeitung
-    public static final RegistryObject<Item> POLLEN_PRESS_MOLD = ITEMS.register("pollen_press_mold",
-            () -> new Item(new Item.Properties().stacksTo(1).durability(100)));
 
     public static final RegistryObject<Item> EXTRACTION_SOLVENT = ITEMS.register("extraction_solvent",
-            () -> new Item(new Item.Properties().stacksTo(16)));
+            () -> new Item(new Item.Properties().stacksTo(20)));
 }
