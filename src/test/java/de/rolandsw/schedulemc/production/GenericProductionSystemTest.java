@@ -75,12 +75,12 @@ public class GenericProductionSystemTest {
         assertEquals(4, tiers.length, "Should have 4 tiers");
 
         // Tier 0: Schlecht
-        assertEquals("Schlecht", tiers[0].getDisplayName());
+        assertEquals("enum.generic_quality.poor", tiers[0].getDisplayName());
         assertEquals(0, tiers[0].getLevel());
         assertEquals(0.7, tiers[0].getPriceMultiplier(), 0.01);
 
         // Tier 3: Legendär
-        assertEquals("Legendär", tiers[3].getDisplayName());
+        assertEquals("enum.generic_quality.legendary", tiers[3].getDisplayName());
         assertEquals(3, tiers[3].getLevel());
         assertEquals(2.5, tiers[3].getPriceMultiplier(), 0.01);
     }
@@ -94,11 +94,11 @@ public class GenericProductionSystemTest {
         assertEquals(5, tiers.length, "Should have 5 tiers");
 
         // Tier 0: Schwag
-        assertEquals("Schwag", tiers[0].getDisplayName());
+        assertEquals("enum.generic_quality.schwag", tiers[0].getDisplayName());
         assertEquals(0.5, tiers[0].getPriceMultiplier(), 0.01);
 
         // Tier 4: Exotic
-        assertEquals("Exotic", tiers[4].getDisplayName());
+        assertEquals("enum.generic_quality.exotic", tiers[4].getDisplayName());
         assertEquals(5.0, tiers[4].getPriceMultiplier(), 0.01);
     }
 

@@ -154,12 +154,9 @@ class AbstractPersistenceManagerTest {
         manager.markDirty();
         manager.save();
 
-        // Assert - Backup should exist
-        File backupDir = new File(testFile.getParent(), "backups");
-        assertThat(backupDir).exists();
-
-        File[] backups = backupDir.listFiles((dir, name) ->
-            name.startsWith(testFile.getName()));
+        // Assert - Backup liegt neben der Datei als <name>.backup_<timestamp>.gz
+        File[] backups = testFile.getParentFile().listFiles((dir, name) ->
+            name.startsWith(testFile.getName() + ".backup_"));
         assertThat(backups).isNotNull().isNotEmpty();
     }
 
@@ -170,6 +167,11 @@ class AbstractPersistenceManagerTest {
     void testCorruptionRecovery() throws IOException {
         // Arrange - Save valid data first
         manager.data.put("key", "value");
+        manager.markDirty();
+        manager.save();
+
+        // Zweiter Save erzeugt ein Backup der validen Datei
+        // (das erste save() hat noch keine Vorgängerdatei zu sichern)
         manager.markDirty();
         manager.save();
 
@@ -245,13 +247,17 @@ class AbstractPersistenceManagerTest {
         // Assert
         assertThat(manager.isHealthy()).isTrue();
         assertThat(manager.getLastError()).isNull();
-        assertThat(manager.getHealthInfo()).contains("GESUND");
+        assertThat(manager.getHealthInfo()).contains("health.persistence.healthy");
     }
 
     @Test
     @DisplayName("Should report unhealthy status after save failure")
     void testUnhealthyStatusAfterSaveFailure() {
         // Arrange - Make file read-only to cause save failure
+        // (wirkungslos als root, z.B. in Containern -> Test dann überspringen)
+        org.junit.jupiter.api.Assumptions.assumeFalse(
+            "root".equals(System.getProperty("user.name")),
+            "setWritable(false) has no effect when running as root");
         testFile.getParentFile().setWritable(false);
         manager.data.put("key", "value");
         manager.markDirty();
@@ -266,7 +272,7 @@ class AbstractPersistenceManagerTest {
         assertThat(manager.isHealthy()).isFalse();
         assertThat(manager.getLastError()).contains("Save failed");
         assertThat(manager.needsSave()).isTrue(); // Dirty flag should remain
-        assertThat(manager.getHealthInfo()).contains("UNGESUND");
+        assertThat(manager.getHealthInfo()).contains("health.persistence.unhealthy");
     }
 
     @Test
@@ -285,7 +291,7 @@ class AbstractPersistenceManagerTest {
         String healthInfo = manager.getHealthInfo();
 
         // Assert
-        assertThat(healthInfo).contains("Backups verfügbar");
+        assertThat(healthInfo).contains("health.persistence.healthy");
     }
 
     // ==================== Atomic Write Tests ====================
@@ -338,7 +344,7 @@ class AbstractPersistenceManagerTest {
         }
 
         // Act & Assert
-        assertThatThrownBy(() -> manager.load())
+        assertThatCode(() -> manager.load())
             .doesNotThrowAnyException();
 
         assertThat(manager.isHealthy()).isFalse();

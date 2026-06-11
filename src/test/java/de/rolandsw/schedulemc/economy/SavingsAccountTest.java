@@ -16,6 +16,12 @@ import static org.assertj.core.api.Assertions.*;
  */
 class SavingsAccountTest {
 
+    @org.junit.jupiter.api.BeforeAll
+    static void initTestEnvironment() {
+        de.rolandsw.schedulemc.test.TestEnvironment.init();
+    }
+
+
     private UUID testPlayer;
     private SavingsAccount account;
 

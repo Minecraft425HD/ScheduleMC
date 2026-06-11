@@ -24,6 +24,12 @@ import static org.assertj.core.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class EconomyIntegrationTest {
 
+    @org.junit.jupiter.api.BeforeAll
+    static void initTestEnvironment() {
+        de.rolandsw.schedulemc.test.TestEnvironment.init();
+    }
+
+
     private static UUID player1;
     private static UUID player2;
     private static UUID player3;
@@ -121,9 +127,9 @@ class EconomyIntegrationTest {
         EconomyManager.withdraw(player1, 1000.0, TransactionType.ATM_WITHDRAW, "ATM withdrawal");
 
         // Assert - Verify all balances
-        assertThat(EconomyManager.getBalance(player1)).isEqualTo(10000.0 - 500.0 + 50.0 - 1000.0);
-        assertThat(EconomyManager.getBalance(player2)).isEqualTo(5000.0 + 500.0 - 200.0);
-        assertThat(EconomyManager.getBalance(player3)).isEqualTo(100.0 + 200.0 - 50.0);
+        assertThat(EconomyManager.getBalance(player1)).isEqualTo(EconomyManager.getStartBalance() + 10000.0 - 500.0 + 50.0 - 1000.0);
+        assertThat(EconomyManager.getBalance(player2)).isEqualTo(EconomyManager.getStartBalance() + 5000.0 + 500.0 - 200.0);
+        assertThat(EconomyManager.getBalance(player3)).isEqualTo(EconomyManager.getStartBalance() + 100.0 + 200.0 - 50.0);
     }
 
     // ==================== Scenario 4: Save and Load Persistence ====================
@@ -172,10 +178,11 @@ class EconomyIntegrationTest {
         EconomyManager.createAccount(player2);
         boolean transferSuccess = EconomyManager.transfer(player1, player2, 200.0, "Overspend");
 
-        // Assert - Both should fail, balance unchanged
-        assertThat(withdrawSuccess).isFalse();
-        assertThat(transferSuccess).isFalse();
-        assertThat(EconomyManager.getBalance(player1)).isEqualTo(balanceBefore);
+        // Assert - Dispo ist per Design unbegrenzt (siehe Config "Overdraft Settings"):
+        // beide Operationen gelingen, der Kontostand wird negativ
+        assertThat(withdrawSuccess).isTrue();
+        assertThat(transferSuccess).isTrue();
+        assertThat(EconomyManager.getBalance(player1)).isEqualTo(balanceBefore - 400.0);
     }
 
     // ==================== Scenario 6: Mass Transactions ====================
@@ -191,15 +198,14 @@ class EconomyIntegrationTest {
         // Act - 1000 small transactions
         for (int i = 0; i < 1000; i++) {
             if (i % 2 == 0) {
-                EconomyManager.deposit(player1, 10.0);
+                EconomyManager.deposit(player1, 10.0, TransactionType.ATM_DEPOSIT, "mass test");
             } else {
-                EconomyManager.withdraw(player1, 5.0);
+                EconomyManager.withdraw(player1, 5.0, TransactionType.ATM_WITHDRAW, "mass test");
             }
         }
 
         // Assert - Balance should be correct
-        double expected = 100000.0 + (500 * 10.0) - (500 * 5.0); // +5000 - 2500 = +2500
-        double startBalance = EconomyManager.getStartBalance();
+        double expected = EconomyManager.getStartBalance() + 100000.0 + (500 * 10.0) - (500 * 5.0);
         assertThat(EconomyManager.getBalance(player1)).isEqualTo(expected);
     }
 

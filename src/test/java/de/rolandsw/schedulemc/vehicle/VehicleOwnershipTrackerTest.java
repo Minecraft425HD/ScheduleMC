@@ -13,6 +13,12 @@ import static org.mockito.Mockito.when;
 
 class VehicleOwnershipTrackerTest {
 
+    @org.junit.jupiter.api.BeforeAll
+    static void initTestEnvironment() {
+        de.rolandsw.schedulemc.test.TestEnvironment.init();
+    }
+
+
     @Test
     @DisplayName("registerVehiclePurchase should increment plate number for same player")
     void registerVehiclePurchaseIncrementsForSamePlayer() {
