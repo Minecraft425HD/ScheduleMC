@@ -15,6 +15,12 @@ import static org.mockito.Mockito.*;
  */
 public class WarehouseSlotTest {
 
+    @org.junit.jupiter.api.BeforeAll
+    static void initTestEnvironment() {
+        de.rolandsw.schedulemc.test.TestEnvironment.init();
+    }
+
+
     private static final int CAPACITY = 100;
 
     private WarehouseSlot slot;

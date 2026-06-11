@@ -16,7 +16,7 @@ public class PackagingBoxItem extends Item {
 
     public PackagingBoxItem() {
         super(new Properties()
-                .stacksTo(64));
+                .stacksTo(10));
     }
 
     @Override

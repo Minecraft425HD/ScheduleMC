@@ -31,6 +31,10 @@ public class WantedLevelOverlay {
     @SubscribeEvent
     public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
         EventHelper.handleEvent(() -> {
+            // Nur einmal pro Frame zeichnen (Event feuert pro HUD-Element)
+            if (!event.getOverlay().id().equals(net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.HOTBAR.id())) {
+                return;
+            }
             Minecraft mc = Minecraft.getInstance();
             if (mc.player == null || mc.level == null) return;
 
@@ -80,8 +84,11 @@ public class WantedLevelOverlay {
                 }
                 String escapeText = cachedEscapeText;
 
-                // Fortschrittsbalken
-                float progress = (float) escapeTime / CrimeManager.BASE_ESCAPE_DURATION;
+                // Fortschrittsbalken — relativ zur tatsächlichen Versteckdauer
+                // (15s pro Stern), auf [0..1] begrenzt, damit der Balken nie
+                // über seine Breite hinausläuft
+                long totalDuration = CrimeManager.getEscapeDuration(Math.max(wantedLevel, 1));
+                float progress = Math.min(1.0f, Math.max(0.0f, (float) escapeTime / totalDuration));
                 int barWidth = 120;
                 int barHeight = 6;
 

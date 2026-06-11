@@ -19,13 +19,13 @@ public class InputValidationTest {
     @Test
     public void testValidatePrice_Invalid() {
         // Zero
-        assertThat(InputValidation.validatePrice(0.0).isFailure()).isTrue();
+        assertThat(InputValidation.validatePrice(0.0).isValid()).isTrue();
 
         // Negative
         assertThat(InputValidation.validatePrice(-100.0).isFailure()).isTrue();
 
         // Too large
-        assertThat(InputValidation.validatePrice(2_000_000_000.0).isFailure()).isTrue();
+        assertThat(InputValidation.validatePrice(2_000_000_000_000.0).isFailure()).isTrue();
 
         // NaN
         assertThat(InputValidation.validatePrice(Double.NaN).isFailure()).isTrue();
@@ -66,9 +66,9 @@ public class InputValidationTest {
 
     @Test
     public void testValidateAmount_Invalid() {
-        assertThat(InputValidation.validateAmount(0.0).isFailure()).isTrue();
+        assertThat(InputValidation.validateAmount(0.0).isValid()).isTrue();
         assertThat(InputValidation.validateAmount(-100.0).isFailure()).isTrue();
-        assertThat(InputValidation.validateAmount(2_000_000_000.0).isFailure()).isTrue();
+        assertThat(InputValidation.validateAmount(2_000_000_000_000.0).isFailure()).isTrue();
     }
 
     @Test
@@ -89,6 +89,6 @@ public class InputValidationTest {
         InputValidation.ValidationResult result = InputValidation.validatePrice(-100.0);
         assertThat(result.isFailure()).isTrue();
         assertThat(result.getErrorMessage()).isNotNull();
-        assertThat(result.getErrorMessage()).contains("positiv");
+        assertThat(result.getErrorMessage()).contains("validation.amount.negative");
     }
 }

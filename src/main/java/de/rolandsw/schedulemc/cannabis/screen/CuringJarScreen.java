@@ -96,8 +96,6 @@ public class CuringJarScreen extends AbstractContainerScreen<CuringJarMenu> {
                 x + 128, y + 19, 0xAAAAAA, false);
 
         if (!menu.hasContent() && !menu.hasOutput()) {
-            String empty = Component.translatable("gui.curing_jar.empty").getString();
-            g.drawCenteredString(font, empty, x + 88, y + 35, 0xFF888888);
             return;
         }
 

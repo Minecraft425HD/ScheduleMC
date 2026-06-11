@@ -272,7 +272,7 @@ public class AbstractDryingRackBlockEntity extends AbstractItemHandlerBlockEntit
 
         boolean changed = false;
 
-        long now = level.getDayTime();
+        long now = level.getGameTime();
         long ticksPassed = (lastGameTime < 0) ? 1L : Math.max(0L, now - lastGameTime);
         lastGameTime = now;
         if (ticksPassed == 0) return;

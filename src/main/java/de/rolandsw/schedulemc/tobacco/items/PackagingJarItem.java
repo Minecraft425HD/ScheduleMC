@@ -16,7 +16,7 @@ public class PackagingJarItem extends Item {
 
     public PackagingJarItem() {
         super(new Properties()
-                .stacksTo(64));
+                .stacksTo(10));
     }
 
     @Override

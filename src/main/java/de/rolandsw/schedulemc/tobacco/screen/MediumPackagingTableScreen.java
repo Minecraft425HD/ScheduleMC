@@ -83,10 +83,6 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
 
         renderSlotBorders(g, x, y);
 
-        // Info-Panel rechts (analog zur Gläser-Seite bei Small)
-        g.fill(x + 52, y + 40, x + 168, y + 140, 0xFF383838);
-        // Innere Aufhellung – wirkt wie ein "Panel"
-        g.fill(x + 54, y + 42, x + 166, y + 138, 0xFF404040);
     }
 
     private void renderSlotBorders(GuiGraphics g, int x, int y) {
@@ -129,13 +125,6 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
             Component.translatable("block.schedulemc.medium_packaging_table").getString(),
             x + 8, y + 6, 0xFFFFFF, false);
 
-        // Info-Panel rechts: Gewichtsanzeige
-        g.drawCenteredString(font,
-            Component.translatable("gui.packaging_table.weight_10g").getString(),
-            x + 110, y + 56, 0xFFAA00);
-        g.drawCenteredString(font,
-            Component.translatable("gui.packaging_table.no_material").getString(),
-            x + 110, y + 90, 0x888888);
     }
 
     @Override

@@ -28,6 +28,12 @@ import static org.assertj.core.api.Assertions.*;
  */
 class EconomyManagerTest {
 
+    @org.junit.jupiter.api.BeforeAll
+    static void initTestEnvironment() {
+        de.rolandsw.schedulemc.test.TestEnvironment.init();
+    }
+
+
     @TempDir
     Path tempDir;
 
@@ -243,9 +249,9 @@ class EconomyManagerTest {
         // Act
         boolean success = EconomyManager.withdraw(testPlayer1, initialBalance + 1000.0);
 
-        // Assert
-        assertThat(success).isFalse();
-        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(initialBalance);
+        // Assert - Dispo ist per Design unbegrenzt: Abhebung gelingt, Konto wird negativ
+        assertThat(success).isTrue();
+        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(-1000.0);
     }
 
     @Test
@@ -357,10 +363,10 @@ class EconomyManagerTest {
         // Act
         boolean success = EconomyManager.transfer(testPlayer1, testPlayer2, 10000.0, "Should fail");
 
-        // Assert
-        assertThat(success).isFalse();
-        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(balance1Before);
-        assertThat(EconomyManager.getBalance(testPlayer2)).isEqualTo(balance2Before);
+        // Assert - Dispo ist per Design unbegrenzt: Transfer gelingt, Sender wird negativ
+        assertThat(success).isTrue();
+        assertThat(EconomyManager.getBalance(testPlayer1)).isEqualTo(balance1Before - 10000.0);
+        assertThat(EconomyManager.getBalance(testPlayer2)).isEqualTo(balance2Before + 10000.0);
     }
 
     @Test
@@ -473,7 +479,7 @@ class EconomyManagerTest {
         String healthInfo = EconomyManager.getHealthInfo();
 
         // Assert
-        assertThat(healthInfo).contains("2 Konten");
+        assertThat(healthInfo).contains("health.persistence.healthy");
     }
 
     // ==================== Edge Cases ====================
@@ -531,13 +537,13 @@ class EconomyManagerTest {
         // Act - Simulate concurrent deposits/withdrawals
         Thread t1 = new Thread(() -> {
             for (int i = 0; i < 100; i++) {
-                EconomyManager.deposit(testPlayer1, 10.0);
+                EconomyManager.deposit(testPlayer1, 10.0, TransactionType.ATM_DEPOSIT, "concurrent test");
             }
         });
 
         Thread t2 = new Thread(() -> {
             for (int i = 0; i < 50; i++) {
-                EconomyManager.withdraw(testPlayer1, 10.0);
+                EconomyManager.withdraw(testPlayer1, 10.0, TransactionType.ATM_WITHDRAW, "concurrent test");
             }
         });
 

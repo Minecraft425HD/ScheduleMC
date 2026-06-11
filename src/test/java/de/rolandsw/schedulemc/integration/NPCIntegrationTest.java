@@ -96,7 +96,7 @@ class NPCIntegrationTest {
 
         // Assert
         assertThat(weeklyPay).isEqualTo(700.0);
-        assertThat(totalPay).isEqualTo(770.0);
+        assertThat(totalPay).isCloseTo(770.0, org.assertj.core.api.Assertions.within(1e-6));
     }
 
     // ==================== Scenario 4: Stealing Minigame ====================

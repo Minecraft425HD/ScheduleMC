@@ -13,7 +13,16 @@ import java.util.UUID;
  */
 public class LoanManagerTest {
 
+    @org.junit.jupiter.api.BeforeAll
+    static void initTestEnvironment() {
+        de.rolandsw.schedulemc.test.TestEnvironment.init();
+    }
+
+
     private LoanManager loanManager;
+    @org.junit.jupiter.api.io.TempDir
+    java.io.File tempDir;
+
     private MinecraftServer mockServer;
     private UUID testPlayer;
 
@@ -21,6 +30,8 @@ public class LoanManagerTest {
     public void setUp() {
         // Mock MinecraftServer
         mockServer = Mockito.mock(MinecraftServer.class);
+        Mockito.when(mockServer.getServerDirectory()).thenReturn(tempDir);
+        Mockito.when(mockServer.getPlayerList()).thenReturn(Mockito.mock(net.minecraft.server.players.PlayerList.class));
 
         // Create test player
         testPlayer = UUID.randomUUID();
@@ -199,8 +210,9 @@ public class LoanManagerTest {
         // Loan should still be active (not removed)
         assertThat(loanManager.hasActiveLoan(testPlayer)).isTrue();
 
-        // Remaining should be unchanged (payment failed)
-        assertThat(loan.getRemaining()).isEqualTo(remainingBefore);
+        // Dispo ist per Design unbegrenzt: Tagesrate wird auch bei niedrigem
+        // Kontostand abgebucht, der Kredit läuft weiter
+        assertThat(loan.getRemaining()).isLessThan(remainingBefore);
     }
 
     @Test
@@ -257,13 +269,10 @@ public class LoanManagerTest {
         // Try to repay loan
         boolean success = loanManager.repayLoan(testPlayer);
 
-        assertThat(success).isFalse();
-
-        // Loan should still be active
-        assertThat(loanManager.hasActiveLoan(testPlayer)).isTrue();
-
-        // Balance should be unchanged
-        assertThat(EconomyManager.getBalance(testPlayer)).isEqualTo(balanceBefore);
+        // Dispo ist per Design unbegrenzt: Rückzahlung gelingt, Konto rutscht ins Minus
+        assertThat(success).isTrue();
+        assertThat(loanManager.hasActiveLoan(testPlayer)).isFalse();
+        assertThat(EconomyManager.getBalance(testPlayer)).isLessThan(balanceBefore);
     }
 
     @Test

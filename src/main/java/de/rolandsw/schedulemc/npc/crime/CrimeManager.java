@@ -39,20 +39,19 @@ public class CrimeManager {
     public static final long BASE_ESCAPE_DURATION = 20 * 20; // 20 Sekunden in Ticks (Level 1)
     public static final double ESCAPE_DISTANCE = 40.0; // Mindestabstand zur Polizei
 
+    /** Zusätzliche Versteckzeit pro Wanted-Stern (15 Sekunden) */
+    public static final long ESCAPE_SECONDS_PER_STAR = 15;
+
     /**
      * Berechnet Fluchtdauer basierend auf Wanted-Level:
-     * Level 1: 20 Sek, Level 2: 40 Sek, Level 3: 60 Sek,
-     * Level 4: 90 Sek, Level 5: 120 Sek
+     * 15 Sekunden pro Stern (Level 1: 15s ... Level 5: 75s).
+     * Erfolgreiches Verstecken entfernt ALLE Sterne.
      */
     public static long getEscapeDuration(int wantedLevel) {
-        return switch (wantedLevel) {
-            case 1 -> 20 * 20;   // 20 Sekunden
-            case 2 -> 40 * 20;   // 40 Sekunden
-            case 3 -> 60 * 20;   // 60 Sekunden
-            case 4 -> 90 * 20;   // 90 Sekunden
-            case 5 -> 120 * 20;  // 120 Sekunden
-            default -> BASE_ESCAPE_DURATION;
-        };
+        if (wantedLevel <= 0) {
+            return BASE_ESCAPE_DURATION;
+        }
+        return wantedLevel * ESCAPE_SECONDS_PER_STAR * 20L;
     }
 
     // SICHERHEIT: ConcurrentHashMap fuer Thread-Sicherheit
@@ -264,15 +263,9 @@ public class CrimeManager {
 
         long remaining = getEscapeTimeRemaining(playerUUID, currentTick);
         if (remaining <= 0) {
-            wantedLevels.compute(playerUUID, (key, current) -> {
-                if (current == null) return null;
-                int newLevel = Math.max(0, current - 1);
-                return newLevel <= 0 ? null : newLevel;
-            });
-
-            if (!wantedLevels.containsKey(playerUUID)) {
-                lastCrimeDay.remove(playerUUID);
-            }
+            // Erfolgreich abgeschüttelt: ALLE Sterne entfernen
+            wantedLevels.remove(playerUUID);
+            lastCrimeDay.remove(playerUUID);
             markDirty();
             stopEscapeTimer(playerUUID);
             return true;

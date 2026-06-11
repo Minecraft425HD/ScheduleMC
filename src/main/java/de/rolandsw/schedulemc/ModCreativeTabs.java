@@ -250,7 +250,6 @@ public class ModCreativeTabs {
                 output.accept(CannabisItems.TRIM.get());
                 output.accept(CannabisItems.HASH.get());
                 output.accept(CannabisItems.CANNABIS_OIL.get());
-                output.accept(CannabisItems.POLLEN_PRESS_MOLD.get());
                 output.accept(CannabisItems.EXTRACTION_SOLVENT.get());
 
                 // CANNABIS - BLÖCKE

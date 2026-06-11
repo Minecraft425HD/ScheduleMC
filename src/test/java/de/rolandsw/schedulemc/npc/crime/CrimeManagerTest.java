@@ -40,42 +40,42 @@ class CrimeManagerTest {
     // ==================== getEscapeDuration() ====================
 
     @Test
-    @DisplayName("Level 1 escape duration should be 20 seconds (400 ticks)")
+    @DisplayName("Level 1 escape duration should be 15 seconds per star (300 ticks)")
     void testEscapeDuration_Level1() {
-        assertThat(CrimeManager.getEscapeDuration(1)).isEqualTo(20 * 20L);
+        assertThat(CrimeManager.getEscapeDuration(1)).isEqualTo(15 * 20L);
     }
 
     @Test
-    @DisplayName("Level 2 escape duration should be 40 seconds (800 ticks)")
+    @DisplayName("Level 2 escape duration should be 30 seconds (600 ticks)")
     void testEscapeDuration_Level2() {
-        assertThat(CrimeManager.getEscapeDuration(2)).isEqualTo(40 * 20L);
+        assertThat(CrimeManager.getEscapeDuration(2)).isEqualTo(2 * 15 * 20L);
     }
 
     @Test
-    @DisplayName("Level 3 escape duration should be 60 seconds (1200 ticks)")
+    @DisplayName("Level 3 escape duration should be 45 seconds (900 ticks)")
     void testEscapeDuration_Level3() {
-        assertThat(CrimeManager.getEscapeDuration(3)).isEqualTo(60 * 20L);
+        assertThat(CrimeManager.getEscapeDuration(3)).isEqualTo(3 * 15 * 20L);
     }
 
     @Test
-    @DisplayName("Level 4 escape duration should be 90 seconds (1800 ticks)")
+    @DisplayName("Level 4 escape duration should be 60 seconds (1200 ticks)")
     void testEscapeDuration_Level4() {
-        assertThat(CrimeManager.getEscapeDuration(4)).isEqualTo(90 * 20L);
+        assertThat(CrimeManager.getEscapeDuration(4)).isEqualTo(4 * 15 * 20L);
     }
 
     @Test
-    @DisplayName("Level 5 escape duration should be 120 seconds (2400 ticks)")
+    @DisplayName("Level 5 escape duration should be 75 seconds (1500 ticks)")
     void testEscapeDuration_Level5() {
-        assertThat(CrimeManager.getEscapeDuration(5)).isEqualTo(120 * 20L);
+        assertThat(CrimeManager.getEscapeDuration(5)).isEqualTo(5 * 15 * 20L);
     }
 
     @Test
-    @DisplayName("Unknown level escape duration should fall back to BASE_ESCAPE_DURATION")
+    @DisplayName("Levels above 0 scale with 15 seconds per star; level <= 0 falls back to BASE")
     void testEscapeDuration_UnknownLevel_ReturnsBase() {
         assertThat(CrimeManager.getEscapeDuration(0))
             .isEqualTo(CrimeManager.BASE_ESCAPE_DURATION);
         assertThat(CrimeManager.getEscapeDuration(99))
-            .isEqualTo(CrimeManager.BASE_ESCAPE_DURATION);
+            .isEqualTo(99 * 15 * 20L);
     }
 
     // ==================== getWantedLevel() ====================

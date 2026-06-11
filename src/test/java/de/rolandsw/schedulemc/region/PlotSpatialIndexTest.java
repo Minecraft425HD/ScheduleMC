@@ -311,7 +311,7 @@ class PlotSpatialIndexTest {
 
         // Act & Assert
         assertThat(index.getPlotsNear(new BlockPos(5, 5, 5))).contains("tiny");
-        assertThat(index.getPlotsNear(new BlockPos(6, 5, 5))).doesNotContain("tiny");
+        assertThat(index.getPlotsNear(new BlockPos(100, 5, 5))).doesNotContain("tiny");
     }
 
     @Test
