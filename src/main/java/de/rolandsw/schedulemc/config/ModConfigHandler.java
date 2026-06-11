@@ -428,7 +428,7 @@ public class ModConfigHandler {
                         "large_conditioning_tank", "small_cheese_press", "medium_cheese_press",
                         "large_cheese_press", "small_aging_cave", "medium_aging_cave", "large_aging_cave",
                         "beehive", "advanced_beehive", "apiary", "small_aging_chamber", "medium_aging_chamber",
-                        "large_aging_chamber", "honey_storage_barrel", "honey_display_case",
+                        "large_aging_chamber", "honey_storage_barrel",
                         "small_conching_machine", "medium_conching_machine", "large_conching_machine",
                         "small_molding_station", "medium_molding_station", "large_molding_station",
                         "chocolate_storage_cabinet",

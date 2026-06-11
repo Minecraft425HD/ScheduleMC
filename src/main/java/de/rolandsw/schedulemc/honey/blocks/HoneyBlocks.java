@@ -115,9 +115,4 @@ public class HoneyBlocks {
         () -> new Block(BlockBehaviour.Properties.copy(Blocks.BARREL)));
     public static final RegistryObject<Item> HONEY_STORAGE_BARREL_ITEM = ITEMS.register("honey_storage_barrel",
         () -> new BlockItem(HONEY_STORAGE_BARREL.get(), new Item.Properties()));
-
-    public static final RegistryObject<Block> HONEY_DISPLAY_CASE = BLOCKS.register("honey_display_case",
-        () -> new Block(BlockBehaviour.Properties.copy(Blocks.GLASS)));
-    public static final RegistryObject<Item> HONEY_DISPLAY_CASE_ITEM = ITEMS.register("honey_display_case",
-        () -> new BlockItem(HONEY_DISPLAY_CASE.get(), new Item.Properties()));
 }

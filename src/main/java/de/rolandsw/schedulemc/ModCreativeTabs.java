@@ -626,7 +626,6 @@ public class ModCreativeTabs {
                 output.accept(HoneyBlocks.CREAMING_STATION_ITEM.get());
                 output.accept(HoneyBlocks.BOTTLING_STATION_ITEM.get());
                 output.accept(HoneyBlocks.HONEY_STORAGE_BARREL_ITEM.get());
-                output.accept(HoneyBlocks.HONEY_DISPLAY_CASE_ITEM.get());
             })
             .build()
     );

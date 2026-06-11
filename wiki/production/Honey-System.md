@@ -140,7 +140,6 @@ Das Honig-System umfasst eine vollstaendige Produktionskette von der Bienenzucht
 | small/medium/large_aging_chamber | Reifungskammer (3 Groessen) |
 | bottling_station | Abfuellstation |
 | honey_storage_barrel | Honig-Lagerfass |
-| honey_display_case | Honig-Vitrine |
 
 ---
 

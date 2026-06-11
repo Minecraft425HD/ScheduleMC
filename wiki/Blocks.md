@@ -728,7 +728,6 @@ Quick Navigation:
 | Block ID | Function |
 |----------|---------|
 | `honey_storage_barrel` | Bulk honey storage |
-| `honey_display_case` | Display honey products |
 
 ---
 
