@@ -125,10 +125,6 @@ public class LargePackagingTableScreen extends AbstractContainerScreen<LargePack
             Component.translatable("block.schedulemc.large_packaging_table").getString(),
             x + 8, y + 6, 0xFFFFFF, false);
 
-        // Info-Panel rechts: Gewichtsanzeige + Hinweis auf kein Material
-        g.drawCenteredString(font,
-            Component.translatable("gui.packaging_table.weight_20g").getString(),
-            x + 110, y + 56, 0xFFAA00);
     }
 
     @Override

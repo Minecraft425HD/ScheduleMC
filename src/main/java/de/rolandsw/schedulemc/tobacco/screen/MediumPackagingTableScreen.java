@@ -125,10 +125,6 @@ public class MediumPackagingTableScreen extends AbstractContainerScreen<MediumPa
             Component.translatable("block.schedulemc.medium_packaging_table").getString(),
             x + 8, y + 6, 0xFFFFFF, false);
 
-        // Info-Panel rechts: Gewichtsanzeige
-        g.drawCenteredString(font,
-            Component.translatable("gui.packaging_table.weight_10g").getString(),
-            x + 110, y + 56, 0xFFAA00);
     }
 
     @Override
