@@ -129,9 +129,13 @@ public class NPCKnockoutHandler {
             // Entferne das Opfer aus der Zeugenliste
             witnesses.remove(npc);
 
-            if (!witnesses.isEmpty()) {
+            // Ein Polizist als OPFER ist selbst Zeuge: Angriff auf die
+            // Polizei wird immer erkannt, auch ohne weitere Zeugen
+            boolean victimIsPolice = npc.getNpcType() == NPCType.POLICE;
+
+            if (victimIsPolice || !witnesses.isEmpty()) {
                 // Prüfe ob POLICE dabei ist
-                boolean policePresent = false;
+                boolean policePresent = victimIsPolice;
                 for (CustomNPCEntity witness : witnesses) {
                     if (witness.getNpcType() == NPCType.POLICE) {
                         policePresent = true;
@@ -141,7 +145,7 @@ public class NPCKnockoutHandler {
 
                 double detectionChance;
                 if (policePresent) {
-                    // POLICE anwesend = 100% Erkennung!
+                    // POLICE anwesend (oder selbst Opfer) = 100% Erkennung!
                     detectionChance = 1.0;
                 } else {
                     // Normale Zeugen: 15% pro Zeuge, max 90%
@@ -166,6 +170,11 @@ public class NPCKnockoutHandler {
                             crimeType = "NPC knocked out";
                             lifeCrimeType = de.rolandsw.schedulemc.npc.life.witness.CrimeType.ASSAULT;
                         }
+                    } else if (victimIsPolice) {
+                        // Angriff auf einen Polizisten: 2 Sterne
+                        starsToAdd = 2;
+                        crimeType = "Police assault";
+                        lifeCrimeType = de.rolandsw.schedulemc.npc.life.witness.CrimeType.POLICE_ASSAULT;
                     } else {
                         // Nur Schaden
                         starsToAdd = 1;
