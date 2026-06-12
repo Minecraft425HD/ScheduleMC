@@ -407,6 +407,29 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
      * Optimiert: Nutzt PoliceAIHandler-Cache statt getEntitiesOfClass() pro Report.
      * FIX 7: Buffer ist jetzt lokal statt static (Thread-Safety)
      */
+    /**
+     * Informiert alle Spieler, dass ein Zeugenbericht die Polizei erreicht hat.
+     */
+    private static void broadcastReportReachedPolice(ServerLevel level, WitnessReport report) {
+        String criminalName = "?";
+        var criminal = level.getServer().getPlayerList().getPlayer(report.getCriminalUUID());
+        if (criminal != null) {
+            criminalName = criminal.getName().getString();
+        } else {
+            var profile = level.getServer().getProfileCache() != null
+                ? level.getServer().getProfileCache().get(report.getCriminalUUID()).orElse(null)
+                : null;
+            if (profile != null) {
+                criminalName = profile.getName();
+            }
+        }
+        level.getServer().getPlayerList().broadcastSystemMessage(
+            net.minecraft.network.chat.Component.translatable(
+                "crime.schedulemc.report_reached_police",
+                criminalName, report.getCrimeType().getDisplayName()),
+            false);
+    }
+
     private void processReports(ServerLevel level) {
         List<CustomNPCEntity> processReportsPoliceBuffer = new ArrayList<>();
         long currentDay = level.getDayTime() / 24000;
@@ -435,6 +458,9 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
                     if (ThreadLocalRandom.current().nextDouble() < reportChance) {
                         report.markAsReported();
                         addToWantedList(report.getCriminalUUID(), report.getCrimeType());
+
+                        // Serverweite Meldung: ein Zeugenbericht hat die Polizei erreicht
+                        broadcastReportReachedPolice(level, report);
 
                         // Wenn Polizei in der Nähe, sofort Wanted-Level erhöhen
                         if (policeNearby) {

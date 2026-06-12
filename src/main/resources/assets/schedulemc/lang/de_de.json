@@ -1405,6 +1405,7 @@
   "container.schedulemc.workshop": "Fahrzeug-Workshop",
   "container.small_packaging_table": "Kleiner Verpackungstisch",
   "creativetab.schedulemc.weapons": "Waffen",
+  "crime.schedulemc.report_reached_police": "§c[Polizei] §fEin Zeugenbericht über §e%s§f hat die Polizei erreicht: §c%s",
   "currency.format": "%s€",
   "dialogue.schedulemc.npc_unconscious": "§7Der NPC ist bewusstlos und kann gerade nicht sprechen.",
   "entity.schedulemc.custom_npc": "Benutzerdefinierter NPC",
