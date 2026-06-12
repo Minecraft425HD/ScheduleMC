@@ -63,9 +63,29 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
     @Override
     public void render(CustomNPCEntity entity, float entityYaw, float partialTicks,
                        PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
-        // Name-Tag immer anzeigen
+        // Name + Persönlichkeit erst zeigen, wenn der Spieler den NPC kennt
         if (this.shouldShowName(entity)) {
-            this.renderNameTag(entity, entity.getName(), poseStack, buffer, packedLight);
+            java.util.UUID npcDataId = entity.getNpcData() != null
+                ? entity.getNpcData().getNpcUUID() : null;
+            boolean known = de.rolandsw.schedulemc.npc.client.ClientKnownNPCCache.isKnown(npcDataId);
+
+            if (known) {
+                this.renderNameTag(entity, entity.getName(), poseStack, buffer, packedLight);
+                // Persönlichkeits-Label über dem Namen
+                poseStack.pushPose();
+                poseStack.translate(0.0, 0.28, 0.0);
+                this.renderNameTag(entity,
+                    net.minecraft.network.chat.Component.translatable(
+                        entity.getPersonalityArchetype().getTranslationKey())
+                        .withStyle(net.minecraft.ChatFormatting.GRAY),
+                    poseStack, buffer, packedLight);
+                poseStack.popPose();
+            } else {
+                this.renderNameTag(entity,
+                    net.minecraft.network.chat.Component.translatable("entity.schedulemc.npc.unknown")
+                        .withStyle(net.minecraft.ChatFormatting.DARK_GRAY),
+                    poseStack, buffer, packedLight);
+            }
         }
 
         super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);

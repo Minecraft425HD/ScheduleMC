@@ -1410,6 +1410,7 @@
   "creativetab.schedulemc.weapons": "Weapons",
   "currency.format": "$%s",
   "entity.schedulemc.custom_npc": "Custom NPC",
+  "entity.schedulemc.npc.unknown": "Unknown Citizen",
   "entity.schedulemc.vehicle": "Vehicle",
   "enum.achievement_category.": "Achievements",
   "enum.achievement_category.crime": "Crime",

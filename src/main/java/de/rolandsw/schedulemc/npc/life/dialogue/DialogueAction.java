@@ -406,7 +406,7 @@ public class DialogueAction {
                 var traits = life != null ? life.getTraits()
                     : new de.rolandsw.schedulemc.npc.life.core.NPCTraits(0, 0, 0);
                 int relLevel = de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager
-                    .getInstance().getOrCreateRelationship(npc.getUUID(), player.getUUID())
+                    .getInstance().getOrCreateRelationship(npc.getNpcData().getNpcUUID(), player.getUUID())
                     .getRelationshipLevel();
                 float chance = ReconciliationHelper.verbalApologyChance(
                     traits.getGreed(), traits.getHonesty(), relLevel);

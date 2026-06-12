@@ -98,6 +98,18 @@ public class NPCNetworkHandler {
             .add();
 
         // Delta-Sync für NPC-Namen (optimiert: nur Änderungen statt Full-Sync)
+        INSTANCE.messageBuilder(SyncKnownNPCsPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SyncKnownNPCsPacket::decode)
+            .encoder(SyncKnownNPCsPacket::encode)
+            .consumerMainThread(SyncKnownNPCsPacket::handle)
+            .add();
+
+        INSTANCE.messageBuilder(KnownNPCAddedPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(KnownNPCAddedPacket::decode)
+            .encoder(KnownNPCAddedPacket::encode)
+            .consumerMainThread(KnownNPCAddedPacket::handle)
+            .add();
+
         INSTANCE.messageBuilder(DeltaSyncNPCNamesPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
             .decoder(DeltaSyncNPCNamesPacket::decode)
             .encoder(DeltaSyncNPCNamesPacket::encode)

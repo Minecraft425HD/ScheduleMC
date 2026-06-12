@@ -441,6 +441,15 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
      * Lässt einen Spieler eine Quest annehmen
      */
     public boolean acceptQuest(ServerPlayer player, Quest quest) {
+        // Quest-Annahme macht den Questgeber bekannt
+        if (quest.getQuestGiverNPC() != null && player.level() instanceof net.minecraft.server.level.ServerLevel sl) {
+            CustomNPCEntity giver = findNPC(sl, quest.getQuestGiverNPC());
+            var acquaintances = de.rolandsw.schedulemc.managers.NPCAcquaintanceManager.getInstance();
+            if (giver != null && acquaintances != null) {
+                acquaintances.markKnown(player, giver);
+            }
+        }
+
         QuestProgress progress = getProgress(player);
         ServerLevel level = (ServerLevel) player.level();
         long currentDay = level.getDayTime() / 24000;
@@ -488,7 +497,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
                 lifeData.getMemory().addPlayerTag(player.getUUID(), "QuestFulfiller");
             }
             de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance()
-                .getOrCreateRelationship(questGiver.getUUID(), player.getUUID()).onHelp();
+                .getOrCreateRelationship(questGiver.getNpcData().getNpcUUID(), player.getUUID()).onHelp();
         }
 
         // Bei wiederholbarer Quest: Cooldown setzen

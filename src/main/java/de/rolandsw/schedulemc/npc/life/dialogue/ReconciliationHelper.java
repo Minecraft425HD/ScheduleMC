@@ -58,7 +58,7 @@ public final class ReconciliationHelper {
         NPCTraits traits = life != null ? life.getTraits() : new NPCTraits(0, 0, 0);
         NPCEmotions emotions = life != null ? life.getEmotions() : null;
         NPCRelationship rel = NPCRelationshipManager.getInstance()
-            .getOrCreateRelationship(npc.getUUID(), player.getUUID());
+            .getOrCreateRelationship(npc.getNpcData().getNpcUUID(), player.getUUID());
         boolean recent = life != null
             && life.getMemory().playerHasTag(player.getUUID(), RECENTLY_RECONCILED_TAG);
         return calculateCompensation(traits.getGreed(),
@@ -87,15 +87,15 @@ public final class ReconciliationHelper {
         }
 
         NPCRelationshipManager.getInstance()
-            .getOrCreateRelationship(npc.getUUID(), player.getUUID())
+            .getOrCreateRelationship(npc.getNpcData().getNpcUUID(), player.getUUID())
             .modifyRelationship(paid ? 20 : 8);
 
         // Eigene, noch nicht gemeldete Gewalt-Reports dieses NPCs zurückziehen
         if (player.level() instanceof ServerLevel serverLevel) {
             WitnessManager witnessManager = NPCLifeSystemIntegration.get(serverLevel).getWitnessManager();
             if (witnessManager != null) {
-                witnessManager.withdrawReportsBy(npc.getUUID(), player.getUUID(), CrimeType.ASSAULT);
-                witnessManager.withdrawReportsBy(npc.getUUID(), player.getUUID(), CrimeType.AGGRAVATED_ASSAULT);
+                witnessManager.withdrawReportsBy(npc.getNpcData().getNpcUUID(), player.getUUID(), CrimeType.ASSAULT);
+                witnessManager.withdrawReportsBy(npc.getNpcData().getNpcUUID(), player.getUUID(), CrimeType.AGGRAVATED_ASSAULT);
             }
         }
     }

@@ -44,7 +44,7 @@ public class NPCKnockoutHandler {
         // Angriff eines Spielers: Beziehung des Opfers verschlechtern + merken
         if (attacker != null) {
             de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance()
-                .getOrCreateRelationship(npc.getUUID(), attacker.getUUID()).onAttack();
+                .getOrCreateRelationship(npc.getNpcData().getNpcUUID(), attacker.getUUID()).onAttack();
             var victimLife = npc.getLifeData();
             if (victimLife != null) {
                 victimLife.getMemory().addPlayerTag(attacker.getUUID(), "Aggressor");

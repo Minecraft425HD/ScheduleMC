@@ -29,6 +29,15 @@ public class NPCNameSyncHandler {
         EventHelper.handlePlayerJoin(event, serverPlayer -> {
             // Full-Sync bei Login
             SyncNPCNamesPacket packet = new SyncNPCNamesPacket(NPCNameRegistry.getAllNames());
+
+            // Bekannte NPCs des Spielers syncen (Name-/Persönlichkeits-Enthüllung)
+            var acquaintances = de.rolandsw.schedulemc.managers.NPCAcquaintanceManager.getInstance();
+            if (acquaintances != null && event.getEntity() instanceof net.minecraft.server.level.ServerPlayer sp) {
+                de.rolandsw.schedulemc.npc.network.NPCNetworkHandler.INSTANCE.send(
+                    net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp),
+                    new de.rolandsw.schedulemc.npc.network.SyncKnownNPCsPacket(
+                        acquaintances.getKnownNPCs(sp.getUUID())));
+            }
             NPCNetworkHandler.sendToPlayer(packet, serverPlayer);
         });
     }
@@ -42,6 +51,7 @@ public class NPCNameSyncHandler {
             // Nur auf Client-Seite
             if (FMLEnvironment.dist == Dist.CLIENT) {
                 ClientNPCNameCache.clear();
+                de.rolandsw.schedulemc.npc.client.ClientKnownNPCCache.clear();
             }
         }, "onPlayerLogout");
     }

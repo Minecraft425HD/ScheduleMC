@@ -193,6 +193,13 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
         // Dialog registrieren
         activeDialogues.put(player.getUUID(), context);
 
+        // Erstes Gespräch macht den NPC für diesen Spieler "bekannt"
+        // (Name + Persönlichkeit werden sichtbar)
+        var acquaintances = de.rolandsw.schedulemc.managers.NPCAcquaintanceManager.getInstance();
+        if (acquaintances != null) {
+            acquaintances.markKnown(player, npc);
+        }
+
         // NPC-Memory: Gespräch speichern
         NPCLifeData lifeData = npc.getLifeData();
         if (lifeData != null) {

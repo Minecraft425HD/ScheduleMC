@@ -138,7 +138,7 @@ public class PriceModifier {
     public static float getRelationshipModifier(CustomNPCEntity npc, ServerPlayer player) {
         return (float) de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager
             .getInstance()
-            .getOrCreateRelationship(npc.getUUID(), player.getUUID())
+            .getOrCreateRelationship(npc.getNpcData().getNpcUUID(), player.getUUID())
             .getPriceModifier();
     }
 

@@ -1407,6 +1407,7 @@
   "creativetab.schedulemc.weapons": "Waffen",
   "currency.format": "%s€",
   "entity.schedulemc.custom_npc": "Benutzerdefinierter NPC",
+  "entity.schedulemc.npc.unknown": "Unbekannter Bewohner",
   "entity.schedulemc.vehicle": "Fahrzeug",
   "enum.achievement_category.": "Achievements",
   "enum.achievement_category.crime": "Verbrechen",

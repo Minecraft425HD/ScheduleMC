@@ -70,9 +70,15 @@ public class TradeEventHelper {
 
         if (lifeData == null) return;
 
+        // Handel macht den NPC bekannt
+        var acquaintances = de.rolandsw.schedulemc.managers.NPCAcquaintanceManager.getInstance();
+        if (acquaintances != null) {
+            acquaintances.markKnown(player, npc);
+        }
+
         // 0. Persönliche Beziehung aktualisieren (Käufe/Verkäufe stärken sie)
         var relationship = de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager
-            .getInstance().getOrCreateRelationship(npc.getUUID(), playerUUID);
+            .getInstance().getOrCreateRelationship(npc.getNpcData().getNpcUUID(), playerUUID);
         if (playerIsBuying) {
             relationship.onPurchase(price);
         } else {

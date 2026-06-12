@@ -58,7 +58,7 @@ public class DialogueCondition {
             "Relationship level >= " + minLevel,
             (ctx, npc) -> de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager
                 .getInstance()
-                .getOrCreateRelationship(npc.getUUID(), ctx.getPlayer().getUUID())
+                .getOrCreateRelationship(npc.getNpcData().getNpcUUID(), ctx.getPlayer().getUUID())
                 .getRelationshipLevel() >= minLevel);
     }
 
@@ -67,7 +67,7 @@ public class DialogueCondition {
             "Relationship level < " + maxLevel,
             (ctx, npc) -> de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager
                 .getInstance()
-                .getOrCreateRelationship(npc.getUUID(), ctx.getPlayer().getUUID())
+                .getOrCreateRelationship(npc.getNpcData().getNpcUUID(), ctx.getPlayer().getUUID())
                 .getRelationshipLevel() < maxLevel);
     }
 
