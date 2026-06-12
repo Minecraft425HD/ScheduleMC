@@ -115,7 +115,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         // Lieferquests
         registerTemplate(QuestTemplate.builder("delivery_basic")
             .type(QuestType.DELIVERY)
-            .title("Einfache Lieferung")
+            .title("Simple Delivery")
             .description("Deliver a package to the recipient.")
             .difficulty(1)
             .baseReward(QuestReward.create().money(50).factionRep(Faction.TRADERS, 2))
@@ -123,7 +123,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
 
         registerTemplate(QuestTemplate.builder("delivery_urgent")
             .type(QuestType.DELIVERY)
-            .title("Dringende Lieferung")
+            .title("Urgent Delivery")
             .description("A time-critical delivery must be made quickly!")
             .difficulty(2)
             .timeLimit(1)
@@ -133,7 +133,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         // Sammelquests
         registerTemplate(QuestTemplate.builder("collect_materials")
             .type(QuestType.COLLECTION)
-            .title("Materialsammlung")
+            .title("Material Collection")
             .description("Collect the required materials.")
             .difficulty(1)
             .baseReward(QuestReward.create().money(75).experience(50))
@@ -142,8 +142,8 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         // Eskort-Quests
         registerTemplate(QuestTemplate.builder("escort_citizen")
             .type(QuestType.ESCORT)
-            .title("Sicheres Geleit")
-            .description("Begleiten Sie den NPC sicher zu seinem Ziel.")
+            .title("Safe Escort")
+            .description("Escort the NPC safely to their destination.")
             .difficulty(3)
             .minFactionRep(10)
             .baseReward(QuestReward.create().money(200).factionRep(Faction.CITIZENS, 10))
@@ -152,8 +152,8 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         // Eliminierungs-Quests
         registerTemplate(QuestTemplate.builder("eliminate_threat")
             .type(QuestType.ELIMINATION)
-            .title("Bedrohung beseitigen")
-            .description("Eliminieren Sie die Bedrohung in der Gegend.")
+            .title("Eliminate the Threat")
+            .description("Eliminate the threat in the area.")
             .difficulty(3)
             .minFactionRep(20)
             .baseReward(QuestReward.create().money(300).factionRep(Faction.LAW, 15))
@@ -162,7 +162,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         // Ermittlungs-Quests
         registerTemplate(QuestTemplate.builder("investigate_crime")
             .type(QuestType.INVESTIGATION)
-            .title("Ermittlung")
+            .title("Investigation")
             .description("Investigate the incident and find clues.")
             .difficulty(2)
             .minFactionRep(15)
@@ -172,8 +172,8 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         // Verhandlungs-Quests
         registerTemplate(QuestTemplate.builder("negotiate_deal")
             .type(QuestType.NEGOTIATION)
-            .title("Vermittlung")
-            .description("Verhandeln Sie einen Deal zwischen den Parteien.")
+            .title("Mediation")
+            .description("Negotiate a deal between the parties.")
             .difficulty(4)
             .minFactionRep(25)
             .baseReward(QuestReward.create().money(250).factionRep(Faction.TRADERS, 12))
@@ -182,7 +182,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
         // Untergrund-Quests
         registerTemplate(QuestTemplate.builder("underground_delivery")
             .type(QuestType.DELIVERY)
-            .title("Diskrete Lieferung")
+            .title("Discreet Delivery")
             .description("A delivery nobody should know about...")
             .difficulty(2)
             .faction(Faction.UNDERWORLD)
@@ -260,19 +260,19 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
                 net.minecraft.world.item.Item deliveryItem = getDeliveryItemForNPC(questGiver);
                 // Find a different nearby NPC as delivery target, fall back to questGiver
                 UUID deliveryTargetUUID = findNearbyDifferentNPC(questGiver, player);
-                String targetDesc = deliveryTargetUUID != null ? "the recipient" : "die Lieferstelle";
+                String targetDesc = deliveryTargetUUID != null ? "the recipient" : "the drop-off point";
                 quest.addObjective(QuestObjective.collectItems(
                     "collect_package",
                     deliveryItem,
                     1,
-                    "Paket abholen"
+                    "Pick up the package"
                 ));
                 quest.addObjective(QuestObjective.deliverToNPC(
                     "deliver_package",
                     deliveryItem,
                     1,
                     deliveryTargetUUID != null ? deliveryTargetUUID : questGiver.getNpcData().getNpcUUID(),
-                    "Paket an " + targetDesc + " abliefern"
+                    "Deliver the package to " + targetDesc
                 ));
             }
 
@@ -299,7 +299,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
                     "escort_npc",
                     questGiver.getNpcData().getNpcUUID(),
                     destination,
-                    "Begleite den NPC sicher zum Ziel"
+                    "Escort the NPC safely to the destination"
                 ));
             }
 
@@ -327,7 +327,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
                     "investigate_2",
                     questGiver.blockPosition().offset(20, 0, 20),
                     5,
-                    "Untersuche den Tatort"
+                    "Investigate the crime scene"
                 ));
             }
 
@@ -337,7 +337,7 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
                 quest.addObjective(QuestObjective.talkToNPC(
                     "negotiate_party1",
                     partyUUID != null ? partyUUID : questGiver.getNpcData().getNpcUUID(),
-                    "Sprich mit der ersten Partei"
+                    "Talk to the first party"
                 ));
                 quest.addObjective(QuestObjective.negotiateDeal(
                     "negotiate_deal",

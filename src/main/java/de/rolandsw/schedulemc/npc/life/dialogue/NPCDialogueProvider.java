@@ -73,21 +73,21 @@ public class NPCDialogueProvider {
                 .addText("Welcome to my shop, {player}! What can I do for you?")
                 .addConditionalText(
                     DialogueCondition.hasPlayerTag("Stammkunde"),
-                    "Ah, {player}! Mein treuer Stammkunde! Was darf es heute sein?"
+                    "Ah, {player}! My loyal regular! What will it be today?"
                 )
                 .addConditionalText(
                     DialogueCondition.hasPlayerTag("Dieb"),
-                    "Sie schon wieder... Ich behalte Sie im Auge."
+                    "You again... I am keeping an eye on you."
                 )
                 .addOption(DialogueOption.simple("browse", "I want to see your offer.", "show_wares"))
-                .addOption(DialogueOption.simple("sell", "Ich habe etwas zu verkaufen.", "buy_from_player"))
+                .addOption(DialogueOption.simple("sell", "I have something to sell.", "buy_from_player"))
                 .addOption(DialogueOption.simple("info", "Tell me something about yourself.", "merchant_info"))
                 .addOption(DialogueOption.builder("negotiate")
                     .setText("Can we negotiate the prices?")
                     .setTargetNode("negotiate_start")
                     .addCondition(DialogueCondition.factionStanding(Faction.TRADERS, 20))
                     .build())
-                .addOption(DialogueOption.exit("Auf Wiedersehen."))
+                .addOption(DialogueOption.exit("Goodbye."))
                 .build())
 
             // Waren zeigen
@@ -101,7 +101,7 @@ public class NPCDialogueProvider {
             .addNode(DialogueNode.builder("buy_from_player")
                 .addText("Let's see what you have... Yes, I could use that.")
                 .addOption(DialogueOption.simple("back", "Maybe later.", "start"))
-                .addOption(DialogueOption.trade("Zeigen Sie mir Ihre Preise."))
+                .addOption(DialogueOption.trade("Show me your prices."))
                 .build())
 
             // Info über Händler
@@ -122,7 +122,7 @@ public class NPCDialogueProvider {
             .addNode(DialogueNode.builder("negotiate_start")
                 .addText("Negotiate? Well, for a good customer like you... what do you have in mind?")
                 .addOption(DialogueOption.builder("negotiate_friendly")
-                    .setText("Wir kennen uns doch schon lange. Ein kleiner Rabatt?")
+                    .setText("We have known each other for a long time. A small discount?")
                     .setTargetNode("negotiate_result")
                     .addAction(DialogueAction.setVariable("negotiate_tactic", "friendly"))
                     .build())
@@ -131,14 +131,14 @@ public class NPCDialogueProvider {
                     .setTargetNode("negotiate_result")
                     .addAction(DialogueAction.setVariable("negotiate_tactic", "pressure"))
                     .build())
-                .addOption(DialogueOption.simple("back", "Vergessen Sie es.", "start"))
+                .addOption(DialogueOption.simple("back", "Forget it.", "start"))
                 .build())
 
             // Verhandlungsergebnis
             .addNode(DialogueNode.builder("negotiate_result")
                 .addText("Hmm... Let me think about it.")
                 .addEntryAction(DialogueAction.startNegotiation())
-                .addOption(DialogueOption.simple("back", "Also, was sagen Sie?", "start"))
+                .addOption(DialogueOption.simple("back", "So, what do you say?", "start"))
                 .build());
 
         TYPE_DIALOGUES.put(NPCType.MERCHANT, merchantGeneral);
@@ -158,11 +158,11 @@ public class NPCDialogueProvider {
                 .addText("Good day, citizen. Can I help you?")
                 .addConditionalText(
                     DialogueCondition.hasPlayerTag("Gesucht"),
-                    "Halt! Sie sind zur Fahndung ausgeschrieben! Keine Bewegung!"
+                    "Stop! You are a wanted criminal! Do not move!"
                 )
                 .addConditionalText(
                     DialogueCondition.hasPlayerTag("Kriminell"),
-                    "Sie... Ich habe Sie im Auge. Machen Sie keinen Unsinn."
+                    "You... I am watching you. Do not try anything funny."
                 )
                 .addOption(DialogueOption.builder("wanted_response")
                     .setText("Wait, I can explain!")
@@ -175,9 +175,9 @@ public class NPCDialogueProvider {
                     .addCondition(DialogueCondition.hasPlayerTag("Gesucht"))
                     .build())
                 .addOption(DialogueOption.simple("report", "I want to report a crime.", "report_crime"))
-                .addOption(DialogueOption.simple("info", "Was gibt es Neues in der Stadt?", "police_info"))
+                .addOption(DialogueOption.simple("info", "What is new in town?", "police_info"))
                 .addOption(DialogueOption.simple("bribe", "Maybe I can... help you?", "bribe_attempt"))
-                .addOption(DialogueOption.exit("Auf Wiedersehen, Offizier."))
+                .addOption(DialogueOption.exit("Goodbye, officer."))
                 .build())
 
             // Gesucht - Erklären
@@ -217,7 +217,7 @@ public class NPCDialogueProvider {
                 .addOption(DialogueOption.simple("report_theft", "I was robbed.", "crime_reported"))
                 .addOption(DialogueOption.simple("report_assault", "I was attacked.", "crime_reported"))
                 .addOption(DialogueOption.simple("report_suspicious", "I observed suspicious activities.", "crime_reported"))
-                .addOption(DialogueOption.simple("back", "Eigentlich... vergessen Sie es.", "start"))
+                .addOption(DialogueOption.simple("back", "Actually... forget it.", "start"))
                 .build())
 
             // Verbrechen gemeldet
@@ -225,7 +225,7 @@ public class NPCDialogueProvider {
                 .addText("Thank you for the report. We will look into the matter.")
                 .addEntryAction(DialogueAction.modifyFaction(Faction.LAW, 5))
                 .addEntryAction(DialogueAction.addPlayerTag("Hilfreich"))
-                .addOption(DialogueOption.exit("Danke, Offizier."))
+                .addOption(DialogueOption.exit("Thank you, officer."))
                 .build())
 
             // Polizei-Info
@@ -240,31 +240,31 @@ public class NPCDialogueProvider {
                 .addText("What is that supposed to mean? Are you trying to bribe me?")
                 .addConditionalText(
                     DialogueCondition.npcTraitAbove("greed", 30),
-                    "Hmm... was genau schwebt Ihnen da vor?"
+                    "Hmm... what exactly do you have in mind?"
                 )
                 .addOption(DialogueOption.builder("bribe_yes")
-                    .setText("Nur eine kleine Aufmerksamkeit...")
+                    .setText("Just a small token of appreciation...")
                     .setTargetNode("bribe_offer")
                     .addCondition(DialogueCondition.npcTraitAbove("greed", 30))
                     .build())
                 .addOption(DialogueOption.builder("bribe_caught")
-                    .setText("Nur eine kleine Aufmerksamkeit...")
+                    .setText("Just a small token of appreciation...")
                     .setTargetNode("bribe_rejected")
                     .addCondition(DialogueCondition.npcTraitBelow("greed", 30))
                     .build())
-                .addOption(DialogueOption.simple("bribe_no", "Nein, nein! Ich meinte nur... Kaffee!", "start"))
+                .addOption(DialogueOption.simple("bribe_no", "No, no! I just meant... coffee!", "start"))
                 .build())
 
             // Bestechung anbieten
             .addNode(DialogueNode.builder("bribe_offer")
-                .addText("Sprechen Sie leise... Wieviel?")
+                .addText("Keep your voice down... How much?")
                 .addEntryAction(DialogueAction.startBribery())
                 .addOption(DialogueOption.simple("back", "[Verhandlung beginnen]", "start"))
                 .build())
 
             // Bestechung abgelehnt
             .addNode(DialogueNode.builder("bribe_rejected")
-                .addText("Bestechung eines Beamten! Das ist eine schwere Straftat!")
+                .addText("Bribing an officer! That is a serious crime!")
                 .addEntryAction(DialogueAction.modifyFaction(Faction.LAW, -15))
                 .addEntryAction(DialogueAction.addPlayerTag("Bestecher"))
                 .addOption(DialogueOption.exit("[Schnell verschwinden]"))
@@ -285,10 +285,10 @@ public class NPCDialogueProvider {
 
             // Start
             .addNode(DialogueNode.builder("start")
-                .addText("Oh, hallo! Kann ich Ihnen irgendwie helfen?")
+                .addText("Oh, hello! Can I help you somehow?")
                 .addConditionalText(
                     DialogueCondition.npcEmotion(EmotionState.FEARFUL, 30),
-                    "B-bitte tun Sie mir nichts..."
+                    "P-please do not hurt me..."
                 )
                 .addConditionalText(
                     DialogueCondition.npcEmotion(EmotionState.HAPPY, 50),
@@ -299,14 +299,14 @@ public class NPCDialogueProvider {
                     "My friend! Good to see you!"
                 )
                 .addOption(DialogueOption.simple("chat", "Just a friendly chat.", "friendly_chat"))
-                .addOption(DialogueOption.simple("info", "Kennen Sie sich hier aus?", "local_info"))
-                .addOption(DialogueOption.simple("rumors", "Gibt es interessante Neuigkeiten?", "share_rumors"))
+                .addOption(DialogueOption.simple("info", "Do you know your way around here?", "local_info"))
+                .addOption(DialogueOption.simple("rumors", "Any interesting news?", "share_rumors"))
                 .addOption(DialogueOption.builder("help")
-                    .setText("Brauchen Sie vielleicht Hilfe?")
+                    .setText("Do you perhaps need help?")
                     .setTargetNode("offer_help")
                     .addAction(DialogueAction.triggerEmotion(EmotionState.HAPPY, 15))
                     .build())
-                .addOption(DialogueOption.exit("Auf Wiedersehen."))
+                .addOption(DialogueOption.exit("Goodbye."))
                 .build())
 
             // Freundliches Gespräch
@@ -314,14 +314,14 @@ public class NPCDialogueProvider {
                 .addText("It's nice to chat with someone. A lot has been going on here lately.")
                 .addEntryAction(DialogueAction.triggerEmotion(EmotionState.HAPPY, 10))
                 .addOption(DialogueOption.simple("more", "Tell me more!", "chat_continue"))
-                .addOption(DialogueOption.simple("back", "Es war nett, mit Ihnen zu sprechen.", "start"))
+                .addOption(DialogueOption.simple("back", "It was nice talking to you.", "start"))
                 .build())
 
             // Gespräch fortsetzen
             .addNode(DialogueNode.builder("chat_continue")
                 .addText("You know, everything used to be simpler. But what can you do...")
                 .addEntryAction(DialogueAction.modifyFaction(Faction.CITIZENS, 2))
-                .addOption(DialogueOption.exit("Ich verstehe. Passen Sie auf sich auf!"))
+                .addOption(DialogueOption.exit("I understand. Take care of yourself!"))
                 .build())
 
             // Lokale Infos
@@ -329,7 +329,7 @@ public class NPCDialogueProvider {
                 .addText("Oh yes, I've lived here all my life. What would you like to know?")
                 .addOption(DialogueOption.simple("shops", "Where can I find good shops?", "info_shops"))
                 .addOption(DialogueOption.simple("danger", "Are there dangerous areas?", "info_danger"))
-                .addOption(DialogueOption.simple("back", "Danke, das reicht.", "start"))
+                .addOption(DialogueOption.simple("back", "Thanks, that is enough.", "start"))
                 .build())
 
             // Shop-Infos
@@ -342,7 +342,7 @@ public class NPCDialogueProvider {
             .addNode(DialogueNode.builder("info_danger")
                 .addText("Avoid the dark alleys at night. There are... questionable characters around.")
                 .addEntryAction(DialogueAction.shareRumors())
-                .addOption(DialogueOption.simple("back", "Ich werde vorsichtig sein.", "start"))
+                .addOption(DialogueOption.simple("back", "I will be careful.", "start"))
                 .build())
 
             // Gerüchte
@@ -354,7 +354,7 @@ public class NPCDialogueProvider {
 
             // Hilfe anbieten
             .addNode(DialogueNode.builder("offer_help")
-                .addText("Hilfe? Das ist sehr freundlich von Ihnen!")
+                .addText("Help? That is very kind of you!")
                 .addConditionalText(
                     DialogueCondition.random(0.3f),
                     "Actually, I might have something..."
@@ -364,7 +364,7 @@ public class NPCDialogueProvider {
                     .setTargetNode("give_quest")
                     .addAction(DialogueAction.checkForQuest())
                     .build())
-                .addOption(DialogueOption.simple("back", "Vielleicht ein andermal.", "start"))
+                .addOption(DialogueOption.simple("back", "Maybe another time.", "start"))
                 .build())
 
             // Quest geben
@@ -388,7 +388,7 @@ public class NPCDialogueProvider {
 
             // Start
             .addNode(DialogueNode.builder("start")
-                .addText("*mustert Sie misstrauisch* Was wollen Sie?")
+                .addText("*eyes you suspiciously* What do you want?")
                 .addConditionalText(
                     DialogueCondition.factionStanding(Faction.UNDERWORLD, 30),
                     "Ah, a familiar face. What brings you here?"
@@ -398,24 +398,24 @@ public class NPCDialogueProvider {
                     "A snitch! Get lost before there's trouble!"
                 )
                 .addOption(DialogueOption.builder("business")
-                    .setText("Ich suche nach... speziellen Waren.")
+                    .setText("I am looking for... special goods.")
                     .setTargetNode("special_goods")
                     .addCondition(DialogueCondition.factionStanding(Faction.UNDERWORLD, 10))
                     .build())
-                .addOption(DialogueOption.simple("info", "Ich brauche Informationen.", "underworld_info"))
+                .addOption(DialogueOption.simple("info", "I need information.", "underworld_info"))
                 .addOption(DialogueOption.builder("join")
-                    .setText("Ich will mitmachen.")
+                    .setText("I want in.")
                     .setTargetNode("join_underworld")
                     .addCondition(DialogueCondition.factionStanding(Faction.UNDERWORLD, 50))
                     .build())
-                .addOption(DialogueOption.exit("Nichts. Vergessen Sie es."))
+                .addOption(DialogueOption.exit("Nothing. Forget it."))
                 .build())
 
             // Spezielle Waren
             .addNode(DialogueNode.builder("special_goods")
                 .addText("Special goods, eh? I could arrange something...")
                 .addOption(DialogueOption.builder("buy_illegal")
-                    .setText("Zeigen Sie mir, was Sie haben.")
+                    .setText("Show me what you have.")
                     .addAction(DialogueAction.openIllegalTrade())
                     .setEndNode(true)
                     .build())
@@ -424,18 +424,18 @@ public class NPCDialogueProvider {
 
             // Untergrund-Infos
             .addNode(DialogueNode.builder("underworld_info")
-                .addText("Informationen kosten. Was haben Sie anzubieten?")
+                .addText("Information costs. What do you have to offer?")
                 .addOption(DialogueOption.builder("pay_info")
                     .setText("[Pay 100 coins]")
                     .setTargetNode("paid_info")
                     .addAction(DialogueAction.payMoney(100))
                     .build())
                 .addOption(DialogueOption.builder("trade_info")
-                    .setText("Ich habe selbst interessante Informationen.")
+                    .setText("I have interesting information myself.")
                     .setTargetNode("trade_info")
                     .addCondition(DialogueCondition.hasPlayerTag("Informant"))
                     .build())
-                .addOption(DialogueOption.simple("back", "Zu teuer.", "start"))
+                .addOption(DialogueOption.simple("back", "Too expensive.", "start"))
                 .build())
 
             // Bezahlte Info
@@ -448,10 +448,10 @@ public class NPCDialogueProvider {
 
             // Info-Tausch
             .addNode(DialogueNode.builder("trade_info")
-                .addText("Ah, ein Kollege. Dann lass uns tauschen.")
+                .addText("Ah, a colleague. Then let us trade.")
                 .addEntryAction(DialogueAction.shareRumors())
                 .addEntryAction(DialogueAction.modifyFaction(Faction.UNDERWORLD, 5))
-                .addOption(DialogueOption.exit("Ein fairer Tausch."))
+                .addOption(DialogueOption.exit("A fair trade."))
                 .build())
 
             // Untergrund beitreten
@@ -469,7 +469,7 @@ public class NPCDialogueProvider {
             .addNode(DialogueNode.builder("underworld_job")
                 .addText("There is this one thing... take care of it, and we'll talk further.")
                 .addEntryAction(DialogueAction.offerQuest())
-                .addOption(DialogueOption.exit("Ich bin dabei."))
+                .addOption(DialogueOption.exit("I am in."))
                 .build());
 
         TYPE_DIALOGUES.put(NPCType.DRUG_DEALER, underworldGeneral);

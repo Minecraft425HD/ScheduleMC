@@ -179,7 +179,7 @@ public class NPCActionPacket {
         }
         mgr.recruit(player, type, npc, npc.getNpcData().getNpcName());
         player.sendSystemMessage(Component.literal(
-            "§a[Rekrutierung] §f" + npc.getNpcData().getNpcName() + " ist jetzt dein Begleiter."));
+            "§a[Rekrutierung] §f" + npc.getNpcData().getNpcName() + " is now your companion."));
     }
 
     /** NPC wird bedroht – loest Behavior-Engine aus. */
@@ -190,6 +190,6 @@ public class NPCActionPacket {
             LOGGER.debug("NPCActionPacket: failed to trigger threatened behavior for NPC {}", entityId, ex);
         }
         player.sendSystemMessage(Component.literal(
-            "§c[Einschuechterung] §fDu hast " + npc.getNpcData().getNpcName() + " bedroht."));
+            "§c[Intimidation] §fYou have " + npc.getNpcData().getNpcName() + " bedroht."));
     }
 }

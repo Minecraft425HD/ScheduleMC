@@ -56,6 +56,21 @@ public class NPCKnockoutHandler {
             if (attacker instanceof net.minecraft.server.level.ServerPlayer sp) {
                 de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.getInstance().endDialogue(sp);
             }
+
+            // Gegenwehr je nach Persönlichkeit: mutige NPCs (Courage >= 40)
+            // werden wütend und schlagen ~15 Sekunden zurück, statt nur
+            // ängstlich zu werden. Polizei hat ihr eigenes Verfolgungssystem.
+            if (victimLife != null
+                && npc.getNpcType() != de.rolandsw.schedulemc.npc.data.NPCType.POLICE
+                && victimLife.getTraits().getCourage() >= 40
+                && attacker instanceof net.minecraft.server.level.ServerPlayer aggressor
+                && !aggressor.isCreative()) {
+                victimLife.getEmotions().trigger(
+                    de.rolandsw.schedulemc.npc.life.core.EmotionState.ANGRY, 80.0f);
+                npc.setTarget(aggressor);
+                npc.getPersistentData().putLong("RetaliationUntil",
+                    npc.level().getGameTime() + 300L);
+            }
         }
 
         // Prüfe ob Schaden tödlich wäre (Knockout)

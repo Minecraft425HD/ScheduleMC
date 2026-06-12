@@ -209,7 +209,7 @@ public class DialogueConsequenceSystem {
         }
 
         if (memory.conversationCount > 3) {
-            return "Ah, du bist es wieder. Was brauchst du?";
+            return "Ah, it is you again. What do you need?";
         }
 
         return "Welcome back. How can I help?";

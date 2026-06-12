@@ -240,7 +240,7 @@ public class QuestReward {
             sb.append("Spezial: ").append(specialReward);
         }
 
-        return sb.length() > 0 ? sb.toString() : "Keine Belohnung";
+        return sb.length() > 0 ? sb.toString() : "No reward";
     }
 
     // ═══════════════════════════════════════════════════════════

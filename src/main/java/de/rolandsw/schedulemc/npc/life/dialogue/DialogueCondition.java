@@ -106,7 +106,7 @@ public class DialogueCondition {
     }
 
     public static DialogueCondition npcIsSuspicious() {
-        return new DialogueCondition("npc_suspicious", "NPC ist misstrauisch",
+        return new DialogueCondition("npc_suspicious", "NPC is suspicious",
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 return life != null && life.getEmotions().getCurrentEmotion() == EmotionState.SUSPICIOUS;
@@ -118,7 +118,7 @@ public class DialogueCondition {
     // ═══════════════════════════════════════════════════════════
 
     public static DialogueCondition playerHasTag(String tag) {
-        return new DialogueCondition("player_tag_" + tag, "Spieler hat Tag: " + tag,
+        return new DialogueCondition("player_tag_" + tag, "Player has tag: " + tag,
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 return life != null && life.getMemory().playerHasTag(ctx.getPlayer().getUUID(), tag);
@@ -210,7 +210,7 @@ public class DialogueCondition {
 
     public static DialogueCondition factionReputationAtLeast(Faction faction, int minRep) {
         return new DialogueCondition("faction_rep_" + faction.name() + "_" + minRep,
-            "Mindestens " + minRep + " Reputation bei " + faction.getDisplayName(),
+            "Mindestens " + minRep + " reputation with " + faction.getDisplayName(),
             (ctx, npc) -> {
                 if (!(npc.level() instanceof ServerLevel level)) return false;
                 FactionRelation rel = FactionManager.getManager(level)
@@ -263,7 +263,7 @@ public class DialogueCondition {
     // ═══════════════════════════════════════════════════════════
 
     public static DialogueCondition playerHasItem(String itemId) {
-        return new DialogueCondition("player_has_" + itemId, "Spieler hat Item: " + itemId,
+        return new DialogueCondition("player_has_" + itemId, "Player has item: " + itemId,
             (ctx, npc) -> {
                 for (var stack : ctx.getPlayer().getInventory().items) {
                     if (stack.getItem().getDescriptionId().contains(itemId)) {
@@ -275,7 +275,7 @@ public class DialogueCondition {
     }
 
     public static DialogueCondition playerHasMoney(int amount) {
-        return new DialogueCondition("player_money_" + amount, "Spieler hat mindestens " + amount + " Geld",
+        return new DialogueCondition("player_money_" + amount, "Player has at least " + amount + " Geld",
             (ctx, npc) -> {
                 // Echte Geldprüfung mit WalletManager und EconomyManager
                 var player = ctx.getPlayer();
@@ -322,7 +322,7 @@ public class DialogueCondition {
      */
     public static DialogueCondition hasPendingSupplyRequest() {
         return new DialogueCondition("has_pending_supply_request",
-            "NPC hat eine offene Warenanfrage an den Spieler",
+            "NPC has a pending supply request for the player",
             (ctx, npc) -> {
                 var mgr = de.rolandsw.schedulemc.npc.life.quest.SupplyRequestManager.getInstance();
                 return mgr != null && npc.getNpcData() != null && ctx.getPlayer() != null
@@ -360,7 +360,7 @@ public class DialogueCondition {
     }
 
     public static DialogueCondition not(DialogueCondition condition) {
-        return new DialogueCondition("not_" + condition.id, "Nicht: " + condition.description,
+        return new DialogueCondition("not_" + condition.id, "Not: " + condition.description,
             (ctx, npc) -> !condition.test(ctx, npc));
     }
 

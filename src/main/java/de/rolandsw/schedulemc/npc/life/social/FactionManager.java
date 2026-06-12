@@ -450,7 +450,7 @@ public class FactionManager extends AbstractPersistenceManager<Map<String, Map<S
 
     @Override
     protected String getHealthDetails() {
-        return String.format("%d Spieler, %d Beziehungen",
+        return String.format("%d players, %d relations",
             playerFactions.size(),
             totalRelations());
     }

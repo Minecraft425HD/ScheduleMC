@@ -275,9 +275,9 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
         DialogueTree generic = new DialogueTree(genericId, "Allgemeiner Dialog")
             .addNode(DialogueNode.simple("start",
                 "Hello, {player}. How can I help you?",
-                DialogueOption.simple("talk", "Ich wollte nur reden.", "chat"),
+                DialogueOption.simple("talk", "I just wanted to talk.", "chat"),
                 DialogueOption.trade("I want to trade."),
-                DialogueOption.exit("Auf Wiedersehen.")
+                DialogueOption.exit("Goodbye.")
             ))
             .addNode(DialogueNode.end("chat",
                 "That's nice. Have a pleasant day."));

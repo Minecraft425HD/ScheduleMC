@@ -296,7 +296,7 @@ public class DialogueNode {
     public DialogueNode setEndNode(boolean isEndNode) {
         if (isEndNode && this.options.isEmpty()) {
             // Füge automatisch Exit-Option hinzu wenn keine Optionen vorhanden
-            this.addOption(DialogueOption.exit("Auf Wiedersehen"));
+            this.addOption(DialogueOption.exit("Goodbye"));
         }
         return this;
     }
@@ -331,7 +331,7 @@ public class DialogueNode {
      */
     public static DialogueNode end(String id, String text) {
         return new DialogueNode(id, text)
-            .addOption(DialogueOption.exit("Auf Wiedersehen"));
+            .addOption(DialogueOption.exit("Goodbye"));
     }
 
     // ═══════════════════════════════════════════════════════════

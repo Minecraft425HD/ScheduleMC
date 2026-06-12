@@ -180,6 +180,10 @@ public class CustomNPCEntity extends PathfinderMob {
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Schwimmen
         this.goalSelector.addGoal(1, new OpenDoorGoal(this, true)); // Türen öffnen (und schließen)
 
+        // Gegenwehr: läuft nur, wenn ein mutiger NPC per setTarget() ein
+        // Ziel bekommen hat (siehe NPCKnockoutHandler-Retaliation)
+        this.goalSelector.addGoal(1, new net.minecraft.world.entity.ai.goal.MeleeAttackGoal(this, 1.2D, true));
+
         // Registriere ALLE Goals - die Goals prüfen selbst ob sie aktiv sein sollen
         // Police Goals (nur aktiv für POLICE NPCs)
         this.goalSelector.addGoal(2, new PolicePatrolGoal(this)); // Patrouillieren zwischen Punkten
@@ -203,7 +207,8 @@ public class CustomNPCEntity extends PathfinderMob {
         return PathfinderMob.createMobAttributes()
             .add(Attributes.MAX_HEALTH, 20.0D)
             .add(Attributes.MOVEMENT_SPEED, 0.3D)
-            .add(Attributes.FOLLOW_RANGE, 32.0D);
+            .add(Attributes.FOLLOW_RANGE, 32.0D)
+            .add(Attributes.ATTACK_DAMAGE, 3.0D);
     }
 
     @Override
@@ -310,6 +315,18 @@ public class CustomNPCEntity extends PathfinderMob {
 
         if (!this.level().isClientSide) {
             // Server-Side Logic
+
+            // Gegenwehr beenden: Aggro läuft ab, Ziel tot/weg/Creative
+            if (this.getTarget() != null) {
+                long aggroUntil = this.getPersistentData().getLong("RetaliationUntil");
+                var target = this.getTarget();
+                boolean targetInvalid = !target.isAlive()
+                    || (target instanceof Player p && (p.isCreative() || p.isSpectator()));
+                if (targetInvalid || this.level().getGameTime() > aggroUntil
+                        || this.getPersistentData().getBoolean("IsKnockedOut")) {
+                    this.setTarget(null);
+                }
+            }
 
             // NPC Life System Update
             if (lifeSystemEnabled && lifeData != null) {

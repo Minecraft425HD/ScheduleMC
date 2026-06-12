@@ -81,33 +81,33 @@ public class DefaultDialogueTrees {
                 DialogueNode.builder("start_aggressor")
                     .setText("P-please... do not hurt me again! What more do you want from me?")
                     .addEntryAction(DialogueAction.computeCompensation())
-                    .addOption(new DialogueOption("pay", "Es tut mir leid. Hier, {var:compensation}€ Schmerzensgeld.")
+                    .addOption(new DialogueOption("pay", "I am sorry. Here, {var:compensation}€ compensation.")
                         .targetNode("apology_result")
                         .addAction(DialogueAction.apologizeWithPayment()))
-                    .addOption(new DialogueOption("verbal", "Es tut mir wirklich leid. Bitte verzeih mir.")
+                    .addOption(new DialogueOption("verbal", "I am truly sorry. Please forgive me.")
                         .targetNode("apology_result")
                         .addAction(DialogueAction.apologizeVerbal()))
-                    .addOption(DialogueOption.exit("Schon gut, ich gehe.")),
+                    .addOption(DialogueOption.exit("All right, I am leaving.")),
                 DialogueNode.builder("apology_result")
                     .setText("...")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_paid"),
-                        "*nimmt das Geld zitternd* I-in Ordnung... ich nehme deine Entschuldigung an. Lass uns das vergessen.")
+                        "*takes the money, trembling* A-all right... I accept your apology. Let us forget about it.")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_accepted"),
-                        "*atmet tief durch* Also gut... ich glaube dir. Aber tu das nie wieder!")
+                        "*takes a deep breath* All right... I believe you. But never do that again!")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_rejected"),
                         "Words! Just words! That is not enough for me...")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_no_money"),
                         "You do not even have enough money for an honest apology...")
                     .addOption(DialogueOption.exit("See you.")),
                 DialogueNode.builder("start")
-                    .setText("*zittert* E-entschuldige... ich bin gerade etwas durcheinander. Etwas Schreckliches ist passiert...")
-                    .addOption(new DialogueOption("comfort", "Ist alles in Ordnung? Ich tue dir nichts.")
+                    .setText("*trembles* S-sorry... I am a bit shaken right now. Something terrible happened...")
+                    .addOption(new DialogueOption("comfort", "Is everything all right? I will not hurt you.")
                         .targetNode("comforted")
                         .addAction(DialogueAction.calmDown(30f)))
-                    .addOption(DialogueOption.exit("Ich lasse dich in Ruhe.")),
+                    .addOption(DialogueOption.exit("I will leave you alone.")),
                 DialogueNode.builder("comforted")
-                    .setText("*beruhigt sich langsam* Danke... das hilft. Gib mir nur einen Moment.")
-                    .addOption(DialogueOption.exit("Pass auf dich auf."))
+                    .setText("*slowly calms down* Thank you... that helps. Just give me a moment.")
+                    .addOption(DialogueOption.exit("Take care of yourself."))
             );
     }
 
@@ -123,15 +123,15 @@ public class DefaultDialogueTrees {
             .addConditionalStart(DialogueCondition.playerIsAggressor(), "start_aggressor")
             .addNodes(
                 DialogueNode.builder("start_aggressor")
-                    .setText("DU schon wieder?! Du hast vielleicht Nerven, dich hier blicken zu lassen!")
+                    .setText("YOU again?! You have some nerve showing your face here!")
                     .addEntryAction(DialogueAction.computeCompensation())
-                    .addOption(new DialogueOption("pay", "Ich will es wiedergutmachen: {var:compensation}€ Schmerzensgeld.")
+                    .addOption(new DialogueOption("pay", "I want to make it right: {var:compensation}€ compensation.")
                         .targetNode("apology_result")
                         .addAction(DialogueAction.apologizeWithPayment()))
-                    .addOption(new DialogueOption("verbal", "Es tut mir aufrichtig leid.")
+                    .addOption(new DialogueOption("verbal", "I am sincerely sorry.")
                         .targetNode("apology_result")
                         .addAction(DialogueAction.apologizeVerbal()))
-                    .addOption(DialogueOption.exit("Ich gehe ja schon.")),
+                    .addOption(DialogueOption.exit("I am leaving already.")),
                 DialogueNode.builder("apology_result")
                     .setText("...")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_paid"),
@@ -139,18 +139,18 @@ public class DefaultDialogueTrees {
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_accepted"),
                         "*growls* Fine. One more time. ONCE.")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_rejected"),
-                        "Glaubst du, ein paar nette Worte machen das wieder gut?!")
+                        "You think a few nice words will make up for that?!")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_no_money"),
-                        "Nicht mal Geld hast du! Verschwinde!")
+                        "You do not even have money! Get lost!")
                     .addOption(DialogueOption.exit("Verstanden.")),
                 DialogueNode.builder("start")
                     .setText("*furious* What?! I REALLY have no patience right now!")
-                    .addOption(new DialogueOption("calm", "Ganz ruhig... was ist denn passiert?")
+                    .addOption(new DialogueOption("calm", "Easy now... what happened?")
                         .targetNode("vented")
                         .addAction(DialogueAction.calmDown(25f)))
-                    .addOption(DialogueOption.exit("Schon gut, schon gut.")),
+                    .addOption(DialogueOption.exit("All right, all right.")),
                 DialogueNode.builder("vented")
-                    .setText("*schnaubt* ...Entschuldige. Es war ein furchtbarer Tag. Was willst du?")
+                    .setText("*snorts* ...Sorry. It has been a terrible day. What do you want?")
                     .addOption(DialogueOption.exit("I will come back later."))
             );
     }
@@ -167,15 +167,15 @@ public class DefaultDialogueTrees {
             .addNodes(
                 DialogueNode.simple("start",
                     "Hello, {player_name}! Good to see you.",
-                    new DialogueOption("ask_wellbeing", "Wie geht es dir?")
+                    new DialogueOption("ask_wellbeing", "How are you?")
                         .targetNode("wellbeing")
                         .addAction(DialogueAction.modifyNPCFactionReputation(2)),
                     DialogueOption.exit("Have a nice day!")
                         .addAction(DialogueAction.modifyNPCFactionReputation(1))
                 ),
                 DialogueNode.simple("wellbeing",
-                    "Danke, mir geht es gut! Das Wetter ist herrlich heute.",
-                    new DialogueOption("nice", "Das freut mich!")
+                    "Thanks, I am doing well! The weather is lovely today.",
+                    new DialogueOption("nice", "Glad to hear it!")
                         .targetNode(null)
                         .addAction(DialogueAction.endDialogue())
                         .addAction(DialogueAction.modifyNPCFactionReputation(3)),
@@ -207,20 +207,20 @@ public class DefaultDialogueTrees {
             .addNodes(
                 // Default start: Mission noch nicht angenommen
                 DialogueNode.simple("start",
-                    "Hallo, {player_name}! Ich brauche dringend deine Hilfe.",
-                    new DialogueOption("ask_mission", "Was ist das Problem?")
+                    "Hello, {player_name}! I urgently need your help.",
+                    new DialogueOption("ask_mission", "What is the problem?")
                         .targetNode("offer_mission"),
                     DialogueOption.exit("Have a nice day.")
                 ),
                 // Mission läuft noch
                 DialogueNode.simple("start_active",
-                    "Bist du schon fertig? Ich warte auf dich!",
-                    DialogueOption.exit("Ich bin noch dabei.")
+                    "Are you done yet? I am waiting for you!",
+                    DialogueOption.exit("I am still working on it.")
                 ),
                 // Mission abgeschlossen → Belohnung abholen
                 DialogueNode.simple("start_claim",
                     "Oh, you're back! Did you get everything done?",
-                    new DialogueOption("claim", "Ja, ich habe alles erledigt!")
+                    new DialogueOption("claim", "Yes, I have taken care of everything!")
                         .targetNode("reward")
                         .addAction(DialogueAction.claimMissionReward(missionId))
                         .addAction(DialogueAction.modifyNPCFactionReputation(20)),
@@ -229,7 +229,7 @@ public class DefaultDialogueTrees {
                 // Mission anbieten
                 DialogueNode.simple("offer_mission",
                     "I need help with a job. Can you take care of it for me?",
-                    new DialogueOption("accept", "Klar, ich mache das!")
+                    new DialogueOption("accept", "Sure, I will do it!")
                         .targetNode("accepted")
                         .addAction(DialogueAction.giveMission(missionId))
                         .addAction(DialogueAction.modifyNPCFactionReputation(5)),
@@ -255,7 +255,7 @@ public class DefaultDialogueTrees {
             .priority(5)
             .addNodes(
                 DialogueNode.builder("start")
-                    .setText("Willkommen! Was darf es sein?")
+                    .setText("Welcome! What can I get you?")
                     .addConditionalText(DialogueCondition.relationshipAtLeast(50),
                         "{player_name}, my best customer! I always have time for you — and the best prices.")
                     .addConditionalText(DialogueCondition.relationshipAtLeast(10),
@@ -263,7 +263,7 @@ public class DefaultDialogueTrees {
                     .addConditionalText(DialogueCondition.relationshipBelow(-10),
                         "*eyes you coldly* What do you want? Payment up front.")
                     .addConditionalText(DialogueCondition.npcTraitAbove("greed", 50),
-                        "Zeit ist Geld. Was willst du kaufen?")
+                        "Time is money. What do you want to buy?")
                     .addConditionalText(DialogueCondition.npcTraitBelow("greed", -50),
                         "Welcome, welcome! For good customers I am happy to make a good price!")
                     .addOption(new DialogueOption("buy", "I want to buy something.")
@@ -284,19 +284,19 @@ public class DefaultDialogueTrees {
                     .addOption(new DialogueOption("why_prices", "Warum diese Preise?")
                         .targetNode("price_breakdown")
                         .addAction(DialogueAction.explainPrices()))
-                    .addOption(DialogueOption.exit("Nur schauen, danke.")),
+                    .addOption(DialogueOption.exit("Just looking, thanks.")),
                 DialogueNode.builder("discount_given")
                     .setText("*winks* For you? 10% discount for the next half hour. But do not spread the word!")
-                    .addOption(DialogueOption.exit("Danke dir!")),
+                    .addOption(DialogueOption.exit("Thank you!")),
                 DialogueNode.builder("price_breakdown")
                     .setText("{var:price_breakdown}")
-                    .addOption(DialogueOption.exit("Verstehe. Danke.")),
+                    .addOption(DialogueOption.exit("I see. Thanks.")),
                 DialogueNode.simple("sell_node",
-                    "Was haben Sie anzubieten?",
-                    new DialogueOption("open_sell", "Hier bitte.")
+                    "What do you have to offer?",
+                    new DialogueOption("open_sell", "Here you go.")
                         .targetNode(null)
                         .addAction(DialogueAction.startNegotiation()),
-                    DialogueOption.exit("Doch nichts, danke.")
+                    DialogueOption.exit("Nothing after all, thanks.")
                 )
             );
     }
@@ -313,7 +313,7 @@ public class DefaultDialogueTrees {
             .addNodes(
                 DialogueNode.simple("start",
                     "Good day, citizen. Is there a problem?",
-                    new DialogueOption("no_problem", "Alles gut, danke.")
+                    new DialogueOption("no_problem", "All good, thanks.")
                         .targetNode(null)
                         .addAction(DialogueAction.endDialogue()),
                     new DialogueOption("report", "I want to report something.")
@@ -325,8 +325,8 @@ public class DefaultDialogueTrees {
                         .targetNode("noted")
                         .addAction(DialogueAction.addMemory(
                             de.rolandsw.schedulemc.npc.life.core.MemoryType.CRIME_WITNESSED,
-                            "Spieler hat Verbrechen gemeldet", 3)),
-                    DialogueOption.exit("Vergessen Sie es.")
+                            "Player reported a crime", 3)),
+                    DialogueOption.exit("Forget it.")
                 ),
                 DialogueNode.end("noted",
                     "Thank you for the report. We will look into it."
@@ -352,7 +352,7 @@ public class DefaultDialogueTrees {
                     new DialogueOption("withdraw", "I want to withdraw.")
                         .targetNode(null)
                         .addAction(DialogueAction.endDialogue()),
-                    DialogueOption.exit("Auf Wiedersehen.")
+                    DialogueOption.exit("Goodbye.")
                 )
             );
     }
@@ -369,10 +369,10 @@ public class DefaultDialogueTrees {
             .addNodes(
                 DialogueNode.simple("start",
                     "What can I do for you?",
-                    new DialogueOption("vehicle", "Ich brauche Hilfe mit einem Fahrzeug.")
+                    new DialogueOption("vehicle", "I need help with a vehicle.")
                         .targetNode(null)
                         .addAction(DialogueAction.openTradeMenu()),
-                    DialogueOption.exit("Nichts, danke.")
+                    DialogueOption.exit("Nothing, thanks.")
                 )
             );
     }
@@ -384,7 +384,7 @@ public class DefaultDialogueTrees {
     private static DialogueCondition npcTypeIs(NPCType type) {
         return new DialogueCondition(
             "npc_type_" + type.name().toLowerCase(),
-            "NPC-Typ ist " + type.name(),
+            "NPC type is " + type.name(),
             (ctx, npc) -> npc.getNpcType() == type
         );
     }

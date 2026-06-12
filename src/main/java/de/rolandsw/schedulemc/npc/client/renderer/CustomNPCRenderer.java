@@ -63,8 +63,11 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
     @Override
     public void render(CustomNPCEntity entity, float entityYaw, float partialTicks,
                        PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
-        // Name + Persönlichkeit erst zeigen, wenn der Spieler den NPC kennt
-        if (this.shouldShowName(entity)) {
+        // Name + Persönlichkeit erst zeigen, wenn der Spieler den NPC kennt.
+        // shouldShowName() ist false, damit super.render() nicht zusätzlich
+        // das Vanilla-Nameplate über unser Persönlichkeits-Label zeichnet.
+        if (this.entityRenderDispatcher.distanceToSqr(entity) <= 4096.0
+                && !entity.isInvisible()) {
             java.util.UUID npcDataId = entity.getNpcData() != null
                 ? entity.getNpcData().getNpcUUID() : null;
             boolean known = de.rolandsw.schedulemc.npc.client.ClientKnownNPCCache.isKnown(npcDataId);
@@ -79,7 +82,7 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
                 this.renderNameTag(entity, nameLine, poseStack, buffer, packedLight);
                 // Persönlichkeits-Label über dem Namen
                 poseStack.pushPose();
-                poseStack.translate(0.0, 0.28, 0.0);
+                poseStack.translate(0.0, 0.32, 0.0);
                 this.renderNameTag(entity,
                     net.minecraft.network.chat.Component.translatable(
                         entity.getPersonalityArchetype().getTranslationKey())
@@ -99,6 +102,9 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
 
     @Override
     protected boolean shouldShowName(CustomNPCEntity entity) {
-        return true; // Name immer anzeigen
+        // false: wir rendern Name + Persönlichkeit selbst in render() —
+        // sonst zeichnet LivingEntityRenderer das Nameplate doppelt
+        // und der Name überdeckt das Persönlichkeits-Label.
+        return false;
     }
 }

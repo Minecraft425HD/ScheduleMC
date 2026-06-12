@@ -36,7 +36,7 @@ public class DialogueHelper {
     public static String getGreeting(CustomNPCEntity npc, ServerPlayer player) {
         NPCLifeData lifeData = npc.getLifeData();
         if (lifeData == null) {
-            return "Hallo.";
+            return "Hello.";
         }
 
         UUID playerUUID = player.getUUID();
@@ -55,37 +55,37 @@ public class DialogueHelper {
 
         // Priorisiere nach Wichtigkeit
         if (isDangerous && intensity > 30) {
-            return "S-Sie schon wieder... B-bitte gehen Sie...";
+            return "Y-you again... p-please leave...";
         }
 
         if (isCriminal) {
-            return "Ich behalte Sie im Auge...";
+            return "I am keeping an eye on you...";
         }
 
         // Emotionsbasierte Begrüßungen
         if (emotion == EmotionState.FEARFUL && intensity > 40) {
-            return "O-oh, hallo... Kann ich Ihnen helfen?";
+            return "O-oh, hello... Can I help you?";
         }
 
         if (emotion == EmotionState.ANGRY && intensity > 50) {
-            return "Was wollen Sie?";
+            return "What do you want?";
         }
 
         if (emotion == EmotionState.SAD && intensity > 40) {
-            return "*seufzt* Ja, was gibt's?";
+            return "*sighs* Yes, what is it?";
         }
 
         // Positive Begrüßungen
         if (emotion == EmotionState.HAPPY && intensity > 30) {
             if (isGoodCustomer) {
-                return "Ah, " + playerName + "! Mein bester Kunde! Was darf es heute sein?";
+                return "Ah, " + playerName + "! My best customer! What will it be today?";
             }
             return "Welcome! What a beautiful day!";
         }
 
         // Bekannte Kunden
         if (isRegular) {
-            return "Hallo " + playerName + "! Nice to see you again!";
+            return "Hello " + playerName + "! Nice to see you again!";
         }
 
         if (isGoodCustomer) {
@@ -111,7 +111,7 @@ public class DialogueHelper {
             case POLICE -> {
                 if (npc.getLifeData() != null &&
                     npc.getLifeData().getMemory().hasPlayerTag(player.getUUID(), "Gesucht")) {
-                    return "Halt! Sie sind zur Fahndung ausgeschrieben!";
+                    return "Stop! You are a wanted criminal!";
                 }
                 return "Good day, citizen. Everything all right?";
             }
@@ -139,7 +139,7 @@ public class DialogueHelper {
         NPCLifeData lifeData = npc.getLifeData();
 
         // Standard-Optionen
-        options.add(new DialogueOptionInfo("talk", "Reden", "Unterhalten Sie sich mit dem NPC"));
+        options.add(new DialogueOptionInfo("talk", "Reden", "Have a conversation with the NPC"));
 
         // Händler-spezifisch
         if (npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT) {
@@ -161,12 +161,12 @@ public class DialogueHelper {
             // Gerüchte teilen (bei ausreichend Reputation)
             if (reputation >= 20) {
                 options.add(new DialogueOptionInfo("rumors", "Ask about rumors",
-                    "Fragen Sie nach interessanten Neuigkeiten"));
+                    "Ask about interesting news"));
             }
 
             // Quest anbieten (bei ausreichend Reputation)
             if (reputation >= 10) {
-                options.add(new DialogueOptionInfo("quest", "Nach Aufgaben fragen",
+                options.add(new DialogueOptionInfo("quest", "Ask for tasks",
                     "Ask if the NPC needs help"));
             }
         }
@@ -174,14 +174,14 @@ public class DialogueHelper {
         // Begleiter-Option (nur bei bestimmten NPCs)
         if (canBecomeCompanion(npc, player)) {
             options.add(new DialogueOptionInfo("recruit", "Als Begleiter anwerben",
-                "Versuchen Sie den NPC als Begleiter zu gewinnen"));
+                "Try to recruit the NPC as a companion"));
         }
 
         // Zeuge bestechen (wenn relevant)
         if (lifeData != null && lifeData.getMemory().hasPlayerTag(player.getUUID(), "Kriminell")) {
             if (lifeData.getTraits().getGreed() > 20) {
                 options.add(new DialogueOptionInfo("bribe", "Bestechung versuchen",
-                    "Versuchen Sie den Zeugen zu bestechen"));
+                    "Try to bribe the witness"));
             }
         }
 

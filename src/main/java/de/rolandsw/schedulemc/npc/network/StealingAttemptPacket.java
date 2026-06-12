@@ -279,7 +279,7 @@ public class StealingAttemptPacket {
                             npc.setTarget(player);
                             player.sendSystemMessage(Component.translatable("message.stealing.npc_attacks", npc.getNpcName()));
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("[STEALING] NPC {} attackiert Spieler", npc.getNpcName());
+                                LOGGER.debug("[STEALING] NPC {} attacks player", npc.getNpcName());
                             }
                         }
                     }

@@ -153,7 +153,7 @@ public class PoliceWarningSystem {
             CrimeManager.addWantedLevel(playerUUID, 1, currentDay,
                 CrimeType.EVADING_POLICE, player.blockPosition());
 
-            LOGGER.info("[WARNING] {} ist geflohen - extra Stern", player.getName().getString());
+            LOGGER.info("[WARNING] {} fled - extra wanted star", player.getName().getString());
             return WarningStatus.FLED;
         }
 

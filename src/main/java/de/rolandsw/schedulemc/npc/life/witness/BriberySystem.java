@@ -276,7 +276,7 @@ public class BriberySystem {
         NPCTraits traits = lifeData.getTraits();
 
         if (traits.getHonesty() > HONESTY_RIGHTEOUS_THRESHOLD) {
-            return "Der NPC wirkt sehr rechtschaffen...";
+            return "The NPC seems very righteous...";
         }
 
         if (minimum < BRIBE_HINT_LOW_THRESHOLD) {

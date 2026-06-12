@@ -98,7 +98,7 @@ public class DialogueAction {
     public static DialogueAction removePlayerTag(String tag) {
         return new DialogueAction(
             "remove_tag_" + tag,
-            "Tag entfernen: " + tag,
+            "Remove tag: " + tag,
             (ctx, npc) -> {
                 NPCLifeData life = npc.getLifeData();
                 if (life != null) {
@@ -570,7 +570,7 @@ public class DialogueAction {
     public static DialogueAction jumpToNode(String nodeId) {
         return new DialogueAction(
             "jump_to_" + nodeId,
-            "Springe zu: " + nodeId,
+            "Jump to: " + nodeId,
             (ctx, npc) -> ctx.setNextNodeId(nodeId)
         );
     }
@@ -608,7 +608,7 @@ public class DialogueAction {
     public static DialogueAction sequence(DialogueAction... actions) {
         return new DialogueAction(
             "sequence",
-            "Sequenz von Aktionen",
+            "Sequence of actions",
             (ctx, npc) -> {
                 for (DialogueAction action : actions) {
                     action.execute(ctx, npc);

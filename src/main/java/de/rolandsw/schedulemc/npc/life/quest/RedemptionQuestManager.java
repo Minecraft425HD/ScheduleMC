@@ -191,7 +191,7 @@ public class RedemptionQuestManager {
 
         player.sendSystemMessage(Component.literal(
             "\u00A7a\u00A7l\u2714 Vergebungs-Quest abgeschlossen! \u2714\u00A7r\n" +
-            "\u00A7a+" + REPUTATION_REWARD + " Reputation bei " +
+            "\u00A7a+" + REPUTATION_REWARD + " reputation with " +
             quest.getTargetFaction().getDisplayName()
         ));
 

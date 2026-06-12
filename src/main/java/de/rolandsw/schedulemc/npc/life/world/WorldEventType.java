@@ -71,7 +71,7 @@ public enum WorldEventType {
      */
     MARKET_DAY(
         "Markttag",
-        "Heute ist Markttag! Besondere Angebote!",
+        "It is market day! Special offers!",
         EventCategory.MARKET,
         MarketCondition.SALE,
         1, 1,
@@ -151,7 +151,7 @@ public enum WorldEventType {
      */
     FESTIVAL(
         "Fest",
-        "Ein Fest findet statt! Die Stimmung ist ausgelassen.",
+        "A festival is taking place! The mood is exuberant.",
         EventCategory.SPECIAL,
         MarketCondition.SALE,
         1, 2,
@@ -175,7 +175,7 @@ public enum WorldEventType {
      */
     VIP_VISIT(
         "Hoher Besuch",
-        "Ein wichtiger Besucher ist in der Stadt!",
+        "An important visitor is in town!",
         EventCategory.SPECIAL,
         MarketCondition.HIGH_DEMAND,
         1, 3,
