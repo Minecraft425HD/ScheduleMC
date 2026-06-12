@@ -104,6 +104,38 @@ public class CrimeEventHandler {
 
         LivingEntity victim = event.getEntity();
 
+        // ═══════════════════════════════════════════
+        // KOPFGELD-JAGD: Spieler mit Kopfgeld getötet
+        // ═══════════════════════════════════════════
+        // Der Jäger kassiert das Kopfgeld (19% Steuer), die Fahndungssterne
+        // des Ziels werden gelöscht — und der Kill ist LEGAL: keine Strafe,
+        // kein Zeugenbericht, kein neues Verbrechen für den Jäger.
+        if (victim instanceof ServerPlayer targetPlayer && !targetPlayer.getUUID().equals(player.getUUID())) {
+            var bountyManager = de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance();
+            var bounty = bountyManager != null
+                ? bountyManager.getActiveBounty(targetPlayer.getUUID()) : null;
+            if (bounty != null && bounty.isActive()) {
+                double amount = bounty.getAmount();
+                if (bountyManager.claimBounty(player.getUUID(), targetPlayer.getUUID())) {
+                    // Fahndung des Ziels komplett löschen + HUD aktualisieren
+                    de.rolandsw.schedulemc.npc.crime.CrimeManager.clearWantedLevel(targetPlayer.getUUID());
+                    de.rolandsw.schedulemc.npc.crime.CrimeManager.stopEscapeTimer(targetPlayer.getUUID());
+                    de.rolandsw.schedulemc.npc.network.NPCNetworkHandler.sendToPlayer(
+                        new de.rolandsw.schedulemc.npc.network.WantedLevelSyncPacket(0, 0), targetPlayer);
+
+                    // Kompakte serverweite Meldung
+                    level.getServer().getPlayerList().broadcastSystemMessage(
+                        net.minecraft.network.chat.Component.translatable(
+                            "crime.schedulemc.bounty_collected",
+                            player.getName().getString(),
+                            targetPlayer.getName().getString(),
+                            String.format("%.0f", amount)),
+                        false);
+                }
+                return; // legaler Kopfgeld-Kill: keinerlei Verbrechens-Registrierung
+            }
+        }
+
         // NPC getötet
         if (victim instanceof de.rolandsw.schedulemc.npc.entity.CustomNPCEntity npc) {
             // Schwerstes Verbrechen

@@ -1408,6 +1408,7 @@
   "container.schedulemc.workshop": "Vehicle Workshop",
   "container.small_packaging_table": "Small Packaging Table",
   "creativetab.schedulemc.weapons": "Weapons",
+  "crime.schedulemc.bounty_collected": "§8[§c⚖§8] §e%s §7collected the bounty on §e%s§7: §6%s€ §8• §7wanted level cleared",
   "crime.schedulemc.report_reached_police": "§8[§c⚖§8] §e%s §7reported: §f%s §8• §7Wanted: %s §8• §7Bounty: §6%s€",
   "currency.format": "$%s",
   "dialogue.schedulemc.npc_unconscious": "§7The NPC is unconscious and cannot talk right now.",
