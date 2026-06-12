@@ -39,7 +39,12 @@ public enum QuestType {
     /**
      * Negotiation - Verhandle mit anderen NPCs
      */
-    NEGOTIATION("Verhandlung", "Verhandeln Sie einen Deal", 1.6f);
+    NEGOTIATION("Verhandlung", "Verhandeln Sie einen Deal", 1.6f),
+
+    /**
+     * Supply - Proaktive Warenanfrage eines NPCs (Treffpunkt + Frist)
+     */
+    SUPPLY("Besorgung", "Bringen Sie die gewünschten Waren zum Treffpunkt", 1.1f);
 
     // ═══════════════════════════════════════════════════════════
     // DATA
@@ -82,6 +87,7 @@ public enum QuestType {
             case ELIMINATION -> 2;
             case INVESTIGATION -> 3;
             case NEGOTIATION -> 2;
+            case SUPPLY -> 2;
         };
     }
 
@@ -96,6 +102,7 @@ public enum QuestType {
             case ELIMINATION -> 20;
             case INVESTIGATION -> 15;
             case NEGOTIATION -> 25;
+            case SUPPLY -> 0;
         };
     }
 
@@ -113,6 +120,8 @@ public enum QuestType {
                                  npcType == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT;
             case NEGOTIATION -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT ||
                                npcType == de.rolandsw.schedulemc.npc.data.NPCType.BANK;
+            case SUPPLY -> npcType == de.rolandsw.schedulemc.npc.data.NPCType.MERCHANT ||
+                          npcType == de.rolandsw.schedulemc.npc.data.NPCType.CITIZEN;
         };
     }
 }

@@ -5189,6 +5189,8 @@
   "screen.stock_market.trade_panel": "TRADE PANEL",
   "screen.stock_market.trading_dashboard": "TRADING DASHBOARD",
   "soundCategory.vehicle": "Vehicles",
+  "supply.schedulemc.accepted": "§aJob accepted: §f%s",
+  "supply.schedulemc.nearby_hint": "Hey, do you have a moment? I could use %sx %s — talk to me!",
   "tobacco.quality.good": "Good",
   "tobacco.quality.legendary": "Legendary",
   "tobacco.quality.poor": "Poor",

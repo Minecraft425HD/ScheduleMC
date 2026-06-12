@@ -452,6 +452,57 @@ public class DialogueAction {
      * Berechnet das aktuelle Schmerzensgeld und legt es als
      * Dialog-Variable {var:compensation} ab.
      */
+    /**
+     * Lädt die Daten der offenen Warenanfrage in Context-Variablen
+     * ({supply_amount}, {supply_item}, {supply_payment}, {supply_meeting}).
+     */
+    public static DialogueAction describeSupplyRequest() {
+        return new DialogueAction("describe_supply_request", "Warenanfrage beschreiben",
+            (ctx, npc) -> {
+                var mgr = de.rolandsw.schedulemc.npc.life.quest.SupplyRequestManager.getInstance();
+                if (mgr == null || npc.getNpcData() == null || ctx.getPlayer() == null) return;
+                mgr.getPendingRequest(npc.getNpcData().getNpcUUID(), ctx.getPlayer().getUUID())
+                    .ifPresent(req -> {
+                        var item = de.rolandsw.schedulemc.npc.life.quest.SupplyRequestPlanner
+                            .itemFromRegistryId(req.itemId);
+                        String itemName = item != null
+                            ? net.minecraft.network.chat.Component.translatable(item.getDescriptionId()).getString()
+                            : req.itemId;
+                        ctx.setVariable("supply_amount", req.amount);
+                        ctx.setVariable("supply_item", itemName);
+                        ctx.setVariable("supply_payment", req.payment);
+                        ctx.setVariable("supply_meeting", req.meetingX + ", " + req.meetingY + ", " + req.meetingZ);
+                    });
+            });
+    }
+
+    /** Nimmt die offene Warenanfrage an (erzeugt eine SUPPLY-Quest). */
+    public static DialogueAction acceptSupplyRequest() {
+        return new DialogueAction("accept_supply_request", "Warenanfrage annehmen",
+            (ctx, npc) -> {
+                var mgr = de.rolandsw.schedulemc.npc.life.quest.SupplyRequestManager.getInstance();
+                if (mgr == null || ctx.getPlayer() == null) return;
+                String title = mgr.acceptRequest(ctx.getPlayer(), npc);
+                if (title != null) {
+                    ctx.setFlag("supply_accepted");
+                    ctx.getPlayer().sendSystemMessage(
+                        net.minecraft.network.chat.Component.translatable(
+                            "supply.schedulemc.accepted", title));
+                }
+            });
+    }
+
+    /** Lehnt die offene Warenanfrage ab. */
+    public static DialogueAction declineSupplyRequest() {
+        return new DialogueAction("decline_supply_request", "Warenanfrage ablehnen",
+            (ctx, npc) -> {
+                var mgr = de.rolandsw.schedulemc.npc.life.quest.SupplyRequestManager.getInstance();
+                if (mgr == null || ctx.getPlayer() == null) return;
+                mgr.declineRequest(ctx.getPlayer(), npc);
+                ctx.setFlag("supply_declined");
+            });
+    }
+
     public static DialogueAction computeCompensation() {
         return new DialogueAction("compute_compensation", "Compute compensation",
             (ctx, npc) -> {

@@ -15,6 +15,22 @@ public class NPCMessageTemplates {
      * @param variant Variant index (0-2)
      * @return Translatable Component
      */
+    /**
+     * Smartphone-Nachricht für eine Warenanfrage (Fern-Benachrichtigung).
+     */
+    public static String getSupplyRequestMessage(String itemName, int amount, int payment,
+                                                 int x, int y, int z, long deadlineDay) {
+        return "Hey! Ich brauche " + amount + "x " + itemName + ". "
+            + "Treffpunkt: " + x + ", " + y + ", " + z + ". "
+            + "Ich zahle dir " + payment + "€. Sprich mich an, wenn du dabei bist — "
+            + "das Angebot gilt bis Tag " + deadlineDay + ".";
+    }
+
+    /** Smartphone-Nachricht, wenn eine angenommene Besorgung scheitert. */
+    public static String getSupplyRequestDisappointedMessage() {
+        return "Ich habe vergeblich auf die Waren gewartet... Ich bin enttäuscht von dir.";
+    }
+
     public static Component getUnfriendlyMessage(int variant) {
         return Component.translatable("npc.message.unfriendly." + variant);
     }

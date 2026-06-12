@@ -149,6 +149,14 @@ public class NPCLifeSystemIntegration {
             questManager.tick(level);
         }
 
+        // Alle 1200 Ticks (1 Minute): proaktive Warenanfragen
+        if (tickCounter % 1200 == 0) {
+            var supplyRequests = de.rolandsw.schedulemc.npc.life.quest.SupplyRequestManager.getInstance();
+            if (supplyRequests != null) {
+                supplyRequests.tick(level);
+            }
+        }
+
         // Alle 2400 Ticks (2 Minuten)
         if (tickCounter % 2400 == 0) {
             worldEventManager.tick(level);

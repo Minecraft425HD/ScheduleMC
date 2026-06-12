@@ -18,6 +18,7 @@ public class DefaultDialogueTrees {
     public static void registerAll(DialogueManager mgr) {
         if (mgr == null) return;
 
+        mgr.registerTree(buildSupplyRequestTree());
         mgr.registerTree(buildFearfulTree());
         mgr.registerTree(buildAngryTree());
         mgr.registerTree(buildCitizenTree());
@@ -37,6 +38,39 @@ public class DefaultDialogueTrees {
      * gibt es einen erklärenden Dialog — Aggressoren können sich entschuldigen
      * (Schmerzensgeld oder chance-basiert mit Worten).
      */
+    /**
+     * Offene Warenanfrage: NPC trägt sein Anliegen vor, Spieler kann
+     * annehmen (-> SUPPLY-Quest), ablehnen oder vertagen.
+     */
+    private static DialogueTree buildSupplyRequestTree() {
+        return new DialogueTree("supply_request_global", "NPC asks for goods")
+            .addTag("global")
+            .startCondition(DialogueCondition.hasPendingSupplyRequest())
+            .priority(15)
+            .addNodes(
+                DialogueNode.builder("start")
+                    .setText("Gut, dass ich dich sehe, {player_name}! Ich brauche {var:supply_amount}x {var:supply_item}. "
+                        + "Bring sie mir zum Treffpunkt ({var:supply_meeting}) — ich zahle dir {var:supply_payment}€. Machst du das?")
+                    .addEntryAction(DialogueAction.describeSupplyRequest())
+                    .addOption(new DialogueOption("accept", "Klar, mache ich!")
+                        .targetNode("supply_result")
+                        .addAction(DialogueAction.acceptSupplyRequest()))
+                    .addOption(new DialogueOption("decline", "Nein, das passt mir gerade nicht.")
+                        .targetNode("supply_result")
+                        .addAction(DialogueAction.declineSupplyRequest()))
+                    .addOption(DialogueOption.exit("Ich überlege es mir — bis später."))
+                    .build(),
+                DialogueNode.builder("supply_result")
+                    .setText("...")
+                    .addConditionalText(DialogueCondition.contextFlagSet("supply_accepted"),
+                        "Wunderbar! Ich warte am Treffpunkt auf dich. Lass mich nicht hängen!")
+                    .addConditionalText(DialogueCondition.contextFlagSet("supply_declined"),
+                        "Schade... na gut, vielleicht ein anderes Mal.")
+                    .addOption(DialogueOption.exit("Bis dann."))
+                    .build()
+            );
+    }
+
     private static DialogueTree buildFearfulTree() {
         return new DialogueTree("fearful_global", "Fearful NPC dialog")
             .addTag("global")

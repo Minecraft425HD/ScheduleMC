@@ -506,6 +506,11 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
             progress.setCooldown(questId, currentDay + NPCLifeConstants.Timing.QUEST_REPEAT_COOLDOWN_DAYS);
         }
 
+        var supplyRequests = SupplyRequestManager.getInstance();
+        if (supplyRequests != null) {
+            supplyRequests.onQuestCompleted(player, quest);
+        }
+
         markDirty();
         return true;
     }

@@ -110,6 +110,12 @@ public class NPCNetworkHandler {
             .consumerMainThread(KnownNPCAddedPacket::handle)
             .add();
 
+        INSTANCE.messageBuilder(SupplyRequestNoticePacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+            .decoder(SupplyRequestNoticePacket::decode)
+            .encoder(SupplyRequestNoticePacket::encode)
+            .consumerMainThread(SupplyRequestNoticePacket::handle)
+            .add();
+
         INSTANCE.messageBuilder(DeltaSyncNPCNamesPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
             .decoder(DeltaSyncNPCNamesPacket::decode)
             .encoder(DeltaSyncNPCNamesPacket::encode)

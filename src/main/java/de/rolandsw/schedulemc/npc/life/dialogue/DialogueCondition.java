@@ -317,6 +317,19 @@ public class DialogueCondition {
             });
     }
 
+    /**
+     * Hat dieser NPC eine offene Warenanfrage an den Spieler?
+     */
+    public static DialogueCondition hasPendingSupplyRequest() {
+        return new DialogueCondition("has_pending_supply_request",
+            "NPC hat eine offene Warenanfrage an den Spieler",
+            (ctx, npc) -> {
+                var mgr = de.rolandsw.schedulemc.npc.life.quest.SupplyRequestManager.getInstance();
+                return mgr != null && npc.getNpcData() != null && ctx.getPlayer() != null
+                    && mgr.getPendingRequest(npc.getNpcData().getNpcUUID(), ctx.getPlayer().getUUID()).isPresent();
+            });
+    }
+
     public static DialogueCondition contextFlagSet(String flag) {
         return new DialogueCondition("flag_" + flag, "Flag gesetzt: " + flag,
             (ctx, npc) -> ctx.hasFlag(flag));

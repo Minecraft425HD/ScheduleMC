@@ -70,7 +70,13 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
             boolean known = de.rolandsw.schedulemc.npc.client.ClientKnownNPCCache.isKnown(npcDataId);
 
             if (known) {
-                this.renderNameTag(entity, entity.getName(), poseStack, buffer, packedLight);
+                net.minecraft.network.chat.Component nameLine = entity.getName();
+                if (de.rolandsw.schedulemc.npc.client.ClientSupplyRequestCache.has(npcDataId)) {
+                    nameLine = net.minecraft.network.chat.Component.literal("! ")
+                        .withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.BOLD)
+                        .append(nameLine);
+                }
+                this.renderNameTag(entity, nameLine, poseStack, buffer, packedLight);
                 // Persönlichkeits-Label über dem Namen
                 poseStack.pushPose();
                 poseStack.translate(0.0, 0.28, 0.0);

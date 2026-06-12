@@ -39,6 +39,12 @@ public class NPCNameSyncHandler {
                         acquaintances.getKnownNPCs(sp.getUUID())));
             }
             NPCNetworkHandler.sendToPlayer(packet, serverPlayer);
+
+            // Offene Warenanfragen-Indikatoren ("!") syncen
+            var supplyRequests = de.rolandsw.schedulemc.npc.life.quest.SupplyRequestManager.getInstance();
+            if (supplyRequests != null && event.getEntity() instanceof net.minecraft.server.level.ServerPlayer sp2) {
+                supplyRequests.syncToPlayer(sp2);
+            }
         });
     }
 
@@ -52,6 +58,7 @@ public class NPCNameSyncHandler {
             if (FMLEnvironment.dist == Dist.CLIENT) {
                 ClientNPCNameCache.clear();
                 de.rolandsw.schedulemc.npc.client.ClientKnownNPCCache.clear();
+                de.rolandsw.schedulemc.npc.client.ClientSupplyRequestCache.clear();
             }
         }, "onPlayerLogout");
     }

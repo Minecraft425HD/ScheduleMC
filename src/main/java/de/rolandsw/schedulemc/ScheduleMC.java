@@ -574,6 +574,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.managers.NPCAcquaintanceManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.companion.CompanionManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.quest.QuestManager.initialize(server);
+            de.rolandsw.schedulemc.npc.life.quest.SupplyRequestManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.dialogue.DefaultDialogueTrees.registerAll(
                 de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.getInstance());
