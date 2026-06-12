@@ -18,12 +18,107 @@ public class DefaultDialogueTrees {
     public static void registerAll(DialogueManager mgr) {
         if (mgr == null) return;
 
+        mgr.registerTree(buildFearfulTree());
+        mgr.registerTree(buildAngryTree());
         mgr.registerTree(buildCitizenTree());
         mgr.registerTree(buildCitizenMissionTree());
         mgr.registerTree(buildMerchantTree());
         mgr.registerTree(buildPoliceTree());
         mgr.registerTree(buildBankTree());
         mgr.registerTree(buildTowTruckTree());
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // FEAR / ANGER — degradierte Dialoge mit Versöhnungspfad
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Hochprioritärer Baum für verängstigte NPCs: statt versteckter Optionen
+     * gibt es einen erklärenden Dialog — Aggressoren können sich entschuldigen
+     * (Schmerzensgeld oder chance-basiert mit Worten).
+     */
+    private static DialogueTree buildFearfulTree() {
+        return new DialogueTree("fearful_global", "Fearful NPC dialog")
+            .addTag("global")
+            .startCondition(DialogueCondition.npcIsFearful())
+            .priority(20)
+            .addConditionalStart(DialogueCondition.playerIsAggressor(), "start_aggressor")
+            .addNodes(
+                DialogueNode.builder("start_aggressor")
+                    .setText("B-bitte... tu mir nicht wieder weh! Was willst du noch von mir?")
+                    .addEntryAction(DialogueAction.computeCompensation())
+                    .addOption(new DialogueOption("pay", "Es tut mir leid. Hier, {var:compensation}€ Schmerzensgeld.")
+                        .targetNode("apology_result")
+                        .addAction(DialogueAction.apologizeWithPayment()))
+                    .addOption(new DialogueOption("verbal", "Es tut mir wirklich leid. Bitte verzeih mir.")
+                        .targetNode("apology_result")
+                        .addAction(DialogueAction.apologizeVerbal()))
+                    .addOption(DialogueOption.exit("Schon gut, ich gehe.")),
+                DialogueNode.builder("apology_result")
+                    .setText("...")
+                    .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_paid"),
+                        "*nimmt das Geld zitternd* I-in Ordnung... ich nehme deine Entschuldigung an. Lass uns das vergessen.")
+                    .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_accepted"),
+                        "*atmet tief durch* Also gut... ich glaube dir. Aber tu das nie wieder!")
+                    .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_rejected"),
+                        "Worte! Nur Worte! Das reicht mir nicht...")
+                    .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_no_money"),
+                        "Du hast nicht mal genug Geld für eine ehrliche Entschuldigung...")
+                    .addOption(DialogueOption.exit("Bis dann.")),
+                DialogueNode.builder("start")
+                    .setText("*zittert* E-entschuldige... ich bin gerade etwas durcheinander. Etwas Schreckliches ist passiert...")
+                    .addOption(new DialogueOption("comfort", "Ist alles in Ordnung? Ich tue dir nichts.")
+                        .targetNode("comforted")
+                        .addAction(DialogueAction.calmDown(30f)))
+                    .addOption(DialogueOption.exit("Ich lasse dich in Ruhe.")),
+                DialogueNode.builder("comforted")
+                    .setText("*beruhigt sich langsam* Danke... das hilft. Gib mir nur einen Moment.")
+                    .addOption(DialogueOption.exit("Pass auf dich auf."))
+            );
+    }
+
+    /**
+     * Hochprioritärer Baum für wütende NPCs (Intensität > 70).
+     */
+    private static DialogueTree buildAngryTree() {
+        return new DialogueTree("angry_global", "Angry NPC dialog")
+            .addTag("global")
+            .startCondition(DialogueCondition.npcEmotion(
+                de.rolandsw.schedulemc.npc.life.core.EmotionState.ANGRY, 70))
+            .priority(20)
+            .addConditionalStart(DialogueCondition.playerIsAggressor(), "start_aggressor")
+            .addNodes(
+                DialogueNode.builder("start_aggressor")
+                    .setText("DU schon wieder?! Du hast vielleicht Nerven, dich hier blicken zu lassen!")
+                    .addEntryAction(DialogueAction.computeCompensation())
+                    .addOption(new DialogueOption("pay", "Ich will es wiedergutmachen: {var:compensation}€ Schmerzensgeld.")
+                        .targetNode("apology_result")
+                        .addAction(DialogueAction.apologizeWithPayment()))
+                    .addOption(new DialogueOption("verbal", "Es tut mir aufrichtig leid.")
+                        .targetNode("apology_result")
+                        .addAction(DialogueAction.apologizeVerbal()))
+                    .addOption(DialogueOption.exit("Ich gehe ja schon.")),
+                DialogueNode.builder("apology_result")
+                    .setText("...")
+                    .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_paid"),
+                        "*zählt das Geld nach* Hmpf. Damit sind wir quitt. Aber merk dir das!")
+                    .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_accepted"),
+                        "*knurrt* Na schön. Einmal noch. EINMAL.")
+                    .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_rejected"),
+                        "Glaubst du, ein paar nette Worte machen das wieder gut?!")
+                    .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_no_money"),
+                        "Nicht mal Geld hast du! Verschwinde!")
+                    .addOption(DialogueOption.exit("Verstanden.")),
+                DialogueNode.builder("start")
+                    .setText("*wütend* Was?! Ich habe gerade WIRKLICH keine Geduld!")
+                    .addOption(new DialogueOption("calm", "Ganz ruhig... was ist denn passiert?")
+                        .targetNode("vented")
+                        .addAction(DialogueAction.calmDown(25f)))
+                    .addOption(DialogueOption.exit("Schon gut, schon gut.")),
+                DialogueNode.builder("vented")
+                    .setText("*schnaubt* ...Entschuldige. Es war ein furchtbarer Tag. Was willst du?")
+                    .addOption(DialogueOption.exit("Ich komme später wieder."))
+            );
     }
 
     // ═══════════════════════════════════════════════════════════

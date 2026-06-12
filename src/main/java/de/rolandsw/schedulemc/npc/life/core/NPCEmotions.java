@@ -126,6 +126,17 @@ public class NPCEmotions {
     /**
      * Sofortiger Reset zur Baseline
      */
+    /**
+     * Beruhigt den NPC: reduziert die Intensität der aktuellen Emotion.
+     * Fällt sie unter 10, kehrt der NPC zu NEUTRAL zurück.
+     */
+    public void calm(float amount) {
+        intensity = Math.max(0f, intensity - amount);
+        if (intensity < 10f) {
+            reset();
+        }
+    }
+
     public void reset() {
         decayToBaseline();
         this.transitionProgress = 1.0f;

@@ -224,6 +224,13 @@ public class NPCKnockoutHandler {
                 // Stelle HP wieder her
                 npc.setHealth(npc.getMaxHealth());
 
+                // Emotionen zurücksetzen — sonst wacht der NPC verängstigt
+                // auf und Gespräche bleiben grundlos degradiert
+                var recoveredLife = npc.getLifeData();
+                if (recoveredLife != null) {
+                    recoveredLife.getEmotions().reset();
+                }
+
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("[KNOCKOUT] NPC {} erholt sich an Tag {}", npc.getNpcName(), currentDay);
                 }

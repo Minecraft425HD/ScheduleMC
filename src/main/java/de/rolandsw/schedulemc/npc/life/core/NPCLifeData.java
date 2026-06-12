@@ -309,10 +309,10 @@ public class NPCLifeData {
      * Prüft ob NPC sprechen möchte
      */
     public boolean isWillingToTalk() {
-        if (needs.isCritical(NeedType.ENERGY)) return false;
-        if (emotions.getCurrentEmotion() == EmotionState.FEARFUL) return false;  // NOPMD
-
-        return emotions.getSocialModifier() > 0.3f;
+        // Verängstigte/verärgerte NPCs sprechen weiterhin — sie bekommen
+        // einen eigenen, degradierten Dialog mit Versöhnungspfad
+        // (siehe DefaultDialogueTrees.buildFearfulTree/buildAngryTree).
+        return !needs.isCritical(NeedType.ENERGY);
     }
 
     // ═══════════════════════════════════════════════════════════

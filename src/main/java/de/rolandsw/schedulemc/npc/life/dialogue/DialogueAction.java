@@ -370,6 +370,82 @@ public class DialogueAction {
     /**
      * Zahlt Geld
      */
+    /**
+     * Entschuldigung mit Schmerzensgeld: zieht den dynamisch berechneten
+     * Betrag ab und versöhnt den NPC vollständig.
+     * Setzt Flags: reconciliation_paid / reconciliation_no_money
+     */
+    public static DialogueAction apologizeWithPayment() {
+        return new DialogueAction("apologize_payment", "Apologize and pay compensation",
+            (ctx, npc) -> {
+                var player = ctx.getPlayer();
+                if (player == null) return;
+                int cost = ReconciliationHelper.compensationFor(npc, player);
+                double balance = de.rolandsw.schedulemc.economy.WalletManager.getBalance(player.getUUID());
+                if (balance >= cost) {
+                    de.rolandsw.schedulemc.economy.WalletManager.removeMoney(player.getUUID(), cost);
+                    npc.getNpcData().addMoney(cost);
+                    ReconciliationHelper.applyReconciliation(npc, player, true);
+                    ctx.setFlag("reconciliation_paid");
+                } else {
+                    ctx.setFlag("reconciliation_no_money");
+                }
+            });
+    }
+
+    /**
+     * Rein verbale Entschuldigung: chance-basiert (Beziehung, Ehrlichkeit,
+     * Gier). Setzt Flags: reconciliation_accepted / reconciliation_rejected
+     */
+    public static DialogueAction apologizeVerbal() {
+        return new DialogueAction("apologize_verbal", "Apologize verbally",
+            (ctx, npc) -> {
+                var player = ctx.getPlayer();
+                if (player == null) return;
+                var life = npc.getLifeData();
+                var traits = life != null ? life.getTraits()
+                    : new de.rolandsw.schedulemc.npc.life.core.NPCTraits(0, 0, 0);
+                int relLevel = de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager
+                    .getInstance().getOrCreateRelationship(npc.getUUID(), player.getUUID())
+                    .getRelationshipLevel();
+                float chance = ReconciliationHelper.verbalApologyChance(
+                    traits.getGreed(), traits.getHonesty(), relLevel);
+                if (npc.getRandom().nextFloat() < chance) {
+                    ReconciliationHelper.applyReconciliation(npc, player, false);
+                    ctx.setFlag("reconciliation_accepted");
+                } else {
+                    ctx.setFlag("reconciliation_rejected");
+                }
+            });
+    }
+
+    /**
+     * Beruhigt den NPC um die angegebene Intensität (für Nicht-Aggressoren).
+     */
+    public static DialogueAction calmDown(float amount) {
+        return new DialogueAction("calm_down", "Calm the NPC",
+            (ctx, npc) -> {
+                var life = npc.getLifeData();
+                if (life != null) {
+                    life.getEmotions().calm(amount);
+                }
+            });
+    }
+
+    /**
+     * Berechnet das aktuelle Schmerzensgeld und legt es als
+     * Dialog-Variable {var:compensation} ab.
+     */
+    public static DialogueAction computeCompensation() {
+        return new DialogueAction("compute_compensation", "Compute compensation",
+            (ctx, npc) -> {
+                var player = ctx.getPlayer();
+                if (player != null) {
+                    ctx.setVariable("compensation", ReconciliationHelper.compensationFor(npc, player));
+                }
+            });
+    }
+
     public static DialogueAction payMoney(int amount) {
         return new DialogueAction(
             "pay_money_" + amount,

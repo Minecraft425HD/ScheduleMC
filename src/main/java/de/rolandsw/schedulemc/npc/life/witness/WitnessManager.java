@@ -286,6 +286,22 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
     /**
      * Holt alle Berichte über einen Spieler
      */
+    /**
+     * Zieht noch nicht gemeldete Reports eines bestimmten Zeugen-NPCs gegen
+     * einen Spieler zurück (Versöhnung). Reports anderer Zeugen bleiben.
+     *
+     * @return Anzahl zurückgezogener Reports
+     */
+    public int withdrawReportsBy(UUID witnessNpcId, UUID criminalId, CrimeType type) {
+        List<WitnessReport> reports = reportsByCriminal.get(criminalId);
+        if (reports == null) return 0;
+        int before = reports.size();
+        reports.removeIf(r -> !r.isReported()
+            && witnessNpcId.equals(r.getWitnessNPCUUID())
+            && r.getCrimeType() == type);
+        return before - reports.size();
+    }
+
     public List<WitnessReport> getReportsAbout(UUID criminalUUID) {
         return reportsByCriminal.getOrDefault(criminalUUID, Collections.emptyList());
     }

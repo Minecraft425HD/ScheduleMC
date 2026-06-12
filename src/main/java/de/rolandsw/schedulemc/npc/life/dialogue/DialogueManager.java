@@ -175,10 +175,15 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
         // Kontext erstellen
         DialogueContext context = new DialogueContext(player, npc, tree);
 
-        // Start-Node finden
+        // Start-Node finden — nie still scheitern: Fallback auf generischen Baum
         DialogueNode startNode = tree.getStartNode(context, npc);
         if (startNode == null) {
-            return null;
+            tree = getOrCreateGenericTree(npc);
+            context = new DialogueContext(player, npc, tree);
+            startNode = tree.getStartNode(context, npc);
+            if (startNode == null) {
+                startNode = tree.getFallbackEndNode();
+            }
         }
 
         // Entry-Aktionen ausführen
@@ -273,6 +278,12 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
     public DialogueNode selectOption(ServerPlayer player, String optionId) {
         DialogueContext context = activeDialogues.get(player.getUUID());
         if (context == null || context.isEnded()) {
+            return null;
+        }
+
+        // NPC weg/tot? Dialog sauber beenden
+        if (context.getNpc() == null || context.getNpc().isRemoved() || !context.getNpc().isAlive()) {
+            endDialogue(player);
             return null;
         }
 

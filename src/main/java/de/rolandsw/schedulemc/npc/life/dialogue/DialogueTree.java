@@ -178,7 +178,18 @@ public class DialogueTree {
             return findNextValidNode(node.getAutoNextNodeId(), context, npc);
         }
 
-        return null;
+        // Sackgasse: synthetischer End-Node statt stillem Abbruch
+        return getFallbackEndNode();
+    }
+
+    /**
+     * Synthetischer End-Node für Sackgassen (Ziel-Node nicht betretbar
+     * und kein Auto-Next) — der Spieler bekommt immer eine Antwort.
+     */
+    public DialogueNode getFallbackEndNode() {
+        return DialogueNode.builder("fallback_end")
+            .setText("Entschuldige, ich bin gerade abgelenkt. Lass uns später weiterreden.")
+            .addOption(DialogueOption.exit("In Ordnung."));
     }
 
     // ═══════════════════════════════════════════════════════════
