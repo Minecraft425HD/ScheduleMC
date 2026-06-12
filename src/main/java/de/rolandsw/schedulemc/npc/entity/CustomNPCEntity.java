@@ -978,6 +978,19 @@ public class CustomNPCEntity extends PathfinderMob {
         super.remove(reason);
 
         if (!this.level().isClientSide) {
+            // Endgültig zerstört (Tod/Discard, NICHT Chunk-Unload):
+            // Beziehungen und offene Warenanfragen aufräumen
+            if (reason.shouldDestroy() && getNpcData() != null) {
+                var relationships = de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance();
+                if (relationships != null) {
+                    relationships.removeNPCRelationships(getNpcData().getNpcUUID());
+                }
+                var supplyRequests = de.rolandsw.schedulemc.npc.life.quest.SupplyRequestManager.getInstance();
+                if (supplyRequests != null) {
+                    supplyRequests.removeForNpc(getNpcData().getNpcUUID());
+                }
+            }
+
             // Unregistriere aus NPCEntityRegistry
             NPCEntityRegistry.unregisterNPC(this);
 

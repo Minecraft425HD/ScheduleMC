@@ -165,6 +165,13 @@ public class DialogueManager extends AbstractPersistenceManager<DialogueManager.
             return null;
         }
 
+        // Bewusstlose NPCs können nicht sprechen
+        if (npc.getPersistentData().getBoolean("IsKnockedOut")) {
+            player.sendSystemMessage(net.minecraft.network.chat.Component.translatable(
+                "dialogue.schedulemc.npc_unconscious"));
+            return null;
+        }
+
         // Finde passenden Dialogbaum
         DialogueTree tree = findBestTree(player, npc);
         if (tree == null) {

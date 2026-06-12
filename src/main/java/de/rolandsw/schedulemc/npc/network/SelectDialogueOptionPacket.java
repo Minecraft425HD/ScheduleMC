@@ -53,6 +53,16 @@ public class SelectDialogueOptionPacket {
             DialogueManager mgr = DialogueManager.getInstance();
             if (mgr == null) return;
 
+            // Kein aktiver Dialog (z.B. nach Server-Restart): frisch starten
+            // statt stumm zu bleiben, damit der Client nicht hängt
+            if (mgr.getActiveDialogue(player) == null) {
+                DialogueContext fresh = mgr.startDialogue(player, npc);
+                if (fresh != null) {
+                    StartDialoguePacket.sendDialogueState(player, npc.getUUID(), fresh, npc);
+                }
+                return;
+            }
+
             String npcName = npc.getNpcData().getNpcName();
 
             // 1. Spieler-Nachricht speichern

@@ -295,6 +295,14 @@ public class SupplyRequestManager extends AbstractPersistenceManager<SupplyReque
         }
     }
 
+    /** Entfernt alle Anfragen eines zerstörten NPCs. */
+    public void removeForNpc(UUID npcDataId) {
+        boolean changed = requests.entrySet().removeIf(e -> e.getValue().npcId.equals(npcDataId));
+        if (changed) {
+            markDirty();
+        }
+    }
+
     /** Hook aus QuestManager.completeQuest: räumt erledigte SUPPLY-Anfragen auf. */
     public void onQuestCompleted(ServerPlayer player, Quest quest) {
         if (quest.getType() != QuestType.SUPPLY) return;

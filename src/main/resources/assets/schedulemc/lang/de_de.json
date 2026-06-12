@@ -1406,6 +1406,7 @@
   "container.small_packaging_table": "Kleiner Verpackungstisch",
   "creativetab.schedulemc.weapons": "Waffen",
   "currency.format": "%s€",
+  "dialogue.schedulemc.npc_unconscious": "§7Der NPC ist bewusstlos und kann gerade nicht sprechen.",
   "entity.schedulemc.custom_npc": "Benutzerdefinierter NPC",
   "entity.schedulemc.npc.unknown": "Unbekannter Bewohner",
   "entity.schedulemc.vehicle": "Fahrzeug",

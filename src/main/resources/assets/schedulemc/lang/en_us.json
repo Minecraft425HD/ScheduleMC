@@ -1409,6 +1409,7 @@
   "container.small_packaging_table": "Small Packaging Table",
   "creativetab.schedulemc.weapons": "Weapons",
   "currency.format": "$%s",
+  "dialogue.schedulemc.npc_unconscious": "§7The NPC is unconscious and cannot talk right now.",
   "entity.schedulemc.custom_npc": "Custom NPC",
   "entity.schedulemc.npc.unknown": "Unknown Citizen",
   "entity.schedulemc.vehicle": "Vehicle",
