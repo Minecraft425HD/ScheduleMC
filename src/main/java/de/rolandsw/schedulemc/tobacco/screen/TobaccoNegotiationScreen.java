@@ -189,10 +189,10 @@ public class TobaccoNegotiationScreen extends AbstractContainerScreen<TobaccoNeg
             try {
                 personality = NPCPersonality.valueOf(personalityStr);
             } catch (IllegalArgumentException e) {
-                personality = NPCPersonality.AUSGEWOGEN;
+                personality = NPCPersonality.BALANCED;
             }
         } else {
-            personality = NPCPersonality.AUSGEWOGEN;
+            personality = NPCPersonality.BALANCED;
         }
 
         // Lade Trait

@@ -7,31 +7,31 @@ import net.minecraft.util.RandomSource;
  */
 public enum NPCPersonality {
     /**
-     * SPARSAM (Cautious Buyer)
+     * FRUGAL (Cautious Buyer)
      * - Very price-sensitive and cautious
      * - High mood weight (40%), low demand weight (20%)
      * - Uses max 30% of wallet per purchase
      * - Needs 50+ score to buy
      */
-    SPARSAM(0.4f, 0.2f, 0.3f, 50),
+    FRUGAL(0.4f, 0.2f, 0.3f, 50),
 
     /**
-     * AUSGEWOGEN (Standard Buyer)
+     * BALANCED (Standard Buyer)
      * - Balanced purchasing behavior
      * - Equal mood and demand weight (30% each)
      * - Uses max 50% of wallet per purchase
      * - Needs 40+ score to buy
      */
-    AUSGEWOGEN(0.3f, 0.3f, 0.5f, 40),
+    BALANCED(0.3f, 0.3f, 0.5f, 40),
 
     /**
-     * IMPULSIV (Impulsive Buyer)
+     * IMPULSIVE (Impulsive Buyer)
      * - Spontaneous and generous buying
      * - Low mood weight (20%), high demand weight (40%)
      * - Uses max 70% of wallet per purchase
      * - Needs only 30+ score to buy
      */
-    IMPULSIV(0.2f, 0.4f, 0.7f, 30);
+    IMPULSIVE(0.2f, 0.4f, 0.7f, 30);
 
     private final float moodWeight;
     private final float demandWeight;
@@ -71,6 +71,16 @@ public enum NPCPersonality {
      */
     public int getPurchaseThreshold() {
         return purchaseThreshold;
+    }
+
+    /**
+     * Derives the purchasing profile from the NPC's trait axes.
+     * Greedy NPCs buy cautiously, generous ones impulsively.
+     */
+    public static NPCPersonality fromTraits(de.rolandsw.schedulemc.npc.life.core.NPCTraits traits) {
+        if (traits.getGreed() >= 30) return FRUGAL;
+        if (traits.getGreed() <= -30) return IMPULSIVE;
+        return BALANCED;
     }
 
     /**

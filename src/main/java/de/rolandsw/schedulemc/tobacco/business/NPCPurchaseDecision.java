@@ -249,7 +249,7 @@ public class NPCPurchaseDecision {
             return NPCPersonality.valueOf(personalityStr);
         } catch (IllegalArgumentException e) {
             // Ungültige Persönlichkeit -> Standard
-            return NPCPersonality.AUSGEWOGEN;
+            return NPCPersonality.BALANCED;
         }
     }
 

@@ -153,9 +153,9 @@ public class NegotiationScoreCalculator {
 
         // NPCPersonality Bonus
         int personalityBonus = switch (personality) {
-            case IMPULSIV -> 5;   // Impulsive NPCs kaufen leichter
-            case AUSGEWOGEN -> 3;
-            case SPARSAM -> 0;    // Sparsame NPCs sind kritischer
+            case IMPULSIVE -> 5;   // Impulsive NPCs kaufen leichter
+            case BALANCED -> 3;
+            case FRUGAL -> 0;    // Sparsame NPCs sind kritischer
         };
 
         // NPCPersonalityTrait Bonus
@@ -235,7 +235,7 @@ public class NegotiationScoreCalculator {
         try {
             return NPCPersonality.valueOf(personalityStr);
         } catch (IllegalArgumentException e) {
-            return NPCPersonality.AUSGEWOGEN;
+            return NPCPersonality.BALANCED;
         }
     }
 

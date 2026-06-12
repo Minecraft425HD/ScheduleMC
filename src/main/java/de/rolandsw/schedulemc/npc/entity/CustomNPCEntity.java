@@ -77,6 +77,8 @@ public class CustomNPCEntity extends PathfinderMob {
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SERVICE_CATEGORY_ORDINAL =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<String> PERSONALITY_ARCHETYPE =
+            SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> PERSONALITY =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> ACTIVITY_STATUS =
@@ -158,7 +160,8 @@ public class CustomNPCEntity extends PathfinderMob {
         this.entityData.define(MERCHANT_CATEGORY_ORDINAL, 0); // HARDWARE_STORE
         this.entityData.define(BANK_CATEGORY_ORDINAL, 0); // BANKER
         this.entityData.define(SERVICE_CATEGORY_ORDINAL, 0); // TOWING_SERVICE
-        this.entityData.define(PERSONALITY, NPCPersonality.AUSGEWOGEN.name()); // Standard-Persönlichkeit
+        this.entityData.define(PERSONALITY, NPCPersonality.BALANCED.name()); // Standard-Persönlichkeit
+        this.entityData.define(PERSONALITY_ARCHETYPE, de.rolandsw.schedulemc.npc.life.core.PersonalityArchetype.BALANCED.name());
         this.entityData.define(ACTIVITY_STATUS, NPCActivityStatus.ROAMING.ordinal()); // Standard: Unterwegs
         // NPC Life System - Emotion syncing für Client-Rendering
         this.entityData.define(EMOTION_STATE, 0); // EmotionState.NEUTRAL.ordinal()
@@ -545,6 +548,7 @@ public class CustomNPCEntity extends PathfinderMob {
         if (!personalityStr.isEmpty()) {
             this.entityData.set(PERSONALITY, personalityStr);
         }
+        syncPersonalityArchetype();
 
         // NPC Life System: Emotion synchronisieren
         syncEmotionState();
@@ -643,12 +647,12 @@ public class CustomNPCEntity extends PathfinderMob {
     public NPCPersonality getPersonality() {
         String personalityStr = this.entityData.get(PERSONALITY);
         if (personalityStr.isEmpty()) {
-            return NPCPersonality.AUSGEWOGEN; // Standard-Persönlichkeit
+            return NPCPersonality.BALANCED; // Standard-Persönlichkeit
         }
         try {
             return NPCPersonality.valueOf(personalityStr);
         } catch (IllegalArgumentException e) {
-            return NPCPersonality.AUSGEWOGEN;
+            return NPCPersonality.BALANCED;
         }
     }
 
@@ -658,6 +662,30 @@ public class CustomNPCEntity extends PathfinderMob {
     public void setPersonality(NPCPersonality personality) {
         npcData.getCustomData().putString("personality", personality.name());
         this.entityData.set(PERSONALITY, personality.name());
+        syncPersonalityArchetype();
+    }
+
+    /**
+     * Synchronisiert den aus den Traits abgeleiteten Archetyp zum Client
+     * (wird über dem NPC-Namen gerendert, sobald der Spieler den NPC kennt).
+     */
+    public void syncPersonalityArchetype() {
+        if (!level().isClientSide && lifeData != null && lifeData.getTraits() != null) {
+            this.entityData.set(PERSONALITY_ARCHETYPE,
+                lifeData.getTraits().getPersonalityArchetype().name());
+        }
+    }
+
+    /**
+     * Gibt den Persönlichkeits-Archetyp zurück (Client-safe via synced data).
+     */
+    public de.rolandsw.schedulemc.npc.life.core.PersonalityArchetype getPersonalityArchetype() {
+        try {
+            return de.rolandsw.schedulemc.npc.life.core.PersonalityArchetype.valueOf(
+                this.entityData.get(PERSONALITY_ARCHETYPE));
+        } catch (IllegalArgumentException e) {
+            return de.rolandsw.schedulemc.npc.life.core.PersonalityArchetype.BALANCED;
+        }
     }
 
     // Gecachtes enum-Array um wiederholte Allokation durch .values() zu vermeiden

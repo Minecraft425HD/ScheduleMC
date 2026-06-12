@@ -80,9 +80,9 @@ public class NPCTraits {
      */
     public static NPCTraits fromPersonality(de.rolandsw.schedulemc.npc.data.NPCPersonality personality) {
         return switch (personality) {
-            case SPARSAM -> new NPCTraits(0, 30, 60);      // Ehrlich, gierig
-            case AUSGEWOGEN -> new NPCTraits(0, 0, 0);     // Neutral
-            case IMPULSIV -> new NPCTraits(40, -20, -30);  // Mutig, etwas unehrlich, großzügig
+            case FRUGAL -> new NPCTraits(0, 30, 60);      // Ehrlich, gierig
+            case BALANCED -> new NPCTraits(0, 0, 0);     // Neutral
+            case IMPULSIVE -> new NPCTraits(40, -20, -30);  // Mutig, etwas unehrlich, großzügig
         };
     }
 
@@ -280,15 +280,14 @@ public class NPCTraits {
      * Gibt einen Persönlichkeits-Archetyp basierend auf den Traits zurück
      */
     public String getArchetype() {
-        // Kombinationen
-        if (courage > 50 && honesty > 50 && greed < 0) return "Held";
-        if (courage > 50 && honesty < -50 && greed > 50) return "Gangster";
-        if (courage < -50 && honesty > 50 && greed < 0) return "Citizen";
-        if (courage < -50 && honesty < -50 && greed > 50) return "Feigling";
-        if (courage > 30 && honesty > 30) return "Aufrechter";
-        if (greed > 50 && honesty < 0) return "Merchant";
-        if (courage < -30 && honesty < -30) return "Schattenhaft";
-        return "Durchschnittlich";
+        return getPersonalityArchetype().name();
+    }
+
+    /**
+     * Anzeigbarer Archetyp aus der dominanten Trait-Achse.
+     */
+    public PersonalityArchetype getPersonalityArchetype() {
+        return PersonalityArchetype.fromTraits(this);
     }
 
     // ═══════════════════════════════════════════════════════════
