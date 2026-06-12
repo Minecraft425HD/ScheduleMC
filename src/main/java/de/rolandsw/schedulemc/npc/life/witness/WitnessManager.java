@@ -410,7 +410,8 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
     /**
      * Informiert alle Spieler, dass ein Zeugenbericht die Polizei erreicht hat.
      */
-    private static void broadcastReportReachedPolice(ServerLevel level, WitnessReport report) {
+    private static void broadcastReportReachedPolice(ServerLevel level, WitnessReport report,
+                                                     int wantedStars, double bountyAmount) {
         String criminalName = "?";
         var criminal = level.getServer().getPlayerList().getPlayer(report.getCriminalUUID());
         if (criminal != null) {
@@ -423,10 +424,18 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
                 criminalName = profile.getName();
             }
         }
+        // Sterne kompakt darstellen: ★★☆☆☆
+        StringBuilder stars = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            stars.append(i < wantedStars ? "§c★" : "§8☆");
+        }
         level.getServer().getPlayerList().broadcastSystemMessage(
             net.minecraft.network.chat.Component.translatable(
                 "crime.schedulemc.report_reached_police",
-                criminalName, report.getCrimeType().getDisplayName()),
+                criminalName,
+                report.getCrimeType().getDisplayName(),
+                stars.toString(),
+                String.format("%.0f", bountyAmount)),
             false);
     }
 
@@ -459,14 +468,23 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
                         report.markAsReported();
                         addToWantedList(report.getCriminalUUID(), report.getCrimeType());
 
-                        // Serverweite Meldung: ein Zeugenbericht hat die Polizei erreicht
-                        broadcastReportReachedPolice(level, report);
-
                         // Wenn Polizei in der Nähe, sofort Wanted-Level erhöhen
                         if (policeNearby) {
                             de.rolandsw.schedulemc.npc.crime.CrimeManager.addWantedLevel(
                                 report.getCriminalUUID(), 1, currentDay);
                         }
+
+                        // Server-Kopfgeld: 200€ pro Stern, +1000€ bei 5 Sternen
+                        int stars = de.rolandsw.schedulemc.npc.crime.CrimeManager
+                            .getWantedLevel(report.getCriminalUUID());
+                        double bountyAmount = 0.0;
+                        var bountyManager = de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance();
+                        if (bountyManager != null && stars > 0) {
+                            bountyAmount = bountyManager.placeServerBounty(report.getCriminalUUID(), stars);
+                        }
+
+                        // Kompakte serverweite Meldung (Bericht + Fahndung + Kopfgeld)
+                        broadcastReportReachedPolice(level, report, stars, bountyAmount);
                     }
                 }
             }

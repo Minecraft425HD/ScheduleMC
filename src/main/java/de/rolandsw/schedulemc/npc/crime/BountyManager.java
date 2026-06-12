@@ -71,6 +71,43 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
     /**
      * Platziert automatisches Bounty bei hohem Wanted-Level
      */
+    /** Kopfgeld pro Stern bei Zeugenbericht-Eingang. */
+    public static final double REPORT_BOUNTY_PER_STAR = 200.0;
+    /** Extra-Kopfgeld bei voller Fahndungsstufe (5 Sterne). */
+    public static final double REPORT_BOUNTY_MAX_LEVEL_EXTRA = 1000.0;
+    /** Steuersatz auf Kopfgeld-Auszahlungen. */
+    public static final double BOUNTY_TAX_RATE = 0.19;
+
+    /**
+     * Server-Kopfgeld nach eingegangenem Zeugenbericht: 200€ pro Stern,
+     * bei 5 Sternen 1000€ extra. Erhöht ein bestehendes Kopfgeld auf
+     * mindestens diesen Betrag.
+     *
+     * @return das aktuelle Gesamt-Kopfgeld nach der Anpassung
+     */
+    public double placeServerBounty(UUID criminal, int wantedLevel) {
+        if (wantedLevel <= 0) {
+            BountyData current = activeBounties.get(criminal);
+            return current != null && current.isActive() ? current.getAmount() : 0.0;
+        }
+        double target = wantedLevel * REPORT_BOUNTY_PER_STAR
+            + (wantedLevel >= 5 ? REPORT_BOUNTY_MAX_LEVEL_EXTRA : 0.0);
+
+        BountyData existing = activeBounties.get(criminal);
+        if (existing != null && existing.isActive()) {
+            if (existing.getAmount() < target) {
+                existing.increaseAmount(target - existing.getAmount());
+            }
+            save();
+            return existing.getAmount();
+        }
+        BountyData bounty = new BountyData(criminal, target, null,
+            "Witness report, wanted level " + wantedLevel + " ⭐");
+        activeBounties.put(criminal, bounty);
+        save();
+        return target;
+    }
+
     public void createAutoBounty(UUID criminal, int wantedLevel) {
         if (wantedLevel < MIN_WANTED_LEVEL_FOR_BOUNTY) {
             return; // Zu niedriger Wanted-Level
@@ -158,10 +195,15 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
             return false;
         }
 
-        // Belohnung auszahlen
-        double reward = bounty.getAmount();
+        // Belohnung auszahlen: 19% Steuer gehen an die Staatskasse,
+        // der Rest direkt aufs Konto des Jägers
+        double gross = bounty.getAmount();
+        double tax = Math.round(gross * BOUNTY_TAX_RATE * 100.0) / 100.0;
+        double reward = gross - tax;
         EconomyManager.deposit(hunterUUID, reward, TransactionType.OTHER,
-            "Kopfgeld: " + targetUUID);
+            "Bounty (after 19% tax): " + targetUUID);
+        de.rolandsw.schedulemc.economy.StateAccount.getInstance(server)
+            .deposit(tax, "Bounty tax (19%)");
 
         // Zu Historie hinzufügen
         bountyHistory.computeIfAbsent(targetUUID, k -> new ArrayList<>()).add(bounty);
@@ -172,7 +214,8 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         // Benachrichtige Hunter
         ServerPlayer hunter = server.getPlayerList().getPlayer(hunterUUID);
         if (hunter != null) {
-            hunter.sendSystemMessage(Component.translatable("manager.bounty.claimed", String.format("%.2f€", reward)));
+            hunter.sendSystemMessage(Component.translatable("manager.bounty.claimed_taxed",
+                String.format("%.2f", reward), String.format("%.2f", tax)));
         }
 
         // Benachrichtige Target
