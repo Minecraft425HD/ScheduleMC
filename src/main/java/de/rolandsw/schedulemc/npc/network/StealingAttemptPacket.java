@@ -94,6 +94,8 @@ public class StealingAttemptPacket {
                             if (stolenAmount > 0) {
                                 npc.getNpcData().removeMoney(stolenAmount);
                                 stolenMoney = stolenAmount;
+                                de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance()
+                                    .getOrCreateRelationship(npc.getUUID(), player.getUUID()).onTheftAttempt();
                                 if (LOGGER.isDebugEnabled()) {
                                     LOGGER.debug("[STEALING] Geld vom NPC entfernt: {}€", stolenAmount);
                                 }
@@ -332,6 +334,8 @@ public class StealingAttemptPacket {
                                 var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(serverLevel);
                                 integration.onCrimeWitnessed(player,
                                     de.rolandsw.schedulemc.npc.life.witness.CrimeType.PETTY_THEFT, npc);
+                                de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance()
+                                    .getOrCreateRelationship(npc.getUUID(), player.getUUID()).onTheftCaught();
                             }
 
                             int currentWantedLevel = CrimeManager.getWantedLevel(player.getUUID());

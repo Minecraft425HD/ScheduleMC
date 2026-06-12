@@ -49,6 +49,38 @@ public class DialogueCondition {
     // STANDARD CONDITIONS - EMOTIONS
     // ═══════════════════════════════════════════════════════════
 
+    // ═══════════════════════════════════════════════════════════
+    // STANDARD CONDITIONS - RELATIONSHIP
+    // ═══════════════════════════════════════════════════════════
+
+    public static DialogueCondition relationshipAtLeast(int minLevel) {
+        return new DialogueCondition("relationship_at_least_" + minLevel,
+            "Relationship level >= " + minLevel,
+            (ctx, npc) -> de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager
+                .getInstance()
+                .getOrCreateRelationship(npc.getUUID(), ctx.getPlayer().getUUID())
+                .getRelationshipLevel() >= minLevel);
+    }
+
+    public static DialogueCondition relationshipBelow(int maxLevel) {
+        return new DialogueCondition("relationship_below_" + maxLevel,
+            "Relationship level < " + maxLevel,
+            (ctx, npc) -> de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager
+                .getInstance()
+                .getOrCreateRelationship(npc.getUUID(), ctx.getPlayer().getUUID())
+                .getRelationshipLevel() < maxLevel);
+    }
+
+    /** Spieler hat diesen NPC angegriffen (Memory-Tag "Aggressor"). */
+    public static DialogueCondition playerIsAggressor() {
+        return new DialogueCondition("player_is_aggressor", "Player attacked this NPC",
+            (ctx, npc) -> {
+                NPCLifeData life = npc.getLifeData();
+                return life != null && life.getMemory()
+                    .playerHasTag(ctx.getPlayer().getUUID(), "Aggressor");
+            });
+    }
+
     public static DialogueCondition npcIsHappy() {
         return new DialogueCondition("npc_happy", "NPC is happy",
             (ctx, npc) -> {

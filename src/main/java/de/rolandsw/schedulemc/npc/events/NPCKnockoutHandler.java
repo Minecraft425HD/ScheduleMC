@@ -41,6 +41,23 @@ public class NPCKnockoutHandler {
             attacker = (Player) event.getSource().getEntity();
         }
 
+        // Angriff eines Spielers: Beziehung des Opfers verschlechtern + merken
+        if (attacker != null) {
+            de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance()
+                .getOrCreateRelationship(npc.getUUID(), attacker.getUUID()).onAttack();
+            var victimLife = npc.getLifeData();
+            if (victimLife != null) {
+                victimLife.getMemory().addPlayerTag(attacker.getUUID(), "Aggressor");
+                victimLife.getMemory().addMemory(attacker.getUUID(),
+                    de.rolandsw.schedulemc.npc.life.core.MemoryType.CRIME_WITNESSED,
+                    "Attacked me", 8);
+            }
+            // Laufenden Dialog des Angreifers mit diesem NPC beenden
+            if (attacker instanceof net.minecraft.server.level.ServerPlayer sp) {
+                de.rolandsw.schedulemc.npc.life.dialogue.DialogueManager.getInstance().endDialogue(sp);
+            }
+        }
+
         // Prüfe ob Schaden tödlich wäre (Knockout)
         float newHealth = npc.getHealth() - event.getAmount();
         boolean isKnockout = newHealth <= 0;

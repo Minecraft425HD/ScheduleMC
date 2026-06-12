@@ -487,6 +487,8 @@ public class QuestManager extends AbstractPersistenceManager<QuestManager.QuestM
                 );
                 lifeData.getMemory().addPlayerTag(player.getUUID(), "QuestFulfiller");
             }
+            de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance()
+                .getOrCreateRelationship(questGiver.getUUID(), player.getUUID()).onHelp();
         }
 
         // Bei wiederholbarer Quest: Cooldown setzen

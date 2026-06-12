@@ -59,8 +59,11 @@ public class PriceModifier {
         // 3. Fraktions-Beziehung
         modifier *= getFactionModifier(npc, player, level);
 
-        // 4. Spieler-Beziehung (aus Memory)
+        // 4. Spieler-Beziehung (aus Memory-Tags)
         modifier *= getPlayerRelationModifier(npc, player);
+
+        // 4b. Persönliche Beziehung (NPCRelationship: 1.5 feindlich … 0.8 sehr freundlich)
+        modifier *= getRelationshipModifier(npc, player);
 
         // 5. Marktbedingungen
         modifier *= getMarketModifier(level);
@@ -130,7 +133,18 @@ public class PriceModifier {
     }
 
     /**
-     * Modifikator basierend auf persönlicher Beziehung zum Spieler
+     * Modifikator aus dem persistenten Beziehungslevel (NPCRelationshipManager).
+     */
+    public static float getRelationshipModifier(CustomNPCEntity npc, ServerPlayer player) {
+        return (float) de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager
+            .getInstance()
+            .getOrCreateRelationship(npc.getUUID(), player.getUUID())
+            .getPriceModifier();
+    }
+
+    /**
+     * Modifikator basierend auf Memory-Tags des NPCs über den Spieler.
+     * (Der frühere Stammkunden-Bonus läuft jetzt über das Beziehungslevel.)
      */
     public static float getPlayerRelationModifier(CustomNPCEntity npc, ServerPlayer player) {
         NPCLifeData lifeData = npc.getLifeData();
@@ -140,15 +154,6 @@ public class PriceModifier {
 
         // Prüfe Tags und Erinnerungen
         var memory = lifeData.getMemory();
-
-        // Stammkunde?
-        int transactionCount = memory.getPlayerProfile(playerUUID).getTotalTransactions();
-        float loyaltyBonus = 0.0f;
-        if (transactionCount >= 10) {
-            loyaltyBonus = -0.1f; // 10% Rabatt für Stammkunden
-        } else if (transactionCount >= 5) {
-            loyaltyBonus = -0.05f; // 5% Rabatt
-        }
 
         // Negative Tags?
         float tagPenalty = 0.0f;
@@ -170,7 +175,7 @@ public class PriceModifier {
             tagPenalty -= 0.05f;
         }
 
-        return 1.0f + loyaltyBonus + tagPenalty;
+        return 1.0f + tagPenalty;
     }
 
     /**

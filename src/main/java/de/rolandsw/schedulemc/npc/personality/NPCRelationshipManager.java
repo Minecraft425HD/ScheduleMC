@@ -84,6 +84,20 @@ public class NPCRelationshipManager extends AbstractPersistenceManager<NPCRelati
     /**
      * Holt oder erstellt Relationship
      */
+    /**
+     * Täglicher Decay: negative Beziehungen erholen sich um +2 Richtung 0
+     * (Groll verblasst), positive bleiben unverändert.
+     */
+    public void applyDailyDecay() {
+        for (NPCRelationship rel : relationships.values()) {
+            int level = rel.getRelationshipLevel();
+            if (level < 0) {
+                rel.modifyRelationship(Math.min(2, -level));
+            }
+        }
+        markDirty();
+    }
+
     public NPCRelationship getOrCreateRelationship(UUID npcId, UUID playerId) {
         String key = makeKey(npcId, playerId);
 

@@ -157,6 +157,7 @@ public class NPCLifeSystemIntegration {
         // Alle 24000 Ticks (1 MC-Tag): Reputations-Decay anwenden
         if (tickCounter >= 24000) {
             factionManager.applyDailyReputationDecay();
+            de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager.getInstance().applyDailyDecay();
             tickCounter = 0;
         }
     }

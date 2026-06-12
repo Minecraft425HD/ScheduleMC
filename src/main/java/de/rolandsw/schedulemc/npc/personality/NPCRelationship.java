@@ -119,6 +119,13 @@ public class NPCRelationship {
     /**
      * Spieler greift NPC an
      */
+    /**
+     * Direkte Beziehungsänderung (z.B. Versöhnung, Auftragsablauf).
+     */
+    public void modifyRelationship(int delta) {
+        changeRelationship(delta);
+    }
+
     public void onAttack() {
         changeRelationship(ATTACK_PENALTY);
         LOGGER.debug("NPC {} relationship with {} severely decreased by {} (attack)", npcId, playerId, ATTACK_PENALTY);

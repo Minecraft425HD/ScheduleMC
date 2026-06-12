@@ -70,6 +70,15 @@ public class TradeEventHelper {
 
         if (lifeData == null) return;
 
+        // 0. Persönliche Beziehung aktualisieren (Käufe/Verkäufe stärken sie)
+        var relationship = de.rolandsw.schedulemc.npc.personality.NPCRelationshipManager
+            .getInstance().getOrCreateRelationship(npc.getUUID(), playerUUID);
+        if (playerIsBuying) {
+            relationship.onPurchase(price);
+        } else {
+            relationship.onSale(price);
+        }
+
         // 1. Erinnerung speichern
         String itemName = item.getHoverName().getString();
         String memoryText = String.format("%s: %s for %d",
