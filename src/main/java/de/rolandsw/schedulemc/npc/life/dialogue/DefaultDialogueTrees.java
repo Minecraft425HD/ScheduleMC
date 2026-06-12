@@ -220,15 +220,43 @@ public class DefaultDialogueTrees {
             .startCondition(npcTypeIs(NPCType.MERCHANT))
             .priority(5)
             .addNodes(
-                DialogueNode.simple("start",
-                    "Willkommen! Was darf es sein?",
-                    new DialogueOption("buy", "I want to buy something.")
+                DialogueNode.builder("start")
+                    .setText("Willkommen! Was darf es sein?")
+                    .addConditionalText(DialogueCondition.relationshipAtLeast(50),
+                        "{player_name}, mein bester Kunde! Für dich habe ich immer Zeit — und die besten Preise.")
+                    .addConditionalText(DialogueCondition.relationshipAtLeast(10),
+                        "Ah, {player_name}! Schön, dich wiederzusehen. Was darf es heute sein?")
+                    .addConditionalText(DialogueCondition.relationshipBelow(-10),
+                        "*mustert dich kühl* Was willst du? Bezahlt wird im Voraus.")
+                    .addConditionalText(DialogueCondition.npcTraitAbove("greed", 50),
+                        "Zeit ist Geld. Was willst du kaufen?")
+                    .addConditionalText(DialogueCondition.npcTraitBelow("greed", -50),
+                        "Willkommen, willkommen! Für gute Kunden mache ich gerne einen guten Preis!")
+                    .addOption(new DialogueOption("buy", "I want to buy something.")
                         .targetNode(null)
-                        .addAction(DialogueAction.openTradeMenu()),
-                    new DialogueOption("sell", "I want to sell.")
-                        .targetNode("sell_node"),
-                    DialogueOption.exit("Nur schauen, danke.")
-                ),
+                        .addAction(DialogueAction.openTradeMenu()))
+                    .addOption(new DialogueOption("sell", "I want to sell.")
+                        .targetNode("sell_node"))
+                    .addOption(new DialogueOption("haggle", "Können wir über die Preise verhandeln?")
+                        .visibleWhen(DialogueCondition.npcTraitAbove("greed", 40))
+                        .targetNode(null)
+                        .addAction(DialogueAction.startNegotiation()))
+                    .addOption(new DialogueOption("friend_discount", "Hast du etwas für einen alten Freund?")
+                        .visibleWhen(DialogueCondition.and(
+                            DialogueCondition.relationshipAtLeast(25),
+                            DialogueCondition.npcTraitBelow("greed", -40)))
+                        .targetNode("discount_given")
+                        .addAction(DialogueAction.giveTempDiscount(0.1f, 30)))
+                    .addOption(new DialogueOption("why_prices", "Warum diese Preise?")
+                        .targetNode("price_breakdown")
+                        .addAction(DialogueAction.explainPrices()))
+                    .addOption(DialogueOption.exit("Nur schauen, danke.")),
+                DialogueNode.builder("discount_given")
+                    .setText("*zwinkert* Für dich? 10% Rabatt, die nächste halbe Stunde. Aber erzähl es nicht weiter!")
+                    .addOption(DialogueOption.exit("Danke dir!")),
+                DialogueNode.builder("price_breakdown")
+                    .setText("{var:price_breakdown}")
+                    .addOption(DialogueOption.exit("Verstehe. Danke.")),
                 DialogueNode.simple("sell_node",
                     "Was haben Sie anzubieten?",
                     new DialogueOption("open_sell", "Hier bitte.")

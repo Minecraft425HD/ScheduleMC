@@ -211,12 +211,14 @@ public class PriceModifier {
         float emotionMod = getEmotionModifier(npc);
         float factionMod = getFactionModifier(npc, player, level);
         float relationMod = getPlayerRelationModifier(npc, player);
+        float relationshipMod = getRelationshipModifier(npc, player);
         float marketMod = getMarketModifier(level);
 
         sb.append(String.format("NPC personality: ×%.2f\n", traitMod));
         sb.append(String.format("NPC mood: ×%.2f\n", emotionMod));
         sb.append(String.format("Faction standing: ×%.2f\n", factionMod));
-        sb.append(String.format("Personal relationship: ×%.2f\n", relationMod));
+        sb.append(String.format("Reputation tags: ×%.2f\n", relationMod));
+        sb.append(String.format("Personal relationship: ×%.2f\n", relationshipMod));
         sb.append(String.format("Market conditions: ×%.2f\n", marketMod));
 
         if (!isBuying) {

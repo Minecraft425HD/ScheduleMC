@@ -375,6 +375,22 @@ public class DialogueAction {
      * Betrag ab und versöhnt den NPC vollständig.
      * Setzt Flags: reconciliation_paid / reconciliation_no_money
      */
+    /**
+     * Legt die Preis-Aufschlüsselung (Persönlichkeit, Beziehung, Markt …)
+     * als Dialog-Variable {var:price_breakdown} ab.
+     */
+    public static DialogueAction explainPrices() {
+        return new DialogueAction("explain_prices", "Explain price composition",
+            (ctx, npc) -> {
+                var player = ctx.getPlayer();
+                if (player != null && player.level() instanceof net.minecraft.server.level.ServerLevel sl) {
+                    ctx.setVariable("price_breakdown",
+                        de.rolandsw.schedulemc.npc.life.economy.PriceModifier
+                            .getPriceBreakdown(npc, player, sl, true));
+                }
+            });
+    }
+
     public static DialogueAction apologizeWithPayment() {
         return new DialogueAction("apologize_payment", "Apologize and pay compensation",
             (ctx, npc) -> {
