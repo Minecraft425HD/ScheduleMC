@@ -188,7 +188,7 @@ public class DialogueTree {
      */
     public DialogueNode getFallbackEndNode() {
         return DialogueNode.builder("fallback_end")
-            .setText("Entschuldige, ich bin gerade abgelenkt. Lass uns später weiterreden.")
+            .setText("Sorry, I am distracted right now. Let us talk later.")
             .addOption(DialogueOption.exit("In Ordnung."));
     }
 

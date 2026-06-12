@@ -254,19 +254,19 @@ public class SupplyRequestManager extends AbstractPersistenceManager<SupplyReque
 
         String itemName = Component.translatable(item.getDescriptionId()).getString();
         String questId = "supply_" + UUID.randomUUID();
-        String title = "Besorgung: " + req.amount + "x " + itemName;
-        String description = npc.getName().getString() + " braucht " + req.amount + "x " + itemName
-            + ". Treffpunkt: " + req.meetingX + ", " + req.meetingY + ", " + req.meetingZ
-            + " — Bezahlung: " + req.payment + "€";
+        String title = "Errand: " + req.amount + "x " + itemName;
+        String description = npc.getName().getString() + " needs " + req.amount + "x " + itemName
+            + ". Meeting point: " + req.meetingX + ", " + req.meetingY + ", " + req.meetingZ
+            + " — payment: " + req.payment + "€";
 
         Quest quest = new Quest(questId, title, description, QuestType.SUPPLY, npcId,
             Faction.forNPCType(npc.getNpcType()));
         quest.addObjective(QuestObjective.collectItems("collect", item, req.amount,
-            req.amount + "x " + itemName + " besorgen"));
+            "Obtain " + req.amount + "x " + itemName));
         quest.addObjective(QuestObjective.visitLocation("meet", req.getMeetingPoint(), 5,
-            "Zum Treffpunkt gehen (" + req.meetingX + ", " + req.meetingY + ", " + req.meetingZ + ")"));
+            "Go to the meeting point (" + req.meetingX + ", " + req.meetingY + ", " + req.meetingZ + ")"));
         quest.addObjective(QuestObjective.deliverToNPC("deliver", item, req.amount, npcId,
-            "Die Waren übergeben"));
+            "Hand over the goods"));
         quest.setReward(QuestReward.create().money(req.payment)
             .factionRep(Faction.forNPCType(npc.getNpcType()), 2));
         quest.setTimeLimit(2);

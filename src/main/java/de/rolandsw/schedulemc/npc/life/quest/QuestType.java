@@ -44,7 +44,7 @@ public enum QuestType {
     /**
      * Supply - Proaktive Warenanfrage eines NPCs (Treffpunkt + Frist)
      */
-    SUPPLY("Besorgung", "Bringen Sie die gewünschten Waren zum Treffpunkt", 1.1f);
+    SUPPLY("Besorgung", "Bring the requested goods to the meeting point", 1.1f);
 
     // ═══════════════════════════════════════════════════════════
     // DATA

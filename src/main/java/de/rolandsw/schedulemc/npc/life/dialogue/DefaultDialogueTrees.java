@@ -49,24 +49,24 @@ public class DefaultDialogueTrees {
             .priority(15)
             .addNodes(
                 DialogueNode.builder("start")
-                    .setText("Gut, dass ich dich sehe, {player_name}! Ich brauche {var:supply_amount}x {var:supply_item}. "
-                        + "Bring sie mir zum Treffpunkt ({var:supply_meeting}) — ich zahle dir {var:supply_payment}€. Machst du das?")
+                    .setText("Good to see you, {player_name}! I need {var:supply_amount}x {var:supply_item}. "
+                        + "Bring them to the meeting point ({var:supply_meeting}) — I will pay you {var:supply_payment}€. Are you in?")
                     .addEntryAction(DialogueAction.describeSupplyRequest())
-                    .addOption(new DialogueOption("accept", "Klar, mache ich!")
+                    .addOption(new DialogueOption("accept", "Sure, I will do it!")
                         .targetNode("supply_result")
                         .addAction(DialogueAction.acceptSupplyRequest()))
-                    .addOption(new DialogueOption("decline", "Nein, das passt mir gerade nicht.")
+                    .addOption(new DialogueOption("decline", "No, that does not suit me right now.")
                         .targetNode("supply_result")
                         .addAction(DialogueAction.declineSupplyRequest()))
-                    .addOption(DialogueOption.exit("Ich überlege es mir — bis später."))
+                    .addOption(DialogueOption.exit("I will think about it — see you later."))
                     .build(),
                 DialogueNode.builder("supply_result")
                     .setText("...")
                     .addConditionalText(DialogueCondition.contextFlagSet("supply_accepted"),
-                        "Wunderbar! Ich warte am Treffpunkt auf dich. Lass mich nicht hängen!")
+                        "Wonderful! I will wait for you at the meeting point. Do not let me down!")
                     .addConditionalText(DialogueCondition.contextFlagSet("supply_declined"),
-                        "Schade... na gut, vielleicht ein anderes Mal.")
-                    .addOption(DialogueOption.exit("Bis dann."))
+                        "Too bad... all right, maybe another time.")
+                    .addOption(DialogueOption.exit("See you."))
                     .build()
             );
     }
@@ -79,7 +79,7 @@ public class DefaultDialogueTrees {
             .addConditionalStart(DialogueCondition.playerIsAggressor(), "start_aggressor")
             .addNodes(
                 DialogueNode.builder("start_aggressor")
-                    .setText("B-bitte... tu mir nicht wieder weh! Was willst du noch von mir?")
+                    .setText("P-please... do not hurt me again! What more do you want from me?")
                     .addEntryAction(DialogueAction.computeCompensation())
                     .addOption(new DialogueOption("pay", "Es tut mir leid. Hier, {var:compensation}€ Schmerzensgeld.")
                         .targetNode("apology_result")
@@ -95,10 +95,10 @@ public class DefaultDialogueTrees {
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_accepted"),
                         "*atmet tief durch* Also gut... ich glaube dir. Aber tu das nie wieder!")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_rejected"),
-                        "Worte! Nur Worte! Das reicht mir nicht...")
+                        "Words! Just words! That is not enough for me...")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_no_money"),
-                        "Du hast nicht mal genug Geld für eine ehrliche Entschuldigung...")
-                    .addOption(DialogueOption.exit("Bis dann.")),
+                        "You do not even have enough money for an honest apology...")
+                    .addOption(DialogueOption.exit("See you.")),
                 DialogueNode.builder("start")
                     .setText("*zittert* E-entschuldige... ich bin gerade etwas durcheinander. Etwas Schreckliches ist passiert...")
                     .addOption(new DialogueOption("comfort", "Ist alles in Ordnung? Ich tue dir nichts.")
@@ -135,23 +135,23 @@ public class DefaultDialogueTrees {
                 DialogueNode.builder("apology_result")
                     .setText("...")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_paid"),
-                        "*zählt das Geld nach* Hmpf. Damit sind wir quitt. Aber merk dir das!")
+                        "*counts the money* Hmpf. Now we are even. But remember this!")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_accepted"),
-                        "*knurrt* Na schön. Einmal noch. EINMAL.")
+                        "*growls* Fine. One more time. ONCE.")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_rejected"),
                         "Glaubst du, ein paar nette Worte machen das wieder gut?!")
                     .addConditionalText(DialogueCondition.contextFlagSet("reconciliation_no_money"),
                         "Nicht mal Geld hast du! Verschwinde!")
                     .addOption(DialogueOption.exit("Verstanden.")),
                 DialogueNode.builder("start")
-                    .setText("*wütend* Was?! Ich habe gerade WIRKLICH keine Geduld!")
+                    .setText("*furious* What?! I REALLY have no patience right now!")
                     .addOption(new DialogueOption("calm", "Ganz ruhig... was ist denn passiert?")
                         .targetNode("vented")
                         .addAction(DialogueAction.calmDown(25f)))
                     .addOption(DialogueOption.exit("Schon gut, schon gut.")),
                 DialogueNode.builder("vented")
                     .setText("*schnaubt* ...Entschuldige. Es war ein furchtbarer Tag. Was willst du?")
-                    .addOption(DialogueOption.exit("Ich komme später wieder."))
+                    .addOption(DialogueOption.exit("I will come back later."))
             );
     }
 
@@ -257,25 +257,25 @@ public class DefaultDialogueTrees {
                 DialogueNode.builder("start")
                     .setText("Willkommen! Was darf es sein?")
                     .addConditionalText(DialogueCondition.relationshipAtLeast(50),
-                        "{player_name}, mein bester Kunde! Für dich habe ich immer Zeit — und die besten Preise.")
+                        "{player_name}, my best customer! I always have time for you — and the best prices.")
                     .addConditionalText(DialogueCondition.relationshipAtLeast(10),
-                        "Ah, {player_name}! Schön, dich wiederzusehen. Was darf es heute sein?")
+                        "Ah, {player_name}! Good to see you again. What will it be today?")
                     .addConditionalText(DialogueCondition.relationshipBelow(-10),
-                        "*mustert dich kühl* Was willst du? Bezahlt wird im Voraus.")
+                        "*eyes you coldly* What do you want? Payment up front.")
                     .addConditionalText(DialogueCondition.npcTraitAbove("greed", 50),
                         "Zeit ist Geld. Was willst du kaufen?")
                     .addConditionalText(DialogueCondition.npcTraitBelow("greed", -50),
-                        "Willkommen, willkommen! Für gute Kunden mache ich gerne einen guten Preis!")
+                        "Welcome, welcome! For good customers I am happy to make a good price!")
                     .addOption(new DialogueOption("buy", "I want to buy something.")
                         .targetNode(null)
                         .addAction(DialogueAction.openTradeMenu()))
                     .addOption(new DialogueOption("sell", "I want to sell.")
                         .targetNode("sell_node"))
-                    .addOption(new DialogueOption("haggle", "Können wir über die Preise verhandeln?")
+                    .addOption(new DialogueOption("haggle", "Can we negotiate the prices?")
                         .visibleWhen(DialogueCondition.npcTraitAbove("greed", 40))
                         .targetNode(null)
                         .addAction(DialogueAction.startNegotiation()))
-                    .addOption(new DialogueOption("friend_discount", "Hast du etwas für einen alten Freund?")
+                    .addOption(new DialogueOption("friend_discount", "Do you have something for an old friend?")
                         .visibleWhen(DialogueCondition.and(
                             DialogueCondition.relationshipAtLeast(25),
                             DialogueCondition.npcTraitBelow("greed", -40)))
@@ -286,7 +286,7 @@ public class DefaultDialogueTrees {
                         .addAction(DialogueAction.explainPrices()))
                     .addOption(DialogueOption.exit("Nur schauen, danke.")),
                 DialogueNode.builder("discount_given")
-                    .setText("*zwinkert* Für dich? 10% Rabatt, die nächste halbe Stunde. Aber erzähl es nicht weiter!")
+                    .setText("*winks* For you? 10% discount for the next half hour. But do not spread the word!")
                     .addOption(DialogueOption.exit("Danke dir!")),
                 DialogueNode.builder("price_breakdown")
                     .setText("{var:price_breakdown}")

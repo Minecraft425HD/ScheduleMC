@@ -20,15 +20,15 @@ public class NPCMessageTemplates {
      */
     public static String getSupplyRequestMessage(String itemName, int amount, int payment,
                                                  int x, int y, int z, long deadlineDay) {
-        return "Hey! Ich brauche " + amount + "x " + itemName + ". "
-            + "Treffpunkt: " + x + ", " + y + ", " + z + ". "
-            + "Ich zahle dir " + payment + "€. Sprich mich an, wenn du dabei bist — "
-            + "das Angebot gilt bis Tag " + deadlineDay + ".";
+        return "Hey! I need " + amount + "x " + itemName + ". "
+            + "Meeting point: " + x + ", " + y + ", " + z + ". "
+            + "I will pay you " + payment + "€. Talk to me if you are in — "
+            + "the offer is valid until day " + deadlineDay + ".";
     }
 
     /** Smartphone-Nachricht, wenn eine angenommene Besorgung scheitert. */
     public static String getSupplyRequestDisappointedMessage() {
-        return "Ich habe vergeblich auf die Waren gewartet... Ich bin enttäuscht von dir.";
+        return "I waited for the goods in vain... I am disappointed in you.";
     }
 
     public static Component getUnfriendlyMessage(int variant) {
