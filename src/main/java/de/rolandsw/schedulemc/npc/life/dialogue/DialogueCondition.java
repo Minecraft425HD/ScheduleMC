@@ -320,6 +320,18 @@ public class DialogueCondition {
     /**
      * Hat dieser NPC eine offene Warenanfrage an den Spieler?
      */
+    /** Hat der Spieler einen meldbaren Angriff gegen sich (für Polizei-Anzeige)? */
+    public static DialogueCondition hasReportableAttack() {
+        return new DialogueCondition("has_reportable_attack",
+            "Spieler kann einen Angreifer anzeigen",
+            (ctx, npc) -> {
+                var mgr = de.rolandsw.schedulemc.npc.crime.AttackerRecordManager.getInstance();
+                if (mgr == null || ctx.getPlayer() == null) return false;
+                long day = ctx.getPlayer().level().getDayTime() / 24000;
+                return !mgr.getReportableAttacks(ctx.getPlayer().getUUID(), day).isEmpty();
+            });
+    }
+
     public static DialogueCondition hasPendingSupplyRequest() {
         return new DialogueCondition("has_pending_supply_request",
             "NPC has a pending supply request for the player",

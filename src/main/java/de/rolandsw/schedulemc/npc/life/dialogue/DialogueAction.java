@@ -456,6 +456,39 @@ public class DialogueAction {
      * Lädt die Daten der offenen Warenanfrage in Context-Variablen
      * ({supply_amount}, {supply_item}, {supply_payment}, {supply_meeting}).
      */
+    /**
+     * Opfer erstattet Anzeige gegen seinen schwersten meldbaren Angreifer.
+     * Vergibt Fahndungssterne + Kopfgeld über WitnessManager.fileDirectReport.
+     */
+    public static DialogueAction fileChargesAgainstAttacker() {
+        return new DialogueAction("file_charges", "Anzeige erstatten",
+            (ctx, npc) -> {
+                var mgr = de.rolandsw.schedulemc.npc.crime.AttackerRecordManager.getInstance();
+                if (mgr == null || ctx.getPlayer() == null) return;
+                if (!(ctx.getPlayer().level() instanceof net.minecraft.server.level.ServerLevel level)) return;
+                long day = level.getDayTime() / 24000;
+                var attacks = mgr.getReportableAttacks(ctx.getPlayer().getUUID(), day);
+                if (attacks.isEmpty()) return;
+
+                // schwersten Angriff wählen
+                var worst = attacks.get(0);
+                for (var a : attacks) {
+                    if (a.crimeTypeOrAssault().getSeverity() > worst.crimeTypeOrAssault().getSeverity()) {
+                        worst = a;
+                    }
+                }
+                var type = worst.crimeTypeOrAssault();
+                ctx.setVariable("attacker_name", worst.attackerName);
+                ctx.setVariable("crime", type.getDisplayName());
+
+                de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getManager(level)
+                    .fileDirectReport(ctx.getPlayer(), npc, worst.attackerUUID, type, worst.location(), level);
+                mgr.markReported(ctx.getPlayer().getUUID(), worst.attackerUUID);
+                ctx.getPlayer().sendSystemMessage(net.minecraft.network.chat.Component.translatable(
+                    "crime.schedulemc.charges_filed", worst.attackerName, type.getDisplayName()));
+            });
+    }
+
     public static DialogueAction describeSupplyRequest() {
         return new DialogueAction("describe_supply_request", "Warenanfrage beschreiben",
             (ctx, npc) -> {

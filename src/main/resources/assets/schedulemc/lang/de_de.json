@@ -1406,6 +1406,7 @@
   "container.small_packaging_table": "Kleiner Verpackungstisch",
   "creativetab.schedulemc.weapons": "Waffen",
   "crime.schedulemc.bounty_collected": "§8[§c⚖§8] §e%s §7hat das Kopfgeld auf §e%s §7kassiert: §6%s€ §8• §7Fahndung gelöscht",
+  "crime.schedulemc.charges_filed": "§8[§c⚖§8] §7Du hast Anzeige gegen §e%s §7erstattet: §f%s",
   "crime.schedulemc.report_reached_police": "§8[§c⚖§8] §e%s §7gemeldet: §f%s §8• §7Fahndung: %s §8• §7Kopfgeld: §6%s€",
   "currency.format": "%s€",
   "dialogue.schedulemc.npc_unconscious": "§7Der NPC ist bewusstlos und kann gerade nicht sprechen.",

@@ -439,6 +439,36 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
             false);
     }
 
+    /**
+     * Direkte Anzeige eines Spielers (Opfer meldet seinen Angreifer bei einem
+     * Polizisten). Vergibt sofort Fahndungssterne, setzt Server-Kopfgeld und
+     * löst die kompakte serverweite Meldung aus.
+     */
+    public void fileDirectReport(ServerPlayer reporter, CustomNPCEntity policeNpc,
+                                 UUID criminalUUID, CrimeType type, BlockPos location, ServerLevel level) {
+        long currentDay = level.getDayTime() / 24000;
+        UUID witnessId = policeNpc.getNpcData() != null
+            ? policeNpc.getNpcData().getNpcUUID() : policeNpc.getUUID();
+
+        WitnessReport report = new WitnessReport(criminalUUID, witnessId, type,
+            location, level.getGameTime(), currentDay);
+        report.setVictimUUID(reporter.getUUID());
+        report.markAsReported();
+        addReport(report);
+
+        addToWantedList(criminalUUID, type);
+        de.rolandsw.schedulemc.npc.crime.CrimeManager.addWantedLevel(
+            criminalUUID, type.getWantedStars(), currentDay);
+
+        int stars = de.rolandsw.schedulemc.npc.crime.CrimeManager.getWantedLevel(criminalUUID);
+        double bountyAmount = 0.0;
+        var bountyManager = de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance();
+        if (bountyManager != null && stars > 0) {
+            bountyAmount = bountyManager.placeServerBounty(criminalUUID, stars);
+        }
+        broadcastReportReachedPolice(level, report, stars, bountyAmount);
+    }
+
     private void processReports(ServerLevel level) {
         List<CustomNPCEntity> processReportsPoliceBuffer = new ArrayList<>();
         long currentDay = level.getDayTime() / 24000;

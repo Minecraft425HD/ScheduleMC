@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -88,6 +89,57 @@ public class CrimeEventHandler {
                 level,
                 npc.getNpcData().getNpcUUID()
             );
+        } else if (target instanceof ServerPlayer victim) {
+            // Spieler-gegen-Spieler: zählt wie ein Angriff auf einen NPC
+            if (!isPunishablePvp(player, victim)) return;
+
+            CrimeType crimeType = isHoldingWeapon(player) ? CrimeType.ARMED_VIOLENCE : CrimeType.ASSAULT;
+            WitnessManager.getManager(level).registerCrime(
+                player, crimeType, victim.blockPosition(), level, victim.getUUID());
+        }
+    }
+
+    /**
+     * Prüft, ob ein PvP-Angriff/-Kill als Verbrechen zählt. Angriffe gegen
+     * Spieler mit aktivem Kopfgeld sind legal (Kopfgeldjagd).
+     */
+    private static boolean isPunishablePvp(ServerPlayer attacker, ServerPlayer victim) {
+        if (victim.getUUID().equals(attacker.getUUID())) return false;
+        if (victim.isCreative() || victim.isSpectator()) return false;
+        if (attacker instanceof net.minecraftforge.common.util.FakePlayer) return false;
+        return !isLegalBountyTarget(victim);
+    }
+
+    /** true, wenn auf das Opfer ein aktives Kopfgeld ausgesetzt ist. */
+    private static boolean isLegalBountyTarget(ServerPlayer victim) {
+        var bm = de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance();
+        var bounty = bm != null ? bm.getActiveBounty(victim.getUUID()) : null;
+        return bounty != null && bounty.isActive();
+    }
+
+    /**
+     * Sofort-Sterne + Täter-Protokoll bei PvP-Schaden (parallel zum
+     * NPC-System: NPCKnockoutHandler vergibt Sofort-Sterne, AttackEntityEvent
+     * speist die langsame Berichtspipeline).
+     */
+    @SubscribeEvent
+    public static void onPlayerDamage(LivingDamageEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer victim)) return;
+        if (!(victim.level() instanceof ServerLevel level)) return;
+        if (!(event.getSource().getEntity() instanceof ServerPlayer attacker)) return;
+        if (!isPunishablePvp(attacker, victim)) return;
+        if (event.getAmount() <= 0) return;
+        // Tödlicher Treffer -> Death-Pfad übernimmt (MURDER), hier überspringen
+        if (event.getAmount() >= victim.getHealth()) return;
+
+        CrimeType type = isHoldingWeapon(attacker) ? CrimeType.ARMED_VIOLENCE : CrimeType.ASSAULT;
+        de.rolandsw.schedulemc.npc.life.witness.CrimeWitnessUtil.detectAndPunish(
+            attacker, victim.blockPosition(), null, victim.getUUID(), type, 1, "Assault");
+
+        var records = de.rolandsw.schedulemc.npc.crime.AttackerRecordManager.getInstance();
+        if (records != null) {
+            records.recordAttack(victim, attacker, type, false, victim.blockPosition(),
+                level.getDayTime() / 24000);
         }
     }
 
@@ -134,6 +186,19 @@ public class CrimeEventHandler {
                 }
                 return; // legaler Kopfgeld-Kill: keinerlei Verbrechens-Registrierung
             }
+        }
+
+        // Spieler ohne Kopfgeld getötet -> MURDER (3 Sterne)
+        if (victim instanceof ServerPlayer deadPlayer && isPunishablePvp(player, deadPlayer)) {
+            de.rolandsw.schedulemc.npc.life.witness.CrimeWitnessUtil.detectAndPunish(
+                player, deadPlayer.blockPosition(), null, deadPlayer.getUUID(),
+                CrimeType.MURDER, CrimeType.MURDER.getWantedStars(), "Murder");
+            var records = de.rolandsw.schedulemc.npc.crime.AttackerRecordManager.getInstance();
+            if (records != null) {
+                records.recordAttack(deadPlayer, player, CrimeType.MURDER, true,
+                    deadPlayer.blockPosition(), level.getDayTime() / 24000);
+            }
+            return;
         }
 
         // NPC getötet

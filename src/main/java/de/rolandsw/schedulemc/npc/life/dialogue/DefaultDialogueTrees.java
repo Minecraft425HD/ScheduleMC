@@ -321,12 +321,19 @@ public class DefaultDialogueTrees {
                 ),
                 DialogueNode.simple("report_node",
                     "I'll take this down. What would you like to report?",
+                    new DialogueOption("press_charges", "I was attacked! I want to press charges.")
+                        .visibleWhen(DialogueCondition.hasReportableAttack())
+                        .targetNode("charges_filed")
+                        .addAction(DialogueAction.fileChargesAgainstAttacker()),
                     new DialogueOption("crime", "A crime has been committed.")
                         .targetNode("noted")
                         .addAction(DialogueAction.addMemory(
                             de.rolandsw.schedulemc.npc.life.core.MemoryType.CRIME_WITNESSED,
                             "Player reported a crime", 3)),
                     DialogueOption.exit("Forget it.")
+                ),
+                DialogueNode.end("charges_filed",
+                    "Understood. I am filing charges against {var:attacker_name} for {var:crime}. We will find them."
                 ),
                 DialogueNode.end("noted",
                     "Thank you for the report. We will look into it."
