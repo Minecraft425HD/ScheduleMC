@@ -175,6 +175,20 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.BooleanValue POLICE_FLANKING_ENABLED;
         public final ForgeConfigSpec.IntValue POLICE_WANTED_POSTERS_MIN_LEVEL;
 
+        // Police Combat (weapons when arrest fails)
+        public final ForgeConfigSpec.BooleanValue POLICE_COMBAT_ENABLED;
+        public final ForgeConfigSpec.IntValue POLICE_MELEE_WANTED_LEVEL;
+        public final ForgeConfigSpec.IntValue POLICE_RANGED_WANTED_LEVEL;
+        public final ForgeConfigSpec.DoubleValue POLICE_RANGED_MIN_DISTANCE;
+        public final ForgeConfigSpec.IntValue POLICE_ESCALATION_ESCAPE_COUNT;
+        public final ForgeConfigSpec.IntValue POLICE_ESCALATION_PURSUIT_SECONDS;
+        public final ForgeConfigSpec.IntValue POLICE_SHOT_COOLDOWN_TICKS;
+        public final ForgeConfigSpec.DoubleValue POLICE_PISTOL_DAMAGE;
+        public final ForgeConfigSpec.IntValue POLICE_MAX_SIMULTANEOUS_SHOOTERS;
+        public final ForgeConfigSpec.BooleanValue POLICE_LETHAL_FORCE;
+        public final ForgeConfigSpec.DoubleValue POLICE_ILLEGAL_ITEMS_CASH_PENALTY;
+        public final ForgeConfigSpec.DoubleValue POLICE_ILLEGAL_ITEMS_ACCOUNT_PENALTY;
+
         // ═══════════════════════════════════════════════════════════
         // STEALING MINIGAME
         // ═══════════════════════════════════════════════════════════
@@ -810,6 +824,46 @@ public class ModConfigHandler {
             POLICE_WANTED_POSTERS_MIN_LEVEL = builder
                     .comment("Minimum wanted level for wanted posters on smartphone")
                     .defineInRange("wanted_posters_min_level", 3, 1, 5);
+
+            builder.comment("Police combat: weapons are only used when an arrest is not working and the wanted level is high. Arrest always stays the preferred outcome.")
+                    .push("combat");
+            POLICE_COMBAT_ENABLED = builder
+                    .comment("Master switch for police weapon use")
+                    .define("enabled", true);
+            POLICE_MELEE_WANTED_LEVEL = builder
+                    .comment("Minimum wanted level for melee (baseball bat)")
+                    .defineInRange("melee_wanted_level", 3, 1, 5);
+            POLICE_RANGED_WANTED_LEVEL = builder
+                    .comment("Minimum wanted level for ranged (pistol)")
+                    .defineInRange("ranged_wanted_level", 4, 1, 5);
+            POLICE_RANGED_MIN_DISTANCE = builder
+                    .comment("Pistol is only used beyond this distance (blocks)")
+                    .defineInRange("ranged_min_distance", 8.0, 2.0, 32.0);
+            POLICE_ESCALATION_ESCAPE_COUNT = builder
+                    .comment("Arrest-range escapes before police draw weapons")
+                    .defineInRange("escalation_escape_count", 2, 1, 10);
+            POLICE_ESCALATION_PURSUIT_SECONDS = builder
+                    .comment("Continuous fruitless pursuit (seconds) before police draw weapons")
+                    .defineInRange("escalation_pursuit_seconds", 10, 1, 120);
+            POLICE_SHOT_COOLDOWN_TICKS = builder
+                    .comment("Cooldown between pistol shots per officer (ticks)")
+                    .defineInRange("shot_cooldown_ticks", 40, 5, 200);
+            POLICE_PISTOL_DAMAGE = builder
+                    .comment("Base pistol bullet damage")
+                    .defineInRange("pistol_damage", 4.0, 0.5, 20.0);
+            POLICE_MAX_SIMULTANEOUS_SHOOTERS = builder
+                    .comment("Maximum officers shooting one target at once")
+                    .defineInRange("max_simultaneous_shooters", 2, 1, 8);
+            POLICE_LETHAL_FORCE = builder
+                    .comment("Allow lethal force only in emergencies (5 stars AND the player attacked police). Otherwise shots stop the player at half a heart and an arrest follows.")
+                    .define("lethal_force_in_emergency", true);
+            POLICE_ILLEGAL_ITEMS_CASH_PENALTY = builder
+                    .comment("Penalty on total wallet cash when killed by police while carrying illegal items (0.20 = 20%)")
+                    .defineInRange("illegal_items_cash_penalty", 0.20, 0.0, 1.0);
+            POLICE_ILLEGAL_ITEMS_ACCOUNT_PENALTY = builder
+                    .comment("Penalty on bank account when killed by police while carrying illegal items (0.05 = 5%)")
+                    .defineInRange("illegal_items_account_penalty", 0.05, 0.0, 1.0);
+            builder.pop();
 
             builder.pop();
 

@@ -123,7 +123,25 @@ public class CustomNPCModel extends HierarchicalModel<CustomNPCEntity> {
             // Idle arm swing
             this.rightArm.zRot = 0.0F;
             this.leftArm.zRot = 0.0F;
+
+            // Waffen-Bereitschaftspose: rechten Arm nach vorne strecken
+            if (!entity.getMainHandItem().isEmpty()) {
+                this.rightArm.xRot = -1.45F;
+                this.rightArm.yRot = 0.0F;
+                this.rightArm.zRot = 0.0F;
+            }
         }
+    }
+
+    /** Rechter Arm für das Hand-Item-Layer. */
+    public ModelPart getRightArm() {
+        return this.rightArm;
+    }
+
+    /** Positioniert die PoseStack-Matrix an der rechten Hand (für gehaltene Items). */
+    public void translateToHand(PoseStack poseStack) {
+        this.rightArm.translateAndRotate(poseStack);
+        poseStack.translate(-0.0625, 0.62, -0.0625);
     }
 
     @Override

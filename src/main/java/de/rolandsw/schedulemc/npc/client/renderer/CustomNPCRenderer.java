@@ -36,6 +36,8 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
         super(context, new CustomNPCModel(context.bakeLayer(CustomNPCModel.LAYER_LOCATION)), 0.5F);
         this.addLayer(new NPCVehicleLayer(this));
         this.addLayer(new NPCSirenLayer(this)); // Feature 2: Polizei-Blaulicht
+        this.addLayer(new NPCHeldItemLayer(this,
+            net.minecraft.client.Minecraft.getInstance().getItemRenderer()));
     }
 
     @Override

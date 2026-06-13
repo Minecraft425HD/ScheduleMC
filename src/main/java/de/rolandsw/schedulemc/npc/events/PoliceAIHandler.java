@@ -386,6 +386,7 @@ public class PoliceAIHandler {
                     // Reset Timer falls vorhanden (atomare Operation)
                     if (arrestTimers.remove(playerUUID) != null) {
                         targetCriminal.sendSystemMessage(Component.translatable("event.police.escaped"));
+                        PoliceCombatHandler.recordEscape(playerUUID);
                     }
 
                     // Starte Suchverhalten statt direkter Verfolgung
@@ -403,6 +404,7 @@ public class PoliceAIHandler {
                     // Reset Timer falls vorhanden (atomare Operation)
                     if (arrestTimers.remove(playerUUID) != null) {
                         targetCriminal.sendSystemMessage(Component.translatable("event.police.escaped"));
+                        PoliceCombatHandler.recordEscape(playerUUID);
                     }
 
                     // Feature 8: Verwarnungssystem bei Wanted 1-2
@@ -423,6 +425,12 @@ public class PoliceAIHandler {
                         PoliceVehiclePursuit.startVehiclePursuit(npc, targetCriminal);
                     } else if (!npc.isDriving()) {
                         npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
+                    }
+
+                    // Kampfeskalation, wenn Festnahme nicht greift (Bewegung läuft weiter)
+                    if (!PoliceVehiclePursuit.isPlayerInVehicle(targetCriminal)) {
+                        PoliceCombatHandler.tickCombat(npc, targetCriminal,
+                            highestWantedLevel, distance, arrestDistance, currentTick);
                     }
 
                     // Warnung alle 5 Sekunden
@@ -476,6 +484,8 @@ public class PoliceAIHandler {
     private void arrestPlayer(CustomNPCEntity police, ServerPlayer player) {
         int wantedLevel = CrimeManager.getWantedLevel(player.getUUID());
         if (wantedLevel <= 0) return; // Kein Wanted-Level mehr
+        PoliceCombatHandler.resetEscalation(player.getUUID());
+        PoliceCombatHandler.standDown(police);
 
         // Verhindere mehrfache Festnahmen
         if (player.getPersistentData().getLong("JailReleaseTime") > 0) {
@@ -831,6 +841,7 @@ public class PoliceAIHandler {
         // playerCache wird nicht manuell bereinigt - der atomare Swap alle 5 Ticks
         // entfernt abgemeldete Spieler automatisch beim nächsten Rebuild
         arrestTimers.remove(playerUUID);
+        PoliceCombatHandler.resetEscalation(playerUUID);
         lastSyncedWantedLevel.remove(playerUUID);
         lastSyncedEscapeTime.remove(playerUUID);
         // lastPursuitTarget verwendet NPC-UUIDs als Key, nicht Spieler-UUIDs
