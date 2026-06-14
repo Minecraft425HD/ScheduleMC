@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
@@ -30,6 +29,8 @@ public class PoliceBackupSystem {
 
     // Player UUID -> Is Raid (true = 4 max, false = 2 max)
     private static final Map<UUID, Boolean> isRaidPursuit = new ConcurrentHashMap<>();
+    // Invertierter Index policeUUID -> playerUUID für O(1)-Lookups
+    private static final Map<UUID, UUID> policeToTarget = new ConcurrentHashMap<>();
 
     /**
      * Registriert eine Polizei als aktiv verfolgend
@@ -38,6 +39,7 @@ public class PoliceBackupSystem {
         // SICHERHEIT: ConcurrentHashMap.newKeySet() für Thread-safe Set
         activePolice.computeIfAbsent(playerUUID, k -> ConcurrentHashMap.newKeySet()).add(policeUUID);
         isRaidPursuit.put(playerUUID, isRaid);
+        policeToTarget.put(policeUUID, playerUUID);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[BACKUP] Police {} pursues player {} (Raid: {}, Total: {})",
@@ -52,6 +54,7 @@ public class PoliceBackupSystem {
         Set<UUID> police = activePolice.get(playerUUID);
         if (police != null) {
             police.remove(policeUUID);
+            policeToTarget.remove(policeUUID);
             if (police.isEmpty()) {
                 activePolice.remove(playerUUID);
                 isRaidPursuit.remove(playerUUID);
@@ -102,19 +105,17 @@ public class PoliceBackupSystem {
                 needed, player.getName().getString(), isRaid);
         }
 
-        // Suche Polizisten in 100-Block-Radius
-        AABB searchArea = new AABB(
-            caller.getX() - 100, caller.getY() - 20, caller.getZ() - 100,
-            caller.getX() + 100, caller.getY() + 20, caller.getZ() + 100
-        );
-
-        List<CustomNPCEntity> nearbyPolice = caller.level().getEntitiesOfClass(
-            CustomNPCEntity.class,
-            searchArea,
-            npc -> npc.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLICE &&
-                   !npc.equals(caller) &&
-                   !isPoliceAssigned(npc.getUUID())
-        );
+        // Polizei aus dem PoliceAIHandler-Cache holen (kein World-Scan)
+        List<CustomNPCEntity> cachedPolice = new java.util.ArrayList<>();
+        PoliceAIHandler.getPoliceInRadius(
+            new net.minecraft.world.phys.Vec3(caller.getX(), caller.getY(), caller.getZ()),
+            100.0, cachedPolice);
+        List<CustomNPCEntity> nearbyPolice = new java.util.ArrayList<>();
+        for (CustomNPCEntity npc : cachedPolice) {
+            if (!npc.equals(caller) && !isPoliceAssigned(npc.getUUID())) {
+                nearbyPolice.add(npc);
+            }
+        }
 
         if (nearbyPolice.isEmpty()) {
             LOGGER.debug("[BACKUP] No available police found nearby");
@@ -156,12 +157,7 @@ public class PoliceBackupSystem {
      * Prüft ob eine Polizei bereits einer Verfolgung zugewiesen ist
      */
     private static boolean isPoliceAssigned(UUID policeUUID) {
-        for (Set<UUID> policeSet : activePolice.values()) {
-            if (policeSet.contains(policeUUID)) {
-                return true;
-            }
-        }
-        return false;
+        return policeToTarget.containsKey(policeUUID);
     }
 
     /**
@@ -169,12 +165,7 @@ public class PoliceBackupSystem {
      */
     @Nullable
     public static UUID getAssignedTarget(UUID policeUUID) {
-        for (Map.Entry<UUID, Set<UUID>> entry : activePolice.entrySet()) {
-            if (entry.getValue().contains(policeUUID)) {
-                return entry.getKey();
-            }
-        }
-        return null;
+        return policeToTarget.get(policeUUID);
     }
 
     /**
@@ -185,7 +176,10 @@ public class PoliceBackupSystem {
             return;
         }
 
-        activePolice.remove(playerUUID);
+        Set<UUID> removed = activePolice.remove(playerUUID);
+        if (removed != null) {
+            removed.forEach(policeToTarget::remove);
+        }
         isRaidPursuit.remove(playerUUID);
 
         if (LOGGER.isDebugEnabled()) {
@@ -204,6 +198,7 @@ public class PoliceBackupSystem {
 
         int removedFrom = 0;
 
+        policeToTarget.remove(policeUUID);
         // Entferne NPC aus allen Verfolgungen
         for (Set<UUID> policeSet : activePolice.values()) {
             if (policeSet.remove(policeUUID)) {
