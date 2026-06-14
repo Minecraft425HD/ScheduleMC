@@ -180,19 +180,20 @@ public class CustomNPCEntity extends PathfinderMob {
         this.goalSelector.addGoal(0, new FloatGoal(this)); // Schwimmen
         this.goalSelector.addGoal(1, new OpenDoorGoal(this, true)); // Türen öffnen (und schließen)
 
-        // Gegenwehr: läuft nur, wenn ein mutiger NPC per setTarget() ein
-        // Ziel bekommen hat (siehe NPCKnockoutHandler-Retaliation)
-        this.goalSelector.addGoal(1, new net.minecraft.world.entity.ai.goal.MeleeAttackGoal(this, 1.2D, true));
+        // Gegenwehr/Kampf: läuft nur mit gesetztem Target (canUse prüft das).
+        // Eigene Priorität (2), damit es Routine-Goals (Heim/Arbeit/Freizeit)
+        // unterbricht, aber nicht mit OpenDoorGoal auf Prio 1 kollidiert.
+        this.goalSelector.addGoal(2, new net.minecraft.world.entity.ai.goal.MeleeAttackGoal(this, 1.2D, true));
 
         // Registriere ALLE Goals - die Goals prüfen selbst ob sie aktiv sein sollen
         // Police Goals (nur aktiv für POLICE NPCs)
-        this.goalSelector.addGoal(2, new PolicePatrolGoal(this)); // Patrouillieren zwischen Punkten
-        this.goalSelector.addGoal(3, new PoliceStationGoal(this)); // An Station bleiben (wenn keine Patrol)
+        this.goalSelector.addGoal(3, new PolicePatrolGoal(this)); // Patrouillieren zwischen Punkten
+        this.goalSelector.addGoal(4, new PoliceStationGoal(this)); // An Station bleiben (wenn keine Patrol)
 
         // Normal NPC Goals (nur aktiv für CITIZEN/MERCHANT)
-        this.goalSelector.addGoal(4, new MoveToHomeGoal(this)); // Nach Hause gehen (Heimzeit)
-        this.goalSelector.addGoal(5, new MoveToWorkGoal(this)); // Zur Arbeit gehen (Arbeitszeit)
-        this.goalSelector.addGoal(6, new MoveToLeisureGoal(this)); // Zu Freizeitorten gehen (Freizeit)
+        this.goalSelector.addGoal(5, new MoveToHomeGoal(this)); // Nach Hause gehen (Heimzeit)
+        this.goalSelector.addGoal(6, new MoveToWorkGoal(this)); // Zur Arbeit gehen (Arbeitszeit)
+        this.goalSelector.addGoal(7, new MoveToLeisureGoal(this)); // Zu Freizeitorten gehen (Freizeit)
 
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this)); // Zufällig umschauen

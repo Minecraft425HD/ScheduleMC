@@ -104,12 +104,12 @@ public final class PoliceCombatHandler {
      * Wird im Verfolgungs-Branch aufgerufen (Spieler außerhalb Arrest-Bereich,
      * nicht versteckt, nicht im Fahrzeug). Bewegung läuft parallel weiter.
      */
-    public static void tickCombat(CustomNPCEntity npc, ServerPlayer target,
+    public static EngagementMode tickCombat(CustomNPCEntity npc, ServerPlayer target,
                                   int wantedLevel, double distance, double arrestDistance, long currentTick) {
         var cfg = ModConfigHandler.COMMON;
         if (!cfg.POLICE_COMBAT_ENABLED.get()) {
             standDown(npc);
-            return;
+            return EngagementMode.NONE;
         }
 
         long pursuitStart = npc.getPersistentData().getLong("PursuitStartTick");
@@ -131,19 +131,24 @@ public final class PoliceCombatHandler {
 
         if (mode == EngagementMode.NONE) {
             standDown(npc);
-            return;
+            return EngagementMode.NONE;
         }
 
         if (mode == EngagementMode.MELEE) {
+            // MeleeAttackGoal übernimmt die Bewegung — PoliceAIHandler darf
+            // NICHT zusätzlich moveTo aufrufen (sonst Navigations-Tauziehen)
             equip(npc, WeaponItems.BASEBALL_BAT.get());
             npc.setTarget(target);
             npc.getPersistentData().putLong("RetaliationUntil", npc.level().getGameTime() + 100L);
         } else { // RANGED
+            // Auf Distanz feuern: Position halten, kein Nahkampf-Goal
             equip(npc, WeaponItems.PISTOL.get());
-            npc.setTarget(null); // nicht ins Nahkampf-Goal rennen
+            npc.setTarget(null);
+            npc.getNavigation().stop();
             npc.getLookControl().setLookAt(target);
             tryShoot(npc, target, currentTick, cfg);
         }
+        return mode;
     }
 
     private static void tryShoot(CustomNPCEntity npc, ServerPlayer target, long currentTick,

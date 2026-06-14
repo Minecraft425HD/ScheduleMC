@@ -78,6 +78,11 @@ public class PoliceAIHandler {
         }
     );
 
+    // Repath-Throttle: zuletzt angepfadete Zielposition pro Polizist
+    private static final Map<UUID, BlockPos> lastPathTarget = new java.util.concurrent.ConcurrentHashMap<>();
+    // Ziel muss sich um mehr als 5 Blöcke bewegen, bevor neu gepatht wird
+    private static final double REPATH_THRESHOLD_SQR = 25.0;
+
     // Wanted-Level Sync Cache (verhindert unnötige Netzwerk-Pakete) - LRU Cache
     // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
     private static final Map<UUID, Integer> lastSyncedWantedLevel = Collections.synchronizedMap(
@@ -419,18 +424,30 @@ public class PoliceAIHandler {
                         }
                     }
 
-                    // Feature 1: Fahrzeugverfolgung wenn Spieler in Fahrzeug
-                    if (PoliceVehiclePursuit.isPlayerInVehicle(targetCriminal)
-                            && PoliceVehiclePursuit.canStartVehiclePursuit(npc, targetCriminal)) {
-                        PoliceVehiclePursuit.startVehiclePursuit(npc, targetCriminal);
-                    } else if (!npc.isDriving()) {
-                        npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
+                    // Kampfeskalation zuerst auswerten — bestimmt, wer die Bewegung steuert
+                    boolean inVehicle = PoliceVehiclePursuit.isPlayerInVehicle(targetCriminal);
+                    PoliceCombatHandler.EngagementMode combatMode =
+                        PoliceCombatHandler.EngagementMode.NONE;
+                    if (!inVehicle) {
+                        combatMode = PoliceCombatHandler.tickCombat(npc, targetCriminal,
+                            highestWantedLevel, distance, arrestDistance, currentTick);
                     }
 
-                    // Kampfeskalation, wenn Festnahme nicht greift (Bewegung läuft weiter)
-                    if (!PoliceVehiclePursuit.isPlayerInVehicle(targetCriminal)) {
-                        PoliceCombatHandler.tickCombat(npc, targetCriminal,
-                            highestWantedLevel, distance, arrestDistance, currentTick);
+                    // Feature 1: Fahrzeugverfolgung wenn Spieler in Fahrzeug
+                    if (inVehicle && PoliceVehiclePursuit.canStartVehiclePursuit(npc, targetCriminal)) {
+                        PoliceVehiclePursuit.startVehiclePursuit(npc, targetCriminal);
+                    } else if (!npc.isDriving()
+                            && combatMode == PoliceCombatHandler.EngagementMode.NONE) {
+                        // Eigene Verfolgung nur, wenn kein Kampf-Goal die Bewegung steuert.
+                        // Repath-Throttle: nur neu pathen, wenn das Ziel deutlich gewandert
+                        // ist oder die Navigation steht (spart A*-Last bei Verfolgung).
+                        BlockPos lastPathed = lastPathTarget.get(npc.getUUID());
+                        BlockPos targetPos = targetCriminal.blockPosition();
+                        if (npc.getNavigation().isDone() || lastPathed == null
+                                || lastPathed.distSqr(targetPos) > REPATH_THRESHOLD_SQR) {
+                            npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
+                            lastPathTarget.put(npc.getUUID(), targetPos);
+                        }
                     }
 
                     // Warnung alle 5 Sekunden
