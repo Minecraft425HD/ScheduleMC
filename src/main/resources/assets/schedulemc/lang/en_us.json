@@ -1741,6 +1741,7 @@
   "event.police.freed": "§a✓ You are free!",
   "event.police.hiding": "§7Hiding... Police searching the area.",
   "event.police.illegal_items_penalty": "§c[Police] §fIllegal items found! Penalty: §c%s€ §7cash + §c%s€ §7from your account",
+  "event.police.items_confiscated": "§c[Police] §fConfiscated %s illegal item(s) (value: %s€)",
   "event.police.jail_time": "§6Jail time: §e%d seconds",
   "event.police.obey_law": "§7Obey the law!",
   "event.police.searching_area": "§e⚠ Police searching the area...",

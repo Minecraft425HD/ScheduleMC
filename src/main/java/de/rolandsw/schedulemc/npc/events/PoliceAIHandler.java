@@ -588,6 +588,9 @@ public class PoliceAIHandler {
             // Wende Strafen an (Geldstrafe, Fahndungslevel-Erhöhung)
             PoliceRaidPenalty.applyPenalties(player, scanResult);
 
+            // Illegale Items beschlagnahmen (vernichten + Wert an Staatskasse)
+            PoliceItemConfiscation.confiscate(player);
+
             // Upgrade zu Raid (max 4 Polizisten statt 2)
             PoliceBackupSystem.upgradeToRaid(player.getUUID());
             PoliceBackupSystem.registerPolice(player.getUUID(), police.getUUID(), true);

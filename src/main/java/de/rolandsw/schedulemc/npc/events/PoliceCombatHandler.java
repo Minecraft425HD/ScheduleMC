@@ -309,15 +309,7 @@ public final class PoliceCombatHandler {
     private static boolean hasIllegalItems(ServerPlayer player) {
         var inv = player.getInventory();
         for (int i = 0; i < inv.getContainerSize(); i++) {
-            ItemStack st = inv.getItem(i);
-            if (st.isEmpty()) continue;
-            if (st.getItem() instanceof de.rolandsw.schedulemc.production.items.PackagedDrugItem) return true;
-            var key = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(st.getItem());
-            String id = key != null ? key.getPath() : "";
-            if (id.contains("cannabis") || id.contains("cocaine") || id.contains("heroin")
-                || id.contains("meth") || id.contains("mdma") || id.contains("ecstasy")
-                || id.contains("lsd") || id.contains("crack") || id.contains("hash")
-                || id.contains("opium") || id.contains("morphine")) {
+            if (de.rolandsw.schedulemc.npc.crime.ItemLegalityChecker.isIllegal(inv.getItem(i))) {
                 return true;
             }
         }

@@ -1738,6 +1738,7 @@
   "event.police.freed": "§a✓ Du bist frei!",
   "event.police.hiding": "§7Verstecke dich... Polizei sucht in der Gegend.",
   "event.police.illegal_items_penalty": "§c[Polizei] §fIllegale Gegenstände gefunden! Strafe: §c%s€ §7Bargeld + §c%s€ §7vom Konto",
+  "event.police.items_confiscated": "§c[Polizei] §f%s illegale Gegenstände beschlagnahmt (Wert: %s€)",
   "event.police.jail_time": "§6Gefängnisstrafe: §e%d Sekunden",
   "event.police.obey_law": "§7Halte dich ans Gesetz!",
   "event.police.searching_area": "§e⚠ Polizei durchsucht die Gegend...",
