@@ -16,7 +16,7 @@ public class MoveToHomeGoal extends Goal {
 
     private final CustomNPCEntity npc;
     private BlockPos homePos;
-    private static final double ARRIVAL_THRESHOLD = 2.0D;
+    private static final double ARRIVAL_THRESHOLD = 3.0D;
     private static final int RECALCULATE_INTERVAL = 100; // Alle 5 Sekunden neu berechnen
     private int tickCounter = 0;
 

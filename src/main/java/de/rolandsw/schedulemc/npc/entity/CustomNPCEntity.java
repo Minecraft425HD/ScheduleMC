@@ -196,7 +196,9 @@ public class CustomNPCEntity extends PathfinderMob {
         this.goalSelector.addGoal(7, new MoveToLeisureGoal(this)); // Zu Freizeitorten gehen (Freizeit)
 
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 8.0F)); // Spieler anschauen
-        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this)); // Zufällig umschauen
+        // Idle-Schlendern: kleine Bewegungen am Posten (unter Schedule-Goals)
+        this.goalSelector.addGoal(8, new de.rolandsw.schedulemc.npc.goals.IdleWanderGoal(this));
+        this.goalSelector.addGoal(9, new RandomLookAroundGoal(this)); // Zufällig umschauen
     }
 
     @Override
