@@ -70,8 +70,10 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
         // das Vanilla-Nameplate über unser Persönlichkeits-Label zeichnet.
         if (this.entityRenderDispatcher.distanceToSqr(entity) <= 4096.0
                 && !entity.isInvisible()) {
-            java.util.UUID npcDataId = entity.getNpcData() != null
-                ? entity.getNpcData().getNpcUUID() : null;
+            // Client-safe: gespiegelte NPC-Data-UUID verwenden. Das echte
+            // npcData-Objekt ist auf dem Client nicht synchron (frische Zufalls-UUID
+            // aus dem Konstruktor) und würde nie zum ClientKnownNPCCache passen.
+            java.util.UUID npcDataId = entity.getSyncedNpcDataUUID();
             boolean known = de.rolandsw.schedulemc.npc.client.ClientKnownNPCCache.isKnown(npcDataId);
 
             if (known) {

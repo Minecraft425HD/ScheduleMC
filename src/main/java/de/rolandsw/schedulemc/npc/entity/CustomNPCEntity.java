@@ -79,6 +79,10 @@ public class CustomNPCEntity extends PathfinderMob {
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<String> PERSONALITY_ARCHETYPE =
             SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
+    // Stabile NPC-Data-UUID zum Client gespiegelt, damit der Renderer den NPC
+    // gegen den ClientKnownNPCCache abgleichen kann (Name-/Persönlichkeits-Enthüllung).
+    private static final EntityDataAccessor<String> NPC_DATA_UUID =
+            SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> PERSONALITY =
         SynchedEntityData.defineId(CustomNPCEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> ACTIVITY_STATUS =
@@ -162,6 +166,7 @@ public class CustomNPCEntity extends PathfinderMob {
         this.entityData.define(SERVICE_CATEGORY_ORDINAL, 0); // TOWING_SERVICE
         this.entityData.define(PERSONALITY, NPCPersonality.BALANCED.name()); // Standard-Persönlichkeit
         this.entityData.define(PERSONALITY_ARCHETYPE, de.rolandsw.schedulemc.npc.life.core.PersonalityArchetype.BALANCED.name());
+        this.entityData.define(NPC_DATA_UUID, "");
         this.entityData.define(ACTIVITY_STATUS, NPCActivityStatus.ROAMING.ordinal()); // Standard: Unterwegs
         // NPC Life System - Emotion syncing für Client-Rendering
         this.entityData.define(EMOTION_STATE, 0); // EmotionState.NEUTRAL.ordinal()
@@ -557,6 +562,7 @@ public class CustomNPCEntity extends PathfinderMob {
      */
     private void syncToClient() {
         this.entityData.set(NPC_NAME, npcData.getNpcName());
+        this.entityData.set(NPC_DATA_UUID, npcData.getNpcUUID().toString());
         this.entityData.set(SKIN_FILE, npcData.getSkinFileName());
         this.entityData.set(NPC_TYPE_ORDINAL, npcData.getNpcType().ordinal());
         this.entityData.set(MERCHANT_CATEGORY_ORDINAL, npcData.getMerchantCategory().ordinal());
@@ -693,6 +699,27 @@ public class CustomNPCEntity extends PathfinderMob {
         if (!level().isClientSide && lifeData != null && lifeData.getTraits() != null) {
             this.entityData.set(PERSONALITY_ARCHETYPE,
                 lifeData.getTraits().getPersonalityArchetype().name());
+        }
+    }
+
+    /**
+     * Gibt die stabile NPC-Data-UUID zurück (Client-safe via synced data).
+     * Auf dem Client ist das eigentliche {@code npcData}-Objekt nicht synchron —
+     * der Renderer muss diese gespiegelte UUID für den Abgleich mit dem
+     * {@link de.rolandsw.schedulemc.npc.client.ClientKnownNPCCache} verwenden.
+     *
+     * @return die UUID oder {@code null}, falls noch nicht synchronisiert
+     */
+    @Nullable
+    public java.util.UUID getSyncedNpcDataUUID() {
+        String raw = this.entityData.get(NPC_DATA_UUID);
+        if (raw == null || raw.isEmpty()) {
+            return null;
+        }
+        try {
+            return java.util.UUID.fromString(raw);
+        } catch (IllegalArgumentException e) {
+            return null;
         }
     }
 
