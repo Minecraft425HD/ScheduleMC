@@ -83,15 +83,16 @@ public class CustomNPCRenderer extends MobRenderer<CustomNPCEntity, CustomNPCMod
                         .withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.BOLD)
                         .append(nameLine);
                 }
-                this.renderNameTag(entity, nameLine, poseStack, buffer, packedLight);
-                // Persönlichkeits-Label über dem Namen
-                poseStack.pushPose();
-                poseStack.translate(0.0, 0.32, 0.0);
+                // Persönlichkeits-Label an der Basis
                 this.renderNameTag(entity,
                     net.minecraft.network.chat.Component.translatable(
                         entity.getPersonalityArchetype().getTranslationKey())
                         .withStyle(net.minecraft.ChatFormatting.GRAY),
                     poseStack, buffer, packedLight);
+                // Name über der Persönlichkeit
+                poseStack.pushPose();
+                poseStack.translate(0.0, 0.32, 0.0);
+                this.renderNameTag(entity, nameLine, poseStack, buffer, packedLight);
                 poseStack.popPose();
             } else {
                 this.renderNameTag(entity,
