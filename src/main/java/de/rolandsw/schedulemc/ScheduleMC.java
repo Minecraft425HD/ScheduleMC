@@ -427,6 +427,8 @@ public class ScheduleMC {
     private void onConfigReload(ModConfigEvent _event) {
         ConfigCache.invalidate();
         NPCPathNavigation.reloadConfig();
+        // Straßenblöcke neu laden, damit erweiterte road_blocks zur Laufzeit greifen
+        de.rolandsw.schedulemc.mapview.navigation.graph.RoadBlockDetector.reset();
     }
 
     @SubscribeEvent

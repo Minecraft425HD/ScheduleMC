@@ -158,6 +158,12 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.IntValue POLICE_PATROL_WAIT_MINUTES;
         public final ForgeConfigSpec.IntValue POLICE_PATROL_RADIUS;
 
+        // Police City Wander (straßengebundenes Streifen ohne Patrouillenpunkte)
+        public final ForgeConfigSpec.BooleanValue POLICE_CITY_WANDER_ENABLED;
+        public final ForgeConfigSpec.IntValue POLICE_CITY_WANDER_RADIUS;
+        public final ForgeConfigSpec.IntValue POLICE_MAX_ROAD_DISTANCE;
+        public final ForgeConfigSpec.IntValue POLICE_CITY_WANDER_WAIT_SECONDS;
+
         // NEW: Police Overhaul Features
         public final ForgeConfigSpec.BooleanValue POLICE_VEHICLE_PURSUIT_ENABLED;
         public final ForgeConfigSpec.DoubleValue POLICE_VEHICLE_SPEED_MULTIPLIER;
@@ -648,7 +654,17 @@ public class ModConfigHandler {
                             "minecraft:stone_stairs",
                             "minecraft:cobblestone_stairs",
                             "minecraft:brick_stairs",
-                            "minecraft:stone_brick_stairs"
+                            "minecraft:stone_brick_stairs",
+                            // Gehwege und Straßenübergänge
+                            "minecraft:smooth_stone_slab",
+                            "minecraft:stone_slab",
+                            "minecraft:stone_brick_slab",
+                            "minecraft:polished_andesite_slab",
+                            "minecraft:white_concrete",
+                            "minecraft:light_gray_concrete",
+                            "minecraft:gray_concrete",
+                            "minecraft:quartz_block",
+                            "minecraft:smooth_quartz"
                         ),
                         obj -> obj instanceof String);
 
@@ -673,7 +689,17 @@ public class ModConfigHandler {
                             "minecraft:stone",
                             "minecraft:granite",
                             "minecraft:andesite",
-                            "minecraft:diorite"
+                            "minecraft:diorite",
+                            // Gehwege und Straßenübergänge
+                            "minecraft:smooth_stone_slab",
+                            "minecraft:stone_slab",
+                            "minecraft:stone_brick_slab",
+                            "minecraft:polished_andesite_slab",
+                            "minecraft:white_concrete",
+                            "minecraft:light_gray_concrete",
+                            "minecraft:gray_concrete",
+                            "minecraft:quartz_block",
+                            "minecraft:smooth_quartz"
                         ),
                         obj -> obj instanceof String);
 
@@ -777,6 +803,19 @@ public class ModConfigHandler {
             POLICE_PATROL_RADIUS = builder
                     .comment("Radius in blocks in which police officers move around patrol points")
                     .defineInRange("patrol_radius", 3, 1, 20);
+
+            POLICE_CITY_WANDER_ENABLED = builder
+                    .comment("Enables street-bound city wandering for police without patrol points")
+                    .define("city_wander_enabled", true);
+            POLICE_CITY_WANDER_RADIUS = builder
+                    .comment("Radius in blocks around the anchor (station or spawn) for city wandering")
+                    .defineInRange("city_wander_radius", 48, 8, 200);
+            POLICE_MAX_ROAD_DISTANCE = builder
+                    .comment("Maximum distance in blocks a wandering police officer may be from the nearest road")
+                    .defineInRange("police_max_road_distance", 15, 1, 64);
+            POLICE_CITY_WANDER_WAIT_SECONDS = builder
+                    .comment("Pause in seconds at a reached wander target before choosing a new one")
+                    .defineInRange("city_wander_wait_seconds", 3, 0, 60);
 
             // NEW: Police Overhaul Features
             POLICE_VEHICLE_PURSUIT_ENABLED = builder

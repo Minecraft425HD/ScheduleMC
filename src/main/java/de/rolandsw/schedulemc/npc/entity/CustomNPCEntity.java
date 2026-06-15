@@ -193,7 +193,9 @@ public class CustomNPCEntity extends PathfinderMob {
         // Registriere ALLE Goals - die Goals prüfen selbst ob sie aktiv sein sollen
         // Police Goals (nur aktiv für POLICE NPCs)
         this.goalSelector.addGoal(3, new PolicePatrolGoal(this)); // Patrouillieren zwischen Punkten
-        this.goalSelector.addGoal(4, new PoliceStationGoal(this)); // An Station bleiben (wenn keine Patrol)
+        // Straßengebundenes Streifen, wenn keine Patrouillenpunkte gesetzt sind (Vorrang vor Station)
+        this.goalSelector.addGoal(4, new de.rolandsw.schedulemc.npc.goals.PoliceCityWanderGoal(this));
+        this.goalSelector.addGoal(5, new PoliceStationGoal(this)); // Fallback: an Station bleiben
 
         // Normal NPC Goals (nur aktiv für CITIZEN/MERCHANT)
         this.goalSelector.addGoal(5, new MoveToHomeGoal(this)); // Nach Hause gehen (Heimzeit)
