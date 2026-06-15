@@ -15,6 +15,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -49,6 +52,14 @@ public final class PoliceCombatHandler {
     private static final Map<UUID, Long> lastAttackedPolice = new ConcurrentHashMap<>();
     /** Bullet-Geschwindigkeit (Blöcke/Tick), wie GunItem. */
     private static final float BULLET_SPEED = 3.0f;
+    /** Bewegungstempo beim Vorrücken im Fernkampf (identisch zur Verfolgung in PoliceAIHandler). */
+    private static final double POLICE_SPEED = 1.2;
+    /** Repath-Schwelle (Blöcke², XZ) beim feuernden Vorrücken — spart A*-Last. */
+    private static final double REPATH_THRESHOLD_SQR = 16.0;
+    /** Mindestabstand (Ticks) zwischen zwei Ausweich-/Deckungs-Manövern eines Polizisten. */
+    private static final long EVADE_COOLDOWN_TICKS = 30L;
+    /** Dauer (Ticks) einer Deckungs-/Strafe-Phase, in der nicht vorgerückt wird. */
+    private static final long COVER_DURATION_TICKS = 30L;
     /** Inventar-Snapshot bei Polizei-Tod (Items bleiben beim Spieler). */
     private static final Map<UUID, java.util.List<ItemStack>> deathInventorySnapshot = new ConcurrentHashMap<>();
 
@@ -141,11 +152,18 @@ public final class PoliceCombatHandler {
             npc.setTarget(target);
             npc.getPersistentData().putLong("RetaliationUntil", npc.level().getGameTime() + 100L);
         } else { // RANGED
-            // Auf Distanz feuern: Position halten, kein Nahkampf-Goal
+            // Feuernd vorrücken: so nah wie möglich an den Spieler heran (bis MELEE greift).
+            // Kein Nahkampf-Goal (setTarget(null)) → der Handler darf die Navigation selbst steuern.
             equip(npc, WeaponItems.PISTOL.get());
             npc.setTarget(null);
-            npc.getNavigation().stop();
             npc.getLookControl().setLookAt(target);
+
+            long now = npc.level().getGameTime();
+            if (now >= npc.getPersistentData().getLong("CoverUntilTick")) {
+                // Keine aktive Deckungs-/Strafe-Phase → Richtung Spieler vorrücken.
+                advanceTowards(npc, target);
+            }
+            // Während der Deckungsphase läuft der in reactToHit gesetzte moveTo-Pfad weiter.
             tryShoot(npc, target, currentTick, cfg);
         }
         return mode;
@@ -153,6 +171,8 @@ public final class PoliceCombatHandler {
 
     private static void tryShoot(CustomNPCEntity npc, ServerPlayer target, long currentTick,
                                  ModConfigHandler.Common cfg) {
+        // In der Deckungsphase ist die Sichtlinie bewusst gebrochen → nicht durch Wände feuern.
+        if (!npc.hasLineOfSight(target)) return;
         // Schützen-Cap pro Ziel
         var shooters = activeShooters.computeIfAbsent(target.getUUID(), k -> ConcurrentHashMap.newKeySet());
         if (!shooters.contains(npc.getUUID()) && shooters.size() >= cfg.POLICE_MAX_SIMULTANEOUS_SHOOTERS.get()) {
@@ -191,12 +211,125 @@ public final class PoliceCombatHandler {
         }
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // FERNKAMPF-BEWEGUNG: Vorrücken + Deckung/Ausweichen bei Treffern
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Rückt feuernd auf den Spieler vor. Repath-Throttle (wie PoliceAIHandler),
+     * da tickCombat nur ~alle 20 Ticks läuft.
+     */
+    private static void advanceTowards(CustomNPCEntity npc, ServerPlayer target) {
+        var data = npc.getPersistentData();
+        Vec3 tp = target.position();
+        boolean hasPath = data.getBoolean("AdvanceHasPath");
+        double movedSqr = Double.MAX_VALUE;
+        if (hasPath) {
+            double dx = tp.x - data.getDouble("AdvancePathX");
+            double dz = tp.z - data.getDouble("AdvancePathZ");
+            movedSqr = dx * dx + dz * dz;
+        }
+        if (npc.getNavigation().isDone() || !hasPath || movedSqr > REPATH_THRESHOLD_SQR) {
+            npc.getNavigation().moveTo(target, POLICE_SPEED);
+            data.putDouble("AdvancePathX", tp.x);
+            data.putDouble("AdvancePathZ", tp.z);
+            data.putBoolean("AdvanceHasPath", true);
+        }
+    }
+
+    /**
+     * Treffer-Reaktion im Fernkampf: nahe Deckung (LOS brechen) suchen, sonst seitlich ausweichen.
+     * Ereignisbasiert aus {@link #onCombatDamage} aufgerufen; per Cooldown gedrosselt.
+     */
+    private static void reactToHit(CustomNPCEntity npc, ServerPlayer attacker) {
+        if (!(npc.level() instanceof ServerLevel)) return;
+        // Nur reagieren, wenn aktiv im Fernkampf (Verfolgung läuft + Pistole gezogen).
+        if (npc.getPersistentData().getLong("PursuitStartTick") == 0L) return;
+        if (npc.getMainHandItem().getItem() != WeaponItems.PISTOL.get()) return;
+
+        long now = npc.level().getGameTime();
+        if (now - npc.getPersistentData().getLong("LastEvadeTick") < EVADE_COOLDOWN_TICKS) return;
+
+        Vec3 cover = findCoverPos(npc, attacker);
+        boolean moved = (cover != null)
+            ? npc.getNavigation().moveTo(cover.x, cover.y, cover.z, POLICE_SPEED)
+            : strafeAway(npc, attacker);
+
+        if (moved) {
+            npc.getPersistentData().putLong("LastEvadeTick", now);
+            npc.getPersistentData().putLong("CoverUntilTick", now + COVER_DURATION_TICKS);
+            // Advance-Pfad invalidieren, damit nach der Phase frisch zum Spieler gepatht wird.
+            npc.getPersistentData().putBoolean("AdvanceHasPath", false);
+        }
+    }
+
+    /**
+     * Sucht billig (max. 6 Raycasts) eine nahe Position, die die Sichtlinie zum Spieler bricht.
+     * @return Deckungsposition oder {@code null}, wenn keine gefunden wurde.
+     */
+    private static Vec3 findCoverPos(CustomNPCEntity npc, ServerPlayer player) {
+        if (!(npc.level() instanceof ServerLevel level)) return null;
+        Vec3 npcPos = npc.position();
+        Vec3 playerEye = player.getEyePosition(1.0f);
+
+        Vec3 away = npcPos.subtract(player.position());
+        away = new Vec3(away.x, 0, away.z);
+        if (away.lengthSqr() < 1.0e-3) return null;
+        away = away.normalize();
+        Vec3 right = away.cross(new Vec3(0, 1, 0)).normalize();
+
+        double d = 4.0;
+        Vec3[] candidates = new Vec3[] {
+            npcPos.add(away.scale(d)),
+            npcPos.add(away.scale(d)).add(right.scale(d)),
+            npcPos.add(away.scale(d)).add(right.scale(-d)),
+            npcPos.add(right.scale(d)),
+            npcPos.add(right.scale(-d)),
+            npcPos.add(away.scale(d * 1.5)),
+        };
+
+        double eyeHeight = npc.getEyeHeight();
+        for (Vec3 c : candidates) {
+            Vec3 coverEye = new Vec3(c.x, npcPos.y + eyeHeight, c.z);
+            BlockHitResult hit = level.clip(new ClipContext(
+                coverEye, playerEye, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, npc));
+            if (hit.getType() == HitResult.Type.BLOCK) {
+                return c; // fester Block bricht die Sichtlinie → gute Deckung
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Seitlicher Ausweichschritt quer zur Schussrichtung. Probiert beide Seiten.
+     * @return true, wenn eine Bewegung gestartet wurde.
+     */
+    private static boolean strafeAway(CustomNPCEntity npc, ServerPlayer player) {
+        Vec3 npcPos = npc.position();
+        Vec3 toPlayer = player.position().subtract(npcPos);
+        toPlayer = new Vec3(toPlayer.x, 0, toPlayer.z);
+        if (toPlayer.lengthSqr() < 1.0e-3) return false;
+        Vec3 right = toPlayer.normalize().cross(new Vec3(0, 1, 0)).normalize();
+
+        double sign = npc.getRandom().nextBoolean() ? 1.0 : -1.0;
+        double step = 3.0;
+        Vec3 dest = npcPos.add(right.scale(sign * step));
+        if (npc.getNavigation().moveTo(dest.x, dest.y, dest.z, POLICE_SPEED)) {
+            return true;
+        }
+        dest = npcPos.add(right.scale(-sign * step));
+        return npc.getNavigation().moveTo(dest.x, dest.y, dest.z, POLICE_SPEED);
+    }
+
     /** Stand-down: Waffe weg, Ziel weg, Schützen-Slot frei. */
     public static void standDown(CustomNPCEntity npc) {
         if (!npc.getMainHandItem().isEmpty()) {
             npc.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
         }
         npc.getPersistentData().putLong("PursuitStartTick", 0L);
+        npc.getPersistentData().putLong("CoverUntilTick", 0L);
+        npc.getPersistentData().putLong("LastEvadeTick", 0L);
+        npc.getPersistentData().putBoolean("AdvanceHasPath", false);
         if (npc.getTarget() instanceof ServerPlayer p) {
             var set = activeShooters.get(p.getUUID());
             if (set != null) set.remove(npc.getUUID());
@@ -232,6 +365,8 @@ public final class PoliceCombatHandler {
                 && npcVictim.getNpcType() == NPCType.POLICE
                 && event.getSource().getEntity() instanceof ServerPlayer attacker) {
             lastAttackedPolice.put(attacker.getUUID(), npcVictim.level().getGameTime());
+            // Im Fernkampf getroffen → Deckung suchen oder seitlich ausweichen.
+            reactToHit(npcVictim, attacker);
         }
 
         // Polizei-Kugeln: Friendly-Fire + nicht-tödliche Klammer
