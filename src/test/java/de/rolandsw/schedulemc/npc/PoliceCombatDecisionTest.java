@@ -17,7 +17,12 @@ public class PoliceCombatDecisionTest {
     private EngagementMode decide(int wanted, double dist, boolean inArrest,
                                   boolean los, boolean vehicle, int escapes, long pursuit) {
         return PoliceCombatHandler.decideEngagement(true, wanted, dist, 2.5, 8.0,
-            inArrest, los, vehicle, escapes, pursuit, 2, 200L, 3, 4);
+            inArrest, los, vehicle, escapes, pursuit, 2, 200L, 3, 4, false);
+    }
+
+    private EngagementMode eliminate(int wanted, double dist, boolean los, boolean vehicle) {
+        return PoliceCombatHandler.decideEngagement(true, wanted, dist, 2.5, 8.0,
+            false, los, vehicle, 0, 0, 2, 200L, 3, 4, true);
     }
 
     @Test
@@ -62,6 +67,23 @@ public class PoliceCombatDecisionTest {
     @DisplayName("Disabled master switch -> NONE")
     void disabled() {
         assertThat(PoliceCombatHandler.decideEngagement(false, 5, 12.0, 2.5, 8.0,
-            false, true, false, 5, 999, 2, 200L, 3, 4)).isEqualTo(EngagementMode.NONE);
+            false, true, false, 5, 999, 2, 200L, 3, 4, false)).isEqualTo(EngagementMode.NONE);
+    }
+
+    @Test
+    @DisplayName("Eliminate (5 stars): ranged even in arrest range and without escalation")
+    void eliminateRanged() {
+        // Nahbereich + keine Eskalation -> trotzdem RANGED (schießen statt festnehmen)
+        assertThat(eliminate(5, 1.5, true, false)).isEqualTo(EngagementMode.RANGED);
+        // Auf Distanz mit Sichtlinie ebenfalls RANGED
+        assertThat(eliminate(5, 12.0, true, false)).isEqualTo(EngagementMode.RANGED);
+        // Ohne Sichtlinie weiterhin RANGED (Vorrücken mit gezogener Waffe, Feuer erst bei LOS)
+        assertThat(eliminate(5, 12.0, false, false)).isEqualTo(EngagementMode.RANGED);
+    }
+
+    @Test
+    @DisplayName("Eliminate: target in vehicle -> NONE (vehicle pursuit takes over)")
+    void eliminateVehicle() {
+        assertThat(eliminate(5, 12.0, true, true)).isEqualTo(EngagementMode.NONE);
     }
 }

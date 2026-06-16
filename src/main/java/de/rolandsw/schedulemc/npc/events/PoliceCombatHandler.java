@@ -36,8 +36,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * - Nahkampf (Baseball-Schläger) ab POLICE_MELEE_WANTED_LEVEL
  * - Fernkampf (Pistole) ab POLICE_RANGED_WANTED_LEVEL jenseits der Mindestdistanz
- * - Standardmäßig nicht-tödlich (Gummigeschosse, Stopp bei ½ Herz → Festnahme);
- *   scharfe Munition nur im Notfall (5★ UND Spieler hat Polizei angegriffen).
+ * - Bis 4★ nicht-tödlich (Gummigeschosse, Stopp bei ½ Herz → Festnahme).
+ * - Ab 5★ (POLICE_LETHAL_FORCE) Eliminierungsmodus: scharfe Munition, keine
+ *   Schadensklammer, keine Festnahme — der Polizist schießt, um den Spieler
+ *   auszuschalten, sucht aber bei Treffern weiterhin Deckung.
  */
 @Mod.EventBusSubscriber(modid = "schedulemc", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class PoliceCombatHandler {
@@ -48,8 +50,6 @@ public final class PoliceCombatHandler {
     private static final Map<UUID, Integer> escapeCounts = new ConcurrentHashMap<>();
     /** playerUUID -> aktive Schützen (Cap). */
     private static final Map<UUID, java.util.Set<UUID>> activeShooters = new ConcurrentHashMap<>();
-    /** playerUUID -> letzter Tick, an dem der Spieler einen Polizisten angriff (Notfall-Tötung). */
-    private static final Map<UUID, Long> lastAttackedPolice = new ConcurrentHashMap<>();
     /** Bullet-Geschwindigkeit (Blöcke/Tick), wie GunItem. */
     private static final float BULLET_SPEED = 3.0f;
     /** Bewegungstempo beim Vorrücken im Fernkampf (identisch zur Verfolgung in PoliceAIHandler). */
@@ -91,8 +91,14 @@ public final class PoliceCombatHandler {
             double distance, double arrestDistance, double rangedMinDistance,
             boolean inArrestCountdown, boolean hasLineOfSight, boolean targetInVehicle,
             int escapeCount, long pursuitTicks, int escapeThreshold, long pursuitTickThreshold,
-            int meleeWantedLevel, int rangedWantedLevel) {
+            int meleeWantedLevel, int rangedWantedLevel, boolean eliminate) {
         if (!enabled) return EngagementMode.NONE;
+        // 5★-Eliminierung: keine Festnahme, sofort scharf schießen. Mit gezogener
+        // Pistole vorrücken (tryShoot feuert nur mit Sichtlinie) — kein Nahkampf,
+        // damit es kein Waffen-Flackern zwischen Schläger und Pistole gibt.
+        if (eliminate) {
+            return targetInVehicle ? EngagementMode.NONE : EngagementMode.RANGED;
+        }
         // Festnahme gewinnt immer
         if (inArrestCountdown || distance < arrestDistance) return EngagementMode.NONE;
         boolean escalated = escapeCount >= escapeThreshold || pursuitTicks >= pursuitTickThreshold;
@@ -132,13 +138,15 @@ public final class PoliceCombatHandler {
 
         boolean los = npc.hasLineOfSight(target);
         boolean inVehicle = PoliceVehiclePursuit.isPlayerInVehicle(target);
+        // Ab 5★ (und wenn tödliche Gewalt erlaubt): eliminieren statt festnehmen.
+        boolean eliminate = cfg.POLICE_LETHAL_FORCE.get() && wantedLevel >= 5;
 
         EngagementMode mode = decideEngagement(
             true, wantedLevel, distance, arrestDistance, cfg.POLICE_RANGED_MIN_DISTANCE.get(),
             false, los, inVehicle,
             escapeCount(target.getUUID()), pursuitTicks,
             cfg.POLICE_ESCALATION_ESCAPE_COUNT.get(), cfg.POLICE_ESCALATION_PURSUIT_SECONDS.get() * 20L,
-            cfg.POLICE_MELEE_WANTED_LEVEL.get(), cfg.POLICE_RANGED_WANTED_LEVEL.get());
+            cfg.POLICE_MELEE_WANTED_LEVEL.get(), cfg.POLICE_RANGED_WANTED_LEVEL.get(), eliminate);
 
         if (mode == EngagementMode.NONE) {
             standDown(npc);
@@ -347,11 +355,9 @@ public final class PoliceCombatHandler {
         }
     }
 
-    /** Notfall: 5★ UND der Spieler hat in den letzten 10s einen Polizisten angegriffen. */
+    /** Eliminierung ab 5★: scharfe Munition statt Gummigeschossen, keine Schadensklammer. */
     private static boolean isEmergency(ServerPlayer player) {
-        if (CrimeManager.getWantedLevel(player.getUUID()) < 5) return false;
-        Long t = lastAttackedPolice.get(player.getUUID());
-        return t != null && player.level().getGameTime() - t <= 200L;
+        return CrimeManager.getWantedLevel(player.getUUID()) >= 5;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -360,12 +366,10 @@ public final class PoliceCombatHandler {
 
     @SubscribeEvent
     public static void onCombatDamage(LivingDamageEvent event) {
-        // Spieler greift Polizist an -> Notfall-Fenster setzen
+        // Spieler greift Polizist an -> im Fernkampf Deckung suchen / seitlich ausweichen.
         if (event.getEntity() instanceof CustomNPCEntity npcVictim
                 && npcVictim.getNpcType() == NPCType.POLICE
                 && event.getSource().getEntity() instanceof ServerPlayer attacker) {
-            lastAttackedPolice.put(attacker.getUUID(), npcVictim.level().getGameTime());
-            // Im Fernkampf getroffen → Deckung suchen oder seitlich ausweichen.
             reactToHit(npcVictim, attacker);
         }
 

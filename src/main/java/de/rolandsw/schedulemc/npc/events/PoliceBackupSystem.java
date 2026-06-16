@@ -154,6 +154,31 @@ public class PoliceBackupSystem {
     }
 
     /**
+     * 5★-Großalarm: Weist ALLE noch nicht zugewiesenen Polizisten im Radius dem Spieler zu
+     * und umgeht damit das normale 2/4-Limit. Polizisten, die bereits einem (anderen) Ziel
+     * zugewiesen sind, bleiben unberührt. Idempotent — kann gedrosselt wiederholt aufgerufen werden.
+     *
+     * @param player verfolgter Spieler (5 Sterne)
+     * @param center Mittelpunkt der Suche (Spielerposition)
+     * @param radius Suchradius in Blöcken
+     */
+    public static void summonAllNearby(ServerPlayer player, Vec3 center, double radius) {
+        List<CustomNPCEntity> nearbyPolice = new ArrayList<>();
+        PoliceAIHandler.getPoliceInRadius(center, radius, nearbyPolice);
+        int summoned = 0;
+        for (CustomNPCEntity police : nearbyPolice) {
+            if (!isPoliceAssigned(police.getUUID())) {
+                registerPolice(player.getUUID(), police.getUUID(), true);
+                summoned++;
+            }
+        }
+        if (summoned > 0 && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[BACKUP] 5-star alert: summoned {} officer(s) to player {}",
+                summoned, player.getName().getString());
+        }
+    }
+
+    /**
      * Prüft ob eine Polizei bereits einer Verfolgung zugewiesen ist
      */
     private static boolean isPoliceAssigned(UUID policeUUID) {

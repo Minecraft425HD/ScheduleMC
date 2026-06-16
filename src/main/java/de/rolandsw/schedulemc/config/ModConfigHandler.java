@@ -192,6 +192,7 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue POLICE_PISTOL_DAMAGE;
         public final ForgeConfigSpec.IntValue POLICE_MAX_SIMULTANEOUS_SHOOTERS;
         public final ForgeConfigSpec.BooleanValue POLICE_LETHAL_FORCE;
+        public final ForgeConfigSpec.IntValue POLICE_ELIMINATION_BACKUP_RADIUS;
         public final ForgeConfigSpec.DoubleValue POLICE_ILLEGAL_ITEMS_CASH_PENALTY;
         public final ForgeConfigSpec.DoubleValue POLICE_ILLEGAL_ITEMS_ACCOUNT_PENALTY;
 
@@ -894,8 +895,11 @@ public class ModConfigHandler {
                     .comment("Maximum officers shooting one target at once")
                     .defineInRange("max_simultaneous_shooters", 2, 1, 8);
             POLICE_LETHAL_FORCE = builder
-                    .comment("Allow lethal force only in emergencies (5 stars AND the player attacked police). Otherwise shots stop the player at half a heart and an arrest follows.")
+                    .comment("Allow lethal force at 5 wanted stars: police switch to live ammo and aim to eliminate instead of arrest. Below 5 stars (or when disabled) shots stop the player at half a heart and an arrest follows.")
                     .define("lethal_force_in_emergency", true);
+            POLICE_ELIMINATION_BACKUP_RADIUS = builder
+                    .comment("At 5 wanted stars, every police officer within this radius (blocks) of the player is summoned to converge on the target.")
+                    .defineInRange("elimination_backup_radius", 100, 16, 256);
             POLICE_ILLEGAL_ITEMS_CASH_PENALTY = builder
                     .comment("Penalty on total wallet cash when killed by police while carrying illegal items (0.20 = 20%)")
                     .defineInRange("illegal_items_cash_penalty", 0.20, 0.0, 1.0);

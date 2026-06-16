@@ -338,7 +338,17 @@ public class PoliceAIHandler {
             // Verfolge Verbrecher
             double distance = npc.distanceTo(targetCriminal);
 
-            if (distance < arrestDistance) {
+            // Ab 5★ (und wenn tödliche Gewalt erlaubt): Eliminierung statt Festnahme.
+            boolean eliminate = highestWantedLevel >= 5
+                    && ModConfigHandler.COMMON.POLICE_LETHAL_FORCE.get();
+
+            // 5★-Großalarm: ALLE Polizisten im Umkreis um den Spieler dazurufen (gedrosselt).
+            if (eliminate && npc.tickCount % 40 == 0) {
+                PoliceBackupSystem.summonAllNearby(targetCriminal, targetCriminal.position(),
+                    ModConfigHandler.COMMON.POLICE_ELIMINATION_BACKUP_RADIUS.get());
+            }
+
+            if (distance < arrestDistance && !eliminate) {
                 // ═══════════════════════════════════════════
                 // IM ARREST-BEREICH
                 // ═══════════════════════════════════════════
