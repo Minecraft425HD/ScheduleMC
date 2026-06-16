@@ -731,9 +731,10 @@ Located under `[police]`:
 
 | Key | Default | Range | Description |
 |-----|---------|-------|-------------|
-| `police.arrest_cooldown_seconds` | `5` | 1 - 60 | Cooldown before re-arrest |
+| `police.arrest_cooldown_seconds` | `6` | 1 - 60 | Seconds of continuous contact next to the player to complete an arrest |
 | `police.detection_radius` | `32` | 8 - 128 | Crime detection radius in blocks |
 | `police.arrest_distance` | `2.0` | 1.0 - 10.0 | Distance for arrest |
+| `police.backup_converge_radius` | `100` | 16 - 256 | Radius around the player from which all officers are summoned to converge on a pursuit |
 
 **Search Behavior:**
 

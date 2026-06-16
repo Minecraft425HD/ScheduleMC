@@ -56,7 +56,7 @@ public class ConfigCache {
 
             // Police-AI Werte
             policeDetectionRadius = getConfigSafe(ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS, 32);
-            policeArrestCooldownSeconds = getConfigSafe(ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS, 5);
+            policeArrestCooldownSeconds = getConfigSafe(ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS, 6);
             policeArrestDistance = getConfigSafe(ModConfigHandler.COMMON.POLICE_ARREST_DISTANCE, 2.5);
 
             // Warehouse Werte

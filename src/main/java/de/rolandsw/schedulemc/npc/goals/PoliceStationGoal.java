@@ -40,6 +40,11 @@ public class PoliceStationGoal extends Goal {
             return false;
         }
 
+        // Während einer laufenden Festnahme nicht zur Station zurückwandern.
+        if (npc.getPersistentData().getLong("ArrestHoldUntil") >= npc.level().getGameTime()) {
+            return false;
+        }
+
         // Nur wenn Movement aktiviert ist
         if (!npc.getNpcData().getBehavior().canMove()) {
             return false;

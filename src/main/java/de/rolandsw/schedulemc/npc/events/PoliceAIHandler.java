@@ -67,6 +67,16 @@ public class PoliceAIHandler {
         }
     );
 
+    // Spieler-UUID -> letzter Tick, an dem IRGENDEIN Polizist im Arrest-Bereich war.
+    // Verhindert, dass ein entfernter Kollege die laufende Festnahme eines nahen
+    // Polizisten abbricht. Erst nach ARREST_CONTACT_GRACE_TICKS ohne Kontakt = Flucht.
+    private static final Map<UUID, Long> lastArrestContactTick = new java.util.concurrent.ConcurrentHashMap<>();
+    // Karenz > AI-Intervall (20 Ticks), damit aufeinanderfolgende Auswertungen desselben
+    // bzw. phasenverschobener Kollegen als durchgehender Kontakt zählen.
+    private static final long ARREST_CONTACT_GRACE_TICKS = 30L;
+    // Unter diesem Gesundheitsanteil darf ein Polizist die Festnahme zum Selbstschutz abbrechen.
+    private static final float ARREST_FLEE_HEALTH_FRACTION = 0.30f;
+
     // NPC UUID -> Last Pursuit Target (um zu wissen wen wir verfolgt haben) - LRU Cache
     // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
     private static final Map<UUID, UUID> lastPursuitTarget = Collections.synchronizedMap(
@@ -342,10 +352,13 @@ public class PoliceAIHandler {
             boolean eliminate = highestWantedLevel >= 5
                     && ModConfigHandler.COMMON.POLICE_LETHAL_FORCE.get();
 
-            // 5★-Großalarm: ALLE Polizisten im Umkreis um den Spieler dazurufen (gedrosselt).
-            if (eliminate && npc.tickCount % 40 == 0) {
+            // Kollegen automatisch dazurufen: jeder Polizist im Umkreis um den Spieler
+            // übernimmt dasselbe Ziel und handelt nach denselben Regeln wie der erste
+            // (Nah-/Fernkampf, tödlich/nicht-tödlich, Festnahme) — je nach Fahndungslevel
+            // und Distanz. Gedrosselt; idempotent (bereits zugewiesene bleiben unberührt).
+            if (npc.tickCount % 40 == 0) {
                 PoliceBackupSystem.summonAllNearby(targetCriminal, targetCriminal.position(),
-                    ModConfigHandler.COMMON.POLICE_ELIMINATION_BACKUP_RADIUS.get());
+                    ModConfigHandler.COMMON.POLICE_BACKUP_CONVERGE_RADIUS.get());
             }
 
             if (distance < arrestDistance && !eliminate) {
@@ -353,32 +366,50 @@ public class PoliceAIHandler {
                 // IM ARREST-BEREICH
                 // ═══════════════════════════════════════════
                 UUID playerUUID = targetCriminal.getUUID();
+                // Während der Festnahme (auch bei Selbstschutz-Flucht) nicht patrouillieren/
+                // streifen und nicht wegen Treffern automatisch in Deckung gehen
+                // (siehe reactToHit / Wander-Goals). Nur die Lebensgefahr-Flucht bewegt.
+                npc.getPersistentData().putLong("ArrestHoldUntil", currentTick + 30L);
 
-                // SICHERHEIT: Atomare Operation verhindert Race Condition
-                // wenn mehrere Polizisten gleichzeitig versuchen zu arrestieren
-                Long previousStartTick = arrestTimers.putIfAbsent(playerUUID, currentTick);
-
-                if (previousStartTick == null) {
-                    // Neuer Arrest-Timer gestartet (wir waren erste)
-                    int cooldownSeconds = ConfigCache.getPoliceArrestCooldownSeconds();
-                    targetCriminal.sendSystemMessage(Component.translatable("event.police.arrest_in_progress", cooldownSeconds));
+                if (npc.getHealth() / npc.getMaxHealth() <= ARREST_FLEE_HEALTH_FRACTION) {
+                    // Selbstschutz: Nur bei echter Lebensgefahr darf der Polizist die
+                    // Festnahme abbrechen und vom Spieler wegrennen. Er aktualisiert den
+                    // Kontakt NICHT → bricht ohne gesunden Kollegen nach der Karenz ab und
+                    // startet die 6 Sekunden bei Rückkehr neu.
+                    PoliceCombatHandler.fleeForLife(npc, targetCriminal);
                 } else {
-                    // Timer läuft bereits - prüfe ob abgelaufen
-                    long elapsed = currentTick - previousStartTick;
+                    // Beim Spieler bleiben — keine Eigenbewegung.
+                    if (!npc.getNavigation().isDone()) {
+                        npc.getNavigation().stop();
+                    }
 
-                    if (elapsed >= arrestCooldown) {
-                        // Cooldown vorbei → FESTNAHME!
-                        arrestPlayer(npc, targetCriminal);
-                        arrestTimers.remove(playerUUID);
+                    // Kontakt-Kontinuität: Solange irgendein gesunder Polizist beim Spieler
+                    // steht, läuft der 6s-Timer. Eine Lücke > Karenz (Flucht/Distanz) startet neu.
+                    long lastContact = lastArrestContactTick.getOrDefault(playerUUID, 0L);
+                    boolean continued = currentTick - lastContact <= ARREST_CONTACT_GRACE_TICKS;
+                    lastArrestContactTick.put(playerUUID, currentTick);
+
+                    Long startTick = arrestTimers.get(playerUUID);
+                    if (startTick == null || !continued) {
+                        // (Neu-)Start der Festnahme
+                        arrestTimers.put(playerUUID, currentTick);
+                        int cooldownSeconds = ConfigCache.getPoliceArrestCooldownSeconds();
+                        targetCriminal.sendSystemMessage(Component.translatable("event.police.arrest_in_progress", cooldownSeconds));
                     } else {
-                        // Zeige verbleibende Zeit (alle Sekunde)
-                        long remainingTicks = arrestCooldown - elapsed;
-                        int remainingSeconds = (int) Math.ceil(remainingTicks / 20.0);
-
-                        if (elapsed % 20 == 0) { // Jede Sekunde
-                            targetCriminal.sendSystemMessage(
-                                Component.translatable("event.police.arrest_in", remainingSeconds)
-                            );
+                        long elapsed = currentTick - startTick;
+                        if (elapsed >= arrestCooldown) {
+                            // Genug Zeit beim Spieler verbracht → FESTNAHME!
+                            arrestPlayer(npc, targetCriminal);
+                            arrestTimers.remove(playerUUID);
+                            lastArrestContactTick.remove(playerUUID);
+                        } else {
+                            long remainingTicks = arrestCooldown - elapsed;
+                            int remainingSeconds = (int) Math.ceil(remainingTicks / 20.0);
+                            if (elapsed % 20 == 0) { // Jede Sekunde
+                                targetCriminal.sendSystemMessage(
+                                    Component.translatable("event.police.arrest_in", remainingSeconds)
+                                );
+                            }
                         }
                     }
                 }
@@ -398,8 +429,12 @@ public class PoliceAIHandler {
                         LOGGER.debug("[POLICE] {} - Player is hidden, switching to search mode", npc.getNpcName());
                     }
 
-                    // Reset Timer falls vorhanden (atomare Operation)
-                    if (arrestTimers.remove(playerUUID) != null) {
+                    // Festnahme nur abbrechen, wenn der Kontakt wirklich gerissen ist
+                    // (kein gesunder Kollege mehr innerhalb der Karenz beim Spieler).
+                    long lastContact = lastArrestContactTick.getOrDefault(playerUUID, 0L);
+                    if (currentTick - lastContact > ARREST_CONTACT_GRACE_TICKS
+                            && arrestTimers.remove(playerUUID) != null) {
+                        lastArrestContactTick.remove(playerUUID);
                         targetCriminal.sendSystemMessage(Component.translatable("event.police.escaped"));
                         PoliceCombatHandler.recordEscape(playerUUID);
                     }
@@ -416,8 +451,12 @@ public class PoliceAIHandler {
                 } else {
                     // Spieler ist NICHT versteckt - normale Verfolgung
 
-                    // Reset Timer falls vorhanden (atomare Operation)
-                    if (arrestTimers.remove(playerUUID) != null) {
+                    // Festnahme nur abbrechen, wenn der Kontakt wirklich gerissen ist
+                    // (kein gesunder Kollege mehr innerhalb der Karenz beim Spieler).
+                    long lastContact = lastArrestContactTick.getOrDefault(playerUUID, 0L);
+                    if (currentTick - lastContact > ARREST_CONTACT_GRACE_TICKS
+                            && arrestTimers.remove(playerUUID) != null) {
+                        lastArrestContactTick.remove(playerUUID);
                         targetCriminal.sendSystemMessage(Component.translatable("event.police.escaped"));
                         PoliceCombatHandler.recordEscape(playerUUID);
                     }

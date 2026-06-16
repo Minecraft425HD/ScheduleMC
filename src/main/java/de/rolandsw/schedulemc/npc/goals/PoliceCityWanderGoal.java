@@ -54,6 +54,8 @@ public class PoliceCityWanderGoal extends Goal {
     @Override
     public boolean canUse() {
         if (npc.getNpcType() != NPCType.POLICE) return false;
+        // Während einer laufenden Festnahme nicht wegstreifen.
+        if (npc.getPersistentData().getLong("ArrestHoldUntil") >= npc.level().getGameTime()) return false;
         if (!ModConfigHandler.COMMON.POLICE_CITY_WANDER_ENABLED.get()) return false;
         if (!npc.getNpcData().getBehavior().canMove()) return false;
         if (npc.isDriving() || npc.getTarget() != null) return false;

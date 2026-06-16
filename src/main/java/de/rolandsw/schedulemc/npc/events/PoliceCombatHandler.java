@@ -251,6 +251,9 @@ public final class PoliceCombatHandler {
      */
     private static void reactToHit(CustomNPCEntity npc, ServerPlayer attacker) {
         if (!(npc.level() instanceof ServerLevel)) return;
+        // Während einer Festnahme NICHT wegen Treffern in Deckung gehen — nur echte
+        // Lebensgefahr (vom PoliceAIHandler) darf den Polizisten dann wegrennen lassen.
+        if (npc.getPersistentData().getLong("ArrestHoldUntil") >= npc.level().getGameTime()) return;
         // Nur reagieren, wenn aktiv im Fernkampf (Verfolgung läuft + Pistole gezogen).
         if (npc.getPersistentData().getLong("PursuitStartTick") == 0L) return;
         if (npc.getMainHandItem().getItem() != WeaponItems.PISTOL.get()) return;
@@ -327,6 +330,32 @@ public final class PoliceCombatHandler {
         }
         dest = npcPos.add(right.scale(-sign * step));
         return npc.getNavigation().moveTo(dest.x, dest.y, dest.z, POLICE_SPEED);
+    }
+
+    /**
+     * Selbstschutz-Flucht während einer Festnahme: zur nächsten Deckung oder direkt
+     * vom Bedroher weg. Vom {@link PoliceAIHandler} nur bei echter Lebensgefahr
+     * (niedrige Gesundheit) aufgerufen — sonst hält der Polizist die Festnahme.
+     */
+    public static void fleeForLife(CustomNPCEntity npc, ServerPlayer threat) {
+        if (!(npc.level() instanceof ServerLevel)) return;
+        long now = npc.level().getGameTime();
+        if (now - npc.getPersistentData().getLong("LastEvadeTick") < EVADE_COOLDOWN_TICKS) return;
+
+        Vec3 cover = findCoverPos(npc, threat);
+        boolean moved;
+        if (cover != null) {
+            moved = npc.getNavigation().moveTo(cover.x, cover.y, cover.z, POLICE_SPEED);
+        } else {
+            Vec3 away = npc.position().subtract(threat.position());
+            away = new Vec3(away.x, 0, away.z);
+            if (away.lengthSqr() < 1.0e-3) away = new Vec3(1, 0, 0);
+            Vec3 dest = npc.position().add(away.normalize().scale(6.0));
+            moved = npc.getNavigation().moveTo(dest.x, dest.y, dest.z, POLICE_SPEED);
+        }
+        if (moved) {
+            npc.getPersistentData().putLong("LastEvadeTick", now);
+        }
     }
 
     /** Stand-down: Waffe weg, Ziel weg, Schützen-Slot frei. */

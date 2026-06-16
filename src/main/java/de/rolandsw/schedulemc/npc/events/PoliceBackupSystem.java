@@ -154,26 +154,30 @@ public class PoliceBackupSystem {
     }
 
     /**
-     * 5★-Großalarm: Weist ALLE noch nicht zugewiesenen Polizisten im Radius dem Spieler zu
-     * und umgeht damit das normale 2/4-Limit. Polizisten, die bereits einem (anderen) Ziel
-     * zugewiesen sind, bleiben unberührt. Idempotent — kann gedrosselt wiederholt aufgerufen werden.
+     * Konvergenz-Alarm: Weist ALLE noch nicht zugewiesenen Polizisten im Radius dem Spieler zu
+     * und umgeht damit das normale 2/4-Limit. Die zugewiesenen Kollegen verfolgen dasselbe Ziel
+     * und handeln über {@link PoliceAIHandler} nach denselben Regeln wie der erste Polizist
+     * (Nah-/Fernkampf, tödlich/nicht-tödlich, Festnahme) — je nach Fahndungslevel & Distanz.
+     * Polizisten, die bereits einem (anderen) Ziel zugewiesen sind, bleiben unberührt.
+     * Idempotent — kann gedrosselt wiederholt aufgerufen werden.
      *
-     * @param player verfolgter Spieler (5 Sterne)
+     * @param player verfolgter Spieler
      * @param center Mittelpunkt der Suche (Spielerposition)
      * @param radius Suchradius in Blöcken
      */
     public static void summonAllNearby(ServerPlayer player, Vec3 center, double radius) {
         List<CustomNPCEntity> nearbyPolice = new ArrayList<>();
         PoliceAIHandler.getPoliceInRadius(center, radius, nearbyPolice);
+        boolean raid = isRaidPursuit.getOrDefault(player.getUUID(), false);
         int summoned = 0;
         for (CustomNPCEntity police : nearbyPolice) {
             if (!isPoliceAssigned(police.getUUID())) {
-                registerPolice(player.getUUID(), police.getUUID(), true);
+                registerPolice(player.getUUID(), police.getUUID(), raid);
                 summoned++;
             }
         }
         if (summoned > 0 && LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[BACKUP] 5-star alert: summoned {} officer(s) to player {}",
+            LOGGER.debug("[BACKUP] Converge alert: summoned {} officer(s) to player {}",
                 summoned, player.getName().getString());
         }
     }

@@ -44,6 +44,11 @@ public class PolicePatrolGoal extends Goal {
             return false;
         }
 
+        // Während einer laufenden Festnahme nicht patrouillieren.
+        if (npc.getPersistentData().getLong("ArrestHoldUntil") >= npc.level().getGameTime()) {
+            return false;
+        }
+
         // Nur wenn Movement aktiviert ist
         if (!npc.getNpcData().getBehavior().canMove()) {
             return false;

@@ -192,7 +192,7 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue POLICE_PISTOL_DAMAGE;
         public final ForgeConfigSpec.IntValue POLICE_MAX_SIMULTANEOUS_SHOOTERS;
         public final ForgeConfigSpec.BooleanValue POLICE_LETHAL_FORCE;
-        public final ForgeConfigSpec.IntValue POLICE_ELIMINATION_BACKUP_RADIUS;
+        public final ForgeConfigSpec.IntValue POLICE_BACKUP_CONVERGE_RADIUS;
         public final ForgeConfigSpec.DoubleValue POLICE_ILLEGAL_ITEMS_CASH_PENALTY;
         public final ForgeConfigSpec.DoubleValue POLICE_ILLEGAL_ITEMS_ACCOUNT_PENALTY;
 
@@ -722,8 +722,8 @@ public class ModConfigHandler {
                     .push("police");
 
             POLICE_ARREST_COOLDOWN_SECONDS = builder
-                    .comment("Cooldown in seconds before police can arrest a player")
-                    .defineInRange("arrest_cooldown_seconds", 5, 1, 60);
+                    .comment("Seconds an officer must stay next to the player (continuous contact) to complete an arrest")
+                    .defineInRange("arrest_cooldown_seconds", 6, 1, 60);
 
             POLICE_DETECTION_RADIUS = builder
                     .comment("Police detection radius in blocks")
@@ -897,9 +897,9 @@ public class ModConfigHandler {
             POLICE_LETHAL_FORCE = builder
                     .comment("Allow lethal force at 5 wanted stars: police switch to live ammo and aim to eliminate instead of arrest. Below 5 stars (or when disabled) shots stop the player at half a heart and an arrest follows.")
                     .define("lethal_force_in_emergency", true);
-            POLICE_ELIMINATION_BACKUP_RADIUS = builder
-                    .comment("At 5 wanted stars, every police officer within this radius (blocks) of the player is summoned to converge on the target.")
-                    .defineInRange("elimination_backup_radius", 100, 16, 256);
+            POLICE_BACKUP_CONVERGE_RADIUS = builder
+                    .comment("When an officer pursues a wanted player, every police officer within this radius (blocks) of the player is summoned to converge and act with the same rules (melee/ranged, lethal/non-lethal, arrest).")
+                    .defineInRange("backup_converge_radius", 100, 16, 256);
             POLICE_ILLEGAL_ITEMS_CASH_PENALTY = builder
                     .comment("Penalty on total wallet cash when killed by police while carrying illegal items (0.20 = 20%)")
                     .defineInRange("illegal_items_cash_penalty", 0.20, 0.0, 1.0);
