@@ -14,4 +14,24 @@ public class RevolverItem extends GunItem {
     protected int getConfigRange() {
         return WeaponConfig.REVOLVER_RANGE.get();
     }
+
+    @Override
+    protected float getConfigDamage() {
+        return WeaponConfig.REVOLVER_DAMAGE.get();
+    }
+
+    @Override
+    protected double getConfigAccuracy() {
+        return WeaponConfig.REVOLVER_ACCURACY.get();
+    }
+
+    @Override
+    protected int getConfigCooldown() {
+        return WeaponConfig.REVOLVER_COOLDOWN.get();
+    }
+
+    @Override
+    protected int getConfigReloadTicks() {
+        return WeaponConfig.REVOLVER_RELOAD_TICKS.get();
+    }
 }

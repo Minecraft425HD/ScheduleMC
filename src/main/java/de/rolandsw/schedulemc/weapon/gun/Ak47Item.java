@@ -17,6 +17,26 @@ public class Ak47Item extends GunItem {
     }
 
     @Override
+    protected float getConfigDamage() {
+        return WeaponConfig.AK47_DAMAGE.get();
+    }
+
+    @Override
+    protected double getConfigAccuracy() {
+        return WeaponConfig.AK47_ACCURACY.get();
+    }
+
+    @Override
+    protected int getConfigCooldown() {
+        return WeaponConfig.AK47_COOLDOWN.get();
+    }
+
+    @Override
+    protected int getConfigReloadTicks() {
+        return WeaponConfig.AK47_RELOAD_TICKS.get();
+    }
+
+    @Override
     public Set<Integer> getCompatibleFireModes() {
         return Set.of(0, 2);
     }

@@ -242,6 +242,23 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
     }
 
     /**
+     * Annulliert ein Kopfgeld ersatzlos (ohne Auszahlung), z.B. wenn der Spieler
+     * von der Polizei getötet wurde. Verschiebt den Eintrag in die Historie.
+     *
+     * @return true, wenn ein aktives Kopfgeld entfernt wurde
+     */
+    public boolean clearBounty(UUID playerUUID) {
+        BountyData bounty = activeBounties.remove(playerUUID);
+        if (bounty == null) {
+            return false;
+        }
+        bountyHistory.computeIfAbsent(playerUUID, k -> new ArrayList<>()).add(bounty);
+        LOGGER.info("Bounty cleared (no payout) for {}", playerUUID);
+        save();
+        return true;
+    }
+
+    /**
      * Gibt alle aktiven Bounties zurück
      */
     public List<BountyData> getAllActiveBounties() {

@@ -14,4 +14,24 @@ public class SniperItem extends GunItem {
     protected int getConfigRange() {
         return WeaponConfig.SNIPER_RANGE.get();
     }
+
+    @Override
+    protected float getConfigDamage() {
+        return WeaponConfig.SNIPER_DAMAGE.get();
+    }
+
+    @Override
+    protected double getConfigAccuracy() {
+        return WeaponConfig.SNIPER_ACCURACY.get();
+    }
+
+    @Override
+    protected int getConfigCooldown() {
+        return WeaponConfig.SNIPER_COOLDOWN.get();
+    }
+
+    @Override
+    protected int getConfigReloadTicks() {
+        return WeaponConfig.SNIPER_RELOAD_TICKS.get();
+    }
 }

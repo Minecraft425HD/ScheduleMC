@@ -1733,6 +1733,8 @@
   "event.police.discovered_window": "§c⚠ You were spotted at the window!",
   "event.police.double_jail_time": "§c⚠ Jail time doubled!",
   "event.police.downed_arrest": "§cYou are incapacitated. You are under arrest.",
+  "event.police.death_wanted_cleared": "§a✓ Your wanted level was cleared by your death.",
+  "event.police.death_bounty_cleared": "§a✓ The bounty on you has been cancelled.",
   "event.police.escape_prevented": "§c✗ Escape attempt prevented! Back to cell!",
   "event.police.escaped": "You escaped from police",
   "event.police.escaped_star": "§a✓ You shook off the police! All wanted stars removed.",

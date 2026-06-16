@@ -17,6 +17,26 @@ public class PistolItem extends GunItem {
     }
 
     @Override
+    protected float getConfigDamage() {
+        return WeaponConfig.PISTOL_DAMAGE.get();
+    }
+
+    @Override
+    protected double getConfigAccuracy() {
+        return WeaponConfig.PISTOL_ACCURACY.get();
+    }
+
+    @Override
+    protected int getConfigCooldown() {
+        return WeaponConfig.PISTOL_COOLDOWN.get();
+    }
+
+    @Override
+    protected int getConfigReloadTicks() {
+        return WeaponConfig.PISTOL_RELOAD_TICKS.get();
+    }
+
+    @Override
     public Set<Integer> getCompatibleFireModes() {
         return Set.of(0, 1);
     }

@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.weapon.gun;
 import de.rolandsw.schedulemc.weapon.attachment.Attachment;
 import de.rolandsw.schedulemc.weapon.attachment.BaseAttachmentItem;
 import de.rolandsw.schedulemc.weapon.attachment.WeaponAttachments;
+import de.rolandsw.schedulemc.weapon.config.WeaponConfig;
 import de.rolandsw.schedulemc.weapon.entity.WeaponBulletEntity;
 import de.rolandsw.schedulemc.weapon.item.WeaponItems;
 import de.rolandsw.schedulemc.weapon.particle.WeaponParticles;
@@ -48,6 +49,7 @@ public abstract class GunItem extends Item {
     private static final String TAG_UNLOCKED_MODES = "UnlockedModes";
     private static final String TAG_SINGLE_PRECISION = "SinglePrecisionUpgrade";
     private static final String TAG_LAST_FIRE_TIME = "LastFireTime";
+    private static final String TAG_RELOAD_END_TIME = "ReloadEndTime";
 
     public GunItem(GunProperties properties) {
         super(new Item.Properties().stacksTo(1).durability(properties.getDurability()));
@@ -56,6 +58,31 @@ public abstract class GunItem extends Item {
 
     protected int getConfigRange() {
         return properties.getRange();
+    }
+
+    /** Schaden pro Treffer — per Waffe über die Config überschreibbar. */
+    protected float getConfigDamage() {
+        return properties.getBaseDamage();
+    }
+
+    /** Trefferrate/Genauigkeit (0..1) — per Waffe über die Config überschreibbar. */
+    protected double getConfigAccuracy() {
+        return properties.getBaseAccuracy();
+    }
+
+    /** Schuss-Cooldown/Feuerrate in Ticks — per Waffe über die Config überschreibbar. */
+    protected int getConfigCooldown() {
+        return properties.getBaseCooldown();
+    }
+
+    /** Nachladezeit in Ticks (0 = sofort) — per Waffe über die Config überschreibbar. */
+    protected int getConfigReloadTicks() {
+        return 0;
+    }
+
+    /** True, solange die Waffe nachlädt und nicht feuern kann. */
+    public boolean isReloading(ItemStack stack, Level level) {
+        return level.getGameTime() < stack.getOrCreateTag().getLong(TAG_RELOAD_END_TIME);
     }
 
     public int getCurrentAmmo(ItemStack stack) {
@@ -266,6 +293,7 @@ public abstract class GunItem extends Item {
     }
 
     public void performShots(Level level, Player player, ItemStack gunStack, int count) {
+        if (isReloading(gunStack, level)) return;
         if (isOnCooldown(gunStack, level)) return;
         for (int i = 0; i < count; i++) {
             if (!canShoot(gunStack, player)) break;
@@ -284,9 +312,9 @@ public abstract class GunItem extends Item {
         Item ammoType = getLoadedAmmoType(gunStack);
         List<Attachment> attachments = getAttachments(gunStack);
 
-        float baseDamage = properties.getBaseDamage();
-        if (ammoType == WeaponItems.AMMO_AP.get()) baseDamage *= 0.8;
-        else if (ammoType == WeaponItems.AMMO_RUBBER.get()) baseDamage *= 0.3;
+        float baseDamage = getConfigDamage();
+        if (ammoType == WeaponItems.AMMO_AP.get()) baseDamage *= WeaponConfig.AMMO_AP_FIRE_MULTIPLIER.get();
+        else if (ammoType == WeaponItems.AMMO_RUBBER.get()) baseDamage *= WeaponConfig.AMMO_RUBBER_DAMAGE_MULTIPLIER.get();
         for (Attachment a : attachments) baseDamage *= a.getDamageMultiplier();
 
         Attachment firstAttachment = attachments.isEmpty() ? null : attachments.get(0);
@@ -351,6 +379,12 @@ public abstract class GunItem extends Item {
                 stack.shrink(1);
                 setCurrentAmmo(gunStack, properties.getMaxAmmo());
                 setLoadedAmmoType(gunStack, loadedAmmo);
+                // Nachladezeit: Waffe ist bis zum Ablauf der Reload-Ticks feuerbereit gesperrt.
+                int reloadTicks = getConfigReloadTicks();
+                if (reloadTicks > 0) {
+                    gunStack.getOrCreateTag().putLong(TAG_RELOAD_END_TIME,
+                        player.level().getGameTime() + reloadTicks);
+                }
                 player.playSound(WeaponSounds.RELOAD.get(), 1.0F, 1.0F);
                 return;
             }
@@ -374,7 +408,7 @@ public abstract class GunItem extends Item {
     }
 
     protected double getCurrentAccuracy(ItemStack stack, Level level) {
-        double accuracy = properties.getBaseAccuracy();
+        double accuracy = getConfigAccuracy();
         for (Attachment a : getAttachments(stack)) accuracy *= a.getAccuracyMultiplier();
         int shots = getShotsFired(stack);
         long last = stack.getOrCreateTag().getLong(TAG_LAST_SHOT_TIME);
@@ -392,7 +426,7 @@ public abstract class GunItem extends Item {
     }
 
     public int getCurrentCooldown(ItemStack stack) {
-        int cd = properties.getBaseCooldown();
+        int cd = getConfigCooldown();
         for (Attachment a : getAttachments(stack)) {
             if (a.getType() == Attachment.Type.SILENCER) {
                 cd = (int) (cd * 1.2f);

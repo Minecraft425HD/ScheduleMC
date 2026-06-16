@@ -445,6 +445,18 @@ public final class PoliceCombatHandler {
             applyIllegalItemsPenalty(player);
         }
 
+        // Tod durch Polizei begleicht die Schuld: Fahndungslevel UND Kopfgeld zurücksetzen.
+        UUID playerUUID = player.getUUID();
+        CrimeManager.clearWantedLevel(playerUUID);
+        resetEscalation(playerUUID);
+        de.rolandsw.schedulemc.npc.crime.BountyManager bm =
+            de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance();
+        boolean hadBounty = bm != null && bm.clearBounty(playerUUID);
+        player.sendSystemMessage(Component.translatable("event.police.death_wanted_cleared"));
+        if (hadBounty) {
+            player.sendSystemMessage(Component.translatable("event.police.death_bounty_cleared"));
+        }
+
         // Inventar sichern und leeren, damit Vanilla nichts droppt
         java.util.List<ItemStack> snapshot = new java.util.ArrayList<>();
         var inv = player.getInventory();

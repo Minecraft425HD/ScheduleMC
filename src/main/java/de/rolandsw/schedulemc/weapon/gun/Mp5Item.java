@@ -17,6 +17,26 @@ public class Mp5Item extends GunItem {
     }
 
     @Override
+    protected float getConfigDamage() {
+        return WeaponConfig.MP5_DAMAGE.get();
+    }
+
+    @Override
+    protected double getConfigAccuracy() {
+        return WeaponConfig.MP5_ACCURACY.get();
+    }
+
+    @Override
+    protected int getConfigCooldown() {
+        return WeaponConfig.MP5_COOLDOWN.get();
+    }
+
+    @Override
+    protected int getConfigReloadTicks() {
+        return WeaponConfig.MP5_RELOAD_TICKS.get();
+    }
+
+    @Override
     public Set<Integer> getCompatibleFireModes() {
         return Set.of(0, 1, 2);
     }

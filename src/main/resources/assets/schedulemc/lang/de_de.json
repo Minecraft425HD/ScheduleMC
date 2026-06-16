@@ -1730,6 +1730,8 @@
   "event.police.discovered_window": "§c⚠ Du wurdest am Fenster gesichtet!",
   "event.police.double_jail_time": "§c⚠ Gefängnisstrafe verdoppelt!",
   "event.police.downed_arrest": "§cDu bist kampfunfähig. Du bist verhaftet.",
+  "event.police.death_wanted_cleared": "§a✓ Dein Fahndungslevel wurde durch deinen Tod zurückgesetzt.",
+  "event.police.death_bounty_cleared": "§a✓ Das Kopfgeld auf dich wurde annulliert.",
   "event.police.escape_prevented": "§c✗ Fluchtversuch verhindert! Zurück zur Zelle!",
   "event.police.escaped": "Du bist der Polizei entkommen",
   "event.police.escaped_star": "§a✓ Polizei abgeschüttelt! Alle Fahndungssterne entfernt.",

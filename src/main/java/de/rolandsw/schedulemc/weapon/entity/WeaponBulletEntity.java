@@ -75,11 +75,11 @@ public class WeaponBulletEntity extends AbstractArrow {
                     .findFirst().orElse(WeaponItems.AMMO_STANDARD.get());
 
             if (ammoType == WeaponItems.AMMO_AP.get()) {
-                damage *= 1.5;
+                damage *= de.rolandsw.schedulemc.weapon.config.WeaponConfig.AMMO_AP_HIT_MULTIPLIER.get().floatValue();
             } else if (ammoType == WeaponItems.AMMO_RUBBER.get()) {
                 living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 2));
                 living.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 60, 0));
-                damage *= 0.3;
+                damage *= de.rolandsw.schedulemc.weapon.config.WeaponConfig.AMMO_RUBBER_DAMAGE_MULTIPLIER.get().floatValue();
             }
 
             Entity owner = this.getOwner();

@@ -19,6 +19,26 @@ public class ShotgunItem extends GunItem {
     }
 
     @Override
+    protected float getConfigDamage() {
+        return WeaponConfig.SHOTGUN_DAMAGE.get();
+    }
+
+    @Override
+    protected double getConfigAccuracy() {
+        return WeaponConfig.SHOTGUN_ACCURACY.get();
+    }
+
+    @Override
+    protected int getConfigCooldown() {
+        return WeaponConfig.SHOTGUN_COOLDOWN.get();
+    }
+
+    @Override
+    protected int getConfigReloadTicks() {
+        return WeaponConfig.SHOTGUN_RELOAD_TICKS.get();
+    }
+
+    @Override
     public void shootProjectile(Level level, Player player, ItemStack gunStack) {
         for (int i = 0; i < 5; i++) {
             super.shootProjectile(level, player, gunStack);

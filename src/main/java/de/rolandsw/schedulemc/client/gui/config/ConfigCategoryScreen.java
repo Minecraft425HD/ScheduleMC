@@ -66,7 +66,7 @@ public class ConfigCategoryScreen extends Screen {
         );
         categoryList.addCategoryRow(
             "§a⚙ Produktionsblock-Katalog", () -> new ProductionBlockCatalogScreen(this),
-            null, null
+            "§c🔫 Weapon Settings", () -> new WeaponConfigScreen(this)
         );
 
         // Done Button (fixed at bottom)
