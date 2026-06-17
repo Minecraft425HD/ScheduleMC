@@ -21,12 +21,23 @@ import java.util.List;
 public class ConfigCategoryScreen extends Screen {
 
     private final Screen parent;
+    private final boolean newWorldDefaults;
     private CategoryList categoryList;
     private String statusMessage = "";
 
     public ConfigCategoryScreen(Screen parent) {
+        this(parent, false);
+    }
+
+    /**
+     * @param newWorldDefaults true, wenn die Vorlage für NEUE Welten bearbeitet wird
+     *                         (über {@link de.rolandsw.schedulemc.config.DefaultConfigEditor},
+     *                         erreichbar aus dem Welt-erstellen-Screen).
+     */
+    public ConfigCategoryScreen(Screen parent, boolean newWorldDefaults) {
         super(Component.literal("ScheduleMC Configuration"));
         this.parent = parent;
+        this.newWorldDefaults = newWorldDefaults;
     }
 
     @Override
@@ -89,19 +100,25 @@ public class ConfigCategoryScreen extends Screen {
             button -> doImport()
         ).bounds(this.width / 2 + 5, this.height - 52, 200, 20).build());
 
-        // Done Button (fixed at bottom)
+        // Done Button (fixed at bottom) - über onClose(), damit die Vorlagen-Bindung gelöst wird
         this.addRenderableWidget(Button.builder(
             Component.literal("Done"),
-            button -> this.minecraft.setScreen(parent)
+            button -> this.onClose()
         )
         .bounds(this.width / 2 - 100, this.height - 28, 200, 20)
         .build());
     }
 
-    /** Pro-Welt-Config nur bei geladener Welt öffnen, sonst Hinweis statt Crash. */
+    /**
+     * Pro-Welt-Config nur öffnen, wenn die Werte verfügbar sind: entweder eine Welt ist
+     * geladen, oder die Vorlage für neue Welten ist gerade gebunden (DefaultConfigEditor).
+     * Sonst Hinweis statt Crash.
+     */
     private ScreenSupplier gated(ScreenSupplier real) {
         return () -> {
-            if (this.minecraft != null && this.minecraft.level != null) {
+            boolean available = (this.minecraft != null && this.minecraft.level != null)
+                || de.rolandsw.schedulemc.config.DefaultConfigEditor.isActive();
+            if (available) {
                 return real.create();
             }
             this.statusMessage = "§ePer-world config - load or create a world first to edit these settings.";
@@ -220,7 +237,9 @@ public class ConfigCategoryScreen extends Screen {
 
         // Subtitle
         graphics.drawCenteredString(this.font,
-            Component.literal("§7160+ Config Options - Full Control!"),
+            Component.literal(newWorldDefaults
+                ? "§b✎ Editing defaults for NEW worlds"
+                : "§7160+ Config Options - Full Control!"),
             this.width / 2, 35, 0xFFFF55);
 
         // Status (button feedback) or default hint
@@ -234,6 +253,11 @@ public class ConfigCategoryScreen extends Screen {
 
     @Override
     public void onClose() {
+        // Vorlagen-Bearbeitung beenden: speichern + Bindung lösen, damit ein echter
+        // Weltladevorgang die Pro-Welt-Config sauber neu lädt.
+        if (newWorldDefaults) {
+            de.rolandsw.schedulemc.config.DefaultConfigEditor.end();
+        }
         this.minecraft.setScreen(parent);
     }
 
