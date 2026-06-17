@@ -1,13 +1,15 @@
 package de.rolandsw.schedulemc.config;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -15,16 +17,23 @@ import java.util.zip.ZipOutputStream;
 /**
  * Import/Export der gesamten ScheduleMC-Config als eine einzelne ZIP-Datei.
  *
- * Die ZIP enthält alle ScheduleMC-TOMLs (common/client/weapons). Beim Import
- * werden die enthaltenen Dateien in das Config-Verzeichnis zurückgeschrieben;
- * Forges Datei-Watcher lädt die Werte danach automatisch neu.
+ * Seit der Umstellung auf Pro-Welt-Config liegen die Gameplay-Configs
+ * ({@code schedulemc-server.toml}, {@code schedulemc-weapons.toml}) im
+ * Welt-Ordner unter {@code serverconfig/}; die Client-Config
+ * ({@code schedulemc-client.toml}) bleibt global im {@code config/}-Ordner.
+ *
+ * Export sammelt die jeweils vorhandenen Dateien aus beiden Orten; Import
+ * schreibt sie an den korrekten Ort zurück. Forges Datei-Watcher lädt die
+ * Werte danach automatisch neu. Server-Configs sind nur bei geladener Welt
+ * verfügbar (sonst werden nur die globalen Dateien berücksichtigt).
  */
 public final class ConfigTransfer {
 
-    /** Alle zu ScheduleMC gehörenden Config-Dateien. */
-    private static final String[] CONFIG_FILES = {
-        "schedulemc-common.toml",
-        "schedulemc-client.toml",
+    /** Globale Client-Config (immer im config/-Ordner). */
+    private static final String CLIENT_FILE = "schedulemc-client.toml";
+    /** Pro-Welt-Configs (im serverconfig/-Ordner der aktiven Welt). */
+    private static final String[] SERVER_FILES = {
+        "schedulemc-server.toml",
         "schedulemc-weapons.toml"
     };
 
@@ -36,51 +45,84 @@ public final class ConfigTransfer {
         return FMLPaths.GAMEDIR.get().resolve("schedulemc-config.zip").toString();
     }
 
+    /** serverconfig/-Verzeichnis der aktiven Welt oder null (kein Server/keine Welt). */
+    @Nullable
+    private static Path serverConfigDir() {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        return server != null ? ServerLifecycleHooks.getServerConfigPath(server) : null;
+    }
+
     /**
-     * Schreibt alle vorhandenen Config-Dateien in eine ZIP-Datei.
+     * Schreibt alle vorhandenen Config-Dateien (global + pro Welt) in eine ZIP-Datei.
      * @return Anzahl exportierter Dateien
      */
     public static int exportZip(Path zipTarget) throws IOException {
-        Path configDir = FMLPaths.CONFIGDIR.get();
         Path parent = zipTarget.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
         }
+        Path globalDir = FMLPaths.CONFIGDIR.get();
+        Path serverDir = serverConfigDir();
         int count = 0;
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipTarget))) {
-            for (String file : CONFIG_FILES) {
-                Path src = configDir.resolve(file);
-                if (Files.exists(src)) {
-                    zos.putNextEntry(new ZipEntry(file));
-                    Files.copy(src, zos);
-                    zos.closeEntry();
-                    count++;
+            count += addToZip(zos, globalDir.resolve(CLIENT_FILE), CLIENT_FILE);
+            if (serverDir != null) {
+                for (String file : SERVER_FILES) {
+                    count += addToZip(zos, serverDir.resolve(file), file);
                 }
             }
         }
         return count;
     }
 
+    private static int addToZip(ZipOutputStream zos, Path src, String entryName) throws IOException {
+        if (!Files.exists(src)) {
+            return 0;
+        }
+        zos.putNextEntry(new ZipEntry(entryName));
+        Files.copy(src, zos);
+        zos.closeEntry();
+        return 1;
+    }
+
     /**
-     * Lädt alle passenden ScheduleMC-Config-Dateien aus einer ZIP-Datei und schreibt
-     * sie ins Config-Verzeichnis zurück. Forge lädt die Werte über den Datei-Watcher neu.
+     * Lädt alle passenden ScheduleMC-Config-Dateien aus einer ZIP-Datei und schreibt sie
+     * an den korrekten Ort (Client global, Server/Weapons in den serverconfig/-Ordner der
+     * aktiven Welt). Forge lädt die Werte über den Datei-Watcher neu.
      * @return Anzahl importierter Dateien
      */
     public static int importZip(Path zipSource) throws IOException {
-        Path configDir = FMLPaths.CONFIGDIR.get();
-        Set<String> known = Set.of(CONFIG_FILES);
+        Path globalDir = FMLPaths.CONFIGDIR.get();
+        Path serverDir = serverConfigDir();
         int count = 0;
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipSource))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                String name = Paths.get(entry.getName()).getFileName().toString();
-                if (!entry.isDirectory() && known.contains(name)) {
-                    Files.copy(zis, configDir.resolve(name), StandardCopyOption.REPLACE_EXISTING);
-                    count++;
+                if (!entry.isDirectory()) {
+                    String name = Paths.get(entry.getName()).getFileName().toString();
+                    Path target = targetFor(name, globalDir, serverDir);
+                    if (target != null) {
+                        Files.createDirectories(target.getParent());
+                        Files.copy(zis, target, StandardCopyOption.REPLACE_EXISTING);
+                        count++;
+                    }
                 }
                 zis.closeEntry();
             }
         }
         return count;
+    }
+
+    @Nullable
+    private static Path targetFor(String name, Path globalDir, @Nullable Path serverDir) {
+        if (CLIENT_FILE.equals(name)) {
+            return globalDir.resolve(name);
+        }
+        for (String file : SERVER_FILES) {
+            if (file.equals(name)) {
+                return serverDir != null ? serverDir.resolve(name) : null;
+            }
+        }
+        return null;
     }
 }

@@ -28,7 +28,14 @@ public class MembershipData {
         }
         // Convert Minecraft days to milliseconds
         // 1 Minecraft day = 20 minutes = 1200 seconds = 1200000 ms
-        long intervalMs = de.rolandsw.schedulemc.config.ModConfigHandler.VEHICLE_SERVER.membershipPaymentIntervalDays.get() * 1200000L;
+        // SERVER-Config (pro Welt): kann theoretisch ohne geladene Welt aufgerufen werden -> Fallback.
+        int days;
+        try {
+            days = de.rolandsw.schedulemc.config.ModConfigHandler.VEHICLE_SERVER.membershipPaymentIntervalDays.get();
+        } catch (IllegalStateException notLoaded) {
+            days = 7; // Default aus ServerConfig
+        }
+        long intervalMs = days * 1200000L;
         return subscriptionStartDate + intervalMs;
     }
 

@@ -37,38 +37,40 @@ public class ConfigCategoryScreen extends Screen {
         this.categoryList = new CategoryList(this.minecraft, this.width, this.height, 55, this.height - 80, 25);
         this.addWidget(this.categoryList);
 
-        // Add all categories to the list
+        // Add all categories to the list. Gameplay-Configs gelten PRO SPIELSTAND
+        // (SERVER-Config) und sind nur bei geladener Welt lesbar/editierbar -> gated().
+        // "Client Settings" ist global und bleibt immer verfügbar.
         categoryList.addCategoryRow(
             "§b⚙ Client Settings", () -> new ClientConfigScreen(this),
-            "§e$ Economy Settings", () -> new EconomyConfigScreen(this)
+            "§e$ Economy Settings", gated(() -> new EconomyConfigScreen(this))
         );
         categoryList.addCategoryRow(
-            "§a▣ Plot Settings", () -> new PlotConfigScreen(this),
-            "§c★ Police Settings", () -> new PoliceConfigScreen(this)
+            "§a▣ Plot Settings", gated(() -> new PlotConfigScreen(this)),
+            "§c★ Police Settings", gated(() -> new PoliceConfigScreen(this))
         );
         categoryList.addCategoryRow(
-            "§d☺ NPC Settings", () -> new NPCConfigScreen(this),
-            "§6■ Warehouse Settings", () -> new WarehouseConfigScreen(this)
+            "§d☺ NPC Settings", gated(() -> new NPCConfigScreen(this)),
+            "§6■ Warehouse Settings", gated(() -> new WarehouseConfigScreen(this))
         );
         categoryList.addCategoryRow(
-            "§9≈ Dynamic Pricing", () -> new DynamicPricingConfigScreen(this),
-            "§2⚘ Tobacco Settings", () -> new TobaccoConfigScreen(this)
+            "§9≈ Dynamic Pricing", gated(() -> new DynamicPricingConfigScreen(this)),
+            "§2⚘ Tobacco Settings", gated(() -> new TobaccoConfigScreen(this))
         );
         categoryList.addCategoryRow(
-            "§6⚒ Workshop/Workshop", () -> new WorkshopConfigScreen(this),
-            "§4⚠ Stealing/Crime", () -> new StealingConfigScreen(this)
+            "§6⚒ Workshop/Workshop", gated(() -> new WorkshopConfigScreen(this)),
+            "§4⚠ Stealing/Crime", gated(() -> new StealingConfigScreen(this))
         );
         categoryList.addCategoryRow(
-            "§e⚡ Advanced Economy", () -> new AdvancedEconomyConfigScreen(this),
-            "§3⚙ Plot Block Restrictions", () -> new PlotBlockRestrictionConfigScreen(this)
+            "§e⚡ Advanced Economy", gated(() -> new AdvancedEconomyConfigScreen(this)),
+            "§3⚙ Plot Block Restrictions", gated(() -> new PlotBlockRestrictionConfigScreen(this))
         );
         categoryList.addCategoryRow(
-            "§b⚡ Utility Consumer Blocks", () -> new UtilityBlockListConfigScreen(this),
-            "§6$ Produkt-Referenzpreise", () -> new EconomyPricesConfigScreen(this)
+            "§b⚡ Utility Consumer Blocks", gated(() -> new UtilityBlockListConfigScreen(this)),
+            "§6$ Produkt-Referenzpreise", gated(() -> new EconomyPricesConfigScreen(this))
         );
         categoryList.addCategoryRow(
-            "§a⚙ Produktionsblock-Katalog", () -> new ProductionBlockCatalogScreen(this),
-            "§c🔫 Weapon Settings", () -> new WeaponConfigScreen(this)
+            "§a⚙ Produktionsblock-Katalog", gated(() -> new ProductionBlockCatalogScreen(this)),
+            "§c🔫 Weapon Settings", gated(() -> new WeaponConfigScreen(this))
         );
 
         // Import / Export row (native file dialog, single portable .zip)
@@ -88,6 +90,17 @@ public class ConfigCategoryScreen extends Screen {
         )
         .bounds(this.width / 2 - 100, this.height - 28, 200, 20)
         .build());
+    }
+
+    /** Pro-Welt-Config nur bei geladener Welt öffnen, sonst Hinweis statt Crash. */
+    private ScreenSupplier gated(ScreenSupplier real) {
+        return () -> {
+            if (this.minecraft != null && this.minecraft.level != null) {
+                return real.create();
+            }
+            this.statusMessage = "§ePer-world config - load or create a world first to edit these settings.";
+            return this;
+        };
     }
 
     private void doExport() {

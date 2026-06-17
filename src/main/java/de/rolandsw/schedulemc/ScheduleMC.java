@@ -331,9 +331,11 @@ public class ScheduleMC {
         ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
 
         ModLoadingContext context = ModLoadingContext.get();
-        context.registerConfig(ModConfig.Type.COMMON, ModConfigHandler.SPEC);
+        // SERVER-Config: gilt PRO SPIELSTAND (Forge speichert sie in saves/<welt>/serverconfig/).
+        // CLIENT bleibt global (reine Client-/UI-Einstellungen).
+        context.registerConfig(ModConfig.Type.SERVER, ModConfigHandler.SPEC);
         context.registerConfig(ModConfig.Type.CLIENT, ModConfigHandler.CLIENT_SPEC);
-        context.registerConfig(ModConfig.Type.COMMON, WeaponConfig.SPEC, "schedulemc-weapons.toml");
+        context.registerConfig(ModConfig.Type.SERVER, WeaponConfig.SPEC, "schedulemc-weapons.toml");
 
         // Register config screen (client-side only)
         net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT, () -> () -> {
@@ -370,8 +372,8 @@ public class ScheduleMC {
     
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            // Initialize delivery price config from main config (after config is loaded)
-            DeliveryPriceConfig.setDefaultPrice(ModConfigHandler.COMMON.WAREHOUSE_DEFAULT_DELIVERY_PRICE.get());
+            // Hinweis: WAREHOUSE_DEFAULT_DELIVERY_PRICE ist jetzt SERVER-Config (pro Welt)
+            // und wird erst in onServerStarted gelesen (vorher ist sie nicht geladen).
 
             EconomyNetworkHandler.register();
             NPCNetworkHandler.register();
@@ -462,6 +464,8 @@ public class ScheduleMC {
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
         EventHelper.handleEvent(() -> {
+            // Pro-Welt-Config ist jetzt geladen: Standard-Lieferpreis übernehmen.
+            DeliveryPriceConfig.setDefaultPrice(ModConfigHandler.COMMON.WAREHOUSE_DEFAULT_DELIVERY_PRICE.get());
             // ═══════════════════════════════════════════════════════════
             // PERFORMANCE: Paralleles Laden unabhängiger Daten beim Start
             // Reduziert Startup-Zeit durch gleichzeitiges File-I/O
