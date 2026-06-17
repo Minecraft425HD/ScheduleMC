@@ -31,10 +31,12 @@ public class WorldCreateConfigScreenHandler {
                 return;
             }
 
+            // Fallback zentriert kurz über den "Erstellen/Abbrechen"-Buttons -> wirkt
+            // integrierter als oben rechts.
             Button configButton = Button.builder(
                 Component.literal("⚙ ScheduleMC Config"),
                 button -> WorldCreateConfigState.openConfig(screen)
-            ).bounds(screen.width - 155, 6, 150, 20).build();
+            ).bounds(screen.width / 2 - 105, screen.height - 52, 210, 20).build();
 
             event.addListener(configButton);
         }, "onWorldCreateScreenInit");
