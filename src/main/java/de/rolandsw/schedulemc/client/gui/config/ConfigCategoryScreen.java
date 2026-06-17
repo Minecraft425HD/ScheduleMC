@@ -33,8 +33,8 @@ public class ConfigCategoryScreen extends Screen {
     protected void init() {
         super.init();
 
-        // Create scrollable category list (leave room for import/export + done buttons)
-        this.categoryList = new CategoryList(this.minecraft, this.width, this.height, 55, this.height - 80, 25);
+        // Create scrollable category list (leave room for buttons at bottom)
+        this.categoryList = new CategoryList(this.minecraft, this.width, this.height, 55, this.height - 104, 25);
         this.addWidget(this.categoryList);
 
         // Add all categories to the list. Gameplay-Configs gelten PRO SPIELSTAND
@@ -73,6 +73,12 @@ public class ConfigCategoryScreen extends Screen {
             "§c🔫 Weapon Settings", gated(() -> new WeaponConfigScreen(this))
         );
 
+        // Set the current save's config as the template for NEW worlds (Forge defaultconfigs/)
+        this.addRenderableWidget(Button.builder(
+            Component.literal("§b★ Set as Default for New Worlds"),
+            button -> doSaveAsDefault()
+        ).bounds(this.width / 2 - 140, this.height - 76, 280, 20).build());
+
         // Import / Export row (native file dialog, single portable .zip)
         this.addRenderableWidget(Button.builder(
             Component.literal("§a⬇ Export Config..."),
@@ -101,6 +107,19 @@ public class ConfigCategoryScreen extends Screen {
             this.statusMessage = "§ePer-world config - load or create a world first to edit these settings.";
             return this;
         };
+    }
+
+    private void doSaveAsDefault() {
+        try {
+            int n = de.rolandsw.schedulemc.config.ConfigTransfer.saveAsNewWorldDefaults();
+            if (n < 0) {
+                this.statusMessage = "§eLoad or create a world first - this saves the current save's config.";
+            } else {
+                this.statusMessage = "§a" + n + " config file(s) saved as default for new worlds.";
+            }
+        } catch (Exception e) {
+            this.statusMessage = "§cFailed: " + e.getMessage();
+        }
     }
 
     private void doExport() {
@@ -204,13 +223,13 @@ public class ConfigCategoryScreen extends Screen {
             Component.literal("§7160+ Config Options - Full Control!"),
             this.width / 2, 35, 0xFFFF55);
 
-        // Status (import/export feedback) or default hint
+        // Status (button feedback) or default hint
         String info = statusMessage.isEmpty()
-            ? "§8All changes are saved immediately"
+            ? "§8Per-world config - settings are saved per save game"
             : statusMessage;
         graphics.drawCenteredString(this.font,
             Component.literal(info),
-            this.width / 2, this.height - 66, 0x808080);
+            this.width / 2, this.height - 94, 0x808080);
     }
 
     @Override

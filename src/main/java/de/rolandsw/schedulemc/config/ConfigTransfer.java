@@ -125,4 +125,28 @@ public final class ConfigTransfer {
         }
         return null;
     }
+
+    /**
+     * Speichert die Config des aktiven Spielstands als Vorlage für NEUE Welten.
+     * Forge initialisiert neue Welten aus {@code defaultconfigs/<datei>}, sofern vorhanden.
+     *
+     * @return Anzahl kopierter Dateien, oder -1 wenn keine Welt geladen ist
+     */
+    public static int saveAsNewWorldDefaults() throws IOException {
+        Path serverDir = serverConfigDir();
+        if (serverDir == null) {
+            return -1;
+        }
+        Path defaults = FMLPaths.GAMEDIR.get().resolve("defaultconfigs");
+        Files.createDirectories(defaults);
+        int count = 0;
+        for (String file : SERVER_FILES) {
+            Path src = serverDir.resolve(file);
+            if (Files.exists(src)) {
+                Files.copy(src, defaults.resolve(file), StandardCopyOption.REPLACE_EXISTING);
+                count++;
+            }
+        }
+        return count;
+    }
 }
