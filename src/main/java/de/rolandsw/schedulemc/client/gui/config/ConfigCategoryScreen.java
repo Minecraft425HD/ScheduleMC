@@ -91,36 +91,59 @@ public class ConfigCategoryScreen extends Screen {
     }
 
     private void doExport() {
-        String chosen = saveFileDialog("Export ScheduleMC config",
-            de.rolandsw.schedulemc.config.ConfigTransfer.suggestedExportPath());
-        if (chosen == null) {
-            this.statusMessage = "§7Export cancelled.";
-            return;
-        }
-        try {
-            java.nio.file.Path target = java.nio.file.Paths.get(
-                chosen.toLowerCase(java.util.Locale.ROOT).endsWith(".zip") ? chosen : chosen + ".zip");
-            int n = de.rolandsw.schedulemc.config.ConfigTransfer.exportZip(target);
-            this.statusMessage = "§a" + n + " config file(s) exported to: " + target;
-        } catch (Exception e) {
-            this.statusMessage = "§cExport failed: " + e.getMessage();
-        }
+        final String defaultPath = de.rolandsw.schedulemc.config.ConfigTransfer.suggestedExportPath();
+        final net.minecraft.client.Minecraft mc = this.minecraft;
+        this.statusMessage = "§7Opening file dialog...";
+        // Dialog NICHT auf dem Render-/Main-Thread (macOS: Deadlock mit der GLFW-Eventloop).
+        runDialogAsync(() -> {
+            String chosen = saveFileDialog("Export ScheduleMC config", defaultPath);
+            String result;
+            if (chosen == null) {
+                result = "§7Export cancelled.";
+            } else {
+                try {
+                    java.nio.file.Path target = java.nio.file.Paths.get(
+                        chosen.toLowerCase(java.util.Locale.ROOT).endsWith(".zip") ? chosen : chosen + ".zip");
+                    int n = de.rolandsw.schedulemc.config.ConfigTransfer.exportZip(target);
+                    result = "§a" + n + " config file(s) exported to: " + target;
+                } catch (Exception e) {
+                    result = "§cExport failed: " + e.getMessage();
+                }
+            }
+            final String r = result;
+            mc.execute(() -> this.statusMessage = r);
+        });
     }
 
     private void doImport() {
-        String chosen = openFileDialog("Load ScheduleMC config file");
-        if (chosen == null) {
-            this.statusMessage = "§7Import cancelled.";
-            return;
-        }
-        try {
-            int n = de.rolandsw.schedulemc.config.ConfigTransfer.importZip(java.nio.file.Paths.get(chosen));
-            this.statusMessage = (n > 0)
-                ? "§a" + n + " config file(s) loaded - changes apply automatically."
-                : "§eNo ScheduleMC config found in that file.";
-        } catch (Exception e) {
-            this.statusMessage = "§cImport failed: " + e.getMessage();
-        }
+        final net.minecraft.client.Minecraft mc = this.minecraft;
+        this.statusMessage = "§7Opening file dialog...";
+        // Dialog NICHT auf dem Render-/Main-Thread (macOS: Deadlock mit der GLFW-Eventloop).
+        runDialogAsync(() -> {
+            String chosen = openFileDialog("Load ScheduleMC config file");
+            String result;
+            if (chosen == null) {
+                result = "§7Import cancelled.";
+            } else {
+                try {
+                    int n = de.rolandsw.schedulemc.config.ConfigTransfer.importZip(java.nio.file.Paths.get(chosen));
+                    result = (n > 0)
+                        ? "§a" + n + " config file(s) loaded - changes apply automatically."
+                        : "§eNo ScheduleMC config found in that file.";
+                } catch (Exception e) {
+                    result = "§cImport failed: " + e.getMessage();
+                }
+            }
+            final String r = result;
+            mc.execute(() -> this.statusMessage = r);
+        });
+    }
+
+    /** Führt den nativen Datei-Dialog auf einem Daemon-Hintergrund-Thread aus (macOS-sicher). */
+    private static void runDialogAsync(Runnable task) {
+        Thread t = new Thread(task, "ScheduleMC-Config-Dialog");
+        t.setDaemon(true);
+        t.start();
     }
 
     /** Native Speichern-Dialog (LWJGL TinyFileDialogs). Liefert den Pfad oder null. */
