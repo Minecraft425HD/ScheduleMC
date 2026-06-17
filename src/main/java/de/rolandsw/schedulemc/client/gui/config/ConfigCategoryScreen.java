@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -70,13 +71,13 @@ public class ConfigCategoryScreen extends Screen {
             "§c🔫 Weapon Settings", () -> new WeaponConfigScreen(this)
         );
 
-        // Import / Export row (operates on all ScheduleMC config files)
+        // Import / Export row (native file dialog, single portable .zip)
         this.addRenderableWidget(Button.builder(
-            Component.literal("§a⬇ Export Config"),
+            Component.literal("§a⬇ Export Config..."),
             button -> doExport()
         ).bounds(this.width / 2 - 205, this.height - 52, 200, 20).build());
         this.addRenderableWidget(Button.builder(
-            Component.literal("§e⬆ Import Config"),
+            Component.literal("§e⬆ Load Config File..."),
             button -> doImport()
         ).bounds(this.width / 2 + 5, this.height - 52, 200, 20).build());
 
@@ -90,24 +91,63 @@ public class ConfigCategoryScreen extends Screen {
     }
 
     private void doExport() {
+        String chosen = saveFileDialog("Export ScheduleMC config",
+            de.rolandsw.schedulemc.config.ConfigTransfer.suggestedExportPath());
+        if (chosen == null) {
+            this.statusMessage = "§7Export cancelled.";
+            return;
+        }
         try {
-            int n = de.rolandsw.schedulemc.config.ConfigTransfer.exportAll();
-            this.statusMessage = "§a" + n + " config file(s) exported to: "
-                + de.rolandsw.schedulemc.config.ConfigTransfer.exportDir();
+            java.nio.file.Path target = java.nio.file.Paths.get(
+                chosen.toLowerCase(java.util.Locale.ROOT).endsWith(".zip") ? chosen : chosen + ".zip");
+            int n = de.rolandsw.schedulemc.config.ConfigTransfer.exportZip(target);
+            this.statusMessage = "§a" + n + " config file(s) exported to: " + target;
         } catch (Exception e) {
             this.statusMessage = "§cExport failed: " + e.getMessage();
         }
     }
 
     private void doImport() {
+        String chosen = openFileDialog("Load ScheduleMC config file");
+        if (chosen == null) {
+            this.statusMessage = "§7Import cancelled.";
+            return;
+        }
         try {
-            int n = de.rolandsw.schedulemc.config.ConfigTransfer.importAll();
+            int n = de.rolandsw.schedulemc.config.ConfigTransfer.importZip(java.nio.file.Paths.get(chosen));
             this.statusMessage = (n > 0)
-                ? "§a" + n + " config file(s) imported - changes apply automatically."
-                : "§eNothing to import. Export first or place files in: "
-                    + de.rolandsw.schedulemc.config.ConfigTransfer.exportDir();
+                ? "§a" + n + " config file(s) loaded - changes apply automatically."
+                : "§eNo ScheduleMC config found in that file.";
         } catch (Exception e) {
             this.statusMessage = "§cImport failed: " + e.getMessage();
+        }
+    }
+
+    /** Native Speichern-Dialog (LWJGL TinyFileDialogs). Liefert den Pfad oder null. */
+    @Nullable
+    private static String saveFileDialog(String title, String defaultPath) {
+        try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
+            org.lwjgl.PointerBuffer filters = stack.mallocPointer(1);
+            filters.put(stack.UTF8("*.zip"));
+            filters.flip();
+            return org.lwjgl.util.tinyfd.TinyFileDialogs.tinyfd_saveFileDialog(
+                title, defaultPath, filters, "ScheduleMC config (*.zip)");
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    /** Native Öffnen-Dialog (LWJGL TinyFileDialogs). Liefert den Pfad oder null. */
+    @Nullable
+    private static String openFileDialog(String title) {
+        try (org.lwjgl.system.MemoryStack stack = org.lwjgl.system.MemoryStack.stackPush()) {
+            org.lwjgl.PointerBuffer filters = stack.mallocPointer(1);
+            filters.put(stack.UTF8("*.zip"));
+            filters.flip();
+            return org.lwjgl.util.tinyfd.TinyFileDialogs.tinyfd_openFileDialog(
+                title, "", filters, "ScheduleMC config (*.zip)", false);
+        } catch (Throwable t) {
+            return null;
         }
     }
 

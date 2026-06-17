@@ -5,14 +5,19 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
- * Import/Export der gesamten ScheduleMC-Config (alle TOML-Dateien).
+ * Import/Export der gesamten ScheduleMC-Config als eine einzelne ZIP-Datei.
  *
- * Export kopiert die Config-Dateien in einen Unterordner {@code schedulemc-export}
- * des Config-Verzeichnisses; Import kopiert sie von dort zurück. Forge's
- * Datei-Watcher lädt die Specs nach dem Überschreiben automatisch neu.
+ * Die ZIP enthält alle ScheduleMC-TOMLs (common/client/weapons). Beim Import
+ * werden die enthaltenen Dateien in das Config-Verzeichnis zurückgeschrieben;
+ * Forges Datei-Watcher lädt die Werte danach automatisch neu.
  */
 public final class ConfigTransfer {
 
@@ -23,52 +28,57 @@ public final class ConfigTransfer {
         "schedulemc-weapons.toml"
     };
 
-    private static final String EXPORT_FOLDER = "schedulemc-export";
-
     private ConfigTransfer() {
     }
 
-    /** Verzeichnis, in/aus dem exportiert bzw. importiert wird. */
-    public static Path exportDir() {
-        return FMLPaths.CONFIGDIR.get().resolve(EXPORT_FOLDER);
+    /** Vorgeschlagener Standardpfad für den Export-Dialog. */
+    public static String suggestedExportPath() {
+        return FMLPaths.GAMEDIR.get().resolve("schedulemc-config.zip").toString();
     }
 
     /**
-     * Kopiert alle vorhandenen Config-Dateien ins Export-Verzeichnis.
+     * Schreibt alle vorhandenen Config-Dateien in eine ZIP-Datei.
      * @return Anzahl exportierter Dateien
      */
-    public static int exportAll() throws IOException {
+    public static int exportZip(Path zipTarget) throws IOException {
         Path configDir = FMLPaths.CONFIGDIR.get();
-        Path out = exportDir();
-        Files.createDirectories(out);
+        Path parent = zipTarget.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
         int count = 0;
-        for (String file : CONFIG_FILES) {
-            Path src = configDir.resolve(file);
-            if (Files.exists(src)) {
-                Files.copy(src, out.resolve(file), StandardCopyOption.REPLACE_EXISTING);
-                count++;
+        try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipTarget))) {
+            for (String file : CONFIG_FILES) {
+                Path src = configDir.resolve(file);
+                if (Files.exists(src)) {
+                    zos.putNextEntry(new ZipEntry(file));
+                    Files.copy(src, zos);
+                    zos.closeEntry();
+                    count++;
+                }
             }
         }
         return count;
     }
 
     /**
-     * Kopiert alle im Export-Verzeichnis vorhandenen Config-Dateien zurück ins
-     * Config-Verzeichnis. Forge lädt die Werte über den Datei-Watcher neu.
+     * Lädt alle passenden ScheduleMC-Config-Dateien aus einer ZIP-Datei und schreibt
+     * sie ins Config-Verzeichnis zurück. Forge lädt die Werte über den Datei-Watcher neu.
      * @return Anzahl importierter Dateien
      */
-    public static int importAll() throws IOException {
+    public static int importZip(Path zipSource) throws IOException {
         Path configDir = FMLPaths.CONFIGDIR.get();
-        Path in = exportDir();
-        if (!Files.isDirectory(in)) {
-            return 0;
-        }
+        Set<String> known = Set.of(CONFIG_FILES);
         int count = 0;
-        for (String file : CONFIG_FILES) {
-            Path src = in.resolve(file);
-            if (Files.exists(src)) {
-                Files.copy(src, configDir.resolve(file), StandardCopyOption.REPLACE_EXISTING);
-                count++;
+        try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipSource))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                String name = Paths.get(entry.getName()).getFileName().toString();
+                if (!entry.isDirectory() && known.contains(name)) {
+                    Files.copy(zis, configDir.resolve(name), StandardCopyOption.REPLACE_EXISTING);
+                    count++;
+                }
+                zis.closeEntry();
             }
         }
         return count;
