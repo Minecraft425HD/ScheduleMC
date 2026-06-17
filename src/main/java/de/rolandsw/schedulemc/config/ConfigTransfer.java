@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.config;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -49,7 +50,11 @@ public final class ConfigTransfer {
     @Nullable
     private static Path serverConfigDir() {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        return server != null ? ServerLifecycleHooks.getServerConfigPath(server) : null;
+        if (server == null) {
+            return null;
+        }
+        // Forge speichert SERVER-Configs unter <welt>/serverconfig/.
+        return server.getWorldPath(LevelResource.ROOT).resolve("serverconfig");
     }
 
     /**
