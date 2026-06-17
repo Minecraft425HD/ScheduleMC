@@ -21,6 +21,7 @@ public class ConfigCategoryScreen extends Screen {
 
     private final Screen parent;
     private CategoryList categoryList;
+    private String statusMessage = "";
 
     public ConfigCategoryScreen(Screen parent) {
         super(Component.literal("ScheduleMC Configuration"));
@@ -31,8 +32,8 @@ public class ConfigCategoryScreen extends Screen {
     protected void init() {
         super.init();
 
-        // Create scrollable category list (from y=55 to y=height-55)
-        this.categoryList = new CategoryList(this.minecraft, this.width, this.height, 55, this.height - 55, 25);
+        // Create scrollable category list (leave room for import/export + done buttons)
+        this.categoryList = new CategoryList(this.minecraft, this.width, this.height, 55, this.height - 80, 25);
         this.addWidget(this.categoryList);
 
         // Add all categories to the list
@@ -69,6 +70,16 @@ public class ConfigCategoryScreen extends Screen {
             "§c🔫 Weapon Settings", () -> new WeaponConfigScreen(this)
         );
 
+        // Import / Export row (operates on all ScheduleMC config files)
+        this.addRenderableWidget(Button.builder(
+            Component.literal("§a⬇ Export Config"),
+            button -> doExport()
+        ).bounds(this.width / 2 - 205, this.height - 52, 200, 20).build());
+        this.addRenderableWidget(Button.builder(
+            Component.literal("§e⬆ Import Config"),
+            button -> doImport()
+        ).bounds(this.width / 2 + 5, this.height - 52, 200, 20).build());
+
         // Done Button (fixed at bottom)
         this.addRenderableWidget(Button.builder(
             Component.literal("Done"),
@@ -76,6 +87,28 @@ public class ConfigCategoryScreen extends Screen {
         )
         .bounds(this.width / 2 - 100, this.height - 28, 200, 20)
         .build());
+    }
+
+    private void doExport() {
+        try {
+            int n = de.rolandsw.schedulemc.config.ConfigTransfer.exportAll();
+            this.statusMessage = "§a" + n + " config file(s) exported to: "
+                + de.rolandsw.schedulemc.config.ConfigTransfer.exportDir();
+        } catch (Exception e) {
+            this.statusMessage = "§cExport failed: " + e.getMessage();
+        }
+    }
+
+    private void doImport() {
+        try {
+            int n = de.rolandsw.schedulemc.config.ConfigTransfer.importAll();
+            this.statusMessage = (n > 0)
+                ? "§a" + n + " config file(s) imported - changes apply automatically."
+                : "§eNothing to import. Export first or place files in: "
+                    + de.rolandsw.schedulemc.config.ConfigTransfer.exportDir();
+        } catch (Exception e) {
+            this.statusMessage = "§cImport failed: " + e.getMessage();
+        }
     }
 
     @Override
@@ -95,10 +128,13 @@ public class ConfigCategoryScreen extends Screen {
             Component.literal("§7160+ Config Options - Full Control!"),
             this.width / 2, 35, 0xFFFF55);
 
-        // Info
+        // Status (import/export feedback) or default hint
+        String info = statusMessage.isEmpty()
+            ? "§8All changes are saved immediately"
+            : statusMessage;
         graphics.drawCenteredString(this.font,
-            Component.literal("§8All changes are saved immediately"),
-            this.width / 2, this.height - 45, 0x808080);
+            Component.literal(info),
+            this.width / 2, this.height - 66, 0x808080);
     }
 
     @Override

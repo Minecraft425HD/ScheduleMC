@@ -320,10 +320,29 @@ public class TobaccoConfigScreen extends Screen {
             public boolean mouseClicked(double mouseX, double mouseY, int button) {
                 for (GuiEventListener child : children) {
                     if (child.mouseClicked(mouseX, mouseY, button)) {
+                        setFocused(child);
+                        if (button == 0) setDragging(true);
                         return true;
                     }
                 }
                 return false;
+            }
+
+            @Override
+            public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+                return getFocused() != null && getFocused().mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            }
+
+            @Override
+            public boolean mouseReleased(double mouseX, double mouseY, int button) {
+                boolean handled = getFocused() != null && getFocused().mouseReleased(mouseX, mouseY, button);
+                setDragging(false);
+                return handled;
+            }
+
+            @Override
+            public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+                return getFocused() != null && getFocused().keyPressed(keyCode, scanCode, modifiers);
             }
         }
 
