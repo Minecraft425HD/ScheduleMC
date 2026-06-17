@@ -426,11 +426,16 @@ public class ScheduleMC {
         event.put(NPCEntities.CUSTOM_NPC.get(), CustomNPCEntity.createAttributes().build());
     }
 
-    private void onConfigReload(ModConfigEvent _event) {
+    private void onConfigReload(ModConfigEvent event) {
         ConfigCache.invalidate();
-        NPCPathNavigation.reloadConfig();
-        // Straßenblöcke neu laden, damit erweiterte road_blocks zur Laufzeit greifen
-        de.rolandsw.schedulemc.mapview.navigation.graph.RoadBlockDetector.reset();
+        // NPC-/Straßenblöcke liegen jetzt in der SERVER-Config (pro Welt). Diese ist
+        // im Hauptmenü NICHT geladen -> nur reagieren, wenn wirklich diese Spec (neu)geladen
+        // wurde, sonst wirft .get() "Cannot get config value before config is loaded".
+        if (event.getConfig().getSpec() == ModConfigHandler.SPEC) {
+            NPCPathNavigation.reloadConfig();
+            // Straßenblöcke neu laden, damit erweiterte road_blocks zur Laufzeit greifen
+            de.rolandsw.schedulemc.mapview.navigation.graph.RoadBlockDetector.reset();
+        }
     }
 
     @SubscribeEvent

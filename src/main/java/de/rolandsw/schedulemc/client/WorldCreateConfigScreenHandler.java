@@ -1,10 +1,7 @@
 package de.rolandsw.schedulemc.client;
 
 import de.rolandsw.schedulemc.ScheduleMC;
-import de.rolandsw.schedulemc.client.gui.config.ConfigCategoryScreen;
-import de.rolandsw.schedulemc.config.DefaultConfigEditor;
 import de.rolandsw.schedulemc.util.EventHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
@@ -15,9 +12,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * Fügt dem Welt-erstellen-Screen einen garantiert sichtbaren Button "ScheduleMC Config"
- * hinzu (oben rechts), mit dem die Pro-Welt-Config-Vorlage für NEUE Welten bearbeitet
- * werden kann ({@link DefaultConfigEditor}).
+ * Fallback für den "ScheduleMC Config"-Button im Welt-erstellen-Screen: Greift der Mixin
+ * (Button im "More"-Reiter) NICHT, wird hier ein garantiert sichtbarer Button oben rechts
+ * eingefügt. So ist immer genau ein Button vorhanden.
  */
 @Mod.EventBusSubscriber(modid = ScheduleMC.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class WorldCreateConfigScreenHandler {
@@ -29,13 +26,14 @@ public class WorldCreateConfigScreenHandler {
             if (!(screen instanceof CreateWorldScreen)) {
                 return;
             }
+            // Mixin hat den Button bereits in den More-Reiter gesetzt -> kein Fallback nötig.
+            if (WorldCreateConfigState.moreTabButtonAdded) {
+                return;
+            }
 
             Button configButton = Button.builder(
                 Component.literal("⚙ ScheduleMC Config"),
-                button -> {
-                    DefaultConfigEditor.begin();
-                    Minecraft.getInstance().setScreen(new ConfigCategoryScreen(screen, true));
-                }
+                button -> WorldCreateConfigState.openConfig(screen)
             ).bounds(screen.width - 155, 6, 150, 20).build();
 
             event.addListener(configButton);
