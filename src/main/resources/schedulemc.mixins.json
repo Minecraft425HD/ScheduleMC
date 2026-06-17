@@ -7,7 +7,6 @@
   "mixins": [
   ],
   "client": [
-    "client.mixins.CreateWorldMoreTabMixin",
     "vehicle.mixins.GuiMixin",
     "vehicle.mixins.SoundOptionsScreenMixin"
   ],
