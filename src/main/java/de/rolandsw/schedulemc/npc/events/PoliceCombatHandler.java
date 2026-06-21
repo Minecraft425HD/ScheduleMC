@@ -50,6 +50,14 @@ public final class PoliceCombatHandler {
     private static final Map<UUID, Integer> escapeCounts = new ConcurrentHashMap<>();
     /** playerUUID -> aktive Schützen (Cap). */
     private static final Map<UUID, java.util.Set<UUID>> activeShooters = new ConcurrentHashMap<>();
+    /** playerUUID -> Tick, bis zu dem der Spieler als "leistet Widerstand" gilt (Eskalation erzwingen). */
+    private static final Map<UUID, Long> resistUntil = new ConcurrentHashMap<>();
+    /** playerUUID -> Tick, bis zu dem der Spieler auf Polizei geschossen hat (tödliche Gewalt). */
+    private static final Map<UUID, Long> shotPoliceUntil = new ConcurrentHashMap<>();
+    /** Dauer (Ticks) des Widerstand-Fensters: 10 s. */
+    private static final long RESIST_WINDOW_TICKS = 200L;
+    /** Dauer (Ticks) des "auf Polizei geschossen"-Fensters (tödlich): 30 s. */
+    private static final long LETHAL_WINDOW_TICKS = 600L;
     /** Bullet-Geschwindigkeit (Blöcke/Tick), wie GunItem. */
     private static final float BULLET_SPEED = 3.0f;
     /** Bewegungstempo beim Vorrücken im Fernkampf (identisch zur Verfolgung in PoliceAIHandler). */
@@ -77,6 +85,20 @@ public final class PoliceCombatHandler {
     public static void resetEscalation(UUID playerUUID) {
         escapeCounts.remove(playerUUID);
         activeShooters.remove(playerUUID);
+        resistUntil.remove(playerUUID);
+        shotPoliceUntil.remove(playerUUID);
+    }
+
+    /** True, solange der Spieler aktiv Widerstand leistet (Polizei angegriffen). */
+    private static boolean isResisting(ServerPlayer player) {
+        Long until = resistUntil.get(player.getUUID());
+        return until != null && player.level().getGameTime() < until;
+    }
+
+    /** True, solange der Spieler kürzlich auf einen Polizisten geschossen hat (-> tödlich). */
+    private static boolean hasShotPolice(ServerPlayer player) {
+        Long until = shotPoliceUntil.get(player.getUUID());
+        return until != null && player.level().getGameTime() < until;
     }
 
     private static int escapeCount(UUID playerUUID) {
@@ -138,13 +160,19 @@ public final class PoliceCombatHandler {
 
         boolean los = npc.hasLineOfSight(target);
         boolean inVehicle = PoliceVehiclePursuit.isPlayerInVehicle(target);
-        // Ab 5★ (und wenn tödliche Gewalt erlaubt): eliminieren statt festnehmen.
-        boolean eliminate = cfg.POLICE_LETHAL_FORCE.get() && wantedLevel >= 5;
+        // Tödlich eliminieren (wenn erlaubt) ab 5★ ODER wenn der Spieler auf Polizei geschossen hat.
+        boolean eliminate = cfg.POLICE_LETHAL_FORCE.get() && (wantedLevel >= 5 || hasShotPolice(target));
+
+        // Widerstand (Spieler greift Polizei an) -> sofort eskalieren statt auf Verfolgungszeit zu warten.
+        int escapes = escapeCount(target.getUUID());
+        if (isResisting(target)) {
+            escapes = Math.max(escapes, cfg.POLICE_ESCALATION_ESCAPE_COUNT.get());
+        }
 
         EngagementMode mode = decideEngagement(
             true, wantedLevel, distance, arrestDistance, cfg.POLICE_RANGED_MIN_DISTANCE.get(),
             false, los, inVehicle,
-            escapeCount(target.getUUID()), pursuitTicks,
+            escapes, pursuitTicks,
             cfg.POLICE_ESCALATION_ESCAPE_COUNT.get(), cfg.POLICE_ESCALATION_PURSUIT_SECONDS.get() * 20L,
             cfg.POLICE_MELEE_WANTED_LEVEL.get(), cfg.POLICE_RANGED_WANTED_LEVEL.get(), eliminate);
 
@@ -384,9 +412,12 @@ public final class PoliceCombatHandler {
         }
     }
 
-    /** Eliminierung ab 5★: scharfe Munition statt Gummigeschossen, keine Schadensklammer. */
+    /**
+     * Tödliche Gewalt: ab 5★ ODER wenn der Spieler auf die Polizei geschossen hat.
+     * Steuert scharfe Munition (statt Gummi) und das Entfernen der Schadensklammer.
+     */
     private static boolean isEmergency(ServerPlayer player) {
-        return CrimeManager.getWantedLevel(player.getUUID()) >= 5;
+        return CrimeManager.getWantedLevel(player.getUUID()) >= 5 || hasShotPolice(player);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -395,10 +426,23 @@ public final class PoliceCombatHandler {
 
     @SubscribeEvent
     public static void onCombatDamage(LivingDamageEvent event) {
-        // Spieler greift Polizist an -> im Fernkampf Deckung suchen / seitlich ausweichen.
+        // Spieler greift Polizist an -> Widerstand registrieren (Eskalation), bei Beschuss
+        // tödliche Gewalt freigeben; im Fernkampf zusätzlich Deckung suchen/ausweichen.
         if (event.getEntity() instanceof CustomNPCEntity npcVictim
                 && npcVictim.getNpcType() == NPCType.POLICE
                 && event.getSource().getEntity() instanceof ServerPlayer attacker) {
+            long now = npcVictim.level().getGameTime();
+            // Widerstand -> Polizei eskaliert (greift an statt nur festzunehmen).
+            resistUntil.put(attacker.getUUID(), now + RESIST_WINDOW_TICKS);
+            // Mit Schusswaffe auf Polizei geschossen -> Schießbefehl (tödlich).
+            if (event.getSource().getDirectEntity() instanceof WeaponBulletEntity playerBullet
+                    && playerBullet.getOwner() == attacker) {
+                boolean wasLethal = hasShotPolice(attacker);
+                shotPoliceUntil.put(attacker.getUUID(), now + LETHAL_WINDOW_TICKS);
+                if (!wasLethal) {
+                    attacker.sendSystemMessage(Component.translatable("event.police.shoot_to_kill"));
+                }
+            }
             reactToHit(npcVictim, attacker);
         }
 
