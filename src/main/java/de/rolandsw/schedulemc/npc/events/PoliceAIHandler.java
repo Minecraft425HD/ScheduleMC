@@ -326,6 +326,11 @@ public class PoliceAIHandler {
             for (ServerPlayer player : nearbyPlayers) {
                 int wantedLevel = getCachedWantedLevel(player.getUUID()); // OPTIMIERT: Cache nutzen
 
+                // Inhaftierte werden nicht erneut verfolgt (Sterne bleiben bis zur Entlassung).
+                if (player.getPersistentData().getBoolean("IsInPrison")) {
+                    continue;
+                }
+
                 if (wantedLevel > 0 && wantedLevel > highestWantedLevel) {
                     // Prüfe ob Spieler versteckt ist
                     if (!PoliceSearchBehavior.isPlayerHidden(player, npc)) {
@@ -815,6 +820,15 @@ public class PoliceAIHandler {
         if (wantedLevel > 0) {
             long currentTick = player.level().getGameTime();
 
+            // Im Gefängnis bleiben die Fahndungssterne bis zur Entlassung erhalten:
+            // KEIN Verstecken/Escape (sonst "flieht" der Häftling in der Zelle, weil keine
+            // Polizei in der Nähe ist, und verliert die Sterne mitten in der Haft).
+            boolean imprisoned = releaseTime > 0
+                || player.getPersistentData().getBoolean("IsInPrison");
+            if (imprisoned) {
+                CrimeManager.stopEscapeTimer(player.getUUID());
+            } else {
+
             // Finde nächste Polizei (OPTIMIERT: Cache statt getEntitiesOfClass World-Scan)
             int backupSearchRadius = ModConfigHandler.COMMON.POLICE_BACKUP_SEARCH_RADIUS.get();
             List<CustomNPCEntity> nearbyPolice = new ArrayList<>();
@@ -876,6 +890,7 @@ public class PoliceAIHandler {
                     }
                 }
             }
+            } // Ende: Escape nur, wenn NICHT im Gefängnis
 
             // Sync zu Client (für HUD Overlay) - NUR wenn sich Wert geändert hat!
             long escapeTime = CrimeManager.getEscapeTimeRemaining(player.getUUID(), currentTick);
