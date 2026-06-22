@@ -190,6 +190,27 @@ public class PoliceBackupSystem {
     }
 
     /**
+     * Flanking-Winkel (rad, um den Spieler) für einen Polizisten – basierend auf seinem
+     * stabilen Index unter ALLEN diesem Spieler zugewiesenen Polizisten. Dadurch verteilen
+     * sich mehrere Polizisten gleichmäßig um den Spieler (Umstellen statt Klumpen).
+     *
+     * @return Winkel in Radiant, oder {@link Double#NaN} wenn nicht zugewiesen (dann Direktlinie)
+     */
+    public static double engagementSlotAngle(UUID playerUUID, UUID policeUUID) {
+        Set<UUID> set = activePolice.get(playerUUID);
+        if (set == null || set.isEmpty()) {
+            return Double.NaN;
+        }
+        List<UUID> sorted = new ArrayList<>(set);
+        sorted.sort(Comparator.comparing(UUID::toString));
+        int idx = sorted.indexOf(policeUUID);
+        if (idx < 0) {
+            return Double.NaN;
+        }
+        return (2.0 * Math.PI * idx) / sorted.size();
+    }
+
+    /**
      * Gibt die Spieler-UUID zurück, die eine Polizei verfolgt (falls vorhanden)
      */
     @Nullable

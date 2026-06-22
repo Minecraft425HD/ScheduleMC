@@ -74,6 +74,8 @@ public final class PoliceCombatHandler {
     private static final long THREAT_WINDOW_TICKS = 60L;
     /** Grundintervall zwischen zwei seitlichen Strafe-Schritten in der Feuerlinie. */
     private static final long STRAFE_INTERVAL_TICKS = 40L;
+    /** Dauer (Ticks) einer Peek-Phase (kurz aus der Deckung vortreten und feuern). */
+    private static final long PEEK_DURATION_TICKS = 20L;
     /** Commit-Fenster: nach aktivem Kampf nicht sofort entwaffnen (Anti-Oszillation/Flackern). */
     private static final long COMBAT_COMMIT_TICKS = 60L;
     /** Inventar-Snapshot bei Polizei-Tod (Items bleiben beim Spieler). */
@@ -291,13 +293,23 @@ public final class PoliceCombatHandler {
         tryShoot(npc, target, currentTick, cfg);
     }
 
-    /** Bewegt den Polizisten auf eine Position mit {@code standoff} Blöcken Abstand zum Spieler. */
+    /**
+     * Bewegt den Polizisten auf eine Position mit {@code standoff} Blöcken Abstand zum Spieler —
+     * bei mehreren Polizisten an seinem zugewiesenen Flanking-Winkel (Umstellen statt Klumpen),
+     * sonst entlang der Direktlinie.
+     */
     private static void moveToStandoff(CustomNPCEntity npc, ServerPlayer target, double standoff) {
         Vec3 pp = target.position();
-        Vec3 toNpc = npc.position().subtract(pp);
-        toNpc = new Vec3(toNpc.x, 0, toNpc.z);
-        if (toNpc.lengthSqr() < 1.0e-3) toNpc = new Vec3(1, 0, 0);
-        Vec3 dest = pp.add(toNpc.normalize().scale(standoff));
+        double angle = PoliceBackupSystem.engagementSlotAngle(target.getUUID(), npc.getUUID());
+        Vec3 dir;
+        if (Double.isNaN(angle)) {
+            Vec3 toNpc = npc.position().subtract(pp);
+            toNpc = new Vec3(toNpc.x, 0, toNpc.z);
+            dir = toNpc.lengthSqr() < 1.0e-3 ? new Vec3(1, 0, 0) : toNpc.normalize();
+        } else {
+            dir = new Vec3(Math.cos(angle), 0, Math.sin(angle));
+        }
+        Vec3 dest = pp.add(dir.scale(standoff));
         repathTo(npc, dest);
     }
 
@@ -323,19 +335,37 @@ public final class PoliceCombatHandler {
         data.putLong("NextStrafeTick", now + (recentlyHit ? STRAFE_INTERVAL_TICKS / 2 : STRAFE_INTERVAL_TICKS));
     }
 
-    /** Schwer verletzt: Deckung suchen (LOS brechen) und peeken — tryShoot feuert nur mit Sichtlinie. */
+    /**
+     * Schwer verletzt: aus der Deckung feuern. Wechselt zwischen DECKUNG (LOS gebrochen, sicher)
+     * und kurzem PEEK (Richtung Spieler vortreten, Sichtlinie gewinnen, feuern, dann zurück).
+     * tryShoot feuert nur mit Sichtlinie → effektiv Schüsse während der Peek-Phase.
+     */
     private static void coverAndPeek(CustomNPCEntity npc, ServerPlayer target, long now) {
         var data = npc.getPersistentData();
-        if (now >= data.getLong("CoverUntilTick")) {
+        if (now < data.getLong("PeekUntil")) {
+            return; // aktuelle Phase läuft noch
+        }
+        if (data.getBoolean("Peeking")) {
+            // Peek beendet → zurück in Deckung
             Vec3 cover = findCoverPos(npc, target);
             if (cover != null) {
                 npc.getNavigation().moveTo(cover.x, cover.y, cover.z, POLICE_SPEED);
             } else {
                 moveToStandoff(npc, target, 14.0); // keine Deckung → weit zurückweichen
             }
-            data.putLong("CoverUntilTick", now + COVER_DURATION_TICKS);
+            data.putBoolean("Peeking", false);
+            data.putLong("PeekUntil", now + COVER_DURATION_TICKS);
+        } else {
+            // in Deckung → kurz Richtung Spieler vortreten (Sichtlinie gewinnen) und feuern
+            Vec3 toPlayer = target.position().subtract(npc.position());
+            toPlayer = new Vec3(toPlayer.x, 0, toPlayer.z);
+            if (toPlayer.lengthSqr() >= 1.0e-3) {
+                Vec3 dest = npc.position().add(toPlayer.normalize().scale(2.5));
+                npc.getNavigation().moveTo(dest.x, dest.y, dest.z, POLICE_SPEED);
+            }
+            data.putBoolean("Peeking", true);
+            data.putLong("PeekUntil", now + PEEK_DURATION_TICKS);
         }
-        // sonst: in Deckung bleiben (kein Vorrücken).
     }
 
     /** Repath-Throttle: nur neu pathen, wenn Ziel deutlich gewandert ist oder die Navigation steht. */
@@ -461,6 +491,8 @@ public final class PoliceCombatHandler {
         npc.getPersistentData().putBoolean("HasMovePath", false);
         npc.getPersistentData().putLong("CombatActiveUntil", 0L);
         npc.getPersistentData().putLong("NextStrafeTick", 0L);
+        npc.getPersistentData().putBoolean("Peeking", false);
+        npc.getPersistentData().putLong("PeekUntil", 0L);
         if (npc.getTarget() instanceof ServerPlayer p) {
             var set = activeShooters.get(p.getUUID());
             if (set != null) set.remove(npc.getUUID());
