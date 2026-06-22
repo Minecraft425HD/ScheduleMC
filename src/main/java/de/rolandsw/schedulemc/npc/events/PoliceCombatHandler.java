@@ -492,7 +492,11 @@ public final class PoliceCombatHandler {
         // Tod durch Polizei begleicht die Schuld: Fahndungslevel UND Kopfgeld zurücksetzen.
         UUID playerUUID = player.getUUID();
         CrimeManager.clearWantedLevel(playerUUID);
+        CrimeManager.stopEscapeTimer(playerUUID);
         resetEscalation(playerUUID);
+        // HUD/Crime-App sofort auf 0 synchronisieren (sonst zeigt sie nach dem Tod noch Sterne).
+        de.rolandsw.schedulemc.npc.network.NPCNetworkHandler.sendToPlayer(
+            new de.rolandsw.schedulemc.npc.network.WantedLevelSyncPacket(0, 0), player);
         de.rolandsw.schedulemc.npc.crime.BountyManager bm =
             de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance();
         boolean hadBounty = bm != null && bm.clearBounty(playerUUID);
