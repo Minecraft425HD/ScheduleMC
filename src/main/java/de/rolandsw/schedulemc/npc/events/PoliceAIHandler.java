@@ -373,7 +373,7 @@ public class PoliceAIHandler {
                 UUID playerUUID = targetCriminal.getUUID();
                 // Während der Festnahme (auch bei Selbstschutz-Flucht) nicht patrouillieren/
                 // streifen und nicht wegen Treffern automatisch in Deckung gehen
-                // (siehe reactToHit / Wander-Goals). Nur die Lebensgefahr-Flucht bewegt.
+                // (siehe quickDodge / Wander-Goals). Nur die Lebensgefahr-Flucht bewegt.
                 npc.getPersistentData().putLong("ArrestHoldUntil", currentTick + 30L);
 
                 if (npc.getHealth() / npc.getMaxHealth() <= ARREST_FLEE_HEALTH_FRACTION) {
