@@ -594,6 +594,8 @@ public final class PoliceCombatHandler {
         CrimeManager.clearWantedLevel(playerUUID);
         CrimeManager.stopEscapeTimer(playerUUID);
         resetEscalation(playerUUID);
+        // Backup-Zuweisungen lösen, damit keine Polizei mehr eine Festnahme des Toten versucht.
+        PoliceBackupSystem.cleanup(playerUUID);
         // HUD/Crime-App sofort auf 0 synchronisieren (sonst zeigt sie nach dem Tod noch Sterne).
         de.rolandsw.schedulemc.npc.network.NPCNetworkHandler.sendToPlayer(
             new de.rolandsw.schedulemc.npc.network.WantedLevelSyncPacket(0, 0), player);

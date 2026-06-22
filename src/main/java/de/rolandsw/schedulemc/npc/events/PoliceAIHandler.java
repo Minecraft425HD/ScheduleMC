@@ -341,6 +341,22 @@ public class PoliceAIHandler {
             }
         }
 
+        // Hat das (ggf. per Backup zugewiesene) Ziel KEINE Fahndungssterne mehr — also geflohen,
+        // getötet oder begnadigt — dann NICHT weiter verfolgen/verhaften. Sonst startet der
+        // Festnahme-Timer trotz 0 Sternen, läuft leer (arrestPlayer bricht ab) und wiederholt sich.
+        if (targetCriminal != null && highestWantedLevel <= 0) {
+            UUID goneId = targetCriminal.getUUID();
+            PoliceBackupSystem.unregisterPolice(goneId, npc.getUUID());
+            lastPursuitTarget.remove(npc.getUUID());
+            arrestTimers.remove(goneId);
+            lastArrestContactTick.remove(goneId);
+            if (PoliceSearchBehavior.isSearching(npc)) {
+                PoliceSearchBehavior.stopSearch(npc, goneId);
+            }
+            PoliceCombatHandler.standDown(npc);
+            targetCriminal = null;
+        }
+
         if (targetCriminal != null) {
             // Spieler gefunden! Stoppe Suchverhalten falls aktiv
             if (PoliceSearchBehavior.isSearching(npc)) {
