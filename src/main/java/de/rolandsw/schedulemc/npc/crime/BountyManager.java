@@ -79,33 +79,47 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
     public static final double BOUNTY_TAX_RATE = 0.19;
 
     /**
+     * Ergebnis einer Kopfgeld-Anpassung.
+     *
+     * @param amount  aktuelles Gesamt-Kopfgeld nach der Anpassung
+     * @param changed {@code true}, wenn sich der Betrag tatsächlich geändert hat
+     *                ({@code false}, wenn das Limit bereits erreicht war —
+     *                in diesem Fall keine Erhöhungs-Nachricht anzeigen)
+     */
+    public record BountyResult(double amount, boolean changed) {}
+
+    /**
      * Server-Kopfgeld nach eingegangenem Zeugenbericht: 200€ pro Stern,
      * bei 5 Sternen 1000€ extra. Erhöht ein bestehendes Kopfgeld auf
-     * mindestens diesen Betrag.
+     * mindestens diesen Betrag (gedeckelt auf {@link BountyData#MAX_BOUNTY}).
      *
-     * @return das aktuelle Gesamt-Kopfgeld nach der Anpassung
+     * @return Betrag und ob sich das Kopfgeld geändert hat
      */
-    public double placeServerBounty(UUID criminal, int wantedLevel) {
+    public BountyResult placeServerBounty(UUID criminal, int wantedLevel) {
         if (wantedLevel <= 0) {
             BountyData current = activeBounties.get(criminal);
-            return current != null && current.isActive() ? current.getAmount() : 0.0;
+            double amount = current != null && current.isActive() ? current.getAmount() : 0.0;
+            return new BountyResult(amount, false);
         }
-        double target = wantedLevel * REPORT_BOUNTY_PER_STAR
-            + (wantedLevel >= 5 ? REPORT_BOUNTY_MAX_LEVEL_EXTRA : 0.0);
+        double target = Math.min(
+            wantedLevel * REPORT_BOUNTY_PER_STAR
+                + (wantedLevel >= 5 ? REPORT_BOUNTY_MAX_LEVEL_EXTRA : 0.0),
+            BountyData.MAX_BOUNTY);
 
         BountyData existing = activeBounties.get(criminal);
         if (existing != null && existing.isActive()) {
+            boolean changed = false;
             if (existing.getAmount() < target) {
-                existing.increaseAmount(target - existing.getAmount());
+                changed = existing.increaseAmount(target - existing.getAmount());
             }
             save();
-            return existing.getAmount();
+            return new BountyResult(existing.getAmount(), changed);
         }
         BountyData bounty = new BountyData(criminal, target, null,
             "Witness report, wanted level " + wantedLevel + " ⭐");
         activeBounties.put(criminal, bounty);
         save();
-        return target;
+        return new BountyResult(bounty.getAmount(), true);
     }
 
     public void createAutoBounty(UUID criminal, int wantedLevel) {
@@ -152,6 +166,12 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
             return false; // Kann nicht auf sich selbst bounty platzieren
         }
 
+        // Kopfgeld bereits am Limit (9000€)? Dann kein Abzug, keine Nachricht.
+        BountyData existing = activeBounties.get(targetUUID);
+        if (existing != null && existing.isActive() && existing.isAtMaximum()) {
+            return false;
+        }
+
         // Prüfe Kontostand
         if (!EconomyManager.withdraw(placerUUID, amount, TransactionType.OTHER,
                 "Kopfgeld auf: " + targetUUID)) {
@@ -159,19 +179,21 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         }
 
         // Existiert bereits ein Bounty?
-        BountyData existing = activeBounties.get(targetUUID);
+        boolean changed;
         if (existing != null && existing.isActive()) {
-            // Erhöhe bestehendes Bounty
-            existing.increaseAmount(amount);
+            // Erhöhe bestehendes Bounty (gedeckelt)
+            changed = existing.increaseAmount(amount);
         } else {
             // Erstelle neues Bounty
             BountyData bounty = new BountyData(targetUUID, amount, placerUUID, reason);
             activeBounties.put(targetUUID, bounty);
+            changed = true;
         }
 
-        // Benachrichtige Target
+        // Benachrichtige Target — nur wenn sich das Kopfgeld tatsächlich geändert hat
+        // (am Limit von 9000€ keine weiteren Erhöhungs-Nachrichten)
         ServerPlayer target = server.getPlayerList().getPlayer(targetUUID);
-        if (target != null) {
+        if (target != null && changed) {
             target.sendSystemMessage(Component.translatable("manager.bounty.increased", String.format("%.2f€", amount), reason));
         }
 

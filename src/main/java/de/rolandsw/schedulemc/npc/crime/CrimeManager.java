@@ -189,6 +189,14 @@ public class CrimeManager {
         lastCrimeDay.remove(playerUUID);
         markAllCrimesServed(playerUUID);
         markDirty();
+
+        // Ausstehende Zeugenberichte ebenfalls löschen, sonst werden die
+        // Fahndungssterne (und das Kopfgeld) wiederhergestellt, sobald ein noch
+        // nicht zugestellter Bericht später bei einem Polizisten "eintrifft".
+        var witnessManager = de.rolandsw.schedulemc.npc.life.witness.WitnessManager.getInstance();
+        if (witnessManager != null) {
+            witnessManager.clearReports(playerUUID);
+        }
     }
 
     public static void setWantedLevel(UUID playerUUID, int level) {

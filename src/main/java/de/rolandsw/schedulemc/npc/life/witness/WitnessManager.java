@@ -357,6 +357,20 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
     }
 
     /**
+     * Entfernt ALLE ausstehenden Zeugenberichte und Fahndungsdaten eines Spielers.
+     *
+     * <p>Wird aufgerufen, wenn die Fahndungssterne gelöscht werden (z.&nbsp;B. nach
+     * Tod durch die Polizei oder erfolgreicher Flucht). Verhindert, dass noch nicht
+     * zugestellte Berichte später bei einem Polizisten "eintreffen" und die Sterne
+     * samt Kopfgeld wiederherstellen.
+     */
+    public void clearReports(UUID criminalUUID) {
+        reportsByCriminal.remove(criminalUUID);
+        removeFromWantedList(criminalUUID);
+        markDirty();
+    }
+
+    /**
      * Prüft ob ein Spieler gesucht wird
      */
     public boolean isWanted(UUID playerUUID) {
@@ -464,8 +478,9 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
         double bountyAmount = 0.0;
         var bountyManager = de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance();
         if (bountyManager != null && stars > 0) {
-            bountyAmount = bountyManager.placeServerBounty(criminalUUID, stars);
+            bountyAmount = bountyManager.placeServerBounty(criminalUUID, stars).amount();
         }
+        // Direkte Anzeige eines Spielers: immer melden (bewusste Spieler-Aktion).
         broadcastReportReachedPolice(level, report, stars, bountyAmount);
     }
 
@@ -504,17 +519,23 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
                                 report.getCriminalUUID(), 1, currentDay);
                         }
 
-                        // Server-Kopfgeld: 200€ pro Stern, +1000€ bei 5 Sternen
+                        // Server-Kopfgeld: 200€ pro Stern, +1000€ bei 5 Sternen (max 9000€)
                         int stars = de.rolandsw.schedulemc.npc.crime.CrimeManager
                             .getWantedLevel(report.getCriminalUUID());
                         double bountyAmount = 0.0;
+                        boolean bountyChanged = false;
                         var bountyManager = de.rolandsw.schedulemc.npc.crime.BountyManager.getInstance();
                         if (bountyManager != null && stars > 0) {
-                            bountyAmount = bountyManager.placeServerBounty(report.getCriminalUUID(), stars);
+                            var result = bountyManager.placeServerBounty(report.getCriminalUUID(), stars);
+                            bountyAmount = result.amount();
+                            bountyChanged = result.changed();
                         }
 
-                        // Kompakte serverweite Meldung (Bericht + Fahndung + Kopfgeld)
-                        broadcastReportReachedPolice(level, report, stars, bountyAmount);
+                        // Kompakte serverweite Meldung nur, wenn das Kopfgeld noch gestiegen
+                        // ist — am Limit (9000€) keine weiteren Spam-Meldungen.
+                        if (bountyChanged) {
+                            broadcastReportReachedPolice(level, report, stars, bountyAmount);
+                        }
                     }
                 }
             }

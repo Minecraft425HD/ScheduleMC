@@ -367,6 +367,12 @@ public abstract class GunItem extends Item {
     }
 
     public void reload(Player player, ItemStack gunStack) {
+        // Bereits voll geladen? Dann kein erneutes Nachladen (verschwendet sonst
+        // Munition / setzt die Reload-Sperre unnötig).
+        if (getCurrentAmmo(gunStack) >= properties.getMaxAmmo()) {
+            player.displayClientMessage(Component.literal("§eMagazine already full"), true);
+            return;
+        }
         if (player.isCreative()) {
             setCurrentAmmo(gunStack, properties.getMaxAmmo());
             setLoadedAmmoType(gunStack, WeaponItems.AMMO_STANDARD.get());

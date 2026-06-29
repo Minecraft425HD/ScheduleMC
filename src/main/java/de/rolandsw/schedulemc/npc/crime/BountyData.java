@@ -15,6 +15,9 @@ public class BountyData {
     private static final DateTimeFormatter FORMATTER =
         DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.systemDefault());
 
+    /** Obergrenze für jedes Kopfgeld. */
+    public static final double MAX_BOUNTY = 9000.0;
+
     @SerializedName("bountyId")
     private final String bountyId;
 
@@ -50,7 +53,7 @@ public class BountyData {
     public BountyData(UUID targetUUID, double amount, @Nullable UUID placedBy, String reason) {
         this.bountyId = UUID.randomUUID().toString();
         this.targetUUID = targetUUID;
-        this.amount = amount;
+        this.amount = Math.min(amount, MAX_BOUNTY);
         this.placedBy = placedBy;
         this.reason = reason;
         this.timestamp = System.currentTimeMillis();
@@ -80,10 +83,22 @@ public class BountyData {
     }
 
     /**
-     * Erhöht Kopfgeld
+     * Erhöht Kopfgeld, gedeckelt auf {@link #MAX_BOUNTY}.
+     *
+     * @return {@code true}, wenn sich der Betrag tatsächlich geändert hat;
+     *         {@code false}, wenn das Kopfgeld bereits am Limit war (keine Nachricht anzeigen).
      */
-    public void increaseAmount(double additionalAmount) {
-        this.amount += additionalAmount;
+    public boolean increaseAmount(double additionalAmount) {
+        double previous = this.amount;
+        this.amount = Math.min(this.amount + additionalAmount, MAX_BOUNTY);
+        return this.amount != previous;
+    }
+
+    /**
+     * Prüft, ob das Kopfgeld bereits die Obergrenze erreicht hat.
+     */
+    public boolean isAtMaximum() {
+        return this.amount >= MAX_BOUNTY;
     }
 
     /**
