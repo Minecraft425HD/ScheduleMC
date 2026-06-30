@@ -119,6 +119,7 @@ public class ModConfigHandler {
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> NPC_WALKABLE_BLOCKS;
         public final ForgeConfigSpec.IntValue NPC_FLEE_DISTANCE;
+        public final ForgeConfigSpec.BooleanValue NPC_PANIC_ON_GUNSHOT;
 
         // ═══════════════════════════════════════════════════════════
         // MAP NAVIGATION SYSTEM
@@ -679,6 +680,9 @@ public class ModConfigHandler {
             NPC_FLEE_DISTANCE = builder
                     .comment("How far (blocks) a panicking NPC runs away from a threat")
                     .defineInRange("flee_distance", 10, 1, 64);
+            NPC_PANIC_ON_GUNSHOT = builder
+                    .comment("NPCs panic and flee when they hear a gunshot within the weapon's hearing range (this in turn makes police investigate).")
+                    .define("panic_on_gunshot", true);
 
             builder.pop();
 
