@@ -30,7 +30,10 @@ public class StandardActions {
      */
     public static class FleeAction extends BehaviorAction {
 
-        private static final double FLEE_DISTANCE = 30.0;
+        /** Fluchtdistanz in Blöcken — über die Ingame-Config einstellbar. */
+        private static double fleeDistance() {
+            return de.rolandsw.schedulemc.config.ModConfigHandler.COMMON.NPC_FLEE_DISTANCE.get();
+        }
 
         private Vec3 fleeDirection;
         private BlockPos fleeTarget;
@@ -69,11 +72,16 @@ public class StandardActions {
             }
 
             // Flucht-Ziel berechnen
-            Vec3 fleePos = npc.position().add(fleeDirection.scale(FLEE_DISTANCE));
+            Vec3 fleePos = npc.position().add(fleeDirection.scale(fleeDistance()));
             fleeTarget = new BlockPos((int) fleePos.x, (int) fleePos.y, (int) fleePos.z);
 
             // Navigation starten
             npc.getNavigation().moveTo(fleeTarget.getX(), fleeTarget.getY(), fleeTarget.getZ(), 1.3);
+
+            // Panik ist sichtbar: Polizei in der Nähe untersucht den Bereich.
+            if (npc.level() instanceof ServerLevel serverLevel) {
+                de.rolandsw.schedulemc.npc.events.PolicePanicHandler.onNpcPanic(npc, serverLevel);
+            }
         }
 
         @Override
@@ -87,7 +95,7 @@ public class StandardActions {
             // Prüfen ob Bedrohung noch aktiv
             if (targetEntity != null) {
                 double distance = npc.distanceTo(targetEntity);
-                if (distance > FLEE_DISTANCE * 1.5) {
+                if (distance > fleeDistance() * 1.5) {
                     return false; // Weit genug entfernt
                 }
 
@@ -97,7 +105,7 @@ public class StandardActions {
                     Vec3 threatPos = targetEntity.position();
                     fleeDirection = npcPos.subtract(threatPos).normalize();
 
-                    Vec3 newFleePos = npc.position().add(fleeDirection.scale(FLEE_DISTANCE));
+                    Vec3 newFleePos = npc.position().add(fleeDirection.scale(fleeDistance()));
                     fleeTarget = new BlockPos((int) newFleePos.x, (int) newFleePos.y, (int) newFleePos.z);
                     npc.getNavigation().moveTo(fleeTarget.getX(), fleeTarget.getY(), fleeTarget.getZ(), 1.3);
                 }
@@ -114,7 +122,7 @@ public class StandardActions {
                         ThreadLocalRandom.current().nextDouble() * 2 - 1
                     ).normalize();
 
-                    Vec3 newFleePos = npc.position().add(fleeDirection.scale(FLEE_DISTANCE / 2));
+                    Vec3 newFleePos = npc.position().add(fleeDirection.scale(fleeDistance() / 2));
                     fleeTarget = new BlockPos((int) newFleePos.x, (int) newFleePos.y, (int) newFleePos.z);
                     npc.getNavigation().moveTo(fleeTarget.getX(), fleeTarget.getY(), fleeTarget.getZ(), 1.3);
                     stuckCounter = 0;

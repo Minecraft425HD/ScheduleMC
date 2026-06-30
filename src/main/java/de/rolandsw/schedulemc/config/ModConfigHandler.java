@@ -118,6 +118,7 @@ public class ModConfigHandler {
         // NPC SYSTEM
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> NPC_WALKABLE_BLOCKS;
+        public final ForgeConfigSpec.IntValue NPC_FLEE_DISTANCE;
 
         // ═══════════════════════════════════════════════════════════
         // MAP NAVIGATION SYSTEM
@@ -183,6 +184,10 @@ public class ModConfigHandler {
 
         // Civilian witness reports (optional layer on top of police perception)
         public final ForgeConfigSpec.BooleanValue WITNESS_REPORTS_ENABLED;
+
+        // Police investigate panicking NPCs (perception via crowd behaviour)
+        public final ForgeConfigSpec.BooleanValue POLICE_INVESTIGATE_PANIC;
+        public final ForgeConfigSpec.IntValue POLICE_PANIC_RADIUS;
 
         // Police Combat (weapons when arrest fails)
         public final ForgeConfigSpec.BooleanValue POLICE_COMBAT_ENABLED;
@@ -671,6 +676,9 @@ public class ModConfigHandler {
                             "minecraft:smooth_quartz"
                         ),
                         obj -> obj instanceof String);
+            NPC_FLEE_DISTANCE = builder
+                    .comment("How far (blocks) a panicking NPC runs away from a threat")
+                    .defineInRange("flee_distance", 10, 1, 64);
 
             builder.pop();
 
@@ -870,6 +878,12 @@ public class ModConfigHandler {
             WITNESS_REPORTS_ENABLED = builder
                     .comment("Civilians witness crimes and file reports to police. When false, only police perception (hearing gunshots + line of sight) detects crimes.")
                     .define("witness_reports_enabled", false);
+            POLICE_INVESTIGATE_PANIC = builder
+                    .comment("Police investigate the area when nearby NPCs start panicking (fleeing).")
+                    .define("investigate_panic", true);
+            POLICE_PANIC_RADIUS = builder
+                    .comment("Radius (blocks) within which police notice a panicking NPC and search the area")
+                    .defineInRange("panic_radius", 24, 4, 128);
 
             builder.comment("Police combat: weapons are only used when an arrest is not working and the wanted level is high. Arrest always stays the preferred outcome.")
                     .push("combat");
