@@ -33,6 +33,7 @@ public enum CrimeType {
     ASSAULT("Assault", 5, 300, RumorType.ASSAULT, 2, 2000.0, 3),
     AGGRAVATED_ASSAULT("Aggravated assault", 8, 1000, RumorType.ASSAULT, 3, 5000.0, 5),
     ARMED_VIOLENCE("Armed violence", 9, 2000, RumorType.ASSAULT, 4, 20000.0, 10),
+    ILLEGAL_FIREARM("Illegal firearm", 6, 750, RumorType.WANTED_BY_POLICE, 2, 3000.0, 3),
 
     // ═══════════════════════════════════════════════════════════
     // DRUGS (Drogen)
@@ -158,6 +159,7 @@ public enum CrimeType {
     public boolean isViolent() {
         return this == THREAT || this == ASSAULT ||
                this == AGGRAVATED_ASSAULT || this == ARMED_VIOLENCE ||
+               this == ILLEGAL_FIREARM ||
                this == ROBBERY || this == MURDER || this == GANG_VIOLENCE;
     }
 

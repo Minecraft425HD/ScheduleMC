@@ -181,6 +181,9 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.BooleanValue POLICE_FLANKING_ENABLED;
         public final ForgeConfigSpec.IntValue POLICE_WANTED_POSTERS_MIN_LEVEL;
 
+        // Civilian witness reports (optional layer on top of police perception)
+        public final ForgeConfigSpec.BooleanValue WITNESS_REPORTS_ENABLED;
+
         // Police Combat (weapons when arrest fails)
         public final ForgeConfigSpec.BooleanValue POLICE_COMBAT_ENABLED;
         public final ForgeConfigSpec.IntValue POLICE_MELEE_WANTED_LEVEL;
@@ -864,6 +867,9 @@ public class ModConfigHandler {
             POLICE_WANTED_POSTERS_MIN_LEVEL = builder
                     .comment("Minimum wanted level for wanted posters on smartphone")
                     .defineInRange("wanted_posters_min_level", 3, 1, 5);
+            WITNESS_REPORTS_ENABLED = builder
+                    .comment("Civilians witness crimes and file reports to police. When false, only police perception (hearing gunshots + line of sight) detects crimes.")
+                    .define("witness_reports_enabled", false);
 
             builder.comment("Police combat: weapons are only used when an arrest is not working and the wanted level is high. Arrest always stays the preferred outcome.")
                     .push("combat");

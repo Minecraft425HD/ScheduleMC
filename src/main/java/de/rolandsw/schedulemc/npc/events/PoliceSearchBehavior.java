@@ -322,6 +322,28 @@ public class PoliceSearchBehavior {
     }
 
     /**
+     * Startet Suchverhalten an einer festen Position (z.&nbsp;B. ein gehörter Schussort),
+     * ohne dass ein konkreter Spieler sichtbar sein muss.
+     *
+     * <p>Das Such-System ist UUID-keyed und nicht an einen Fahndungslevel gebunden:
+     * {@code onPoliceAI} setzt eine laufende Suche über {@link #searchArea} unabhängig
+     * vom Wanted-Level fort. Bekommt der Polizist Sichtkontakt zu einem gesuchten Spieler,
+     * übernimmt automatisch die normale Verfolgung.
+     *
+     * @param police      der suchende Polizist
+     * @param location    Zielgebiet (Schussort)
+     * @param key         Schlüssel für die Suche (i.&nbsp;d.&nbsp;R. die Schützen-UUID)
+     * @param currentTick aktueller Game-Tick
+     */
+    public static void startSearchAt(CustomNPCEntity police, BlockPos location, UUID key, long currentTick) {
+        lastKnownPositions.put(key, location);
+        searchTimers.put(key, currentTick);
+        activeSearches.put(police.getUUID(), key);
+        // Keine bevorzugte Richtung → Zufallssuche rund um den Schussort.
+        movementDirections.remove(key);
+    }
+
+    /**
      * Stoppt Suchverhalten
      */
     public static void stopSearch(CustomNPCEntity police, UUID playerUUID) {

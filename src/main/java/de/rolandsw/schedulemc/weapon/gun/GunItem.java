@@ -14,6 +14,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -57,6 +58,11 @@ public abstract class GunItem extends Item {
     }
 
     protected int getConfigRange() {
+        return properties.getRange();
+    }
+
+    /** Hörweite in Blöcken — Distanz, in der die Polizei den Schuss hört. Per Waffe überschreibbar. */
+    protected int getConfigHearingRadius() {
         return properties.getRange();
     }
 
@@ -346,6 +352,13 @@ public abstract class GunItem extends Item {
         for (Attachment a : attachments) volume *= a.getSoundMultiplier();
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 WeaponSounds.GUN_SHOT.get(), SoundSource.PLAYERS, volume, 1.0F);
+
+        // Schuss-Wahrnehmung der Polizei: Schalldämpfer (volume) verkürzt die Hörweite.
+        if (level instanceof ServerLevel serverLevel && player instanceof ServerPlayer shooter) {
+            double hearingRadius = getConfigHearingRadius() * volume;
+            de.rolandsw.schedulemc.npc.events.PoliceGunshotHandler.onGunshotFired(
+                    shooter, serverLevel, shooter.position(), hearingRadius);
+        }
 
         // Muzzle flash particles disabled
     }

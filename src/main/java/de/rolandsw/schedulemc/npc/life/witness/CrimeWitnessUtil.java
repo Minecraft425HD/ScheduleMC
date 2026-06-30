@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.npc.life.witness;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
@@ -69,7 +70,11 @@ public final class CrimeWitnessUtil {
             }
         }
 
-        double detectionChance = policePresent ? 1.0 : Math.min(0.9, witnesses.size() * 0.15);
+        // Polizei in Sichtweite erkennt immer. Zivilisten melden nur, wenn Zeugenberichte
+        // aktiviert sind (sonst rein polizeibasierte Wahrnehmung).
+        boolean reportsEnabled = ModConfigHandler.COMMON.WITNESS_REPORTS_ENABLED.get();
+        double detectionChance = policePresent ? 1.0
+            : (reportsEnabled ? Math.min(0.9, witnesses.size() * 0.15) : 0.0);
         if (ThreadLocalRandom.current().nextDouble() >= detectionChance) {
             return false;
         }
@@ -77,7 +82,10 @@ public final class CrimeWitnessUtil {
         long currentDay = level.getDayTime() / 24000;
         CrimeManager.addWantedLevel(criminal.getUUID(), starsToAdd, currentDay);
 
-        WitnessManager.getManager(level).registerCrime(criminal, crimeType, crimeLocation, level, victimUuid);
+        // Zeugenbericht-Pipeline nur bei aktivierten Reports (no-op'd ohnehin in registerCrime).
+        if (reportsEnabled) {
+            WitnessManager.getManager(level).registerCrime(criminal, crimeType, crimeLocation, level, victimUuid);
+        }
 
         var integration = de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration.get(level);
         if (integration != null) {
@@ -96,5 +104,37 @@ public final class CrimeWitnessUtil {
         criminal.sendSystemMessage(Component.translatable("message.crime.type", crimeLabel));
         criminal.sendSystemMessage(Component.translatable("message.crime.wanted_level", stars, currentWantedLevel));
         return true;
+    }
+
+    /**
+     * Ahndet ein bereits von einem Polizisten <b>gesehenes</b> Verbrechen direkt — ohne
+     * erneuten 16-Block-Zeugen-Scan, da der Sichtkontakt schon feststeht.
+     *
+     * <p>Wird z.&nbsp;B. von {@code PoliceGunshotHandler} genutzt, wenn ein Schuss in
+     * Sichtlinie eines Polizisten fällt (auch ohne Treffer). Vergibt sofort
+     * Fahndungssterne, gibt Chat-Feedback und registriert — nur bei aktivierten
+     * Zeugenberichten — zusätzlich einen Bericht.
+     *
+     * @param criminal der Täter
+     * @param level    die ServerLevel
+     * @param location Tatort
+     * @param crimeType Verbrechenstyp
+     * @param starsToAdd sofort zu vergebende Sterne
+     * @param crimeLabel Klartext fürs Chat-Feedback
+     */
+    public static void reportPoliceSighted(ServerPlayer criminal, ServerLevel level, BlockPos location,
+                                           CrimeType crimeType, int starsToAdd, String crimeLabel) {
+        long currentDay = level.getDayTime() / 24000;
+        CrimeManager.addWantedLevel(criminal.getUUID(), starsToAdd, currentDay);
+
+        if (ModConfigHandler.COMMON.WITNESS_REPORTS_ENABLED.get()) {
+            WitnessManager.getManager(level).registerCrime(criminal, crimeType, location, level, null);
+        }
+
+        int currentWantedLevel = CrimeManager.getWantedLevel(criminal.getUUID());
+        String stars = "⭐".repeat(Math.max(0, currentWantedLevel));
+        criminal.sendSystemMessage(Component.translatable("message.crime.police_witnessed"));
+        criminal.sendSystemMessage(Component.translatable("message.crime.type", crimeLabel));
+        criminal.sendSystemMessage(Component.translatable("message.crime.wanted_level", stars, currentWantedLevel));
     }
 }

@@ -81,14 +81,11 @@ public class CrimeEventHandler {
                 crimeType = CrimeType.ARMED_VIOLENCE;
             }
 
-            // Verbrechen registrieren
-            WitnessManager.getManager(level).registerCrime(
-                player,
-                crimeType,
-                target.blockPosition(),
-                level,
-                npc.getNpcData().getNpcUUID()
-            );
+            // Einheitliche Erkennung: Polizist in Sichtweite = sofort Fahndung;
+            // Zivilisten nur bei aktivierten Zeugenberichten.
+            CrimeWitnessUtil.detectAndPunish(
+                player, target.blockPosition(), npc, npc.getNpcData().getNpcUUID(),
+                crimeType, crimeType.getWantedStars(), crimeType.getDisplayName());
         } else if (target instanceof ServerPlayer victim) {
             // Spieler-gegen-Spieler: zählt wie ein Angriff auf einen NPC
             if (!isPunishablePvp(player, victim)) return;
@@ -203,14 +200,11 @@ public class CrimeEventHandler {
 
         // NPC getötet
         if (victim instanceof de.rolandsw.schedulemc.npc.entity.CustomNPCEntity npc) {
-            // Schwerstes Verbrechen
-            WitnessManager.getManager(level).registerCrime(
-                player,
-                CrimeType.ARMED_VIOLENCE, // oder MURDER wenn hinzugefügt
-                victim.blockPosition(),
-                level,
-                npc.getNpcData().getNpcUUID()
-            );
+            // Schwerstes Verbrechen — einheitliche Erkennung (Polizei-Sicht = sofort Fahndung)
+            de.rolandsw.schedulemc.npc.life.witness.CrimeWitnessUtil.detectAndPunish(
+                player, victim.blockPosition(), npc, npc.getNpcData().getNpcUUID(),
+                CrimeType.ARMED_VIOLENCE, CrimeType.ARMED_VIOLENCE.getWantedStars(),
+                CrimeType.ARMED_VIOLENCE.getDisplayName());
         }
     }
 

@@ -17,6 +17,11 @@ public class Ak47Item extends GunItem {
     }
 
     @Override
+    protected int getConfigHearingRadius() {
+        return WeaponConfig.AK47_HEARING_RADIUS.get();
+    }
+
+    @Override
     protected float getConfigDamage() {
         return WeaponConfig.AK47_DAMAGE.get();
     }

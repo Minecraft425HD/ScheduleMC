@@ -16,6 +16,11 @@ public class RevolverItem extends GunItem {
     }
 
     @Override
+    protected int getConfigHearingRadius() {
+        return WeaponConfig.REVOLVER_HEARING_RADIUS.get();
+    }
+
+    @Override
     protected float getConfigDamage() {
         return WeaponConfig.REVOLVER_DAMAGE.get();
     }

@@ -127,6 +127,12 @@ public class WitnessManager extends AbstractPersistenceManager<WitnessManager.Wi
                                              BlockPos location, ServerLevel level,
                                              @Nullable UUID victim) {
 
+        // Zivilisten-Zeugenberichte sind optional. Bei deaktiviertem Schalter erkennt
+        // nur die Polizei (Hören + Sehen) — kein Zeugen-Scan, keine Report-Pipeline.
+        if (!de.rolandsw.schedulemc.config.ModConfigHandler.COMMON.WITNESS_REPORTS_ENABLED.get()) {
+            return new ArrayList<>();
+        }
+
         long currentTime = level.getGameTime();
         long currentDay = currentTime / 24000;
 

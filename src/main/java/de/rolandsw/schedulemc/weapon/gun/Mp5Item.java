@@ -17,6 +17,11 @@ public class Mp5Item extends GunItem {
     }
 
     @Override
+    protected int getConfigHearingRadius() {
+        return WeaponConfig.MP5_HEARING_RADIUS.get();
+    }
+
+    @Override
     protected float getConfigDamage() {
         return WeaponConfig.MP5_DAMAGE.get();
     }

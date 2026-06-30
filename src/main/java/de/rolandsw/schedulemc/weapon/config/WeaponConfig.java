@@ -46,6 +46,14 @@ public class WeaponConfig {
     public static final ForgeConfigSpec.IntValue SNIPER_RELOAD_TICKS;
     public static final ForgeConfigSpec.IntValue SHOTGUN_RELOAD_TICKS;
 
+    // Hörweite (Blöcke): Distanz, in der die Polizei einen Schuss hört und das Gebiet absucht
+    public static final ForgeConfigSpec.IntValue PISTOL_HEARING_RADIUS;
+    public static final ForgeConfigSpec.IntValue REVOLVER_HEARING_RADIUS;
+    public static final ForgeConfigSpec.IntValue AK47_HEARING_RADIUS;
+    public static final ForgeConfigSpec.IntValue MP5_HEARING_RADIUS;
+    public static final ForgeConfigSpec.IntValue SNIPER_HEARING_RADIUS;
+    public static final ForgeConfigSpec.IntValue SHOTGUN_HEARING_RADIUS;
+
     // Munitionstyp-Schadensmodifikatoren
     public static final ForgeConfigSpec.DoubleValue AMMO_AP_FIRE_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue AMMO_AP_HIT_MULTIPLIER;
@@ -93,6 +101,15 @@ public class WeaponConfig {
         SHOTGUN_ACCURACY = builder.comment("Shotgun: hit rate / accuracy (0..1)").defineInRange("shotgun_accuracy", 0.60, 0.0, 1.0);
         SHOTGUN_COOLDOWN = builder.comment("Shotgun: ticks between shots (20 = 1s)").defineInRange("shotgun_cooldown", 25, 1, 200);
         SHOTGUN_RELOAD_TICKS = builder.comment("Shotgun: reload time in ticks (20 = 1s)").defineInRange("shotgun_reload_ticks", 60, 0, 200);
+        builder.pop();
+
+        builder.comment("Hearing radius per weapon (blocks): how far away police hear a shot and search the area. A silencer attachment reduces this.").push("weapon_hearing");
+        PISTOL_HEARING_RADIUS = builder.comment("Pistol: hearing radius in blocks").defineInRange("pistol_hearing_radius", 48, 1, 1000);
+        REVOLVER_HEARING_RADIUS = builder.comment("Revolver: hearing radius in blocks").defineInRange("revolver_hearing_radius", 64, 1, 1000);
+        AK47_HEARING_RADIUS = builder.comment("AK47: hearing radius in blocks").defineInRange("ak47_hearing_radius", 96, 1, 1000);
+        MP5_HEARING_RADIUS = builder.comment("MP5: hearing radius in blocks").defineInRange("mp5_hearing_radius", 56, 1, 1000);
+        SNIPER_HEARING_RADIUS = builder.comment("Sniper rifle: hearing radius in blocks").defineInRange("sniper_hearing_radius", 160, 1, 2000);
+        SHOTGUN_HEARING_RADIUS = builder.comment("Shotgun: hearing radius in blocks").defineInRange("shotgun_hearing_radius", 80, 1, 1000);
         builder.pop();
 
         builder.comment("Ammo type damage multipliers").push("ammo");
