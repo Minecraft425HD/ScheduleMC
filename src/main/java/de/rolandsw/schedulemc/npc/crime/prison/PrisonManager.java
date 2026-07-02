@@ -412,13 +412,17 @@ public class PrisonManager {
 
         if (data == null) return;
 
-        Long remainingTicks = offlineRemainingTime.remove(playerId);
-        if (remainingTicks == null) {
-            remainingTicks = data.totalSentenceTicks;
-        }
-
         long currentTick = player.level().getGameTime();
+        Long frozen = offlineRemainingTime.remove(playerId);
+        // PM-1: Bei sauberem Logout die eingefrorene Restzeit nutzen. Fehlt sie (Crash ohne
+        // Logout), die Restzeit aus der absoluten releaseTime ableiten — NICHT die volle
+        // Strafe neu auferlegen. getGameTime() ist über Neustarts hinweg persistent.
+        long remainingTicks = (frozen != null)
+            ? frozen
+            : Math.max(0, data.releaseTime - currentTick);
+
         data.releaseTime = currentTick + remainingTicks;
+        data.persistedRemainingTicks = -1; // online → nicht mehr eingefroren; wird beim Logout neu gesetzt
         long bailAvailableAtTick = currentTick + (long)(remainingTicks * BAIL_AVAILABLE_AFTER);
 
         BlockPos cellSpawn = data.getCellSpawn();
@@ -441,6 +445,10 @@ public class PrisonManager {
         ), player);
 
         LOGGER.info("Prisoner {} online. Remaining: {} seconds", data.playerName, remainingSeconds);
+
+        // Rebasing der releaseTime + persistedRemainingTicks=-1 persistieren, damit ein
+        // späterer Crash die Restzeit korrekt aus releaseTime ableiten kann (PM-1).
+        savePrisonerData();
     }
 
     public void onServerTick(long currentTick, net.minecraft.server.level.ServerLevel level) {
@@ -539,14 +547,15 @@ public class PrisonManager {
                 for (var entry : loadedData.entrySet()) {
                     UUID uuid = UUID.fromString(entry.getKey());
                     prisoners.put(uuid, entry.getValue());
-                    // Use persisted remaining ticks if available (set at logout).
-                    // Fallback to totalSentenceTicks avoids the incorrect approximation
-                    // System.currentTimeMillis()/50 that previously mixed wall-clock ms
-                    // with game ticks (which caused sentences to reset after server restart).
-                    long remaining = entry.getValue().persistedRemainingTicks >= 0
-                        ? entry.getValue().persistedRemainingTicks
-                        : entry.getValue().totalSentenceTicks;
-                    offlineRemainingTime.put(uuid, Math.max(0, remaining));
+                    // Nur den eingefrorenen Rest eines SAUBEREN Logouts vorbelegen
+                    // (persistedRemainingTicks >= 0). Fehlt er (-1, z.B. Server-Crash während
+                    // der Spieler online war), NICHT auf die volle Strafe zurückfallen (PM-1) —
+                    // stattdessen leitet onPlayerLogin die Restzeit aus der absoluten releaseTime
+                    // ab (getGameTime() ist über Neustarts persistent).
+                    long persisted = entry.getValue().persistedRemainingTicks;
+                    if (persisted >= 0) {
+                        offlineRemainingTime.put(uuid, persisted);
+                    }
                 }
                 LOGGER.info("Prisoners loaded: {}", prisoners.size());
             }

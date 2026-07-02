@@ -187,6 +187,7 @@ public class CrimeManager {
     public static void clearWantedLevel(UUID playerUUID) {
         wantedLevels.remove(playerUUID);
         lastCrimeDay.remove(playerUUID);
+        stopEscapeTimer(playerUUID); // CM-4: laufenden Escape-Timer nicht überleben lassen
         markAllCrimesServed(playerUUID);
         markDirty();
 
@@ -229,6 +230,7 @@ public class CrimeManager {
 
             if (!wantedLevels.containsKey(playerUUID)) {
                 lastCrimeDay.remove(playerUUID);
+                stopEscapeTimer(playerUUID); // CM-3: bei Decay auf 0 auch das Hiding beenden
             } else {
                 lastCrimeDay.put(playerUUID, currentDay);
             }
@@ -262,6 +264,11 @@ public class CrimeManager {
         int level = getWantedLevel(playerUUID);
         long duration = getEscapeDuration(level);
         long elapsed = currentTick - startTick;
+        // CM-2 (defensiv): Liegt der gespeicherte Start-Tick in der Zukunft (z.B. Weltzeit
+        // zurückgesetzt), Timer als abgelaufen behandeln statt ihn dauerhaft einzufrieren.
+        if (elapsed < 0) {
+            return 0;
+        }
         long remaining = duration - elapsed;
         return Math.max(0, remaining);
     }
@@ -271,11 +278,9 @@ public class CrimeManager {
 
         long remaining = getEscapeTimeRemaining(playerUUID, currentTick);
         if (remaining <= 0) {
-            // Erfolgreich abgeschüttelt: ALLE Sterne entfernen
-            wantedLevels.remove(playerUUID);
-            lastCrimeDay.remove(playerUUID);
-            markDirty();
-            stopEscapeTimer(playerUUID);
+            // Erfolgreich abgeschüttelt: konsistent mit clearWantedLevel ALLE Sterne entfernen,
+            // Verbrechen als abgesessen markieren, Zeugenberichte + Escape-Timer aufräumen (CM-1).
+            clearWantedLevel(playerUUID);
             return true;
         }
         return false;
