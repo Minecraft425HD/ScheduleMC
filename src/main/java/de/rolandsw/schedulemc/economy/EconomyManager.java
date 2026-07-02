@@ -409,11 +409,16 @@ public class EconomyManager implements IncrementalSaveManager.ISaveable {
             return false;
         }
 
-        // Beide Balance-Änderungen als getrennte atomare ConcurrentHashMap-Operationen.
-        // Hinweis: deposit() und withdraw() verwenden ebenfalls merge() ohne synchronized(balances),
-        // daher sind die beiden Operationen nicht als eine atomare Einheit garantiert.
+        // Beide Balance-Änderungen sind je Key atomar (ConcurrentHashMap.merge). Sie laufen als
+        // zwei aufeinanderfolgende Statements auf demselben Thread — es kann also KEIN Save (und
+        // damit kein "halber" Transfer) dazwischen persistiert werden; ein Crash verliert immer
+        // nur das gesamte Intervall seit dem letzten Save, nie eine einzelne Seite (EM-1).
+        // Gutschrift wie deposit() auf MAX_BALANCE deckeln (Overflow-Schutz).
         double fromBalance = balances.merge(from, -amount, Double::sum);
-        double toBalance = balances.merge(to, amount, Double::sum);
+        double toBalance = balances.merge(to, amount, (oldVal, addVal) -> {
+            double sum = oldVal + addVal;
+            return sum > MAX_BALANCE ? MAX_BALANCE : sum;
+        });
 
         markDirty();
         LOGGER.debug("Transfer: {} € from {} to {}", amount, from, to);

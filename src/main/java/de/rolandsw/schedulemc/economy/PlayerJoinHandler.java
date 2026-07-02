@@ -86,6 +86,10 @@ public class PlayerJoinHandler {
 
             // Prüfe ob das der erste Spieler ist
             ServerLevel level = (ServerLevel) player.level();
+
+            // OD-2: Eine am Tag 28 ausstehende (offline verpasste) Haftstrafe jetzt abarbeiten.
+            OverdraftManager.getInstance(level.getServer()).processPendingPrisonOnLogin(player);
+
             int playerCount = level.getServer().getPlayerCount();
 
             // Wenn das der erste Spieler ist, ENTFRIER die Welt komplett

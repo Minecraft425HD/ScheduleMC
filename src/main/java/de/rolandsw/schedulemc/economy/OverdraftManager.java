@@ -39,6 +39,10 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
     // Tracking: Letzter Tag an dem Warnung gesendet wurde
     private final Map<UUID, Long> lastWarningDay = new ConcurrentHashMap<>();
 
+    // OD-2: Offline-Spieler, die am Tag 28 ins Gefängnis müssten, aber offline waren.
+    // Wird beim nächsten Login abgearbeitet (persistiert).
+    private final Set<UUID> pendingPrison = ConcurrentHashMap.newKeySet();
+
     private MinecraftServer server;
     private long currentDay = 0;
 
@@ -158,13 +162,13 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
      * Behandelt negativen Kontostand
      */
     private void handleNegativeBalance(UUID playerUUID, double balance) {
-        int daysPassed = getDaysSinceDebtStart(playerUUID);
-
-        // Ersten Tag starten?
-        if (daysPassed == 0) {
+        // OD-3: containsKey statt "daysPassed == 0" — der Rückgabewert 0 wäre mehrdeutig
+        // ("nie gestartet" vs. "heute gestartet").
+        if (!debtStartDay.containsKey(playerUUID)) {
             startDebtTimer(playerUUID);
             sendInitialWarning(playerUUID, balance);
         }
+        int daysPassed = getDaysSinceDebtStart(playerUUID);
 
         // Wöchentliche Zinsen (jede Woche!)
         chargeOverdraftInterest(playerUUID, balance);
@@ -214,9 +218,28 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         if (debtStartDay.containsKey(playerUUID)) {
             debtStartDay.remove(playerUUID);
             lastWarningDay.remove(playerUUID);
+            pendingPrison.remove(playerUUID); // OD-2: Schuld beglichen → keine ausstehende Haft mehr
             LOGGER.info("Debt timer reset for {} (balance positive)", playerUUID);
             save();
         }
+    }
+
+    /**
+     * OD-2: Arbeitet eine ausstehende Haftstrafe beim Login ab. Ist der Spieler nicht mehr
+     * verschuldet, wird der Eintrag verworfen; sonst wandert er jetzt ins Gefängnis.
+     */
+    public void processPendingPrisonOnLogin(ServerPlayer player) {
+        UUID playerUUID = player.getUUID();
+        if (!pendingPrison.contains(playerUUID)) {
+            return;
+        }
+        double balance = EconomyManager.getBalance(playerUUID);
+        if (balance >= 0) {
+            pendingPrison.remove(playerUUID);
+            save();
+            return;
+        }
+        sendToPrison(playerUUID, Math.abs(balance));
     }
 
     /**
@@ -273,8 +296,10 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         double overdraftAmount = getOverdraftAmount(balance);
         double interest = overdraftAmount * interestRate;
 
-        // Ziehe Zinsen ab (macht Balance noch negativer)
-        EconomyManager.setBalance(playerUUID, balance - interest, TransactionType.OVERDRAFT_FEE,
+        // Ziehe Zinsen ab (macht Balance noch negativer). WICHTIG: withdraw() nutzen, NICHT
+        // setBalance() — setBalance klemmt negative Werte auf 0 und würde damit die komplette
+        // Schuld löschen statt die Zinsen aufzuschlagen (OD-1).
+        EconomyManager.withdraw(playerUUID, interest, TransactionType.OVERDRAFT_FEE,
             "Overdraft interest (weekly)");
 
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
@@ -403,8 +428,13 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
 
         if (player == null) {
-            LOGGER.warn("Cannot send offline player {} to prison. Debt: {}€", playerUUID, debt);
-            return; // Kann nur Online-Spieler einsperren
+            // OD-2: Offline → vormerken und beim nächsten Login einsperren (statt es täglich
+            // erfolglos zu wiederholen und dauerhaft zu verpassen).
+            pendingPrison.add(playerUUID);
+            save();
+            LOGGER.warn("Cannot send offline player {} to prison — queued for next login. Debt: {}€",
+                playerUUID, debt);
+            return;
         }
 
         // Berechne Gefängniszeit
@@ -426,7 +456,8 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             EconomyManager.setBalance(playerUUID, 0.0, TransactionType.PRISON_DEBT_CLEARED,
                 "Debt cleared by prison sentence");
 
-            // Timer zurücksetzen
+            // Timer + ausstehende Haft zurücksetzen (OD-2)
+            pendingPrison.remove(playerUUID);
             resetDebtTimer(playerUUID);
 
             LOGGER.info("Player {} imprisoned for debt. Debt cleared.", player.getName().getString());
@@ -479,6 +510,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         debtStartDay.clear();
         lastWarningDay.clear();
         lastInterestDay.clear();
+        pendingPrison.clear();
 
         int invalidCount = 0;
         int correctedCount = 0;
@@ -550,6 +582,18 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             });
         }
 
+        // Load pendingPrison (OD-2)
+        Object pendingObj = data.get("pendingPrison");
+        if (pendingObj instanceof List) {
+            for (Object o : (List<?>) pendingObj) {
+                try {
+                    if (o != null) pendingPrison.add(UUID.fromString(String.valueOf(o)));
+                } catch (IllegalArgumentException e) {
+                    LOGGER.error("Invalid UUID in pendingPrison: {}", o, e);
+                }
+            }
+        }
+
         // SUMMARY
         if (invalidCount > 0 || correctedCount > 0) {
             LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
@@ -576,6 +620,10 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         lastInterestDay.forEach((k, v) -> interestMap.put(k.toString(), v));
         data.put("lastInterestDay", interestMap);
 
+        List<String> pendingList = new ArrayList<>();  // NOPMD
+        pendingPrison.forEach(u -> pendingList.add(u.toString()));
+        data.put("pendingPrison", pendingList);
+
         return data;
     }
 
@@ -596,5 +644,6 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         debtStartDay.clear();
         lastWarningDay.clear();
         lastInterestDay.clear();
+        pendingPrison.clear();
     }
 }
