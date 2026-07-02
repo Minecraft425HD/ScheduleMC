@@ -27,7 +27,8 @@ public class GangMemberData {
 
     /** Deserialisierung */
     public GangMemberData(UUID playerUUID, GangRank rank, int contributedXP, long joinTimestamp) {
-        this(playerUUID, rank, contributedXP, joinTimestamp, joinTimestamp, 0);
+        // lastFeePaid als "unbekannt" (0) übergeben → Fallback im Voll-Konstruktor greift (GM-7).
+        this(playerUUID, rank, contributedXP, joinTimestamp, 0, 0);
     }
 
     /** Vollstaendige Deserialisierung */
@@ -37,7 +38,9 @@ public class GangMemberData {
         this.rank = rank;
         this.contributedXP = contributedXP;
         this.joinTimestamp = joinTimestamp;
-        this.lastFeePaid = lastFeePaid > 0 ? lastFeePaid : joinTimestamp;
+        // GM-7: Fehlt lastFeePaid (alter Save, 0), NICHT auf joinTimestamp zurückfallen — sonst
+        // wäre der Beitrag für monatealte Mitglieder sofort fällig. Frisches Intervall ab jetzt.
+        this.lastFeePaid = lastFeePaid > 0 ? lastFeePaid : System.currentTimeMillis();
         this.missedFeePayments = missedFeePayments;
     }
 
@@ -62,6 +65,17 @@ public class GangMemberData {
 
     public void incrementMissedFeePayments() {
         this.missedFeePayments++;
+    }
+
+    /**
+     * Wertet einen fälligen, aber nicht gezahlten Beitrag als verpasst (GM-2): erhöht den
+     * Zähler UND stellt die Beitrags-Uhr um ein Intervall weiter. Dadurch zählt ein Miss pro
+     * Fälligkeits-Intervall (statt pro Einzug-Zyklus alle 60 s) — für Online- wie Offline-Spieler.
+     * Aufeinanderfolgende Einzüge holen mehrere überfällige Intervalle nach und nach auf.
+     */
+    public void markFeeMissed() {
+        this.missedFeePayments++;
+        this.lastFeePaid += FEE_INTERVAL_MS;
     }
 
     /**

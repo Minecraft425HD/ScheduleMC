@@ -76,6 +76,16 @@ public class GangMissionManager {
         }
     }
 
+    /**
+     * Entfernt alle Missions-/Statistik-Daten einer aufgelösten Gang (GM-5).
+     * Ohne diesen Aufruf blieben die Einträge dauerhaft in den Maps liegen (Memory Leak).
+     */
+    public void removeGang(UUID gangId) {
+        gangMissions.remove(gangId);
+        lastResets.remove(gangId);
+        weeklyStats.remove(gangId);
+    }
+
     // ═══════════════════════════════════════════════════════════
     // MISSION-GENERIERUNG
     // ═══════════════════════════════════════════════════════════

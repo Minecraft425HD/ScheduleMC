@@ -145,10 +145,20 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         }
 
         gangs.remove(gangId);
+        notifyMissionManagerDisband(gangId);
         markDirty();
 
         LOGGER.info("Gang disbanded: '{}' [{}] by {}", gang.getName(), gang.getTag(), requesterUUID);
         return true;
+    }
+
+    /** GM-5: Missions-/Statistikdaten einer aufgelösten Gang aus dem GangMissionManager entfernen. */
+    private void notifyMissionManagerDisband(UUID gangId) {
+        de.rolandsw.schedulemc.gang.mission.GangMissionManager mm =
+                de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
+        if (mm != null) {
+            mm.removeGang(gangId);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -202,6 +212,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         // Wenn die Gang jetzt leer ist, loeschen
         if (gang.getMemberCount() == 0) {
             gangs.remove(gangId);
+            notifyMissionManagerDisband(gangId);
             LOGGER.info("Gang '{}' auto-disbanded (no members left)", gang.getName());
         }
 
@@ -245,22 +256,22 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
         GangRank promoterRank = gang.getRank(promoterUUID);
         if (promoterRank == null || !promoterRank.canPromoteTo(newRank)) return false;
 
-        // BOSS-Transfer
+        boolean result;
         if (newRank == GangRank.BOSS) {
+            // GM-1: BOSS-Transfer atomar + mit implizitem Rollback. transferBoss ändert nur dann
+            // etwas, wenn das Ziel wirklich Mitglied ist — sonst bleibt der Promoter Boss.
             if (promoterRank != GangRank.BOSS) return false;
-            gang.setRank(promoterUUID, GangRank.UNDERBOSS);
+            result = gang.transferBoss(promoterUUID, targetUUID);
+        } else {
+            result = gang.setRank(targetUUID, newRank);
         }
 
-        boolean result = gang.setRank(targetUUID, newRank);
         if (result) {
             markDirty();
 
             // Mission-Tracking: Mitglied befoerdert
-            UUID gid = playerToGang.get(promoterUUID);
-            if (gid != null) {
-                de.rolandsw.schedulemc.gang.mission.GangMissionManager mm = de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
-                if (mm != null) mm.onMemberPromoted(gid);
-            }
+            de.rolandsw.schedulemc.gang.mission.GangMissionManager mm = de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
+            if (mm != null) mm.onMemberPromoted(gangId);
         }
         return result;
     }
@@ -343,7 +354,16 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
                 if (fee <= 0) continue;
 
                 ServerPlayer player = srv.getPlayerList().getPlayer(memberUUID);
-                if (player == null) continue;
+                if (player == null) {
+                    // GM-2: Offline-Mitglied — der fällige Beitrag zählt trotzdem als verpasst,
+                    // sonst umgehen dauerhaft offline Spieler den Auto-Kick komplett.
+                    memberData.markFeeMissed();
+                    markDirty();
+                    if (memberData.getMissedFeePayments() >= 6) {
+                        toKick.add(memberUUID);
+                    }
+                    continue;
+                }
 
                 double balance = EconomyManager.getBalance(memberUUID);
                 if (balance >= fee) {
@@ -360,7 +380,7 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
                             "\u00A76[Gang] \u00A77Wochenbeitrag von \u00A7c" + fee +
                             "\u20AC \u00A77fuer \u00A7f" + gang.getName() + " \u00A77eingezogen."));
                 } else {
-                    memberData.incrementMissedFeePayments();
+                    memberData.markFeeMissed();
                     markDirty();
 
                     if (memberData.getMissedFeePayments() >= 6) {
@@ -385,9 +405,20 @@ public class GangManager extends AbstractPersistenceManager<Map<String, GangMana
                 markDirty();
                 if (gang.getMemberCount() == 0) {
                     gangs.remove(gang.getGangId());
+                    notifyMissionManagerDisband(gang.getGangId());
                     LOGGER.info("Gang '{}' auto-disbanded (no members after fee kicks)", gang.getName());
                 }
             }
+        }
+    }
+
+    /**
+     * GM-6: Räumt abgelaufene Einladungen in allen Gangs auf. Wird periodisch aufgerufen,
+     * damit sich abgelaufene Invites nicht ansammeln (langsamer Memory Leak).
+     */
+    public void cleanupExpiredInvites() {
+        for (Gang gang : gangs.values()) {
+            gang.cleanExpiredInvites();
         }
     }
 

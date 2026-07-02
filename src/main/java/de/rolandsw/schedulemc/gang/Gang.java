@@ -100,12 +100,20 @@ public class Gang {
             member.addContributedXP(xp);
         }
 
+        // GM-4: Level-Up-Mutation absichern. gangXP ist atomar, gangLevel aber nur volatile —
+        // ohne Lock könnten zwei Threads denselben Level-Up doppelt melden. Innerhalb des Locks
+        // aus dem aktuellen XP neu berechnen; nur der erste Thread meldet true.
         int newLevel = GangLevelRequirements.getLevelForXP(newXP);
         if (newLevel > gangLevel) {
-            int oldLevel = gangLevel;
-            gangLevel = newLevel;
-            LOGGER.info("Gang '{}' leveled up: {} -> {}", name, oldLevel, newLevel);
-            return true;
+            synchronized (this) {
+                int recomputed = GangLevelRequirements.getLevelForXP(gangXP.get());
+                if (recomputed > gangLevel) {
+                    int oldLevel = gangLevel;
+                    gangLevel = recomputed;
+                    LOGGER.info("Gang '{}' leveled up: {} -> {}", name, oldLevel, recomputed);
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -142,6 +150,23 @@ public class Gang {
         GangMemberData member = members.get(playerUUID);
         if (member == null) return false;
         member.setRank(rank);
+        return true;
+    }
+
+    /**
+     * Überträgt den BOSS-Rang ATOMAR: aktueller Boss → UNDERBOSS und Ziel → BOSS in einem
+     * synchronisierten Schritt (GM-1). Verhindert das Fenster mit 0 oder 2 Bossen und lässt
+     * bei ungültigem Ziel KEINEN degradierten Boss ohne Nachfolger zurück (kein Teil-Update).
+     *
+     * @return false ohne jede Änderung, wenn currentBoss nicht Boss oder newBoss kein Mitglied ist
+     */
+    public synchronized boolean transferBoss(UUID currentBoss, UUID newBoss) {
+        GangMemberData bossData = members.get(currentBoss);
+        GangMemberData targetData = members.get(newBoss);
+        if (bossData == null || targetData == null) return false;
+        if (bossData.getRank() != GangRank.BOSS) return false;
+        targetData.setRank(GangRank.BOSS);
+        bossData.setRank(GangRank.UNDERBOSS);
         return true;
     }
 
@@ -358,10 +383,15 @@ public class Gang {
         int newXP = gangXP.addAndGet(xp);
         int newLevel = GangLevelRequirements.getLevelForXP(newXP);
         if (newLevel > gangLevel) {
-            int oldLevel = gangLevel;
-            gangLevel = newLevel;
-            LOGGER.info("Gang '{}' leveled up (admin): {} -> {}", name, oldLevel, newLevel);
-            return true;
+            synchronized (this) {
+                int recomputed = GangLevelRequirements.getLevelForXP(gangXP.get());
+                if (recomputed > gangLevel) {
+                    int oldLevel = gangLevel;
+                    gangLevel = recomputed;
+                    LOGGER.info("Gang '{}' leveled up (admin): {} -> {}", name, oldLevel, recomputed);
+                    return true;
+                }
+            }
         }
         return false;
     }
