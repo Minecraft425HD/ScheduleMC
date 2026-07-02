@@ -59,11 +59,13 @@ public class PrisonManager {
         public int cellSpawnY;
         public int cellSpawnZ;
         public int originalWantedLevel;
+        /** Verhaftungszeitpunkt in GAME-TICKS (gleiche Achse wie releaseTime/totalSentenceTicks). */
         public long arrestTime;
         public long releaseTime;
         public long totalSentenceTicks;
         public double bailAmount;
         public boolean bailPaid = false;
+        /** Zuletzt online — reale Wall-Clock-Zeit (System.currentTimeMillis), NICHT Game-Ticks. */
         public long lastOnlineTime;
         /** Remaining ticks at last logout — persisted for correct server-restart recovery. */
         public long persistedRemainingTicks = -1;
@@ -141,7 +143,7 @@ public class PrisonManager {
         return PlotManager.getPlot(prisonPlotIds.get(0));
     }
 
-    public PrisonCell findAvailableCell(int wantedLevel) {
+    public PrisonCell findAvailableCell() {
         PlotRegion prison = getDefaultPrison();
         if (prison == null) {
             LOGGER.warn("No prison registered!");
@@ -179,7 +181,7 @@ public class PrisonManager {
             return false;
         }
 
-        PrisonCell cell = findAvailableCell(wantedLevel);
+        PrisonCell cell = findAvailableCell();
         if (cell == null) {
             player.sendSystemMessage(Component.translatable(
                 "manager.prison.no_prison_available"));
@@ -202,7 +204,7 @@ public class PrisonManager {
         data.cellNumber = cell.getCellNumber();
         data.setCellSpawn(cell.getSpawnPosition());
         data.originalWantedLevel = wantedLevel;
-        data.arrestTime = System.currentTimeMillis();
+        data.arrestTime = currentTick; // Game-Ticks (konsistent mit releaseTime)
         data.releaseTime = releaseTime;
         data.totalSentenceTicks = jailTicks;
         data.bailAmount = bail;
@@ -253,7 +255,7 @@ public class PrisonManager {
             return false;
         }
 
-        PrisonCell cell = instance.findAvailableCell(1); // Wanted level 1 für Schulden-Zelle
+        PrisonCell cell = instance.findAvailableCell();
         if (cell == null) {
             player.sendSystemMessage(Component.translatable(
                 "manager.prison.no_prison_available"));
@@ -277,7 +279,7 @@ public class PrisonManager {
         data.cellNumber = cell.getCellNumber();
         data.setCellSpawn(cell.getSpawnPosition());
         data.originalWantedLevel = 0; // Kein Crime, nur Schulden
-        data.arrestTime = System.currentTimeMillis();
+        data.arrestTime = currentTick; // Game-Ticks (konsistent mit releaseTime)
         data.releaseTime = releaseTime;
         data.totalSentenceTicks = jailTicks;
         data.bailAmount = 0.0; // Kein Bail möglich
