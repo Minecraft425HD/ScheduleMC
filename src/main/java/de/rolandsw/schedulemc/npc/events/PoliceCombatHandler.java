@@ -493,9 +493,11 @@ public final class PoliceCombatHandler {
         npc.getPersistentData().putLong("NextStrafeTick", 0L);
         npc.getPersistentData().putBoolean("Peeking", false);
         npc.getPersistentData().putLong("PeekUntil", 0L);
-        if (npc.getTarget() instanceof ServerPlayer p) {
-            var set = activeShooters.get(p.getUUID());
-            if (set != null) set.remove(npc.getUUID());
+        // Schützen-Slot bedingungslos freigeben: im RANGED-Modus ist getTarget() null
+        // (siehe tickCombat), daher würde eine zielabhängige Entfernung den Slot leaken.
+        UUID id = npc.getUUID();
+        for (var set : activeShooters.values()) {
+            set.remove(id);
         }
     }
 
@@ -504,9 +506,15 @@ public final class PoliceCombatHandler {
         if (current.isEmpty() || current.getItem() != weapon) {
             npc.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(weapon));
             npc.setDropChance(EquipmentSlot.MAINHAND, 0.0f);
-            npc.level().players().stream()
-                .filter(pl -> pl.distanceToSqr(npc) < 1024)
-                .forEach(pl -> pl.sendSystemMessage(Component.translatable("event.police.weapon_drawn")));
+            // Nur höchstens ~1×/5 s ankündigen, sonst spammt jeder Modus-/Kampfwechsel.
+            long now = npc.level().getGameTime();
+            long lastAnnounce = npc.getPersistentData().getLong("WeaponDrawnAnnounceTick");
+            if (now - lastAnnounce >= 100L) {
+                npc.getPersistentData().putLong("WeaponDrawnAnnounceTick", now);
+                npc.level().players().stream()
+                    .filter(pl -> pl.distanceToSqr(npc) < 1024)
+                    .forEach(pl -> pl.sendSystemMessage(Component.translatable("event.police.weapon_drawn")));
+            }
         }
     }
 

@@ -452,8 +452,11 @@ public class PoliceAIHandler {
 
                     // Festnahme nur abbrechen, wenn der Kontakt wirklich gerissen ist
                     // (kein gesunder Kollege mehr innerhalb der Karenz beim Spieler).
+                    // Bei aktiver Verwarnung meldet ausschließlich der Warnungs-Pfad die Flucht
+                    // (warning_fled), sonst käme im selben Tick zusätzlich event.police.escaped.
                     long lastContact = lastArrestContactTick.getOrDefault(playerUUID, 0L);
-                    if (currentTick - lastContact > ARREST_CONTACT_GRACE_TICKS
+                    if (!PoliceWarningSystem.isWarned(playerUUID)
+                            && currentTick - lastContact > ARREST_CONTACT_GRACE_TICKS
                             && arrestTimers.remove(playerUUID) != null) {
                         lastArrestContactTick.remove(playerUUID);
                         targetCriminal.sendSystemMessage(Component.translatable("event.police.escaped"));
@@ -474,8 +477,11 @@ public class PoliceAIHandler {
 
                     // Festnahme nur abbrechen, wenn der Kontakt wirklich gerissen ist
                     // (kein gesunder Kollege mehr innerhalb der Karenz beim Spieler).
+                    // Bei aktiver Verwarnung meldet ausschließlich der Warnungs-Pfad die Flucht
+                    // (warning_fled), sonst käme im selben Tick zusätzlich event.police.escaped.
                     long lastContact = lastArrestContactTick.getOrDefault(playerUUID, 0L);
-                    if (currentTick - lastContact > ARREST_CONTACT_GRACE_TICKS
+                    if (!PoliceWarningSystem.isWarned(playerUUID)
+                            && currentTick - lastContact > ARREST_CONTACT_GRACE_TICKS
                             && arrestTimers.remove(playerUUID) != null) {
                         lastArrestContactTick.remove(playerUUID);
                         targetCriminal.sendSystemMessage(Component.translatable("event.police.escaped"));

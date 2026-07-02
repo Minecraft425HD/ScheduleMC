@@ -81,4 +81,13 @@ public final class PolicePanicHandler {
             lastPanicTick.remove(npcUUID);
         }
     }
+
+    /**
+     * Periodischer Sweep: entfernt Debounce-Einträge, die längst abgelaufen sind.
+     * Verhindert, dass die Map über despawnte/tote NPCs unbegrenzt wächst.
+     */
+    public static void cleanupExpired(long currentTick) {
+        long expiry = PANIC_COOLDOWN_TICKS * 20L;
+        lastPanicTick.entrySet().removeIf(e -> currentTick - e.getValue() > expiry);
+    }
 }

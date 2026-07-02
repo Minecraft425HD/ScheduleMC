@@ -38,7 +38,9 @@ public class PoliceBackupSystem {
     public static void registerPolice(UUID playerUUID, UUID policeUUID, boolean isRaid) {
         // SICHERHEIT: ConcurrentHashMap.newKeySet() für Thread-safe Set
         activePolice.computeIfAbsent(playerUUID, k -> ConcurrentHashMap.newKeySet()).add(policeUUID);
-        isRaidPursuit.put(playerUUID, isRaid);
+        // Raid-Flag klebrig halten: einmal Raid (max 4), bleibt Raid bis zum Cleanup.
+        // Sonst würde eine spätere Nicht-Raid-Registrierung einen laufenden Raid auf 2 degradieren.
+        isRaidPursuit.merge(playerUUID, isRaid, (oldV, newV) -> oldV || newV);
         policeToTarget.put(policeUUID, playerUUID);
 
         if (LOGGER.isDebugEnabled()) {

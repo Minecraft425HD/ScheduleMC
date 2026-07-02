@@ -910,6 +910,8 @@ public class ScheduleMC {
 
                 // Memory Leak Prevention - Cleanup abgelaufener Police Search Einträge
                 de.rolandsw.schedulemc.npc.events.PoliceSearchBehavior.cleanupExpiredSearches(currentTick);
+                de.rolandsw.schedulemc.npc.events.PolicePanicHandler.cleanupExpired(currentTick);
+                de.rolandsw.schedulemc.npc.events.PoliceGunshotHandler.cleanupExpired(currentTick);
 
                 // HINWEIS: Alle Saves werden jetzt automatisch vom IncrementalSaveManager gehandhabt
             }

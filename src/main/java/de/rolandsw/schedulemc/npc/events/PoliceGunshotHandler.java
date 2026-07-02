@@ -133,6 +133,16 @@ public final class PoliceGunshotHandler {
         }
     }
 
+    /**
+     * Periodischer Sweep: entfernt abgelaufene Debounce-Einträge, damit die Maps nicht
+     * über die Session wachsen (analog zu PoliceSearchBehavior.cleanupExpiredSearches).
+     */
+    public static void cleanupExpired(long currentTick) {
+        long expiry = 2400L;
+        lastSightedTick.entrySet().removeIf(e -> currentTick - e.getValue() > expiry);
+        lastScareTick.entrySet().removeIf(e -> currentTick - e.getValue() > expiry);
+    }
+
     /** Aufräumen, wenn ein Spieler die Welt verlässt. */
     public static void cleanup(UUID shooterUUID) {
         if (shooterUUID != null) {
