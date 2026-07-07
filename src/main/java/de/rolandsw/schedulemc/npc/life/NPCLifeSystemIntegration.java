@@ -390,6 +390,7 @@ public class NPCLifeSystemIntegration {
             case PETTY_THEFT, SHOPLIFTING -> "einem Diebstahl";
             case ASSAULT, AGGRAVATED_ASSAULT -> "einem Angriff";
             case ARMED_VIOLENCE -> "bewaffneter Gewalt";
+            case ILLEGAL_FIREARM -> "illegalem Waffengebrauch";
             case BURGLARY -> "einem Einbruch";
             case ROBBERY -> "einem Raub";
             case VANDALISM -> "Vandalismus";
