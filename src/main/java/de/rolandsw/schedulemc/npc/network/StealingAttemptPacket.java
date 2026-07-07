@@ -105,8 +105,8 @@ public class StealingAttemptPacket {
 
                                 // Geld zum Wallet hinzufügen (WalletManager) — unabhängig davon,
                                 // wo das Wallet-Item liegt: das Guthaben ist UUID-basiert
+                                // PERFORMANCE: addMoney markiert intern dirty (gebatchter Save).
                                 de.rolandsw.schedulemc.economy.WalletManager.addMoney(player.getUUID(), stolenMoney);
-                                de.rolandsw.schedulemc.economy.WalletManager.save();
 
                                 // Client sofort synchronisieren, damit das gestohlene Geld
                                 // direkt in der Geldbörse sichtbar ist

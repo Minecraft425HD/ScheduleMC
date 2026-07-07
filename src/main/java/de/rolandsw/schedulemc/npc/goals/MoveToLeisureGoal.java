@@ -5,7 +5,6 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -115,12 +114,12 @@ public class MoveToLeisureGoal extends Goal {
         }
 
         // Prüfe ob NPC im Umkreis des Freizeitortes ist
-        double distanceToLeisure = npc.position().distanceTo(
-            new Vec3(targetLeisurePos.getX() + 0.5, targetLeisurePos.getY(), targetLeisurePos.getZ() + 0.5)
-        );
+        // PERFORMANCE: distanceToSqr statt Vec3-Allokation + sqrt (tick läuft jeden Tick)
+        double distSqrToLeisure = npc.distanceToSqr(
+            targetLeisurePos.getX() + 0.5, targetLeisurePos.getY(), targetLeisurePos.getZ() + 0.5);
 
         // Wenn NPC noch nicht am Freizeitort ist, gehe dorthin
-        if (distanceToLeisure > LEISURE_RADIUS) {
+        if (distSqrToLeisure > LEISURE_RADIUS * LEISURE_RADIUS) {
             if (tickCounter >= RECALCULATE_INTERVAL) {
                 tickCounter = 0;
                 npc.getNavigation().moveTo(
@@ -139,11 +138,10 @@ public class MoveToLeisureGoal extends Goal {
 
             // Bewege zum aktuellen Wander-Ziel
             if (currentWanderTarget != null) {
-                double distanceToWander = npc.position().distanceTo(
-                    new Vec3(currentWanderTarget.getX() + 0.5, currentWanderTarget.getY(), currentWanderTarget.getZ() + 0.5)
-                );
+                double distSqrToWander = npc.distanceToSqr(
+                    currentWanderTarget.getX() + 0.5, currentWanderTarget.getY(), currentWanderTarget.getZ() + 0.5);
 
-                if (distanceToWander > ARRIVAL_THRESHOLD) {
+                if (distSqrToWander > ARRIVAL_THRESHOLD * ARRIVAL_THRESHOLD) {
                     if (tickCounter >= RECALCULATE_INTERVAL) {
                         tickCounter = 0;
                         npc.getNavigation().moveTo(

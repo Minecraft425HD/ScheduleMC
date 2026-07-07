@@ -58,12 +58,11 @@ public class MoveToWorkGoal extends Goal {
         }
 
         // Nur wenn NPC nicht bereits bei der Arbeit ist
+        // PERFORMANCE: distanceToSqr statt Vec3-Allokation + sqrt (canUse läuft jeden Tick)
         this.workPos = work;
-        double distanceToWork = npc.position().distanceTo(
-            new Vec3(workPos.getX() + 0.5, workPos.getY(), workPos.getZ() + 0.5)
-        );
+        double distSqr = npc.distanceToSqr(workPos.getX() + 0.5, workPos.getY(), workPos.getZ() + 0.5);
 
-        return distanceToWork > ARRIVAL_THRESHOLD;
+        return distSqr > ARRIVAL_THRESHOLD * ARRIVAL_THRESHOLD;
     }
 
     @Override

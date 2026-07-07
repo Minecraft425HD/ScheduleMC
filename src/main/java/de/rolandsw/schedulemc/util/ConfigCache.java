@@ -28,6 +28,11 @@ public class ConfigCache {
     private static volatile int policeDetectionRadius = -1;
     private static volatile int policeArrestCooldownSeconds = -1;
     private static volatile double policeArrestDistance = -1;
+    // Police-Search/Hiding (heißester Pfad: pro Polizist × Spieler)
+    private static volatile boolean policeIndoorHidingEnabled = true;
+    private static volatile int policeSearchDurationSeconds = 60;
+    private static volatile int policeSearchTargetUpdateSeconds = 10;
+    private static volatile int policeSearchRadius = 50;
 
     // Cache für Warehouse Werte
     private static volatile int warehouseDeliveryIntervalDays = -1;
@@ -58,6 +63,10 @@ public class ConfigCache {
             policeDetectionRadius = getConfigSafe(ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS, 32);
             policeArrestCooldownSeconds = getConfigSafe(ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS, 6);
             policeArrestDistance = getConfigSafe(ModConfigHandler.COMMON.POLICE_ARREST_DISTANCE, 2.5);
+            policeIndoorHidingEnabled = getConfigSafe(ModConfigHandler.COMMON.POLICE_INDOOR_HIDING_ENABLED, true);
+            policeSearchDurationSeconds = getConfigSafe(ModConfigHandler.COMMON.POLICE_SEARCH_DURATION_SECONDS, 60);
+            policeSearchTargetUpdateSeconds = getConfigSafe(ModConfigHandler.COMMON.POLICE_SEARCH_TARGET_UPDATE_SECONDS, 10);
+            policeSearchRadius = getConfigSafe(ModConfigHandler.COMMON.POLICE_SEARCH_RADIUS, 50);
 
             // Warehouse Werte
             warehouseDeliveryIntervalDays = getConfigSafe(ModConfigHandler.COMMON.WAREHOUSE_DELIVERY_INTERVAL_DAYS, 1);
@@ -101,6 +110,26 @@ public class ConfigCache {
 
     public static long getPoliceArrestCooldownTicks() {
         return getPoliceArrestCooldownSeconds() * 20L;
+    }
+
+    public static boolean isPoliceIndoorHidingEnabled() {
+        refreshIfNeeded();
+        return policeIndoorHidingEnabled;
+    }
+
+    public static int getPoliceSearchDurationSeconds() {
+        refreshIfNeeded();
+        return policeSearchDurationSeconds;
+    }
+
+    public static int getPoliceSearchTargetUpdateSeconds() {
+        refreshIfNeeded();
+        return policeSearchTargetUpdateSeconds;
+    }
+
+    public static int getPoliceSearchRadius() {
+        refreshIfNeeded();
+        return policeSearchRadius;
     }
 
     // ═══════════════════════════════════════════════════════════

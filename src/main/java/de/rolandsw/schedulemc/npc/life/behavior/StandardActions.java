@@ -202,11 +202,10 @@ public class StandardActions {
 
             // Police-System Integration:
             // 1. Finde Polizei-NPCs in der Nähe (100 Block Radius)
-            var policeNPCs = serverLevel.getEntitiesOfClass(
-                CustomNPCEntity.class,
-                npc.getBoundingBox().inflate(100),
-                police -> police.getNpcType() == de.rolandsw.schedulemc.npc.data.NPCType.POLICE
-            );
+            // PERFORMANCE: gecachter Polizei-Index statt World-Entity-Scan über eine 200³-AABB.
+            var policeNPCs = new java.util.ArrayList<CustomNPCEntity>();
+            de.rolandsw.schedulemc.npc.events.PoliceAIHandler.getPoliceInRadius(
+                npc.position(), 100.0, policeNPCs);
 
             // 2. Wenn Polizei in der Nähe und Ziel ist ein Spieler
             if (targetEntity instanceof ServerPlayer serverPlayer) {

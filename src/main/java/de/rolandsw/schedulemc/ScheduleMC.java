@@ -714,6 +714,15 @@ public class ScheduleMC {
             // Economy Advanced Systems (Priority 3)
             // OPTIMIERT: server-Referenz nutzen statt event.getServer() (bereits oben gecacht)
             saveManager.register(InterestManager.getInstance(server));
+            // PERFORMANCE: StockTradingTracker persistierte vorher synchron pro Trade —
+            // jetzt markDirty + gebatchter Flush hier.
+            saveManager.register(de.rolandsw.schedulemc.npc.bank.StockTradingTracker.initialize(server));
+            // PERFORMANCE: Anti-Exploit-Warnstufen gebatcht flushen statt pro Verkauf.
+            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
+                "AntiExploitWarnings",
+                () -> de.rolandsw.schedulemc.economy.AntiExploitManager.getInstance().saveWarningsIfNeeded(),
+                6
+            ));
             saveManager.register(LoanManager.getInstance(server));
             saveManager.register(TaxManager.getInstance(server));
             saveManager.register(SavingsAccountManager.getInstance(server));

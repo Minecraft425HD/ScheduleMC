@@ -87,7 +87,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
             ));
         }
 
-        save();
+        markDirty();
         LOGGER.info("Savings account created for {}: {}€", playerUUID, initialDeposit);
         return true;
     }
@@ -115,7 +115,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
         }
 
         account.deposit(amount);
-        save();
+        markDirty();
 
         ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
         if (player != null) {
@@ -175,7 +175,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
                 }
             }
 
-            save();
+            markDirty();
             return true;
         }
 
@@ -224,7 +224,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
             }
         }
 
-        save();
+        markDirty();
         return true;
     }
 
@@ -265,7 +265,7 @@ public class SavingsAccountManager extends AbstractPersistenceManager<Map<UUID, 
         }
 
         if (!accounts.isEmpty()) {
-            save();
+            markDirty();
         }
     }
 

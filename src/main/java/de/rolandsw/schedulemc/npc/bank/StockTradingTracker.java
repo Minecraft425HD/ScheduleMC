@@ -72,7 +72,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
             achievementManager.addProgress(playerUUID, "WOLF_OF_MINECRAFT", 1.0);
         }
 
-        save();
+        markDirty();
     }
 
     /**
@@ -191,7 +191,7 @@ public class StockTradingTracker extends AbstractPersistenceManager<Map<UUID, St
             }
         }
 
-        save();
+        markDirty();
         return new double[] { totalProfit, tax, avgAgeDays };
     }
 

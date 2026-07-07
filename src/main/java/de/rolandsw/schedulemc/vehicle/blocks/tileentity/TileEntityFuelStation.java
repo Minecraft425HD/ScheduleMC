@@ -698,12 +698,20 @@ public class TileEntityFuelStation extends TileEntityBase implements ITickableBl
         if (box == null) {
             return null;
         }
-        return level.getEntitiesOfClass(Entity.class, box)
-                .stream()
-                .sorted(Comparator.comparingDouble(o -> o.distanceToSqr(center.get())))
-                .filter(entity -> entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent())
-                .findFirst()
-                .orElse(null);
+        // PERFORMANCE: Läuft 5×/s — kein Voll-Sort aller Entities; einfache Minimum-Suche
+        // über die (wenigen) Entities mit Fluid-Handler genügt.
+        Vec3 c = center.get();
+        Entity nearest = null;
+        double nearestDistSqr = Double.MAX_VALUE;
+        for (Entity entity : level.getEntitiesOfClass(Entity.class, box)) {
+            if (!entity.getCapability(ForgeCapabilities.FLUID_HANDLER).isPresent()) continue;
+            double distSqr = entity.distanceToSqr(c);
+            if (distSqr < nearestDistSqr) {
+                nearestDistSqr = distSqr;
+                nearest = entity;
+            }
+        }
+        return nearest;
     }
 
     @Nullable

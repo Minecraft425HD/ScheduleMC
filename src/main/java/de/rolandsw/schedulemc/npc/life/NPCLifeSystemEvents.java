@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -160,17 +159,10 @@ public class NPCLifeSystemEvents {
         }
     }
 
-    /**
-     * Living Entity Tick (für NPC-Updates)
-     */
-    @SubscribeEvent
-    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-        if (!(event.getEntity() instanceof CustomNPCEntity npc)) return;
-        if (!(npc.level() instanceof ServerLevel)) return;
-
-        // NPC Life-System Update wird in CustomNPCEntity.tick() behandelt
-        // Hier könnten zusätzliche Event-basierte Updates stattfinden
-    }
+    // PERFORMANCE: Der frühere onLivingTick-Subscriber war faktisch leer (nur instanceof-Checks
+    // + Kommentar) — das NPC-Life-Update läuft in CustomNPCEntity.tick(). Ein leerer
+    // LivingTickEvent-Handler kostet trotzdem einen Dispatch pro LivingEntity pro Tick
+    // und wurde daher entfernt.
 
     // ═══════════════════════════════════════════════════════════
     // UTILITY

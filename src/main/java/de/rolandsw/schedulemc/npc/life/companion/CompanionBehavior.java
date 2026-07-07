@@ -46,6 +46,14 @@ public class CompanionBehavior {
     private int scoutCooldown = 0;
     private int healCooldown = 0;
 
+    // PERFORMANCE: Bedrohungs-Scans (Monster-AABB + Sichtlinien-Raycasts) liefen jeden Tick.
+    // Ergebnis wird 10 Ticks (0,5 s) gecacht — für die Bedrohungserkennung nicht wahrnehmbar.
+    private static final int THREAT_SCAN_INTERVAL_TICKS = 10;
+    private long lastNearbyThreatScan = Long.MIN_VALUE;
+    @Nullable private LivingEntity cachedNearbyThreat;
+    private long lastOwnerThreatScan = Long.MIN_VALUE;
+    @Nullable private LivingEntity cachedOwnerThreat;
+
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
@@ -330,11 +338,18 @@ public class CompanionBehavior {
      */
     @Nullable
     private LivingEntity findNearbyThreat(ServerLevel level, double range) {
+        long now = level.getGameTime();
+        if (now - lastNearbyThreatScan < THREAT_SCAN_INTERVAL_TICKS) {
+            return cachedNearbyThreat != null && cachedNearbyThreat.isAlive() ? cachedNearbyThreat : null;
+        }
+        lastNearbyThreatScan = now;
+
         AABB searchBox = companion.getBoundingBox().inflate(range);
         List<Monster> monsters = level.getEntitiesOfClass(Monster.class, searchBox,
             m -> !m.isDeadOrDying() && companion.hasLineOfSight(m));
 
-        return monsters.isEmpty() ? null : monsters.get(0);
+        cachedNearbyThreat = monsters.isEmpty() ? null : monsters.get(0);
+        return cachedNearbyThreat;
     }
 
     /**
@@ -342,11 +357,18 @@ public class CompanionBehavior {
      */
     @Nullable
     private LivingEntity findThreatNearOwner(ServerLevel level, ServerPlayer owner, double range) {
+        long now = level.getGameTime();
+        if (now - lastOwnerThreatScan < THREAT_SCAN_INTERVAL_TICKS) {
+            return cachedOwnerThreat != null && cachedOwnerThreat.isAlive() ? cachedOwnerThreat : null;
+        }
+        lastOwnerThreatScan = now;
+
         AABB searchBox = owner.getBoundingBox().inflate(range);
         List<Monster> monsters = level.getEntitiesOfClass(Monster.class, searchBox,
             m -> !m.isDeadOrDying());
 
-        return monsters.isEmpty() ? null : monsters.get(0);
+        cachedOwnerThreat = monsters.isEmpty() ? null : monsters.get(0);
+        return cachedOwnerThreat;
     }
 
     /**

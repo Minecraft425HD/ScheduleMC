@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.npc.events;
 
-import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
@@ -82,7 +81,7 @@ public class PoliceSearchBehavior {
      * @return true, wenn der Spieler versteckt ist und nicht gesehen werden kann
      */
     public static boolean isPlayerHidden(ServerPlayer player, CustomNPCEntity police) {
-        if (!ModConfigHandler.COMMON.POLICE_INDOOR_HIDING_ENABLED.get()) {
+        if (!de.rolandsw.schedulemc.util.ConfigCache.isPoliceIndoorHidingEnabled()) {
             return false; // Feature deaktiviert
         }
 
@@ -100,7 +99,7 @@ public class PoliceSearchBehavior {
      * Gibt true zurück wenn Spieler indoor ist UND nicht am Fenster steht
      */
     public static boolean isPlayerHidingIndoors(ServerPlayer player) {
-        if (!ModConfigHandler.COMMON.POLICE_INDOOR_HIDING_ENABLED.get()) {
+        if (!de.rolandsw.schedulemc.util.ConfigCache.isPoliceIndoorHidingEnabled()) {
             return false;
         }
 
@@ -257,10 +256,19 @@ public class PoliceSearchBehavior {
         return false;
     }
 
+    // PERFORMANCE: Transparenz ist pro Block-Typ konstant — Ergebnis cachen statt pro Prüfung
+    // Strings zu allozieren (getDescriptionId().toLowerCase() lief sonst für bis zu 100 Blöcke
+    // pro Fenster-Scan). Block-Instanzen sind statisch registriert → Map bleibt klein.
+    private static final Map<Block, Boolean> transparencyCache = new ConcurrentHashMap<>();
+
     /**
      * Prüft, ob ein Block transparent ist (Fenster, Glas-Türen, etc.)
      */
     private static boolean isTransparentBlock(Block block) {
+        return transparencyCache.computeIfAbsent(block, PoliceSearchBehavior::computeTransparent);
+    }
+
+    private static boolean computeTransparent(Block block) {
         // Prüfe bekannte transparente Block-Typen
         if (block instanceof GlassBlock ||
             block instanceof StainedGlassBlock ||
@@ -378,7 +386,7 @@ public class PoliceSearchBehavior {
         }
 
         long elapsed = currentTick - startTick;
-        long maxDuration = ModConfigHandler.COMMON.POLICE_SEARCH_DURATION_SECONDS.get() * 20L;
+        long maxDuration = de.rolandsw.schedulemc.util.ConfigCache.getPoliceSearchDurationSeconds() * 20L;
 
         return elapsed >= maxDuration;
     }
@@ -417,7 +425,7 @@ public class PoliceSearchBehavior {
             }
         } else {
             long timeSinceUpdate = currentTick - lastUpdate;
-            long updateInterval = ModConfigHandler.COMMON.POLICE_SEARCH_TARGET_UPDATE_SECONDS.get() * 20L;
+            long updateInterval = de.rolandsw.schedulemc.util.ConfigCache.getPoliceSearchTargetUpdateSeconds() * 20L;
 
             // Neues Ziel nach konfigurierbarem Intervall ODER wenn Polizei angekommen ist
             if (timeSinceUpdate >= updateInterval) {
@@ -434,7 +442,7 @@ public class PoliceSearchBehavior {
         }
 
         if (needsNewTarget) {
-            int searchRadius = ModConfigHandler.COMMON.POLICE_SEARCH_RADIUS.get();
+            int searchRadius = de.rolandsw.schedulemc.util.ConfigCache.getPoliceSearchRadius();
 
             BlockPos searchTarget;
 

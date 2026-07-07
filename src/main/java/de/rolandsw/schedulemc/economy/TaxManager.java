@@ -261,7 +261,7 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
             }
         }
 
-        save();
+        markDirty();
     }
 
     /**
@@ -335,7 +335,7 @@ public class TaxManager extends AbstractPersistenceManager<Map<String, Object>> 
         if (EconomyManager.withdraw(playerUUID, debt, TransactionType.TAX_INCOME, "Steuerschuld-Zahlung")) {
             StateAccount.getInstance(server).deposit(debt, "Steuerschuld");
             taxDebt.remove(playerUUID);
-            save();
+            markDirty();
             return true;
         }
 

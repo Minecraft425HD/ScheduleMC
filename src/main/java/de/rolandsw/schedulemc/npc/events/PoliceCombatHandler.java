@@ -671,8 +671,8 @@ public final class PoliceCombatHandler {
         double accPenalty = Math.round(account * accRate * 100.0) / 100.0;
 
         if (cashPenalty > 0) {
+            // PERFORMANCE: removeMoney markiert intern dirty (gebatchter Save).
             de.rolandsw.schedulemc.economy.WalletManager.removeMoney(id, cashPenalty);
-            de.rolandsw.schedulemc.economy.WalletManager.save();
         }
         if (accPenalty > 0) {
             de.rolandsw.schedulemc.economy.EconomyManager.withdraw(id, accPenalty,

@@ -89,7 +89,7 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
         LOGGER.info("Credit loan granted: {} {} ({}% interest) to {}",
             type.name(), type.getBaseAmount(), String.format("%.1f", effectiveRate * 100), playerUUID);
 
-        save();
+        markDirty();
         return true;
     }
 
@@ -162,7 +162,7 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
         toRemove.forEach(activeLoans::remove);
 
         if (!toRemove.isEmpty()) {
-            save();
+            markDirty();
         }
     }
 
@@ -187,7 +187,7 @@ public class CreditLoanManager extends AbstractPersistenceManager<Map<UUID, Cred
             scoreManager.recordLoanCompleted(playerUUID,
                 loan.getPrincipal() + loan.getTotalInterest());
 
-            save();
+            markDirty();
             return true;
         }
 

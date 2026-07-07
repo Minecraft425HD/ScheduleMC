@@ -68,15 +68,13 @@ public class WeaponBulletEntity extends AbstractArrow {
         Entity target = result.getEntity();
         if (target instanceof LivingEntity living) {
             float damage = this.entityData.get(DAMAGE);
+            // PERFORMANCE: Kein Registry-Stream pro Treffer — nur AP/Rubber sind relevant,
+            // direkter String-Vergleich der descriptionIds genügt.
             String ammoTypeId = this.entityData.get(AMMO_TYPE);
-            Item ammoType = WeaponItems.ITEMS.getEntries().stream()
-                    .map(reg -> reg.get())
-                    .filter(item -> item.getDescriptionId().equals(ammoTypeId))
-                    .findFirst().orElse(WeaponItems.AMMO_STANDARD.get());
 
-            if (ammoType == WeaponItems.AMMO_AP.get()) {
+            if (ammoTypeId.equals(WeaponItems.AMMO_AP.get().getDescriptionId())) {
                 damage *= de.rolandsw.schedulemc.weapon.config.WeaponConfig.AMMO_AP_HIT_MULTIPLIER.get().floatValue();
-            } else if (ammoType == WeaponItems.AMMO_RUBBER.get()) {
+            } else if (ammoTypeId.equals(WeaponItems.AMMO_RUBBER.get().getDescriptionId())) {
                 living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 2));
                 living.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 60, 0));
                 damage *= de.rolandsw.schedulemc.weapon.config.WeaponConfig.AMMO_RUBBER_DAMAGE_MULTIPLIER.get().floatValue();

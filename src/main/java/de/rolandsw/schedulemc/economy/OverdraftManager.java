@@ -207,7 +207,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         if (!debtStartDay.containsKey(playerUUID)) {
             debtStartDay.put(playerUUID, currentDay);
             LOGGER.info("Debt timer started for {}", playerUUID);
-            save();
+            markDirty();
         }
     }
 
@@ -220,7 +220,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             lastWarningDay.remove(playerUUID);
             pendingPrison.remove(playerUUID); // OD-2: Schuld beglichen → keine ausstehende Haft mehr
             LOGGER.info("Debt timer reset for {} (balance positive)", playerUUID);
-            save();
+            markDirty();
         }
     }
 
@@ -236,7 +236,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
         double balance = EconomyManager.getBalance(playerUUID);
         if (balance >= 0) {
             pendingPrison.remove(playerUUID);
-            save();
+            markDirty();
             return;
         }
         sendToPrison(playerUUID, Math.abs(balance));
@@ -312,7 +312,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
 
         lastInterestDay.put(playerUUID, currentDay);
         LOGGER.info("Overdraft interest charged: {}€ to {}", interest, playerUUID);
-        save();
+        markDirty();
     }
 
     /**
@@ -417,7 +417,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             LOGGER.info("Auto-Repay PARTIAL: Remaining debt {}€ for {}", Math.abs(balance), playerUUID);
         }
 
-        save();
+        markDirty();
     }
 
     /**
@@ -431,7 +431,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             // OD-2: Offline → vormerken und beim nächsten Login einsperren (statt es täglich
             // erfolglos zu wiederholen und dauerhaft zu verpassen).
             pendingPrison.add(playerUUID);
-            save();
+            markDirty();
             LOGGER.warn("Cannot send offline player {} to prison — queued for next login. Debt: {}€",
                 playerUUID, debt);
             return;
@@ -466,7 +466,7 @@ public class OverdraftManager extends AbstractPersistenceManager<Map<String, Obj
             // Fallback: Nochmal in 1 Tag versuchen (nicht resetten)
         }
 
-        save();
+        markDirty();
     }
 
     /**

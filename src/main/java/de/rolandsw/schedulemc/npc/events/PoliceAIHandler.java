@@ -130,7 +130,8 @@ public class PoliceAIHandler {
     // ═══════════════════════════════════════════════════════════════════════════
     private static volatile List<CachedPoliceData> policeCache = List.of();
     private static volatile long lastPoliceCacheUpdateTick = -1;
-    private static final int POLICE_CACHE_UPDATE_INTERVAL = 10; // Alle 10 Ticks (500ms)
+    // PERFORMANCE: 20 Ticks reicht — Konsument onPoliceAI läuft selbst nur alle 20 Ticks.
+    private static final int POLICE_CACHE_UPDATE_INTERVAL = 20; // Alle 20 Ticks (1s)
 
     /**
      * Gecachte Spielerdaten für schnellen Zugriff
@@ -195,14 +196,14 @@ public class PoliceAIHandler {
         if (currentTick - lastPoliceCacheUpdateTick < POLICE_CACHE_UPDATE_INTERVAL) return;
         lastPoliceCacheUpdateTick = currentTick;
 
+        // PERFORMANCE: Nur Overworld scannen — ScheduleMC nutzt genau eine Dimension
+        // (siehe CLAUDE.md); der Walk über Nether/End-Entities wäre reine Verschwendung.
         List<CachedPoliceData> newCache = new ArrayList<>();
-        for (ServerLevel level : server.getAllLevels()) {
-            for (net.minecraft.world.entity.Entity entity : level.getAllEntities()) {
-                if (entity instanceof CustomNPCEntity npc
-                        && npc.getNpcType() == NPCType.POLICE
-                        && !npc.getPersistentData().getBoolean("IsKnockedOut")) {
-                    newCache.add(new CachedPoliceData(npc));
-                }
+        for (net.minecraft.world.entity.Entity entity : server.overworld().getAllEntities()) {
+            if (entity instanceof CustomNPCEntity npc
+                    && npc.getNpcType() == NPCType.POLICE
+                    && !npc.getPersistentData().getBoolean("IsKnockedOut")) {
+                newCache.add(new CachedPoliceData(npc));
             }
         }
         policeCache = newCache;
@@ -260,6 +261,9 @@ public class PoliceAIHandler {
      */
     @SubscribeEvent
     public void onPoliceAI(LivingEvent.LivingTickEvent event) {
+        // PERFORMANCE: Früh-Ausstieg VOR der Lambda-Allokation — dieser Handler feuert für
+        // JEDE LivingEntity jeden Tick; ohne den Guard wird pro Mob ein capturing Lambda erzeugt.
+        if (!(event.getEntity() instanceof CustomNPCEntity)) return;
         EventHelper.handleLivingTick(event, () -> {
             if (!(event.getEntity() instanceof CustomNPCEntity npc)) return;
             if (npc.getNpcType() != NPCType.POLICE) return;
@@ -785,6 +789,11 @@ public class PoliceAIHandler {
      */
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        // PERFORMANCE: 4×/s statt 20×/s — alle Checks hier arbeiten in Sekunden-Granularität
+        // (Jail-Release, Escape-Timer, 10-Block-Teleport-Schwelle). Spart pro Spieler die
+        // Raycasts/Config-Lookups des Hidden-Checks. GameTime-basiert, damit die
+        // %200-Zeitanzeige weiterhin getroffen wird (200 ist Vielfaches von 5).
+        if (event.player.level().getGameTime() % 5 != 0) return;
         EventHelper.handlePlayerTickEnd(event, p -> {
             if (!(p instanceof ServerPlayer)) return;
             ServerPlayer player = (ServerPlayer) p;

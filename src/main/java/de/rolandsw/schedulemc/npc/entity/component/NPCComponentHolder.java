@@ -27,7 +27,6 @@ public class NPCComponentHolder {
 
     private final Map<String, NPCComponent> components = new LinkedHashMap<>();
     private final Map<Class<? extends NPCComponent>, NPCComponent> byType = new ConcurrentHashMap<>();
-    private final Map<String, Integer> tickCounters = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════
     // COMPONENT MANAGEMENT
@@ -40,7 +39,6 @@ public class NPCComponentHolder {
         String id = component.getComponentId();
         NPCComponent old = components.put(id, component);
         byType.put(component.getClass(), component);
-        tickCounters.put(id, 0);
 
         if (old != null) {
             old.onRemoved(entity);
@@ -57,7 +55,6 @@ public class NPCComponentHolder {
         NPCComponent removed = components.remove(componentId);
         if (removed != null) {
             byType.remove(removed.getClass());
-            tickCounters.remove(componentId);
             removed.onRemoved(entity);
         }
     }
@@ -99,22 +96,24 @@ public class NPCComponentHolder {
 
     /**
      * Tickt alle Komponenten (mit individuellem Throttling).
+     *
+     * PERFORMANCE: Throttling über entity.tickCount-Modulo statt zwei HashMap-Operationen
+     * (getOrDefault + put mit Boxing) pro Komponente pro NPC pro Tick. Frequenz identisch
+     * (1× pro Intervall), lediglich die Phase ist an den Entity-Tick gebunden.
      */
     public void tickAll(CustomNPCEntity entity) {
         for (Map.Entry<String, NPCComponent> entry : components.entrySet()) {
-            String id = entry.getKey();
             NPCComponent component = entry.getValue();
 
-            int counter = tickCounters.getOrDefault(id, 0) + 1;
-            if (counter >= component.getUpdateInterval()) {
-                try {
-                    component.tick(entity);
-                } catch (Exception e) {
-                    LOGGER.error("Fehler in NPC Component '{}': {}", id, e.getMessage(), e);
-                }
-                counter = 0;
+            int interval = component.getUpdateInterval();
+            if (interval > 1 && entity.tickCount % interval != 0) {
+                continue;
             }
-            tickCounters.put(id, counter);
+            try {
+                component.tick(entity);
+            } catch (Exception e) {
+                LOGGER.error("Fehler in NPC Component '{}': {}", entry.getKey(), e.getMessage(), e);
+            }
         }
     }
 

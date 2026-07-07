@@ -163,7 +163,7 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
             }
         }
 
-        save();
+        markDirty();
     }
 
     @Override

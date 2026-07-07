@@ -231,8 +231,9 @@ public class NegotiationPacket {
                 ItemStack walletItem = player.getInventory().getItem(8);
                 if (walletItem.getItem() instanceof CashItem) {
                     // Füge Geld im WalletManager hinzu
+                    // PERFORMANCE: addMoney markiert intern dirty; der registrierte
+                    // IncrementalSaveManager flusht gebatcht — kein synchroner Write nötig.
                     WalletManager.addMoney(player.getUUID(), price);
-                    WalletManager.save();
 
                     // Client sofort synchronisieren — ohne diesen Packet-Aufruf
                     // bleibt die Wallet-Anzeige veraltet bis der Spieler ein ATM öffnet

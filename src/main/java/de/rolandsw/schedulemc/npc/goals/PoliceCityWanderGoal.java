@@ -45,6 +45,8 @@ public class PoliceCityWanderGoal extends Goal {
     private double targetZ;
     private boolean hasTarget = false;
     private int waitCounter = 0;
+    /** PERFORMANCE: frühester Tick für den nächsten Straßen-Scan (kappt Scan-Bursts). */
+    private long nextScanTick = 0;
 
     public PoliceCityWanderGoal(CustomNPCEntity npc) {
         this.npc = npc;
@@ -65,6 +67,13 @@ public class PoliceCityWanderGoal extends Goal {
         if (!npc.getNavigation().isDone()) return false;
         if (!(npc.level() instanceof ServerLevel level)) return false;
         if (npc.getRandom().nextDouble() >= START_CHANCE) return false;
+
+        // PERFORMANCE: Der Straßen-Scan (Spiral-Block-Suche) ist teuer — max. 1 Versuch
+        // alle 100 Ticks pro Polizist, damit die START_CHANCE nicht in Folge-Ticks erneut
+        // den Scan auslöst (Streif-Frequenz bleibt praktisch unverändert).
+        long now = level.getGameTime();
+        if (now < nextScanTick) return false;
+        nextScanTick = now + 100;
 
         BlockPos anchor = resolveAnchor();
         BlockPos target = chooseTarget(level, anchor);

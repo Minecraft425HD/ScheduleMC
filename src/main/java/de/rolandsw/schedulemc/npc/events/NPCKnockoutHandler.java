@@ -224,6 +224,8 @@ public class NPCKnockoutHandler {
 
     @SubscribeEvent
     public void onNPCTick(LivingEvent.LivingTickEvent event) {
+        // PERFORMANCE: Früh-Ausstieg VOR der Lambda-Allokation (Handler feuert für jede LivingEntity).
+        if (!(event.getEntity() instanceof CustomNPCEntity)) return;
         EventHelper.handleLivingTick(event, () -> {
             if (!(event.getEntity() instanceof CustomNPCEntity npc)) return;
 

@@ -112,13 +112,13 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
             if (existing.getAmount() < target) {
                 changed = existing.increaseAmount(target - existing.getAmount());
             }
-            save();
+            markDirty();
             return new BountyResult(existing.getAmount(), changed);
         }
         BountyData bounty = new BountyData(criminal, target, null,
             "Witness report, wanted level " + wantedLevel + " ⭐");
         activeBounties.put(criminal, bounty);
-        save();
+        markDirty();
         return new BountyResult(bounty.getAmount(), true);
     }
 
@@ -150,7 +150,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
             }
         }
 
-        save();
+        markDirty();
     }
 
     /**
@@ -198,7 +198,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         }
 
         LOGGER.info("Player {} placed bounty on {}: {}", placerUUID, targetUUID, amount);
-        save();
+        markDirty();
         return true;
     }
 
@@ -247,7 +247,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         }
 
         LOGGER.info("Bounty claimed: {} -> {}, amount: {}", targetUUID, hunterUUID, reward);
-        save();
+        markDirty();
         return true;
     }
 
@@ -276,7 +276,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
         }
         bountyHistory.computeIfAbsent(playerUUID, k -> new ArrayList<>()).add(bounty);
         LOGGER.info("Bounty cleared (no payout) for {}", playerUUID);
-        save();
+        markDirty();
         return true;
     }
 
@@ -326,7 +326,7 @@ public class BountyManager extends AbstractPersistenceManager<Map<UUID, BountyDa
 
         if (removed > 0) {
             LOGGER.info("Removed {} expired bounties", removed);
-            save();
+            markDirty();
         }
     }
 

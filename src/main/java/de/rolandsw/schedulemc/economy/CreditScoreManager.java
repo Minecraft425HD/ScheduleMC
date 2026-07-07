@@ -56,7 +56,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     public CreditScore getOrCreateScore(UUID playerUUID) {
         return creditScores.computeIfAbsent(playerUUID, uuid -> {
             CreditScore newScore = new CreditScore(uuid, currentDay);
-            save();
+            markDirty();
             return newScore;
         });
     }
@@ -104,7 +104,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     public void recordOnTimePayment(UUID playerUUID) {
         CreditScore score = getOrCreateScore(playerUUID);
         score.recordOnTimePayment();
-        save();
+        markDirty();
     }
 
     /**
@@ -113,7 +113,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     public void recordMissedPayment(UUID playerUUID) {
         CreditScore score = getOrCreateScore(playerUUID);
         score.recordMissedPayment();
-        save();
+        markDirty();
     }
 
     /**
@@ -122,7 +122,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     public void recordLoanCompleted(UUID playerUUID, double amountRepaid) {
         CreditScore score = getOrCreateScore(playerUUID);
         score.recordLoanCompleted(amountRepaid);
-        save();
+        markDirty();
         LOGGER.info("Credit score updated for {} - Loan completed, {} repaid", playerUUID, amountRepaid);
     }
 
@@ -132,7 +132,7 @@ public class CreditScoreManager extends AbstractPersistenceManager<Map<UUID, Cre
     public void recordLoanDefaulted(UUID playerUUID) {
         CreditScore score = getOrCreateScore(playerUUID);
         score.recordLoanDefaulted();
-        save();
+        markDirty();
         LOGGER.warn("Credit score updated for {} - Loan DEFAULTED", playerUUID);
     }
 

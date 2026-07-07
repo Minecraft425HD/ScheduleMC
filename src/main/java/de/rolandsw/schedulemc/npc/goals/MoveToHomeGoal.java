@@ -57,12 +57,11 @@ public class MoveToHomeGoal extends Goal {
         }
 
         // Nur wenn NPC nicht bereits zu Hause ist
+        // PERFORMANCE: distanceToSqr statt Vec3-Allokation + sqrt (canUse läuft jeden Tick)
         this.homePos = home;
-        double distanceToHome = npc.position().distanceTo(
-            new Vec3(homePos.getX() + 0.5, homePos.getY(), homePos.getZ() + 0.5)
-        );
+        double distSqr = npc.distanceToSqr(homePos.getX() + 0.5, homePos.getY(), homePos.getZ() + 0.5);
 
-        return distanceToHome > ARRIVAL_THRESHOLD;
+        return distSqr > ARRIVAL_THRESHOLD * ARRIVAL_THRESHOLD;
     }
 
     @Override

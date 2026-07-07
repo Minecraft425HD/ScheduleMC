@@ -92,7 +92,7 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
             ));
         }
 
-        save();
+        markDirty();
         return true;
     }
 
@@ -153,7 +153,7 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
         toRemove.forEach(activeLoans::remove);
 
         if (!toRemove.isEmpty()) {
-            save();
+            markDirty();
         }
     }
 
@@ -180,7 +180,7 @@ public class LoanManager extends AbstractPersistenceManager<Map<UUID, Loan>> {
                 ));
             }
 
-            save();
+            markDirty();
             return true;
         }
 

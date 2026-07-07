@@ -90,7 +90,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
             ));
         }
 
-        save();
+        markDirty();
         LOGGER.info("Recurring payment created: {} -> {} ({}€ every {} days)",
             fromPlayer, toPlayer, amount, intervalDays);
         return true;
@@ -118,7 +118,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
             ));
         }
 
-        save();
+        markDirty();
         return true;
     }
 
@@ -140,7 +140,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
             ));
         }
 
-        save();
+        markDirty();
         return true;
     }
 
@@ -162,7 +162,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
             ));
         }
 
-        save();
+        markDirty();
         return true;
     }
 
@@ -228,7 +228,7 @@ public class RecurringPaymentManager extends AbstractPersistenceManager<Map<UUID
             }
         }
 
-        save();
+        markDirty();
     }
 
     /**
