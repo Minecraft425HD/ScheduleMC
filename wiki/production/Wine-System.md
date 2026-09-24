@@ -19,7 +19,7 @@ Das Wein-System umfasst eine vollstaendige Produktionskette vom Rebstock bis zur
 
 | Sorte | Farbe | Basispreis/L | Wachstum | Qualitaetsfaktor | Ertrag | Optimal-Temp | Freischaltung |
 |-------|-------|-------------|----------|------------------|--------|-------------|---------------|
-| Spaetburgunder | Rot | 28 EUR | 140 Tage | 0,85 | 9 | 16 Grad C | Level 13 |
+| Pinot Noir | Rot | 28 EUR | 140 Tage | 0,85 | 9 | 16 Grad C | Level 13 |
 | Merlot | Dunkelrot | 35 EUR | 130 Tage | 0,95 | 7 | 22 Grad C | Level 16 |
 
 ## Qualitaetsstufen
@@ -63,7 +63,7 @@ Das Wein-System umfasst eine vollstaendige Produktionskette vom Rebstock bis zur
 
 Reben werden in sortenspezifische Rebstock-Toepfe gepflanzt:
 - Riesling-Rebstock-Topf
-- Spaetburgunder-Rebstock-Topf
+- Pinot Noir-Rebstock-Topf
 - Chardonnay-Rebstock-Topf
 - Merlot-Rebstock-Topf
 

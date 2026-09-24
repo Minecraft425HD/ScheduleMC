@@ -149,7 +149,7 @@ Ergebnis = Basis-XP x Menge x Qualitaets-Multiplikator
 | Cannabis Hybrid | 13 | Produktionskette |
 | Pilze Cubensis | 13 | Produktionskette |
 | LSD-Produktion | 13 | Produktionskette |
-| Wein Spaetburgunder | 13 | Produktionskette |
+| Wein Pinot Noir | 13 | Produktionskette |
 | Kaffee Liberica | 13 | Produktionskette |
 | **Gang gruenden (25.000 EUR)** | 15 | Gang |
 | Mohn Indisch (Heroin) | 15 | Produktionskette |

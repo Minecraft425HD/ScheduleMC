@@ -27,11 +27,12 @@
 11. [Keyboard Controls](#keyboard-controls)
 12. [Service Architecture](#service-architecture)
 13. [Data Layer](#data-layer)
-14. [Minecraft Integration (Mixins)](#minecraft-integration-mixins)
-15. [Dimension Support](#dimension-support)
-16. [Performance](#performance)
-17. [Admin Guide](#admin-guide)
-18. [Troubleshooting](#troubleshooting)
+14. [Minecraft Integration (Forge Events)](#minecraft-integration-forge-events)
+15. [OptiFine Compatibility](#optifine-compatibility)
+16. [Dimension Support](#dimension-support)
+17. [Performance](#performance)
+18. [Admin Guide](#admin-guide)
+19. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -367,17 +368,49 @@ Provides a clean data access layer above the raw file storage:
 
 ---
 
-## Minecraft Integration (Mixins)
+## Minecraft Integration (Forge Events)
 
-The MapView system uses Minecraft Forge Mixins to hook into the rendering pipeline:
+MapView rendering does **not** use Mixins. ScheduleMC's entire Mixin
+framework (including 8 MapView-targeted mixin classes whose `@Mixin`
+annotations were commented out — leftovers from a failed 1.20.1 port that
+never actually loaded, since no `[[mixins]]` entry, `MixinConfigs` manifest
+attribute, or `IMixinConnector` ever registered them) was removed on
+2026-09-24 after verification showed zero functional integration existed.
 
-| Mixin | Target | Purpose |
-|-------|--------|---------|
-| `MixinWorldRenderer` | WorldRenderer | Hook into world rendering to capture chunk updates |
-| `MixinChatHud` | ChatHud | Ensure minimap renders correctly when chat is open |
-| `MixinInGameHud` | InGameHud | Inject minimap rendering into the main HUD layer |
+MapView hooks into rendering entirely through regular Forge client events,
+which is how it always actually ran in practice:
 
-Mixins are declared in `schedulemc.mixins.json` and loaded by Forge at startup.
+| Event | Purpose |
+|-------|---------|
+| `RenderGuiOverlayEvent` | Draws the minimap and any HUD overlay elements |
+| `ClientTickEvent` | Drives per-tick state updates (navigation, world state, chunk scan scheduling) |
+
+---
+
+## OptiFine Compatibility
+
+`mapview/service/render/OptiFineColorLoader.java` is a compatibility shim
+that keeps minimap colors accurate when a player runs OptiFine alongside a
+resource pack that redefines block/biome tints (custom colormaps, CTM
+`.properties` files) — without it, the minimap would render stale vanilla
+colors that no longer match what the player actually sees in-world.
+
+**Detection:** reflection check for a `ofProfiler` field on Minecraft's
+`Options` class, which only exists on OptiFine-patched builds. No other
+detection mechanism is used.
+
+**What it loads (when OptiFine is detected):**
+- `optifine/renderpass.properties` — blend mode
+- CTM (Connected Textures Mod) definitions under `optifine/ctm/*.properties`
+- `optifine/color.properties` — palette overrides, lily pad tint multiplier
+- Colormap properties/PNGs under `optifine/colormap/blocks/*`, plus built-in swamp/pine/birch colormap fallbacks
+
+This is fully implemented and actively used, not a stub: `ColorCalculationService`
+constructs the loader, calls `processCTM()`/`processColorProperties()` when
+OptiFine is installed, and consults its biome/tint lookup tables in the
+actual per-block color path used during minimap rendering. There is no
+GUI or command tied to it — it runs automatically and silently on world
+join.
 
 ---
 

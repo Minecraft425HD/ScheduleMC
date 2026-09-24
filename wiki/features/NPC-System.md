@@ -30,6 +30,8 @@
 14. [Companion System](#companion-system)
 15. [Dynamic Pricing System](#dynamic-pricing-system)
 16. [Banker-NPC System](#banker-npc-system)
+17. [Redemption Quest System (Implemented, Not Wired Up)](#redemption-quest-system-implemented-not-wired-up)
+18. [Dialogue Consequence System (Implemented, Not Wired Up)](#dialogue-consequence-system-implemented-not-wired-up)
 15. [AI & Pathfinding](#ai--pathfinding)
 16. [NPC Tools](#npc-tools)
 17. [Commands](#commands)
@@ -902,6 +904,79 @@ Spieler koennen mit NPCs ueber Preise verhandeln:
 | Hochwertiger Handel (>=1.000 EUR) | HAPPY Emotion |
 | Illegaler Kauf | Im Gedaechtnis gespeichert, Geruechte verbreitet |
 | Diebstahlversuch | Negative Tags, Sicherheitsbeduerfnis sinkt |
+
+---
+
+## Redemption Quest System (Implemented, Not Wired Up)
+
+`RedemptionQuestManager` (`npc/life/quest/`) is a self-contained, singleton
+mini-system, separate from the general `QuestManager`/`Quest` framework in
+the same package. It is fully implemented but currently has **no caller
+anywhere in the codebase** — no dialogue screen, command, or event invokes
+it, and its state is not persisted across restarts. It is documented here
+for completeness and as a starting point for anyone who wants to wire it up.
+
+**Concept (as designed):** a player who has fallen into bad standing with a
+faction (reputation ≤ **-20**, via `FactionManager`) could "redeem"
+themselves by completing a small randomly-assigned task, restoring
+**+15 reputation** on completion.
+
+**Quest types** (`RedemptionQuestType` enum, nested in the manager class):
+
+| Type | Task | Required Progress |
+|---|---|---|
+| `COMMUNITY_SERVICE` | Help 5 NPCs | 5 |
+| `DONATION` | Pay a fine | 1 |
+| `COURIER` | Deliver 3 goods | 3 |
+| `PATROL` | Patrol for 5 minutes | 1 |
+
+**Constants:** reputation threshold `-20`, reputation reward `+15`,
+per-faction cooldown `30 minutes` after completing a quest.
+
+**Why it's inactive:** `startQuest(ServerPlayer, Faction)` picks a random
+quest type but nothing ever calls it; `reportProgress(ServerPlayer)` exists
+to advance a quest but nothing hooks "helped an NPC" / "paid a fine" /
+"delivered goods" / "patrolled" gameplay actions to it. Active quests
+(`Map<UUID, RedemptionQuest>`) and cooldowns live only in memory and reset
+on server restart.
+
+---
+
+## Dialogue Consequence System (Implemented, Not Wired Up)
+
+`DialogueConsequenceSystem` (`npc/life/dialogue/`) is a separate,
+self-contained conversation-memory and consequence engine that is **not**
+used by the live dialogue pipeline (`DialogueManager`, `DialogueTree`,
+`DialogueNode`, `DialogueOption`, `DialogueAction`, `DialogueCondition`
+described above). It is fully implemented but has no caller anywhere in the
+codebase and does not persist state across restarts.
+
+**Concept (as designed):** NPCs would "remember" past conversations with a
+player (`ConversationMemory`: topic list capped at 20, conversation count,
+help count, lie count, temporary discount flag) and react with different
+greetings, discounts, or markups based on that history. Dialogue choices
+could trigger a `DialogueConsequence` of one of six types:
+
+| `ConsequenceType` | Effect (as designed) |
+|---|---|
+| `REPUTATION` | Adjusts faction reputation via `FactionManager` |
+| `DISCOUNT` | Grants a temporary discount (`value` = minutes) |
+| `QUEST` | Stub only — logs but does not start any quest |
+| `INFORMATION` | Reveals information to the player |
+| `RELATIONSHIP` | Adjusts NPC relationship |
+| `ECONOMY` | Deposits/withdraws money via `EconomyManager` (bribes, payments) |
+
+**Designed pricing effects:** discount tiers by conversation count
+(≥10 conversations → 10% off, ≥5 → 5% off, stacking with a temporary
+dialogue-granted 15% discount); a liar markup of +10% once lie count > 2;
+greeting variants shift from hostile (lie count > 3) to friendly-with-
+discount (help count > 5).
+
+**Why it's inactive:** none of `applyConsequence`, `getContextualGreeting`,
+or `getDiscountModifier` are called by `DialogueManager`, any trading
+screen, command, or NPC AI tick. The functionality (NPC memory, discounts,
+reputation effects) duplicates what would need to live inside the live
+`DialogueOption`/`DialogueAction` pipeline to actually affect gameplay.
 
 ---
 

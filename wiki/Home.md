@@ -88,6 +88,8 @@ Detailed documentation for each major game system.
 | [Utility System](features/Utility-System.md) | Electricity & Water | Per-plot electricity and water consumption tracking for 40+ block types, 7-day rolling average via circular buffer, 9 consumption categories, police integration for anomaly detection |
 | [Player Settings System](features/Player-Settings-System.md) | Player Preferences | Per-player configurable utility warning thresholds, persistent player contact registry for the Contacts App, built-in service contacts (Towing, Taxi, etc.), and network sync |
 | [Weapon System](features/Weapon-System.md) | Combat & Firearms | 6 guns (AK-47, Pistol, Revolver, Shotgun, Sniper, MP5), 4 melee weapons, 3 grenade types, 2 attachments (Scope/Silencer), 3 fire-mode upgrades, NBT-based gun state, client HUD, and auto-fire loop |
+| [Config Editor System](features/Config-Editor-System.md) | In-Game Settings GUI | 17 client-side screens covering economy, police, plot, NPC, tobacco, and workshop settings, reached via the vanilla Mods list, writing directly to the Forge config with no restart required |
+| [Fan / Multiblock Booster System](features/Fan-System.md) | Drying Speed Boosters | 3 fan tiers (+50%/+150%/+300%) that boost Tobacco and Cannabis Drying Rack speed via a directional line-of-sight proximity scan, stacking additively up to 8x |
 
 ---
 
@@ -111,7 +113,7 @@ Each production chain has its own dedicated documentation page with step-by-step
 | Page | Product | Varieties | Steps | Key Mechanic |
 |---|---|---|---|---|
 | [Coffee System](production/Coffee-System.md) | Coffee | Arabica, Robusta, Liberica, Excelsa | 5 | Altitude-based quality bonus, wet/dry processing methods, 4 roast levels, 4 grind sizes, 3 packaging sizes |
-| [Wine System](production/Wine-System.md) | Wine | Riesling, Chardonnay, Spaetburgunder, Merlot | 6 | Temperature-based quality, 4 sweetness levels, 3 aging stages, auto-aging in barrels |
+| [Wine System](production/Wine-System.md) | Wine | Riesling, Chardonnay, Pinot Noir, Merlot | 6 | Temperature-based quality, 4 sweetness levels, 3 aging stages, auto-aging in barrels |
 | [Beer System](production/Beer-System.md) | Beer | Pilsner, Weizen, Ale, Stout | 5 | Complete brewing process with malting, mashing, fermenting, conditioning, and bottling. Temperature-sensitive |
 | [Cheese System](production/Cheese-System.md) | Cheese | Gouda, Emmentaler, Camembert, Parmesan | 5 | Pasteurization, curdling with rennet, pressing, cave aging (4 stages), 3 processing methods |
 | [Honey System](production/Honey-System.md) | Honey | Acacia, Wildflower, Forest, Manuka | 5 | Beekeeping with 3 hive tiers, extraction, filtering, creaming, 4 aging stages (up to Vintage) |

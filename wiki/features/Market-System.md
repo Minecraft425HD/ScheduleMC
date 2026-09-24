@@ -19,7 +19,8 @@ Real-time price adjustments driven by player activity
 3. [Supply & Demand](#supply--demand)
 4. [Price Multiplier](#price-multiplier)
 5. [Time-Based Decay](#time-based-decay)
-6. [Commands](#commands)
+6. [Seasonal Pricing](#seasonal-pricing)
+7. [Commands](#commands)
 8. [Trading Strategies](#trading-strategies)
 9. [Best Practices](#best-practices)
 
@@ -223,6 +224,42 @@ Inactive Market (no trades):
   -> Prices return to base over time
   -> Prevents stale extreme prices
 ```
+
+---
+
+## Seasonal Pricing
+
+In addition to supply/demand, prices are also modulated by an in-game
+**calendar/season system** — `market/SeasonalPriceModifier.java`, wired
+into the live price calculation path via `DynamicPriceManager`
+(`npc/life/economy/`), which calls `updateSeason(currentDay)` on day change
+and multiplies `getModifier(category)` directly into the final price. This
+is fully active, not a design-only feature.
+
+**Calendar:** 120 game-days per year, split into 4 seasons of 30 days each
+— FRUEHLING (Spring), SOMMER (Summer), HERBST (Autumn), WINTER — derived
+from `level.getDayTime() / 24000`. There is no separate calendar UI; the
+season is pure day-count math.
+
+**Per-category multipliers** (`registerDefaultModifiers()`), e.g. for the
+FOOD category:
+
+| Season | Multiplier |
+|---|---|
+| Spring | 0.90x |
+| Summer | 0.85x |
+| Autumn | 0.70x |
+| Winter | 1.30x |
+
+Categories affected: PLANT, MUSHROOM, CHEMICAL, FOOD, WEAPONS, LUXURY,
+BUILDING — each with its own set of 4 seasonal multipliers. Transitions
+between seasons interpolate smoothly over a 3-day window rather than
+jumping instantly.
+
+A `getSeasonReport()` method exists that formats a player-facing summary
+with icons and colors, but it is **not currently surfaced anywhere** — no
+command or GUI calls it, so seasonal effects influence prices silently
+without an in-game way to check the current season directly.
 
 ---
 

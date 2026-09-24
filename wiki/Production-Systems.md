@@ -1112,7 +1112,7 @@ CoffeeSeedlingItem --> CoffeePlantBlock (AGE 0-7)
 **Grape cultivation with terroir system, pressing, fermentation, and barrel aging.**
 
 - **Package:** `de.rolandsw.schedulemc.wine`
-- **Types:** 4 -- 2 white (Riesling, Chardonnay), 2 red (Spaetburgunder, Merlot)
+- **Types:** 4 -- 2 white (Riesling, Chardonnay), 2 red (Pinot Noir, Merlot)
 - **Items:** 5 classes
 - **Blocks:** 14 classes (3 wine press sizes + 3 fermentation tank sizes + 3 aging barrel sizes + crushing + bottling + grapevine + pot)
 - **Block Entities:** 15
@@ -1126,7 +1126,7 @@ CoffeeSeedlingItem --> CoffeePlantBlock (AGE 0-7)
 |------|-------|------------|------------|----------------|-------------|------------------|----------|
 | Riesling | `&e` | 15.0 | 120 | 0.8 | 10 | 18 | White |
 | Chardonnay | `&6` | 22.0 | 110 | 0.9 | 8 | 20 | White |
-| Spaetburgunder | `&c` | 28.0 | 140 | 0.85 | 9 | 16 | Red |
+| Pinot Noir | `&c` | 28.0 | 140 | 0.85 | 9 | 16 | Red |
 | Merlot | `&4` | 35.0 | 130 | 0.95 | 7 | 22 | Red |
 
 #### Production Chain

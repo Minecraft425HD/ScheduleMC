@@ -20,9 +20,10 @@
 6. [Camouflage System](#camouflage-system)
 7. [Linking System](#linking-system)
 8. [Redstone Integration](#redstone-integration)
-9. [Admin Commands](#admin-commands)
-10. [Best Practices](#best-practices)
-11. [Troubleshooting](#troubleshooting)
+9. [Mission Access Coupling](#mission-access-coupling)
+10. [Admin Commands](#admin-commands)
+11. [Best Practices](#best-practices)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -406,6 +407,34 @@ All secret door types respond to redstone neighbor signals:
 **State tracking:** The `POWERED` block state property is updated in sync with the redstone signal, preventing toggle loops.
 
 Secret door blocks are **not** signal sources (`isSignalSource()` returns `false`).
+
+---
+
+## Mission Access Coupling
+
+Secret doors, hatches, and hidden switches can be gated behind mission
+progress via `secretdoors/mission/SecretDoorMissionAccessManager.java`.
+This is fully wired into the real door-open logic, not a design-only
+feature.
+
+**Linkage:** each door/hatch/switch block entity stores a string `lockId`
+(NBT key `lock_id`) — see `SecretDoorBlockEntity` and `HiddenSwitchBlockEntity`.
+A player is granted access when either:
+- They hold a **temporary access grant** for that lock, or
+- They have an **active mission objective** whose `lock_id` parameter
+  matches the door's lock ID (`objective.getParam("lock_id")`).
+
+`hasMissionOrEventAccess(player, pos)` is the check function, called from
+`events/BlockProtectionHandler.java` during interaction/protection checks,
+with `markMissionDoorUsed` recording that the door was used for that
+objective. `PlayerMissionManager` calls `clearPlayerAccess(player)` when a
+mission is removed or completed, automatically revoking access; the access
+grant is also cleaned up on player disconnect.
+
+There is no dedicated GUI or command for this — the coupling is entirely
+event-driven through mission objective state and existing block interaction
+handlers. See the [Mission System](Mission-System.md) for how objectives
+and their parameters are defined.
 
 ---
 
