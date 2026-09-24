@@ -24,7 +24,6 @@
 - [Installation](#installation)
   - [Server Installation](#server-installation)
   - [Client Installation](#client-installation)
-  - [Optional Dependencies](#optional-dependencies)
 - [Quick Start](#quick-start)
   - [For Players](#for-players)
   - [For Server Administrators](#for-server-administrators)
@@ -65,9 +64,6 @@
   - [General Commands](#general-commands)
 - [Items Reference](#items-reference)
 - [Blocks Reference](#blocks-reference)
-- [API Overview](#api-overview)
-  - [API Modules](#api-modules)
-  - [Code Examples](#code-examples)
 - [Development Guide](#development-guide)
   - [Prerequisites](#prerequisites)
   - [Building from Source](#building-from-source)
@@ -86,15 +82,14 @@
 
 **ScheduleMC** is a large-scale Minecraft Forge mod that transforms a vanilla Minecraft server into a fully-featured roleplay and economy experience. It covers every aspect of city life simulation: owning and managing property, running businesses through complex production chains, interacting with AI-driven NPCs that follow daily schedules, driving vehicles, managing finances through a realistic banking system, and navigating a GTA-inspired police and crime system.
 
-The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib for OBJ model rendering, GUI systems, and networking utilities. It exposes a comprehensive public API with 11 I*API modules, enabling third-party mods to integrate with any subsystem.
+The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib for OBJ model rendering, GUI systems, and networking utilities. It does not currently expose a public integration API for third-party mods.
 
 ### Key Highlights
 
-- **~260k LOC (main + tests)** and **1,610 Java files** in the current repository snapshot
-- **11 API modules** with full external integration support
+- **~251k LOC (main + tests)** and **1,568 Java files** in the current repository snapshot
 - **16 major interconnected systems** with dozens of supporting subsystems
 - **14 production chains** (8 illegal, 6 legal) each with multi-step crafting processes
-- **137 vehicle system files** with 5 chassis types, 3 engines, 6 tire types
+- **111 vehicle system files** with 5 chassis types, 3 engines, 7 tire types
 - **NPC behavior engine** with 9 AI goals, 5 behavior actions, and 14 behavior states driving realistic daily life simulation
 
 > Hinweis: Detaillierte, automatisch erzeugte Metriken (Datei-/LOC-Zahlen) stehen in `docs/REPO_METRICS.md`.
@@ -107,10 +102,10 @@ The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib fo
 
 | Metric | Current value |
 |---|---|
-| Main Java files | 1,522 |
-| Test Java files | 39 |
-| LOC (main + test Java) | 249,349 |
-| Largest Java file | `MapViewRenderer.java` (~1696 LOC) |
+| Main Java files | 1,527 |
+| Test Java files | 41 |
+| LOC (main + test Java) | 251,217 |
+| Largest Java file | `MapViewRenderer.java` (~1672 LOC) |
 | Auto-generated timestamp | siehe Kopfzeile in `docs/REPO_METRICS.md` |
 
 Für alle weiteren Detailzahlen (inkl. Historie) bitte `docs/REPO_METRICS.md` verwenden.
@@ -814,7 +809,7 @@ A complete vehicle system spanning 137 files, covering chassis types, engines, t
 - **Custom damage source** (`DamageSourceVehicle`) for vehicle-related damage
 - **Vehicle constants** (`VehicleConstants`) for centralized configuration values
 - **UUID-based identification** (`PredicateUUID`) for vehicle entity tracking
-- **Mixin integration** (`MixinConnector`) for rendering pipeline modifications
+- **Fuel/speed HUD** replacing the XP bar while driving, via Forge's `RenderGuiOverlayEvent`
 
 **Package Structure:**
 
@@ -831,7 +826,6 @@ A complete vehicle system spanning 137 files, covering chassis types, engines, t
 | `vehicle/events/` | Vehicle event handlers |
 | `vehicle/util/` | Vehicle utility classes |
 | `vehicle/fluids/` | Fluid types for fuel |
-| `vehicle/mixins/` | Rendering mixins |
 
 ---
 
@@ -929,7 +923,7 @@ A supply-and-demand pricing system that adjusts item prices based on market acti
 
 ### MapView System
 
-A comprehensive minimap and world map system spanning **122 files**, providing players with real-time navigation, plot boundary visualization, NPC location markers, and territory overlays. Uses Mixin (`MixinConnector`, Mixin 0.8.5 + MixinExtras 0.5.0) for deep integration with Minecraft's rendering pipeline.
+A comprehensive minimap and world map system spanning **113 files**, providing players with real-time navigation, plot boundary visualization, NPC location markers, and territory overlays, integrated with Minecraft's rendering pipeline entirely through standard Forge client events (`RenderGuiOverlayEvent`, `ClientTickEvent`) — no Mixin dependency.
 
 ### Gang System
 
@@ -1334,149 +1328,6 @@ ScheduleMC adds **152 blocks** across all systems.
 
 ---
 
-## API Overview
-
-ScheduleMC exposes a comprehensive public API through the `ScheduleMCAPI` singleton class, providing 12 modules for external mod integration. The API uses a double-checked locking singleton pattern for thread-safe initialization and interface-based abstractions for clean separation between API contracts and internal implementations.
-
-**API Entry Point:** `de.rolandsw.schedulemc.api.ScheduleMCAPI`
-
-### API Modules
-
-| # | Module | Interface | Package | Description |
-|---|---|---|---|---|
-| 1 | Economy | `IEconomyAPI` | `api.economy` | Account management, deposits, withdrawals, transfers, balance queries |
-| 2 | Plot | `IPlotAPI` | `api.plot` | Plot queries, ownership checks, protection status |
-| 3 | Production | `IProductionAPI` | `api.production` | Production chain access, custom plant registration |
-| 4 | NPC | `INPCAPI` | `api.npc` | NPC spawning, schedule management, dialogue, quests |
-| 5 | Police | `IPoliceAPI` | `api.police` | Wanted level management, crime detection, prison |
-| 6 | Warehouse | `IWarehouseAPI` | `api.warehouse` | Warehouse inventory, deliveries, stock queries |
-| 7 | Messaging | `IMessagingAPI` | `api.messaging` | Player-to-player and system message sending |
-| 8 | Smartphone | `ISmartphoneAPI` | `api.smartphone` | Custom app registration, push notifications |
-| 9 | Vehicle | `IVehicleAPI` | `api.vehicle` | Vehicle spawning, fuel management, damage, customization |
-| 10 | Achievement | `IAchievementAPI` | `api.achievement` | Achievement registration, progress tracking, rewards |
-| 11 | Market | `IMarketAPI` | `api.market` | Price queries, supply/demand data, market events |
-| 12 | PlotModAPI (legacy) | `PlotModAPI` | `api` | Legacy plot API for backward compatibility |
-
-All API implementations reside in the `api.impl` package and are registered during mod initialization.
-
-### Code Examples
-
-**Getting the API Instance and Checking Status:**
-
-```java
-import de.rolandsw.schedulemc.api.ScheduleMCAPI;
-
-ScheduleMCAPI api = ScheduleMCAPI.getInstance();
-
-// Check if all subsystems are initialized
-if (api.isInitialized()) {
-    System.out.println("ScheduleMC API v" + api.getVersion() + " is ready!");
-    System.out.println(api.getStatus());  // Prints status of each subsystem
-}
-```
-
-**Economy API -- Managing Player Funds:**
-
-```java
-import de.rolandsw.schedulemc.api.economy.IEconomyAPI;
-import java.util.UUID;
-
-IEconomyAPI economy = ScheduleMCAPI.getInstance().getEconomyAPI();
-UUID playerUUID = player.getUUID();
-
-// Deposit 1000 Euro into a player's bank account
-economy.deposit(playerUUID, 1000.0);
-
-// Check balance
-double balance = economy.getBalance(playerUUID);
-
-// Transfer between players
-economy.transfer(senderUUID, receiverUUID, 500.0);
-```
-
-**Plot API -- Querying Plot Information:**
-
-```java
-import de.rolandsw.schedulemc.api.plot.IPlotAPI;
-import de.rolandsw.schedulemc.region.PlotRegion;
-import net.minecraft.core.BlockPos;
-import java.util.Optional;
-
-IPlotAPI plots = ScheduleMCAPI.getInstance().getPlotAPI();
-
-// Get the plot at a specific world position
-Optional<PlotRegion> plot = plots.getPlotAt(new BlockPos(100, 64, 200));
-
-plot.ifPresent(p -> {
-    System.out.println("Plot: " + p.getName());
-    System.out.println("Type: " + p.getType());
-    System.out.println("Owner: " + p.getOwner());
-});
-```
-
-**Production API -- Registering a Custom Plant:**
-
-```java
-import de.rolandsw.schedulemc.api.production.IProductionAPI;
-
-IProductionAPI production = ScheduleMCAPI.getInstance().getProductionAPI();
-
-// Register a custom plant type for your addon mod
-production.registerCustomPlant(/* your plant definition */);
-```
-
-**Police API -- Managing Wanted Levels:**
-
-```java
-import de.rolandsw.schedulemc.api.police.IPoliceAPI;
-
-IPoliceAPI police = ScheduleMCAPI.getInstance().getPoliceAPI();
-
-// Get a player's current wanted level (0-5 stars)
-int stars = police.getWantedLevel(playerUUID);
-
-// Add wanted stars for a crime
-police.addWantedLevel(playerUUID, 2);
-
-// Clear wanted level (admin action)
-police.clearWantedLevel(playerUUID);
-```
-
-**Market API -- Querying Dynamic Prices:**
-
-```java
-import de.rolandsw.schedulemc.api.market.IMarketAPI;
-
-IMarketAPI market = ScheduleMCAPI.getInstance().getMarketAPI();
-
-// Get the current market price for an item
-// Price includes supply/demand multiplier (0.5x to 2.0x base)
-double price = market.getCurrentPrice(item);
-```
-
-**Smartphone API -- Registering a Custom App:**
-
-```java
-import de.rolandsw.schedulemc.api.smartphone.ISmartphoneAPI;
-
-ISmartphoneAPI smartphone = ScheduleMCAPI.getInstance().getSmartphoneAPI();
-
-// Register a custom smartphone app from your addon mod
-smartphone.registerApp(myCustomApp);
-```
-
-**NPC API -- Spawning and Configuring NPCs:**
-
-```java
-import de.rolandsw.schedulemc.api.npc.INPCAPI;
-
-INPCAPI npcs = ScheduleMCAPI.getInstance().getNPCAPI();
-
-// Spawn a merchant NPC at a location
-npcs.spawnNPC(worldPosition, NPCType.MERCHANT, "Shop Owner Hans");
-```
-
----
 
 ## Development Guide
 
@@ -1545,7 +1396,6 @@ ScheduleMC/
 │   └── workflows
 │       └── ci.yml
 ├── docs/
-│   ├── API_REFERENCE.md
 │   ├── ARCHITECTURE.md
 │   ├── CHANGELOG.md
 │   ├── CONFIGURATION.md
@@ -1577,43 +1427,6 @@ ScheduleMC/
 │   │   │               │   ├── AchievementTier.java
 │   │   │               │   ├── AchievementTracker.java
 │   │   │               │   └── PlayerAchievements.java
-│   │   │               ├── api
-│   │   │               │   ├── achievement
-│   │   │               │   │   └── IAchievementAPI.java
-│   │   │               │   ├── economy
-│   │   │               │   │   └── IEconomyAPI.java
-│   │   │               │   ├── impl
-│   │   │               │   │   ├── AchievementAPIImpl.java
-│   │   │               │   │   ├── EconomyAPIImpl.java
-│   │   │               │   │   ├── MarketAPIImpl.java
-│   │   │               │   │   ├── MessagingAPIImpl.java
-│   │   │               │   │   ├── NPCAPIImpl.java
-│   │   │               │   │   ├── PlotAPIImpl.java
-│   │   │               │   │   ├── PoliceAPIImpl.java
-│   │   │               │   │   ├── ProductionAPIImpl.java
-│   │   │               │   │   ├── SmartphoneAPIImpl.java
-│   │   │               │   │   ├── VehicleAPIImpl.java
-│   │   │               │   │   └── WarehouseAPIImpl.java
-│   │   │               │   ├── market
-│   │   │               │   │   └── IMarketAPI.java
-│   │   │               │   ├── messaging
-│   │   │               │   │   └── IMessagingAPI.java
-│   │   │               │   ├── npc
-│   │   │               │   │   └── INPCAPI.java
-│   │   │               │   ├── plot
-│   │   │               │   │   └── IPlotAPI.java
-│   │   │               │   ├── police
-│   │   │               │   │   └── IPoliceAPI.java
-│   │   │               │   ├── production
-│   │   │               │   │   └── IProductionAPI.java
-│   │   │               │   ├── smartphone
-│   │   │               │   │   └── ISmartphoneAPI.java
-│   │   │               │   ├── vehicle
-│   │   │               │   │   └── IVehicleAPI.java
-│   │   │               │   ├── warehouse
-│   │   │               │   │   └── IWarehouseAPI.java
-│   │   │               │   ├── PlotModAPI.java
-│   │   │               │   └── ScheduleMCAPI.java
 │   │   │               ├── beer
 │   │   │               │   ├── blockentity
 │   │   │               │   │   ├── AbstractBeerFermentationTankBlockEntity.java
@@ -2313,22 +2126,11 @@ ScheduleMC/
 │   │   │               │   ├── integration
 │   │   │               │   │   ├── forge
 │   │   │               │   │   │   └── forge
-│   │   │               │   │   │       ├── mixins
-│   │   │               │   │   │       │   └── MixinRenderPipelines.java
 │   │   │               │   │   │       ├── ForgeEvents.java
-│   │   │               │   │   │       ├── ForgeModApiBridge.java
 │   │   │               │   │   │       ├── ForgePacketBridge.java
 │   │   │               │   │   │       ├── MapViewSettingsChannelHandlerForge.java
 │   │   │               │   │   │       └── MapViewWorldIdChannelHandlerForge.java
 │   │   │               │   │   ├── minecraft
-│   │   │               │   │   │   ├── mixins
-│   │   │               │   │   │   │   ├── APIMixinChatListenerHud.java
-│   │   │               │   │   │   │   ├── APIMixinMinecraftClient.java
-│   │   │               │   │   │   │   ├── APIMixinNetHandlerPlayClient.java
-│   │   │               │   │   │   │   ├── AccessorEnderDragonRenderer.java
-│   │   │               │   │   │   │   ├── MixinChatHud.java
-│   │   │               │   │   │   │   ├── MixinInGameHud.java
-│   │   │               │   │   │   │   └── MixinWorldRenderer.java
 │   │   │               │   │   │   └── MinecraftAccessor.java
 │   │   │               │   │   ├── network
 │   │   │               │   │   │   ├── MapViewSettingsS2C.java
@@ -2411,7 +2213,6 @@ ScheduleMC/
 │   │   │               │   │   ├── FourColoredRectangleRenderState.java
 │   │   │               │   │   ├── GLUtils.java
 │   │   │               │   │   ├── ImageHelper.java
-│   │   │               │   │   ├── LayoutVariables.java
 │   │   │               │   │   ├── MapViewCachedOrthoProjectionMatrixBuffer.java
 │   │   │               │   │   ├── MapViewGuiGraphics.java
 │   │   │               │   │   ├── MapViewHelper.java
@@ -3105,9 +2906,6 @@ ScheduleMC/
 │   │   │               │   │   ├── ItemVehiclePart.java
 │   │   │               │   │   ├── ModItems.java
 │   │   │               │   │   └── VehicleSpawnTool.java
-│   │   │               │   ├── mixins
-│   │   │               │   │   ├── GuiMixin.java
-│   │   │               │   │   └── SoundOptionsScreenMixin.java
 │   │   │               │   ├── net
 │   │   │               │   │   ├── MessageCenterVehicle.java
 │   │   │               │   │   ├── MessageCenterVehicleClient.java
@@ -3142,7 +2940,6 @@ ScheduleMC/
 │   │   │               │   │   └── VehicleSpawnRegistry.java
 │   │   │               │   ├── DamageSourceVehicle.java
 │   │   │               │   ├── Main.java
-│   │   │               │   ├── MixinConnector.java
 │   │   │               │   ├── ModCreativeTabs.java
 │   │   │               │   ├── PredicateUUID.java
 │   │   │               │   └── VehicleConstants.java
@@ -4480,9 +4277,7 @@ ScheduleMC/
 │   │       │           └── items
 │   │       │               └── illegal_weapons.json
 │   │       ├── log4j2.xml
-│   │       ├── pack.mcmeta
-│   │       ├── schedulemc-server.toml
-│   │       └── schedulemc.mixins.json
+│   │       └── pack.mcmeta
 │   └── test
 │       ├── java
 │       │   └── de
@@ -4539,8 +4334,6 @@ ScheduleMC/
 | Minecraft | 1.20.1 | Target game version |
 | CoreLib | 1.20.1-1.1.1 | OBJ model rendering, GUI utilities, networking helpers |
 | Gson | 2.10.1 | JSON serialization/deserialization for data persistence |
-| Mixin | 0.8.5 | Bytecode modification for MapView rendering integration |
-| MixinExtras | 0.5.0 | Enhanced Mixin features (expression targets, wrappers) |
 | JUnit 5 (Jupiter) | 5.10.1 | Unit testing framework with parameterized tests |
 | Mockito | 5.8.0 | Mocking framework with JUnit 5 extension |
 | AssertJ | 3.24.2 | Fluent assertion library for readable test assertions |
@@ -4554,7 +4347,7 @@ The codebase employs the following design patterns consistently across all syste
 
 | Pattern | Usage | Examples |
 |---|---|---|
-| **Singleton** | Thread-safe single instances for central managers | `ScheduleMCAPI` (double-checked locking), `EconomyManager`, `PlotManager`, `CrimeManager` |
+| **Singleton** | Thread-safe single instances for central managers | `EconomyManager`, `PlotManager`, `CrimeManager` (double-checked locking) |
 | **Observer / Event Bus** | Decoupled cross-system communication via Forge events | `PlayerJoinHandler`, `BlockProtectionHandler`, `UtilityEventHandler`, `RespawnHandler`, `NPCStealingHandler`, `BusinessMetricsUpdateHandler` |
 | **Strategy** | Interchangeable algorithms for NPC behavior and economy | 9 NPC AI goal strategies (`MoveToHomeGoal`, `PolicePatrolGoal`, etc.) + 5 behavior actions, `EconomyCyclePhase` strategies |
 | **Factory** | Object creation for entities, items, and vehicles | NPC entity creation, vehicle component assembly, lock creation by type |
@@ -4564,7 +4357,7 @@ The codebase employs the following design patterns consistently across all syste
 | **State** | State machine transitions | NPC schedule states, `EconomyCycle` phases, wanted level states, production growth stages |
 | **Spatial Index** | Efficient geometric queries | `PlotSpatialIndex` for O(1) chunk-based plot containment lookups |
 | **Cache (LRU)** | High-frequency data access optimization | `PlotCache` (plot-level), `PlotChunkCache` (chunk-level) |
-| **Facade** | Unified interface over complex subsystems | `ScheduleMCAPI` exposing 12 subsystem APIs through a single entry point |
+| **Facade** | Unified interface over complex subsystems | `CommandExecutor` wrapping Brigadier boilerplate for all commands |
 | **Bridge** | Connecting independent system hierarchies | `WarehouseMarketBridge` linking warehouse stock to market pricing |
 | **Rate Limiter** | Throttling to prevent abuse | `RateLimiter` in economy preventing transaction spam |
 | **Template Method** | Shared base logic with customizable steps | Production system base classes with chain-specific overrides |
@@ -4701,11 +4494,11 @@ A: High Security locks have only a 10% pick success chance, and Dual Locks are e
 **Q: The Gradle build fails with OutOfMemoryError.**
 A: Increase Gradle's JVM memory allocation in `gradle.properties`. The default is `-Xmx3G`. For machines with limited RAM, ensure at least 3 GB is available for the build process. Tests allocate up to 2 GB (`maxHeapSize = '2G'`). You may need `-Xmx4G` or higher if building alongside other memory-intensive processes.
 
-**Q: How do I integrate my own mod with the ScheduleMC API?**
-A: Add ScheduleMC as a `compileOnly` dependency in your `build.gradle`, then access the API at runtime via `ScheduleMCAPI.getInstance()`. Always check `isInitialized()` before calling any subsystem API, as ScheduleMC may initialize after your mod depending on load order. See the [API Overview](#api-overview) section for detailed code examples covering all 12 modules.
+**Q: Does ScheduleMC expose an API for other mods to integrate with?**
+A: No. ScheduleMC previously shipped a public `de.rolandsw.schedulemc.api` package (`ScheduleMCAPI` + 11 `I*API` interfaces and a legacy `PlotModAPI`), but it had zero internal consumers and has been removed. There is currently no supported integration API.
 
-**Q: JEI/Jade/The One Probe integration features are not appearing.**
-A: These mods are optional dependencies (`compileOnly` in the build). Ensure you have the correct compatible versions installed: JEI 15.2.0.27, Jade 11.8.0, or The One Probe 1.20.1-10.0.2. Integration is automatic when these mods are detected at runtime. Check that both ScheduleMC and the integration mod are loaded (visible in the Forge mod list).
+**Q: Does ScheduleMC integrate with JEI, Jade, or The One Probe?**
+A: No. These were listed as optional `compileOnly` dependencies in `build.gradle`, but no integration code for any of them ever existed in the source, and the dependencies have since been removed from the build.
 
 **Q: The MDMA pill press timing minigame is too difficult.**
 A: The pill press requires precise timing to produce high-quality pills. Missing the timing window degrades product quality but does not waste materials. Practice the timing rhythm -- the press has a visual and audio indicator for the optimal press moment. Administrators can adjust timing difficulty through the production configuration.
@@ -4749,8 +4542,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 - The [Minecraft Forge](https://minecraftforge.net/) team for the modding framework and toolchain
 - [Max Henkel](https://github.com/henkelmax) for [CoreLib](https://github.com/henkelmax/corelib), providing OBJ model rendering, GUI systems, and networking utilities
 - The [Mojang](https://www.mojang.com/) team for Minecraft and the official mapping files
-- The [SpongePowered Mixin](https://github.com/SpongePowered/Mixin) project for bytecode modification technology
-- The [LlamaLad7 MixinExtras](https://github.com/LlamaLad7/MixinExtras) project for enhanced Mixin features
 - The [JUnit 5](https://junit.org/junit5/) team for the unit testing framework
 - The [Mockito](https://site.mockito.org/) team for the mocking framework
 - The [AssertJ](https://assertj.github.io/doc/) team for the fluent assertion library
