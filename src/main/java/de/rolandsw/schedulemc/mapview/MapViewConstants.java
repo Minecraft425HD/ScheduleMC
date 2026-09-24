@@ -3,7 +3,6 @@ package de.rolandsw.schedulemc.mapview;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.integration.Events;
 import de.rolandsw.schedulemc.mapview.integration.PacketBridge;
-import de.rolandsw.schedulemc.mapview.integration.ModApiBridge;
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.presentation.renderer.MapViewRenderer;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
@@ -36,7 +35,6 @@ public final class MapViewConstants {
     private static boolean initialized;
     private static Events events;
     private static PacketBridge packetBridge;
-    private static ModApiBridge modApiBridge;
 
     private MapViewConstants() {}
 
@@ -180,13 +178,5 @@ public final class MapViewConstants {
 
     public static void setPacketBridge(PacketBridge packetBridge) {
         MapViewConstants.packetBridge = packetBridge;
-    }
-
-    public static void setModApiBride(ModApiBridge modApiBridge) {
-        MapViewConstants.modApiBridge = modApiBridge;
-    }
-
-    public static ModApiBridge getModApiBridge() {
-        return modApiBridge;
     }
 }

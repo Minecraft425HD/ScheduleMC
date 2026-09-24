@@ -133,7 +133,6 @@ Technical documentation for mod developers and server plugin authors.
 | Changelog | [docs/CHANGELOG.md](../docs/CHANGELOG.md) | Version history and release notes |
 | Towing System Setup | [docs/TOWING_SYSTEM_SETUP.md](../docs/TOWING_SYSTEM_SETUP.md) | Setup guide for the vehicle towing and impound system |
 | Towing NPC Invoice Screen | [docs/TOWING_NPC_INVOICE_SCREEN.md](../docs/TOWING_NPC_INVOICE_SCREEN.md) | Technical documentation for the towing NPC invoice GUI |
-| Project Structure | [docs/PROJECT_STRUCTURE.md](../docs/PROJECT_STRUCTURE.md) | Complete source tree with all 1,610 Java files |
 
 #### Public API Modules
 

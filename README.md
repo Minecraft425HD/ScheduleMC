@@ -1550,7 +1550,6 @@ ScheduleMC/
 │   ├── CHANGELOG.md
 │   ├── CONFIGURATION.md
 │   ├── DEVELOPER_GUIDE.md
-│   ├── PROJECT_STRUCTURE.md
 │   ├── TESTING.md
 │   ├── TOWING_NPC_INVOICE_SCREEN.md
 │   ├── TOWING_SYSTEM_SETUP.md
