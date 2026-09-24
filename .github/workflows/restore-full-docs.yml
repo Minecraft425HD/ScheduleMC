@@ -3,10 +3,10 @@ name: Restore full docs
 on:
   push:
     branches:
-      - 'docs/sync-r4'
+      - 'docs/sync-r5'
     paths:
       - '.github/workflows/restore-full-docs.yml'
-      - 'scripts/restore_full_docs.py'
+      - 'scripts/sync_catalogs.py'
 
 permissions:
   contents: write
@@ -15,26 +15,19 @@ jobs:
   restore:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: docs/sync-r4
+          ref: docs/sync-r5
           fetch-depth: 0
-
-      - name: Restore docs tree from main
-        run: git checkout origin/main -- README.md docs wiki
-
-      - name: Patch claims in all markdown
-        run: python3 scripts/restore_full_docs.py
-
+      - name: Restore catalogs from main
+        run: git checkout origin/main -- wiki/Items.md wiki/Commands.md wiki/Home.md wiki/FAQ.md docs/VERSION.md
+      - name: Sync catalogs to source
+        run: python3 scripts/sync_catalogs.py
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md docs wiki
-          if git diff --cached --quiet; then
-            echo no changes
-            exit 0
-          fi
-          git commit -m "docs: round-4 registry counts from source scan"
-          git push origin HEAD:docs/sync-r4
+          git add wiki/Items.md wiki/Commands.md wiki/Home.md wiki/FAQ.md docs/VERSION.md
+          if git diff --cached --quiet; then echo no changes; exit 0; fi
+          git commit -m "docs: sync Items.md and Commands.md to source registries"
+          git push origin HEAD:docs/sync-r5
