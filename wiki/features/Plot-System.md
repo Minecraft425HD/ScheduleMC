@@ -109,6 +109,9 @@ ScheduleMC supports 8 distinct plot types, each with specific purposes and permi
 | **PRISON** | Dark red | Server | No | No | Police/admin |
 | **TOWING_YARD** | Orange | Player/Server | Yes | No | Full |
 | **INDUSTRIAL** | Brown | Player | Yes | No | Full (factory floor) |
+| **PRISON** | Dark red | Server | No | No | Police/admin |
+| **TOWING_YARD** | Orange | Player/Server | Yes | No | Full |
+| **INDUSTRIAL** | Brown | Player | Yes | No | Full (factory floor) |
 
 ### 1. Residential Plots
 
