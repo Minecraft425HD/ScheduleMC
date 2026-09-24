@@ -245,10 +245,12 @@ Die **Produzenten-Level-App** zeigt:
 
 | Befehl | Berechtigung | Beschreibung |
 |--------|-------------|-------------|
-| `/level set <spieler> <level>` | OP Level 2 | Spieler-Level direkt setzen |
-| `/level addxp <spieler> <xp>` | OP Level 2 | XP hinzufuegen |
-| `/level reset <spieler>` | OP Level 2 | Level und XP zuruecksetzen |
-| `/level info <spieler>` | OP Level 2 | Detaillierte Level-Informationen |
+| `/admin setlevel <spieler> <level>` | OP Level 2 | Spieler-Level direkt setzen |
+| `/admin addxp <spieler> <xp>` | OP Level 2 | XP hinzufuegen |
+| `/admin getlevel <spieler>` | OP Level 2 | Aktuelles Level abfragen |
+
+Es gibt keinen `/level reset`-Befehl; Level/XP koennen nur ueber `setlevel`
+ueberschrieben werden.
 
 ---
 
@@ -267,7 +269,7 @@ Die **Produzenten-Level-App** zeigt:
 1. **XP-Kurve anpassen** — Standard `EXPONENT = 1.8` erzeugt eine steile Kurve (Level 30 = 656.059 XP). Setze auf `1.5` fuer schnellere Progression.
 2. **Multiplier balancieren** — `illegal_xp_multiplier = 1.5` incentiviert risikoreichere Produktion. Auf `1.0` setzen fuer gleiche XP bei legalem und illegalem Spielstil.
 3. **Level-Requirements fuer Gangs** — Gang-Gruendung erfordert Level 15, Beitreten Level 5. Diese Werte sind Teil der Spielbalance und sollten nicht zu niedrig sein.
-4. **Admin-Reset** — Nutze `/level reset <spieler>` nur auf explizite Anfrage des Spielers oder bei technischen Problemen.
+4. **Admin-Reset** — Nutze `/admin setlevel <spieler> 0` nur auf explizite Anfrage des Spielers oder bei technischen Problemen.
 
 ---
 
@@ -283,7 +285,7 @@ Die **Produzenten-Level-App** zeigt:
 
 1. **Level-Anforderung** — Pruefe das genaue Level fuer das Feature in der Freischaltungs-Tabelle.
 2. **Neu laden** — Trenne dich und verbinde dich neu. Das Level-System synchronisiert beim Join.
-3. **Admin-Pruefung** — Nutze `/level info <spieler>` um den aktuellen State zu sehen.
+3. **Admin-Pruefung** — Nutze `/admin getlevel <spieler>` um den aktuellen State zu sehen.
 
 ### Daten nach Neustart verloren
 

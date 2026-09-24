@@ -64,7 +64,7 @@ The NPC System is the largest subsystem in ScheduleMC, spanning **173 source fil
 
 ## NPC Types
 
-### 1. BEWOHNER (Resident)
+### 1. CITIZEN (Resident)
 
 **Purpose:** Roleplay NPCs that populate the city
 
@@ -95,7 +95,7 @@ The NPC System is the largest subsystem in ScheduleMC, spanning **173 source fil
 
 ---
 
-### 2. VERKAEUFER (Merchant)
+### 2. MERCHANT (Merchant)
 
 **Purpose:** Shop owners and vendors
 
@@ -132,7 +132,7 @@ The NPC System is the largest subsystem in ScheduleMC, spanning **173 source fil
 
 ---
 
-### 3. POLIZEI (Police)
+### 3. POLICE (Police)
 
 **Purpose:** Law enforcement NPCs
 
@@ -287,7 +287,7 @@ Formula: ticks = (totalMinutes - 360) x (1000 / 60)
 
 ### Schedule by NPC Type
 
-#### Residents (BEWOHNER)
+#### Residents (CITIZEN)
 
 Residents have only 2 schedule phases: **leisure** and **home/sleep**.
 
@@ -307,7 +307,7 @@ Residents have only 2 schedule phases: **leisure** and **home/sleep**.
   -> Stays there (sleeping)
 ```
 
-#### Merchants (VERKAEUFER)
+#### Merchants (MERCHANT)
 
 Merchants have 3 schedule phases: **work**, **leisure**, and **home/sleep**.
 
@@ -330,7 +330,7 @@ Merchants have 3 schedule phases: **work**, **leisure**, and **home/sleep**.
   -> Goes home, stays there (sleeping)
 ```
 
-#### Police (POLIZEI)
+#### Police (POLICE)
 
 Police NPCs use a **patrol system** instead of a schedule. They are always active and never sleep.
 
@@ -743,14 +743,14 @@ NPCs are placed as entities in-world via spawn eggs or the creative menu. There 
 
 ```
 Small Town:
-- 5-10 BEWOHNER (residents)
-- 2-3 VERKAEUFER (shops)
-- 1-2 POLIZEI (police)
+- 5-10 CITIZEN (residents)
+- 2-3 MERCHANT (shops)
+- 1-2 POLICE (police)
 
 Large City:
-- 20-30 BEWOHNER
-- 8-12 VERKAEUFER
-- 3-5 POLIZEI
+- 20-30 CITIZEN
+- 8-12 MERCHANT
+- 3-5 POLICE
 ```
 
 #### 2. Realistic Schedules

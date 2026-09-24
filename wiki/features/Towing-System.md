@@ -203,10 +203,8 @@ For full technical documentation of the invoice screen GUI, see [TOWING_NPC_INVO
    /plot create <name> TOWING_YARD
    ```
 
-2. **Add parking spots** to the yard - Each spot is a specific block position that vehicles teleport to:
-   ```
-   /towing addspot <yardId> <x> <y> <z>
-   ```
+2. **Add parking spots** to the yard - Each spot is a specific block position that vehicles teleport to.
+   There is no chat command for this; parking spots are managed internally by `TowingYardManager`.
    The spot must have enough clearance for the vehicle entity.
 
 3. **Spawn a Towing NPC** for invoice payment:
@@ -259,9 +257,7 @@ Player pays invoice (e.g., 225 EUR)
 
 ### Viewing Revenue
 
-```
-/towing revenue [yardId]    View revenue stats (requires towing yard ownership or OP)
-```
+There is no `/towing revenue` command; revenue tracking is internal to `TowingYardManager`.
 
 ---
 
@@ -342,14 +338,10 @@ towingDistanceFeePerBlock = 0.5
 
 ## Admin Commands
 
-| Command | Permission | Description |
-|---------|-----------|-------------|
-| `/towing addspot <yardId> <x> <y> <z>` | OP Level 2 | Add a parking spot to a yard |
-| `/towing removespot <spotId>` | OP Level 2 | Remove a parking spot |
-| `/towing listspots [yardId]` | OP Level 2 | List parking spots |
-| `/towing revenue [yardId]` | OP Level 2 | View revenue statistics |
-| `/towing clearinvoices <player>` | OP Level 2 | Clear all invoices for a player |
-| `/towing setmembership <player> <tier>` | OP Level 2 | Manually set a player's membership |
+There is no `/towing` command. `/health towing` reports system health, and
+towing yard state (parking spots, memberships, invoices) is managed
+internally by `TowingYardManager` and `MembershipManager` rather than
+through chat commands.
 
 ---
 
@@ -388,7 +380,7 @@ towingDistanceFeePerBlock = 0.5
 ### Invoice not appearing at NPC
 
 1. **Wrong NPC** - Ensure you're interacting with the Towing NPC (type `TOWING`), not a general Merchant NPC.
-2. **Invoice cleared** - If another player or admin cleared the invoice, it won't show. Check with `/towing listinvoices <player>`.
+2. **Invoice cleared** - If another player or admin cleared the invoice, it won't show. There is no `/towing listinvoices` command to check this.
 3. **NPC yard link** - The NPC must be linked to a specific yard with `/npc <name> yard <yardId>`.
 
 ### Revenue not distributing

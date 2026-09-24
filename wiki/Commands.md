@@ -567,7 +567,7 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 **Base command:** `/npc`
 **Description:** Complete NPC lifecycle management including behavior, schedules, inventory, wallet, and warehouse integration. All NPC commands are admin-only.
 
-> **Note:** All `/npc` commands require the NPC name as the first argument. Tab-completion is available and suggests registered NPC names from the NPCNameRegistry. NPC types include: `BEWOHNER` (Resident), `VERKAEUFER` (Merchant), `POLIZEI` (Police), `BANK` (Banker), `ABSCHLEPPER` (Tow Truck), and English aliases `CITIZEN`, `MERCHANT`, `POLICE`, `BANKER`, `DRUG_DEALER`.
+> **Note:** All `/npc` commands require the NPC name as the first argument. Tab-completion is available and suggests registered NPC names from the NPCNameRegistry. NPC types: `CITIZEN`, `MERCHANT`, `POLICE`, `BANK`, `BANKER`, `TOW_TRUCK_DRIVER`, `DRUG_DEALER`.
 
 ---
 
@@ -631,7 +631,7 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 | | |
 |---|---|
 | **Permission** | Admin (OP 2) |
-| **Description** | Set when the NPC begins work. The NPC travels to its assigned work location at this time. For Residents (BEWOHNER), this is the wake-up time. Time is converted to Minecraft ticks internally (0 ticks = 6:00 AM). |
+| **Description** | Set when the NPC begins work. The NPC travels to its assigned work location at this time. For Residents (CITIZEN), this is the wake-up time. Time is converted to Minecraft ticks internally (0 ticks = 6:00 AM). |
 | **Arguments** | `<name>` -- NPC name. `<time>` -- Time in HHMM format (e.g., `0800` for 8:00 AM). |
 | **Related System** | NPC System |
 

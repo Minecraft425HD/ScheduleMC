@@ -34,6 +34,7 @@ ScheduleMC uses the Forge configuration system managed by `ModConfigHandler`. Al
 |------|------|-------------|
 | `config/schedulemc-common.toml` | Server/Common | All gameplay settings (economy, plots, police, etc.) |
 | `config/schedulemc-client.toml` | Client | Vehicle rendering, sounds, temperature display |
+| `config/schedulemc-weapons.toml` | Server/Common | Weapon ranges, ammo, upgrade costs (`WeaponConfig`) |
 | `config/mapview.properties` | Client | Minimap and world map display settings |
 
 ### Hot-Reload Support
@@ -478,8 +479,8 @@ Located under `[tobacco]`, `[drying_rack_capacities]`, `[fermentation_barrel_cap
 |-----|---------|-------|-------------|
 | `tobacco.enabled` | `true` | -- | Enable/disable tobacco system |
 | `tobacco.growth_speed_multiplier` | `1.0` | 0.1 - 10.0 | Growth speed (1.0 = normal, 2.0 = double) |
-| `tobacco.drying_time` | `6000` | 100 - 72,000 | Drying time in ticks (6000 = 5 minutes) |
-| `tobacco.fermenting_time` | `12000` | 100 - 72,000 | Fermentation time in ticks (12000 = 10 minutes) |
+| `tobacco.drying_time` | `750` | 100 - 72,000 | Drying time in ticks (750 = 37.5 seconds) |
+| `tobacco.fermenting_time` | `500` | 100 - 72,000 | Fermentation time in ticks (500 = 25 seconds) |
 | `tobacco.fermentation_quality_chance` | `0.3` | 0.0 - 1.0 | Chance for quality improvement (30%) |
 
 **Drying Rack Capacities:**
@@ -1117,6 +1118,7 @@ If the UDPS system is unavailable or encounters an error, the static base price 
   config/
     schedulemc-common.toml          # Main server config (economy, plots, police, etc.)
     schedulemc-client.toml          # Client display settings (vehicle camera, sound)
+    schedulemc-weapons.toml         # Weapon ranges, ammo, upgrade costs
     mapview.properties              # Map display settings
     schedulemc/
       economy.json                  # Player balances
