@@ -37,9 +37,10 @@ ScheduleMC has a comprehensive test suite built with **JUnit 5**, **Mockito**, a
 
 | Metric | Value |
 |--------|-------|
-| Total test files | 38 |
-| Unit test files | 35 |
+| Total test files | 39 (+2 test-infrastructure helper classes) |
+| Unit test files | 36 |
 | Integration test files | 3 |
+| Total `@Test` methods | 681 |
 | Minimum overall coverage | 60% |
 | Minimum utility class coverage | 80% |
 | Test framework | JUnit Jupiter 5.10.1 |
@@ -86,37 +87,58 @@ src/test/java/de/rolandsw/schedulemc/
 │   ├── OverdraftManagerTest.java
 │   ├── TaxManagerTest.java
 │   ├── TransactionHistoryTest.java
-│   ├── CreditScoreManagerTest.java
-│   ├── SavingsAccountManagerTest.java
-│   └── InterestManagerTest.java
+│   ├── SavingsAccountTest.java
+│   ├── EconomyManagerTest.java
+│   ├── EconomyAPIExtendedTest.java
+│   └── MemoryCleanupManagerTest.java
 ├── npc/
-│   ├── NPCCrimeTest.java
-│   ├── NPCEmotionTest.java
-│   └── NPCNeedsTest.java
+│   ├── QuestTemplateTest.java
+│   ├── crime/
+│   │   └── CrimeManagerTest.java
+│   └── life/core/
+│       ├── NPCEmotionsTest.java
+│       └── NPCNeedsTest.java
 ├── production/
-│   ├── PlantGrowthTest.java
-│   ├── ProductionSerializationTest.java
-│   └── ProductionSizesTest.java
+│   ├── GenericProductionSystemTest.java
+│   ├── GenericQualityLookupTest.java
+│   ├── ProductionSizeTest.java
+│   └── nbt/
+│       └── PlantSerializerTest.java
+├── tobacco/
+│   └── TobaccoQualityTest.java
 ├── gang/
-│   ├── GangMissionsTest.java
+│   ├── GangMissionTest.java
 │   ├── GangReputationTest.java
-│   └── GangLevelTest.java
+│   └── GangLevelRequirementsTest.java
 ├── vehicle/
-│   ├── VehicleFuelTest.java
-│   ├── VehicleTireTest.java
-│   └── VehicleConstantsTest.java
+│   ├── TireTypeTest.java
+│   ├── VehicleConstantsTest.java
+│   ├── VehicleOilTest.java
+│   ├── VehicleOwnershipTrackerTest.java
+│   └── FuelBillManagerTest.java
+├── region/
+│   ├── PlotManagerTest.java
+│   └── PlotSpatialIndexTest.java
 ├── util/
-│   ├── ValidationUtilTest.java
-│   ├── EventBusTest.java
+│   ├── InputValidationTest.java
+│   ├── EventHelperTest.java
 │   ├── PacketHandlerTest.java
-│   ├── ConfigCacheTest.java
-│   └── ThreadPoolManagerTest.java
+│   └── AbstractPersistenceManagerTest.java
+├── mission/
+│   └── PlayerMissionTest.java
+├── mapview/
+│   └── RoadGraphTest.java
+├── warehouse/
+│   └── WarehouseSlotTest.java
 ├── integration/
 │   ├── EconomyIntegrationTest.java
 │   ├── NPCIntegrationTest.java
 │   └── ProductionChainIntegrationTest.java
-└── commands/
-    └── CommandExecutorTest.java
+├── commands/
+│   └── CommandExecutorTest.java
+└── test/
+    ├── MinecraftTestBootstrap.java  (helper, not a test class)
+    └── TestEnvironment.java         (helper, not a test class)
 ```
 
 ---
@@ -242,7 +264,7 @@ This fails the build if coverage drops below the configured minimums (60% overal
 
 **Package:** `de.rolandsw.schedulemc.economy`
 
-**8 test files** covering the financial simulation:
+**9 test files** covering the financial simulation:
 
 | Test Class | Coverage Area |
 |-----------|---------------|
@@ -250,10 +272,11 @@ This fails the build if coverage drops below the configured minimums (60% overal
 | `LoanManagerTest` | Loan issuance, repayment, interest calculation, default handling |
 | `OverdraftManagerTest` | Overdraft limit enforcement, interest accrual, auto-settlement |
 | `TaxManagerTest` | Property tax calculation, sales tax, income tax brackets |
-| `TransactionHistoryTest` | Audit trail persistence, history retrieval, 1000-entry limit |
-| `CreditScoreManagerTest` | Score calculation, impact on loan eligibility |
-| `SavingsAccountManagerTest` | Savings deposits, weekly interest, early withdrawal penalties |
-| `InterestManagerTest` | Interest calculation formulas, periodic accrual |
+| `TransactionHistoryTest` | Audit trail persistence, history retrieval |
+| `SavingsAccountTest` | Savings deposits, interest, early withdrawal penalties |
+| `EconomyManagerTest` | Core balance operations |
+| `EconomyAPIExtendedTest` | Extended economy scenarios |
+| `MemoryCleanupManagerTest` | Cleanup of stale in-memory economy state |
 
 **Example test:**
 
@@ -300,29 +323,32 @@ class WalletManagerTest {
 
 ### NPC Tests
 
-**Package:** `de.rolandsw.schedulemc.npc`
+**Packages:** `de.rolandsw.schedulemc.npc`, `.npc.crime`, `.npc.life.core`
 
-**3 test files** covering NPC simulation:
+**4 test files** covering NPC simulation:
 
 | Test Class | Coverage Area |
 |-----------|---------------|
-| `NPCCrimeTest` | Crime detection, evidence creation, witness reporting |
-| `NPCEmotionTest` | Emotion state transitions, mood calculation |
+| `NPCEmotionsTest` | Emotion state transitions, mood calculation |
 | `NPCNeedsTest` | Hunger, fatigue, need decay over time |
+| `CrimeManagerTest` | Crime detection, evidence, witness reporting |
+| `QuestTemplateTest` | Quest template resolution |
 
 ---
 
 ### Production Tests
 
-**Package:** `de.rolandsw.schedulemc.production`
+**Packages:** `de.rolandsw.schedulemc.production`, `.production.nbt`, `.tobacco`
 
-**3 test files** covering the production chain framework:
+**4 test files** covering the production chain framework:
 
 | Test Class | Coverage Area |
 |-----------|---------------|
-| `PlantGrowthTest` | Growth state machine transitions, stage progression |
-| `ProductionSerializationTest` | NBT serialization/deserialization of plant state |
-| `ProductionSizesTest` | Small/medium/large machine capacity calculations |
+| `GenericProductionSystemTest` | Generic production chain framework |
+| `GenericQualityLookupTest` | Quality-tier lookup logic |
+| `ProductionSizeTest` | Small/medium/large machine capacity calculations |
+| `PlantSerializerTest` | NBT serialization/deserialization of plant state |
+| `TobaccoQualityTest` | Tobacco-specific quality calculation |
 
 ---
 
@@ -334,9 +360,9 @@ class WalletManagerTest {
 
 | Test Class | Coverage Area |
 |-----------|---------------|
-| `GangMissionsTest` | Mission generation, completion, reward calculation |
+| `GangMissionTest` | Mission generation, completion, reward calculation |
 | `GangReputationTest` | Reputation tier transitions, XP thresholds |
-| `GangLevelTest` | Level-up formulas, perk point calculations, territory limits |
+| `GangLevelRequirementsTest` | Level-up formulas, member/territory limits |
 
 ---
 
@@ -344,13 +370,38 @@ class WalletManagerTest {
 
 **Package:** `de.rolandsw.schedulemc.vehicle`
 
-**3 test files** covering vehicle mechanics:
+**5 test files** covering vehicle mechanics:
 
 | Test Class | Coverage Area |
 |-----------|---------------|
-| `VehicleFuelTest` | Fuel consumption rates, refueling, tank capacity |
-| `VehicleTireTest` | Tire wear, pressure effects, replacement logic |
+| `TireTypeTest` | Tire wear, pressure effects, replacement logic |
 | `VehicleConstantsTest` | Engine specs, chassis properties, speed limits |
+| `VehicleOilTest` | Oil level and degradation |
+| `VehicleOwnershipTrackerTest` | Vehicle ownership tracking |
+| `FuelBillManagerTest` | Fuel station billing |
+
+---
+
+### Plot / Region Tests
+
+**Package:** `de.rolandsw.schedulemc.region`
+
+**2 test files:**
+
+| Test Class | Coverage Area |
+|-----------|---------------|
+| `PlotManagerTest` | Plot creation, ownership, persistence |
+| `PlotSpatialIndexTest` | Chunk-based spatial containment lookups |
+
+---
+
+### Other Single-Class Suites
+
+| Test Class | Package | Coverage Area |
+|-----------|---------|---------------|
+| `PlayerMissionTest` | `mission` | Player mission progress tracking |
+| `RoadGraphTest` | `mapview` | MapView road-graph pathing |
+| `WarehouseSlotTest` | `warehouse` | Warehouse slot capacity/validation |
 
 ---
 
@@ -358,15 +409,14 @@ class WalletManagerTest {
 
 **Package:** `de.rolandsw.schedulemc.util`
 
-**5 test files** covering shared utility classes:
+**4 test files** covering shared utility classes:
 
 | Test Class | Coverage Area |
 |-----------|---------------|
-| `ValidationUtilTest` | Input validation, UUID validation, string constraints |
-| `EventBusTest` | Event dispatching, subscriber management |
+| `InputValidationTest` | Input validation, UUID validation, string constraints |
+| `EventHelperTest` | Event dispatching helper |
 | `PacketHandlerTest` | Packet encoding/decoding, size limits |
-| `ConfigCacheTest` | Cache invalidation, config value retrieval |
-| `ThreadPoolManagerTest` | Thread pool creation, task submission, shutdown |
+| `AbstractPersistenceManagerTest` | Base persistence-manager save/load behavior |
 
 Utility tests must achieve **80% coverage minimum** (enforced by JaCoCo verification).
 
