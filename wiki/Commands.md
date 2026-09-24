@@ -5,6 +5,8 @@
 **Complete Command Reference for ScheduleMC v3.9.0-beta**
 
 All registered commands organized by system, with syntax, permissions, and examples.
+**Source sync:** 161 `### /command` headings in this page; 25 root `dispatcher.register` commands. Largest groups: /health 41, /plot 24, /npc 21, /gang 14.
+
 
 [Back to Wiki Home](Home.md)
 
@@ -18,18 +20,18 @@ All registered commands organized by system, with syntax, permissions, and examp
 2. [Plot and Property Commands](#1-plot-and-property-commands) (24 commands)
 3. [Plot Features via Settings App UI](#2-plot-features-via-settings-app-ui) (17 former commands)
 4. [Economy and Money Commands](#3-economy-and-money-commands) (4 commands)
-5. [NPC Commands](#4-npc-commands) (28 commands)
+5. [NPC Commands](#4-npc-commands) (21 documented headings)
 6. [Warehouse Commands](#5-warehouse-commands) (7 commands)
-7. [Prison and Crime Commands](#6-prison-and-crime-commands) (10 commands)
+7. [Prison and Crime Commands](#6-prison-and-crime-commands) (8 `/prison` + bail/jailtime)
 8. [Bounty Commands](#7-bounty-commands) (4 commands)
 9. [Hospital Commands](#8-hospital-commands) (3 commands)
 10. [State Treasury Commands](#9-state-treasury-commands) (3 commands)
-11. [Utility Commands](#10-utility-commands) (8 commands)
+11. [Utility Commands](#10-utility-commands) (6 commands)
 12. [Market Commands](#11-market-commands) (4 commands)
 13. [Gang Commands](#12-gang-commands) (14 commands)
-14. [Lock Commands](#13-lock-commands) (8 commands)
+14. [Lock Commands](#13-lock-commands) (7 commands)
 15. [Territory and Map Commands](#14-territory-and-map-commands) (2 commands)
-16. [Health and Diagnostics Commands](#15-health-and-diagnostics-commands) (5 commands)
+16. [Health and Diagnostics Commands](#15-health-and-diagnostics-commands) (41 `/health` headings)
 17. [Admin Commands](#16-admin-commands) (5 commands)
 18. [Secret Door Commands](#17-secret-door-commands) (3 commands)
 19. [Crime Record Commands](#18-crime-record-commands) (3 commands)
