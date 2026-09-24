@@ -8,8 +8,42 @@ Format: `[version] - date — Summary of changes`
 
 ## [3.9.0-beta] - 2026-09-24
 
+### Removed
+- **Public API deleted** — the entire `de.rolandsw.schedulemc.api` package
+  (`ScheduleMCAPI`, 11 `I*API` interfaces, all 11 `*APIImpl` classes, and the
+  legacy `PlotModAPI` facade — 5,689 lines). Verified zero internal consumers
+  before removal; all internal code already used the manager classes
+  directly. There is currently no supported integration API for third-party
+  mods.
+- **Mixin framework deleted** — all 10 Mixin/connector classes and
+  `schedulemc.mixins.json`. The 8 MapView mixins had their `@Mixin`
+  annotation commented out (dead since a failed 1.20.1 port) and the 2
+  vehicle mixins had no loading mechanism anywhere (no `[[mixins]]` in
+  `mods.toml`, no `MixinConfigs` manifest attribute, no `IMixinConnector`
+  service registration) and were very likely never applied either. The
+  vehicle fuel/speed HUD (previously injected over the XP bar via mixin)
+  was reimplemented mixin-free via `RenderGuiOverlayEvent`; the vehicle
+  volume slider mixin was dropped with no functional loss (already
+  available via `ClientConfigScreen`).
+- **JEI / Jade / The One Probe `compileOnly` dependencies removed** — zero
+  integration code for any of the three ever existed in the source.
+- **~7,000+ lines of dead code removed** across a full automated scan
+  (unused private/protected members, whole orphaned classes, unused
+  imports), including `commands/PlotCommand.java`'s 16 unregistered
+  handler methods for plot sub-commands the wiki already documented as
+  moved to the Settings App UI, and 4 fully orphaned classes
+  (`gui/PlotMenuGUI`, `messaging/NPCMessageTemplates`,
+  `npc/pathfinding/NPCNodeEvaluator`, `mapview/util/LayoutVariables`).
+  See `docs/CODE_VS_DOCS_ABGLEICH_2026-09-24.md` for the full breakdown.
+
 ### Docs / accuracy
-- 11 public I*API modules (no ITutorialAPI in source)
+- All API/Mixin/JEI-Jade-TOP references removed or corrected across
+  README, ARCHITECTURE, DEVELOPER_GUIDE, TESTING, CONFIGURATION, FAQ,
+  Home, and the affected feature wiki pages, following the removals above.
+  `docs/API_REFERENCE.md` deleted (documented a package that no longer
+  exists).
+- File/LOC counts updated to current values (1,568 Java files, ~251k LOC).
+- 11 public I*API modules (no ITutorialAPI in source) — superseded, see Removed above
 - 8 plot types including INDUSTRIAL
 - Persistence: JSON + IncrementalSaveManager
 - License metadata: GNU GPLv3

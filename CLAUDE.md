@@ -112,3 +112,92 @@ ABSCHLEPPER→TOW_TRUCK_DRIVER).
 Strings wurden entfernt (Phasen 1-8, siehe docs/I18N_MIGRATION_PLAN.md).
 Guard gegen Rückfälle: `scripts/check-german-strings.sh`.
 Deutsche Code-Kommentare sind weiterhin erlaubt.
+
+---
+
+## Public API entfernt (2026-09-24)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Betrifft:**
+- `de.rolandsw.schedulemc.api` (komplettes Paket, 25 Dateien, 5.689 Zeilen):
+  `ScheduleMCAPI`-Singleton, 11 `I*API`-Interfaces (Economy, Plot, Production,
+  NPC, Police, Warehouse, Messaging, Smartphone, Vehicle, Achievement, Market),
+  alle 11 `*APIImpl`-Klassen, sowie die separate Legacy-Fassade `PlotModAPI`.
+
+**Begründung:** Explizite Entscheidung des Repo-Owners. Vor der Löschung
+verifiziert: außer dem Initialisierungsaufruf in `ScheduleMC.onServerStarted()`
+hatte kein einziger interner Codepfad diese Schicht benutzt — alle Systeme
+sprechen direkt mit den Manager-Klassen (`EconomyManager`, `PlotManager`, …).
+`PlotModAPI` war in `docs/API_REFERENCE.md` als öffentliche Legacy-API für
+Drittanbieter-Mods dokumentiert, aber ebenfalls ohne internen Aufrufer.
+
+**Konsequenz:** Es gibt aktuell keine unterstützte Integrations-API für externe
+Mods. `docs/API_REFERENCE.md` wurde gelöscht, alle API-Abschnitte in README,
+ARCHITECTURE, DEVELOPER_GUIDE, TESTING, FAQ und den Feature-Wiki-Seiten wurden
+entfernt oder auf „keine API vorhanden“ korrigiert. **Nicht vorschlagen**,
+die API wiederherzustellen oder ein neues API-Paket zu entwerfen, ohne dass
+das explizit gewünscht wird.
+
+---
+
+## Mixin-Framework entfernt (2026-09-24)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Betrifft:**
+- Alle 10 Mixin-/Connector-Klassen (`vehicle/mixins/GuiMixin`,
+  `vehicle/mixins/SoundOptionsScreenMixin`, `vehicle/MixinConnector`, sowie
+  8 MapView-Mixins unter `mapview/integration/*/mixins/`), `schedulemc.mixins.json`,
+  die `org.spongepowered:mixin`- und `mixinextras-common`-Abhängigkeiten in
+  `build.gradle`.
+
+**Begründung:** Alle 8 MapView-Mixins hatten ihre `@Mixin`-Annotation
+auskommentiert (Rest eines gescheiterten 1.20.1-Ports) — sie taten buchstäblich
+nichts. Die 2 Vehicle-Mixins hatten zwar aktive Annotationen, aber es gab
+nirgends einen Lademechanismus: kein `[[mixins]]`-Eintrag in `mods.toml`, kein
+`MixinConfigs`-Manifest-Attribut, kein `IMixinConnector`-Service-Eintrag, kein
+`-mixin.config`-JVM-Flag. `MixinConnector` selbst verwies zudem auf eine nicht
+existierende `vehicle.mixins.json` und wurde nirgends aufgerufen.
+
+**Konsequenz:** Die Tank-/Tempoanzeige beim Fahren (vorher per Mixin über die
+XP-Leiste) wurde mixin-frei über `RenderGuiOverlayEvent` in `RenderEvents`
+nachgebaut — Funktion bleibt erhalten. Der Vehicle-Lautstärkeregler
+(`SoundOptionsScreenMixin`) wurde ersatzlos gestrichen, da derselbe Wert
+bereits über `ClientConfigScreen` einstellbar ist. MapView-Rendering läuft
+vollständig über reguläre Forge-Client-Events (`RenderGuiOverlayEvent`,
+`ClientTickEvent`), die es ohnehin schon parallel gab. **Nicht vorschlagen**,
+Mixins für neue Features einzuführen, ohne einen echten Lademechanismus
+(`[[mixins]]` in `mods.toml`) gleich mit einzurichten.
+
+---
+
+## JEI/Jade/The One Probe entfernt (2026-09-24)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Betrifft:** Die drei `compileOnly`-Abhängigkeiten in `build.gradle`.
+
+**Begründung:** Null Zeilen Integrationscode für irgendeines der drei Mods
+existierten je im Quellcode. README und FAQ versprachen automatische
+Integration, die nie implementiert wurde.
+
+---
+
+## Dead-Code-Sweep (2026-09-24)
+
+**Status:** ABGESCHLOSSEN, dokumentiert in `docs/CODE_VS_DOCS_ABGLEICH_2026-09-24.md`
+
+Mehrstufiger automatisierter Scan (private/protected Member ohne Aufrufer,
+ganze verwaiste Klassen, ungenutzte Imports) über den gesamten Hauptcode,
+jeder Treffer manuell gegen Fehlalarme (Vanilla-/Forge-Overrides,
+`@Mod.EventBusSubscriber`-Klassen) geprüft. Insgesamt >7.000 Zeilen toter Code
+entfernt, u. a. `commands/PlotCommand.java` (392 Zeilen — 16 private
+Handler-Methoden für Plot-Subcommands, die laut `wiki/Commands.md` schon
+länger als „Former Command — moved to Settings App UI" markiert waren, aber
+nie aus dem Code entfernt wurden), `gui/PlotMenuGUI.java` (214 Zeilen, alte
+Chest-GUI), `messaging/NPCMessageTemplates.java`, `npc/pathfinding/NPCNodeEvaluator.java`,
+`mapview/util/LayoutVariables.java`, sowie 381 ungenutzte Imports über 217
+Dateien. **Nicht erneut vorschlagen**, denselben Scan zu wiederholen, ohne
+neuen Code-Zuwachs seit diesem Datum — er wurde bis zur Konvergenz
+durchlaufen (0 verbleibende Funde außer verifizierten Fehlalarmen).
