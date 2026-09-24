@@ -3,7 +3,7 @@ name: Restore full docs
 on:
   push:
     branches:
-      - 'docs/sync-r3'
+      - 'docs/sync-r4'
     paths:
       - '.github/workflows/restore-full-docs.yml'
       - 'scripts/restore_full_docs.py'
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
         with:
-          ref: docs/sync-r3
+          ref: docs/sync-r4
           fetch-depth: 0
 
       - name: Restore docs tree from main
@@ -36,5 +36,5 @@ jobs:
             echo no changes
             exit 0
           fi
-          git commit -m "docs: round-3 NPCType enum aligned to source"
-          git push origin HEAD:docs/sync-r3
+          git commit -m "docs: round-4 registry counts from source scan"
+          git push origin HEAD:docs/sync-r4

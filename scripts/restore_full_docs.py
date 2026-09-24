@@ -17,17 +17,29 @@ def patch_generic(t: str) -> str:
     t = t.replace("all 12 public modules", "all 11 public I*API modules")
     t = t.replace("| **API Modules** | 12 |", "| **API Modules** | 11 |")
     t = t.replace("Public API (12 modules)", "Public API (11 I*API modules)")
-    t = t.replace("**~249k LOC** across **1,561 Java files**", "**~260k LOC** across **1,610 Java files**")
-    t = t.replace("- **~249k LOC (main + tests)** and **1,561 Java files**", "- **~260k LOC (main + tests)** and **1,610 Java files**")
-    t = t.replace("| **Lines of Code** | 224,000+ |", "| **Lines of Code** | ~260,000 |")
+    t = t.replace("**~249k LOC** across **1,561 Java files**", "**~259k LOC** across **1,610 Java files**")
+    t = t.replace("- **~249k LOC (main + tests)** and **1,561 Java files**", "- **~259k LOC (main + tests)** and **1,610 Java files**")
+    t = t.replace("| **Lines of Code** | 224,000+ |", "| **Lines of Code** | ~259,000 |")
     t = t.replace("| **Total Files** | 1,453 |", "| **Total Files** | 1,610 Java |")
-    t = t.replace("| **Registered Items** | 383 |", "| **Registered Items** | 354 catalogued |")
+    t = t.replace("| **Registered Items** | 383 |", "| **Registered Items** | 399 (`ITEMS.register`) |")
+    t = t.replace("| **Registered Items** | 354 catalogued |", "| **Registered Items** | 399 (`ITEMS.register`) |")
+    t = t.replace("| **Registered Blocks** | 152 |", "| **Registered Blocks** | 125 |")
+    t = t.replace("| **Available Commands** | 139 |", "| **Available Commands** | 25 root / 132 literals |")
+    t = t.replace("| **Unit Tests** | 292 |", "| **Unit Tests** | 681 in 41 files |")
+    t = t.replace("| **GUI Screens** | 126 |", "| **GUI Screens** | 147 |")
+    t = t.replace("| **Manager Classes** | 55 |", "| **Manager Classes** | 62 |")
+    t = t.replace("| **BlockEntity Types** | 131 |", "| **BlockEntity Types** | 128 |")
+    t = t.replace("| **Lines of Code** | ~260,000 |", "| **Lines of Code** | ~259,000 |")
     t = t.replace("all 1,448 Java files", "all 1,610 Java files")
     t = t.replace("all 1,494 Java files", "all 1,610 Java files")
     t = t.replace("Java-Quelldateien (main): 1.494", "Java-Quelldateien (main + tests): 1.610")
     t = t.replace(
         "With over 93,000 lines of Java code, 354 items, 152 blocks, and 139 commands",
+        "With ~259,000 lines of Java code, 399 registered items, 125 blocks, and 25 root commands (132 literals)",
+    )
+    t = t.replace(
         "With ~260,000 lines of Java code, 354 catalogued items, 152 blocks, and 139 commands",
+        "With ~259,000 lines of Java code, 399 registered items, 125 blocks, and 25 root commands (132 literals)",
     )
     t = t.replace("Enum defining all 7 plot types", "Enum defining all 8 plot types")
     t = t.replace("has **7 plot types**", "has **8 plot types**")
@@ -86,34 +98,13 @@ def patch_generic(t: str) -> str:
         "Purchasable types (residential, commercial, towing_yard)",
         "Purchasable types (residential, commercial, industrial, towing_yard)",
     )
-    t = t.replace(
-        "24 achievements across 5 categories",
-        "~35 achievements across 4 used categories",
-    )
-    t = t.replace(
-        "24 achievements in 5 categories",
-        "~35 achievements in 4 used categories",
-    )
-    t = t.replace(
-        "24 Achievements in 5 Kategorien",
-        "~35 Achievements in 4 Kategorien",
-    )
-    t = t.replace(
-        "provides 24 achievements across 5 categories",
-        "provides ~35 achievements across 4 used categories",
-    )
-    t = t.replace(
-        "with 24 achievements across 5 categories",
-        "with ~35 achievements across 4 used categories",
-    )
-    t = t.replace(
-        "- **24 achievements** across 5 categories",
-        "- **~35 achievements** across 4 used categories",
-    )
-    t = t.replace(
-        "3 attachments (Scope/Silencer/Laser)",
-        "2 attachments (Scope/Silencer)",
-    )
+    t = t.replace("24 achievements across 5 categories", "~35 achievements across 4 used categories")
+    t = t.replace("24 achievements in 5 categories", "~35 achievements in 4 used categories")
+    t = t.replace("24 Achievements in 5 Kategorien", "~35 Achievements in 4 Kategorien")
+    t = t.replace("provides 24 achievements across 5 categories", "provides ~35 achievements across 4 used categories")
+    t = t.replace("with 24 achievements across 5 categories", "with ~35 achievements across 4 used categories")
+    t = t.replace("- **24 achievements** across 5 categories", "- **~35 achievements** across 4 used categories")
+    t = t.replace("3 attachments (Scope/Silencer/Laser)", "2 attachments (Scope/Silencer)")
     t = t.replace(
         "| [Tutorial System](features/Tutorial-System.md) | Player Onboarding | 7-step interactive tutorial",
         "| [Tutorial System](features/Tutorial-System.md) | Player Onboarding (**not implemented**) | Design doc only — 7-step tutorial",
@@ -132,6 +123,14 @@ def patch_generic(t: str) -> str:
         "/state balance              Check your bank balance",
         "/state balance              View the government treasury balance",
     )
+    t = t.replace("Full catalog of all 354 registered items", "Catalog of items (399 ITEMS.register including block items; 316 standalone)")
+    t = t.replace("all 354 registered items", "the item catalog")
+    t = t.replace("Complete listing of all 152 registered blocks", "Listing of 125 registered blocks")
+    t = t.replace("all 152 registered blocks", "125 registered blocks")
+    t = t.replace("Complete reference for all 139 commands", "Reference for registered commands (25 root / 132 literals)")
+    t = t.replace("all 139 commands", "25 root commands")
+    t = t.replace("Command pattern for all 139 commands", "Command pattern for 25 root commands")
+    t = t.replace("WeaponItems: 26 registered items", "WeaponItems: 28 registered items")
     return t
 
 
@@ -151,7 +150,7 @@ def patch_changelog(t: str) -> str:
             "- 8 plot types including INDUSTRIAL\n"
             "- Persistence: JSON + IncrementalSaveManager\n"
             "- License metadata: GNU GPLv3\n"
-            "- WeaponItems: 26 registered items; no Laser/Heavy magazine items\n\n"
+            "- WeaponItems: 28 registered items; no Laser/Heavy magazine items\n\n"
             "---\n\n"
         )
         t = t.replace("## [3.7.2-beta]", insert + "## [3.7.2-beta]", 1)

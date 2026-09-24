@@ -28,18 +28,18 @@
 | **Minecraft** | 1.20.1 |
 | **Forge** | 47.4.0 |
 | **Java** | 17 |
-| **Lines of Code** | ~260,000 |
+| **Lines of Code** | ~259,000 |
 | **Total Files** | 1,610 Java |
-| **Registered Items** | 354 catalogued |
-| **Registered Blocks** | 152 |
-| **Available Commands** | 139 |
+| **Registered Items** | 399 (`ITEMS.register`) |
+| **Registered Blocks** | 125 |
+| **Available Commands** | 25 root / 132 literals |
 | **Production Chains** | 14 (8 illegal + 6 legal) |
 | **Weapon Types** | 13 (6 guns + 4 melee + 3 grenades) |
 | **API Modules** | 11 |
-| **Unit Tests** | 292 |
-| **GUI Screens** | 126 |
-| **Manager Classes** | 55 |
-| **BlockEntity Types** | 131 |
+| **Unit Tests** | 681 in 41 files |
+| **GUI Screens** | 147 |
+| **Manager Classes** | 62 |
+| **BlockEntity Types** | 128 |
 | **License** | GNU General Public License v3 |
 | **Author** | Luckas R. Schneider (Minecraft425HD) |
 
@@ -52,9 +52,9 @@
 | Page | Description |
 |---|---|
 | [Getting Started](Getting-Started.md) | Installation guide, prerequisites, first-time setup, and first steps for both players and server administrators |
-| [Commands](Commands.md) | Complete reference for all 139 commands organized by category with syntax, permissions, and examples |
-| [Items](Items.md) | Full catalog of all 354 registered items with descriptions, categories, and usage information |
-| [Blocks](Blocks.md) | Complete listing of all 152 registered blocks including multi-block structures and special behaviors |
+| [Commands](Commands.md) | Reference for registered commands (25 root / 132 literals) organized by category with syntax, permissions, and examples |
+| [Items](Items.md) | Catalog of items (399 ITEMS.register including block items; 316 standalone) with descriptions, categories, and usage information |
+| [Blocks](Blocks.md) | Listing of 125 registered blocks including multi-block structures and special behaviors |
 | [Production Systems](Production-Systems.md) | Overview of all 14 production chains (8 illegal + 6 legal) with flowcharts, item lists, and quality mechanics |
 | [FAQ](FAQ.md) | Frequently asked questions, common issues, and troubleshooting guide |
 
@@ -268,7 +268,7 @@ These mods are not required but provide enhanced functionality when installed:
 | Observer | Forge event bus integration |
 | Factory | Entity and item creation |
 | Registry | Deferred Register for items and blocks |
-| Command | Command pattern for all 139 commands |
+| Command | Command pattern for 25 root commands |
 | Facade | Simplified public API interfaces |
 
 ---

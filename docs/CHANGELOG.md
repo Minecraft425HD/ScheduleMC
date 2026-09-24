@@ -13,7 +13,7 @@ Format: `[version] - date — Summary of changes`
 - 8 plot types including INDUSTRIAL
 - Persistence: JSON + IncrementalSaveManager
 - License metadata: GNU GPLv3
-- WeaponItems: 26 registered items; no Laser/Heavy magazine items
+- WeaponItems: 28 registered items; no Laser/Heavy magazine items
 
 ---
 
