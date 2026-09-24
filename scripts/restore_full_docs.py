@@ -2,7 +2,6 @@
 from pathlib import Path
 
 ROOTS = [Path("README.md"), Path("docs"), Path("wiki")]
-SKIP_NAMES = {"restore_full_docs.py"}
 
 
 def patch_generic(t: str) -> str:
@@ -20,6 +19,8 @@ def patch_generic(t: str) -> str:
     t = t.replace("**~249k LOC** across **1,561 Java files**", "**~260k LOC** across **1,610 Java files**")
     t = t.replace("- **~249k LOC (main + tests)** and **1,561 Java files**", "- **~260k LOC (main + tests)** and **1,610 Java files**")
     t = t.replace("Enum defining all 7 plot types", "Enum defining all 8 plot types")
+    t = t.replace("has **7 plot types**", "has **8 plot types**")
+    t = t.replace("ScheduleMC supports 5 plot types:", "ScheduleMC supports 8 plot types:")
     t = t.replace(
         "- **5 Plot Types** -- Residential, Commercial, Shop, Public, Government",
         "- **8 Plot Types** -- Residential, Commercial, Industrial, Shop, Public, Government, Prison, Towing Yard",
@@ -38,6 +39,18 @@ def patch_generic(t: str) -> str:
         "| **GOVERNMENT** | Red | Server | No | No | Admin-only |\n| **PRISON** | Dark red | Server | No | No | Police/admin |\n| **TOWING_YARD** | Orange | Player/Server | Yes | No | Full |\n| **INDUSTRIAL** | Brown | Player | Yes | No | Full (factory floor) |",
     )
     t = t.replace(
+        "    COMMERCIAL(true, true),     // Purchasable, rentable\n    SHOP(false, false),",
+        "    COMMERCIAL(true, true),     // Purchasable, rentable\n    INDUSTRIAL(true, true),     // Factory floor\n    SHOP(false, false),",
+    )
+    t = t.replace(
+        "| **Commercial** | Businesses, offices, and shops | All players |\n| **Shop** |",
+        "| **Commercial** | Businesses, offices, and shops | All players |\n| **Industrial** | Factories / processing | All players |\n| **Shop** |",
+    )
+    t = t.replace(
+        "| **Commercial** | Yes | Yes | Businesses and offices |\n| **Shop** |",
+        "| **Commercial** | Yes | Yes | Businesses and offices |\n| **Industrial** | Yes | Yes | Factories / processing |\n| **Shop** |",
+    )
+    t = t.replace(
         "24 achievements across 5 categories",
         "~35 achievements across 4 used categories",
     )
@@ -50,6 +63,10 @@ def patch_generic(t: str) -> str:
         "2 attachments (Scope/Silencer)",
     )
     t = t.replace("Last Updated:** 2026-04-13", "Last Updated:** 2026-09-24")
+    t = t.replace(
+        "distributed under the **All Rights Reserved** license. The `gradle.properties` file specifies the license as `All Rights Reserved`",
+        "distributed under the **GNU GPLv3**. The `gradle.properties` / `mods.toml` license field is `GNU GPLv3`",
+    )
     return t
 
 
@@ -80,15 +97,13 @@ def patch_changelog(t: str) -> str:
     return t
 
 
-def iter_markdown() -> list[Path]:
-    out: list[Path] = []
+def iter_markdown() -> list:
+    out = []
     for root in ROOTS:
         if root.is_file() and root.suffix == ".md":
             out.append(root)
         elif root.is_dir():
-            for p in root.rglob("*.md"):
-                if p.name not in SKIP_NAMES:
-                    out.append(p)
+            out.extend(root.rglob("*.md"))
     return sorted(out)
 
 
@@ -97,10 +112,7 @@ def main() -> None:
     print("candidates", len(files))
     for p in files:
         raw = p.read_text(encoding="utf-8", errors="replace")
-        if p.as_posix() == "docs/CHANGELOG.md":
-            new = patch_changelog(raw)
-        else:
-            new = patch_generic(raw)
+        new = patch_changelog(raw) if p.as_posix() == "docs/CHANGELOG.md" else patch_generic(raw)
         if new != raw:
             p.write_text(new, encoding="utf-8")
             print("patched", p.as_posix(), p.stat().st_size)
