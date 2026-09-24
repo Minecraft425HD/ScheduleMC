@@ -1,6 +1,8 @@
 package de.rolandsw.schedulemc.market;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.util.SereneSeasonsCompat;
+import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 
 import java.util.*;
@@ -10,7 +12,11 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Saisonales Preismodifikator-System.
  *
- * Jahreszeiten-Zyklus basierend auf Spieltagen (120 Tage = 1 Jahr):
+ * Ist die Serene Seasons Mod installiert, kommt die aktuelle Jahreszeit von
+ * dort — genau wie bei der Reifenhaftung im Vehicle-System
+ * ({@code vehicle.util.SereneSeasonsCompat}), damit beide Systeme dieselbe
+ * echte Jahreszeit verwenden. Ohne Serene Seasons faellt das System auf den
+ * eigenen Spieltage-Zyklus zurueck (120 Tage = 1 Jahr):
  * - FRUEHLING (Tag 0-29):  Landwirtschaft -20%, Baumaterial +10%
  * - SOMMER (Tag 30-59):    Nahrung -15%, Getraenke +20%, Chemie +10%
  * - HERBST (Tag 60-89):    Ernte: Nahrung -30%, Luxus +15%
@@ -50,6 +56,9 @@ public class SeasonalPriceModifier {
     // Aktuelle Saison (cached)
     private Season currentSeason = Season.FRUEHLING;
     private long currentDay = 0;
+
+    // true, wenn die aktuelle Saison von Serene Seasons stammt statt vom Spieltage-Zyklus
+    private boolean sereneSeasonsDriven = false;
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -147,17 +156,47 @@ public class SeasonalPriceModifier {
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Aktualisiert die aktuelle Saison basierend auf dem Spieltag.
+     * Aktualisiert die aktuelle Saison basierend auf dem Spieltag (Fallback-Zyklus).
+     * Nutzt {@link #updateSeason(long, Level)}, falls ein Level zur Verfuegung steht.
      */
     public void updateSeason(long gameDay) {
+        updateSeason(gameDay, null);
+    }
+
+    /**
+     * Aktualisiert die aktuelle Saison. Ist Serene Seasons installiert, wird die
+     * echte Jahreszeit von dort uebernommen (wie bei der Reifenhaftung im
+     * Vehicle-System) — ansonsten wird auf den 120-Tage-Zyklus zurueckgefallen.
+     */
+    public void updateSeason(long gameDay, Level level) {
         this.currentDay = gameDay;
-        Season newSeason = getSeasonForDay(gameDay);
-        if (newSeason != currentSeason) {
+
+        Season newSeason;
+        boolean driven = false;
+        SereneSeasonsCompat.MainSeason realSeason = level != null ? SereneSeasonsCompat.getMainSeason(level) : null;
+        if (realSeason != null) {
+            newSeason = fromMainSeason(realSeason);
+            driven = true;
+        } else {
+            newSeason = getSeasonForDay(gameDay);
+        }
+
+        if (newSeason != currentSeason || driven != sereneSeasonsDriven) {
             Season old = currentSeason;
             currentSeason = newSeason;
-            LOGGER.info("Saisonwechsel: {} -> {} (Tag {})", old.getDisplayName(),
-                newSeason.getDisplayName(), gameDay);
+            sereneSeasonsDriven = driven;
+            LOGGER.info("Saisonwechsel: {} -> {} (Tag {}, Quelle: {})", old.getDisplayName(),
+                newSeason.getDisplayName(), gameDay, driven ? "Serene Seasons" : "Spieltage-Zyklus");
         }
+    }
+
+    private static Season fromMainSeason(SereneSeasonsCompat.MainSeason mainSeason) {
+        return switch (mainSeason) {
+            case SPRING -> Season.FRUEHLING;
+            case SUMMER -> Season.SOMMER;
+            case AUTUMN -> Season.HERBST;
+            case WINTER -> Season.WINTER;
+        };
     }
 
     /**
@@ -192,6 +231,12 @@ public class SeasonalPriceModifier {
         if (mods == null) return 1.0f;
 
         float currentMod = mods.getOrDefault(currentSeason, 1.0f);
+
+        // Wenn Serene Seasons die Saison liefert, entspricht der Spieltage-Fortschritt
+        // nicht mehr den echten Saisongrenzen -> keine Interpolation, direkter Wert.
+        if (sereneSeasonsDriven) {
+            return currentMod;
+        }
 
         // Sanfte Interpolation am Saisonuebergang (erste/letzte 3 Tage)
         float progress = getSeasonProgress();

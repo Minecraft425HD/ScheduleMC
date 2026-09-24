@@ -230,16 +230,27 @@ Inactive Market (no trades):
 ## Seasonal Pricing
 
 In addition to supply/demand, prices are also modulated by an in-game
-**calendar/season system** — `market/SeasonalPriceModifier.java`, wired
-into the live price calculation path via `DynamicPriceManager`
-(`npc/life/economy/`), which calls `updateSeason(currentDay)` on day change
-and multiplies `getModifier(category)` directly into the final price. This
-is fully active, not a design-only feature.
+**season system** — `market/SeasonalPriceModifier.java`, wired into the
+live price calculation path via `DynamicPriceManager` (`npc/life/economy/`),
+which calls `updateSeason(currentDay, level)` on day change and multiplies
+`getModifier(category)` directly into the final price. This is fully
+active, not a design-only feature.
 
-**Calendar:** 120 game-days per year, split into 4 seasons of 30 days each
-— FRUEHLING (Spring), SOMMER (Summer), HERBST (Autumn), WINTER — derived
-from `level.getDayTime() / 24000`. There is no separate calendar UI; the
-season is pure day-count math.
+**Season source:** if the optional **Serene Seasons** mod is installed,
+the real Serene Seasons season is used directly — the same
+Serene-Seasons-driven approach used by the Vehicle System's tire-traction
+mechanic (see [Vehicle System](Vehicle-System.md)), so both systems agree
+on the current season. Without Serene Seasons installed, the system falls
+back to its own internal calendar: 120 game-days per year, split into 4
+seasons of 30 days each — FRUEHLING (Spring), SOMMER (Summer), HERBST
+(Autumn), WINTER — derived from `level.getDayTime() / 24000`. There is no
+separate calendar UI in either case; the season is determined automatically.
+
+When Serene Seasons drives the season, category multipliers apply at their
+full value immediately on season change (no smoothing, since Serene
+Seasons doesn't expose a day-in-season fraction through the same API used
+here). In fallback mode, transitions between seasons interpolate smoothly
+over a 3-day window instead of jumping instantly.
 
 **Per-category multipliers** (`registerDefaultModifiers()`), e.g. for the
 FOOD category:
@@ -252,9 +263,7 @@ FOOD category:
 | Winter | 1.30x |
 
 Categories affected: PLANT, MUSHROOM, CHEMICAL, FOOD, WEAPONS, LUXURY,
-BUILDING — each with its own set of 4 seasonal multipliers. Transitions
-between seasons interpolate smoothly over a 3-day window rather than
-jumping instantly.
+BUILDING — each with its own set of 4 seasonal multipliers.
 
 A `getSeasonReport()` method exists that formats a player-facing summary
 with icons and colors, but it is **not currently surfaced anywhere** — no

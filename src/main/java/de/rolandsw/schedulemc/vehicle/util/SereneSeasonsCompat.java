@@ -3,21 +3,16 @@ package de.rolandsw.schedulemc.vehicle.util;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.TireSeasonType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.ModList;
 
 /**
- * Kompatibilitäts-Schicht für Serene Seasons Mod.
- * Erkennt ob Serene Seasons installiert ist und ermittelt die aktuelle Jahreszeit.
+ * Reifenhaftungs-spezifischer Adapter auf {@link de.rolandsw.schedulemc.util.SereneSeasonsCompat},
+ * der zentralen Kompatibilitäts-Schicht für die Serene Seasons Mod.
  *
  * Sommerreifen (SUMMER): Optimal in SPRING, SUMMER
  * Winterreifen (WINTER): Optimal in AUTUMN, WINTER
  * Allwetterreifen (ALL_SEASON): Akzeptabel in allen Jahreszeiten
  */
 public final class SereneSeasonsCompat {
-
-    private static final String SERENE_SEASONS_MOD_ID = "sereneseasons";
-
-    private static Boolean cachedModPresent;
 
     private SereneSeasonsCompat() {
         // Utility class
@@ -27,31 +22,21 @@ public final class SereneSeasonsCompat {
      * Prüft ob Serene Seasons installiert ist
      */
     public static boolean isSereneSeasonsLoaded() {
-        synchronized (SereneSeasonsCompat.class) {
-            if (cachedModPresent == null) {
-                cachedModPresent = ModList.get().isLoaded(SERENE_SEASONS_MOD_ID);
-            }
-            return cachedModPresent;
-        }
+        return de.rolandsw.schedulemc.util.SereneSeasonsCompat.isLoaded();
     }
 
     /**
      * Ermittelt ob aktuell Winter-Bedingungen herrschen.
      * Winter-Bedingungen = LATE_AUTUMN, EARLY_WINTER, MID_WINTER, LATE_WINTER
      *
-     * Wenn Serene Seasons nicht installiert ist, wird Minecraft-Biom-Temperatur als Fallback verwendet.
+     * Wenn Serene Seasons nicht installiert ist, gibt es keine Winterbedingungen.
      */
     public static boolean isWinterConditions(Level level) {
-        if (!isSereneSeasonsLoaded()) {
-            return false; // Ohne Serene Seasons keine Winterbedingungen
-        }
-
-        try {
-            return SereneSeasonsHelper.isWinterSeason(level);
-        } catch (Exception e) {
-            // Falls die API sich ändert oder nicht verfügbar ist
-            return false;
-        }
+        String name = de.rolandsw.schedulemc.util.SereneSeasonsCompat.getSubSeasonName(level);
+        return "LATE_AUTUMN".equals(name)
+            || "EARLY_WINTER".equals(name)
+            || "MID_WINTER".equals(name)
+            || "LATE_WINTER".equals(name);
     }
 
     /**
@@ -59,15 +44,11 @@ public final class SereneSeasonsCompat {
      * Sommer-Bedingungen = LATE_SPRING, EARLY_SUMMER, MID_SUMMER, LATE_SUMMER
      */
     public static boolean isSummerConditions(Level level) {
-        if (!isSereneSeasonsLoaded()) {
-            return false;
-        }
-
-        try {
-            return SereneSeasonsHelper.isSummerSeason(level);
-        } catch (Exception e) {
-            return false;
-        }
+        String name = de.rolandsw.schedulemc.util.SereneSeasonsCompat.getSubSeasonName(level);
+        return "LATE_SPRING".equals(name)
+            || "EARLY_SUMMER".equals(name)
+            || "MID_SUMMER".equals(name)
+            || "LATE_SUMMER".equals(name);
     }
 
     /**
@@ -112,69 +93,5 @@ public final class SereneSeasonsCompat {
         }
 
         return correctMod;
-    }
-
-    /**
-     * Isolierte Hilfsklasse um ClassNotFoundException zu vermeiden wenn
-     * Serene Seasons nicht installiert ist (Lazy Loading).
-     *
-     * PERFORMANCE: Reflection-Ergebnisse (Class, Method) werden gecacht.
-     * Vorher: Class.forName() + getMethod() bei JEDEM Aufruf (potenziell jeden Tick).
-     * Nachher: Einmaliges Lookup, danach nur noch Method.invoke().
-     */
-    private static class SereneSeasonsHelper {
-
-        // PERFORMANCE: Gecachte Reflection-Referenzen (einmaliges Lookup)
-        private static java.lang.reflect.Method cachedGetCurrentSeason;
-        private static java.lang.reflect.Method cachedGetSubSeason;
-        private static boolean reflectionInitialized = false;
-        private static boolean reflectionFailed = false;
-
-        private static void initReflection() {
-            if (reflectionInitialized) return;
-            reflectionInitialized = true;
-            try {
-                Class<?> seasonHelperClass = Class.forName("sereneseasons.api.season.SeasonHelper");
-                cachedGetCurrentSeason = seasonHelperClass.getMethod("getCurrentSeason", Level.class);
-            } catch (Exception e) {
-                reflectionFailed = true;
-            }
-        }
-
-        private static String getSubSeasonName(Level level) {
-            initReflection();
-            if (reflectionFailed) return "";
-            try {
-                Object season = cachedGetCurrentSeason.invoke(null, level);
-                if (season == null) return "";
-
-                // Cache getSubSeason beim ersten erfolgreichen Aufruf
-                synchronized (SereneSeasonsHelper.class) {
-                    if (cachedGetSubSeason == null) {
-                        cachedGetSubSeason = season.getClass().getMethod("getSubSeason");
-                    }
-                }
-                Object subSeason = cachedGetSubSeason.invoke(season);
-                return subSeason != null ? subSeason.toString() : "";
-            } catch (Exception e) {
-                return "";
-            }
-        }
-
-        static boolean isWinterSeason(Level level) {
-            String name = getSubSeasonName(level);
-            return "LATE_AUTUMN".equals(name)
-                || "EARLY_WINTER".equals(name)
-                || "MID_WINTER".equals(name)
-                || "LATE_WINTER".equals(name);
-        }
-
-        static boolean isSummerSeason(Level level) {
-            String name = getSubSeasonName(level);
-            return "LATE_SPRING".equals(name)
-                || "EARLY_SUMMER".equals(name)
-                || "MID_SUMMER".equals(name)
-                || "LATE_SUMMER".equals(name);
-        }
     }
 }

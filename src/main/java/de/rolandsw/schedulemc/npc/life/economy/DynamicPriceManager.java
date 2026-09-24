@@ -128,7 +128,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         // Tageswechsel prüfen
         long currentDay = level.getDayTime() / 24000;
         if (lastKnownDay != -1 && currentDay > lastKnownDay) {
-            onDayChange(currentDay);
+            onDayChange(currentDay, level);
         }
         lastKnownDay = currentDay;
     }
@@ -136,9 +136,9 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     /**
      * Wird bei Tageswechsel aufgerufen
      */
-    private void onDayChange(long currentDay) {
-        // Saison aktualisieren
-        SeasonalPriceModifier.getInstance().updateSeason(currentDay);
+    private void onDayChange(long currentDay, ServerLevel level) {
+        // Saison aktualisieren (Serene Seasons falls installiert, sonst Spieltage-Zyklus)
+        SeasonalPriceModifier.getInstance().updateSeason(currentDay, level);
 
         // Markt-Update durchführen
         updateMarketConditions();
