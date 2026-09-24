@@ -18,9 +18,15 @@ Canonical runtime version comes from `gradle.properties`:
 | Achievement registrations | **~35** in 4 used categories |
 | Java files / LOC | **~1610 / ~260k** |
 
-## Docs still drifting on this branch
+## Synced on this branch
 
-- `README.md` still says 12 API modules, 7 plot types, client JAR `3.8.0-beta` in one install snippet
-- `docs/ARCHITECTURE.md` header still `3.8.0-beta` / 1561 files
-- many wiki feature pages still stamp `3.8.0-beta`
-- `docs/CHANGELOG.md` on this branch was shortened; restore full history from `main` then prepend the 3.9.0 section
+- `gradle.properties`, `mods.toml`, `update.json`
+- `wiki/Home.md`
+- `wiki/features/Weapon-System.md`
+- `wiki/features/Achievement-System.md` (header)
+- `docs/CHANGELOG.md` (3.9.0 notes; older history shortened)
+- `docs/README_ERRATA.md` (README + ARCHITECTURE line fixes)
+
+## Still stamped 3.8.0-beta in-page
+
+Feature wiki footers and some `docs/*.md` headers. Read them as 3.9.0-beta. Full in-place rewrite of 200k+ files is tracked as follow-up; errata above is authoritative until then.
