@@ -59,6 +59,8 @@ public class SeasonalPriceModifier {
 
     // true, wenn die aktuelle Saison von Serene Seasons stammt statt vom Spieltage-Zyklus
     private boolean sereneSeasonsDriven = false;
+    // Roher Serene-Seasons-Sub-Season-Name (z.B. "MID_WINTER"), nur gesetzt wenn sereneSeasonsDriven
+    private String sereneSubSeasonName = "";
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -171,22 +173,29 @@ public class SeasonalPriceModifier {
     public void updateSeason(long gameDay, Level level) {
         this.currentDay = gameDay;
 
+        boolean useSereneSeasons = de.rolandsw.schedulemc.config.ModConfigHandler.COMMON.MARKET_SEASON_USE_SERENE_SEASONS.get();
+        String subSeasonName = (level != null && useSereneSeasons) ? SereneSeasonsCompat.getSubSeasonName(level) : "";
+        SereneSeasonsCompat.MainSeason realSeason = SereneSeasonsCompat.mainSeasonFromSubSeasonName(subSeasonName);
+
         Season newSeason;
         boolean driven = false;
-        SereneSeasonsCompat.MainSeason realSeason = level != null ? SereneSeasonsCompat.getMainSeason(level) : null;
         if (realSeason != null) {
             newSeason = fromMainSeason(realSeason);
             driven = true;
         } else {
             newSeason = getSeasonForDay(gameDay);
+            subSeasonName = "";
         }
 
-        if (newSeason != currentSeason || driven != sereneSeasonsDriven) {
+        if (newSeason != currentSeason || driven != sereneSeasonsDriven || !subSeasonName.equals(sereneSubSeasonName)) {
             Season old = currentSeason;
             currentSeason = newSeason;
             sereneSeasonsDriven = driven;
-            LOGGER.info("Saisonwechsel: {} -> {} (Tag {}, Quelle: {})", old.getDisplayName(),
-                newSeason.getDisplayName(), gameDay, driven ? "Serene Seasons" : "Spieltage-Zyklus");
+            sereneSubSeasonName = subSeasonName;
+            if (newSeason != old) {
+                LOGGER.info("Saisonwechsel: {} -> {} (Tag {}, Quelle: {})", old.getDisplayName(),
+                    newSeason.getDisplayName(), gameDay, driven ? "Serene Seasons" : "Spieltage-Zyklus");
+            }
         }
     }
 
@@ -284,20 +293,92 @@ public class SeasonalPriceModifier {
         return DAYS_PER_SEASON - dayInSeason;
     }
 
+    public boolean isSereneSeasonsDriven() {
+        return sereneSeasonsDriven;
+    }
+
     /**
-     * Generiert einen Saisonbericht fuer Spieler.
+     * Fortschritt innerhalb der Saison als Anteil (0.0 - 1.0), unabhaengig von der Quelle.
+     * Im Serene-Seasons-Modus wird die Sub-Season-Phase (frueh/Mitte/spaet) als grobe
+     * Naeherung verwendet, da die exakte Tageszahl innerhalb der Sub-Season nicht per
+     * Reflection abgefragt wird.
+     */
+    public float getEstimatedProgress() {
+        if (sereneSeasonsDriven) {
+            int phase = SereneSeasonsCompat.phaseIndexFromSubSeasonName(sereneSubSeasonName);
+            return (phase + 0.5f) / 3.0f;
+        }
+        return getSeasonProgress();
+    }
+
+    /**
+     * Menschenlesbare Phasenbeschreibung der aktuellen Sub-Season
+     * (nur aussagekraeftig wenn {@link #isSereneSeasonsDriven()} true ist).
+     */
+    public String getSerenePhaseLabel() {
+        int phase = SereneSeasonsCompat.phaseIndexFromSubSeasonName(sereneSubSeasonName);
+        String phaseName = switch (phase) {
+            case 0 -> "Frueh";
+            case 2 -> "Spaet";
+            default -> "Mitte";
+        };
+        return phaseName + " (Phase " + (phase + 1) + "/3)";
+    }
+
+    /**
+     * Zeichnet einen 10-Segment-Fortschrittsbalken in der Saisonfarbe.
+     */
+    private String buildProgressBar(float progress) {
+        String colorCode = currentSeason.getIcon().substring(0, 2); // z.B. "\u00A7a"
+        int filled = Math.round(Math.max(0f, Math.min(1f, progress)) * 10);
+        StringBuilder bar = new StringBuilder("\u00A77[").append(colorCode);
+        for (int i = 0; i < filled; i++) {
+            bar.append('\u2588');
+        }
+        bar.append("\u00A78"); // ab hier grau fuer den leeren Rest
+        for (int i = filled; i < 10; i++) {
+            bar.append('\u2591');
+        }
+        bar.append("\u00A77] ").append(Math.round(progress * 100)).append('%');
+        return bar.toString();
+    }
+
+    /**
+     * Generiert einen Saisonbericht fuer Spieler (genutzt von /season).
+     * Zeigt Saison, Fortschritt, verbleibende Zeit und aktive Preisaenderungen an.
+     * Passt sich der Saisonquelle an (Serene Seasons vs. interner Spieltage-Zyklus).
      */
     public String getSeasonReport() {
         StringBuilder sb = new StringBuilder();
         sb.append(currentSeason.getIcon()).append(" \u00A7l").append(currentSeason.getDisplayName())
-          .append("\u00A7r \u00A77(Tag ").append(currentDay).append(")\n");
-        sb.append("\u00A77Naechste Saison in: \u00A7f").append(getDaysUntilNextSeason()).append(" Tagen\n\n");
-        sb.append("\u00A76Preisaenderungen:\n");
+          .append("\u00A7r\n");
 
+        sb.append(buildProgressBar(getEstimatedProgress())).append('\n');
+
+        if (sereneSeasonsDriven) {
+            sb.append("\u00A77Phase: \u00A7f").append(getSerenePhaseLabel()).append('\n');
+            sb.append("\u00A78Quelle: Serene Seasons \u2014 genaue Resttage haengen von dessen Konfiguration ab\n\n");
+        } else {
+            sb.append("\u00A77Naechste Saison in: \u00A7f").append(getDaysUntilNextSeason()).append(" Tagen \u00A77(Tag ")
+              .append(currentDay).append(")\n");
+            sb.append("\u00A78Quelle: interner Kalender\n\n");
+        }
+
+        sb.append("\u00A76Preisaenderungen:\n");
+        List<Map.Entry<String, Float>> active = new ArrayList<>();
         for (Map.Entry<String, Map<Season, Float>> entry : seasonalModifiers.entrySet()) {
             float mod = entry.getValue().getOrDefault(currentSeason, 1.0f);
             if (Math.abs(mod - 1.0f) > 0.01f) {
-                int percent = Math.round((mod - 1.0f) * 100);
+                active.add(Map.entry(entry.getKey(), mod));
+            }
+        }
+        active.sort((a, b) -> Float.compare(b.getValue(), a.getValue()));
+
+        if (active.isEmpty()) {
+            sb.append("  \u00A77Keine aktiven Preisaenderungen diese Saison.\n");
+        } else {
+            for (Map.Entry<String, Float> entry : active) {
+                int percent = Math.round((entry.getValue() - 1.0f) * 100);
                 String color = percent > 0 ? "\u00A7c+" : "\u00A7a";
                 sb.append("  \u00A7f").append(entry.getKey()).append(": ")
                   .append(color).append(percent).append("%\u00A7r\n");

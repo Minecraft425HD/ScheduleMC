@@ -117,7 +117,7 @@ not on any in-mod permission system.
 | Client Settings | `ClientConfigScreen` | Vehicle third-person toggle, °F/°C, vehicle volume/zoom sliders, debug logging (writes `CLIENT_SPEC`) |
 | Economy Settings | `EconomyConfigScreen` | Start balance, save interval, daily rewards/streak bonus, savings accounts, overdraft rate, recurring payment cap, property/sales tax, shop multipliers (16 options) |
 | Advanced Economy | `AdvancedEconomyConfigScreen` | Rent, shop enable, ratings, bank limits, stock market base prices/volatility, economy cycle, level/XP, per-drug risk premium, anti-exploit sell limits/cooldowns (34 options) |
-| Dynamic Pricing (UDPS) | `DynamicPricingConfigScreen` | Unified Dynamic Pricing System toggle, SD factor/decay, min/max multiplier, update interval, daily food cost, reference income (8 options) |
+| Dynamic Pricing (UDPS) | `DynamicPricingConfigScreen` | Unified Dynamic Pricing System toggle, SD factor/decay, min/max multiplier, update interval, daily food cost, reference income, and a Serene-Seasons-vs-internal-calendar toggle for [seasonal market pricing](Market-System.md#seasonal-pricing) (9 options) |
 | Produkt-Referenzpreise | `EconomyPricesConfigScreen` | Per-unit €-price for ~60 individual products across every production chain; explicit Save/Reset/Back |
 | Produktionsblock-Katalog | `ProductionBlockCatalogScreen` | Per-block price + required player level for ~100 production machine blocks; explicit Save/Reset/Back |
 | Plot Settings | `PlotConfigScreen` | Min/max plot size & price, max trusted players, refund-on-abandon %, transfer allow/deny; links to Block Restrictions |

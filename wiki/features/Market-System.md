@@ -236,15 +236,22 @@ which calls `updateSeason(currentDay, level)` on day change and multiplies
 `getModifier(category)` directly into the final price. This is fully
 active, not a design-only feature.
 
-**Season source:** if the optional **Serene Seasons** mod is installed,
-the real Serene Seasons season is used directly — the same
-Serene-Seasons-driven approach used by the Vehicle System's tire-traction
-mechanic (see [Vehicle System](Vehicle-System.md)), so both systems agree
-on the current season. Without Serene Seasons installed, the system falls
-back to its own internal calendar: 120 game-days per year, split into 4
-seasons of 30 days each — FRUEHLING (Spring), SOMMER (Summer), HERBST
-(Autumn), WINTER — derived from `level.getDayTime() / 24000`. There is no
-separate calendar UI in either case; the season is determined automatically.
+**Season source:** if the optional **Serene Seasons** mod is installed *and*
+the `season_use_serene_seasons` config option is enabled (default: on), the
+real Serene Seasons season is used directly — the same Serene-Seasons-driven
+approach used by the Vehicle System's tire-traction mechanic (see
+[Vehicle System](Vehicle-System.md)), so both systems agree on the current
+season. Otherwise (Serene Seasons absent, or the toggle disabled), the
+system falls back to its own internal calendar: 120 game-days per year,
+split into 4 seasons of 30 days each — FRUEHLING (Spring), SOMMER (Summer),
+HERBST (Autumn), WINTER — derived from `level.getDayTime() / 24000`. There
+is no separate calendar UI in either case; the season is determined
+automatically.
+
+The `season_use_serene_seasons` toggle is editable in-game via the
+[Config Editor](Config-Editor-System.md)'s **Dynamic Pricing (UDPS)**
+screen ("Saisonquelle Markt" button), letting admins force the internal
+calendar even with Serene Seasons installed.
 
 When Serene Seasons drives the season, category multipliers apply at their
 full value immediately on season change (no smoothing, since Serene
@@ -265,10 +272,36 @@ FOOD category:
 Categories affected: PLANT, MUSHROOM, CHEMICAL, FOOD, WEAPONS, LUXURY,
 BUILDING — each with its own set of 4 seasonal multipliers.
 
-A `getSeasonReport()` method exists that formats a player-facing summary
-with icons and colors, but it is **not currently surfaced anywhere** — no
-command or GUI calls it, so seasonal effects influence prices silently
-without an in-game way to check the current season directly.
+### Checking the Current Season
+
+```bash
+/season
+```
+
+Shows the current season with its icon, a 10-segment colored progress bar,
+and the active price changes for that season — built from
+`getSeasonReport()`. The report adapts to the season source:
+
+```
+═══ SEASON ═══
+☀ Sommer
+[██████░░░░] 62%
+Naechste Saison in: 11 Tagen (Tag 41)
+Quelle: interner Kalender
+
+Preisaenderungen:
+  FOOD: -15%
+  CHEMICAL: -10%
+  LUXURY: -10%
+  WEAPONS: -5%
+```
+
+When Serene Seasons drives the season, the progress bar approximates
+position within the season from the current sub-season phase
+(early/mid/late — Serene Seasons doesn't expose an exact day-in-season
+fraction through the same reflection API used here), and the report shows
+"Phase: Mitte (Phase 2/3)" instead of a day count, plus a note that exact
+timing depends on Serene Seasons' own configuration.
 
 ---
 

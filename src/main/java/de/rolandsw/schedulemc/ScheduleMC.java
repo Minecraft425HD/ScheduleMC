@@ -446,6 +446,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.territory.MapCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.npc.crime.BountyCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.market.MarketCommand.register(event.getDispatcher());
+            de.rolandsw.schedulemc.market.SeasonCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.gang.GangCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.commands.AdminCommand.register(event.getDispatcher());
             LockCommand.register(event.getDispatcher());

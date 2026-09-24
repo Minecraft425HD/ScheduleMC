@@ -1305,6 +1305,7 @@
   "command.prison.status_header": "§6═══ PRISON STATUS ═══",
   "command.prison.status_remaining": "§6Remaining: §e%s",
   "command.prison.status_wantedlevel": "§6Wanted level: §e%d",
+  "command.season.header": "§6§l═══ SEASON ═══",
   "command.shop.additem.already_exists": "Item already in shop! Use /shop setprice",
   "command.shop.additem.success": "Item added to shop!\nID: %s\nBuy: $%.2f\nSell: $%.2f",
   "command.shop.buy.cannot_buy": "This item cannot be purchased!",

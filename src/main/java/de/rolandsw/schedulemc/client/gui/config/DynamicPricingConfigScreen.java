@@ -66,6 +66,17 @@ public class DynamicPricingConfigScreen extends Screen {
             "Ref Income: §e%.0f€",
             ModConfigHandler.COMMON.DYNAMIC_PRICING_DAILY_REFERENCE_INCOME, 50, 1000));
 
+        boolean useSereneSeasons = ModConfigHandler.COMMON.MARKET_SEASON_USE_SERENE_SEASONS.get();
+        this.addRenderableWidget(Button.builder(
+            seasonSourceLabel(useSereneSeasons),
+            button -> {
+                boolean c = ModConfigHandler.COMMON.MARKET_SEASON_USE_SERENE_SEASONS.get();
+                ModConfigHandler.COMMON.MARKET_SEASON_USE_SERENE_SEASONS.set(!c);
+                ModConfigHandler.SPEC.save();
+                button.setMessage(seasonSourceLabel(!c));
+            }
+        ).bounds(this.width / 2 - 155, y + s * 5, 310, 20).build());
+
         this.addRenderableWidget(Button.builder(Component.literal("« Back"),
             button -> this.minecraft.setScreen(parent))
             .bounds(this.width / 2 - 100, this.height - 28, 200, 20).build());
@@ -76,13 +87,19 @@ public class DynamicPricingConfigScreen extends Screen {
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         graphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
-        graphics.drawCenteredString(this.font, Component.literal("§7Unified Dynamic Pricing System - 8 Options"),
+        graphics.drawCenteredString(this.font, Component.literal("§7Unified Dynamic Pricing System - 9 Options"),
             this.width / 2, 40, 0x808080);
     }
 
     @Override
     public void onClose() {
         this.minecraft.setScreen(parent);
+    }
+
+    private static Component seasonSourceLabel(boolean useSereneSeasons) {
+        return Component.literal("Saisonquelle Markt: " + (useSereneSeasons
+            ? "§bSerene Seasons §7(falls installiert)"
+            : "§eInterner Kalender"));
     }
 
     private static class DoubleSlider extends AbstractSliderButton {

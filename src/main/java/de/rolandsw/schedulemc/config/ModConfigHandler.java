@@ -214,6 +214,7 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue DYNAMIC_PRICING_SD_DECAY_RATE;
         public final ForgeConfigSpec.DoubleValue DYNAMIC_PRICING_DAILY_FOOD_COST;
         public final ForgeConfigSpec.DoubleValue DYNAMIC_PRICING_DAILY_REFERENCE_INCOME;
+        public final ForgeConfigSpec.BooleanValue MARKET_SEASON_USE_SERENE_SEASONS;
 
         // ═══════════════════════════════════════════════════════════
         // ECONOMIC CYCLE
@@ -995,6 +996,12 @@ public class ModConfigHandler {
             DYNAMIC_PRICING_DAILY_REFERENCE_INCOME = builder
                     .comment("Reference daily income for price calibration")
                     .defineInRange("daily_reference_income", 150.0, 50.0, 1000.0);
+
+            MARKET_SEASON_USE_SERENE_SEASONS = builder
+                    .comment("Saisonale Marktpreise von der Serene Seasons Mod ableiten (wie die Reifenhaftung im Vehicle-System),",
+                             "statt vom internen 120-Tage-Kalender. Ohne installierte Serene-Seasons-Mod wirkungslos",
+                             "(interner Kalender wird dann immer verwendet).")
+                    .define("season_use_serene_seasons", true);
 
             builder.pop();
 

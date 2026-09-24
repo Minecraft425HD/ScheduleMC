@@ -84,12 +84,30 @@ public final class SereneSeasonsCompat {
      *         installiert ist oder die aktuelle Sub-Season nicht ermittelt werden konnte.
      */
     public static MainSeason getMainSeason(Level level) {
-        String name = getSubSeasonName(level);
-        if (name.isEmpty()) return null;
-        if (name.contains("SPRING")) return MainSeason.SPRING;
-        if (name.contains("SUMMER")) return MainSeason.SUMMER;
-        if (name.contains("AUTUMN")) return MainSeason.AUTUMN;
-        if (name.contains("WINTER")) return MainSeason.WINTER;
+        return mainSeasonFromSubSeasonName(getSubSeasonName(level));
+    }
+
+    /**
+     * Reine Zuordnungsfunktion Sub-Season-Name -> Hauptjahreszeit, ohne erneuten
+     * Reflection-Aufruf. Nuetzlich wenn der Sub-Season-Name bereits vorliegt.
+     */
+    public static MainSeason mainSeasonFromSubSeasonName(String subSeasonName) {
+        if (subSeasonName == null || subSeasonName.isEmpty()) return null;
+        if (subSeasonName.contains("SPRING")) return MainSeason.SPRING;
+        if (subSeasonName.contains("SUMMER")) return MainSeason.SUMMER;
+        if (subSeasonName.contains("AUTUMN")) return MainSeason.AUTUMN;
+        if (subSeasonName.contains("WINTER")) return MainSeason.WINTER;
         return null;
+    }
+
+    /**
+     * Ordnet eine Sub-Season ihrer Phase innerhalb der Hauptjahreszeit zu
+     * (0 = frueh, 1 = Mitte, 2 = spaet). Unbekannte Namen ergeben 1 (Mitte).
+     */
+    public static int phaseIndexFromSubSeasonName(String subSeasonName) {
+        if (subSeasonName == null) return 1;
+        if (subSeasonName.startsWith("EARLY")) return 0;
+        if (subSeasonName.startsWith("LATE")) return 2;
+        return 1; // MID_* oder unbekannt
     }
 }

@@ -5,7 +5,7 @@
 **Complete Command Reference for ScheduleMC v3.9.0-beta**
 
 All registered commands organized by system, with syntax, permissions, and examples.
-**Source sync:** 161 `### /command` headings in this page; 21 distinct root command names, registered across 25 `dispatcher.register` calls (some roots like `/money`, `/utility`, `/prison` register their subtrees in more than one call). Largest groups: /health 41, /plot 24, /npc 21, /gang 14.
+**Source sync:** 162 `### /command` headings in this page; 22 distinct root command names, registered across 26 `dispatcher.register` calls (some roots like `/money`, `/utility`, `/prison` register their subtrees in more than one call). Largest groups: /health 41, /plot 24, /npc 21, /gang 14.
 
 
 [Back to Wiki Home](Home.md)
@@ -1556,6 +1556,21 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 
 ---
 
+### `/season`
+
+| | |
+|---|---|
+| **Permission** | Player |
+| **Description** | Show the current season with an icon and a 10-segment progress bar, the active per-category price changes for that season, and (in fallback mode) the number of days until the next season. If the Serene Seasons mod is installed and the `season_use_serene_seasons` config option is enabled, shows the real Serene Seasons season and sub-season phase instead of the internal calendar. |
+| **Related System** | Market System (Seasonal Pricing) |
+
+**Example:**
+```
+/season
+```
+
+---
+
 # 12. Gang Commands
 
 **Base command:** `/gang`
@@ -2594,6 +2609,7 @@ As of ScheduleMC 3.0, the following plot management features have been moved fro
 | Prison (Player) | `/bail`, `/jailtime` |
 | Utility | `/utility`, `/strom`, `/wasser`, `/utility top`, `stats`, `breakdown`, `<plotId>` |
 | Market | `/market prices`, `trends`, `stats`, `top` |
+| Season | `/season` |
 | Gang | `/gang create`, `invite`, `accept`, `leave`, `kick`, `promote`, `info`, `list`, `disband`, `perk` |
 | Lock | `/lock code`, `setcode`, `authorize`, `info`, `remove`, `list` |
 | Territory | `/map info` |
