@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.mapview.navigation.graph;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;

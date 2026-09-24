@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.towing.network;
 
 import de.rolandsw.schedulemc.ScheduleMC;
-import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.towing.MembershipData;

@@ -1,14 +1,10 @@
 package de.rolandsw.schedulemc.warehouse.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.ShopAccountManager;
 import de.rolandsw.schedulemc.economy.ShopAccount;
 import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.util.ThreadPoolManager;
-import de.rolandsw.schedulemc.npc.data.NPCData;
-import de.rolandsw.schedulemc.npc.data.ShopEntry;
-import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseBlockEntity;
 import de.rolandsw.schedulemc.warehouse.WarehouseSlot;
@@ -16,12 +12,10 @@ import de.rolandsw.schedulemc.warehouse.client.ClientWarehouseNPCCache;
 import de.rolandsw.schedulemc.warehouse.menu.WarehouseMenu;
 import de.rolandsw.schedulemc.warehouse.network.WarehouseNetworkHandler;
 import de.rolandsw.schedulemc.warehouse.network.packet.*;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,9 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;

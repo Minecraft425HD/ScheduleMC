@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.mushroom.blocks;
 
 import de.rolandsw.schedulemc.mushroom.blockentity.ClimateLampBlockEntity;
-import de.rolandsw.schedulemc.mushroom.blockentity.MushroomBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;

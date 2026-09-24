@@ -3,12 +3,10 @@ package de.rolandsw.schedulemc.client.screen.apps;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.CreditLoan;
 import de.rolandsw.schedulemc.economy.CreditLoanManager;
-import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.RecurringPayment;
 import de.rolandsw.schedulemc.economy.RecurringPaymentInterval;
 import de.rolandsw.schedulemc.economy.RecurringPaymentManager;
 import de.rolandsw.schedulemc.economy.Transaction;
-import de.rolandsw.schedulemc.economy.TransactionHistory;
 import de.rolandsw.schedulemc.economy.network.ClientBankDataCache;
 import de.rolandsw.schedulemc.economy.network.RequestBankDataPacket;
 import de.rolandsw.schedulemc.npc.network.BankTransferPacket;
@@ -24,7 +22,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Bank-App - Kontoverwaltung auf dem Smartphone

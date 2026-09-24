@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import de.rolandsw.schedulemc.region.PlotArea;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.network.PlotNetworkHandler;
@@ -13,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

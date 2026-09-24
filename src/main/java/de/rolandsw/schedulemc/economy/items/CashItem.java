@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.util.MoneyFormat;
 import de.rolandsw.schedulemc.economy.blocks.CashBlock;
 import de.rolandsw.schedulemc.economy.blocks.EconomyBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;

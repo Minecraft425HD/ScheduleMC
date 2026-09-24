@@ -13,7 +13,6 @@ import de.rolandsw.schedulemc.vehicle.net.MessageStartFuel;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import de.rolandsw.schedulemc.vehicle.sounds.SoundLoopTileentity;
 import de.rolandsw.schedulemc.vehicle.sounds.SoundLoopTileentity.ISoundLoopable;
-import de.rolandsw.schedulemc.economy.WalletManager;
 import de.maxhenkel.corelib.CachedValue;
 import de.maxhenkel.corelib.blockentity.ITickableBlockEntity;
 import de.maxhenkel.corelib.item.ItemUtils;

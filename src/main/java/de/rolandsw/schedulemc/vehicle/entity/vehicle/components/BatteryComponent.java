@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.entity.vehicle.components;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
-import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import de.rolandsw.schedulemc.vehicle.sounds.SoundLoopStarting;

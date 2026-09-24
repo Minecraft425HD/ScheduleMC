@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.production.events;
 
 import com.mojang.logging.LogUtils;
-import de.rolandsw.schedulemc.market.SeasonalPriceModifier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.MinecraftServer;

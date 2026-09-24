@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.vehicle.sounds;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
-import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;

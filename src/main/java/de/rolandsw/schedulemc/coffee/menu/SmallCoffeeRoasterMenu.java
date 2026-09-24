@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
+
 public class SmallCoffeeRoasterMenu extends AbstractContainerMenu {
     public final SmallCoffeeRoasterBlockEntity blockEntity;
     private final ContainerData data;

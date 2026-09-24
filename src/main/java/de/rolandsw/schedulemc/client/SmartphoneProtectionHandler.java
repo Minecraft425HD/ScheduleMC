@@ -2,9 +2,7 @@ package de.rolandsw.schedulemc.client;
 import de.rolandsw.schedulemc.util.EventHelper;
 
 import de.rolandsw.schedulemc.ScheduleMC;
-import de.rolandsw.schedulemc.client.screen.SmartphoneScreen;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;

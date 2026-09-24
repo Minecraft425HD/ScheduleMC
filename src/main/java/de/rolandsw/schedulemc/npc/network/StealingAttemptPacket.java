@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.economy.WalletManager;
-import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.lock.LockData;
 import de.rolandsw.schedulemc.lock.LockManager;
 import de.rolandsw.schedulemc.lock.LockType;
@@ -12,7 +11,6 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;

@@ -4,7 +4,6 @@ import de.rolandsw.schedulemc.lsd.BlotterDesign;
 import de.rolandsw.schedulemc.lsd.LSDDosage;
 import de.rolandsw.schedulemc.lsd.items.BlotterItem;
 import de.rolandsw.schedulemc.lsd.items.BlotterPaperItem;
-import de.rolandsw.schedulemc.lsd.items.LSDItems;
 import de.rolandsw.schedulemc.lsd.items.LSDSolutionItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;

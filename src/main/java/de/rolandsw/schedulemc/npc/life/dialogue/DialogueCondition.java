@@ -9,8 +9,6 @@ import de.rolandsw.schedulemc.npc.life.social.Faction;
 import de.rolandsw.schedulemc.npc.life.social.FactionManager;
 import de.rolandsw.schedulemc.npc.life.social.FactionRelation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-
 import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiPredicate;

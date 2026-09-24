@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.blocks.tileentity;
 
-import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.gui.ContainerWorkshop;

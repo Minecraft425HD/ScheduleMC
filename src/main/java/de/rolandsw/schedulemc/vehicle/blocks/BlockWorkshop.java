@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.vehicle.blocks;
 
 import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityWorkshop;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
-import de.rolandsw.schedulemc.vehicle.gui.TileEntityContainerProvider;
 import de.maxhenkel.corelib.blockentity.SimpleBlockEntityTicker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;

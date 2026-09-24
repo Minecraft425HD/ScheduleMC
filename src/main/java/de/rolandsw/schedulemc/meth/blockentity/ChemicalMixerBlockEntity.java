@@ -3,7 +3,6 @@ package de.rolandsw.schedulemc.meth.blockentity;
 import de.rolandsw.schedulemc.meth.MethQuality;
 import de.rolandsw.schedulemc.meth.items.EphedrineItem;
 import de.rolandsw.schedulemc.meth.items.IodineItem;
-import de.rolandsw.schedulemc.meth.items.MethItems;
 import de.rolandsw.schedulemc.meth.items.MethPasteItem;
 import de.rolandsw.schedulemc.meth.items.PseudoephedrineItem;
 import de.rolandsw.schedulemc.meth.items.RedPhosphorusItem;

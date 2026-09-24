@@ -3,7 +3,6 @@ import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityVehicleBase;
 import de.maxhenkel.corelib.math.MathUtils;

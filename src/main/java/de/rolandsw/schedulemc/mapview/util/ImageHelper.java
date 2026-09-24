@@ -3,7 +3,6 @@ package de.rolandsw.schedulemc.mapview.util;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.NativeImage.Format;
-import com.mojang.blaze3d.platform.TextureUtil;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -14,14 +13,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
-import org.lwjgl.system.MemoryUtil;
 
 public class ImageHelper {
 

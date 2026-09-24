@@ -1,8 +1,6 @@
 package de.rolandsw.schedulemc.npc.life.witness;
 
 import de.rolandsw.schedulemc.npc.life.social.RumorType;
-import net.minecraft.network.chat.Component;
-
 import java.util.Locale;
 
 /**

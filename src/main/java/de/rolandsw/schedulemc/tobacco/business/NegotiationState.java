@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.tobacco.business;
 
 import de.rolandsw.schedulemc.npc.data.NPCPersonality;
 import de.rolandsw.schedulemc.npc.personality.NPCPersonalityTrait;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.ArrayList;

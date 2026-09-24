@@ -5,7 +5,6 @@ import net.minecraft.nbt.CompoundTag;
 import org.slf4j.Logger;
 
 import java.util.concurrent.ThreadLocalRandom;
-import javax.annotation.Nullable;
 
 /**
  * Generic Plant Data - Vereinheitlicht alle Pflanzensysteme

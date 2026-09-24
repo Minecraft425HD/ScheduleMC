@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.messaging.Message;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Collections;

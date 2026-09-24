@@ -4,7 +4,6 @@ import de.rolandsw.schedulemc.cheese.CheeseAgeLevel;
 import de.rolandsw.schedulemc.cheese.CheeseQuality;
 import de.rolandsw.schedulemc.cheese.CheeseType;
 import de.rolandsw.schedulemc.cheese.items.CheeseItems;
-import de.rolandsw.schedulemc.cheese.items.CheeseWheelItem;
 import de.rolandsw.schedulemc.cheese.menu.PackagingStationMenu;
 import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;

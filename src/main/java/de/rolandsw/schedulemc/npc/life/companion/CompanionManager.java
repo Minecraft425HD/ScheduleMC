@@ -8,14 +8,11 @@ import de.rolandsw.schedulemc.npc.life.social.FactionManager;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

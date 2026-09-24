@@ -3,7 +3,6 @@ package de.rolandsw.schedulemc.vehicle.items;
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.PartRegistry;
-import de.rolandsw.schedulemc.vehicle.fluids.ModFluids;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;

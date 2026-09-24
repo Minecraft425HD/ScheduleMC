@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.vehicle.events;
 import de.rolandsw.schedulemc.util.EventHelper;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 
-import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityVehicleBase;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;

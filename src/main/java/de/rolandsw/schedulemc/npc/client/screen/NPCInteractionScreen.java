@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.client.screen.apps.ChatScreen;
 import de.rolandsw.schedulemc.messaging.Conversation;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.npc.data.BankCategory;
-import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.NPCInteractionMenu;
 import de.rolandsw.schedulemc.npc.data.NPCType;

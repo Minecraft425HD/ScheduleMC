@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.weapon.handler;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.weapon.attachment.Attachment;
 import de.rolandsw.schedulemc.weapon.gun.GunItem;

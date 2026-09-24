@@ -14,7 +14,6 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.function.Consumer;
 
 /**
  * Hilfsklasse für Datenpersistenz - eliminiert ~165 Zeilen duplizierten Code pro Manager

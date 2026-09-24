@@ -6,9 +6,6 @@ import de.rolandsw.schedulemc.coca.items.CocaItems;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
 import de.rolandsw.schedulemc.mdma.items.MDMAItems;
 import de.rolandsw.schedulemc.meth.items.MethItems;
-import de.rolandsw.schedulemc.mushroom.items.MushroomItems;
-import de.rolandsw.schedulemc.poppy.items.PoppyItems;
-import de.rolandsw.schedulemc.tobacco.items.TobaccoItems;
 import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
 

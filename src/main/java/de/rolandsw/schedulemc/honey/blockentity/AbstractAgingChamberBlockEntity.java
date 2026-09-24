@@ -1,8 +1,6 @@
 package de.rolandsw.schedulemc.honey.blockentity;
 
 import de.rolandsw.schedulemc.honey.HoneyAgeLevel;
-import de.rolandsw.schedulemc.honey.HoneyQuality;
-import de.rolandsw.schedulemc.honey.HoneyType;
 import de.rolandsw.schedulemc.honey.items.HoneyItems;
 import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;

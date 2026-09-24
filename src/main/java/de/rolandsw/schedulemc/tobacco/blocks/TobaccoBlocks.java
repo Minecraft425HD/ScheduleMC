@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.blocks;
 
 import de.rolandsw.schedulemc.ScheduleMC;
-import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
 import de.rolandsw.schedulemc.production.core.PotType;
 import de.rolandsw.schedulemc.tobacco.TobaccoType;

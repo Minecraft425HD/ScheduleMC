@@ -1,9 +1,7 @@
 package de.rolandsw.schedulemc.npc.menu;
 
 import de.rolandsw.schedulemc.npc.data.MerchantCategory;
-import de.rolandsw.schedulemc.npc.data.NPCData;
 import de.rolandsw.schedulemc.npc.data.ShopEntry;
-import de.rolandsw.schedulemc.npc.data.ShopInventory;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;

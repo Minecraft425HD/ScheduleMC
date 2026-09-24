@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.mission.network;
 
 import de.rolandsw.schedulemc.gang.scenario.MissionScenario;
-import de.rolandsw.schedulemc.gang.scenario.ObjectiveType;
 import de.rolandsw.schedulemc.gang.scenario.ScenarioManager;
 import de.rolandsw.schedulemc.gang.scenario.ScenarioObjective;
 import de.rolandsw.schedulemc.mission.MissionCategory;

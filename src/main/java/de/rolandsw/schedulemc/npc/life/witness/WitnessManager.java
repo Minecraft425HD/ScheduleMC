@@ -8,7 +8,6 @@ import de.rolandsw.schedulemc.npc.life.core.MemoryType;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.social.FactionManager;
 import de.rolandsw.schedulemc.npc.life.social.RumorNetwork;
-import de.rolandsw.schedulemc.npc.life.social.RumorType;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.core.BlockPos;

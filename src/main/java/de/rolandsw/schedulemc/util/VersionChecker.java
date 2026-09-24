@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.util;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.rolandsw.schedulemc.ScheduleMC;
@@ -12,7 +11,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 
 /**
  * Prüft auf neue Versionen im GitHub Repository

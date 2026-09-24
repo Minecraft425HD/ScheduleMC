@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.meth.blocks;
 
 import de.rolandsw.schedulemc.meth.blockentity.ChemicalMixerBlockEntity;
-import de.rolandsw.schedulemc.meth.blockentity.MethBlockEntities;
 import de.rolandsw.schedulemc.meth.items.EphedrineItem;
 import de.rolandsw.schedulemc.meth.items.IodineItem;
 import de.rolandsw.schedulemc.meth.items.PseudoephedrineItem;

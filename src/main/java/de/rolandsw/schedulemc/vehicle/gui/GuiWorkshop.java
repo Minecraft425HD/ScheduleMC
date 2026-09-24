@@ -7,7 +7,6 @@ import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.parts.*;
 import de.rolandsw.schedulemc.vehicle.items.IVehiclePart;
-import de.rolandsw.schedulemc.vehicle.util.SereneSeasonsCompat;
 import de.rolandsw.schedulemc.vehicle.net.*;
 import de.rolandsw.schedulemc.vehicle.util.VehicleUtils;
 import de.maxhenkel.corelib.inventory.ScreenBase;
@@ -21,7 +20,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class GuiWorkshop extends ScreenBase<ContainerWorkshop> {

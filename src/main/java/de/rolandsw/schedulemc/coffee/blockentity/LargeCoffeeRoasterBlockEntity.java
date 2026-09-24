@@ -9,6 +9,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 public class LargeCoffeeRoasterBlockEntity extends AbstractCoffeeRoasterBlockEntity implements MenuProvider {
     public LargeCoffeeRoasterBlockEntity(BlockPos pos, BlockState state) {
         super(CoffeeBlockEntities.LARGE_COFFEE_ROASTER.get(), pos, state);

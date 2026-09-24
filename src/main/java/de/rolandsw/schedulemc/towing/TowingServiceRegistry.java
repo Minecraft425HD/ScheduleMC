@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.towing;
 
-import de.rolandsw.schedulemc.player.PlayerTracker;
 import de.rolandsw.schedulemc.player.ServiceContact;
 import com.mojang.logging.LogUtils;
 import org.slf4j.Logger;

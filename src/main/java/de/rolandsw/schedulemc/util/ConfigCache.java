@@ -5,9 +5,6 @@ import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.slf4j.Logger;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * Cache für häufig abgefragte Config-Werte
  *

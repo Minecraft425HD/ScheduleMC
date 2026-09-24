@@ -1,13 +1,11 @@
 package de.rolandsw.schedulemc.npc.life.dialogue;
 
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
-import de.rolandsw.schedulemc.npc.life.NPCLifeSystemIntegration;
 import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.core.MemoryType;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.social.Faction;
 import de.rolandsw.schedulemc.npc.life.social.FactionManager;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 

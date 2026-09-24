@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.vehicle.items;
 
-import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.blocks.ModBlocks;
 import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityFuelStation;
 import de.rolandsw.schedulemc.vehicle.fluids.ModFluids;

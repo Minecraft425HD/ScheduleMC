@@ -15,7 +15,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

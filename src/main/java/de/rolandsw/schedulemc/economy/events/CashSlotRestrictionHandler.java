@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;

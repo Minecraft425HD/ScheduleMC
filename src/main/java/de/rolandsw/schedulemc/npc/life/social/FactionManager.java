@@ -5,8 +5,6 @@ import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;

@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.mdma.PillDesign;
 import de.rolandsw.schedulemc.mdma.items.BindingAgentItem;
 import de.rolandsw.schedulemc.mdma.items.EcstasyPillItem;
 import de.rolandsw.schedulemc.mdma.items.PillDyeItem;
-import de.rolandsw.schedulemc.mdma.items.MDMAItems;
 import de.rolandsw.schedulemc.mdma.items.MDMACrystalItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;

@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.meth.blocks;
 
-import de.rolandsw.schedulemc.meth.blockentity.MethBlockEntities;
 import de.rolandsw.schedulemc.meth.blockentity.ReductionKettleBlockEntity;
 import de.rolandsw.schedulemc.meth.items.MethPasteItem;
 import de.rolandsw.schedulemc.meth.menu.ReductionKettleMenu;

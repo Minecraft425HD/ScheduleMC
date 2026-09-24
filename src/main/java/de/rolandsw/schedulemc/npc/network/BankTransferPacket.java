@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.npc.network;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
-import de.rolandsw.schedulemc.economy.TransactionType;
 import de.rolandsw.schedulemc.npc.bank.TransferLimitTracker;
 import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.ChatFormatting;

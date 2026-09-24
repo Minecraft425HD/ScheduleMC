@@ -3,7 +3,6 @@ package de.rolandsw.schedulemc.production.blockentity;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.production.config.ProductionConfig;
 import de.rolandsw.schedulemc.production.core.GenericQuality;
-import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import de.rolandsw.schedulemc.util.ModConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

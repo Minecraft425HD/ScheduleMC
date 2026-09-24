@@ -31,7 +31,6 @@ import de.rolandsw.schedulemc.lsd.menu.LSDMenuTypes;
 import de.rolandsw.schedulemc.lsd.screen.MicroDoserScreen;
 import de.rolandsw.schedulemc.mdma.menu.MDMAMenuTypes;
 import de.rolandsw.schedulemc.mdma.screen.PillPressScreen;
-import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
 import de.rolandsw.schedulemc.cannabis.items.CannabisSeedItem;
 import de.rolandsw.schedulemc.cannabis.menu.CannabisMenuTypes;

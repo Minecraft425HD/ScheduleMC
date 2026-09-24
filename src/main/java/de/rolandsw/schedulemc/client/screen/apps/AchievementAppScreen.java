@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.achievement.client.ClientAchievementCache;
 import de.rolandsw.schedulemc.achievement.network.AchievementData;
 import de.rolandsw.schedulemc.achievement.network.AchievementNetworkHandler;
 import de.rolandsw.schedulemc.achievement.network.RequestAchievementDataPacket;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;

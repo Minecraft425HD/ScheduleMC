@@ -22,7 +22,6 @@ import java.util.List;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
 public class MapViewConfiguration implements SettingsManager {
     private File settingsFile;

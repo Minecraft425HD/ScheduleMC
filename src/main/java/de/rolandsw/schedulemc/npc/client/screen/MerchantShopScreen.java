@@ -1,10 +1,8 @@
 package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.logging.LogUtils;
-import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.level.client.ClientProducerLevelCache;
 import de.rolandsw.schedulemc.npc.data.ShopEntry;
-import de.rolandsw.schedulemc.npc.data.MerchantCategory;
 import de.rolandsw.schedulemc.npc.menu.MerchantShopMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;
 import de.rolandsw.schedulemc.npc.network.PurchaseItemPacket;

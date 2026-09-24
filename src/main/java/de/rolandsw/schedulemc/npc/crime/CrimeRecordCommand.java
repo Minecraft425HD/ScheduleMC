@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.npc.crime;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import de.rolandsw.schedulemc.npc.crime.evidence.Evidence;
 import de.rolandsw.schedulemc.npc.crime.evidence.EvidenceManager;

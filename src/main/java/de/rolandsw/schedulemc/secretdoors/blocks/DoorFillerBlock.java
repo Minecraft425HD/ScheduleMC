@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.secretdoors.blocks;
 
-import de.rolandsw.schedulemc.secretdoors.SecretDoors;
 import de.rolandsw.schedulemc.secretdoors.blockentity.DoorFillerBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blockentity.ElevatorBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blockentity.SecretDoorBlockEntity;

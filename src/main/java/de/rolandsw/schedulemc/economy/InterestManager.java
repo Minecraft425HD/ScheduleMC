@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.economy;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;

@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.secretdoors.items;
 
-import de.rolandsw.schedulemc.secretdoors.SecretDoors;
 import de.rolandsw.schedulemc.secretdoors.blockentity.HiddenSwitchBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blockentity.SecretDoorBlockEntity;
 import de.rolandsw.schedulemc.secretdoors.blocks.AbstractSecretDoorBlock;

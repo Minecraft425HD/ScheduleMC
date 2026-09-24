@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.mushroom.blocks;
 
-import de.rolandsw.schedulemc.mushroom.blockentity.MushroomBlockEntities;
 import de.rolandsw.schedulemc.mushroom.blockentity.WaterTankBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

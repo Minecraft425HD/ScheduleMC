@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.items;
 
 import de.rolandsw.schedulemc.production.core.PotType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

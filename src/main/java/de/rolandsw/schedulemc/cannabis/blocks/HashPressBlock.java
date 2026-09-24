@@ -2,10 +2,8 @@ package de.rolandsw.schedulemc.cannabis.blocks;
 
 import de.rolandsw.schedulemc.cannabis.blockentity.HashPressBlockEntity;
 import de.rolandsw.schedulemc.cannabis.blockentity.CannabisBlockEntities;
-import de.rolandsw.schedulemc.cannabis.items.TrimItem;
 import de.rolandsw.schedulemc.cannabis.menu.HashPressMenu;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

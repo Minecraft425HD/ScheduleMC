@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.BlockShopCatalog;
 import de.rolandsw.schedulemc.npc.menu.ShopEditorMenu;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;

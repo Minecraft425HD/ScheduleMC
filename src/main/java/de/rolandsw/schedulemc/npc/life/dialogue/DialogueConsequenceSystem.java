@@ -3,8 +3,6 @@ package de.rolandsw.schedulemc.npc.life.dialogue;
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
-import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
-import de.rolandsw.schedulemc.npc.life.core.NPCMemory;
 import de.rolandsw.schedulemc.npc.life.social.Faction;
 import de.rolandsw.schedulemc.npc.life.social.FactionManager;
 import net.minecraft.network.chat.Component;

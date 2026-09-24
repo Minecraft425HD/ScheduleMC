@@ -1,7 +1,5 @@
 package de.rolandsw.schedulemc.player;
 
-import java.util.UUID;
-
 /**
  * Represents a service contact (not a player) in the contacts app
  * Examples: Pannenhilfe (Towing Service), Taxi, Emergency Services, etc.

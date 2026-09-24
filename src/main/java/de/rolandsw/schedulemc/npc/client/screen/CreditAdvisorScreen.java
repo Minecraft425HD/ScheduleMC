@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.economy.CreditLoan;
 import de.rolandsw.schedulemc.economy.CreditScore;
 import de.rolandsw.schedulemc.economy.network.ClientBankDataCache;
 import de.rolandsw.schedulemc.util.MoneyFormat;
-import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.CreditAdvisorMenu;
 import de.rolandsw.schedulemc.npc.network.ApplyCreditLoanPacket;
 import de.rolandsw.schedulemc.npc.network.NPCNetworkHandler;

@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.mapview.navigation.graph;
 
 import net.minecraft.core.BlockPos;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;

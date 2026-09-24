@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.lsd.blockentity;
 
-import de.rolandsw.schedulemc.lsd.items.ErgotCultureItem;
 import de.rolandsw.schedulemc.lsd.items.LSDItems;
 import de.rolandsw.schedulemc.lsd.items.ErgotItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;

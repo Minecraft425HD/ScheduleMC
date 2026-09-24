@@ -10,8 +10,6 @@ import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 
 import de.rolandsw.schedulemc.economy.EconomyManager;
-import de.rolandsw.schedulemc.level.ProducerLevel;
-
 import javax.annotation.Nullable;
 import java.io.File;
 import java.lang.reflect.Type;

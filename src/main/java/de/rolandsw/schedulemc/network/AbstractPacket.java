@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.network;
 
-import de.rolandsw.schedulemc.util.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 

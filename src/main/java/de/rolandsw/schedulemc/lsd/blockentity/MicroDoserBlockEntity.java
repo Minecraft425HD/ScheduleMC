@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.lsd.blockentity;
 
 import de.rolandsw.schedulemc.lsd.LSDDosage;
-import de.rolandsw.schedulemc.lsd.items.LSDItems;
 import de.rolandsw.schedulemc.lsd.items.LSDSolutionItem;
 import de.rolandsw.schedulemc.lsd.items.LysergicAcidItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;

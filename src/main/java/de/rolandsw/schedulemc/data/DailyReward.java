@@ -1,7 +1,5 @@
 package de.rolandsw.schedulemc.data;
 
-import java.util.UUID;
-
 /**
  * Speichert tägliche Belohnungs-Daten eines Spielers
  */

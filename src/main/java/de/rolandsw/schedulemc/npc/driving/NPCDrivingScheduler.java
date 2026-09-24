@@ -5,7 +5,6 @@ import de.rolandsw.schedulemc.managers.NPCEntityRegistry;
 import de.rolandsw.schedulemc.mapview.navigation.graph.RoadGraph;
 import de.rolandsw.schedulemc.mapview.navigation.graph.RoadNavigationService;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
-import de.rolandsw.schedulemc.npc.life.behavior.BehaviorState;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;

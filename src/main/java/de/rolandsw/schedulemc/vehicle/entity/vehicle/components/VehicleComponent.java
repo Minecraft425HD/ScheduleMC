@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.vehicle.entity.vehicle.components;
 
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.player.Player;
 
 /**

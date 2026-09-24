@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.mojang.logging.LogUtils;
-import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 

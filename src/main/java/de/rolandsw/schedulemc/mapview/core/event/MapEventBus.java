@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.mapview.core.event;
 
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

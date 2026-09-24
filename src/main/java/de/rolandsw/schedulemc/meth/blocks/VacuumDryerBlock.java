@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.meth.blocks;
 
 import de.rolandsw.schedulemc.meth.MethQuality;
-import de.rolandsw.schedulemc.meth.blockentity.MethBlockEntities;
 import de.rolandsw.schedulemc.meth.blockentity.VacuumDryerBlockEntity;
 import de.rolandsw.schedulemc.meth.items.CrystalMethItem;
 import net.minecraft.core.BlockPos;

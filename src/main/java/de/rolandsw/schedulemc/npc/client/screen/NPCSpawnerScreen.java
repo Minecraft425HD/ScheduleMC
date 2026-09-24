@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.npc.client.ClientNPCNameCache;
 import de.rolandsw.schedulemc.npc.data.NPCType;

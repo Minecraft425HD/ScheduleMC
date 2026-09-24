@@ -4,7 +4,6 @@ import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import com.mojang.logging.LogUtils;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;

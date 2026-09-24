@@ -2,11 +2,9 @@ package de.rolandsw.schedulemc.economy.events;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.economy.WalletManager;
-import de.rolandsw.schedulemc.economy.items.CashItem;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

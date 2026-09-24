@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.cheese.blockentity;
 
-import de.rolandsw.schedulemc.cheese.items.CheeseItems;
 import de.rolandsw.schedulemc.production.blockentity.AbstractItemHandlerBlockEntity;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;

@@ -2,10 +2,8 @@ package de.rolandsw.schedulemc.events;
 
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**

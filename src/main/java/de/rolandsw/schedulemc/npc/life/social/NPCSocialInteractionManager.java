@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.npc.life.social;
 
 import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;

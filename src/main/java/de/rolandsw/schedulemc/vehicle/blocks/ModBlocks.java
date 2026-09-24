@@ -2,8 +2,6 @@ package de.rolandsw.schedulemc.vehicle.blocks;
 
 import de.rolandsw.schedulemc.vehicle.Main;
 import de.rolandsw.schedulemc.vehicle.blocks.tileentity.TileEntityWorkshop;
-import de.maxhenkel.corelib.block.IItemBlock;
-import de.maxhenkel.corelib.reflection.ReflectionUtils;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;

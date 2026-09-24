@@ -3,7 +3,6 @@ package de.rolandsw.schedulemc.vehicle.entity.vehicle.components;
 import de.maxhenkel.corelib.item.ItemUtils;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.vehicle.gui.ContainerVehicle;
-import de.rolandsw.schedulemc.vehicle.gui.ContainerVehicleInventory;
 import de.rolandsw.schedulemc.vehicle.items.ItemDieselCanister;
 import de.rolandsw.schedulemc.vehicle.sounds.ModSounds;
 import net.minecraft.nbt.CompoundTag;

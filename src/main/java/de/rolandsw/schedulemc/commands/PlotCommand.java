@@ -12,7 +12,6 @@ import de.rolandsw.schedulemc.items.PlotSelectionTool;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.region.PlotType;
-import de.rolandsw.schedulemc.region.blocks.PlotBlocks;
 import de.rolandsw.schedulemc.commands.CommandExecutor;
 import de.rolandsw.schedulemc.util.InputValidation;
 import de.rolandsw.schedulemc.util.RateLimiter;
@@ -30,7 +29,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

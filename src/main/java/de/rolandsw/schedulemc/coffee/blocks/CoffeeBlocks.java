@@ -2,8 +2,6 @@ package de.rolandsw.schedulemc.coffee.blocks;
 
 import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.coffee.CoffeeType;
-import de.rolandsw.schedulemc.production.blocks.PlantPotBlock;
-import de.rolandsw.schedulemc.production.core.PotType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;

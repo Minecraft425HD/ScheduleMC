@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.coca.menu;
 
 import de.rolandsw.schedulemc.coca.blockentity.CrackCookerBlockEntity;
-import de.rolandsw.schedulemc.coca.items.BakingPowderItem;
 import de.rolandsw.schedulemc.coca.items.CocaItems;
 import de.rolandsw.schedulemc.coca.items.CocaineItem;
 import net.minecraft.core.BlockPos;

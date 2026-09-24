@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.meth.blocks;
 
 import de.rolandsw.schedulemc.meth.blockentity.CrystallizerBlockEntity;
-import de.rolandsw.schedulemc.meth.blockentity.MethBlockEntities;
 import de.rolandsw.schedulemc.meth.items.RawMethItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.meth.blockentity;
 
 import de.rolandsw.schedulemc.meth.MethQuality;
-import de.rolandsw.schedulemc.meth.items.MethItems;
 import de.rolandsw.schedulemc.meth.items.MethPasteItem;
 import de.rolandsw.schedulemc.meth.items.RawMethItem;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
@@ -11,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;

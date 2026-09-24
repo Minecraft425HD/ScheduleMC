@@ -5,12 +5,10 @@ import de.rolandsw.schedulemc.level.ProducerLevel;
 import de.rolandsw.schedulemc.level.XPSource;
 import de.rolandsw.schedulemc.market.MarketData;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
-import de.rolandsw.schedulemc.production.core.ProductionType;
 import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 

@@ -3,8 +3,6 @@ package de.rolandsw.schedulemc.api.vehicle;
 import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
-
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;

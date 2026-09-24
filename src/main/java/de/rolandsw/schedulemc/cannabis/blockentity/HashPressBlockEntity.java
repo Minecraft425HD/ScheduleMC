@@ -4,7 +4,6 @@ import de.rolandsw.schedulemc.cannabis.CannabisStrain;
 import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.items.TrimItem;
 import de.rolandsw.schedulemc.cannabis.items.HashItem;
-import de.rolandsw.schedulemc.cannabis.items.CannabisItems;
 import de.rolandsw.schedulemc.utility.IUtilityConsumer;
 import de.rolandsw.schedulemc.utility.UtilityEventHandler;
 import net.minecraft.core.BlockPos;

@@ -6,7 +6,6 @@ import de.rolandsw.schedulemc.player.network.PlayerSettingsNetworkHandler;
 import de.rolandsw.schedulemc.player.network.SyncPlayerSettingsPacket;
 import de.rolandsw.schedulemc.util.EventHelper;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;

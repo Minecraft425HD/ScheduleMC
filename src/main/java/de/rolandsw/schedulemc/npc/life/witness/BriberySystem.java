@@ -5,11 +5,8 @@ import de.rolandsw.schedulemc.npc.life.core.EmotionState;
 import de.rolandsw.schedulemc.npc.life.core.MemoryType;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.core.NPCTraits;
-import de.rolandsw.schedulemc.npc.life.social.Faction;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nullable;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**

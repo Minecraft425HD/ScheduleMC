@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.territory;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
@@ -8,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

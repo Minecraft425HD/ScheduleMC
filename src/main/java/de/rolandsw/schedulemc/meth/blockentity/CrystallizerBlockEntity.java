@@ -2,7 +2,6 @@ package de.rolandsw.schedulemc.meth.blockentity;
 
 import de.rolandsw.schedulemc.meth.MethQuality;
 import de.rolandsw.schedulemc.meth.items.CrystalMethItem;
-import de.rolandsw.schedulemc.meth.items.MethItems;
 import de.rolandsw.schedulemc.meth.items.RawMethItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
