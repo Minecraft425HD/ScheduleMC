@@ -233,3 +233,95 @@ sind (z. B. deckt `Poppy-System.md` die Opium/Heroin-Kette ab, nennt aber
 nicht `OpiumPressBlockEntity.java` beim Klassennamen). Diese Liste wurde
 nicht einzeln geprüft; ein vollständiger, funktionaler Check jeder dieser
 Klassen gegen die jeweilige Feature-Doku steht noch aus.
+
+---
+
+## 7. Vollständiger Abgleich der 166 namentlich unauffindbaren Klassen
+
+Alle 166 Klassen aus dem Nachtrag in §6 wurden jetzt einzeln geprüft: nicht
+nur, ob der Klassenname im Dokutext vorkommt, sondern ob die **Funktion**
+dahinter irgendwo beschrieben ist (z. B. unter dem deutschen Blocknamen, der
+Registry-ID oder einer Konzeptbeschreibung).
+
+### 7.1 Ergebnis: größtenteils unbegründete Treffer
+
+**~150 der 166 Klassen sind inhaltlich abgedeckt**, nur der exakte
+Klassenname taucht nicht auf. Beispiele:
+- `meth/*`, `poppy/*`, `lsd/*`, `mdma/*`, `coca/*`, `mushroom/*` (Block-,
+  BlockEntity-, Menu-, Screen- und Item-Klassen der jeweiligen Produktkette):
+  Alle Maschinen und Zutaten (Chemical Mixer, Crystallizer, Reduction Kettle,
+  Vacuum Dryer, Ephedrine, Iodine, Pseudoephedrine … / Cooking Station,
+  Heroin Refinery, Scoring Machine, Opium Press / Distillation Apparatus,
+  Micro-Doser („Micro Dosing Station"), Perforation Press, Blotter Paper,
+  Ergot(-Culture), Lysergic Acid / Drying Oven, Pill Press, Reaction Kettle,
+  Binding Agent, Safrole / Crack Cooker, Extraction Vat, Refinery, Backpulver
+  („Baking Powder"/„baking soda") / Climate Lamp, Water Tank, Manure) sind in
+  den jeweiligen `wiki/production/*.md`-Seiten beschrieben — nur unter
+  eigener Formulierung statt Klassenname.
+- `tobacco/menu`, `tobacco/screen` (Fermentation-Barrel-Menüs/-Screens),
+  `cannabis/menu`, `cannabis/screen`: funktional durch `Tobacco-System.md`
+  bzw. `Cannabis-System.md` abgedeckt.
+- `production/growth/CoffeeGrowthHandler`, `GrapeGrowthHandler`,
+  `production/nbt/CoffeePlantSerializer`, `GrapePlantSerializer`: interne
+  Wachstums-/Serialisierungslogik, die Ketten selbst (Coffee/Wine) sind
+  dokumentiert.
+- `weapon/upgrade/*FireModeUpgradeItem`: **doch dokumentiert** —
+  `Weapon-System.md` Abschnitt „Fire-Mode Upgrades" beschreibt Single
+  Precision, Burst Fire und Auto Fire vollständig.
+- `vehicle/gui/GuiWorkshop`, `ContainerWorkshop`, `TileEntityWorkshop`: Das
+  Workshop-Feature selbst ist dokumentiert.
+- `managers/TutorialManager`: `Tutorial-System.md` existiert und deckt das
+  Feature ab.
+- `npc/entity/component/*` (Trading/Driving/ActivityTracking-Component),
+  `npc/life/dialogue/DefaultDialogueTrees`: interne Bausteine des bereits
+  dokumentierten NPC-Verhaltens/Dialogsystems.
+- `util/CircuitBreaker`, `ModConstants`, `MoneyFormat`, `SmokeEmitter`,
+  `UUIDHelper`: reine interne Hilfsklassen ohne eigenen Doku-Anspruch.
+
+### 7.2 Echte, bisher übersehene Lücken (neu in diesem Durchgang)
+
+| # | Befund | Beleg |
+|---|---|---|
+| E1 | **Reifenwechsel-Mechanik am Fahrzeug-Workshop ist nirgends dokumentiert.** `GuiTireChange`, `MessageTireSwap`, `MessageOpenTireChange` sowie das Werkzeug dafür (`ItemCarJack`, Registry-ID `wagon_jack`) — `Vehicle-System.md` beschreibt den Workshop, aber nicht den eigenständigen Reifenwechsel-Screen/-Ablauf. | `vehicle/gui/GuiTireChange.java`, `vehicle/net/MessageTireSwap.java`, `vehicle/items/ItemCarJack.java` |
+| E2 | **Fan-Blöcke (3 Stufen) + Multiblock-Booster-Mechanik sind als Feature nirgends beschrieben.** `fan/blocks/FanBlocks` registriert `fan_tier1/2/3`; `multiblock/MultiblockHelper` + `IMultiblockBooster` lassen Fans benachbarte Trocknungs-/Fermentationsblöcke beschleunigen (genutzt von `AbstractDryingRackBlockEntity`, `FanBlock`, `TallFanBlock`). Einzige Erwähnung überhaupt: eine interne Implementierungs-Notiz (`docs/CLAUDE_IMPLEMENTATION_BRIEF.md`), keine Nutzer-Doku. | `fan/blocks/FanBlocks.java`, `multiblock/MultiblockHelper.java` |
+| E3 | **OptiFine-Kompatibilitätsschicht der MapView ist nirgends erwähnt.** `mapview/service/render/OptiFineColorLoader.java` liest OptiFine-Biome-Tint-Properties zur Laufzeit, wird geprüft (`optifineInstalled`) und beeinflusst das Rendering. `MapView-System.md` und die README-Liste optionaler Mods (JEI/Jade/TOP) erwähnen OptiFine nicht. | `mapview/service/render/OptiFineColorLoader.java` |
+| E4 | **Saisonale Preisschwankungen (`SeasonalPriceModifier`) sind nirgends dokumentiert.** Wird von `DynamicPriceManager` und `ProductionEventManager` genutzt, um Marktpreise nach Jahreszeit zu modifizieren. Weder `Economy-System.md` noch `Market-System.md` erwähnen eine saisonale Komponente. | `market/SeasonalPriceModifier.java`, `npc/life/economy/DynamicPriceManager.java:144,291` |
+| E5 | **Secret-Doors ↔ Mission-Integration ist in beiden betroffenen Feature-Seiten unerwähnt.** `secretdoors/mission/SecretDoorMissionAccessManager` gewährt temporären Zugriff auf `SecretDoorBlockEntity`/`HiddenSwitchBlockEntity` über aktive Mission-Objectives (`PlayerMissionScenarioExecutor`, `ScenarioObjective`); `SecretCodeGenerator`/`SecretBlockRegistry` verwalten dafür generierte Codes. Weder `Secret-Doors-System.md` noch `Mission-System.md` erwähnen diese Kopplung. | `secretdoors/mission/SecretDoorMissionAccessManager.java:14-20` |
+| E6 | *(gering)* **`DialogueConsequenceSystem` (261 Zeilen)** — Dialogentscheidungen wirken sich auf Reputation/Beziehungen aus. `NPC-System.md` nennt nur pauschal „Social interactions", ohne diesen Mechanismus zu erklären. | `npc/life/dialogue/DialogueConsequenceSystem.java` |
+
+### 7.3 Nebenbefund: deutsche Maschinennamen in aktueller Doku (Sprachkonvention)
+
+Beim funktionalen Abgleich fiel auf, dass mehrere **aktuelle** Wiki-Seiten
+(nicht nur die bereits als veraltet markierte `PROJECT_STRUCTURE.md`) noch
+deutsche Maschinennamen in der Prosa verwenden, obwohl der Code seit dem
+2026-06-10-Commit vollständig auf Englisch umgestellt ist:
+
+- **„Crack Kocher"** statt „Crack Cooker" (Registry-ID `crack_cooker`) — **8
+  Vorkommen** in `wiki/production/Coca-System.md` (4×), `wiki/Blocks.md` (2×),
+  `wiki/Production-Systems.md` (1×), `wiki/Items.md` (1×).
+- **„Pillen Presse"**, **„Reaktions Kessel"**, **„Trocknungs Ofen"** in
+  `wiki/production/MDMA-System.md` neben den korrekten englischen Namen
+  (Pill Press, Reaction Kettle, Drying Oven).
+- Insgesamt verwenden **8 von 14** `wiki/production/*.md`-Seiten
+  (Beer, Cannabis, Coca, Coffee, Honey, LSD, MDMA, Poppy) noch mindestens
+  einen deutschen Maschinennamen (Presse/Kessel/Kocher/Ofen/Extraktor/Fass/
+  Gestell/Trocknungs-) im Fließtext.
+
+Das ist kein Code-Defekt (`CLAUDE.md`s Sprachkonvention gilt für Code, nicht
+für deutsche UI-Texte), aber ein Doku-Inkonsistenz-Muster: Innerhalb
+derselben Seite wechseln englische Registry-/Item-Namen und deutsche
+Maschinenbezeichnungen unvermittelt.
+
+### 7.4 Fazit zum vollständigen Abgleich
+
+Von 166 zunächst als „Name nicht in Doku" markierten Klassen sind:
+- **~150 funktional abgedeckt** (nur Klassenname weicht von der Doku-Formulierung ab — kein Mangel),
+- **6 Klassen/Features komplett oder größtenteils undokumentiert** (E1–E6),
+- **zusätzlich ein sprachliches Konsistenzproblem** (§7.3) über 8 Wiki-Seiten hinweg.
+
+Damit ist der Abgleich für diese 166 Klassen abgeschlossen. Er deckt alle
+Klassen ab, deren Name nirgends im Dokutext vorkam; er deckt **nicht** ab,
+ob jede bereits benannte Klasse auch in allen Details (Parameterwerte,
+Edge-Cases, genaue Formeln) korrekt beschrieben ist — das würde einen
+Methoden-für-Methoden-Vergleich erfordern, der über den Rahmen dieser
+Anfrage hinausgeht.
