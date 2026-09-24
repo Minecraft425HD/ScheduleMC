@@ -214,8 +214,8 @@ Three coca strains, fresh leaves, and the cocaine/crack processing chain along w
 |------|-------------|-------------|---------------|
 | Coca Paste | `coca_paste` | Brown intermediate paste from leaf extraction. Stacks to 16. Requires diesel and leaves. | Extraction Vat (leaves + diesel canister) |
 | Cocaine | `cocaine` | White powder refined from coca paste. Stacks to 16. Purity 70-95%. Packageable. | Refinery (from coca paste) |
-| Crack Rock | `crack_rock` | Crystallized form of cocaine cooked with baking soda. Stacks to 16. Packageable. | Crack Kocher (cocaine + baking_powder) |
-| Backpulver | `baking_powder` | Baking soda, a required reagent for crack production. Stacks to 64. Ratio 1:1 with cocaine. | Crafting or NPC trading |
+| Crack Rock | `crack_rock` | Crystallized form of cocaine cooked with baking soda. Stacks to 16. Packageable. | Crack Cooker (cocaine + baking_powder) |
+| Baking Powder | `baking_powder` | Baking soda, a required reagent for crack production. Stacks to 64. Ratio 1:1 with cocaine. | Crafting or NPC trading |
 
 ---
 

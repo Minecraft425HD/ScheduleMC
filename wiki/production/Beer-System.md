@@ -36,7 +36,7 @@ Das Bier-System bietet einen vollstaendigen Brauprozess vom Malz bis zur fertige
 
 | Methode | Preis-Multiplikator | Beschreibung |
 |---------|---------------------|-------------|
-| FASS | 1,2x | Frischeste Form im Fass |
+| KEG | 1,2x | Frischeste Form im Keg |
 | FLASCHE | 1,0x | Standard-Format |
 | DOSE | 0,9x | Praktisch, aber weniger wertvoll |
 

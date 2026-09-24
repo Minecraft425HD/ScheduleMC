@@ -59,9 +59,9 @@ Both strains yield 6 leaves at harvest and progress through 8 growth stages (0-7
    Cocaine
        |  (optional)
        v
-  [5. CRACK COOKING]   Crack Kocher
+  [5. CRACK COOKING]   Crack Cooker
    + Baking Soda       Time: 4 sec
-   (Backpulver)        Timing minigame
+   (Baking Powder)        Timing minigame
        |
        v
    Crack Rock
@@ -124,13 +124,13 @@ Good paste  -->  20% chance  -->  Very Good cocaine
 
 ## Step 5: Crack Cooking (Optional)
 
-Convert cocaine into crack rocks using the Crack Kocher and Backpulver (baking soda).
+Convert cocaine into crack rocks using the Crack Cooker and Baking Powder (baking soda).
 
 ### Crack Cooking Mechanics
 
 | Property | Value |
 |----------|-------|
-| Input | 1-10g Cocaine + 1 Backpulver |
+| Input | 1-10g Cocaine + 1 Baking Powder |
 | Cook Cycle | 80 ticks (4 seconds) |
 | Weight Conversion | 80% (10g cocaine = 8g crack) |
 | Quality | Determined by timing minigame |
@@ -170,8 +170,8 @@ Legendary-quality cocaine input provides a bonus: if the cook result is below Fi
 | Fresh Coca Leaves | Raw harvested leaves (strain-specific) | Harvesting mature plant |
 | Coca Paste | Extracted alkaloid paste | Extraction Vat (requires diesel) |
 | Cocaine | Refined white powder | Refinery (requires fuel) |
-| Crack Rock | Cooked cocaine product | Crack Kocher (requires Backpulver) |
-| Backpulver (Baking Soda) | Required for crack cooking | Purchase / crafting |
+| Crack Rock | Cooked cocaine product | Crack Cooker (requires Baking Powder) |
+| Baking Powder | Required for crack cooking | Purchase / crafting |
 | Diesel Canister | Fuel container for extraction (1,000 mB) | Purchase / crafting |
 | Fuel (Coal/Charcoal) | Powers refineries | Mining / purchase |
 
@@ -191,7 +191,7 @@ Legendary-quality cocaine input provides a bonus: if the cook result is below Fi
 | Small Refinery | Compact fuel-based refinery (light level 8) | Refines 6 paste, 20% quality upgrade |
 | Medium Refinery | Standard fuel-based refinery (light level 10) | Refines 12 paste, 20% quality upgrade |
 | Big Refinery | Industrial fuel-based refinery (light level **12**) | Refines 24 paste, 20% quality upgrade, brightest glow |
-| Crack Kocher | Crack cooking station (light level 6 when active) | Timing minigame for crack production |
+| Crack Cooker | Crack cooking station (light level 6 when active) | Timing minigame for crack production |
 
 ---
 

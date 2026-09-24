@@ -62,7 +62,7 @@ Das Honig-System umfasst eine vollstaendige Produktionskette von der Bienenzucht
 
 ### 2. Extraktion
 
-#### Honig-Extraktor
+#### Honey Extractor
 
 | Parameter | Wert |
 |-----------|------|
@@ -71,7 +71,7 @@ Das Honig-System umfasst eine vollstaendige Produktionskette von der Bienenzucht
 | Umrechnung | 4 Waben = 1 Honig-Eimer |
 | Nebenprodukt | 2 Bienenwachs pro Charge |
 
-#### Zentrifugal-Extraktor
+#### Centrifugal Extractor
 
 | Parameter | Wert |
 |-----------|------|
@@ -132,8 +132,8 @@ Das Honig-System umfasst eine vollstaendige Produktionskette von der Bienenzucht
 | beehive | Bienenstock |
 | advanced_beehive | Erweiterter Bienenstock |
 | apiary | Imkerei-Station |
-| honey_extractor | Honig-Extraktor |
-| centrifugal_extractor | Zentrifugal-Extraktor |
+| honey_extractor | Honey Extractor |
+| centrifugal_extractor | Centrifugal Extractor |
 | filtering_station | Filter-Station |
 | processing_station | Verarbeitungs-Station |
 | creaming_station | Cremig-Station |

@@ -17,7 +17,7 @@ An arcade-style 4-step production chain featuring safrole extraction, a glowing 
 
 ## Overview
 
-MDMA production combines chemical synthesis with an arcade-style pill pressing minigame. The first three steps are passive (extraction, reaction, drying), but the final step -- the Pillen Presse -- requires the player to nail a timing window to determine pill quality. Players can customize their pills with 8 colors and 8 stamp designs for 64 unique combinations. The Reaktions Kessel glows during operation and the Trocknungs Ofen radiates heat.
+MDMA production combines chemical synthesis with an arcade-style pill pressing minigame. The first three steps are passive (extraction, reaction, drying), but the final step -- the Pill Press -- requires the player to nail a timing window to determine pill quality. Players can customize their pills with 8 colors and 8 stamp designs for 64 unique combinations. The Reaction Kettle glows during operation and the Drying Oven radiates heat.
 
 ---
 
@@ -28,7 +28,7 @@ MDMA production combines chemical synthesis with an arcade-style pill pressing m
    Safrol            -->    Base ingredient
        |
        v
-  [2. REACTION]             Reaktions Kessel
+  [2. REACTION]             Reaction Kettle
    Safrol --> MDMA Base     GLOWING BLOCK! (light 4)
    Time: 50 sec             8 capacity
    40% Gut if 6+ Safrol
@@ -37,7 +37,7 @@ MDMA production combines chemical synthesis with an arcade-style pill pressing m
    MDMA Base
        |
        v
-  [3. DRYING]               Trocknungs Ofen
+  [3. DRYING]               Drying Oven
    MDMA Base --> Kristall    HOT BLOCK! (light 8)
    Time: 30 sec              120 C operating temp
    Quality preserved          8 capacity
@@ -46,10 +46,10 @@ MDMA production combines chemical synthesis with an arcade-style pill pressing m
    MDMA Kristall
        |
        v
-  [4. PILL PRESSING]        Pillen Presse
-   TIMING MINIGAME!     --> 16 Kristall + 16 Bindemittel
-   + Bindemittel (binder)    Quality = timing skill
-   + Farbstoff (dye)         Color + Design selection
+  [4. PILL PRESSING]        Pill Press
+   TIMING MINIGAME!     --> 16 Kristall + 16 Binding Agent
+   + Binding Agent (binder)    Quality = timing skill
+   + Pill Dye (dye)         Color + Design selection
        |
        v
    Ecstasy Pills
@@ -64,16 +64,16 @@ Safrol is the base precursor material for MDMA synthesis. Obtain it from NPC sho
 
 ---
 
-## Step 2: Reaction (Reaktions Kessel)
+## Step 2: Reaction (Reaction Kettle)
 
-Synthesize safrole into MDMA base using the Reaktions Kessel (reaction kettle). The block **glows** at light level 4 during operation.
+Synthesize safrole into MDMA base using the Reaction Kettle (reaction kettle). The block **glows** at light level 4 during operation.
 
 | Property | Value |
 |----------|-------|
 | Input | Safrol (up to 8) |
 | Capacity | 8 units |
 | Processing Time | 1,000 ticks (50 seconds) |
-| Output | 8 MDMA-Base (1:1 ratio) |
+| Output | 8 MDMA Base (1:1 ratio) |
 | Light Level | 4 (glowing during operation) |
 
 ### Quality from Batch Size
@@ -90,32 +90,32 @@ Always load 6+ safrole per batch for the best quality odds.
 
 ---
 
-## Step 3: Drying (Trocknungs Ofen)
+## Step 3: Drying (Drying Oven)
 
-Dry MDMA base into crystalline form using the Trocknungs Ofen (drying oven). The oven operates at 120 C and **emits light at level 8** -- it runs hot.
+Dry MDMA base into crystalline form using the Drying Oven (drying oven). The oven operates at 120 C and **emits light at level 8** -- it runs hot.
 
 | Property | Value |
 |----------|-------|
-| Input | MDMA-Base (up to 8) |
+| Input | MDMA Base (up to 8) |
 | Capacity | 8 units |
 | Processing Time | 600 ticks (30 seconds) |
-| Output | 8 MDMA-Kristall (1:1 ratio) |
+| Output | 8 MDMA Crystal (1:1 ratio) |
 | Light Level | 8 (hot, glowing) |
 | Quality | Preserved from input |
 
 ---
 
-## Step 4: Pill Pressing (Pillen Presse) -- TIMING MINIGAME
+## Step 4: Pill Pressing (Pill Press) -- TIMING MINIGAME
 
-The Pillen Presse combines MDMA Kristall with Bindemittel (binder) and optional Farbstoff (dye) into finished ecstasy pills. Quality is determined entirely by your timing skill.
+The Pill Press combines MDMA Kristall with Binding Agent (binder) and optional Pill Dye (dye) into finished ecstasy pills. Quality is determined entirely by your timing skill.
 
 ### Materials
 
 | Material | Description | Required |
 |----------|-------------|----------|
 | **MDMA Kristall** | Crystallized MDMA | Yes (up to 16) |
-| **Bindemittel** (Binder) | Pill binding agent | Yes (1 per pill) |
-| **Farbstoff** (Dye) | Pill coloring | Optional (for custom colors) |
+| **Binding Agent** (Binder) | Pill binding agent | Yes (1 per pill) |
+| **Pill Dye** (Dye) | Pill coloring | Optional (for custom colors) |
 
 ### Timing Minigame
 
@@ -198,11 +198,11 @@ Final quality is the higher of the input crystal quality and the timing quality.
 | Item | Description | How Obtained |
 |------|-------------|-------------|
 | Safrol | Base precursor for MDMA synthesis | Purchase / crafting |
-| MDMA-Base | Intermediate liquid product | Reaktions Kessel |
-| MDMA-Kristall | Dried crystal form | Trocknungs Ofen |
-| Bindemittel (Binder) | Required for pill pressing | Purchase / crafting |
-| Farbstoff (Dye) | Optional pill coloring | Purchase / crafting |
-| Ecstasy Pills | Finished customized pills | Pillen Presse (timing minigame) |
+| MDMA Base | Intermediate liquid product | Reaction Kettle |
+| MDMA Crystal | Dried crystal form | Drying Oven |
+| Binding Agent (Binder) | Required for pill pressing | Purchase / crafting |
+| Pill Dye (Dye) | Optional pill coloring | Purchase / crafting |
+| Ecstasy Pills | Finished customized pills | Pill Press (timing minigame) |
 
 ---
 
@@ -210,9 +210,9 @@ Final quality is the higher of the input crystal quality and the timing quality.
 
 | Block | Description | Function |
 |-------|-------------|----------|
-| Reaktions Kessel | Reaction kettle (**glowing**, light level 4) | Synthesizes safrole into MDMA-Base (8 slots, 50 sec); 40% Gut with 6+ safrole |
-| Trocknungs Ofen | Drying oven (**hot**, light level 8, 120 C) | Dries MDMA-Base into crystals (8 slots, 30 sec); quality preserved |
-| Pillen Presse | Pill press (**interactive GUI**) | Timing minigame; combines crystals + binder into pills; color/design selection |
+| Reaction Kettle | Reaction kettle (**glowing**, light level 4) | Synthesizes safrole into MDMA Base (8 slots, 50 sec); 40% Gut with 6+ safrole |
+| Drying Oven | Drying oven (**hot**, light level 8, 120 C) | Dries MDMA Base into crystals (8 slots, 30 sec); quality preserved |
+| Pill Press | Pill press (**interactive GUI**) | Timing minigame; combines crystals + binder into pills; color/design selection |
 
 ---
 
@@ -234,11 +234,11 @@ Final quality is the higher of the input crystal quality and the timing quality.
 2. **Master the 3-second timing window.** The pill press minigame is a 60-tick cycle. Learn to hit tick 28-32 consistently for Premium quality.
 3. **Count the rhythm.** The indicator moves at constant speed. Practice counting "one... two... PRESS!" to build muscle memory for the center.
 4. **Gut input + perfect timing = guaranteed Premium.** Since final quality is the max of input and timing, starting with Gut crystals means you only need a 0.95+ score for Premium.
-5. **The Reaktions Kessel glows at light level 4** and the Trocknungs Ofen at light level 8. Plan your lab layout knowing these blocks emit light.
+5. **The Reaction Kettle glows at light level 4** and the Drying Oven at light level 8. Plan your lab layout knowing these blocks emit light.
 6. **The oven runs at 120 C.** While this does not cause fire, it is a visual/thematic indicator of the drying process.
 7. **Tesla and Superman stamps are the most popular.** If you are selling to other players, these iconic designs may command slight premiums.
 8. **Practice timing on Standard Kristall first.** Do not waste Gut-quality crystals until your Premium hit rate exceeds 80%.
-9. **Bindemittel is cheap but essential.** Stock up before production runs -- you need one per pill with no substitutes.
+9. **Binding Agent is cheap but essential.** Stock up before production runs -- you need one per pill with no substitutes.
 10. **Create limited-edition color/design combinations** to build brand recognition. A consistent "signature pill" can become your market identity.
 
 ---

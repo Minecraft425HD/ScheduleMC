@@ -579,10 +579,10 @@ if (days >= 14 && baseQuality < LEGENDAER) -> upgrade()             // +1 tier
 | (CocaineItem)     |
 +--------+----------+
          |
-         v  (optional) Crack Kocher + Backpulver (baking soda)
+         v  (optional) Crack Cooker + Baking Powder (baking soda)
 +---------------------------------------------------+
 | CrackKocherBlock                                  |
-| Input: Cocaine + BackpulverItem                   |
+| Input: Cocaine + BakingPowderItem                   |
 | Output: CrackRockItem                             |
 | Quality: CrackQuality.fromTimingScore(0.0 - 1.0)  |
 +--------+------------------------------------------+

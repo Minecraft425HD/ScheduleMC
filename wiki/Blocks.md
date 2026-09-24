@@ -281,7 +281,7 @@ Quick Navigation:
 
 ### Crack Production
 
-#### Crack Kocher
+#### Crack Cooker
 - **ID:** `crack_cooker`
 - **Function:** Cook crack from cocaine
 - **Input:** 1 cocaine + 1 baking_powder (baking soda)
@@ -928,7 +928,7 @@ Quick Navigation:
 
 ### Blocks with Light Effects
 - Coca Refineries: Light 8/10/12
-- Crack Kocher: Light 6
+- Crack Cooker: Light 6
 - Reduktionskessel (Meth): Light 4
 - Destillations Apparat (LSD): Light 6
 - Reaktions Kessel (MDMA): Light 4

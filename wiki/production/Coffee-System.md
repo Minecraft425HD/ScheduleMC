@@ -135,7 +135,7 @@ Qualitaets-Multiplikator: 1,1x
 | coffee_iron_pot | Eisen-Topf |
 | coffee_golden_pot | Gold-Topf |
 | wet_processing_station | Nassverarbeitungs-Station |
-| small/medium/large_coffee_drying_tray | Trocknungsschalen (3 Groessen) |
+| small/medium/large_coffee_drying_tray | Drying Trays (3 sizes) |
 | small/medium/large_coffee_roaster | Roester (3 Groessen) |
 | coffee_grinder | Kaffemuehle |
 | coffee_packaging_table | Verpackungstisch |

@@ -43,15 +43,15 @@ Quality improves at growth stages 3, 5, and 7. Afghan has the highest upgrade ch
   Planted Pot         6-10 Poppy Pods
                              |
                              v
-  [3. SCORING]         Ritzmaschine
+  [3. SCORING]         Scoring Machine
    Manual: Scoring     (Automated)
-   Knife (128 uses)    or Opium Presse
+   Knife (128 uses)    or Opium Press
        |                (High-Yield)
        v
    Raw Opium
        |
        v
-  [4. PRESSING]        Opium Presse
+  [4. PRESSING]        Opium Press
    16 slots, diesel    Yield: 2-5 per pod
    powered             (quality-dependent)
        |
@@ -94,7 +94,7 @@ Quality directly affects harvest yield:
 
 ---
 
-## Step 3: Scoring (Ritzmaschine)
+## Step 3: Scoring (Scoring Machine)
 
 Score poppy pods to extract raw opium. Three methods are available:
 
@@ -103,10 +103,10 @@ Score poppy pods to extract raw opium. Three methods are available:
 | Method | Equipment | Capacity | Time | Yield per Pod | Power |
 |--------|-----------|----------|------|--------------|-------|
 | **Manual** | Scoring Knife | 1 (manual) | Instant | 1-3 (quality-based) | None |
-| **Automated** | Ritzmaschine | 8 pods | 5 sec/pod | 1-3 (quality-based) | Redstone |
-| **High-Yield** | Opium Presse | 16 pods | 4 sec/pod | **2-5** (quality-based) | Diesel |
+| **Automated** | Scoring Machine | 8 pods | 5 sec/pod | 1-3 (quality-based) | Redstone |
+| **High-Yield** | Opium Press | 16 pods | 4 sec/pod | **2-5** (quality-based) | Diesel |
 
-### Opium Presse Yield (Best Method)
+### Opium Press Yield (Best Method)
 
 | Quality | Opium per Pod |
 |---------|--------------|
@@ -115,7 +115,7 @@ Score poppy pods to extract raw opium. Three methods are available:
 | Very Good | 4 |
 | Legendary | **5** |
 
-The Opium Presse yields 67-100% more than manual scoring. Always use it for maximum output.
+The Opium Press yields 67-100% more than manual scoring. Always use it for maximum output.
 
 ---
 
@@ -166,7 +166,7 @@ Legendary morphine  -->  100% Legendary heroin (cannot upgrade further)
 | Tuerkisch Poppy Seeds | Turkish strain seeds (balanced) | Purchase / loot |
 | Indisch Poppy Seeds | Indian strain seeds (fastest) | Purchase / loot |
 | Poppy Pods | Harvested pods (strain + quality preserved) | Harvesting mature plant |
-| Raw Opium | Extracted opium resin | Scoring Knife / Ritzmaschine / Opium Presse |
+| Raw Opium | Extracted opium resin | Scoring Knife / Scoring Machine / Opium Press |
 | Morphine | Cooked opium product | Kochstation (water + fuel) |
 | Heroin | Refined final product | Heroin Raffinerie (fuel) |
 | Scoring Knife | Manual extraction tool (128 uses) | Crafting |
@@ -178,8 +178,8 @@ Legendary morphine  -->  100% Legendary heroin (cannot upgrade further)
 | Block | Description | Function |
 |-------|-------------|----------|
 | Terracotta/Ceramic/Iron/Golden Pot | Planting containers | Standard growth; Golden gives +1 quality |
-| Ritzmaschine | Automated scoring machine | Extracts 1-3 opium per pod, requires redstone |
-| Opium Presse | High-yield press | Extracts 2-5 opium per pod, requires diesel |
+| Scoring Machine | Automated scoring machine | Extracts 1-3 opium per pod, requires redstone |
+| Opium Press | High-yield press | Extracts 2-5 opium per pod, requires diesel |
 | Kochstation (Cooking Station) | Opium-to-morphine cooker | 8 parallel slots, requires water + fuel |
 | Heroin Raffinerie | Morphine-to-heroin refinery | 8 parallel slots, 20% quality upgrade chance |
 
@@ -194,7 +194,7 @@ Legendary morphine  -->  100% Legendary heroin (cannot upgrade further)
 | Fertilizer | Growing | +15% quality upgrade chance per stage |
 | Quality Booster | Growing | +20% quality upgrade chance per stage |
 | Quality-Based Yield | Harvesting | Legendary yields 1.6x base pods |
-| Opium Presse | Extraction | 2-5 opium per pod (quality-dependent) |
+| Opium Press | Extraction | 2-5 opium per pod (quality-dependent) |
 | Heroin Raffinerie | Refining | 20% chance to upgrade quality +1 tier |
 
 With Afghan + Fertilizer + Quality Booster: 72.5% upgrade chance per growth stage. Three upgrade opportunities (stages 3, 5, 7) make Legendary achievable in most runs.
@@ -204,7 +204,7 @@ With Afghan + Fertilizer + Quality Booster: 72.5% upgrade chance per growth stag
 ## Tips & Tricks
 
 1. **Afghan is king for profit.** The 1.5x potency multiplier affects the final price of every heroin unit. No other strain comes close at Legendary quality.
-2. **Always use the Opium Presse.** It yields 67-100% more opium than manual scoring. The diesel cost is negligible compared to the extra output.
+2. **Always use the Opium Press.** It yields 67-100% more opium than manual scoring. The diesel cost is negligible compared to the extra output.
 3. **Stack all growth modifiers for Afghan.** Fertilizer (+15%) + Quality Booster (+20%) + Afghan base (37.5%) = 72.5% upgrade chance per stage. Legendary is almost guaranteed.
 4. **Quality cascades through the entire chain.** A Legendary pod produces 5 opium at the Presse, each becoming Legendary morphine, then Legendary heroin. One good plant can produce 50 Legendary heroin units.
 5. **Indian is the training-wheels strain.** Cheap seeds, fast growth, low water use. Use it to learn the pipeline before investing in Afghan.

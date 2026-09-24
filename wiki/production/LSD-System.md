@@ -56,7 +56,7 @@ LSD production is a precision chemistry pipeline. It begins with fermenting Mutt
    Dosed LSD Loesung
        |
        v
-  [5. PERFORATION]          Perforations Presse
+  [5. PERFORATION]          Perforation Press
    LSD Loesung         -->  9 tabs per sheet
    + Blotter Paper           Time: 5 sec
        |
@@ -146,7 +146,7 @@ Bicycle Day produces 56% fewer tabs but 167% more revenue.
 
 ---
 
-## Step 5: Perforation (Perforations Presse)
+## Step 5: Perforation (Perforation Press)
 
 Cut dosed blotter paper into individual tabs.
 
@@ -187,7 +187,7 @@ The finished LSD Blotter tabs are ready for sale. Each tab carries its dosage le
 | Lysergsaeure | Lysergic acid (distilled) | Destillations Apparat (2:1 yield) |
 | LSD Loesung | LSD solution with charges | Mikro Dosierer (GUI dosing) |
 | Blotter Paper | Blank paper for tab production | Purchase / crafting |
-| LSD Blotter Tabs | Final product (9 per sheet) | Perforations Presse |
+| LSD Blotter Tabs | Final product (9 per sheet) | Perforation Press |
 
 ---
 
@@ -198,7 +198,7 @@ The finished LSD Blotter tabs are ready for sale. Each tab carries its dosage le
 | Fermentations Tank | Ergot fermentation vessel | Converts 8 Mutterkorn to 8 Ergot-Kultur (60 sec) |
 | Destillations Apparat | Distillation apparatus (**glowing**, light level 6) | Converts 4 Ergot-Kultur to 8 Lysergsaeure (40 sec, 2:1 yield) |
 | Mikro Dosierer | Micro-dosing station (**has GUI with slider**) | Applies dosage to LSD solution (10 sec); slider selects 50-300ug |
-| Perforations Presse | Perforation press | Cuts blotter sheets into 9 tabs each (5 sec) |
+| Perforation Press | Perforation press | Cuts blotter sheets into 9 tabs each (5 sec) |
 
 ---
 

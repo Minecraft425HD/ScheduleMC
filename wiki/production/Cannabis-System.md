@@ -58,7 +58,7 @@ Cannabis production is one of the most sophisticated systems in ScheduleMC. It f
      [6. CURING]                  |           |
       Curing Glas                 v           v
       (14-28 days)          [7. HASH]    [8. OIL]
-            |                Hash Presse  Oel Extraktor
+            |                Hash Press  Oil Extractor
             v                    |           |
       Cured Buds                 v           v
                               Hash      Cannabis Oil
@@ -158,9 +158,9 @@ Curing can push Mids all the way to Top Shelf, or Dank all the way to Exotic.
 
 ---
 
-## Step 6: Hash Production (Hash Presse)
+## Step 6: Hash Production (Hash Press)
 
-Convert trim into concentrated hash using the Hash Presse.
+Convert trim into concentrated hash using the Hash Press.
 
 | Property | Value |
 |----------|-------|
@@ -188,7 +188,7 @@ Hash quality depends on input weight: 80g+ trim yields Top Shelf, 50g+ yields Da
 
 ---
 
-## Step 7: Oil Extraction (Oel Extraktor)
+## Step 7: Oil Extraction (Oil Extractor)
 
 Create high-concentration cannabis oil from buds or trim.
 
@@ -243,8 +243,8 @@ Oil from trimmed buds gets +1 quality tier. Oil from trim is always Mids quality
 | Trimmed Cannabis Buds | Quality-graded buds | Trimm Station minigame |
 | Cannabis Trim | Leaf by-product from trimming | Trimm Station (50% of input weight) |
 | Cured Cannabis Buds | Long-term aged buds | Curing Glas (14-28 days) |
-| Hash | Concentrated trim product | Hash Presse |
-| Cannabis Oil | High-potency extract | Oel Extraktor |
+| Hash | Concentrated trim product | Hash Press |
+| Cannabis Oil | High-potency extract | Oil Extractor |
 | Extraction Solvent | Required for oil extraction | Crafting / purchase |
 | Spore Syringe | Used for inoculation (shared item) | Purchase |
 
@@ -261,8 +261,8 @@ Oil from trimmed buds gets +1 quality tier. Oil from trim is always Mids quality
 | Trocknungsnetz (Drying Net) | Passive drying station | Dries 4 buds over 3 Minecraft days |
 | Trimm Station | Interactive trimming station | Timing minigame; determines quality |
 | Curing Glas (Curing Jar) | Long-term aging container | +1 or +2 quality tiers over 14-28 days |
-| Hash Presse | Trim-to-hash press | Converts 20g+ trim into concentrated hash |
-| Oel Extraktor (Oil Extractor) | Oil extraction machine | Creates high-THC oil from buds or trim |
+| Hash Press | Trim-to-hash press | Converts 20g+ trim into concentrated hash |
+| Oil Extractor (Oil Extractor) | Oil extraction machine | Creates high-THC oil from buds or trim |
 
 ---
 
