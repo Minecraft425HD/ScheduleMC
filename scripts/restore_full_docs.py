@@ -16,8 +16,14 @@ def patch_generic(t: str) -> str:
     t = t.replace("12 public modules", "11 public I*API modules")
     t = t.replace("all 12 public modules", "all 11 public I*API modules")
     t = t.replace("| **API Modules** | 12 |", "| **API Modules** | 11 |")
+    t = t.replace("Public API (12 modules)", "Public API (11 I*API modules)")
     t = t.replace("**~249k LOC** across **1,561 Java files**", "**~260k LOC** across **1,610 Java files**")
     t = t.replace("- **~249k LOC (main + tests)** and **1,561 Java files**", "- **~260k LOC (main + tests)** and **1,610 Java files**")
+    t = t.replace("| **Lines of Code** | 224,000+ |", "| **Lines of Code** | ~260,000 |")
+    t = t.replace("| **Total Files** | 1,453 |", "| **Total Files** | 1,610 Java |")
+    t = t.replace("all 1,448 Java files", "all 1,610 Java files")
+    t = t.replace("all 1,494 Java files", "all 1,610 Java files")
+    t = t.replace("Java-Quelldateien (main): 1.494", "Java-Quelldateien (main + tests): 1.610")
     t = t.replace("Enum defining all 7 plot types", "Enum defining all 8 plot types")
     t = t.replace("has **7 plot types**", "has **8 plot types**")
     t = t.replace("ScheduleMC supports 5 plot types:", "ScheduleMC supports 8 plot types:")
@@ -30,6 +36,10 @@ def patch_generic(t: str) -> str:
         "8 plot types (Residential, Commercial, Industrial, Shop, Public, Government, Prison, Towing Yard)",
     )
     t = t.replace("ScheduleMC supports 5 distinct plot types", "ScheduleMC supports 8 distinct plot types")
+    t = t.replace(
+        "Plots come in types: Residential, Commercial, Shop, Public, and Government.",
+        "Plots come in types: Residential, Commercial, Industrial, Shop, Public, Government, Prison, and Towing Yard.",
+    )
     t = t.replace(
         "| `COMMERCIAL` | Yes | Yes | Player-owned businesses |\n| `SHOP` |",
         "| `COMMERCIAL` | Yes | Yes | Player-owned businesses |\n| `INDUSTRIAL` | Yes | Yes | Factories; restricted processing blocks require factory floor |\n| `SHOP` |",
@@ -51,6 +61,14 @@ def patch_generic(t: str) -> str:
         "| **Commercial** | Yes | Yes | Businesses and offices |\n| **Industrial** | Yes | Yes | Factories / processing |\n| **Shop** |",
     )
     t = t.replace(
+        '/plot create commercial "Downtown Office" 75000\n/plot create shop',
+        '/plot create commercial "Downtown Office" 75000\n/plot create industrial "Factory" 80000\n/plot create shop',
+    )
+    t = t.replace(
+        "Purchasable types (residential, commercial, towing_yard)",
+        "Purchasable types (residential, commercial, industrial, towing_yard)",
+    )
+    t = t.replace(
         "24 achievements across 5 categories",
         "~35 achievements across 4 used categories",
     )
@@ -59,8 +77,28 @@ def patch_generic(t: str) -> str:
         "~35 achievements in 4 used categories",
     )
     t = t.replace(
+        "24 Achievements in 5 Kategorien",
+        "~35 Achievements in 4 Kategorien",
+    )
+    t = t.replace(
+        "provides 24 achievements across 5 categories",
+        "provides ~35 achievements across 4 used categories",
+    )
+    t = t.replace(
+        "with 24 achievements across 5 categories",
+        "with ~35 achievements across 4 used categories",
+    )
+    t = t.replace(
+        "- **24 achievements** across 5 categories",
+        "- **~35 achievements** across 4 used categories",
+    )
+    t = t.replace(
         "3 attachments (Scope/Silencer/Laser)",
         "2 attachments (Scope/Silencer)",
+    )
+    t = t.replace(
+        "| [Tutorial System](features/Tutorial-System.md) | Player Onboarding | 7-step interactive tutorial",
+        "| [Tutorial System](features/Tutorial-System.md) | Player Onboarding (**not implemented**) | Design doc only — 7-step tutorial",
     )
     t = t.replace("Last Updated:** 2026-04-13", "Last Updated:** 2026-09-24")
     t = t.replace(
@@ -72,8 +110,13 @@ def patch_generic(t: str) -> str:
 
 def patch_changelog(t: str) -> str:
     t = t.replace("## [3.8.0-beta]", "## [__KEEP_380__]")
+    # Keep historical initial-release plot count and old achievement counts.
+    t = t.replace("5 plot types (Residential, Commercial, Shop, Public, Government)", "__KEEP_5PLOTS__")
+    t = t.replace("24 achievements in 5 categories", "__KEEP_24ACH__")
     t = patch_generic(t)
     t = t.replace("## [__KEEP_380__]", "## [3.8.0-beta]")
+    t = t.replace("__KEEP_5PLOTS__", "5 plot types (Residential, Commercial, Shop, Public, Government)")
+    t = t.replace("__KEEP_24ACH__", "24 achievements in 5 categories")
     if "## [3.9.0-beta]" not in t:
         insert = (
             "## [3.9.0-beta] - 2026-09-24\n\n"
@@ -97,7 +140,7 @@ def patch_changelog(t: str) -> str:
     return t
 
 
-def iter_markdown() -> list:
+def iter_markdown():
     out = []
     for root in ROOTS:
         if root.is_file() and root.suffix == ".md":
