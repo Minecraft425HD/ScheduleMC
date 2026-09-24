@@ -16,7 +16,6 @@ ScheduleMC Minecraft Forge 1.20.1 mod.
 1. [Development Environment Setup](#1-development-environment-setup)
 2. [Project Structure](#2-project-structure)
 3. [Adding Items and Blocks](#3-adding-items-and-blocks)
-4. [Using the ScheduleMC API](#4-using-the-schedulemc-api)
 5. [Adding a New Production System](#5-adding-a-new-production-system)
 6. [Adding NPC Behaviors](#6-adding-npc-behaviors)
 7. [Creating Smartphone Apps](#7-creating-smartphone-apps)
@@ -120,15 +119,14 @@ cd ScheduleMC
 | Minecraft Forge | 1.20.1-47.4.0 | Mod loader |
 | Gson | 2.10.1 | JSON serialization for persistence |
 | CoreLib | 1.20.1-1.1.1 | Networking, config, OBJ models, GUI |
-| Mixin / MixinExtras | 0.8.5 / 0.5.0 | MapView integration |
 | JUnit 5 | 5.10.1 | Unit testing |
 | Mockito | 5.8.0 | Mocking framework |
 | AssertJ | 3.24.2 | Fluent test assertions |
 
-Optional compile-only integrations (not required at runtime):
-- JEI 15.2.0.27
-- Jade 11.8.0
-- The One Probe 1.20.1-10.0.2-forge
+MapView's rendering hooks use standard Forge client events
+(`RenderGuiOverlayEvent`, `ClientTickEvent`) — no Mixin dependency.
+There are no optional compile-only integrations; JEI/Jade/The One Probe
+were previously listed but had no integration code and have been removed.
 
 ---
 
@@ -142,21 +140,6 @@ src/main/java/de/rolandsw/schedulemc/
 ├── ScheduleMC.java              Main mod class (@Mod entry point)
 ├── ModCreativeTabs.java         Creative mode tab registration
 ├── package-info.java
-│
-├── api/                         Public API (11 interfaces + implementations)
-│   ├── ScheduleMCAPI.java       Central singleton entry point
-│   ├── economy/                 IEconomyAPI
-│   ├── plot/                    IPlotAPI
-│   ├── production/              IProductionAPI
-│   ├── npc/                     INPCAPI
-│   ├── police/                  IPoliceAPI
-│   ├── warehouse/               IWarehouseAPI
-│   ├── messaging/               IMessagingAPI
-│   ├── smartphone/              ISmartphoneAPI
-│   ├── vehicle/                 IVehicleAPI
-│   ├── achievement/             IAchievementAPI
-│   ├── market/                  IMarketAPI
-│   └── impl/                    API implementation classes
 │
 ├── economy/                     Economy system (11 managers)
 │   ├── EconomyManager.java      Bank accounts and balances
@@ -481,242 +464,6 @@ ScheduleMC ships with German (primary) and English translations. Add entries to 
 
 ---
 
-## 4. Using the ScheduleMC API
-
-The ScheduleMC API allows external mods to interact with all major subsystems. The API
-consists of 11 interface modules accessed through a central singleton.
-
-### Adding the Dependency
-
-In your mod's `build.gradle`, add ScheduleMC as a dependency:
-
-```groovy
-dependencies {
-    // Compile against the ScheduleMC API
-    compileOnly files('libs/schedulemc-3.9.0-beta.jar')
-}
-```
-
-In your `mods.toml`, declare the dependency:
-
-```toml
-[[dependencies.yourmodid]]
-    modId = "schedulemc"
-    mandatory = true
-    versionRange = "[3.6.0,)"
-    ordering = "AFTER"
-    side = "BOTH"
-```
-
-### Accessing the API
-
-The central entry point is `ScheduleMCAPI.getInstance()`. The API is initialized during
-the `ServerStartedEvent` phase, so it is only available after the server has fully started.
-
-```java
-import de.rolandsw.schedulemc.api.ScheduleMCAPI;
-
-// Check if API is ready
-ScheduleMCAPI api = ScheduleMCAPI.getInstance();
-if (!api.isInitialized()) {
-    // API not yet ready - server has not fully started
-    return;
-}
-```
-
-### Available API Modules
-
-| Module | Getter | Description |
-|---|---|---|
-| Economy | `api.getEconomyAPI()` | Bank accounts, deposits, withdrawals, transfers |
-| Plot | `api.getPlotAPI()` | Plot creation, ownership, permissions |
-| Production | `api.getProductionAPI()` | Production chains, quality system |
-| NPC | `api.getNPCAPI()` | NPC entities, data, schedules |
-| Police | `api.getPoliceAPI()` | Wanted levels, crime, prison |
-| Warehouse | `api.getWarehouseAPI()` | Storage, deliveries |
-| Messaging | `api.getMessagingAPI()` | In-game messages |
-| Smartphone | `api.getSmartphoneAPI()` | Smartphone apps, notifications |
-| Vehicle | `api.getVehicleAPI()` | Vehicle management, fuel |
-| Achievement | `api.getAchievementAPI()` | Achievement tracking, rewards |
-| Market | `api.getMarketAPI()` | Dynamic pricing, supply/demand |
-
-### Example: Economy Integration
-
-```java
-import de.rolandsw.schedulemc.api.ScheduleMCAPI;
-import de.rolandsw.schedulemc.api.economy.IEconomyAPI;
-import java.util.UUID;
-
-public class MyModEconomyIntegration {
-
-    public void rewardPlayer(UUID playerUUID, double amount) {
-        IEconomyAPI economy = ScheduleMCAPI.getInstance().getEconomyAPI();
-
-        // Check if player has an account
-        if (!economy.hasAccount(playerUUID)) {
-            economy.createAccount(playerUUID);
-        }
-
-        // Check current balance
-        double balance = economy.getBalance(playerUUID);
-
-        // Deposit money with a description for the transaction log
-        economy.deposit(playerUUID, amount, "Reward from MyMod");
-
-        // Check if player can afford something
-        if (economy.canAfford(playerUUID, 500.0)) {
-            economy.withdraw(playerUUID, 500.0, "MyMod purchase");
-        }
-
-        // Transfer between players
-        UUID otherPlayer = UUID.randomUUID();
-        boolean success = economy.transfer(playerUUID, otherPlayer, 100.0, "Trade");
-
-        // Get top 10 richest players
-        var topPlayers = economy.getTopBalances(10);
-
-        // Get full transaction history
-        var history = economy.getTransactionHistory(playerUUID, 50);
-    }
-}
-```
-
-### Example: Plot Integration
-
-```java
-import de.rolandsw.schedulemc.api.ScheduleMCAPI;
-import de.rolandsw.schedulemc.api.plot.IPlotAPI;
-import de.rolandsw.schedulemc.region.PlotRegion;
-import de.rolandsw.schedulemc.region.PlotType;
-import net.minecraft.core.BlockPos;
-import java.util.List;
-import java.util.UUID;
-
-public class MyModPlotIntegration {
-
-    public void checkPlotPermissions(BlockPos pos, UUID playerUUID) {
-        IPlotAPI plots = ScheduleMCAPI.getInstance().getPlotAPI();
-
-        // Check if a position is inside a plot
-        PlotRegion plot = plots.getPlotAt(pos);
-        if (plot != null) {
-            // Plot exists at this position
-            String plotId = plot.getId();
-
-            // Check ownership
-            List<PlotRegion> playerPlots = plots.getPlotsByOwner(playerUUID);
-
-            // Get all shop plots
-            List<PlotRegion> shops = plots.getPlotsByType(PlotType.SHOP);
-
-            // Find nearby plots
-            List<PlotRegion> nearby = plots.getPlotsInRadius(pos, 50.0);
-
-            // Get trusted players
-            var trusted = plots.getTrustedPlayers(plotId);
-        }
-
-        // Create a new plot programmatically
-        PlotRegion newPlot = plots.createPlot(
-            new BlockPos(0, 64, 0),    // corner 1
-            new BlockPos(15, 80, 15),  // corner 2
-            "MyModPlot",               // name
-            PlotType.COMMERCIAL,       // type
-            5000.0                     // price
-        );
-    }
-}
-```
-
-### Example: NPC Interaction
-
-```java
-import de.rolandsw.schedulemc.api.ScheduleMCAPI;
-import de.rolandsw.schedulemc.api.npc.INPCAPI;
-import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
-import de.rolandsw.schedulemc.npc.data.NPCType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import java.util.Collection;
-
-public class MyModNPCIntegration {
-
-    public void interactWithNPCs(ServerLevel level) {
-        INPCAPI npcAPI = ScheduleMCAPI.getInstance().getNPCAPI();
-
-        // Get all NPCs in the world
-        Collection<CustomNPCEntity> allNPCs = npcAPI.getAllNPCs(level);
-
-        // Find NPCs by type (e.g., all shop keepers)
-        Collection<CustomNPCEntity> shopKeepers =
-            npcAPI.getNPCsByType(NPCType.VERKAEUFER);
-
-        // Find NPCs near a position (within 20 blocks)
-        Collection<CustomNPCEntity> nearbyNPCs =
-            npcAPI.getNPCsInRadius(level, new BlockPos(100, 64, 200), 20.0);
-
-        // Modify NPC properties
-        for (CustomNPCEntity npc : nearbyNPCs) {
-            npcAPI.setNPCName(npc, "Custom Name");
-            npcAPI.setNPCHome(npc, new BlockPos(100, 64, 200));
-            npcAPI.setNPCWork(npc, new BlockPos(110, 64, 210));
-            npcAPI.setNPCSchedule(npc, "workstart", 700);  // 07:00
-            npcAPI.setNPCSchedule(npc, "workend", 1800);   // 18:00
-        }
-    }
-}
-```
-
-### Example: Market Price Queries
-
-```java
-import de.rolandsw.schedulemc.api.ScheduleMCAPI;
-import de.rolandsw.schedulemc.api.market.IMarketAPI;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import java.util.Map;
-
-public class MyModMarketIntegration {
-
-    public void queryMarket() {
-        IMarketAPI market = ScheduleMCAPI.getInstance().getMarketAPI();
-
-        // Get current dynamic price for an item
-        double price = market.getCurrentPrice(Items.DIAMOND);
-
-        // Get the base price (without dynamic adjustments)
-        double basePrice = market.getBasePrice(Items.DIAMOND);
-
-        // Get the price multiplier (1.0 = base, >1.0 = higher, <1.0 = lower)
-        double multiplier = market.getPriceMultiplier(Items.DIAMOND);
-
-        // Check supply and demand levels (0-100)
-        int demand = market.getDemandLevel(Items.DIAMOND);
-        int supply = market.getSupplyLevel(Items.DIAMOND);
-
-        // Record transactions (affects dynamic pricing)
-        market.recordPurchase(Items.DIAMOND, 5);  // Price rises
-        market.recordSale(Items.DIAMOND, 10);      // Price drops
-
-        // Get all market prices
-        Map<Item, Double> allPrices = market.getAllPrices();
-    }
-}
-```
-
-### Thread Safety
-
-All API methods are thread-safe. The internal implementations use `ConcurrentHashMap`
-and synchronized access where required. You can safely call API methods from any thread.
-
-### Error Handling
-
-API methods throw `IllegalArgumentException` for null parameters and invalid values.
-Some methods throw `IllegalStateException` if the API has not been initialized yet.
-Always check `api.isInitialized()` before using the API, or catch these exceptions.
-
----
-
 ## 5. Adding a New Production System
 
 ScheduleMC provides a generic production framework that handles plant growth, processing
@@ -863,15 +610,12 @@ public class MyProcessingBlock extends AbstractProcessingBlock {
 Follow the patterns in Section 3 to create registration classes, then wire them into
 the `ScheduleMC` constructor.
 
-### Step 6: Register via the Production API
+### Step 6: Register with ProductionRegistry
 
-Register your production config so the API knows about it:
-
-```java
-// During server startup or mod initialization:
-IProductionAPI productionAPI = ScheduleMCAPI.getInstance().getProductionAPI();
-productionAPI.registerProduction(myConfig);
-```
+Register your production config with `de.rolandsw.schedulemc.production.config.ProductionRegistry`
+(a singleton via `ProductionRegistry.getInstance()`) so the generic production
+framework picks it up, following the pattern used by the existing production
+modules under `production/config/`.
 
 ### Step 7: Create Resource Files
 
@@ -1104,38 +848,12 @@ NPCEmotions emotions = lifeData.getEmotions();
 The smartphone system provides an in-game phone with multiple app screens. Players
 open the phone with a keybind, and each app is a separate `Screen` implementation.
 
-### App Registration via API
+### Adding a New App
 
-The `ISmartphoneAPI` allows external mods to register custom apps:
-
-```java
-ISmartphoneAPI smartphoneAPI = ScheduleMCAPI.getInstance().getSmartphoneAPI();
-
-// Register a new app
-boolean registered = smartphoneAPI.registerApp(
-    "mymod_tracker",     // Unique app ID
-    "Player Tracker",    // Display name
-    "§bBlue"             // Icon color code
-);
-
-// Send notifications to a player's phone
-smartphoneAPI.sendNotification(
-    playerUUID,
-    "mymod_tracker",
-    "New tracking data available!"
-);
-
-// Check if player has the smartphone item
-if (smartphoneAPI.hasSmartphone(playerUUID)) {
-    // Player can receive notifications
-}
-
-// List all registered apps
-Set<String> apps = smartphoneAPI.getRegisteredApps();
-
-// Unregister when your mod unloads
-smartphoneAPI.unregisterApp("mymod_tracker");
-```
+There is no runtime app-registration mechanism. The home screen grid in
+`SmartphoneScreen` hard-codes its list of apps by index; adding an app means
+adding a `case` there that opens your new `Screen`, the same way the existing
+apps are wired.
 
 ### Creating an App Screen
 
@@ -2175,7 +1893,7 @@ public void onRegisterCommands(RegisterCommandsEvent event) {
 |---|---|---|
 | Packages | Lowercase, feature-based | `de.rolandsw.schedulemc.economy` |
 | Classes | PascalCase | `EconomyManager`, `PlotRegion` |
-| Interfaces | PascalCase with I-prefix (API) | `IEconomyAPI`, `INPCAPI` |
+| Interfaces | PascalCase | `ISaveable`, `PacketBridge` |
 | Constants | UPPER_SNAKE_CASE | `MOD_ID`, `SAVE_INTERVAL` |
 | Methods | camelCase | `getBalance()`, `markDirty()` |
 | Fields | camelCase | `needsSave`, `tickCounter` |
@@ -2242,24 +1960,6 @@ Follow the established pattern for DeferredRegister usage:
 | Build output | `build/libs/schedulemc-3.9.0-beta.jar` |
 | Mod metadata | `src/main/resources/META-INF/mods.toml` |
 | Gradle properties | `gradle.properties` |
-
-### API Entry Point Cheat Sheet
-
-```java
-ScheduleMCAPI api = ScheduleMCAPI.getInstance();
-
-api.getEconomyAPI()       // Bank, transfers, transactions
-api.getPlotAPI()          // Plots, ownership, permissions
-api.getProductionAPI()    // Production chains, quality
-api.getNPCAPI()           // NPCs, schedules, types
-api.getPoliceAPI()        // Wanted, crime, prison
-api.getWarehouseAPI()     // Storage, deliveries
-api.getMessagingAPI()     // In-game messages
-api.getSmartphoneAPI()    // Phone apps, notifications
-api.getVehicleAPI()       // Vehicles, fuel
-api.getAchievementAPI()   // Achievements, rewards
-api.getMarketAPI()        // Dynamic pricing
-```
 
 ---
 
