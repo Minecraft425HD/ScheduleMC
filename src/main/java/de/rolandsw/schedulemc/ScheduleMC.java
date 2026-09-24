@@ -10,8 +10,6 @@ import de.rolandsw.schedulemc.util.HealthCheckManager;
 import de.rolandsw.schedulemc.economy.commands.StateCommand;
 import de.rolandsw.schedulemc.npc.commands.NPCCommand;
 import de.rolandsw.schedulemc.warehouse.commands.WarehouseCommand;
-import de.rolandsw.schedulemc.api.ScheduleMCAPI;
-import de.rolandsw.schedulemc.api.impl.*;
 import de.rolandsw.schedulemc.economy.PlayerJoinHandler;
 import de.rolandsw.schedulemc.events.BlockProtectionHandler;
 import de.rolandsw.schedulemc.events.InventoryRestrictionHandler;
@@ -779,27 +777,6 @@ public class ScheduleMC {
             // Health-Check nach Start
             LOGGER.info("Performing initial health check...");
             HealthCheckManager.logHealthCheck();
-
-            // ═══════════════════════════════════════════════════════════
-            // SCHEDULEMC API - Initialize public API for external mods
-            // ═══════════════════════════════════════════════════════════
-            LOGGER.info("Initializing ScheduleMC Public API...");
-            ScheduleMCAPI.getInstance().initialize(
-                new EconomyAPIImpl(),      // 1. Economy operations
-                new PlotAPIImpl(),          // 2. Plot management
-                new ProductionAPIImpl(),    // 3. Production system
-                new NPCAPIImpl(),           // 4. NPC management
-                new PoliceAPIImpl(),        // 5. Crime/wanted system
-                new WarehouseAPIImpl(),     // 6. Warehouse management
-                new MessagingAPIImpl(),     // 7. Message system
-                new SmartphoneAPIImpl(),    // 8. Smartphone apps
-                new VehicleAPIImpl(),       // 9. Vehicle system
-                new AchievementAPIImpl(),   // 10. Achievement tracking
-                new MarketAPIImpl()         // 11. Dynamic market
-            );
-            LOGGER.info("ScheduleMC Public API v{} - READY", ScheduleMCAPI.getInstance().getVersion());
-            LOGGER.info("External mods can now access ScheduleMC features via ScheduleMCAPI.getInstance()");
-            // ═══════════════════════════════════════════════════════════
 
         }, "onServerStarted");
     }
