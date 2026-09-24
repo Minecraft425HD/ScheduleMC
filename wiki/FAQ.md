@@ -52,7 +52,7 @@ ScheduleMC targets only Minecraft 1.20.1. It will not work on earlier versions, 
 
 ### Q: Is ScheduleMC free?
 
-**A:** ScheduleMC is distributed under the **All Rights Reserved** license. The `gradle.properties` file specifies the license as `All Rights Reserved`, meaning all rights are retained by the author, Luckas R. Schneider (Minecraft425HD). While the source code is available on GitHub, redistribution, modification, and commercial use may be restricted. Refer to the project's license terms for specific permissions.
+**A:** ScheduleMC is distributed under the **GNU GPLv3**. The `gradle.properties` / `mods.toml` license field is `GNU GPLv3`, meaning all rights are retained by the author, Luckas R. Schneider (Minecraft425HD). While the source code is available on GitHub, redistribution, modification, and commercial use may be restricted. Refer to the project's license terms for specific permissions.
 
 **Note:** The repository's LICENSE file contains the text of the GNU GPL v3, which may indicate a transition or dual-licensing arrangement. When in doubt, contact the developer for clarification.
 
@@ -321,12 +321,13 @@ The plot is now protected. Only you and trusted players can build, break blocks,
 
 ### Q: What are the plot types?
 
-**A:** ScheduleMC supports 5 plot types:
+**A:** ScheduleMC supports 8 plot types:
 
 | Type | Description | Who Can Create |
 |------|-------------|----------------|
 | **Residential** | Homes, apartments, and living spaces | All players |
 | **Commercial** | Businesses, offices, and shops | All players |
+| **Industrial** | Factories / processing | All players |
 | **Shop** | NPC shops with inventory and warehouse integration | All players |
 | **Public** | Parks, roads, spawn areas, and community spaces | Admins only |
 | **Government** | Town halls, prisons, hospitals, and official buildings | Admins only |

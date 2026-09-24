@@ -481,6 +481,7 @@ Uses a spatial index with an LRU cache for fast position-based lookups.
 public enum PlotType {
     RESIDENTIAL(true, true),    // Purchasable, rentable
     COMMERCIAL(true, true),     // Purchasable, rentable
+    INDUSTRIAL(true, true),     // Factory floor
     SHOP(false, false),         // State-owned, not purchasable
     PUBLIC(false, false),       // Public area
     GOVERNMENT(false, false),   // Government property

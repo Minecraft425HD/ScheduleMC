@@ -256,12 +256,13 @@ Plots are protected land regions. Only the owner and trusted players can build i
 
 ### Plot Types
 
-ScheduleMC has **7 plot types**, each with different properties:
+ScheduleMC has **8 plot types**, each with different properties:
 
 | Type | Purchasable | Rentable | Description |
 |---|---|---|---|
 | **Residential** | Yes | Yes | Player homes and apartments |
 | **Commercial** | Yes | Yes | Businesses and offices |
+| **Industrial** | Yes | Yes | Factories / processing |
 | **Shop** | No | No | NPC merchant shops (state-owned) |
 | **Public** | No | No | Parks, roads, common areas |
 | **Government** | No | No | Town halls, official buildings |
