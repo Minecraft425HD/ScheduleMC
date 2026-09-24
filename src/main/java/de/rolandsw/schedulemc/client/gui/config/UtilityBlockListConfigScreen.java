@@ -28,8 +28,6 @@ public class UtilityBlockListConfigScreen extends Screen {
     private static final int LABEL_X            = 24;
     private static final int FIELD_X            = 185;
     private static final int START_Y            = 56;
-    private static final int ROW_HEIGHT         = 20;
-    private static final int LIST_BOTTOM_PADDING = 50;
 
     private final Screen parent;
 

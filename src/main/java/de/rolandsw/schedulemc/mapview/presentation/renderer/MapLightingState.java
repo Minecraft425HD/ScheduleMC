@@ -35,12 +35,6 @@ public class MapLightingState {
     private float lastSunBrightness;
     private float lastLightning;
     private float lastPotion;
-    private final int[] lastLightmapValues = {
-        -16777216, -16777216, -16777216, -16777216,
-        -16777216, -16777216, -16777216, -16777216,
-        -16777216, -16777216, -16777216, -16777216,
-        -16777216, -16777216, -16777216, -16777216
-    };
     private boolean needSkyColor;
     private boolean lastAboveHorizon = true;
     private int lastBiome;

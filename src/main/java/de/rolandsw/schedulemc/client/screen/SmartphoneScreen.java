@@ -34,9 +34,7 @@ public class SmartphoneScreen extends Screen {
     private static final int APP_ICON_SIZE = 42; // Größer für bessere Lesbarkeit
     private static final int APP_SPACING = 15; // Abstand zwischen Apps
     private static final int CLOSE_BUTTON_SIZE = 20;
-    private static final int BORDER_SIZE = 5; // Rahmen um das Smartphone
     private static final int MARGIN_TOP = 5; // Mindestabstand vom oberen Bildschirmrand
-    private static final int MARGIN_BOTTOM = 50; // Genug Platz für Hotbar und UI-Elemente
     private static final int SCROLLBAR_WIDTH = 8; // Etwas breiter für bessere Klickbarkeit
     private static final int SCROLLBAR_MARGIN = 10; // Abstand zwischen Apps und Scrollbar
     private static final int LIST_SIDE_PADDING = 24; // Schmalere Listenzeilen (horizontal)
@@ -58,7 +56,6 @@ public class SmartphoneScreen extends Screen {
     private static final ResourceLocation APP_LEVEL = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_level.png");
     private static final ResourceLocation APP_GANG = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_gang.png");
     private static final ResourceLocation APP_MISSIONS = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/app_missions.png");
-    private static final ResourceLocation CLOSE_ICON = ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/apps/close.png");
 
     // PERFORMANCE: Statisches Icon-Array statt Neuallokation pro Frame
     private static final ResourceLocation[] APP_ICONS = {APP_MAP, APP_DEALER, APP_PRODUCTS, APP_ORDER, APP_CONTACTS, APP_MESSAGES, APP_PLOT, APP_SETTINGS, APP_BANK, APP_CRIME, APP_ACHIEVEMENT, APP_TOWING, APP_LEVEL, APP_GANG, APP_MISSIONS};

@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.npc.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import de.rolandsw.schedulemc.ScheduleMC;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.menu.StealingMenu;
@@ -14,7 +13,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,9 +27,6 @@ import org.lwjgl.glfw.GLFW;
  */
 @OnlyIn(Dist.CLIENT)
 public class StealingScreen extends AbstractContainerScreen<StealingMenu> {
-
-    private static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath(ScheduleMC.MOD_ID, "textures/gui/stealing.png");
 
     // Auswahl-Modus
     private boolean choosingMode = true; // true = Auswahl, false = Minigame

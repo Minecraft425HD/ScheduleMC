@@ -106,29 +106,6 @@ public abstract class AbstractPacket {
     }
 
     /**
-     * Schreibt eine String-Liste in den Buffer
-     */
-    protected static void writeStringList(FriendlyByteBuf buf, java.util.List<String> list) {
-        buf.writeInt(list.size());
-        for (String s : list) {
-            buf.writeUtf(s);
-        }
-    }
-
-    /**
-     * Liest eine String-Liste aus dem Buffer
-     * SICHERHEIT: Max-Länge und max Anzahl gegen DoS/Memory-Angriffe
-     */
-    protected static java.util.List<String> readStringList(FriendlyByteBuf buf) {
-        int size = Math.min(buf.readInt(), 1000); // Max 1000 Einträge
-        java.util.List<String> list = new java.util.ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            list.add(buf.readUtf(256)); // Max 256 chars per String
-        }
-        return list;
-    }
-
-    /**
      * Schreibt ein String-Set in den Buffer
      */
     protected static void writeStringSet(FriendlyByteBuf buf, java.util.Set<String> set) {
@@ -151,42 +128,4 @@ public abstract class AbstractPacket {
         return set;
     }
 
-    /**
-     * Schreibt eine UUID-Liste in den Buffer
-     */
-    protected static void writeUUIDList(FriendlyByteBuf buf, java.util.List<java.util.UUID> list) {
-        buf.writeInt(list.size());
-        for (java.util.UUID uuid : list) {
-            writeUUID(buf, uuid);
-        }
-    }
-
-    /**
-     * Liest eine UUID-Liste aus dem Buffer
-     */
-    protected static java.util.List<java.util.UUID> readUUIDList(FriendlyByteBuf buf) {
-        int size = Math.min(buf.readInt(), 1000); // Max 1000 Einträge gegen DoS
-        java.util.List<java.util.UUID> list = new java.util.ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            list.add(readUUID(buf));
-        }
-        return list;
-    }
-
-    /**
-     * Schreibt eine optionale BlockPos in den Buffer
-     */
-    protected static void writeOptionalBlockPos(FriendlyByteBuf buf, net.minecraft.core.BlockPos pos) {
-        buf.writeBoolean(pos != null);
-        if (pos != null) {
-            buf.writeBlockPos(pos);
-        }
-    }
-
-    /**
-     * Liest eine optionale BlockPos aus dem Buffer
-     */
-    protected static net.minecraft.core.BlockPos readOptionalBlockPos(FriendlyByteBuf buf) {
-        return buf.readBoolean() ? buf.readBlockPos() : null;
-    }
 }

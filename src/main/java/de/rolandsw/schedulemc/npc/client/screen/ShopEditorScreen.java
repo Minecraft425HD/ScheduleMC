@@ -11,7 +11,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -28,9 +27,6 @@ import java.util.regex.Pattern;
 @OnlyIn(Dist.CLIENT)
 public class ShopEditorScreen extends AbstractContainerScreen<ShopEditorMenu> {
     private static final Pattern DIGITS_ONLY = Pattern.compile("\\d*");
-
-    private static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/container/generic_54.png");
 
     private static class ItemRow {
         EditBox priceInput;

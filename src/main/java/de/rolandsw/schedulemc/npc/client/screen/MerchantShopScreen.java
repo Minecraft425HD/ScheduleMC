@@ -81,9 +81,6 @@ public class MerchantShopScreen extends AbstractContainerScreen<MerchantShopMenu
     private static final int C_ACCENT       = 0xFF4A90E2;
     private static final int C_SCROLL_BAR   = 0xFF4A90E2;
     private static final int C_SCROLL_BG    = 0xFF333333;
-    private static final int C_BTN_BUY      = 0xFF2E7D32;
-    private static final int C_BTN_BUY_HOV  = 0xFF388E3C;
-    private static final int C_BTN_BUY_DIS  = 0xFF333333;
 
     // ─── State ────────────────────────────────────────────────────────
     private final List<ShopItemRow> shopItemRows = new ArrayList<>();

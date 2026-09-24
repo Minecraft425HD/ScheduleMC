@@ -264,10 +264,6 @@ public abstract class AbstractPersistenceManager<T> implements IncrementalSaveMa
         return dataFile;
     }
 
-    protected Gson getGson() {
-        return gson;
-    }
-
     protected boolean needsSave() {
         return needsSave;
     }

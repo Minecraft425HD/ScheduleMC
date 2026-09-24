@@ -99,9 +99,7 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     private static final int STATS_VISIBLE_HEIGHT = 180; // Sichtbare Höhe im Tab
 
     // Input fields
-    private EditBox slotCapacityInput;
     private EditBox maxCapacityInput;
-    private EditBox deliveryIntervalInput;
     private EditBox shopIdInput;
 
     // Item selection overlay
@@ -109,7 +107,6 @@ public class WarehouseScreen extends AbstractContainerScreen<WarehouseMenu> {
     final private List<Item> allItems = new ArrayList<>();
     private List<Item> filteredItems;
     private int itemSelectionScrollOffset = 0;
-    private static final int ITEM_SELECTION_VISIBLE_ROWS = 10;
     private EditBox itemSearchField;
 
     // Clickable areas for NPCs

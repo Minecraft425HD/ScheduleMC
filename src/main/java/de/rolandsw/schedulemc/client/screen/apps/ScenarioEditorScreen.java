@@ -75,7 +75,6 @@ public class ScenarioEditorScreen extends Screen {
     private static final String[] EVENT_TYPES = {"POLIZEI_KONTROLLE", "ROBBERY", "UNFALL", "BRAND",
             "STROMAUSFALL", "UNWETTER"};
     private static final String[] COLOR_TYPES = {"WEISS", "ROT", "GRUEN", "BLAU", "GELB", "LILA", "ORANGE", "GRAU"};
-    private static final String[] MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};
 
     // Separierte Gang- und Story-Typen fuer den zweigeteilten Selektor
     private static final String[] GANG_MISSION_TYPES = {"HOURLY", "DAILY", "WEEKLY"};

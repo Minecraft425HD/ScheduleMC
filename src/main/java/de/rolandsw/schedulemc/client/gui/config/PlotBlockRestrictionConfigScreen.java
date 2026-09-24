@@ -309,12 +309,6 @@ public class PlotBlockRestrictionConfigScreen extends Screen {
         return fullText.substring(comma + 1).trim();
     }
 
-    private String replaceCurrentToken(String fullText, String replacement) {
-        int comma = fullText.lastIndexOf(',');
-        if (comma < 0) return replacement;
-        return fullText.substring(0, comma + 1) + replacement;
-    }
-
     private String mergeCompletion(String fullText, String currentToken, String completion) {
         String tokenLower = currentToken.toLowerCase(Locale.ROOT);
         String completionLower = completion.toLowerCase(Locale.ROOT);

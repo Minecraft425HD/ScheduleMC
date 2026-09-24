@@ -34,7 +34,6 @@ public class TobaccoPotHudOverlay {
 
     private static final int BAR_WIDTH = 80;
     private static final int BAR_HEIGHT = 6;
-    private static final int SEGMENT_WIDTH = BAR_WIDTH / 5;
     private static final float SCALE = 0.7f;
     private static final int HUD_X = 10;
     private static final int HUD_Y = 10;

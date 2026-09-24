@@ -37,9 +37,7 @@ public class PlotAppScreen extends Screen {
     private final Screen parentScreen;
     private static final int WIDTH = 200;
     private static final int HEIGHT = 240;
-    private static final int BORDER_SIZE = 5;
     private static final int MARGIN_TOP = 5;
-    private static final int MARGIN_BOTTOM = 60;
 
     // Tab-System
     private int currentTab = 0;
