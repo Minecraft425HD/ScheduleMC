@@ -30,7 +30,7 @@
 | **Java** | 17 |
 | **Lines of Code** | ~260,000 |
 | **Total Files** | 1,610 Java |
-| **Registered Items** | 383 |
+| **Registered Items** | 354 catalogued |
 | **Registered Blocks** | 152 |
 | **Available Commands** | 139 |
 | **Production Chains** | 14 (8 illegal + 6 legal) |
@@ -176,7 +176,7 @@ When you join a ScheduleMC server for the first time, the following happens auto
 ### Essential Player Commands
 
 ```
-/state balance              Check your bank balance
+/state balance              View the government treasury balance
 /state deposit <amount>     Deposit money into state treasury
 /state withdraw <amount>    Withdraw from state treasury
 /bail                       Pay bail to leave prison

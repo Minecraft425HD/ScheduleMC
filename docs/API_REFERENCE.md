@@ -2744,7 +2744,7 @@ de.rolandsw.schedulemc.api
 
 *ScheduleMC API Reference -- Version 3.9.0-beta*
 *Author: Luckas R. Schneider (Minecraft425HD)*
-*License: All Rights Reserved*
+*License: GNU GPLv3*
 
 ---
 
