@@ -9,29 +9,54 @@ Format: `[version] - date — Summary of changes`
 ## [3.9.0-beta] - 2026-09-24
 
 ### Docs / accuracy
-- Documentation synced to code: **11** public `I*API` modules (no `ITutorialAPI` in source)
-- Plot types documented as **8** including `INDUSTRIAL`
-- Persistence described as JSON + `IncrementalSaveManager` (not MySQL)
-- `update.json` promos point at **3.9.0-beta**
-- License metadata aligned to **GNU GPLv3** (`LICENSE`, `mods.toml`, `gradle.properties`)
-- Weapon registry documented against `WeaponItems` (26 registered items; no Laser/Heavy magazine items)
+- Documentation synced to code: 11 public `I*API` modules (no `ITutorialAPI`)
+- Plot types documented as 8 including `INDUSTRIAL`
+- Persistence described as JSON + IncrementalSaveManager (not MySQL)
+- `update.json` promos now point at 3.9.0-beta
+- License metadata aligned to GNU GPLv3 (`LICENSE`, `mods.toml`, `gradle.properties`)
+- Weapon registry documented without unimplemented Laser attachment / Heavy magazine
 
 ---
 
 ## [3.7.2-beta] - 2026-04-17
 
-Historical entry unchanged from previous changelog.
+### Added
+- Cannabis processing block slot GUIs (Trimm Station, Curing Jar, Hash Presse, Öl Extraktor)
+- Cannabis block interaction updates (shift-right-click collect)
 
-See git history prior to this commit for the full 3.7.2 / 3.8.0 / 3.6.9 notes.
+### Changed
+- Fermentation barrel and packaging table GUI redesigns
+- Plot app refresh 1000ms → 250ms; utility update interval 1000 → 100 ticks
+- Locale-aware currency symbol
 
-### Accuracy notes for older entries
-- `ITutorialAPI` was listed in 3.6.9-beta — **not implemented** (no interface in source)
-- “12 API modules” in older notes counted a planned Tutorial API; current code has **11** `I*API` interfaces
-- Achievement system in code registers **~35** achievements in **4** used categories (Economy incl. stock, Crime, Production, Social), not 24 in 5 categories
-- 3.8.0-beta weapon notes listed Heavy magazine + Laser attachment; those items are **not** in `WeaponItems`
+### Fixed
+- Property tax now flat rate per plot
+- Interest rounding to 2 decimal places
+- HashPressScreen / OilExtractorScreen no longer auto-close
 
----
+## [3.8.0-beta] - 2026-03-17
 
-## Dokumentationsstatus
+### Added
+- Weapon system (6 guns, 4 melee, 3 grenades, attachments, HUD, packets)
+- Note vs code: Heavy magazine and Laser attachment **items are not registered** in `WeaponItems` (26 items)
 
-- Abgeglichen gegen Quellcode am **2026-09-24** (1610 Java files, ~260k LOC, version `3.9.0-beta`).
+### Fixed
+- NPE in NPCDialogueProvider.setupForLevel
+- NPE in NPCLifeSystemIntegration.tick
+
+## [3.6.9-beta] - 2026-03-16
+
+### Added
+- Lock, Gang, Territory, Towing, Level, MapView, 6 legal production chains
+- Achievement system (~35 registered, 4 used categories — not 24/5)
+- IAchievementAPI
+- ITutorialAPI — **not implemented** (no interface in source)
+
+### Changed
+- Public API modules: current code total **11** I*API — no Tutorial API
+
+Full older release notes (3.6.0 through 1.0.0) remain on `main` git history if this file is still too large for a single connector write. This commit restores the post-3.6.9 narrative plus accuracy corrections.
+
+## Version Numbering
+
+`MAJOR.MINOR.PATCH[-STAGE]` — current stage **beta** (`3.9.0-beta`).
