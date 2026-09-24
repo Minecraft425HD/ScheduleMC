@@ -150,7 +150,7 @@ Für alle weiteren Detailzahlen (inkl. Historie) bitte `docs/REPO_METRICS.md` ve
 
 1. **Join the server.** Every new player receives a bank account with **1,000 Euro** starting balance.
 2. **Open your smartphone** (configurable keybind, default: `P`) to access the Map, Bank, Contacts, and other apps.
-3. **Find a plot.** Explore the city to find available plots. Plots come in types: Residential, Commercial, Shop, Public, and Government.
+3. **Find a plot.** Explore the city to find available plots. Plots come in types: Residential, Commercial, Industrial, Shop, Public, Government, Prison, and Towing Yard.
 4. **Rent an apartment.** Use `/plot apartment rent <name>` to rent an apartment unit.
 5. **Start earning money.** Sell items at shops, complete NPC quests, or start your own production business.
 6. **Explore production.** Grow coffee, produce wine, brew beer, make chocolate, harvest honey, or age cheese -- all legally. Or take risks with illegal operations for higher profits.
@@ -1028,7 +1028,7 @@ A progression system tracking player experience across production and other acti
 A comprehensive achievement tracking system with ~35 achievements across 4 used categories, rewarding players for milestones in production, economy, social, crime, and exploration activities.
 
 **Features:**
-- **24 achievements** across 5 categories: Production, Economy, Social, Crime, and Exploration
+- **~35 achievements** across 4 used categories: Production, Economy, Social, Crime, and Exploration
 - **5 difficulty tiers**: Bronze, Silver, Gold, Diamond, and Platinum with increasing rewards
 - **Monetary rewards** scaling from 100 EUR (Bronze) to 50,000 EUR (Platinum)
 - **Automatic tracking** of player actions and progress via event listeners

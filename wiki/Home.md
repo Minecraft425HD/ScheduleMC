@@ -28,8 +28,8 @@
 | **Minecraft** | 1.20.1 |
 | **Forge** | 47.4.0 |
 | **Java** | 17 |
-| **Lines of Code** | 224,000+ |
-| **Total Files** | 1,453 |
+| **Lines of Code** | ~260,000 |
+| **Total Files** | 1,610 Java |
 | **Registered Items** | 383 |
 | **Registered Blocks** | 152 |
 | **Available Commands** | 139 |
@@ -73,7 +73,7 @@ Detailed documentation for each major game system.
 | [Vehicle System](features/Vehicle-System.md) | Drivable Vehicles | 5 vehicle types (Limousine, Van, Truck, SUV, Sports Car), modular parts system (engines, tires, chassis, fenders, fuel tanks), fuel stations, garage blocks, license plates, vehicle damage, OBJ model support via CoreLib, and 137 dedicated Java files |
 | [Smartphone System](features/Smartphone-System.md) | In-Game Phone | 11 functional apps (Map, Dealer, Products, Order, Contacts, Messages, Plot, Settings, Bank, Crime Stats, Chat), PvP immunity while using, configurable keybind (default: P), and extensible app framework |
 | [Warehouse System](features/Warehouse-System.md) | Mass Storage | 32 inventory slots each holding 1,024 items (32,768 total capacity), automatic deliveries every 3 days, shop plot linking, NPC merchant integration, state-funded delivery costs, and revenue tracking |
-| [Tutorial System](features/Tutorial-System.md) | Player Onboarding | 7-step interactive tutorial covering welcome, economy basics, plot system, NPCs, production, trading, and completion rewards with progress tracking and skip options |
+| [Tutorial System](features/Tutorial-System.md) | Player Onboarding (**not implemented**) | Design doc only — 7-step tutorial covering welcome, economy basics, plot system, NPCs, production, trading, and completion rewards with progress tracking and skip options |
 | [Market System](features/Market-System.md) | Dynamic Pricing | Supply and demand-based economy with dynamic prices, trading volume effects, price history tracking, trend analysis, and time-based decay |
 | [Gang System](features/Gang-System.md) | Criminal Organizations | Hierarchical gangs with ranks (Boss, Underboss, Member, Recruit), XP/level progression (1-30), 20 perks across 4 branches, automated missions, weekly fees, and reputation tiers |
 | [Territory System](features/Territory-System.md) | Gang Territories | Chunk-based territory control with 10 color-coded zone types, map editor, economic and crime bonuses, and real-time synchronization |
@@ -133,7 +133,7 @@ Technical documentation for mod developers and server plugin authors.
 | Changelog | [docs/CHANGELOG.md](../docs/CHANGELOG.md) | Version history and release notes |
 | Towing System Setup | [docs/TOWING_SYSTEM_SETUP.md](../docs/TOWING_SYSTEM_SETUP.md) | Setup guide for the vehicle towing and impound system |
 | Towing NPC Invoice Screen | [docs/TOWING_NPC_INVOICE_SCREEN.md](../docs/TOWING_NPC_INVOICE_SCREEN.md) | Technical documentation for the towing NPC invoice GUI |
-| Project Structure | [docs/PROJECT_STRUCTURE.md](../docs/PROJECT_STRUCTURE.md) | Complete source tree with all 1,448 Java files |
+| Project Structure | [docs/PROJECT_STRUCTURE.md](../docs/PROJECT_STRUCTURE.md) | Complete source tree with all 1,610 Java files |
 
 #### Public API Modules
 
@@ -340,7 +340,7 @@ ScheduleMC/
 |-- src/main/java/de/rolandsw/schedulemc/
 |   |-- ScheduleMC.java            Main mod entry point
 |   |-- ModCreativeTabs.java        Creative mode tab registration
-|   |-- api/                        Public API (12 modules)
+|   |-- api/                        Public API (11 I*API modules)
 |   |-- commands/                   Command implementations (139)
 |   |-- economy/                    Economy system (16 manager classes)
 |   |-- region/                     Plot management and spatial indexing

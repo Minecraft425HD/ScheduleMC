@@ -92,7 +92,7 @@ Format: `[version] - date — Summary of changes`
   - Chocolate — 10-step chain (roast, winnow, grind, conch, temper, mold, cool, enrobe, wrap) for 4 varieties
   - Cheese — Gouda, Emmentaler, Camembert, Parmesan with pasteurization, curdling, pressing, cave aging
   - Honey — Acacia, Wildflower, Forest, Manuka with 3 hive tiers and 4 aging stages
-- **Achievement System** — ~35 achievements in 4 used categories (Economy, Crime, Production, Social, Exploration) with 5 tiers (Bronze to Platinum) and monetary rewards up to 50,000 EUR
+- **Achievement System** — 24 achievements in 5 categories (Economy, Crime, Production, Social, Exploration) with 5 tiers (Bronze to Platinum) and monetary rewards up to 50,000 EUR
 - **Towing NPC Invoice Screen** — Dedicated GUI for viewing and paying towing invoices at impound yards
 - **Economy Cycle** — 6-phase economic cycle (Normal → Boom → Overheating → Recession → Depression → Recovery) affecting prices and salaries
 - **Risk Premium System** — Configurable risk multipliers for illegal substances affecting market prices
@@ -289,7 +289,7 @@ Format: `[version] - date — Summary of changes`
 
 ### Initial Release
 
-- **Plot Management System** — 8 plot types (Residential, Commercial, Industrial, Shop, Public, Government, Prison, Towing Yard), chunk-based ownership, trusted players, block protection, apartment sub-leasing, 5-star ratings
+- **Plot Management System** — 5 plot types (Residential, Commercial, Shop, Public, Government), chunk-based ownership, trusted players, block protection, apartment sub-leasing, 5-star ratings
 - **Economy System** — Bank accounts (1,000 EUR starting balance), ATM blocks, physical cash items (Euro bills and coins), transaction history
 - `IEconomyAPI`, `IPlotAPI` — First public API modules
 - Forge 1.20.1 / 47.4.0 support

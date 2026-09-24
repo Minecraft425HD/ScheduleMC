@@ -281,6 +281,7 @@ Plot creation requires **OP level 2**. The workflow is:
 ```
 /plot create residential "My Home" 50000
 /plot create commercial "Downtown Office" 75000
+/plot create industrial "Factory" 80000
 /plot create shop "General Store"
 /plot create public "Central Park"
 /plot create government "City Hall"
@@ -288,7 +289,7 @@ Plot creation requires **OP level 2**. The workflow is:
 /plot create towing_yard "Impound Lot" 30000
 ```
 
-Purchasable types (residential, commercial, towing_yard) require a price argument. Non-purchasable types (shop, public, government, prison) do not.
+Purchasable types (residential, commercial, industrial, towing_yard) require a price argument. Non-purchasable types (shop, public, government, prison) do not.
 
 ### Plot Protection
 

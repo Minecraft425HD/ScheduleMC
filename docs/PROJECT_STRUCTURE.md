@@ -3,7 +3,7 @@
 > Aktualisiert am 2026-03-17 | Version 3.9.0-beta
 >
 > **Gesamtstatistik:**
-> - Java-Quelldateien (main): 1.494 (+46 Weapon-System)
+> - Java-Quelldateien (main + tests): 1.610 (+46 Weapon-System)
 > - Java-Testdateien: 32
 > - Ressourcen-Dateien: 1.856 (+59 Weapon: models, textures, particles, sounds, lang)
 > - Gesamtzeilen in dieser Datei: ~3,000+
