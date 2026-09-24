@@ -420,13 +420,17 @@ You can also set the NPC's home, work, and leisure locations using the NPC locat
 
 ### Q: What NPC types exist?
 
-**A:** There are 3 core NPC types:
+**A:** There are 7 NPC types in `NPCType`:
 
 | Type | Description | Key Behaviors |
 |------|-------------|---------------|
 | **Resident** | Regular citizens who follow daily schedules | Go to work, take lunch breaks, visit leisure spots, sleep at home |
 | **Merchant** | Shop owners who buy and sell items | Manage inventory, trade with players, sell from linked warehouses |
 | **Police** | Law enforcement officers | Chase criminals, arrest wanted players, call for backup, block doors during pursuit |
+| **Bank** | Bank branch NPC | Banking services |
+| **Tow Truck Driver** | Impound / towing | Vehicle towing |
+| **Banker** | Credit / bank teller | Loans and accounts |
+| **Drug Dealer** | Underground trade | Illegal goods |
 
 All NPC types share common features including custom player skins, a wallet system, personality traits (Friendly, Neutral, Hostile, Professional), a relationship system with players, and pathfinding AI with 9 AI behavior goals and 5 behavior actions.
 
