@@ -729,16 +729,16 @@ new ServerPlayer(...) // requires full Minecraft bootstrap
 
 ### Tests fail with `NullPointerException` in static manager
 
-**Cause:** A static singleton (like `ScheduleMCAPI.getInstance()`) is not initialized in test context.
+**Cause:** A static singleton (like `EconomyManager.getInstance()`) is not initialized in test context.
 
-**Fix:** Use `@Mock` for the API and inject it, or use Mockito's static mocking:
+**Fix:** Use `@Mock` for the manager and inject it, or use Mockito's static mocking:
 
 ```java
-try (MockedStatic<ScheduleMCAPI> mocked = mockStatic(ScheduleMCAPI.class)) {
-    ScheduleMCAPI mockAPI = mock(ScheduleMCAPI.class);
-    mocked.when(ScheduleMCAPI::getInstance).thenReturn(mockAPI);
+try (MockedStatic<EconomyManager> mocked = mockStatic(EconomyManager.class)) {
+    EconomyManager mockManager = mock(EconomyManager.class);
+    mocked.when(EconomyManager::getInstance).thenReturn(mockManager);
 
-    // ... test code that uses ScheduleMCAPI.getInstance()
+    // ... test code that uses EconomyManager.getInstance()
 }
 ```
 

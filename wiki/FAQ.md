@@ -778,7 +778,8 @@ The smartphone provides a custom GUI with app icons that you can click to access
 | 10 | **CRIME STATS** | Dark Red | Check your wanted level and crime history |
 | 11 | **CHAT** | Cyan | Direct messaging with other players |
 
-The smartphone app framework is extensible. Developers can register custom apps via the `ISmartphoneAPI.registerApp()` method.
+There is no runtime app-registration mechanism or public API; the app list is
+hard-coded in `SmartphoneScreen`.
 
 ---
 
@@ -791,7 +792,7 @@ The smartphone app framework is extensible. Developers can register custom apps 
 - **Attacker penalty:** Any player who attacks someone with their smartphone open receives **+1 wanted star** as a penalty.
 - **Fair play:** This prevents unfair kills while players are navigating menus.
 
-The protection is managed by the `ISmartphoneAPI` and tracks which players have the smartphone open using a thread-safe concurrent set. Protection is automatically removed when you close the smartphone.
+The protection is managed by `SmartphoneProtectionHandler` and tracks which players have the smartphone open using a thread-safe concurrent set. Protection is automatically removed when you close the smartphone.
 
 ---
 
@@ -893,74 +894,20 @@ The `HealthCheckManager` automatically runs an initial health check on server st
 
 ## For Developers
 
-### Q: How do I use the ScheduleMC API?
+### Q: Does ScheduleMC provide a public API for other mods?
 
-**A:** ScheduleMC provides a comprehensive public API with 11 subsystems. To use it in your mod:
-
-1. **Add ScheduleMC as a dependency** in your `build.gradle`:
-   ```gradle
-   compileOnly files('libs/ScheduleMC-3.9.0-beta.jar')
-   ```
-
-2. **Access the API** through the singleton entry point:
-   ```java
-   import de.rolandsw.schedulemc.api.ScheduleMCAPI;
-
-   // Get the API instance (available after server start)
-   ScheduleMCAPI api = ScheduleMCAPI.getInstance();
-
-   // Check if the API is ready
-   if (api.isInitialized()) {
-       // Use any of the 11 subsystems
-       IEconomyAPI economy = api.getEconomyAPI();
-       double balance = economy.getBalance(playerUUID);
-   }
-   ```
-
-3. **Important:** The API is initialized during the `ServerStartedEvent`. Do not attempt to use it during mod construction or common setup. Always check `api.isInitialized()` before making calls.
-
----
-
-### Q: Where is the API documentation?
-
-**A:** API documentation is available in several locations:
-
-- **Javadoc comments:** All API interfaces (`IEconomyAPI`, `IPlotAPI`, `INPCAPI`, etc.) are thoroughly documented with Javadoc, including usage examples, parameter descriptions, and thread-safety notes.
-
-- **API Documentation (German):** [docs/API_DOKUMENTATION.md](../docs/API_DOKUMENTATION.md) - Complete API reference (21 KB)
-
-- **Developer Documentation (German):** [docs/ENTWICKLER_DOKUMENTATION.md](../docs/ENTWICKLER_DOKUMENTATION.md) - Architecture and development guide (40 KB)
-
-- **Wiki API page:** [API.md](API.md) - Wiki-formatted API overview
-
-**API modules (11 total):**
-
-| Module | Interface | Description |
-|--------|-----------|-------------|
-| Economy | `IEconomyAPI` | Accounts, deposits, withdrawals, balance queries |
-| Plot | `IPlotAPI` | Plot creation, lookup, ownership, protection |
-| Production | `IProductionAPI` | Plant registration, growth handling, quality system |
-| NPC | `INPCAPI` | NPC spawning, schedule management, AI configuration |
-| Police | `IPoliceAPI` | Wanted levels, crime tracking, arrest mechanics |
-| Warehouse | `IWarehouseAPI` | Warehouse management, item storage, delivery |
-| Messaging | `IMessagingAPI` | Player-to-player and system messaging |
-| Smartphone | `ISmartphoneAPI` | App registration, notifications, open/close tracking |
-| Vehicle | `IVehicleAPI` | Vehicle spawning, fuel management, parts |
-| Achievement | `IAchievementAPI` | Achievement granting, progress tracking |
-| Market | `IMarketAPI` | Dynamic pricing, supply and demand queries |
+**A:** No. ScheduleMC previously shipped a `de.rolandsw.schedulemc.api` package
+(`ScheduleMCAPI` singleton, 11 `I*API` interfaces, and a legacy `PlotModAPI`
+facade), but it had zero internal consumers and has been removed entirely.
+There is currently no supported way for an external mod to integrate with
+ScheduleMC.
 
 ---
 
 ### Q: How do I add custom production types?
 
-**A:** You can register custom production types through the Production API:
-
-```java
-IProductionAPI production = ScheduleMCAPI.getInstance().getProductionAPI();
-production.registerCustomPlant(/* your plant configuration */);
-```
-
-Custom production types should implement the `ProductionType` interface, which defines:
+**A:** There is no public registration API. Internally, production types
+implement the `ProductionType` interface, which defines:
 
 ```java
 public interface ProductionType {
@@ -986,32 +933,9 @@ Refer to existing implementations like `TobaccoType`, `CannabisStrain`, or `Mush
 
 ### Q: How do I create custom smartphone apps?
 
-**A:** The Smartphone API (v3.2.0+) supports external app registration:
-
-```java
-ISmartphoneAPI smartphone = ScheduleMCAPI.getInstance().getSmartphoneAPI();
-
-// Register a custom app
-boolean success = smartphone.registerApp(
-    "my_mod_app",           // Unique app identifier
-    "My Custom App",        // Display name
-    "§dPurple"              // Icon color code
-);
-
-// Send a notification to a player's smartphone
-smartphone.sendNotification(playerUUID, "my_mod_app", "You have a new alert!");
-
-// Check if a player has the smartphone
-boolean hasPhone = smartphone.hasSmartphone(playerUUID);
-
-// Query all registered apps
-Set<String> allApps = smartphone.getRegisteredApps();
-
-// Unregister when your mod unloads
-smartphone.unregisterApp("my_mod_app");
-```
-
-Custom apps appear alongside the built-in 11 apps in the smartphone GUI. You handle the app's GUI rendering and logic on the client side, using the app ID to coordinate between your mod and the smartphone framework.
+**A:** There is no app-registration API. The home screen grid in
+`SmartphoneScreen` hard-codes its apps by index; adding one means editing
+that class directly, the same way the existing apps are wired.
 
 ---
 
