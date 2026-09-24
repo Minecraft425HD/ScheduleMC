@@ -26,7 +26,7 @@ Comprehensive answers to common questions about ScheduleMC, the all-in-one rolep
 
 ### Q: What is ScheduleMC?
 
-**A:** ScheduleMC is a professional-grade Minecraft Forge mod that transforms your server into a complete roleplay and economy ecosystem. It provides a full banking system with loans and savings, 14 production chains (8 illegal, 6 legal), schedule-based NPC AI, a GTA-inspired police and crime system with a 5-star wanted level, drivable vehicles with fuel and parts, plot management with apartments and rentals, an in-game smartphone with 11 apps, and much more. With ~260,000 lines of Java code, 354 catalogued items, 152 blocks, and 139 commands, it is one of the most comprehensive Minecraft mods available.
+**A:** ScheduleMC is a professional-grade Minecraft Forge mod that transforms your server into a complete roleplay and economy ecosystem. It provides a full banking system with loans and savings, 14 production chains (8 illegal, 6 legal), schedule-based NPC AI, a GTA-inspired police and crime system with a 5-star wanted level, drivable vehicles with fuel and parts, plot management with apartments and rentals, an in-game smartphone with 11 apps, and much more. With ~259,000 lines of Java code, 399 registered items, 125 blocks, and 25 root commands (132 literals), it is one of the most comprehensive Minecraft mods available.
 
 ---
 
