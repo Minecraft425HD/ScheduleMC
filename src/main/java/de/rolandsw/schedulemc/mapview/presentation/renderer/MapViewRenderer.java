@@ -149,8 +149,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private final Object zCalcLock = new Object(); // Lock for coordination with worker thread
     private int zCalcTicker;
     private double zoomScale = 1.0;
-    private static double minTablistOffset;
-    private static float statusIconOffset = 0.0F;
     // PERFORMANCE: Cache status effect offset to avoid iterator creation per frame
     private int lastEffectCount = -1;
     private float cachedEffectOffset = 0.0F;
@@ -538,7 +536,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 }
             }
         }
-        MapViewRenderer.statusIconOffset = statusIconOffset;
 
         if (this.fullscreenMap) {
             this.renderMapFull(drawContext, this.scWidth, this.scHeight, scaleProj);
@@ -1546,8 +1543,6 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         fboTessellator.clear();
         */
 
-        double guiScale = (double) minecraft.getWindow().getWidth() / this.scWidth;
-        minTablistOffset = guiScale * 63;
         this.drawMapFrame(guiGraphics, x, y, this.options.squareMap);
         guiGraphics.pose().popPose();
     }
