@@ -3,7 +3,7 @@ name: Restore full docs
 on:
   push:
     branches:
-      - 'docs/sync-code-claims'
+      - 'docs/sync-r2'
     paths:
       - '.github/workflows/restore-full-docs.yml'
       - 'scripts/restore_full_docs.py'
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
         with:
-          ref: docs/sync-code-claims
+          ref: docs/sync-r2
           fetch-depth: 0
 
       - name: Restore docs tree from main
@@ -36,5 +36,5 @@ jobs:
             echo no changes
             exit 0
           fi
-          git commit -m "docs: restore full docs/wiki from main and patch claims to 3.9.0-beta"
-          git push origin HEAD:docs/sync-code-claims
+          git commit -m "docs: round-2 restore from main and patch remaining claims"
+          git push origin HEAD:docs/sync-r2
