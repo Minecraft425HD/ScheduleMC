@@ -28,8 +28,8 @@
 | **Minecraft** | 1.20.1 |
 | **Forge** | 47.4.0 |
 | **Java** | 17 |
-| **Lines of Code** | ~259,000 |
-| **Total Files** | 1,610 Java |
+| **Lines of Code** | ~251,000 |
+| **Total Files** | 1,568 Java |
 | **Registered Items** | 353 string IDs |
 | **Registered Blocks** | 97 |
 | **Available Commands** | 25 root / 132 literals |
@@ -125,7 +125,6 @@ Technical documentation for mod developers and server plugin authors.
 
 | Document | Location | Description |
 |---|---|---|
-| API Reference | [docs/API_REFERENCE.md](../docs/API_REFERENCE.md) | Complete API documentation for all 11 public I*API modules |
 | Architecture | [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) | System design, patterns, and mod lifecycle |
 | Developer Guide | [docs/DEVELOPER_GUIDE.md](../docs/DEVELOPER_GUIDE.md) | Setup, extending, and contributing to ScheduleMC |
 | Configuration | [docs/CONFIGURATION.md](../docs/CONFIGURATION.md) | Complete reference for all config options |
@@ -134,33 +133,11 @@ Technical documentation for mod developers and server plugin authors.
 | Towing System Setup | [docs/TOWING_SYSTEM_SETUP.md](../docs/TOWING_SYSTEM_SETUP.md) | Setup guide for the vehicle towing and impound system |
 | Towing NPC Invoice Screen | [docs/TOWING_NPC_INVOICE_SCREEN.md](../docs/TOWING_NPC_INVOICE_SCREEN.md) | Technical documentation for the towing NPC invoice GUI |
 
-#### Public API Modules
+#### Public API
 
-ScheduleMC exposes 11 public I*API modules through the `ScheduleMCAPI` singleton and 1 legacy static utility class. All API interfaces are located in the `de.rolandsw.schedulemc.api` package.
-
-| # | Module | Interface | Purpose |
-|---|--------|-----------|---------|
-| 1 | Economy | `IEconomyAPI` | Account management, deposits, withdrawals, balance queries, transactions |
-| 2 | Plot | `IPlotAPI` | Plot creation, lookup, ownership, region queries |
-| 3 | Production | `IProductionAPI` | Custom plant registration, production chain hooks |
-| 4 | NPC | `INPCAPI` | NPC spawning, configuration, schedule management |
-| 5 | Police | `IPoliceAPI` | Wanted level management, crime records, arrest triggers |
-| 6 | Vehicle | `IVehicleAPI` | Vehicle spawning, part management, fuel operations |
-| 7 | Warehouse | `IWarehouseAPI` | Item storage, delivery scheduling, shop linking |
-| 8 | Messaging | `IMessagingAPI` | Player-to-player and system messaging, block/unblock |
-| 9 | Smartphone | `ISmartphoneAPI` | Custom app registration, notification system |
-| 10 | Achievement | `IAchievementAPI` | Achievement granting, progress tracking, leaderboards |
-| 11 | Market | `IMarketAPI` | Price queries, supply/demand data, market manipulation |
-| 12 | PlotModAPI | Static utility | Legacy static utility class for common operations |
-
-**API usage example:**
-
-```java
-ScheduleMCAPI api = ScheduleMCAPI.getInstance();
-IEconomyAPI economy = api.getEconomyAPI();
-economy.deposit(playerUUID, 1000.0);
-double balance = economy.getBalance(playerUUID);
-```
+ScheduleMC does not currently expose a public integration API. A `ScheduleMCAPI`
+singleton with 11 `I*API` interfaces and a legacy `PlotModAPI` static facade
+existed previously but had zero internal consumers and has been removed.
 
 ---
 
@@ -261,7 +238,7 @@ These mods are not required but provide enhanced functionality when installed:
 
 | Pattern | Application |
 |---|---|
-| Singleton | `ScheduleMCAPI.getInstance()`, manager classes |
+| Singleton | Manager classes (`EconomyManager.getInstance()`, etc.) |
 | Template Method | `AbstractPersistenceManager` for data storage |
 | Strategy | Interchangeable production system behaviors |
 | Observer | Forge event bus integration |
@@ -339,7 +316,6 @@ ScheduleMC/
 |-- src/main/java/de/rolandsw/schedulemc/
 |   |-- ScheduleMC.java            Main mod entry point
 |   |-- ModCreativeTabs.java        Creative mode tab registration
-|   |-- api/                        Public API (11 I*API modules)
 |   |-- commands/                   Command implementations (139)
 |   |-- economy/                    Economy system (16 manager classes)
 |   |-- region/                     Plot management and spatial indexing

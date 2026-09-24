@@ -1,7 +1,7 @@
 # ScheduleMC Architecture Documentation
 
 > Minecraft 1.20.1 Forge mod implementing a complete roleplay/economy server ecosystem.
-> **Version 3.9.0-beta** | **~260k LOC** across **1,610 Java files** organized into **44+ modules**.
+> **Version 3.9.0-beta** | **~251k LOC** across **1,568 Java files** organized into **44+ modules**.
 
 ---
 
@@ -104,7 +104,6 @@ FMLCommonSetupEvent -----> Network handler registration (20+ handlers)
 ServerStartedEvent ------> Parallel data loading (16 managers via CompletableFuture)
     |                      Sequential initialization (economy, NPC, gang, lock, etc.)
     |                      IncrementalSaveManager setup (40+ registered saveables)
-    |                      ScheduleMCAPI initialization (11 subsystems)
     |                      Health check
     v
 ServerTickEvent ---------> Economy ticks (every tick: interest, loans, taxes, etc.)
@@ -138,54 +137,6 @@ Each load is wrapped with `exceptionally()` to prevent a single failure from blo
 ---
 
 ## 2. Module Architecture
-
-### 2.1 api/ -- Public API (24 files)
-
-The external-facing API for other mods to interact with ScheduleMC.
-
-**Structure:**
-
-```
-api/
-  ScheduleMCAPI.java              -- Singleton entry point (v3.0.0)
-  PlotModAPI.java                 -- Legacy facade (Economy, Plots, Daily, Util inner classes)
-  economy/IEconomyAPI.java        -- Economy interface
-  plot/IPlotAPI.java              -- Plot management interface
-  production/IProductionAPI.java  -- Production system interface
-  npc/INPCAPI.java                -- NPC management interface
-  police/IPoliceAPI.java          -- Crime/wanted system interface
-  warehouse/IWarehouseAPI.java    -- Warehouse interface
-  messaging/IMessagingAPI.java    -- Message system interface
-  smartphone/ISmartphoneAPI.java  -- Smartphone apps interface
-  vehicle/IVehicleAPI.java        -- Vehicle system interface
-  achievement/IAchievementAPI.java -- Achievement interface
-  market/IMarketAPI.java          -- Dynamic market interface
-  impl/
-    EconomyAPIImpl.java           -- 11 implementation classes
-    PlotAPIImpl.java
-    ProductionAPIImpl.java
-    NPCAPIImpl.java
-    PoliceAPIImpl.java
-    WarehouseAPIImpl.java
-    MessagingAPIImpl.java
-    SmartphoneAPIImpl.java
-    VehicleAPIImpl.java
-    AchievementAPIImpl.java
-    MarketAPIImpl.java
-```
-
-**Initialization:** All 11 interface-implementation pairs are injected during `ServerStartedEvent`:
-
-```java
-ScheduleMCAPI.getInstance().initialize(
-    new EconomyAPIImpl(),      new PlotAPIImpl(),
-    new ProductionAPIImpl(),   new NPCAPIImpl(),
-    new PoliceAPIImpl(),       new WarehouseAPIImpl(),
-    new MessagingAPIImpl(),    new SmartphoneAPIImpl(),
-    new VehicleAPIImpl(),      new AchievementAPIImpl(),
-    new MarketAPIImpl()
-);
-```
 
 ### 2.2 economy/ -- Economy System (64 files)
 
@@ -321,7 +272,6 @@ vehicle/
   fuel/                  -- FuelStationRegistry, FuelBillManager
   gui/                   -- Vehicle GUI screens
   items/                 -- VehicleSpawnTool, vehicle items
-  mixins/                -- Mixin support
   net/                   -- Vehicle networking
   sounds/                -- Vehicle sound system
   util/                  -- Vehicle utilities
@@ -921,7 +871,7 @@ public static AntiExploitManager getInstance() {
 }
 ```
 
-**Singleton managers:** ScheduleMCAPI, EconomyManager, PlotManager, AntiExploitManager, WarehouseManager, AchievementManager, GangManager, TerritoryManager, BountyManager, LockManager, DynamicMarketManager, all 9 NPC Life System managers.
+**Singleton managers:** EconomyManager, PlotManager, AntiExploitManager, WarehouseManager, AchievementManager, GangManager, TerritoryManager, BountyManager, LockManager, DynamicMarketManager, all 9 NPC Life System managers.
 
 ### Factory
 
@@ -960,8 +910,7 @@ public static AntiExploitManager getInstance() {
 
 ### Facade
 
-- **`ScheduleMCAPI`** -- Unified entry point to 11 subsystem APIs
-- **`PlotModAPI`** -- Legacy simplified facade with `Economy`, `Plots`, `Daily`, `Util` inner classes
+- **`CommandExecutor`** -- Wraps Brigadier boilerplate for all commands
 
 ### Adapter
 
@@ -975,75 +924,7 @@ public static AntiExploitManager getInstance() {
 
 ---
 
-## 7. API Architecture
-
-### ScheduleMCAPI -- Singleton Entry Point
-
-```java
-ScheduleMCAPI api = ScheduleMCAPI.getInstance();
-
-// Economy operations
-IEconomyAPI economy = api.getEconomyAPI();
-economy.deposit(playerUUID, 1000.0);
-
-// Plot queries
-IPlotAPI plots = api.getPlotAPI();
-Optional<PlotRegion> plot = plots.getPlotAt(blockPos);
-
-// Production system
-IProductionAPI production = api.getProductionAPI();
-production.registerCustomPlant(...);
-```
-
-### 11 Interface-Implementation Pairs
-
-| Interface | Implementation | Module |
-|-----------|---------------|--------|
-| `IEconomyAPI` | `EconomyAPIImpl` | Bank accounts, transactions |
-| `IPlotAPI` | `PlotAPIImpl` | Plot management |
-| `IProductionAPI` | `ProductionAPIImpl` | Production system |
-| `INPCAPI` | `NPCAPIImpl` | NPC management |
-| `IPoliceAPI` | `PoliceAPIImpl` | Crime/wanted system |
-| `IWarehouseAPI` | `WarehouseAPIImpl` | Warehouse management |
-| `IMessagingAPI` | `MessagingAPIImpl` | Player messaging |
-| `ISmartphoneAPI` | `SmartphoneAPIImpl` | Smartphone apps |
-| `IVehicleAPI` | `VehicleAPIImpl` | Vehicle system |
-| `IAchievementAPI` | `AchievementAPIImpl` | Achievement tracking |
-| `IMarketAPI` | `MarketAPIImpl` | Dynamic market pricing |
-
-### Thread Safety
-
-- `ScheduleMCAPI.instance` is `volatile` with double-checked locking
-- All economy operations use `ConcurrentHashMap` for thread-safe account access
-- API getter methods throw `IllegalStateException` if called before initialization
-- `isInitialized()` checks all 11 fields for null
-
-### Initialization Guard
-
-Every API getter validates initialization:
-
-```java
-public IEconomyAPI getEconomyAPI() {
-    if (economyAPI == null) {
-        throw new IllegalStateException(
-            "EconomyAPI not initialized! Call ScheduleMCAPI.initialize() first.");
-    }
-    return economyAPI;
-}
-```
-
-### Legacy API -- PlotModAPI
-
-`PlotModAPI` provides a simpler static API predating `ScheduleMCAPI`:
-
-- `PlotModAPI.Economy.getBalance(player)`, `giveMoney()`, `takeMoney()`, `transferMoney()`
-- `PlotModAPI.Plots.getPlotAt(pos)`, `hasPlotAccess()`, `getPlayerPlots()`
-- `PlotModAPI.Daily.hasClaimedToday()`, `getStreak()`
-- `PlotModAPI.Util.formatMoney()`, `isPlotModLoaded()`, `getVersion()`
-
----
-
-## 8. Security and Validation
+## 7. Security and Validation
 
 ### InputValidation Utility
 
@@ -1180,15 +1061,6 @@ This prevents any single event handler exception from crashing the server or bre
 - `com.google.code.gson:gson:2.10.1`
 - `de.maxhenkel.corelib:corelib:1.20.1-1.1.1` (networking, config, OBJ models, GUI)
 
-**Compile-only (optional integrations):**
-- JEI 15.2.0.27
-- Jade 11.8.0
-- The One Probe 1.20.1-10.0.2
-
-**MapView dependencies:**
-- Mixin 0.8.5
-- MixinExtras 0.5.0
-
 **Testing:**
 - JUnit Jupiter 5.10.1
 - Mockito 5.8.0
@@ -1205,20 +1077,15 @@ This prevents any single event handler exception from crashing the server or bre
                                      |
                  +-------------------+-------------------+
                  |                   |                   |
-              config/             util/              api/
-           ModConfigHandler    (19 utilities)     ScheduleMCAPI
-                 |                   |                   |
-     +-----------+-----------+       |         +---------+---------+
-     |           |           |       |         |                   |
-  economy/   region/      npc/      |      PlotModAPI        impl/ (11)
-  (64 files) (19 files) (173 files) |         |                   |
-     |           |           |       |         +---delegates-to----+
-     |           |           |       |                   |
-     +-----+----+-----+-----+-------+         (all internal modules)
-           |          |
-     production/    vehicle/
-     (29 files)    (137 files)
-           |
+              config/             util/               (feature packages)
+           ModConfigHandler    (19 utilities)               |
+                 |                   |          +-----------+-----------+
+                 |                   |          |           |           |
+                 +-----+----+-----+-----+       economy/   region/      npc/
+                       |          |            (64 files) (19 files) (173 files)
+                 production/    vehicle/
+                 (29 files)    (111 files)
+                       |
   +--------+--------+--------+--------+--------+
   |        |        |        |        |        |
 tobacco/ cannabis/ coca/  coffee/  wine/   beer/
