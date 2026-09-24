@@ -21,9 +21,14 @@ def patch_generic(t: str) -> str:
     t = t.replace("- **~249k LOC (main + tests)** and **1,561 Java files**", "- **~260k LOC (main + tests)** and **1,610 Java files**")
     t = t.replace("| **Lines of Code** | 224,000+ |", "| **Lines of Code** | ~260,000 |")
     t = t.replace("| **Total Files** | 1,453 |", "| **Total Files** | 1,610 Java |")
+    t = t.replace("| **Registered Items** | 383 |", "| **Registered Items** | 354 catalogued |")
     t = t.replace("all 1,448 Java files", "all 1,610 Java files")
     t = t.replace("all 1,494 Java files", "all 1,610 Java files")
     t = t.replace("Java-Quelldateien (main): 1.494", "Java-Quelldateien (main + tests): 1.610")
+    t = t.replace(
+        "With over 93,000 lines of Java code, 354 items, 152 blocks, and 139 commands",
+        "With ~260,000 lines of Java code, 354 catalogued items, 152 blocks, and 139 commands",
+    )
     t = t.replace("Enum defining all 7 plot types", "Enum defining all 8 plot types")
     t = t.replace("has **7 plot types**", "has **8 plot types**")
     t = t.replace("ScheduleMC supports 5 plot types:", "ScheduleMC supports 8 plot types:")
@@ -59,6 +64,10 @@ def patch_generic(t: str) -> str:
     t = t.replace(
         "| **Commercial** | Yes | Yes | Businesses and offices |\n| **Shop** |",
         "| **Commercial** | Yes | Yes | Businesses and offices |\n| **Industrial** | Yes | Yes | Factories / processing |\n| **Shop** |",
+    )
+    t = t.replace(
+        "| **Government** | Town halls, prisons, hospitals, and official buildings | Admins only |\n\nEach type",
+        "| **Government** | Town halls, prisons, hospitals, and official buildings | Admins only |\n| **Prison** | Jail facilities for the crime system | Admins only |\n| **Towing Yard** | Vehicle impound lots | All players |\n\nEach type",
     )
     t = t.replace(
         '/plot create commercial "Downtown Office" 75000\n/plot create shop',
@@ -105,12 +114,20 @@ def patch_generic(t: str) -> str:
         "distributed under the **All Rights Reserved** license. The `gradle.properties` file specifies the license as `All Rights Reserved`",
         "distributed under the **GNU GPLv3**. The `gradle.properties` / `mods.toml` license field is `GNU GPLv3`",
     )
+    t = t.replace(
+        "meaning all rights are retained by the author, Luckas R. Schneider (Minecraft425HD). While the source code is available on GitHub, redistribution, modification, and commercial use may be restricted. Refer to the project's license terms for specific permissions.\n\n**Note:** The repository's LICENSE file contains the text of the GNU GPL v3, which may indicate a transition or dual-licensing arrangement. When in doubt, contact the developer for clarification.",
+        "Author: Luckas R. Schneider (Minecraft425HD). LICENSE, gradle.properties and mods.toml all state GNU GPLv3.",
+    )
+    t = t.replace("*License: All Rights Reserved*", "*License: GNU GPLv3*")
+    t = t.replace(
+        "/state balance              Check your bank balance",
+        "/state balance              View the government treasury balance",
+    )
     return t
 
 
 def patch_changelog(t: str) -> str:
     t = t.replace("## [3.8.0-beta]", "## [__KEEP_380__]")
-    # Keep historical initial-release plot count and old achievement counts.
     t = t.replace("5 plot types (Residential, Commercial, Shop, Public, Government)", "__KEEP_5PLOTS__")
     t = t.replace("24 achievements in 5 categories", "__KEEP_24ACH__")
     t = patch_generic(t)
