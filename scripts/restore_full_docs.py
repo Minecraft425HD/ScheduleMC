@@ -46,6 +46,15 @@ def patch_generic(t: str) -> str:
         "Plots come in types: Residential, Commercial, Industrial, Shop, Public, Government, Prison, and Towing Yard.",
     )
     t = t.replace(
+        "3 NPC roles (Resident, Merchant, Police)",
+        "7 NPC types (Citizen, Merchant, Police, Bank, Tow Truck Driver, Banker, Drug Dealer)",
+    )
+    t = t.replace("There are 3 core NPC types:", "There are 7 NPC types in `NPCType`:")
+    t = t.replace(
+        "| **Police** | Law enforcement officers | Chase criminals, arrest wanted players, call for backup, block doors during pursuit |\n\nAll NPC types share",
+        "| **Police** | Law enforcement officers | Chase criminals, arrest wanted players, call for backup, block doors during pursuit |\n| **Bank** | Bank branch NPC | Banking services |\n| **Tow Truck Driver** | Impound / towing | Vehicle towing |\n| **Banker** | Credit / bank teller | Loans and accounts |\n| **Drug Dealer** | Underground trade | Illegal goods |\n\nAll NPC types share",
+    )
+    t = t.replace(
         "| `COMMERCIAL` | Yes | Yes | Player-owned businesses |\n| `SHOP` |",
         "| `COMMERCIAL` | Yes | Yes | Player-owned businesses |\n| `INDUSTRIAL` | Yes | Yes | Factories; restricted processing blocks require factory floor |\n| `SHOP` |",
     )
