@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.events;
 
 import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -224,10 +225,11 @@ public class IllegalActivityScanner {
             }
         }
 
-        // Scanne Bargeld in Slot 9 (Wallet)
+        // Scanne Bargeld in Slot 9 (Wallet) - echtes Guthaben kommt aus WalletManager,
+        // das CashItem im Inventar traegt seit der Umstellung kein NBT-Guthaben mehr
         ItemStack wallet = player.getInventory().getItem(8); // Slot 9 = Index 8
         if (wallet.getItem() instanceof CashItem) {
-            double cashAmount = CashItem.getValue(wallet);
+            double cashAmount = WalletManager.getBalance(player.getUUID());
             if (cashAmount > ModConfigHandler.COMMON.POLICE_ILLEGAL_CASH_THRESHOLD.get()) {
                 result.totalCashFound += cashAmount;
                 result.foundIllegalItems.add(Component.translatable("police.scan.cash_found", String.valueOf(cashAmount)).getString());

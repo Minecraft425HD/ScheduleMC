@@ -1679,7 +1679,6 @@
   "error.rate_limit.npc_spawn": "§cZu viele NPCs gespawnt! Bitte warte, bevor du weitere NPCs spawnst.",
   "error.rate_limit.plot_create": "§cZu viele Plot-Erstellungen! Bitte warte, bevor du weitere Plots erstellst.",
   "error.rate_limit.plot_delete": "§cZu viele Plot-Löschungen! Bitte warte, bevor du weitere Plots löschst.",
-  "event.cash_slot.added_to_wallet": "§a+ %s §7zur Geldbörse hinzugefügt",
   "event.cash_slot.cannot_drop": "§c✗ Die Geldbörse kann nicht geworfen werden!\n§7Sie ist fest in Slot 9 gesperrt.",
   "event.cash_slot.moved_back": "§e⚠ Geldbörse wurde zurück zu Slot 9 verschoben!",
   "event.cash_slot.restored": "§e⚠ Geldbörse wurde wiederhergestellt!\n§7Guthaben: §a%s",

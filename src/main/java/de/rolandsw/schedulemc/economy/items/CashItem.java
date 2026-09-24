@@ -134,41 +134,6 @@ public class CashItem extends Item {
         return new ItemStack(de.rolandsw.schedulemc.items.ModItems.CASH.get());
     }
     
-    /**
-     * @deprecated Bargeld wird jetzt im WalletManager gespeichert (UUID-basiert), nicht mehr im ItemStack NBT
-     */
-    @Deprecated
-    public static void setValue(ItemStack stack, double value) {
-        // No-op: Wert wird im WalletManager gespeichert
-    }
-
-    /**
-     * @deprecated Bargeld wird jetzt im WalletManager gespeichert (UUID-basiert), nicht mehr im ItemStack NBT
-     */
-    @Deprecated
-    public static double getValue(ItemStack stack) {
-        // Wert wird im WalletManager gespeichert, nicht im ItemStack
-        return 0.0;
-    }
-
-    /**
-     * @deprecated Bargeld wird jetzt im WalletManager gespeichert (UUID-basiert), nicht mehr im ItemStack NBT
-     */
-    @Deprecated
-    public static boolean addValue(ItemStack stack, double amount) {
-        // No-op: Wert wird im WalletManager gespeichert
-        return false;
-    }
-
-    /**
-     * @deprecated Bargeld wird jetzt im WalletManager gespeichert (UUID-basiert), nicht mehr im ItemStack NBT
-     */
-    @Deprecated
-    public static boolean removeValue(ItemStack stack, double amount) {
-        // No-op: Wert wird im WalletManager gespeichert
-        return false;
-    }
-    
     @Override
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         // Zeige aktuellen Wert aus ClientBankDataCache (wird vom Server synchronisiert)

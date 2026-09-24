@@ -1682,7 +1682,6 @@
   "error.rate_limit.npc_spawn": "§cToo many NPCs spawned! Please wait before spawning more.",
   "error.rate_limit.plot_create": "§cToo many plot creations! Please wait before creating more plots.",
   "error.rate_limit.plot_delete": "§cToo many plot deletions! Please wait before deleting more plots.",
-  "event.cash_slot.added_to_wallet": "§a+ %s §added to wallet",
   "event.cash_slot.cannot_drop": "§c✗ The wallet cannot be dropped!\n§7It is locked in slot 9.",
   "event.cash_slot.moved_back": "§e⚠ Wallet was moved back to slot 9!",
   "event.cash_slot.restored": "§e⚠ Wallet was restored!\n§7Balance: §a%s",

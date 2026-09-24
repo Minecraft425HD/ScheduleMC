@@ -150,15 +150,10 @@ public class CashSlotRestrictionHandler {
                 ItemStack slot8 = player.getInventory().getItem(CASH_SLOT);
 
                 if (slot8.getItem() instanceof CashItem) {
-                    // Merge mit existierender Geldbörse
-                    double value = CashItem.getValue(stack);
-                    CashItem.addValue(slot8, value);
-
-                    player.displayClientMessage(Component.translatable(
-                        "event.cash_slot.added_to_wallet",
-                        String.format("%.2f€", value)
-                    ), true);
-
+                    // Duplikat-Geldbörse: seit der Umstellung auf WalletManager traegt
+                    // kein CashItem mehr echtes NBT-Guthaben, also gibt es hier nichts
+                    // zu uebertragen - einfach verwerfen statt eine irrefuehrende
+                    // "+0.00€" Meldung zu zeigen.
                     event.setCanceled(true);
                     event.getItem().discard();
                 }

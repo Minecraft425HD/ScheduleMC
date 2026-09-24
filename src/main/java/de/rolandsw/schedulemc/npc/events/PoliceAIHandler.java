@@ -5,7 +5,7 @@ import de.rolandsw.schedulemc.util.ConfigCache;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyController;
 import de.rolandsw.schedulemc.economy.RiskPremium;
-import de.rolandsw.schedulemc.economy.items.CashItem;
+import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
@@ -19,7 +19,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -612,24 +611,21 @@ public class PoliceAIHandler {
             LOGGER.warn("[RAID] Jail time doubled due to unpaid raid fine");
         }
 
-        // Geld aus Wallet-Item abziehen
-        ItemStack wallet = player.getInventory().getItem(8);
-        if (wallet.getItem() instanceof CashItem) {
-            double currentMoney = CashItem.getValue(wallet);
-
-            if (currentMoney >= fine) {
-                // Strafe bezahlen
-                CashItem.removeValue(wallet, fine);
-                player.sendSystemMessage(Component.translatable("event.police.arrested"));
-                player.sendSystemMessage(Component.translatable("event.police.fine", fine));
-            } else {
-                // Nicht genug Geld → Gefängnis länger + alles konfisziert
-                jailTimeSeconds *= 2;
-                CashItem.setValue(wallet, 0);
-                player.sendSystemMessage(Component.translatable("event.police.arrested"));
-                player.sendSystemMessage(Component.translatable("event.police.cash_confiscated"));
-                player.sendSystemMessage(Component.translatable("event.police.double_jail_time"));
-            }
+        // Geld aus dem echten Wallet-Guthaben abziehen (WalletManager, UUID-basiert;
+        // das CashItem im Inventar ist nur die visuelle Darstellung, seit der Umstellung
+        // auf WalletManager traegt es kein NBT-Guthaben mehr)
+        UUID playerUUID = player.getUUID();
+        if (WalletManager.getBalance(playerUUID) >= fine && WalletManager.removeMoney(playerUUID, fine)) {
+            // Strafe bezahlt
+            player.sendSystemMessage(Component.translatable("event.police.arrested"));
+            player.sendSystemMessage(Component.translatable("event.police.fine", fine));
+        } else {
+            // Nicht genug Geld → Gefängnis länger + alles konfisziert
+            jailTimeSeconds *= 2;
+            WalletManager.setBalance(playerUUID, 0);
+            player.sendSystemMessage(Component.translatable("event.police.arrested"));
+            player.sendSystemMessage(Component.translatable("event.police.cash_confiscated"));
+            player.sendSystemMessage(Component.translatable("event.police.double_jail_time"));
         }
 
         // Nutze PrisonManager für Inhaftierung
