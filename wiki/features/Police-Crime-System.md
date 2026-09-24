@@ -25,7 +25,6 @@ Dynamic law enforcement with NPC police officers
 9. [Raid Penalties](#raid-penalties)
 10. [Bounty System](#bounty-system)
 11. [Commands](#commands)
-12. [Developer API](#developer-api)
 13. [Best Practices](#best-practices)
 14. [Troubleshooting](#troubleshooting)
 
@@ -477,86 +476,6 @@ The Police & Crime System provides **10 commands** across four command groups:
 /bounty info <player>            # Check bounty
 /bounty history                  # View bounty history
 ```
-
----
-
-## Developer API
-
-### IPoliceAPI Interface
-
-External mods can access the police and crime system through the `IPoliceAPI` interface.
-
-**Access:**
-```java
-IPoliceAPI policeAPI = ScheduleMCAPI.getPoliceAPI();
-```
-
-### Core Methods (v3.0.0+)
-
-| Method | Description |
-|--------|-------------|
-| `getWantedLevel(UUID)` | Get current wanted level (0-5) |
-| `addWantedLevel(UUID, int)` | Add wanted stars (capped at 5) |
-| `setWantedLevel(UUID, int)` | Set wanted level directly |
-| `clearWantedLevel(UUID)` | Reset wanted level to 0 |
-| `decayWantedLevel(UUID)` | Reduce by 1 star (called per MC day) |
-| `startEscape(UUID)` | Start 30-second escape timer |
-| `stopEscape(UUID)` | Cancel escape timer (police re-detected player) |
-| `isHiding(UUID)` | Check if escape timer is active |
-| `getEscapeTimeRemaining(UUID)` | Remaining escape time in milliseconds |
-| `checkEscapeSuccess(UUID)` | Check if escape succeeded, reduce wanted level |
-
-### Extended Methods (v3.2.0+)
-
-| Method | Description |
-|--------|-------------|
-| `getAllWantedPlayers()` | Map of all wanted player UUIDs to their level |
-| `getPlayersAtWantedLevel(int)` | Set of player UUIDs at a specific level |
-| `getWantedPlayerCount()` | Total count of wanted players |
-| `isImprisoned(UUID)` | Check if a player is in prison |
-| `getRemainingJailTime(UUID)` | Remaining jail time in seconds |
-| `releaseFromPrison(UUID)` | Programmatically release a player |
-| `getBailAmount(UUID)` | Get bail cost based on wanted level |
-
-### Example Usage
-
-```java
-IPoliceAPI policeAPI = ScheduleMCAPI.getPoliceAPI();
-
-// Check a player's wanted level
-int wantedLevel = policeAPI.getWantedLevel(playerUUID);
-
-// Add wanted stars for a crime
-policeAPI.addWantedLevel(playerUUID, 2); // +2 stars
-
-// Clear wanted level after arrest/bail
-policeAPI.clearWantedLevel(playerUUID);
-
-// Start escape timer
-policeAPI.startEscape(playerUUID);
-
-// Check if player is hiding
-if (policeAPI.isHiding(playerUUID)) {
-    long remaining = policeAPI.getEscapeTimeRemaining(playerUUID);
-    // remaining is in milliseconds
-}
-
-// Check escape result
-if (policeAPI.checkEscapeSuccess(playerUUID)) {
-    // Wanted level was reduced by 1
-}
-
-// Prison integration
-if (policeAPI.isImprisoned(playerUUID)) {
-    long jailSeconds = policeAPI.getRemainingJailTime(playerUUID);
-    double bail = policeAPI.getBailAmount(playerUUID);
-}
-
-// Get all wanted players
-Map<UUID, Integer> wanted = policeAPI.getAllWantedPlayers();
-```
-
-**Thread Safety:** All methods are thread-safe through ConcurrentHashMap and atomic operations.
 
 ---
 

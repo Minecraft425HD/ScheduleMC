@@ -23,7 +23,6 @@
 7. [Delivery System](#delivery-system)
 8. [Revenue Tracking](#revenue-tracking)
 9. [Commands](#commands)
-10. [Developer API](#developer-api)
 11. [Best Practices](#best-practices)
 12. [Troubleshooting](#troubleshooting)
 
@@ -414,7 +413,7 @@ The warehouse system tracks all revenue generated from sales through linked NPCs
 - Revenue per linked NPC
 - Daily, weekly, and monthly summaries
 
-Revenue data is available through the `/warehouse info` command and the `IWarehouseAPI` for programmatic access.
+Revenue data is available through the `/warehouse info` command.
 
 ---
 
@@ -434,82 +433,6 @@ The `/warehouse` command provides **7 subcommands** for warehouse management:
 ```
 
 **Note:** Most commands require you to be looking at the warehouse block.
-
----
-
-## Developer API
-
-### IWarehouseAPI Interface
-
-External mods can access the warehouse system through the `IWarehouseAPI` interface.
-
-**Access:**
-```java
-IWarehouseAPI warehouseAPI = ScheduleMCAPI.getWarehouseAPI();
-```
-
-### Core Methods (v3.0.0+)
-
-| Method | Description |
-|--------|-------------|
-| `hasWarehouse(BlockPos)` | Check if a warehouse exists at position |
-| `addItemToWarehouse(BlockPos, Item, int)` | Add items to a warehouse |
-| `removeItemFromWarehouse(BlockPos, Item, int)` | Remove items from a warehouse |
-| `getItemStock(BlockPos, Item)` | Get current stock of an item |
-| `getItemCapacity(BlockPos, Item)` | Get max capacity for an item |
-| `getAllSlots(BlockPos)` | Get list of all WarehouseSlot objects |
-| `addSeller(BlockPos, UUID)` | Add a seller (NPC) to the warehouse |
-| `removeSeller(BlockPos, UUID)` | Remove a seller from the warehouse |
-| `isSeller(BlockPos, UUID)` | Check if a UUID is a registered seller |
-
-### Extended Methods (v3.2.0+)
-
-| Method | Description |
-|--------|-------------|
-| `getAllWarehousePositions()` | Get set of all warehouse BlockPos values |
-| `getTotalItemCount(BlockPos)` | Total items stored in a warehouse |
-| `getUsagePercentage(BlockPos)` | Capacity usage as percentage (0.0 - 100.0) |
-| `getAllSellers(BlockPos)` | Get set of all seller UUIDs for a warehouse |
-| `linkToShop(BlockPos, String)` | Link warehouse to a shop plot by ID |
-| `triggerDelivery(BlockPos)` | Trigger an immediate delivery |
-| `clearWarehouse(BlockPos)` | Clear all items from a warehouse |
-
-### Example Usage
-
-```java
-IWarehouseAPI warehouseAPI = ScheduleMCAPI.getWarehouseAPI();
-
-// Check if warehouse exists
-BlockPos pos = new BlockPos(100, 64, 200);
-if (warehouseAPI.hasWarehouse(pos)) {
-
-    // Add items
-    warehouseAPI.addItemToWarehouse(pos, Items.DIAMOND, 256);
-
-    // Check stock
-    int diamonds = warehouseAPI.getItemStock(pos, Items.DIAMOND);
-
-    // Get usage percentage
-    double usage = warehouseAPI.getUsagePercentage(pos);
-
-    // Get total items
-    int total = warehouseAPI.getTotalItemCount(pos);
-
-    // Link to shop
-    warehouseAPI.linkToShop(pos, "Electronics_Store");
-
-    // Add NPC as seller
-    warehouseAPI.addSeller(pos, npcUUID);
-
-    // Trigger delivery
-    warehouseAPI.triggerDelivery(pos);
-}
-
-// Get all warehouses on the server
-Set<BlockPos> warehouses = warehouseAPI.getAllWarehousePositions();
-```
-
-**Thread Safety:** All methods are thread-safe through synchronized operations.
 
 ---
 

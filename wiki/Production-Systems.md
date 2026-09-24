@@ -1300,77 +1300,6 @@ Grain / Hops
 
 ---
 
-## Production API
-
-The `IProductionAPI` interface (package `de.rolandsw.schedulemc.api.production`) provides external
-mod integration with the production system, implemented by `ProductionAPIImpl`.
-
-### API Methods
-
-```java
-public interface IProductionAPI {
-
-    // --- Lookup ---
-    ProductionConfig getProduction(String productionId);
-    boolean hasProduction(String productionId);
-    Collection<ProductionConfig> getAllProductions();
-    List<ProductionConfig> getProductionsByCategory(ProductionCategory category);
-    int getProductionCount();
-
-    // --- Registration ---
-    void registerProduction(ProductionConfig config);
-    boolean unregisterProduction(String productionId);
-
-    // --- Runtime Control ---
-    boolean startProduction(BlockPos position, String productionId);
-    boolean stopProduction(BlockPos position);
-    double getProductionProgress(BlockPos position);  // 0.0 - 100.0, -1 if inactive
-
-    // --- Extended API (v3.2.0) ---
-    Set<String> getAllProductionIds();
-    ProductionCategory[] getCategories();
-    boolean setProductionBasePrice(String productionId, double newBasePrice);
-    String getProductionStatistics();
-}
-```
-
-### Usage Example
-
-```java
-IProductionAPI api = ScheduleMCAPI.getProductionAPI();
-
-// List all productions
-Collection<ProductionConfig> all = api.getAllProductions();
-
-// Filter by category
-List<ProductionConfig> plants = api.getProductionsByCategory(ProductionCategory.PLANT);
-
-// Lookup specific production
-ProductionConfig indica = api.getProduction("cannabis_indica");
-
-// Register a custom production
-ProductionConfig custom = new ProductionConfig.Builder("my_herb", "My Custom Herb")
-    .basePrice(15.0)
-    .growthTicks(2400)
-    .category(ProductionCategory.PLANT)
-    .addProcessingStage("drying", new ProcessingStageConfig(
-        "Drying", 1200, "fresh_herb", "dried_herb", true
-    ))
-    .build();
-api.registerProduction(custom);
-
-// Modify price at runtime
-api.setProductionBasePrice("cannabis_indica", 30.0);
-
-// Unregister
-api.unregisterProduction("my_herb");
-```
-
-### Thread Safety
-
-The `ProductionRegistry` uses `ConcurrentHashMap` internally. All `IProductionAPI` methods are
-thread-safe. Production lookups are O(1).
-
 ### Default Registered Productions
 
 The registry auto-registers these productions on initialization:
@@ -1440,8 +1369,6 @@ The registry auto-registers these productions on initialization:
 | System | Source Path |
 |--------|-----------|
 | Production Framework | `src/main/java/de/rolandsw/schedulemc/production/` |
-| Production API | `src/main/java/de/rolandsw/schedulemc/api/production/IProductionAPI.java` |
-| Production API Impl | `src/main/java/de/rolandsw/schedulemc/api/impl/ProductionAPIImpl.java` |
 | Tobacco | `src/main/java/de/rolandsw/schedulemc/tobacco/` |
 | Cannabis | `src/main/java/de/rolandsw/schedulemc/cannabis/` |
 | Coca/Cocaine | `src/main/java/de/rolandsw/schedulemc/coca/` |

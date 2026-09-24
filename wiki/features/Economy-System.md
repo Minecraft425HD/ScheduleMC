@@ -30,7 +30,6 @@ Thread-safe transaction processing with 16 manager classes and automatic backup
 14. [Overdraft System](#overdraft-system-dispo)
 15. [Transaction System](#transaction-system)
 16. [Anti-Exploit Mechanisms](#anti-exploit-mechanisms)
-17. [Developer API](#developer-api)
 18. [Commands Reference](#commands-reference)
 19. [Best Practices](#best-practices)
 20. [Troubleshooting](#troubleshooting)
@@ -1025,74 +1024,6 @@ Warning level 3+:    Additional 0.5x multiplier (stacks)
 ```
 
 Daily counters reset at the start of each new in-game day. Warning levels persist and can only be reset by admins.
-
----
-
-## Developer API
-
-### IEconomyAPI Interface
-
-External mods can access the economy system through `IEconomyAPI`. All methods are thread-safe.
-
-**Obtaining the API:**
-```java
-IEconomyAPI economy = ScheduleMCAPI.getEconomyAPI();
-```
-
-### Core Methods (v3.0.0+)
-
-| Method | Return | Description |
-|--------|--------|-------------|
-| `getBalance(UUID)` | `double` | Get player balance (0.0 if no account) |
-| `hasAccount(UUID)` | `boolean` | Check if account exists |
-| `createAccount(UUID)` | `void` | Create new account with start balance |
-| `deposit(UUID, double)` | `void` | Deposit funds |
-| `deposit(UUID, double, String)` | `void` | Deposit with description |
-| `withdraw(UUID, double)` | `boolean` | Withdraw funds (false if insufficient) |
-| `withdraw(UUID, double, String)` | `boolean` | Withdraw with description |
-| `transfer(UUID, UUID, double)` | `boolean` | Transfer between players |
-| `transfer(UUID, UUID, double, String)` | `boolean` | Transfer with description |
-| `setBalance(UUID, double)` | `void` | Admin: set exact balance |
-| `deleteAccount(UUID)` | `void` | Admin: delete account permanently |
-| `getStartBalance()` | `double` | Get configured start balance |
-
-### Extended Methods (v3.2.0+)
-
-| Method | Return | Description |
-|--------|--------|-------------|
-| `getAllBalances()` | `Map<UUID, Double>` | Unmodifiable map of all balances |
-| `getTotalMoneyInCirculation()` | `double` | Total EUR across all accounts |
-| `getAccountCount()` | `int` | Number of registered accounts |
-| `getTopBalances(int)` | `List<Entry<UUID, Double>>` | Top N richest players |
-| `canAfford(UUID, double)` | `boolean` | Check if player can afford amount |
-| `batchTransfer(UUID, Map, String)` | `boolean` | Batch transfer to multiple recipients |
-| `getTransactionHistory(UUID, int)` | `List<String>` | Recent transactions as strings |
-
-### Usage Example
-
-```java
-IEconomyAPI economy = ScheduleMCAPI.getEconomyAPI();
-
-// Check balance
-double balance = economy.getBalance(playerUUID);
-
-// Deposit funds
-economy.deposit(playerUUID, 100.0, "Quest reward");
-
-// Transfer between players
-boolean success = economy.transfer(fromUUID, toUUID, 50.0, "Item purchase");
-
-// Check affordability
-if (economy.canAfford(playerUUID, 5000.0)) {
-    economy.withdraw(playerUUID, 5000.0, "Vehicle purchase");
-}
-
-// Batch transfer (e.g., salary payment)
-Map<UUID, Double> recipients = new HashMap<>();
-recipients.put(employee1, 1000.0);
-recipients.put(employee2, 1500.0);
-economy.batchTransfer(bossUUID, recipients, "Weekly salaries");
-```
 
 ---
 

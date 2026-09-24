@@ -19,10 +19,8 @@ Your pocket-sized ScheduleMC companion
 3. [Available Apps](#available-apps)
 4. [PvP Protection](#pvp-protection)
 5. [Network Sync](#network-sync)
-6. [Extensible App Framework](#extensible-app-framework)
-7. [Developer API](#developer-api)
-8. [Best Practices](#best-practices)
-9. [Troubleshooting](#troubleshooting)
+6. [Best Practices](#best-practices)
+7. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -347,110 +345,6 @@ The smartphone system uses **real-time network synchronization** between client 
 - Market prices and trends
 
 All data displayed in smartphone apps reflects the current server state, not cached or outdated information.
-
----
-
-## Extensible App Framework
-
-The smartphone system supports **custom app registration** through the API, allowing other mods or plugins to add their own apps to the smartphone interface.
-
-### How It Works
-
-```
-1. External mod registers app via ISmartphoneAPI.registerApp()
-2. App appears on smartphone home screen
-3. App can send notifications to players
-4. App can be unregistered when no longer needed
-```
-
-### Custom App Registration
-
-```java
-ISmartphoneAPI api = ScheduleMCAPI.getSmartphoneAPI();
-
-// Register a custom app
-boolean success = api.registerApp("my_custom_app", "My App", "a"); // green color
-
-// Send notifications through the app
-api.sendNotification(playerUUID, "my_custom_app", "Something happened!");
-
-// List all registered apps
-Set<String> apps = api.getRegisteredApps();
-
-// Unregister when done
-api.unregisterApp("my_custom_app");
-```
-
----
-
-## Developer API
-
-### ISmartphoneAPI Interface
-
-External mods can access the smartphone system through the `ISmartphoneAPI` interface.
-
-**Access:**
-```java
-ISmartphoneAPI smartphoneAPI = ScheduleMCAPI.getSmartphoneAPI();
-```
-
-### Core Methods (v3.0.0+)
-
-| Method | Description |
-|--------|-------------|
-| `setSmartphoneOpen(UUID, boolean)` | Set whether a player has the smartphone open (activates/deactivates protection) |
-| `hasSmartphoneOpen(UUID)` | Check if a player's smartphone is currently open |
-| `removePlayer(UUID)` | Remove player from tracking (call on disconnect) |
-| `getPlayersWithSmartphoneOpen()` | Get set of all UUIDs with smartphone open |
-| `clearAllTracking()` | Clear all tracking data (server shutdown/tests only) |
-| `getOpenSmartphoneCount()` | Count of players with smartphone currently open |
-
-### Extended Methods (v3.2.0+)
-
-| Method | Description |
-|--------|-------------|
-| `registerApp(String, String, String)` | Register a custom app (id, name, color) |
-| `unregisterApp(String)` | Unregister a custom app by ID |
-| `getRegisteredApps()` | Get set of all registered app IDs |
-| `sendNotification(UUID, String, String)` | Send notification to player (playerUUID, appId, message) |
-| `hasSmartphone(UUID)` | Check if player has the smartphone item |
-
-### Example Usage
-
-```java
-ISmartphoneAPI smartphoneAPI = ScheduleMCAPI.getSmartphoneAPI();
-
-// Open smartphone and activate protection
-smartphoneAPI.setSmartphoneOpen(playerUUID, true);
-
-// Check if smartphone is open (protection active)
-if (smartphoneAPI.hasSmartphoneOpen(playerUUID)) {
-    // Player is protected - do not deal damage
-}
-
-// Close smartphone and deactivate protection
-smartphoneAPI.setSmartphoneOpen(playerUUID, false);
-
-// Get all players currently using smartphones
-Set<UUID> users = smartphoneAPI.getPlayersWithSmartphoneOpen();
-int count = smartphoneAPI.getOpenSmartphoneCount();
-
-// Register a custom app
-smartphoneAPI.registerApp("auction_house", "Auction House", "6"); // gold color
-
-// Send notification
-smartphoneAPI.sendNotification(playerUUID, "auction_house", "Your item sold for 5,000!");
-
-// Check if player has smartphone item
-if (smartphoneAPI.hasSmartphone(playerUUID)) {
-    // Player can use smartphone features
-}
-
-// Clean up on disconnect
-smartphoneAPI.removePlayer(playerUUID);
-```
-
-**Thread Safety:** All methods are thread-safe through ConcurrentHashMap.newKeySet()-based tracking.
 
 ---
 

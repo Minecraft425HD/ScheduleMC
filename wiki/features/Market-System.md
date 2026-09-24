@@ -20,7 +20,6 @@ Real-time price adjustments driven by player activity
 4. [Price Multiplier](#price-multiplier)
 5. [Time-Based Decay](#time-based-decay)
 6. [Commands](#commands)
-7. [Developer API](#developer-api)
 8. [Trading Strategies](#trading-strategies)
 9. [Best Practices](#best-practices)
 
@@ -338,81 +337,6 @@ TOP 10 MOST EXPENSIVE
   9. Opium (Legendary): 400
   10. Cocaine (Very Good): 300
 ```
-
----
-
-## Developer API
-
-### IMarketAPI Interface
-
-External mods can access the market system through the `IMarketAPI` interface.
-
-**Access:**
-```java
-IMarketAPI marketAPI = ScheduleMCAPI.getMarketAPI();
-```
-
-### Core Methods (v3.0.0+)
-
-| Method | Description |
-|--------|-------------|
-| `getCurrentPrice(Item)` | Get current market price |
-| `getBasePrice(Item)` | Get base price without dynamic adjustment |
-| `recordPurchase(Item, int)` | Record a purchase (increases demand, raises price) |
-| `recordSale(Item, int)` | Record a sale (increases supply, lowers price) |
-| `getPriceMultiplier(Item)` | Get current multiplier (typically 0.5 - 2.0) |
-| `getDemandLevel(Item)` | Get demand level (0-100) |
-| `getSupplyLevel(Item)` | Get supply level (0-100) |
-| `getAllPrices()` | Get map of all Item to Price entries |
-| `setBasePrice(Item, double)` | Set base price (admin function) |
-| `resetMarketData(Item)` | Reset market data for item (null for all items) |
-
-### Extended Methods (v3.2.0+)
-
-| Method | Description |
-|--------|-------------|
-| `getTopPricedItems(int)` | Get items sorted by price (highest first), limited by count |
-| `getTopDemandItems(int)` | Get items sorted by demand (highest first), limited by count |
-| `hasMarketData(Item)` | Check if an item has market tracking data |
-| `getTrackedItemCount()` | Count of items with market data |
-| `resetAllMarketData()` | Reset all market data for all items |
-
-### Example Usage
-
-```java
-IMarketAPI marketAPI = ScheduleMCAPI.getMarketAPI();
-
-// Get current price
-double price = marketAPI.getCurrentPrice(Items.DIAMOND);
-double basePrice = marketAPI.getBasePrice(Items.DIAMOND);
-double multiplier = marketAPI.getPriceMultiplier(Items.DIAMOND);
-
-// Record transactions
-marketAPI.recordPurchase(Items.DIAMOND, 10);  // Price rises
-marketAPI.recordSale(Items.DIAMOND, 5);       // Price drops
-
-// Check supply and demand
-int demand = marketAPI.getDemandLevel(Items.DIAMOND);  // 0-100
-int supply = marketAPI.getSupplyLevel(Items.DIAMOND);  // 0-100
-
-// Get all prices
-Map<Item, Double> allPrices = marketAPI.getAllPrices();
-
-// Get top items
-List<Map.Entry<Item, Double>> topPriced = marketAPI.getTopPricedItems(10);
-List<Map.Entry<Item, Integer>> topDemand = marketAPI.getTopDemandItems(10);
-
-// Admin operations
-marketAPI.setBasePrice(Items.DIAMOND, 120.0);   // Change base price
-marketAPI.resetMarketData(Items.DIAMOND);        // Reset single item
-marketAPI.resetAllMarketData();                  // Reset everything
-
-// Check tracking
-int tracked = marketAPI.getTrackedItemCount();
-boolean hasData = marketAPI.hasMarketData(Items.DIAMOND);
-```
-
-**Thread Safety:** All methods are thread-safe through ConcurrentHashMap.
 
 ---
 

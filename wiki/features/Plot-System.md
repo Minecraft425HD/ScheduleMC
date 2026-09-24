@@ -26,7 +26,6 @@ Chunk-based spatial indexing with O(1) lookup and multi-level LRU cache performa
 10. [Plot Info Block](#plot-info-block)
 11. [Protection and Permissions](#protection-and-permissions)
 12. [Spatial Indexing](#spatial-indexing-technical)
-13. [Developer API](#developer-api)
 14. [Commands Reference](#commands-reference)
 15. [Best Practices](#best-practices)
 16. [Troubleshooting](#troubleshooting)
@@ -921,75 +920,6 @@ Root Node (World bounds)
 4. Validates structure
 
 **Time:** Approximately 50ms per 1,000 plots.
-
----
-
-## Developer API
-
-### IPlotAPI Interface
-
-External mods can access the plot system through `IPlotAPI`. All methods are thread-safe (ConcurrentHashMap-backed).
-
-**Obtaining the API:**
-```java
-IPlotAPI plotAPI = ScheduleMCAPI.getPlotAPI();
-```
-
-### Core Methods (v3.0.0+)
-
-| Method | Return | Description |
-|--------|--------|-------------|
-| `getPlotAt(BlockPos)` | `PlotRegion` | Get plot at position (O(1) cached, O(1) chunk-based uncached) |
-| `getPlot(String)` | `PlotRegion` | Get plot by ID |
-| `hasPlot(String)` | `boolean` | Check if plot exists |
-| `getPlotsByOwner(UUID)` | `List<PlotRegion>` | Get all plots owned by player |
-| `getAvailablePlots()` | `List<PlotRegion>` | Get all purchasable plots |
-| `getPlotsForSale()` | `List<PlotRegion>` | Get all plots listed for sale |
-| `createPlot(BlockPos, BlockPos, String, PlotType, double)` | `PlotRegion` | Create a new plot |
-| `removePlot(String)` | `boolean` | Remove a plot by ID |
-| `getPlotCount()` | `int` | Get total number of plots |
-
-### Extended Methods (v3.2.0+)
-
-| Method | Return | Description |
-|--------|--------|-------------|
-| `getPlotsByType(PlotType)` | `List<PlotRegion>` | All plots of a specific type |
-| `setPlotOwner(String, UUID)` | `boolean` | Change plot owner (null to remove) |
-| `setPlotPrice(String, double)` | `boolean` | Set plot price |
-| `addTrustedPlayer(String, UUID)` | `boolean` | Add a trusted player |
-| `removeTrustedPlayer(String, UUID)` | `boolean` | Remove a trusted player |
-| `getTrustedPlayers(String)` | `Set<UUID>` | Get all trusted players |
-| `setPlotForSale(String, boolean)` | `boolean` | List or delist plot for sale |
-| `setPlotType(String, PlotType)` | `boolean` | Change plot type |
-| `getPlotsInRadius(BlockPos, double)` | `List<PlotRegion>` | Find plots within radius |
-| `getPlotCountByType()` | `Map<PlotType, Integer>` | Count of plots per type |
-
-### Usage Example
-
-```java
-IPlotAPI plotAPI = ScheduleMCAPI.getPlotAPI();
-
-// Find plot at a position
-PlotRegion plot = plotAPI.getPlotAt(new BlockPos(100, 64, 200));
-
-// Get all plots owned by a player
-List<PlotRegion> myPlots = plotAPI.getPlotsByOwner(playerUUID);
-
-// Create a new plot
-PlotRegion newPlot = plotAPI.createPlot(
-    pos1, pos2, "MyPlot", PlotType.RESIDENTIAL, 50000.0
-);
-
-// Trust management
-plotAPI.addTrustedPlayer("MyPlot", friendUUID);
-Set<UUID> trusted = plotAPI.getTrustedPlayers("MyPlot");
-
-// Find nearby plots
-List<PlotRegion> nearby = plotAPI.getPlotsInRadius(playerPos, 100.0);
-
-// Statistics
-Map<PlotType, Integer> stats = plotAPI.getPlotCountByType();
-```
 
 ---
 

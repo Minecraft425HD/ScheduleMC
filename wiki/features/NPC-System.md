@@ -33,7 +33,6 @@
 15. [AI & Pathfinding](#ai--pathfinding)
 16. [NPC Tools](#npc-tools)
 17. [Commands](#commands)
-18. [Developer API](#developer-api)
 19. [Best Practices](#best-practices)
 20. [Troubleshooting](#troubleshooting)
 
@@ -733,76 +732,6 @@ NPCs are placed as entities in-world via spawn eggs or the creative menu. There 
 /npc <name> warehouse info              # Check warehouse link
 /npc <name> warehouse clear             # Unlink NPC from warehouse
 ```
-
----
-
-## Developer API
-
-### INPCAPI Interface
-
-External mods can access the NPC system through the `INPCAPI` interface.
-
-**Access:**
-```java
-INPCAPI npcAPI = ScheduleMCAPI.getNPCAPI();
-```
-
-### Core Methods (v3.0.0+)
-
-| Method | Description |
-|--------|-------------|
-| `getNPCByUUID(UUID, ServerLevel)` | Find NPC by UUID in a specific level (O(1) lookup) |
-| `getNPCByUUID(UUID)` | Find NPC by UUID across all loaded worlds |
-| `getAllNPCs(ServerLevel)` | Get all NPCs in a level |
-| `getAllNPCs()` | Get all NPCs across all worlds |
-| `getNPCCount(ServerLevel)` | Count NPCs in a level |
-| `getTotalNPCCount()` | Count all NPCs globally |
-| `getNPCData(CustomNPCEntity)` | Get NPCData object with all configuration |
-| `setNPCHome(CustomNPCEntity, BlockPos)` | Set home position |
-| `setNPCWork(CustomNPCEntity, BlockPos)` | Set work position |
-| `setNPCType(CustomNPCEntity, NPCType)` | Change NPC type |
-
-### Extended Methods (v3.2.0+)
-
-| Method | Description |
-|--------|-------------|
-| `getNPCsByType(NPCType)` | Get all NPCs of a specific type |
-| `getNPCsInRadius(ServerLevel, BlockPos, double)` | Get NPCs within radius |
-| `setNPCName(CustomNPCEntity, String)` | Set display name |
-| `addNPCLeisureLocation(CustomNPCEntity, BlockPos)` | Add leisure location |
-| `removeNPC(CustomNPCEntity)` | Remove NPC from world |
-| `setNPCSchedule(CustomNPCEntity, String, int)` | Set schedule (activity + HHMM time) |
-| `getNPCBalance(CustomNPCEntity)` | Get wallet balance |
-| `setNPCBalance(CustomNPCEntity, double)` | Set wallet balance |
-
-### Example Usage
-
-```java
-INPCAPI npcAPI = ScheduleMCAPI.getNPCAPI();
-
-// Find an NPC
-CustomNPCEntity npc = npcAPI.getNPCByUUID(uuid, level);
-
-// Get all merchants
-Collection<CustomNPCEntity> merchants = npcAPI.getNPCsByType(NPCType.VERKAEUFER);
-
-// Find NPCs near a position
-Collection<CustomNPCEntity> nearby = npcAPI.getNPCsInRadius(level, pos, 50.0);
-
-// Configure an NPC
-npcAPI.setNPCName(npc, "Klaus_The_Merchant");
-npcAPI.setNPCSchedule(npc, "workstart", 700);
-npcAPI.setNPCSchedule(npc, "workend", 1800);
-npcAPI.setNPCSchedule(npc, "sleep", 2300);
-npcAPI.setNPCBalance(npc, 50000.0);
-
-// Add leisure locations
-npcAPI.addNPCLeisureLocation(npc, new BlockPos(100, 64, 200));
-npcAPI.addNPCLeisureLocation(npc, new BlockPos(120, 64, 180));
-```
-
-**Thread Safety:** All methods are thread-safe through ConcurrentHashMap-based registry.
-**Performance:** NPC lookups use O(1) UUID indexing for fast search.
 
 ---
 
