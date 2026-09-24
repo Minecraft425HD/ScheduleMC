@@ -325,19 +325,15 @@ LARGE: 100,000 x 1.20  = 120,000 EUR --> 120,000 / 56 = 2,142.86 EUR/day
 
 ### Applying for a Loan
 
-```
-/loan apply <SMALL|MEDIUM|LARGE>
-```
+There is no `/loan` command. Loans are requested by talking to a Credit
+Advisor NPC, which opens a dedicated credit GUI (`OpenCreditAdvisorMenuPacket`).
 
 **Requirements:**
 - Minimum Balance: 1,000 EUR
 - No Active Loan: Cannot have an existing loan
 - Credit score may affect eligibility (see Credit Score section)
 
-**Example:**
-```
-/loan apply MEDIUM
-```
+**Example (MEDIUM loan):**
 
 **Result:**
 ```
@@ -370,9 +366,7 @@ Day 14:  -392.86 EUR final payment --> LOAN PAID OFF
 
 #### Early Repayment
 
-```
-/loan repay
-```
+There is no `/loan` command — early repayment is done through the Bank App on the smartphone.
 
 **Benefits:**
 - No early repayment penalty
@@ -393,11 +387,8 @@ No additional penalties are charged for missed payments beyond the normal intere
 
 ### Loan Information
 
-```
-/loan info
-```
-
-Displays active loan details or available loan tiers if no loan is active.
+Also shown in the Credit Advisor NPC GUI — active loan details or available
+loan tiers if no loan is active — there is no `/loan info` command.
 
 ---
 
@@ -470,14 +461,10 @@ Total Profit after 4 weeks: 2,155.06 EUR (21.55% return)
 
 ### Creating Savings Accounts
 
-```
-/savings create <amount>
-```
-
-**Example:**
-```
-/savings create 10000
-```
+There is no `/savings` command; savings accounts are created and managed
+through a Banker NPC's GUI (`BankerScreen`, backed by `SavingsAccountManager`
+via `SavingsDepositPacket`/`SavingsWithdrawPacket`), not the Bank App. The
+example below shows the amounts involved.
 
 **Requirements:**
 - Minimum 1,000 EUR
@@ -501,29 +488,16 @@ Expected Profit:            2,155.06 EUR
 
 ### Managing Savings
 
-#### List Accounts
-```
-/savings list
-```
-
-#### Deposit to Account
-```
-/savings deposit <accountId> <amount>
-```
+All of the below (listing accounts, depositing, withdrawing) is done
+through the Bank App — none of it has a chat command.
 
 **Important:** Depositing resets the lock period to 4 weeks from the deposit date.
-
-#### Withdraw from Account (Unlocked)
-```
-/savings withdraw <accountId> <amount>
-```
 
 Account must be unlocked (28+ days old). No penalty.
 
 #### Force Withdrawal (Locked)
-```
-/savings forcewithdraw <accountId> <amount>
-```
+
+There is no `/savings` command — force withdrawal is done through a Banker NPC's GUI.
 
 **Penalty:** 10% of withdrawal amount goes to State Treasury.
 
@@ -536,11 +510,8 @@ State Gets:          500 EUR
 ```
 
 #### Close Account
-```
-/savings close <accountId>
-```
 
-Withdraws entire balance. 10% penalty if still locked.
+Also done through a Banker NPC's GUI (no chat command). Withdraws entire balance. 10% penalty if still locked.
 
 ---
 
@@ -559,9 +530,8 @@ Withdraws entire balance. 10% penalty if still locked.
 
 ### Claiming Rewards
 
-```
-/daily
-```
+There is no `/daily` command. The reward is granted automatically on login
+via `DailyRewardManager.claimOnLogin()`.
 
 **Result:**
 ```
@@ -612,11 +582,9 @@ Day 31: 50 + 290        = 340 EUR (capped at 30)
 
 ### Streak Statistics
 
-```
-/daily streak
-```
-
-Displays current streak, longest streak, total claims, and time until next claim.
+There is no `/daily streak` command and no player-facing screen showing
+streak/claim-history statistics; this data exists only in
+`DailyRewardManager`'s backend state.
 
 ---
 
@@ -630,52 +598,17 @@ Displays current streak, longest streak, total claims, and time until next claim
 | Min Interval | 1 day |
 | Auto-disable | After 3 failed payments |
 
-### Creating Autopay
+### Creating and Managing Autopay
 
-```
-/autopay add <player> <amount> <intervalDays> <description>
-```
-
-**Example:**
-```
-/autopay add Alex 500 7 "Weekly rent"
-```
+There is no `/autopay` command. Recurring payments are created, listed,
+paused, resumed, and deleted entirely through the Bank App on the
+smartphone (`RecurringPaymentManager` on the backend).
 
 **Use Cases:**
 - Rent payments to landlords
 - Salary payments to employees
 - Subscription fees
 - Regular transfers to business partners
-
-### Managing Autopay
-
-#### List Payments
-```
-/autopay list
-```
-
-Displays all recurring payments with status, next payment date, and amount.
-
-#### Pause Payment
-```
-/autopay pause <paymentId>
-```
-
-Stops future payments. Can be resumed anytime with no fee.
-
-#### Resume Payment
-```
-/autopay resume <paymentId>
-```
-
-Reactivates a paused payment. Next payment scheduled based on interval.
-
-#### Delete Payment
-```
-/autopay delete <paymentId>
-```
-
-Permanently removes the recurring payment. Cannot be undone.
 
 ### Failure Handling
 
@@ -688,7 +621,7 @@ Balance: 300 EUR (insufficient)
 3rd Failure: Critical warning, payment AUTO-DISABLED
 ```
 
-Player receives a notification and must re-enable with `/autopay resume <id>` after adding funds.
+Player receives a notification and must re-enable the payment via the Bank App after adding funds.
 
 ---
 
@@ -1148,13 +1081,10 @@ If prices are rising across all NPC shops, consider:
 **Cause:** Balance too low for transaction.
 
 **Solutions:**
-```
-1. /money             -- Check current balance
-2. /daily             -- Claim daily reward
-3. /loan apply SMALL  -- Get a 5,000 EUR loan
+1. Check your current balance in the Bank App (`/money` is admin-only: set/give/take/history)
+2. Log in to claim the automatic daily reward
+3. Ask a Credit Advisor NPC for a small loan
 4. Sell items to NPCs
-5. Check overdraft limit (/money)
-```
 
 ### "Transaction Failed"
 
@@ -1181,9 +1111,9 @@ If prices are rising across all NPC shops, consider:
 **Problem:** Cannot afford daily payment.
 
 **Solutions:**
-1. Early Repayment: `/loan repay` to pay remaining balance
-2. Increase income: sell products, claim daily, work for players
-3. Emergency: force-withdraw savings (10% penalty)
+1. Early Repayment: through the Bank App, to pay remaining balance
+2. Increase income: sell products, the daily reward (automatic on login), work for players
+3. Emergency: force-withdraw savings via a Banker NPC (10% penalty)
 4. Last resort: abandon unused plots (50% refund)
 
 ### Savings Account Locked
@@ -1192,21 +1122,19 @@ If prices are rising across all NPC shops, consider:
 
 **Options:**
 1. Wait (most economical, no penalty)
-2. Force withdraw: `/savings forcewithdraw <id> <amount>` (10% penalty)
-3. Close account: `/savings close <id>` (10% penalty on full balance)
+2. Force withdraw via the Bank App (10% penalty)
+3. Close account via the Bank App (10% penalty on full balance)
 
 ### Overdraft Warnings
 
 **Problem:** Account approaching -5,000 EUR limit.
 
 **Priority Actions:**
-```
-1. /daily                     -- Claim daily reward
-2. /loan apply SMALL          -- Get 5,000 EUR loan
+1. Log in to claim the automatic daily reward
+2. Ask a Credit Advisor NPC for a loan (there is no `/loan apply` command)
 3. Sell items to NPC shops
-4. /autopay list              -- Pause unnecessary autopays
-5. /savings forcewithdraw     -- Emergency savings withdrawal
-```
+4. Pause unnecessary autopays via the Bank App
+5. Force-withdraw savings via a Banker NPC in an emergency
 
 ---
 
