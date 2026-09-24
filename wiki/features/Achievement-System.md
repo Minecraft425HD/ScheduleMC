@@ -294,7 +294,7 @@ Data saved per player:
 
 ### For Server Administrators
 
-1. **Don't reset achievements lightly** - Players value their progress. Use `/achievement reset` only for testing or at player request.
+1. **Don't reset achievements lightly** - Players value their progress. There is no `/achievement` command; `AchievementManager.resetPlayerAchievements()` exists internally but is not wired to any chat command.
 2. **Reward balance** - The default reward tier values (Bronze 100 EUR to Platinum 50,000 EUR) are designed to be meaningful but not game-breaking relative to the starting balance of 1,000 EUR.
 3. **EMPIRE_BUILDER** - This achievement requires 10 active production sites. On small servers, consider whether this is achievable. You can grant it manually with the API if needed.
 

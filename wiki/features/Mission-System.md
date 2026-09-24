@@ -280,7 +280,7 @@ Client-side storage of the last received `List<PlayerMissionDto>`. Used by the G
 
 ## Mission Editor (Unified Editor)
 
-The **Mission Editor** (`ScenarioEditorScreen`) is a unified Blockly-style visual editor for both **Gang missions** and **Spieler-Missionen (story missions)**. It is opened server-side via `/scenario edit` (or similar OP command).
+The **Mission Editor** (`ScenarioEditorScreen`) is a unified Blockly-style visual editor for both **Gang missions** and **Spieler-Missionen (story missions)**. There is no `/scenario` command; the server opens it client-side via `OpenScenarioEditorPacket` (e.g. from the Gang App's editor button).
 
 ### Gang-Modus vs. Spieler-Modus
 
