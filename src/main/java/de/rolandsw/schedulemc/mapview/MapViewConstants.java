@@ -1,7 +1,6 @@
 package de.rolandsw.schedulemc.mapview;
 
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
-import de.rolandsw.schedulemc.mapview.integration.Events;
 import de.rolandsw.schedulemc.mapview.integration.PacketBridge;
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
 import de.rolandsw.schedulemc.mapview.presentation.renderer.MapViewRenderer;
@@ -33,7 +32,6 @@ public final class MapViewConstants {
     private static final ResourceLocation OPTIONS_BACKGROUND_TEXTURE = ResourceLocation.parse("textures/block/dirt.png");
     public static final boolean DEBUG = false;
     private static boolean initialized;
-    private static Events events;
     private static PacketBridge packetBridge;
 
     private MapViewConstants() {}
@@ -162,14 +160,6 @@ public final class MapViewConstants {
         int minBottom = (int) (mapHeightScaled + entriesHeight + fontHeight + statusIconOffsetInt);
 
         return Math.max(bottomX, minBottom);
-    }
-
-    public static void setEvents(Events events) {
-        MapViewConstants.events = events;
-    }
-
-    public static Events getEvents() {
-        return events;
     }
 
     public static PacketBridge getPacketBridge() {

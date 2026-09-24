@@ -82,7 +82,6 @@ public class ClientModEvents {
         EventHelper.handleEvent(() -> {
             // Initialize LightMapmod
             ForgeEvents forgeEvents = new ForgeEvents();
-            MapViewConstants.setEvents(forgeEvents);
             MapViewConstants.setPacketBridge(new ForgePacketBridge());
             forgeEvents.initEvents(MapViewConstants.getLightMapInstance());
 

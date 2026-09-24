@@ -1,6 +1,5 @@
 package de.rolandsw.schedulemc.mapview.integration.forge;
 
-import de.rolandsw.schedulemc.mapview.integration.Events;
 import de.rolandsw.schedulemc.mapview.MapViewConstants;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.integration.network.MapViewSettingsS2C;
@@ -23,7 +22,7 @@ import net.minecraftforge.event.GameShuttingDownEvent;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class ForgeEvents implements Events {
+public class ForgeEvents {
     private MapDataManager map;
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
@@ -72,7 +71,6 @@ public class ForgeEvents implements Events {
         }
     }
 
-    @Override
     public void initEvents(MapDataManager map) {
         this.map = map;
         // Event listeners are now registered from ClientModEvents in ScheduleMC
