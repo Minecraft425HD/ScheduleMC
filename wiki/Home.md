@@ -30,8 +30,8 @@
 | **Java** | 17 |
 | **Lines of Code** | ~259,000 |
 | **Total Files** | 1,610 Java |
-| **Registered Items** | 399 (`ITEMS.register`) |
-| **Registered Blocks** | 125 |
+| **Registered Items** | 353 string IDs |
+| **Registered Blocks** | 97 |
 | **Available Commands** | 25 root / 132 literals |
 | **Production Chains** | 14 (8 illegal + 6 legal) |
 | **Weapon Types** | 13 (6 guns + 4 melee + 3 grenades) |
@@ -39,7 +39,7 @@
 | **Unit Tests** | 681 in 41 files |
 | **GUI Screens** | 147 |
 | **Manager Classes** | 62 |
-| **BlockEntity Types** | 128 |
+| **BlockEntity Types** | 111 |
 | **License** | GNU General Public License v3 |
 | **Author** | Luckas R. Schneider (Minecraft425HD) |
 

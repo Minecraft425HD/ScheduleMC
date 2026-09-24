@@ -1,6 +1,6 @@
 # Complete Items Reference - ScheduleMC
 
-**Total Registered Items:** 250+ items across 18 categories
+**Total Registered Items:** 353 `ITEMS.register("id")` entries across 29 Java files
 
 This page documents every item registered in the ScheduleMC mod, organized by module. Each item listing includes its registry name, a description of its purpose, and how players or admins can obtain it.
 
@@ -29,7 +29,7 @@ This page documents every item registered in the ScheduleMC mod, organized by mo
 
 ---
 
-## Economy Items (4)
+## Economy Items (3 in `ModItems.java`)
 
 Items related to the server economy, plot management, and universal packaging.
 
@@ -42,7 +42,7 @@ Items related to the server economy, plot management, and universal packaging.
 
 ---
 
-## NPC Tools (5)
+## NPC Tools (5 in `NPCItems.java`)
 
 Admin-only tools (OP Level 2) for spawning and configuring NPCs.
 
@@ -56,7 +56,7 @@ Admin-only tools (OP Level 2) for spawning and configuring NPCs.
 
 ---
 
-## Lock Items (13)
+## Lock Items (13 in `LockItems.java`)
 
 Items for the door lock and security system. Includes 5 lock types, 3 key blank tiers, a key ring, a lock pick set, and 3 hacking tools.
 
@@ -90,7 +90,7 @@ Items for the door lock and security system. Includes 5 lock types, 3 key blank 
 
 ---
 
-## Tobacco Items (26)
+## Tobacco Items (26 in `TobaccoItems.java`)
 
 The full tobacco production chain: seeds, leaves at three processing stages, growth tools, soil, and packaging materials.
 
@@ -157,7 +157,7 @@ The full tobacco production chain: seeds, leaves at three processing stages, gro
 
 ---
 
-## Cannabis Items (10)
+## Cannabis Items (9 in `CannabisItems.java`)
 
 Cannabis cultivation and processing items covering seeds, four processing stages, by-products, concentrates, and processing tools.
 
@@ -188,7 +188,7 @@ Cannabis cultivation and processing items covering seeds, four processing stages
 
 ---
 
-## Coca Items (10)
+## Coca Items (12 in `CocaItems.java`)
 
 Three coca strains, fresh leaves, and the cocaine/crack processing chain along with required chemicals.
 
@@ -219,7 +219,7 @@ Three coca strains, fresh leaves, and the cocaine/crack processing chain along w
 
 ---
 
-## Poppy Items (8)
+## Poppy Items (10 in `PoppyItems.java`)
 
 Three poppy strains and the full opium-to-heroin refinement chain.
 
@@ -248,7 +248,7 @@ Three poppy strains and the full opium-to-heroin refinement chain.
 
 ---
 
-## Meth Items (8)
+## Meth Items (8 in `MethItems.java`)
 
 Chemical synthesis items for the four-step methamphetamine production process.
 
@@ -272,7 +272,7 @@ Chemical synthesis items for the four-step methamphetamine production process.
 
 ---
 
-## LSD Items (6)
+## LSD Items (6 in `LSDItems.java`)
 
 Laboratory synthesis items for the precision LSD production process.
 
@@ -287,7 +287,7 @@ Laboratory synthesis items for the precision LSD production process.
 
 ---
 
-## MDMA Items (6)
+## MDMA Items (6 in `MDMAItems.java`)
 
 Chemical synthesis and pill-pressing items for ecstasy production.
 
@@ -309,7 +309,7 @@ Chemical synthesis and pill-pressing items for ecstasy production.
 
 ---
 
-## Mushroom Items (12)
+## Mushroom Items (12 in `MushroomItems.java`)
 
 Psilocybin mushroom cultivation items across three strains: Cubensis, Azurescens, and Mexicana.
 
@@ -347,7 +347,7 @@ Psilocybin mushroom cultivation items across three strains: Cubensis, Azurescens
 
 ---
 
-## Beer Items (30)
+## Beer Items (30 in `BeerItems.java`)
 
 Complete brewing chain from grain to bottle, including 3 grains, malts, hops, yeasts, intermediates, containers, and additives.
 
@@ -419,7 +419,7 @@ Complete brewing chain from grain to bottle, including 3 grains, malts, hops, ye
 
 ---
 
-## Wine Items (22)
+## Wine Items (21 in `WineItems.java`)
 
 Winemaking chain from grape seedling to bottled wine, covering 4 grape varieties (Riesling, Spaetburgunder, Chardonnay, Merlot).
 
@@ -475,7 +475,7 @@ Winemaking chain from grape seedling to bottled wine, covering 4 grape varieties
 
 ---
 
-## Coffee Items (26)
+## Coffee Items (21 in `CoffeeItems.java`)
 
 Full coffee production from seedling to brewed cup across 4 varieties (Arabica, Robusta, Liberica, Excelsa).
 
@@ -545,7 +545,7 @@ Full coffee production from seedling to brewed cup across 4 varieties (Arabica, 
 
 ---
 
-## Cheese Items (19)
+## Cheese Items (7 in `CheeseItems.java`)
 
 Cheese production from milk to aged wheels and wedges, with 5 varieties (Standard, Gouda, Emmental, Camembert, Parmesan).
 
@@ -595,7 +595,7 @@ Cheese production from milk to aged wheels and wedges, with 5 varieties (Standar
 
 ---
 
-## Chocolate Items (33)
+## Chocolate Items (35 in `ChocolateItems.java`)
 
 Bean-to-bar chocolate production with cocoa processing, additives, molds, and finished products.
 
@@ -672,7 +672,7 @@ Bean-to-bar chocolate production with cocoa processing, additives, molds, and fi
 
 ---
 
-## Honey Items (27)
+## Honey Items (22 in `HoneyItems.java`)
 
 Beekeeping and honey production: raw materials, processing stages, by-products, packaging, and consumables.
 
@@ -873,3 +873,450 @@ Modular vehicle system with complete vehicles, individual parts, fuel, tools, an
 - Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
 - Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
 - Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+
+<!-- BEGIN SOURCE-ITEM-REGISTRY -->
+# Source item registry
+
+Generated from `ITEMS.register("id")` in source. **353 IDs**. Narrative tables above may use alias IDs that are not the registry name.
+
+## `de/rolandsw/schedulemc/beer/blocks/BeerBlocks.java` (12)
+
+- `malting_station`
+- `mash_tun`
+- `small_brew_kettle`
+- `medium_brew_kettle`
+- `large_brew_kettle`
+- `small_beer_fermentation_tank`
+- `medium_beer_fermentation_tank`
+- `large_beer_fermentation_tank`
+- `small_conditioning_tank`
+- `medium_conditioning_tank`
+- `large_conditioning_tank`
+- `beer_bottling_station`
+
+## `de/rolandsw/schedulemc/beer/items/BeerItems.java` (30)
+
+- `beer_bottle`
+- `barley`
+- `rye`
+- `malted_barley`
+- `malted_wheat`
+- `malted_rye`
+- `hops_cone`
+- `dried_hops`
+- `hop_extract`
+- `hop_pellets`
+- `yeast`
+- `brewing_yeast`
+- `lager_yeast`
+- `ale_yeast`
+- `malt_extract`
+- `wort_bucket`
+- `fermenting_beer`
+- `green_beer`
+- `conditioned_beer`
+- `beer_keg`
+- `beer_bottle_empty`
+- `beer_can_empty`
+- `bottle_cap`
+- `crown_cap`
+- `brewing_sugar`
+- `irish_moss`
+- `brewing_salt`
+- `roasted_barley`
+- `chocolate_malt`
+- `caramel_malt`
+
+## `de/rolandsw/schedulemc/cannabis/blocks/CannabisBlocks.java` (4)
+
+- `cannabis_trim_station`
+- `cannabis_curing_jar`
+- `cannabis_hash_press`
+- `cannabis_oil_extractor`
+
+## `de/rolandsw/schedulemc/cannabis/items/CannabisItems.java` (9)
+
+- `cannabis_seed`
+- `fresh_cannabis_bud`
+- `dried_cannabis_bud`
+- `trimmed_cannabis_bud`
+- `cured_cannabis_bud`
+- `cannabis_trim`
+- `cannabis_hash`
+- `cannabis_oil`
+- `extraction_solvent`
+
+## `de/rolandsw/schedulemc/cheese/blocks/CheeseBlocks.java` (9)
+
+- `pasteurization_station`
+- `curdling_vat`
+- `small_cheese_press`
+- `medium_cheese_press`
+- `large_cheese_press`
+- `small_aging_cave`
+- `medium_aging_cave`
+- `large_aging_cave`
+- `packaging_station`
+
+## `de/rolandsw/schedulemc/cheese/items/CheeseItems.java` (7)
+
+- `rennet`
+- `cheese_curd`
+- `whey`
+- `cheese_wheel`
+- `cheese_cloth`
+- `wax_coating`
+- `cheese_paper`
+
+## `de/rolandsw/schedulemc/chocolate/blocks/ChocolateBlocks.java` (15)
+
+- `roasting_station`
+- `winnowing_machine`
+- `grinding_mill`
+- `pressing_station`
+- `small_conching_machine`
+- `medium_conching_machine`
+- `large_conching_machine`
+- `tempering_station`
+- `small_molding_station`
+- `medium_molding_station`
+- `large_molding_station`
+- `enrobing_machine`
+- `cooling_tunnel`
+- `wrapping_station`
+- `chocolate_storage_cabinet`
+
+## `de/rolandsw/schedulemc/chocolate/items/ChocolateItems.java` (35)
+
+- `cocoa_beans_raw`
+- `roasted_cocoa_beans`
+- `cocoa_nibs`
+- `cocoa_shells`
+- `cocoa_mass`
+- `cocoa_liquor`
+- `cocoa_butter`
+- `cocoa_powder`
+- `cocoa_cake`
+- `milk_powder`
+- `sugar_refined`
+- `vanilla_extract`
+- `lecithin`
+- `caramel`
+- `nougat`
+- `hazelnuts`
+- `almonds`
+- `roasted_hazelnuts`
+- `roasted_almonds`
+- `dried_fruits`
+- `raisins`
+- `conched_chocolate`
+- `tempered_chocolate`
+- `chocolate_mixture`
+- `chocolate_mold`
+- `chocolate_mold_bar`
+- `chocolate_mold_praline`
+- `chocolate_wrapper`
+- `chocolate_wrapper_gold`
+- `chocolate_box`
+- `chocolate_box_premium`
+- `chocolate_bar`
+- `chocolate_truffle`
+- `chocolate_praline`
+- `hot_chocolate_mix`
+
+## `de/rolandsw/schedulemc/coca/items/CocaItems.java` (12)
+
+- `bolivian_coca_seeds`
+- `colombian_coca_seeds`
+- `peruvian_coca_seeds`
+- `fresh_bolivian_coca_leaf`
+- `fresh_colombian_coca_leaf`
+- `fresh_peruvian_coca_leaf`
+- `coca_paste_bolivian`
+- `coca_paste_colombian`
+- `coca_paste_peruvian`
+- `cocaine`
+- `crack_rock`
+- `baking_powder`
+
+## `de/rolandsw/schedulemc/coffee/items/CoffeeItems.java` (21)
+
+- `arabica_seedling`
+- `robusta_seedling`
+- `liberica_seedling`
+- `excelsa_seedling`
+- `arabica_cherry`
+- `robusta_cherry`
+- `liberica_cherry`
+- `excelsa_cherry`
+- `green_arabica_beans`
+- `green_robusta_beans`
+- `green_liberica_beans`
+- `green_excelsa_beans`
+- `roasted_coffee_beans`
+- `ground_coffee`
+- `coffee_package`
+- `pulping_tool`
+- `roasting_tray`
+- `coffee_bag`
+- `vacuum_seal`
+- `brewed_coffee`
+- `espresso`
+
+## `de/rolandsw/schedulemc/economy/blocks/EconomyBlocks.java` (2)
+
+- `cash_block`
+- `atm`
+
+## `de/rolandsw/schedulemc/honey/blocks/HoneyBlocks.java` (14)
+
+- `beehive`
+- `advanced_beehive`
+- `apiary`
+- `honey_extractor`
+- `centrifugal_extractor`
+- `filtering_station`
+- `small_aging_chamber`
+- `medium_aging_chamber`
+- `large_aging_chamber`
+- `processing_station`
+- `creaming_station`
+- `bottling_station`
+- `honey_storage_barrel`
+- `honey_display_case`
+
+## `de/rolandsw/schedulemc/honey/items/HoneyItems.java` (22)
+
+- `honey_jar`
+- `raw_honeycomb`
+- `filtered_honeycomb`
+- `honeycomb_chunk`
+- `raw_honey_bucket`
+- `filtered_honey_bucket`
+- `liquid_honey_bottle`
+- `beeswax`
+- `beeswax_block`
+- `propolis`
+- `pollen`
+- `royal_jelly`
+- `glass_jar`
+- `jar_lid`
+- `jar_lid_gold`
+- `creamed_honey`
+- `crystallized_honey`
+- `honey_crystals`
+- `smoker`
+- `hive_tool`
+- `honey_candy`
+- `honeycomb_treat`
+
+## `de/rolandsw/schedulemc/items/ModItems.java` (3)
+
+- `plot_selection_tool`
+- `cash`
+- `packaged_drug`
+
+## `de/rolandsw/schedulemc/lock/items/LockItems.java` (13)
+
+- `simple_lock`
+- `security_lock`
+- `high_security_lock`
+- `combination_lock`
+- `dual_lock`
+- `key_blank_copper`
+- `key_blank_iron`
+- `key_blank_netherite`
+- `key_ring`
+- `lock_pick`
+- `hacking_code_cracker`
+- `hacking_bypass`
+- `hacking_omni`
+
+## `de/rolandsw/schedulemc/lsd/items/LSDItems.java` (6)
+
+- `ergot`
+- `blotter_paper`
+- `ergot_culture`
+- `lysergic_acid`
+- `lsd_solution`
+- `lsd_blotter`
+
+## `de/rolandsw/schedulemc/mdma/items/MDMAItems.java` (6)
+
+- `safrole`
+- `binding_agent`
+- `pill_dye`
+- `mdma_base`
+- `mdma_crystal`
+- `ecstasy_pill`
+
+## `de/rolandsw/schedulemc/meth/items/MethItems.java` (8)
+
+- `ephedrine`
+- `pseudoephedrine`
+- `red_phosphorus`
+- `iodine`
+- `meth_paste`
+- `raw_meth`
+- `crystal_meth`
+- `meth`
+
+## `de/rolandsw/schedulemc/mushroom/blocks/MushroomBlocks.java` (4)
+
+- `climate_lamp_small`
+- `climate_lamp_medium`
+- `climate_lamp_large`
+- `water_tank`
+
+## `de/rolandsw/schedulemc/mushroom/items/MushroomItems.java` (12)
+
+- `manure_bag_small`
+- `manure_bag_medium`
+- `manure_bag_large`
+- `spore_syringe_cubensis`
+- `spore_syringe_azurescens`
+- `spore_syringe_mexicana`
+- `fresh_cubensis`
+- `fresh_azurescens`
+- `fresh_mexicana`
+- `dried_cubensis`
+- `dried_azurescens`
+- `dried_mexicana`
+
+## `de/rolandsw/schedulemc/npc/items/NPCItems.java` (5)
+
+- `npc_spawner_tool`
+- `npc_location_tool`
+- `npc_leisure_tool`
+- `npc_patrol_tool`
+- `entity_remover`
+
+## `de/rolandsw/schedulemc/poppy/items/PoppyItems.java` (10)
+
+- `afghan_poppy_seeds`
+- `turkish_poppy_seeds`
+- `indian_poppy_seeds`
+- `afghan_poppy_pod`
+- `turkish_poppy_pod`
+- `indian_poppy_pod`
+- `raw_opium`
+- `morphine`
+- `heroin`
+- `scoring_knife`
+
+## `de/rolandsw/schedulemc/region/blocks/PlotBlocks.java` (2)
+
+- `plot_info_block`
+- `industrial_floor`
+
+## `de/rolandsw/schedulemc/secretdoors/SecretDoors.java` (5)
+
+- `secret_door`
+- `hatch`
+- `hidden_switch_stone`
+- `remote_control`
+- `elevator`
+
+## `de/rolandsw/schedulemc/tobacco/items/TobaccoItems.java` (26)
+
+- `virginia_seeds`
+- `burley_seeds`
+- `oriental_seeds`
+- `havana_seeds`
+- `fresh_virginia_leaf`
+- `fresh_burley_leaf`
+- `fresh_oriental_leaf`
+- `fresh_havana_leaf`
+- `dried_virginia_leaf`
+- `dried_burley_leaf`
+- `dried_oriental_leaf`
+- `dried_havana_leaf`
+- `fermented_virginia_leaf`
+- `fermented_burley_leaf`
+- `fermented_oriental_leaf`
+- `fermented_havana_leaf`
+- `fertilizer_bottle`
+- `growth_booster_bottle`
+- `quality_booster_bottle`
+- `watering_can`
+- `soil_bag_small`
+- `soil_bag_medium`
+- `soil_bag_large`
+- `packaging_bag`
+- `packaging_jar`
+- `packaging_box`
+
+## `de/rolandsw/schedulemc/warehouse/WarehouseBlocks.java` (1)
+
+- `warehouse`
+
+## `de/rolandsw/schedulemc/weapon/item/WeaponItems.java` (28)
+
+- `ak47_magazine`
+- `pistol_magazine`
+- `shotgun_shells`
+- `sniper_magazine`
+- `mp5_magazine`
+- `ammo_standard`
+- `ammo_ap`
+- `ammo_tracer`
+- `ammo_rubber`
+- `rifle_ammo`
+- `pistol_ammo`
+- `ak47`
+- `pistol`
+- `shotgun`
+- `sniper`
+- `revolver`
+- `mp5`
+- `baseball_bat`
+- `machete`
+- `combat_knife`
+- `frag_grenade`
+- `smoke_grenade`
+- `flash_grenade`
+- `scope`
+- `silencer`
+- `upgrade_single_precision`
+- `upgrade_burst`
+- `upgrade_auto`
+
+## `de/rolandsw/schedulemc/wine/blocks/WineBlocks.java` (11)
+
+- `crushing_station`
+- `small_wine_press`
+- `medium_wine_press`
+- `large_wine_press`
+- `small_fermentation_tank`
+- `medium_fermentation_tank`
+- `large_fermentation_tank`
+- `small_aging_barrel`
+- `medium_aging_barrel`
+- `large_aging_barrel`
+- `wine_bottling_station`
+
+## `de/rolandsw/schedulemc/wine/items/WineItems.java` (21)
+
+- `riesling_grape_seedling`
+- `pinot_noir_grape_seedling`
+- `chardonnay_grape_seedling`
+- `merlot_grape_seedling`
+- `riesling_grapes`
+- `pinot_noir_grapes`
+- `chardonnay_grapes`
+- `merlot_grapes`
+- `riesling_mash`
+- `pinot_noir_mash`
+- `chardonnay_mash`
+- `merlot_mash`
+- `riesling_juice`
+- `pinot_noir_juice`
+- `chardonnay_juice`
+- `merlot_juice`
+- `fermenting_wine`
+- `young_wine`
+- `wine_bottle`
+- `empty_wine_bottle`
+- `glass_of_wine`
+
+<!-- END SOURCE-ITEM-REGISTRY -->
