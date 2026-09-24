@@ -831,7 +831,7 @@ A complete vehicle system spanning 137 files, covering chassis types, engines, t
 
 ### 7. Smartphone System
 
-An in-game smartphone with 11+ applications providing access to most mod features through a unified mobile interface. Opening the smartphone activates PvP protection to prevent combat exploitation.
+An in-game smartphone with 15 applications providing access to most mod features through a unified mobile interface. Opening the smartphone activates PvP protection to prevent combat exploitation.
 
 **Apps:**
 

@@ -30,7 +30,7 @@ The Smartphone System provides a professional in-game GUI interface for accessin
 
 ### Key Features
 
-- **11 Built-in Apps** - MAP, DEALER, PRODUCTS, ORDER, CONTACTS, MESSAGES, PLOT, SETTINGS, BANK, CRIME STATS, CHAT
+- **15 Built-in Apps** - MAP, DEALER, PRODUCTS, ORDER, CONTACTS, MESSAGES, PLOT, SETTINGS, BANK, CRIME STATS, ACHIEVEMENT, TOWING, PRODUCER LEVEL, GANG, MISSIONS
 - **Default Keybind: P** - Configurable through Minecraft controls
 - **PvP Protection** - Damage immunity while smartphone is open
 - **Attacker Penalty** - Anyone who attacks a smartphone user gets +1 wanted star
@@ -49,7 +49,7 @@ The Smartphone System provides a professional in-game GUI interface for accessin
 **Action:**
 1. Press `P` anywhere in-game
 2. Smartphone GUI opens immediately
-3. Home screen displays all 11 apps
+3. Home screen displays all 15 apps
 
 **Configuring Keybind:**
 ```
@@ -71,7 +71,9 @@ Options -> Controls -> Key Binds -> ScheduleMC
 |  CONTACTS     MESSAGES            |
 |  PLOT         SETTINGS            |
 |  BANK         CRIME STATS         |
-|  CHAT                             |
+|  ACHIEVEMENT  TOWING              |
+|  PRODUCER LVL GANG                |
+|  MISSIONS                         |
 |                                   |
 |  Protected: PvP Immune            |
 +-----------------------------------+
@@ -262,16 +264,53 @@ Nearest Police: 50m - APPROACHING
 
 ---
 
-### 11. CHAT
+There is no separate CHAT app; player-to-player messaging is the MESSAGES
+app (#6) above. The home screen actually has **15 apps**, not 11 — the 4
+documented below were missing from this page.
 
-**Purpose:** Direct messaging and group chat
+### 11. ACHIEVEMENT
+
+**Purpose:** View achievement progress
 
 **Features:**
-- Private messages between players
-- Group chats
-- Share items and coordinates
-- Chat history
-- Block users
+- Progress bars for in-progress achievements
+- Unlocked achievement list with rewards claimed
+- Category filtering (Production, Economy, Social, Crime)
+
+### 12. TOWING
+
+**Purpose:** Towing service status and history
+
+**Features:**
+- View your vehicle's towing/impound status
+- See towing invoices and membership tier
+- Pay outstanding towing fees
+
+### 13. PRODUCER LEVEL
+
+**Purpose:** View producer level and XP progress
+
+**Features:**
+- Current level (1-30) and XP toward the next level
+- Unlocked production perks per level
+
+### 14. GANG
+
+**Purpose:** Gang management
+
+**Features:**
+- Gang roster, ranks, and reputation
+- Gang missions and territory overview
+- Gang perk tree
+
+### 15. MISSIONS
+
+**Purpose:** Track active missions
+
+**Features:**
+- Main story and side mission progress
+- Objective tracking
+- Rewards preview
 
 ---
 
@@ -378,7 +417,7 @@ Benefits of BANK app:
 #### 3. Quick Communication
 
 ```
-Use CHAT and MESSAGES apps:
+Use the MESSAGES app:
 - Coordinate with friends for trades
 - Negotiate prices before traveling to shops
 - Emergency contact during pursuits
