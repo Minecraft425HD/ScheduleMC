@@ -21,20 +21,20 @@ jobs:
           ref: docs/sync-code-claims
           fetch-depth: 0
 
-      - name: Restore files from main
-        run: git checkout origin/main -- README.md docs/ARCHITECTURE.md docs/CHANGELOG.md wiki/Home.md wiki/features/Plot-System.md
+      - name: Restore docs tree from main
+        run: git checkout origin/main -- README.md docs wiki
 
-      - name: Patch claims
+      - name: Patch claims in all markdown
         run: python3 scripts/restore_full_docs.py
 
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md docs/ARCHITECTURE.md docs/CHANGELOG.md wiki/Home.md wiki/features/Plot-System.md
+          git add README.md docs wiki
           if git diff --cached --quiet; then
             echo no changes
             exit 0
           fi
-          git commit -m "docs: restore full originals from main and patch claims to 3.9.0-beta"
+          git commit -m "docs: restore full docs/wiki from main and patch claims to 3.9.0-beta"
           git push origin HEAD:docs/sync-code-claims
