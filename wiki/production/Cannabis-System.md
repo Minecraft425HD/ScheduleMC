@@ -42,7 +42,7 @@ Cannabis production is one of the most sophisticated systems in ScheduleMC. It f
   Planted Pot  -->   Mature Plant  -->  Fresh Cannabis Buds
                                               |
                                               v
-                     [4. DRYING]         Trocknungsnetz
+                     [4. DRYING]         Tobacco Drying Rack
                       (Drying Net)       Time-based
                                               |
                                               v
@@ -87,9 +87,13 @@ Harvest at stage 7 for full yield. Early harvest (stages 4-6) gives only 50% yie
 
 ---
 
-## Step 3: Drying (Trocknungsnetz)
+## Step 3: Drying (Tobacco Drying Rack)
 
-Place fresh buds on the **Trocknungsnetz** (drying net) and wait. Quality, strain, and weight are all preserved.
+Cannabis has no dedicated drying block of its own — it shares the Tobacco
+System's Drying Rack blocks (`AbstractDryingRackBlockEntity`, which
+natively tracks `CannabisStrain`/quality alongside tobacco leaves). Place
+fresh buds on a Small/Medium/Big Drying Rack and wait. Quality, strain, and
+weight are all preserved.
 
 | Property | Value |
 |----------|-------|
@@ -239,7 +243,7 @@ Oil from trimmed buds gets +1 quality tier. Oil from trim is always Mids quality
 |------|-------------|-------------|
 | Cannabis Seeds | Strain-specific planting seeds (Indica/Sativa/Hybrid/Autoflower) | Purchase / loot |
 | Fresh Cannabis Buds | Unprocessed harvested buds | Harvesting mature plant |
-| Dried Cannabis Buds | Moisture-removed buds | Trocknungsnetz (Drying Net) |
+| Dried Cannabis Buds | Moisture-removed buds | Tobacco Drying Rack (Drying Net) |
 | Trimmed Cannabis Buds | Quality-graded buds | Trimm Station minigame |
 | Cannabis Trim | Leaf by-product from trimming | Trimm Station (50% of input weight) |
 | Cured Cannabis Buds | Long-term aged buds | Curing Glas (14-28 days) |
@@ -258,7 +262,7 @@ Oil from trimmed buds gets +1 quality tier. Oil from trim is always Mids quality
 | Ceramic Pot | Improved pot | Better water retention |
 | Iron Pot | Industrial pot | Durable, good value |
 | Golden Pot | Premium pot | +1 quality tier on harvest |
-| Trocknungsnetz (Drying Net) | Passive drying station | Dries 4 buds over 3 Minecraft days |
+| Tobacco Drying Rack (Drying Net) | Passive drying station | Dries 4 buds over 3 Minecraft days |
 | Trimm Station | Interactive trimming station | Timing minigame; determines quality |
 | Curing Glas (Curing Jar) | Long-term aging container | +1 or +2 quality tiers over 14-28 days |
 | Hash Press | Trim-to-hash press | Converts 20g+ trim into concentrated hash |

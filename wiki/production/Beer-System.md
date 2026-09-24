@@ -19,18 +19,18 @@ Das Bier-System bietet einen vollstaendigen Brauprozess vom Malz bis zur fertige
 
 | Qualitaet | Farbe | Preis-Multiplikator |
 |-----------|-------|---------------------|
-| SCHLECHT | Rot | 0,7x |
-| GUT | Gelb | 1,0x |
-| SEHR GUT | Gruen | 1,5x |
-| LEGENDAER | Gold | 2,5x |
+| POOR | Rot | 0,7x |
+| GOOD | Gelb | 1,0x |
+| VERY_GOOD | Gruen | 1,5x |
+| LEGENDARY | Gold | 2,5x |
 
 ## Reifungsstufen
 
 | Stufe | Zeitraum | Preis-Multiplikator |
 |-------|---------|---------------------|
-| JUNG | 0-14 Tage | 1,0x |
-| GEREIFT | 15-60 Tage | 1,2x |
-| GEALTERT | 61+ Tage | 1,4x |
+| YOUNG | 0-14 Tage | 1,0x |
+| MATURED | 15-60 Tage | 1,2x |
+| AGED | 61+ Tage | 1,4x |
 
 ## Verarbeitungsmethoden
 
