@@ -9,13 +9,13 @@ The Weapon System adds a complete combat overhaul to ScheduleMC, including firea
 | Category | Items | Count |
 |---|---|---|
 | Guns | AK-47, Pistol, Revolver, Shotgun, Sniper Rifle, MP5 | 6 |
-| Magazines | AK47, Pistol, Shotgun, Sniper, MP5 | 5 |
-| Melee weapons | Baseball Bat, Machete, Combat Knife | 3 |
+| Magazines | Pistol, Rifle, Shotgun, Sniper, SMG, Heavy | 6 |
+| Melee weapons | Baseball Bat, Machete, Combat Knife, (base class) | 3 playable |
 | Grenades | Frag, Smoke, Flash | 3 |
-| Attachments | Scope, Silencer | 2 |
+| Attachments | Scope, Silencer, Laser | 3 |
 | Fire-mode upgrades | Single Precision, Burst Fire, Auto Fire | 3 |
-| Ammo types | standard, AP, tracer, rubber + legacy rifle/pistol | 6 |
-| **Total registered items in `WeaponItems`** | | **26** |
+| Legacy ammo | ammo_pistol, ammo_rifle, ammo_shotgun, ammo_sniper, ammo_smg, ammo_heavy | 6 |
+| **Total registered items** | | **29** |
 
 ---
 
@@ -92,7 +92,7 @@ Up to **2 attachments** can be applied to any gun. Attachments are stored by typ
 |---|---|
 | Scope | Zooms FOV while holding Shift; narrows bullet spray cone |
 | Silencer | Suppresses the `weapon_gun_shot` sound (plays `weapon_click` instead) |
-| Laser | **Not registered** in `WeaponItems` — no `LaserAttachment` class in source |
+| Laser | Renders a visible laser beam from the gun barrel (client-side renderer) |
 
 Attachments are applied and removed by right-clicking the gun with the attachment item in hand.
 
@@ -183,7 +183,7 @@ Bullets are discarded (`entity.discard()`) when they exceed the configured range
 
 ```
 weapon/
-├── attachment/          Attachment data class, WeaponAttachments registry, Scope + Silencer items
+├── attachment/          Attachment data class, WeaponAttachments registry, 3 attachment items
 ├── client/              WeaponClientSetup — entity renderers + particle providers
 ├── config/              WeaponConfig (ForgeConfigSpec)
 ├── entity/              WeaponBulletEntity, ThrownWeaponGrenade, WeaponEntities registry
@@ -191,7 +191,7 @@ weapon/
 ├── gun/                 GunProperties builder, GunItem base, 6 concrete gun classes
 ├── handler/             WeaponServerEventHandler (auto-fire, left-click cancel)
 │                        WeaponClientEventHandler (HUD, scope, input handling)
-├── item/                WeaponItems — DeferredRegister with 26 items
+├── item/                WeaponItems — DeferredRegister with all 29 items
 ├── melee/               MeleeWeaponItem base, Baseball Bat, Machete, Combat Knife
 ├── network/             WeaponPackets channel, 5 packet classes
 ├── particle/            WeaponParticles — muzzle flash + blood particle types
@@ -204,12 +204,14 @@ weapon/
 
 ## Creative Tab
 
-Registered weapon items appear in the **Weapons** creative tab (`schedulemc.weapon_tab`), ordered as:
+All 29 weapon items appear in the **Weapons** creative tab (`schedulemc.weapon_tab`), ordered as:
 magazines → guns → melee weapons → grenades → attachments → upgrades → legacy ammo items.
 
 ---
 
 ## Dokumentationsstatus
 
-- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-09-24**.
-- Registry-Stand: `WeaponItems.java` (kein Laser-Attachment, kein Heavy-Magazin).
+- Zuletzt gegen den aktuellen Repository-Stand abgeglichen am **2026-04-13**.
+- Diese Datei wurde im Rahmen der Vollständigkeits-Aktualisierung überarbeitet.
+- Referenz für Live-Metriken: `docs/REPO_METRICS.md` (neu generiert).
+

@@ -67,7 +67,7 @@ Detailed documentation for each major game system.
 | Page | System | Summary |
 |---|---|---|
 | [Economy System](features/Economy-System.md) | Banking, Loans, and Taxes | Full financial ecosystem with bank accounts, ATMs, physical cash, 3-tier loans, savings accounts, recurring payments, overdraft protection, shop investments, property/sales/income taxes, daily rewards with streak bonuses, and a government treasury |
-| [Plot System](features/Plot-System.md) | Land Management | 5 plot types (Residential, Commercial, Shop, Public, Government), chunk-based spatial indexing for O(1) lookups, apartment sub-leasing, 5-star rating system, trusted player permissions, block and inventory protection, daily rent with auto-eviction, and 50% refund on abandonment |
+| [Plot System](features/Plot-System.md) | Land Management | 8 plot types (Residential, Commercial, Industrial, Shop, Public, Government, Prison, Towing Yard), chunk-based spatial indexing for O(1) lookups, apartment sub-leasing, 5-star rating system, trusted player permissions, block and inventory protection, daily rent with auto-eviction, and 50% refund on abandonment |
 | [NPC System](features/NPC-System.md) | AI Characters | Schedule-driven NPCs with 4 personality types, 3 NPC roles (Resident, Merchant, Police), custom player skins, shop and warehouse integration, relationship system, wallet and salary mechanics, pathfinding AI, and interactive dialogue |
 | [Police and Crime System](features/Police-Crime-System.md) | Law Enforcement | GTA-inspired 5-star wanted level system with auto-decay, police AI with chase and arrest mechanics, backup calling, prison system with cells and bail, raid penalties, door blocking during pursuits, and PvP crime detection |
 | [Vehicle System](features/Vehicle-System.md) | Drivable Vehicles | 5 vehicle types (Limousine, Van, Truck, SUV, Sports Car), modular parts system (engines, tires, chassis, fenders, fuel tanks), fuel stations, garage blocks, license plates, vehicle damage, OBJ model support via CoreLib, and 137 dedicated Java files |
@@ -79,7 +79,7 @@ Detailed documentation for each major game system.
 | [Territory System](features/Territory-System.md) | Gang Territories | Chunk-based territory control with 10 color-coded zone types, map editor, economic and crime bonuses, and real-time synchronization |
 | [Lock System](features/Lock-System.md) | Door Security | 5 lock types (Simple, Security, High-Security, Combination, Dual), key management with 3 origins, lockpicking, hacking tools, and combination code entry |
 | [Towing System](features/Towing-System.md) | Vehicle Towing | Membership-based towing service (Bronze/Silver/Gold tiers), invoice payment via NPC, distance-based pricing, revenue tracking, and smartphone integration |
-| [Achievement System](features/Achievement-System.md) | Player Achievements | 24 achievements across 5 categories with 5 difficulty tiers (Bronze to Platinum), automatic tracking, monetary rewards up to 50,000 EUR |
+| [Achievement System](features/Achievement-System.md) | Player Achievements | ~35 achievements across 4 used categories with 5 difficulty tiers (Bronze to Platinum), automatic tracking, monetary rewards up to 50,000 EUR |
 | [Level System](features/Level-System.md) | Producer Progression | Level 0-30 progression with 53 unlockable features, XP from production and sales, unlock system for strains, machines, vehicles, and economy features |
 | [MapView System](features/MapView-System.md) | In-Game Map | Advanced map renderer with minimap, world map, A* road navigation, NPC display, territory overlay, and configurable display settings |
 | [Messaging System](features/Messaging-System.md) | Communication | Player-to-player and player-to-NPC messaging with persistent history, reputation-based NPC responses, real-time notifications, and smartphone integration |
@@ -87,7 +87,7 @@ Detailed documentation for each major game system.
 | [Mission System](features/Mission-System.md) | Player Missions | Story missions (Hauptmissionen) and repeatable side missions (Nebenmissionen), four-state lifecycle (AVAILABLE → ACTIVE → COMPLETED → CLAIMED), XP and money rewards, prerequisite chains, and NPC giver support |
 | [Utility System](features/Utility-System.md) | Electricity & Water | Per-plot electricity and water consumption tracking for 40+ block types, 7-day rolling average via circular buffer, 9 consumption categories, police integration for anomaly detection |
 | [Player Settings System](features/Player-Settings-System.md) | Player Preferences | Per-player configurable utility warning thresholds, persistent player contact registry for the Contacts App, built-in service contacts (Towing, Taxi, etc.), and network sync |
-| [Weapon System](features/Weapon-System.md) | Combat & Firearms | 6 guns (AK-47, Pistol, Revolver, Shotgun, Sniper, MP5), 4 melee weapons, 3 grenade types, 3 attachments (Scope/Silencer/Laser), 3 fire-mode upgrades, NBT-based gun state, client HUD, and auto-fire loop |
+| [Weapon System](features/Weapon-System.md) | Combat & Firearms | 6 guns (AK-47, Pistol, Revolver, Shotgun, Sniper, MP5), 4 melee weapons, 3 grenade types, 2 attachments (Scope/Silencer), 3 fire-mode upgrades, NBT-based gun state, client HUD, and auto-fire loop |
 
 ---
 

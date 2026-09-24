@@ -1025,7 +1025,7 @@ A progression system tracking player experience across production and other acti
 
 ### Achievement System
 
-A comprehensive achievement tracking system with 24 achievements across 5 categories, rewarding players for milestones in production, economy, social, crime, and exploration activities.
+A comprehensive achievement tracking system with ~35 achievements across 4 used categories, rewarding players for milestones in production, economy, social, crime, and exploration activities.
 
 **Features:**
 - **24 achievements** across 5 categories: Production, Economy, Social, Crime, and Exploration

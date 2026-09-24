@@ -22,4 +22,4 @@ From `gradle.properties`:
 
 README.md, docs/ARCHITECTURE.md, wiki/Home.md, wiki/features/Plot-System.md, wiki/features/Weapon-System.md, wiki/features/Achievement-System.md, gradle.properties, mods.toml, update.json, docs/CHANGELOG.md (3.9 notes; older history shortened), docs/README_ERRATA.md.
 
-Remaining `v3.8.0-beta` footers on other wiki feature pages mean 3.9.0-beta.
+Remaining `v3.9.0-beta` footers on other wiki feature pages mean 3.9.0-beta.
