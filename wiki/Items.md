@@ -177,13 +177,14 @@ Cannabis cultivation and processing items covering seeds, four processing stages
 |------|-------------|-------------|---------------|
 | Cannabis Trim | `cannabis_trim` | Leaf trimmings from the trimming process. Stacks to 64. Used for hash production (4 trim = 1 hash). | By-product of Trimm Station |
 | Cannabis Hash | `cannabis_hash` | Pressed concentrate from trim or buds. Stacks to 16. Quality inherited from source material. | Hash Presse (4 trim or 2 cured buds) |
-| Cannabis Oil | `cannabis_oil` | Extracted oil concentrate, 3x potency of buds. Stacks to 16. | Oel Extraktor (3 cured buds + solvent) |
+| Cannabis Oil | `cannabis_oil` | Extracted oil concentrate, 3x potency of buds. Stacks to 16. | Oil Extractor (3 cured buds + solvent) |
 
 ### Processing Tools
 
+`pollen_press_mold` does not exist as a registered item.
+
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Pollen Press Mold | `pollen_press_mold` | Required tool for the Hash Presse block. 100 uses before breaking. Does not stack. | Crafting |
 | Extraction Solvent | `extraction_solvent` | Chemical solvent consumed during oil extraction. Stacks to 16. 1 consumed per extraction cycle. | Crafting or NPC trading |
 
 ---
@@ -212,7 +213,7 @@ Three coca strains, fresh leaves, and the cocaine/crack processing chain along w
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Coca Paste | `coca_paste` | Brown intermediate paste from leaf extraction. Stacks to 16. Requires diesel and leaves. | Extraction Vat (leaves + diesel canister) |
+| Coca Paste | `coca_paste_bolivian` / `coca_paste_colombian` / `coca_paste_peruvian` | Brown intermediate paste from leaf extraction, one registered item per coca strain (there is no plain `coca_paste`). Stacks to 16. Requires diesel and leaves. | Extraction Vat (leaves + diesel canister) |
 | Cocaine | `cocaine` | White powder refined from coca paste. Stacks to 16. Purity 70-95%. Packageable. | Refinery (from coca paste) |
 | Crack Rock | `crack_rock` | Crystallized form of cocaine cooked with baking soda. Stacks to 16. Packageable. | Crack Cooker (cocaine + baking_powder) |
 | Baking Powder | `baking_powder` | Baking soda, a required reagent for crack production. Stacks to 64. Ratio 1:1 with cocaine. | Crafting or NPC trading |
@@ -235,7 +236,7 @@ Three poppy strains and the full opium-to-heroin refinement chain.
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Poppy Pod | `poppy_pod` | Harvested seed pod from mature poppy plant. Stacks to 16. Must be scored to extract opium. | Harvest mature poppy plant |
+| Poppy Pod | `afghan_poppy_pod` / `turkish_poppy_pod` / `indian_poppy_pod` | Harvested seed pod, one registered item per poppy strain (there is no plain `poppy_pod`). Stacks to 16. Must be scored to extract opium. | Harvest mature poppy plant |
 | Raw Opium | `raw_opium` | Dark brown raw opium extracted from scored pods. Stacks to 16. Intermediate product. | Ritzmaschine or Scoring Knife |
 | Morphine | `morphine` | Morphine base refined from pressed opium. Stacks to 16. Purity 60-85%. | Kochstation (cooking station) |
 | Heroin | `heroin` | White powder refined from morphine. Stacks to 16. Purity 80-99%. Packageable. | Heroin Raffinerie |
@@ -421,14 +422,14 @@ Complete brewing chain from grain to bottle, including 3 grains, malts, hops, ye
 
 ## Wine Items (21 in `WineItems.java`)
 
-Winemaking chain from grape seedling to bottled wine, covering 4 grape varieties (Riesling, Spaetburgunder, Chardonnay, Merlot).
+Winemaking chain from grape seedling to bottled wine, covering 4 grape varieties (Riesling, Pinot Noir, Chardonnay, Merlot).
 
 ### Seedlings (4)
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
 | Riesling Grape Seedling | `riesling_grape_seedling` | Seedling for Riesling white wine grapes (WineType.RIESLING). | NPC trading or admin command |
-| Spaetburgunder Grape Seedling | `spaetburgunder_grape_seedling` | Seedling for Spaetburgunder (Pinot Noir) red wine grapes (WineType.SPAETBURGUNDER). | NPC trading or admin command |
+| Pinot Noir Grape Seedling | `pinot_noir_grape_seedling` | Seedling for Pinot Noir red wine grapes (WineType.PINOT_NOIR). | NPC trading or admin command |
 | Chardonnay Grape Seedling | `chardonnay_grape_seedling` | Seedling for Chardonnay white wine grapes (WineType.CHARDONNAY). | NPC trading or admin command |
 | Merlot Grape Seedling | `merlot_grape_seedling` | Seedling for Merlot red wine grapes (WineType.MERLOT). | NPC trading or admin command |
 
@@ -437,7 +438,7 @@ Winemaking chain from grape seedling to bottled wine, covering 4 grape varieties
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
 | Riesling Grapes | `riesling_grapes` | Harvested Riesling grapes. Edible (2 nutrition). | Harvest grapevine |
-| Spaetburgunder Grapes | `spaetburgunder_grapes` | Harvested Spaetburgunder grapes. Edible (2 nutrition). | Harvest grapevine |
+| Pinot Noir Grapes | `pinot_noir_grapes` | Harvested Pinot Noir grapes. Edible (2 nutrition). | Harvest grapevine |
 | Chardonnay Grapes | `chardonnay_grapes` | Harvested Chardonnay grapes. Edible (2 nutrition). | Harvest grapevine |
 | Merlot Grapes | `merlot_grapes` | Harvested Merlot grapes. Edible (2 nutrition). | Harvest grapevine |
 
@@ -446,11 +447,11 @@ Winemaking chain from grape seedling to bottled wine, covering 4 grape varieties
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
 | Riesling Mash | `riesling_mash` | Crushed Riesling grape mash. | Crushing Station |
-| Spaetburgunder Mash | `spaetburgunder_mash` | Crushed Spaetburgunder grape mash. | Crushing Station |
+| Pinot Noir Mash | `pinot_noir_mash` | Crushed Pinot Noir grape mash. | Crushing Station |
 | Chardonnay Mash | `chardonnay_mash` | Crushed Chardonnay grape mash. | Crushing Station |
 | Merlot Mash | `merlot_mash` | Crushed Merlot grape mash. | Crushing Station |
 | Riesling Juice | `riesling_juice` | Pressed Riesling grape juice ready for fermentation. | Wine Press |
-| Spaetburgunder Juice | `spaetburgunder_juice` | Pressed Spaetburgunder grape juice. | Wine Press |
+| Pinot Noir Juice | `pinot_noir_juice` | Pressed Pinot Noir grape juice. | Wine Press |
 | Chardonnay Juice | `chardonnay_juice` | Pressed Chardonnay grape juice. | Wine Press |
 | Merlot Juice | `merlot_juice` | Pressed Merlot grape juice. | Wine Press |
 
@@ -460,18 +461,16 @@ Winemaking chain from grape seedling to bottled wine, covering 4 grape varieties
 |------|-------------|-------------|---------------|
 | Fermenting Wine | `fermenting_wine` | Wine actively undergoing fermentation. | Fermentation Tank |
 | Young Wine | `young_wine` | Unmatured wine that requires aging. | Fermentation Tank (completed) |
-| Wine Bottle 375ml | `wine_bottle_375ml` | Half-bottle of wine with NBT data. Stacks to 16. | Bottling Station |
-| Wine Bottle 750ml | `wine_bottle_750ml` | Standard bottle of wine with NBT data. Stacks to 16. | Bottling Station |
-| Wine Bottle 1500ml | `wine_bottle_1500ml` | Magnum bottle of wine with NBT data. Stacks to 8. | Bottling Station |
+| Wine Bottle | `wine_bottle` | Bottle of wine; volume (default 0.75L) and other data tracked via constructor/NBT, not separate registry IDs. Stacks to 16. | Bottling Station |
 | Glass of Wine | `glass_of_wine` | Poured glass of wine for consumption. Provides buffs. Stacks to 1. | Pouring from bottle |
 
-### Empty Bottles (3)
+### Empty Bottles (1)
+
+There is a single `empty_wine_bottle` item, not separate 375ml/750ml/1500ml registry IDs.
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Empty Wine Bottle 375ml | `empty_wine_bottle_375ml` | Empty half-bottle for filling. | Crafting |
-| Empty Wine Bottle 750ml | `empty_wine_bottle_750ml` | Empty standard bottle for filling. | Crafting |
-| Empty Wine Bottle 1500ml | `empty_wine_bottle_1500ml` | Empty magnum bottle for filling. | Crafting |
+| Empty Wine Bottle | `empty_wine_bottle` | Empty bottle for filling. | Crafting |
 
 ---
 
@@ -515,33 +514,34 @@ Full coffee production from seedling to brewed cup across 4 varieties (Arabica, 
 | Brewed Coffee | `brewed_coffee` | Hot brewed coffee. Consumable with energy/speed buffs. | Brewing (in development) |
 | Espresso | `espresso` | Concentrated espresso shot. Stronger buffs than brewed coffee. | Brewing (in development) |
 
-### Packages (3)
+### Packages (1)
+
+There is a single `coffee_package` item, not separate 250g/500g/1kg
+registry IDs; size is presumably tracked via NBT like other production
+chains' weight fields.
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Coffee Package 250g | `coffee_package_250g` | 250g packaged coffee for sale. | Coffee Packaging Table |
-| Coffee Package 500g | `coffee_package_500g` | 500g packaged coffee for sale. | Coffee Packaging Table |
-| Coffee Package 1kg | `coffee_package_1kg` | 1kg packaged coffee for sale. | Coffee Packaging Table |
+| Coffee Package | `coffee_package` | Packaged coffee for sale. | Coffee Packaging Table |
 
-### Tools & Boosters (7)
+### Tools (2)
+
+`coffee_watering_can`, `coffee_fertilizer`, `growth_accelerator`, and
+`quality_enhancer` do not exist as registered items.
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Coffee Watering Can | `coffee_watering_can` | Watering can for coffee plants. 100 durability. Stacks to 1. | Crafting |
-| Pulping Tool | `pulping_tool` | Tool for removing cherry pulp from beans. 200 durability. Stacks to 1. | Crafting |
+| Pulping Tool | `pulping_tool` | Tool for removing cherry pulp from beans. Stacks to 1. | Crafting |
 | Roasting Tray | `roasting_tray` | Tray used in the roasting process. Stacks to 16. | Crafting |
-| Coffee Fertilizer | `coffee_fertilizer` | Growth booster for coffee plants. Stacks to 64. | Crafting or NPC trading |
-| Growth Accelerator | `growth_accelerator` | Speeds up coffee plant growth. Stacks to 64. | Crafting or NPC trading |
-| Quality Enhancer | `quality_enhancer` | Improves coffee bean quality tier. Stacks to 64. | Crafting or NPC trading |
-| Vacuum Seal | `vacuum_seal` | Sealing material for coffee packages. Stacks to 64. | Crafting |
 
-### Packaging Bags (3)
+### Packaging (2)
+
+There is a single `coffee_bag` item, not separate small/medium/large
+registry IDs. `vacuum_seal` does not exist as a registered item.
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Small Coffee Bag | `coffee_bag_small` | Small bag for 250g coffee packages. Stacks to 64. | Crafting |
-| Medium Coffee Bag | `coffee_bag_medium` | Medium bag for 500g coffee packages. Stacks to 64. | Crafting |
-| Large Coffee Bag | `coffee_bag_large` | Large bag for 1kg coffee packages. Stacks to 64. | Crafting |
+| Coffee Bag | `coffee_bag` | Bag for packaged coffee. Stacks to 64. | Crafting |
 
 ---
 
@@ -563,32 +563,25 @@ Cheese production from milk to aged wheels and wedges, with 5 varieties (Standar
 | Cheese Curd | `cheese_curd` | Curdled milk with quality tracking. Ready for pressing. | Curdling Vat (milk + rennet) |
 | Whey | `whey` | Liquid by-product of cheese curdling. | By-product of Curdling Vat |
 
-### Cheese Wheels (5)
+### Cheese Wheel (1 item, 4 type variants)
+
+There is only **one** registered wheel item, `cheese_wheel`
+(`CheeseWheelItem`); Gouda/Emmental/Camembert/Parmesan are `CheeseType` NBT
+variants of it, not separate registry IDs. There is also no separate wedge
+item — cheese is not cut into wedges as an item.
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Cheese Wheel | `cheese_wheel` | Standard cheese wheel. Stacks to 1. Cut into wedges for sale/consumption. | Cheese Press + Aging Cave |
-| Gouda Wheel | `gouda_wheel` | Gouda cheese wheel with mild, creamy flavor. Stacks to 1. | Cheese Press + Aging Cave |
-| Emmental Wheel | `emmental_wheel` | Emmental (Swiss) cheese wheel with characteristic holes. Stacks to 1. | Cheese Press + Aging Cave |
-| Camembert Wheel | `camembert_wheel` | Camembert soft cheese wheel with white rind. Stacks to 1. | Cheese Press + Aging Cave |
-| Parmesan Wheel | `parmesan_wheel` | Parmesan hard cheese wheel, longest aging time. Stacks to 1. | Cheese Press + Aging Cave (extended) |
+| Cheese Wheel | `cheese_wheel` | Cheese wheel; NBT tracks `CheeseType` (Gouda/Emmental/Camembert/Parmesan), quality, and age. Stacks to 1. | Cheese Press + Aging Cave |
 
-### Cheese Wedges (5) -- Consumable
+`CheeseProcessingMethod` (SMOKED, HERB) is a further NBT-tracked processing
+variant on the same item — `smoked_cheese` and `herb_cheese` are not
+separate registered items either.
 
-| Name | Registry ID | Description | How to Obtain |
-|------|-------------|-------------|---------------|
-| Cheese Wedge | `cheese_wedge` | Standard cheese wedge. Edible (4 nutrition, 0.6 saturation). | Cut from Cheese Wheel |
-| Gouda Wedge | `gouda_wedge` | Gouda cheese wedge. Edible (4 nutrition, 0.6 saturation). | Cut from Gouda Wheel |
-| Emmental Wedge | `emmental_wedge` | Emmental cheese wedge. Edible (5 nutrition, 0.7 saturation). | Cut from Emmental Wheel |
-| Camembert Wedge | `camembert_wedge` | Camembert cheese wedge. Edible (4 nutrition, 0.8 saturation). | Cut from Camembert Wheel |
-| Parmesan Wedge | `parmesan_wedge` | Parmesan cheese wedge. Edible (6 nutrition, 0.8 saturation). Best stats. | Cut from Parmesan Wheel |
-
-### Specialty & Packaging (5)
+### Specialty & Packaging (3)
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Smoked Cheese | `smoked_cheese` | Smoke-flavored cheese. Edible (5 nutrition, 0.7 saturation). | Smoking process |
-| Herb Cheese | `herb_cheese` | Herb-infused cheese. Edible (5 nutrition, 0.8 saturation). | Herb infusion process |
 | Cheese Cloth | `cheese_cloth` | Cloth wrap for aging cheese. | Crafting |
 | Wax Coating | `wax_coating` | Wax coating to seal cheese wheels during aging. | Crafting |
 | Cheese Paper | `cheese_paper` | Paper wrapping for finished cheese products. | Crafting |
@@ -663,9 +656,7 @@ Bean-to-bar chocolate production with cocoa processing, additives, molds, and fi
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Chocolate Bar 100g | `chocolate_bar_100g` | 100g chocolate bar with NBT data (type, quality, ingredients). Stacks to 16. | Molding Station |
-| Chocolate Bar 200g | `chocolate_bar_200g` | 200g chocolate bar with NBT data. Stacks to 16. | Molding Station |
-| Chocolate Bar 500g | `chocolate_bar_500g` | 500g chocolate bar with NBT data. Stacks to 8. | Molding Station |
+| Chocolate Bar | `chocolate_bar` | Chocolate bar; weight (default 100g), type, quality and ingredients are tracked via NBT (`WeightKg`), not separate registry IDs. Stacks to 16. | Molding Station |
 | Chocolate Truffle | `chocolate_truffle` | Handcrafted chocolate truffle. Edible (4 nutrition, 0.6 saturation). Stacks to 16. | Enrobing Machine |
 | Chocolate Praline | `chocolate_praline` | Filled chocolate praline. Edible (3 nutrition, 0.5 saturation). Stacks to 16. | Molding Station (praline mold) |
 | Hot Chocolate Mix | `hot_chocolate_mix` | Instant hot chocolate powder mix. | Grinding + mixing |
@@ -680,9 +671,7 @@ Beekeeping and honey production: raw materials, processing stages, by-products, 
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Honey Jar 250g | `honey_jar_250g` | 250g jar of honey with NBT data (type, quality, origin). Stacks to 16. | Bottling Station |
-| Honey Jar 500g | `honey_jar_500g` | 500g jar of honey with NBT data. Stacks to 16. | Bottling Station |
-| Honey Jar 1kg | `honey_jar_1kg` | 1kg jar of honey with NBT data. Stacks to 12. | Bottling Station |
+| Honey Jar | `honey_jar` | Jar of honey; size, type, quality, and origin are tracked via NBT, not separate registry IDs. Stacks to 16. | Bottling Station |
 
 ### Raw Honeycomb (3)
 
@@ -714,9 +703,7 @@ Beekeeping and honey production: raw materials, processing stages, by-products, 
 
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Glass Jar | `glass_jar` | Standard glass jar for honey. | Crafting |
-| Small Glass Jar | `glass_jar_small` | Small glass jar (250g). | Crafting |
-| Large Glass Jar | `glass_jar_large` | Large glass jar (1kg). | Crafting |
+| Glass Jar | `glass_jar` | Glass jar for honey (single item; no separate small/large registry IDs). | Crafting |
 | Jar Lid | `jar_lid` | Standard metal lid for jars. | Crafting |
 | Gold Jar Lid | `jar_lid_gold` | Premium gold-colored lid for jars. | Crafting |
 
@@ -760,11 +747,16 @@ Modular vehicle system with complete vehicles, individual parts, fuel, tools, an
 
 ### Engines (3)
 
-| Name | Registry ID | Description | How to Obtain |
-|------|-------------|-------------|---------------|
-| Normal Motor | `normal_motor` | Standard engine. 100 HP, standard fuel efficiency, 1.0x speed. | Crafting or NPC trading |
-| Performance Motor | `performance_motor` | Upgraded engine. 150 HP, poor fuel efficiency, 1.5x speed. | Crafting or NPC trading |
-| Performance 2 Motor | `performance_2_motor` | Top-tier engine. 200 HP, good fuel efficiency, high speed. | Crafting (expensive) |
+Engines are **not obtainable items** — `normal_motor`/`performance_motor`/
+`performance_2_motor` are `Part` configuration objects in `PartRegistry`,
+selected and paid for directly in the Vehicle Workshop GUI (`GuiWorkshop`),
+with no crafting recipe and no item form.
+
+| Name | Registry ID | Description |
+|------|-------------|-------------|
+| Normal Motor | `normal_motor` | Standard engine. 100 HP, standard fuel efficiency, 1.0x speed. |
+| Performance Motor | `performance_motor` | Upgraded engine. 150 HP, poor fuel efficiency, 1.5x speed. |
+| Performance 2 Motor | `performance_2_motor` | Top-tier engine. 200 HP, good fuel efficiency, high speed. |
 
 ### Tires - Standard (3)
 
@@ -784,48 +776,61 @@ Modular vehicle system with complete vehicles, individual parts, fuel, tools, an
 
 ### Chassis (5)
 
-| Name | Registry ID | Description | How to Obtain |
-|------|-------------|-------------|---------------|
-| Limousine Chassis | `limousine_chassis` | Sedan body frame. 4 seats, 2 module slots, lightweight. | Crafting or NPC trading |
-| Van Chassis | `van_chassis` | Van body frame. 8 seats, 4 module slots, medium weight. | Crafting or NPC trading |
-| Truck Chassis | `truck_chassis` | Truck body frame. 2 seats, 6 module slots, heavy. | Crafting or NPC trading |
-| Offroad Chassis | `offroad_chassis` | SUV body frame. 5 seats, 3 module slots, medium weight, off-road capable. | Crafting or NPC trading |
-| Luxus Chassis | `luxus_chassis` | Sports car body frame. 2 seats, 2 module slots, lightweight, aerodynamic. | Crafting or NPC trading |
+Like engines, chassis are workshop-only `Part` configs — not items.
+
+| Name | Registry ID | Description |
+|------|-------------|-------------|
+| Limousine Chassis | `limousine_chassis` | Sedan body frame. 4 seats, 2 module slots, lightweight. |
+| Van Chassis | `van_chassis` | Van body frame. 8 seats, 4 module slots, medium weight. |
+| Truck Chassis | `truck_chassis` | Truck body frame. 2 seats, 6 module slots, heavy. |
+| Offroad Chassis | `offroad_chassis` | SUV body frame. 5 seats, 3 module slots, medium weight, off-road capable. |
+| Luxus Chassis | `luxus_chassis` | Sports car body frame. 2 seats, 2 module slots, lightweight, aerodynamic. |
 
 ### Fenders (3)
 
-| Name | Registry ID | Description | How to Obtain |
-|------|-------------|-------------|---------------|
-| Basic Fender | `fender_basic` | Standard bumper with basic impact protection. | Crafting |
-| Chrome Fender | `fender_chrome` | Chrome-plated bumper. +10% durability, shiny appearance. | Crafting |
-| Sport Fender | `fender_sport` | Aerodynamic sport bumper. +5% speed bonus. | Crafting |
+Workshop-only `Part` configs — not items.
 
-### Modules (3)
+| Name | Registry ID | Description |
+|------|-------------|-------------|
+| Basic Fender | `fender_basic` | Standard bumper with basic impact protection. |
+| Chrome Fender | `fender_chrome` | Chrome-plated bumper. +10% durability, shiny appearance. |
+| Sport Fender | `fender_sport` | Aerodynamic sport bumper. +5% speed bonus. |
 
-| Name | Registry ID | Description | How to Obtain |
-|------|-------------|-------------|---------------|
-| Cargo Module | `cargo_module` | Adds 16 inventory slots to the vehicle for item storage. | Crafting or NPC trading |
-| Fluid Module | `fluid_module` | Adds 1000L liquid tank capacity to the vehicle. | Crafting or NPC trading |
-| License Plate Holder | `license_sign_mount` | Mounting bracket for displaying a license plate on the vehicle. | Crafting |
+### Modules (2)
+
+Workshop-only `Part` configs — not items. (There is no separate license
+plate holder part; the license plate itself is an `InternalVehiclePartItem`
+variant added automatically when a vehicle is spawned.)
+
+| Name | Registry ID | Description |
+|------|-------------|-------------|
+| Cargo Module | `cargo_module` | Adds inventory slots to the vehicle for item storage. |
+| Fluid Module | `fluid_module` | Adds liquid tank capacity to the vehicle. |
 
 ### Fuel Tanks (3)
 
+Workshop-only `Part` configs — not items.
+
+| Name | Registry ID | Description |
+|------|-------------|-------------|
+| Tank 15L | `tank_15l` | Small fuel tank, 15 liter capacity. Lightweight. |
+| Tank 30L | `tank_30l` | Standard fuel tank, 30 liter capacity. |
+| Tank 50L | `tank_50l` | Large fuel tank, 50 liter capacity. Heavy. |
+
+### Tools & Accessories (6)
+
+There is no separate `empty_diesel_can`; the registered canister item is
+`full_diesel_can` only. The license plate is not its own registered item
+either — it's an `internal_vehicle_part` NBT variant tagged `license_sign`,
+added automatically when a vehicle is spawned.
+
 | Name | Registry ID | Description | How to Obtain |
 |------|-------------|-------------|---------------|
-| Tank 15L | `tank_15l` | Small fuel tank, 15 liter capacity. Lightweight. | Crafting |
-| Tank 30L | `tank_30l` | Standard fuel tank, 30 liter capacity. | Crafting |
-| Tank 50L | `tank_50l` | Large fuel tank, 50 liter capacity. Heavy. | Crafting |
-
-### Tools & Accessories (7)
-
-| Name | Registry ID | Description | How to Obtain |
-|------|-------------|-------------|---------------|
-| Empty Diesel Can | `empty_diesel_can` | Empty portable fuel canister. Refillable at Fuel Stations. | Crafting |
-| Full Diesel Can | `full_diesel_can` | Diesel canister filled with 5L of fuel. Single use, consumed on refueling. Also used as reagent in coca processing. | Fuel Station or crafting |
+| Full Diesel Can | `full_diesel_can` | Diesel canister filled with fuel. Single use, consumed on refueling. Also used as reagent in coca processing. | Fuel Station or crafting |
 | Maintenance Kit | `maintenance_kit` | Repair tool for damaged vehicles. Multiple uses before depleted. | Crafting or NPC trading |
 | Vehicle Key | `key` | Ignition key bound to a specific vehicle. Required to start and lock/unlock. | Created when vehicle is spawned |
 | Starter Battery | `starter_battery` | Jump-start battery for vehicles with dead batteries. Limited uses. | Crafting or NPC trading |
-| License Plate | `license_sign` | Customizable license plate with text. Attach to License Plate Holder. | Crafting |
+| Internal Vehicle Part | `internal_vehicle_part` | Generic wrapper item for internal parts (e.g. the license plate) shown in vehicle inventories. | Created automatically |
 | Vehicle Spawn Tool | `spawn_tool` | Admin tool for spawning and configuring vehicles. Unlimited uses. | Admin command |
 
 ### Block Items (2)
