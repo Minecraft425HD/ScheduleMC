@@ -141,13 +141,11 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.BooleanValue POLICE_BLOCK_DOORS_DURING_PURSUIT;
 
         // Police Raid System
-        public final ForgeConfigSpec.IntValue POLICE_RAID_SCAN_RADIUS;
         public final ForgeConfigSpec.DoubleValue POLICE_ILLEGAL_CASH_THRESHOLD;
         public final ForgeConfigSpec.DoubleValue POLICE_RAID_ACCOUNT_PERCENTAGE;
         public final ForgeConfigSpec.DoubleValue POLICE_RAID_MIN_FINE;
 
         // Police Room-Based Scanning (Smart Search)
-        public final ForgeConfigSpec.BooleanValue POLICE_ROOM_SCAN_ENABLED;
         public final ForgeConfigSpec.IntValue POLICE_ROOM_SCAN_MAX_SIZE;
         public final ForgeConfigSpec.IntValue POLICE_ROOM_SCAN_MAX_DEPTH;
         public final ForgeConfigSpec.IntValue POLICE_ROOM_SCAN_MAX_ADDITIONAL_ROOMS;
@@ -717,10 +715,6 @@ public class ModConfigHandler {
                     .comment("Blocks opening doors during active pursuit")
                     .define("block_doors_during_pursuit", true);
 
-            POLICE_RAID_SCAN_RADIUS = builder
-                    .comment("Scan radius for illegal items on arrest (in blocks)")
-                    .defineInRange("raid_scan_radius", 20, 5, 50);
-
             POLICE_ILLEGAL_CASH_THRESHOLD = builder
                     .comment("Cash threshold for illegal cash (above this value it is illegal)")
                     .defineInRange("illegal_cash_threshold", 10000.0, 1000.0, 100000.0);
@@ -732,10 +726,6 @@ public class ModConfigHandler {
             POLICE_RAID_MIN_FINE = builder
                     .comment("Mindest-Geldstrafe bei Raid in Euro")
                     .defineInRange("raid_min_fine", 1000.0, 100.0, 50000.0);
-
-            POLICE_ROOM_SCAN_ENABLED = builder
-                    .comment("Enables smart room-based scanning (true = only seen rooms, false = full radius)")
-                    .define("room_scan_enabled", true);
 
             POLICE_ROOM_SCAN_MAX_SIZE = builder
                     .comment("Maximum room size in blocks (safety limit against performance issues)")

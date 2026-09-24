@@ -757,16 +757,19 @@ Located under `[police]`:
 
 | Key | Default | Range | Description |
 |-----|---------|-------|-------------|
-| `police.raid_scan_radius` | `20` | 5 - 50 | Scan radius for illegal items on arrest |
 | `police.illegal_cash_threshold` | `10,000.0` | 1,000 - 100,000 | Cash threshold for illegal cash detection |
 | `police.raid_account_percentage` | `0.1` (10%) | 0.01 - 0.5 | Account balance percentage for fine |
 | `police.raid_min_fine` | `1,000.0` | 100 - 50,000 | Minimum raid fine |
 
 **Room-Based Scanning (Smart Search):**
 
+Raids always use the intelligent room-based scan (only the room the arrest
+happened in, expanding to nearby rooms only if contraband is found) — the
+old full-radius scan and its `room_scan_enabled` toggle were removed as
+dead code once every call site had migrated to room-based scanning.
+
 | Key | Default | Range | Description |
 |-----|---------|-------|-------------|
-| `police.room_scan_enabled` | `true` | -- | Enable intelligent room-based scanning |
 | `police.room_scan_max_size` | `500` | 50 - 2,000 | Maximum room size in blocks |
 | `police.room_scan_max_depth` | `50` | 10 - 100 | Maximum Y-axis depth for room search |
 | `police.room_scan_max_additional_rooms` | `3` | 0 - 10 | Additional rooms searched when contraband found |

@@ -122,7 +122,7 @@ not on any in-mod permission system.
 | Produktionsblock-Katalog | `ProductionBlockCatalogScreen` | Per-block price + required player level for ~100 production machine blocks; explicit Save/Reset/Back |
 | Plot Settings | `PlotConfigScreen` | Min/max plot size & price, max trusted players, refund-on-abandon %, transfer allow/deny; links to Block Restrictions |
 | Plot Block Restrictions | `PlotBlockRestrictionConfigScreen` | Allowed-block-ID lists per plot type (8 plot types), TAB autocomplete against the block registry |
-| Police Settings | `PoliceConfigScreen` | Arrest, search/pursuit, raid/room-scanning, station/patrol, vehicle pursuit, roadblocks, traffic violations, warnings (36 options) |
+| Police Settings | `PoliceConfigScreen` | Arrest, search/pursuit, raid/room-scanning, station/patrol, vehicle pursuit, roadblocks, traffic violations, warnings (34 options) |
 | NPC & Navigation | `NPCConfigScreen` | Pathfinding scan radius, path update interval, arrival distance; links to Block Lists |
 | NPC Block Lists | `NPCBlockListConfigScreen` | Walkable-block and road-block ID lists, TAB autocomplete |
 | Utility Consumer Blocks | `UtilityBlockListConfigScreen` | Block IDs that bill electricity/water, autocomplete from `UtilityRegistry` |

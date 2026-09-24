@@ -35,6 +35,11 @@ Format: `[version] - date — Summary of changes`
   (`gui/PlotMenuGUI`, `messaging/NPCMessageTemplates`,
   `npc/pathfinding/NPCNodeEvaluator`, `mapview/util/LayoutVariables`).
   See `docs/CODE_VS_DOCS_ABGLEICH_2026-09-24.md` for the full breakdown.
+- **Legacy radius-based police raid scan removed** — `IllegalActivityScanner.scanArea()`
+  (deprecated in favor of `scanRoomBased()`) and the `police.room_scan_enabled`
+  toggle that switched between them. `PoliceAIHandler` now always uses the
+  room-based scan; the now-unused `police.raid_scan_radius` config key and
+  its config-screen slider were also removed.
 
 ### Docs / accuracy
 - All API/Mixin/JEI-Jade-TOP references removed or corrected across

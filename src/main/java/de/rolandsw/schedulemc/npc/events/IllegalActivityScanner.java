@@ -142,35 +142,6 @@ public class IllegalActivityScanner {
         return result;
     }
 
-    /**
-     * ALTE METHODE: Radius-basierter Scan (deprecated, aber für Rückwärtskompatibilität beibehalten)
-     *
-     * @deprecated Verwende stattdessen {@link #scanRoomBased(Level, BlockPos, ServerPlayer)}
-     */
-    @Deprecated
-    public static ScanResult scanArea(Level level, BlockPos center, ServerPlayer player) {
-        ScanResult result = new ScanResult();
-
-        int configRadius = ModConfigHandler.COMMON.POLICE_RAID_SCAN_RADIUS.get();
-        // Hard-Limit bei 15 Blöcken für Performance (15³ = 3375 Blöcke statt 20³ = 8000)
-        int radius = Math.min(configRadius, 15);
-
-        // Scanne alle Blöcke im Radius
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -radius; y <= radius; y++) {
-                for (int z = -radius; z <= radius; z++) {
-                    BlockPos pos = center.offset(x, y, z);
-                    scanBlock(level, pos, result);
-                }
-            }
-        }
-
-        // Scanne Spieler-Inventar
-        scanPlayerInventory(player, result);
-
-        return result;
-    }
-
     // PERFORMANCE: Block-Referenzen cachen statt String-Vergleiche pro Block
     private static final Block GOLD_BLOCK = net.minecraft.world.level.block.Blocks.GOLD_BLOCK;
     private static final Block DIAMOND_BLOCK = net.minecraft.world.level.block.Blocks.DIAMOND_BLOCK;

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Police Config Screen - 36 Police System Options (SCROLLABLE!)
+ * Police Config Screen - 34 Police System Options (SCROLLABLE!)
  * Organized into logical categories with headers
  */
 @OnlyIn(Dist.CLIENT)
@@ -82,20 +82,14 @@ public class PoliceConfigScreen extends Screen {
         // === RAIDS & SCANNING ===
         configList.addHeader("§4🏠 RAIDS & SCANNING");
         configList.addRow(
-            new IntSlider(0, 0, 180, "Raid Radius: %d blocks",
-                ModConfigHandler.COMMON.POLICE_RAID_SCAN_RADIUS, 5, 50),
             new DoubleSlider(0, 0, 180, "Illegal Cash: %.0f€",
-                ModConfigHandler.COMMON.POLICE_ILLEGAL_CASH_THRESHOLD, 1000, 1000000)
-        );
-        configList.addRow(
+                ModConfigHandler.COMMON.POLICE_ILLEGAL_CASH_THRESHOLD, 1000, 1000000),
             new DoubleSlider(0, 0, 180, "Account Fine: %.0f%%",
-                ModConfigHandler.COMMON.POLICE_RAID_ACCOUNT_PERCENTAGE, 0, 1.0, 100),
-            new DoubleSlider(0, 0, 180, "Min Fine: %.0f€",
-                ModConfigHandler.COMMON.POLICE_RAID_MIN_FINE, 100, 100000)
+                ModConfigHandler.COMMON.POLICE_RAID_ACCOUNT_PERCENTAGE, 0, 1.0, 100)
         );
         configList.addRow(
-            new BoolButton(0, 0, 180, "Room Scan",
-                ModConfigHandler.COMMON.POLICE_ROOM_SCAN_ENABLED),
+            new DoubleSlider(0, 0, 180, "Min Fine: %.0f€",
+                ModConfigHandler.COMMON.POLICE_RAID_MIN_FINE, 100, 100000),
             new IntSlider(0, 0, 180, "Max Room Size: %d",
                 ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_SIZE, 10, 1000)
         );
