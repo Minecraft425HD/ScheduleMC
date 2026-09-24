@@ -5,7 +5,7 @@
 **Complete Command Reference for ScheduleMC v3.9.0-beta**
 
 All registered commands organized by system, with syntax, permissions, and examples.
-**Source sync:** 161 `### /command` headings in this page; 25 root `dispatcher.register` commands. Largest groups: /health 41, /plot 24, /npc 21, /gang 14.
+**Source sync:** 161 `### /command` headings in this page; 21 distinct root command names, registered across 25 `dispatcher.register` calls (some roots like `/money`, `/utility`, `/prison` register their subtrees in more than one call). Largest groups: /health 41, /plot 24, /npc 21, /gang 14.
 
 
 [Back to Wiki Home](Home.md)

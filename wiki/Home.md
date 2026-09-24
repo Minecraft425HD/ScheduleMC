@@ -30,11 +30,11 @@
 | **Java** | 17 |
 | **Lines of Code** | ~251,000 |
 | **Total Files** | 1,568 Java |
-| **Registered Items** | 353 string IDs |
-| **Registered Blocks** | 97 |
-| **Available Commands** | 25 root / 132 literals |
+| **Registered Items** | 374 string IDs |
+| **Registered Blocks** | 148 |
+| **Available Commands** | 21 root / 132 literals |
 | **Production Chains** | 14 (8 illegal + 6 legal) |
-| **Weapon Types** | 13 (6 guns + 4 melee + 3 grenades) |
+| **Weapon Types** | 12 (6 guns + 3 melee + 3 grenades) |
 | **API Modules** | 11 |
 | **Unit Tests** | 681 in 41 files |
 | **GUI Screens** | 147 |
@@ -52,9 +52,9 @@
 | Page | Description |
 |---|---|
 | [Getting Started](Getting-Started.md) | Installation guide, prerequisites, first-time setup, and first steps for both players and server administrators |
-| [Commands](Commands.md) | Reference for registered commands (25 root / 132 literals) organized by category with syntax, permissions, and examples |
-| [Items](Items.md) | Catalog of items (399 ITEMS.register including block items; 316 standalone) with descriptions, categories, and usage information |
-| [Blocks](Blocks.md) | Listing of 125 registered blocks including multi-block structures and special behaviors |
+| [Commands](Commands.md) | Reference for registered commands (21 root / 132 literals) organized by category with syntax, permissions, and examples |
+| [Items](Items.md) | Catalog of items (374 ITEMS.register calls) with descriptions, categories, and usage information |
+| [Blocks](Blocks.md) | Listing of 148 registered blocks including multi-block structures and special behaviors |
 | [Production Systems](Production-Systems.md) | Overview of all 14 production chains (8 illegal + 6 legal) with flowcharts, item lists, and quality mechanics |
 | [FAQ](FAQ.md) | Frequently asked questions, common issues, and troubleshooting guide |
 
@@ -244,7 +244,7 @@ These mods are not required but provide enhanced functionality when installed:
 | Observer | Forge event bus integration |
 | Factory | Entity and item creation |
 | Registry | Deferred Register for items and blocks |
-| Command | Command pattern for 25 root commands |
+| Command | Command pattern for 21 root commands |
 | Facade | Simplified public API interfaces |
 
 ---

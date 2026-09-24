@@ -1019,10 +1019,10 @@ A progression system tracking player experience across production and other acti
 
 ### Achievement System
 
-A comprehensive achievement tracking system with ~35 achievements across 4 used categories, rewarding players for milestones in production, economy, social, crime, and exploration activities.
+A comprehensive achievement tracking system with ~35 achievements across 4 used categories, rewarding players for milestones in production, economy, social, and crime activities. A 5th category, Exploration, is defined but currently unused.
 
 **Features:**
-- **~35 achievements** across 4 used categories: Production, Economy, Social, Crime, and Exploration
+- **~35 achievements** across 4 used categories: Production, Economy, Social, Crime (Exploration is defined but unused)
 - **5 difficulty tiers**: Bronze, Silver, Gold, Diamond, and Platinum with increasing rewards
 - **Monetary rewards** scaling from 100 EUR (Bronze) to 50,000 EUR (Platinum)
 - **Automatic tracking** of player actions and progress via event listeners
@@ -1273,7 +1273,7 @@ ScheduleMC provides commands organized by system. Below is a reference based on 
 
 ## Items Reference
 
-ScheduleMC adds **354 items** across all systems. Below is a categorized reference.
+ScheduleMC adds **374 items** across all systems. Below is a categorized reference.
 
 | Category | Count | Item Examples |
 |---|---|---|
@@ -1302,7 +1302,7 @@ ScheduleMC adds **354 items** across all systems. Below is a categorized referen
 
 ## Blocks Reference
 
-ScheduleMC adds **152 blocks** across all systems.
+ScheduleMC adds **148 blocks** across all systems.
 
 | Category | Count | Block Examples |
 |---|---|---|
@@ -1324,7 +1324,7 @@ ScheduleMC adds **152 blocks** across all systems.
 | **Plot** | 1 | Plot Info Block |
 | **Warehouse** | 1 | Warehouse Block |
 | **Vehicle** | 4 | Fuel Station, Fuel Station Top, Vehicle Workshop (Werkstatt), Bio Diesel Fluid |
-| **TOTAL** | **152** | |
+| **TOTAL** | **148** | |
 
 ---
 

@@ -1,6 +1,6 @@
 # Complete Items Reference - ScheduleMC
 
-**Total Registered Items:** 353 `ITEMS.register("id")` entries across 29 Java files
+**Total Registered Items:** 374 `ITEMS.register("id")` entries
 
 This page documents every item registered in the ScheduleMC mod, organized by module. Each item listing includes its registry name, a description of its purpose, and how players or admins can obtain it.
 
@@ -865,7 +865,7 @@ added automatically when a vehicle is spawned.
 | Honey | 27 | Beekeeping, 3 jar sizes, by-products, tools |
 | Vehicle | 36 | 5 vehicles, modular parts, fuel system |
 
-**Grand Total: 250+ Registered Items**
+**Grand Total: 374 Registered Items**
 
 ---
 
@@ -882,7 +882,7 @@ added automatically when a vehicle is spawned.
 <!-- BEGIN SOURCE-ITEM-REGISTRY -->
 # Source item registry
 
-Generated from `ITEMS.register("id")` in source. **353 IDs**. Narrative tables above may use alias IDs that are not the registry name.
+Generated from `ITEMS.register("id")` in source. **374 IDs**. Narrative tables above may use alias IDs that are not the registry name.
 
 ## `de/rolandsw/schedulemc/beer/blocks/BeerBlocks.java` (12)
 

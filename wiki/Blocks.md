@@ -1,6 +1,6 @@
 # Complete Blocks Reference - ScheduleMC
 
-**Total Blocks:** 152 blocks across 18 categories
+**Total Blocks:** 148 blocks across 18 categories
 
 Quick Navigation:
 
@@ -492,14 +492,12 @@ Quick Navigation:
 
 ## Coffee Blocks
 
-### Coffee Pots (4 Variants)
+### Coffee Pots
 
-| Block ID | Pot Type | Growth Bonus |
-|----------|----------|-------------|
-| `coffee_terracotta_pot` | Terracotta | Standard |
-| `coffee_ceramic_pot` | Ceramic | +10% |
-| `coffee_iron_pot` | Iron | +25% |
-| `coffee_golden_pot` | Golden | +50% + Quality |
+None of these blocks exist. `coffee_terracotta_pot`/`coffee_ceramic_pot`/
+`coffee_iron_pot`/`coffee_golden_pot` appear in a config block-restriction
+list (`ModConfigHandler`) but were never actually registered — coffee
+plants only grow directly as the plant blocks below, with no pot tier.
 
 ### Coffee Plants (4 Types) - NO BLOCK ITEMS
 
@@ -519,13 +517,12 @@ Quick Navigation:
 - **Total Time:** 1,800 ticks (90 seconds)
 - **Output:** Green coffee beans (2 per cherry)
 
-#### Coffee Drying Trays (3 Sizes)
+#### Coffee Drying Trays
 
-| Block ID | Capacity | Ticks/Cherry |
-|----------|----------|-------------|
-| `small_coffee_drying_tray` | 15 | 300 |
-| `medium_coffee_drying_tray` | 22 | 250 |
-| `large_coffee_drying_tray` | 30 | 400 |
+None of these blocks exist either — same config-only phantom list as the
+pots above (`small_coffee_drying_tray`/`medium_coffee_drying_tray`/
+`large_coffee_drying_tray`). Drying is not a separate step for coffee in
+the current implementation.
 
 #### Coffee Roasters (3 Sizes)
 
@@ -915,7 +912,7 @@ Quick Navigation:
 | **Warehouse** | 1 | Mass storage, auto-delivery |
 | **Vehicle** | 4 | Fuel station, garage, diesel fluid |
 
-**Total: 152 Blocks** (plant blocks have no items)
+**Total: 148 Blocks** (plant blocks have no items)
 
 ---
 
