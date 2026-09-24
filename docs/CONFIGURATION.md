@@ -183,6 +183,7 @@ Located under `[dynamic_pricing]`:
 | `dynamic_pricing.sd_decay_rate` | `0.02` | 0.001 - 0.1 | Supply/demand decay rate per update (0.02 = 2%) |
 | `dynamic_pricing.daily_food_cost` | `20.0` | 5 - 200 | Expected daily food cost on Hard difficulty |
 | `dynamic_pricing.daily_reference_income` | `150.0` | 50 - 1,000 | Reference daily income for price calibration |
+| `dynamic_pricing.season_use_serene_seasons` | `true` | -- | Derive seasonal market prices (see [Section 9.5](#95-seasonal-market-pricing)) from the Serene Seasons mod if installed, instead of the internal 120-day calendar |
 
 ### 2.12 Economic Cycle
 
@@ -869,6 +870,20 @@ The `DynamicPriceManager` (`de.rolandsw.schedulemc.npc.life.economy.DynamicPrice
 ### 9.4 Supply/Demand Decay
 
 The `sd_decay_rate` (default: `0.02` = 2% per update) controls how quickly supply/demand levels return to equilibrium. Combined with `update_interval_minutes` (default: 5), this means approximately 2% decay every 5 minutes.
+
+### 9.5 Seasonal Market Pricing
+
+`market.SeasonalPriceModifier` applies a per-category price multiplier based
+on the current season, independent of supply/demand and configured via
+`dynamic_pricing.season_use_serene_seasons` (see [Section 2.11](#211-dynamic-pricing-system-udps)).
+
+If the optional **Serene Seasons** mod is installed and that option is
+`true` (default), the real Serene Seasons season is used — the same source
+used by the Vehicle System's tire-traction mechanic
+(`vehicle.util.SereneSeasonsCompat` / `util.SereneSeasonsCompat`).
+Otherwise the system falls back to an internal 120-game-day calendar (4
+seasons of 30 days: Spring, Summer, Autumn, Winter). Players can check the
+current season and its active price effects in-game with `/season`.
 
 ---
 

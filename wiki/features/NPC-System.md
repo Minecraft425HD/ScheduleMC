@@ -32,11 +32,11 @@
 16. [Banker-NPC System](#banker-npc-system)
 17. [Redemption Quest System (Implemented, Not Wired Up)](#redemption-quest-system-implemented-not-wired-up)
 18. [Dialogue Consequence System (Implemented, Not Wired Up)](#dialogue-consequence-system-implemented-not-wired-up)
-15. [AI & Pathfinding](#ai--pathfinding)
-16. [NPC Tools](#npc-tools)
-17. [Commands](#commands)
-19. [Best Practices](#best-practices)
-20. [Troubleshooting](#troubleshooting)
+19. [AI & Pathfinding](#ai--pathfinding)
+20. [NPC Tools](#npc-tools)
+21. [Commands](#commands)
+22. [Best Practices](#best-practices)
+23. [Troubleshooting](#troubleshooting)
 
 ---
 

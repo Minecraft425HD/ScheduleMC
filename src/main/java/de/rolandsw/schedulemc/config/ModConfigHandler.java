@@ -998,9 +998,9 @@ public class ModConfigHandler {
                     .defineInRange("daily_reference_income", 150.0, 50.0, 1000.0);
 
             MARKET_SEASON_USE_SERENE_SEASONS = builder
-                    .comment("Saisonale Marktpreise von der Serene Seasons Mod ableiten (wie die Reifenhaftung im Vehicle-System),",
-                             "statt vom internen 120-Tage-Kalender. Ohne installierte Serene-Seasons-Mod wirkungslos",
-                             "(interner Kalender wird dann immer verwendet).")
+                    .comment("Derive seasonal market prices from the Serene Seasons mod (like vehicle tire traction),",
+                             "instead of the internal 120-day calendar. Has no effect without Serene Seasons installed",
+                             "(the internal calendar is always used in that case).")
                     .define("season_use_serene_seasons", true);
 
             builder.pop();

@@ -54,6 +54,8 @@ Format: `[version] - date — Summary of changes`
 ## [3.7.2-beta] - 2026-04-17
 
 ### Added
+- **Seasonal market pricing now driven by Serene Seasons (if installed)** — `SeasonalPriceModifier` previously always used its own internal 120-game-day calendar; it now uses the real Serene Seasons season when that optional mod is present, matching the Vehicle System's tire-traction mechanic (`SereneSeasonsCompat`). Falls back to the internal calendar otherwise, or when the new `dynamic_pricing.season_use_serene_seasons` config option (default: on) is disabled. Toggle is editable in-game via the Dynamic Pricing (UDPS) config screen.
+- **`/season` command** — shows the current season with an icon and a 10-segment progress bar, active per-category price changes, and (in fallback mode) days until the next season; shows a sub-season phase indicator instead when driven by Serene Seasons.
 - **Cannabis Processing Blocks — Slot-based GUI** — All 4 processing blocks (Trimm Station, Curing Jar, Hash Presse, Öl Extraktor) now display item slots directly in their GUI:
   - **Trimm Station:** Input slot (DriedBud), TrimmedBud output slot, Trim output slot — items are stored in the machine, not taken from player inventory
   - **Curing Jar:** Input slot (TrimmedBud), Output slot (live quality preview of resulting CuredBud)
