@@ -1,11 +1,12 @@
 {
   "homepage": "https://github.com/Minecraft425HD/ScheduleMC",
   "1.20.1": {
-    "1.7.0-alpha": "§6Update 1.7.0-alpha§r\n§e• Warehouse-System mit Auto-Delivery§r\n§e• Verbesserte Minimap§r\n§e• Plot-System Optimierungen§r\n§e• Bug-Fixes und Performance-Verbesserungen§r",
-    "1.6.0": "§6Update 1.6.0§r\n§e• Neue Features hinzugefügt§r\n§e• Verschiedene Bugfixes§r"
+    "3.9.0-beta": "§6Update 3.9.0-beta§r\n§e• Aktueller Stand der 3.9.0-beta Codebasis§r\n§e• Plot-Typ INDUSTRIAL, JSON-Persistenz, 11 API-Module§r\n§e• Weapon-/Economy-/NPC-Systeme wie im aktuellen Code§r",
+    "3.8.0-beta": "§6Update 3.8.0-beta§r\n§e• Weapon System Integration§r\n§e• NPC Dialogue/Life-System NPE-Fixes§r",
+    "3.7.2-beta": "§6Update 3.7.2-beta§r\n§e• Cannabis Processing Slot-GUIs§r\n§e• Economy Interest Rounding / Property Tax Fix§r"
   },
   "promos": {
-    "1.20.1-latest": "1.7.0-alpha",
-    "1.20.1-recommended": "1.6.0"
+    "1.20.1-latest": "3.9.0-beta",
+    "1.20.1-recommended": "3.9.0-beta"
   }
 }

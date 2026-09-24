@@ -1,6 +1,6 @@
 modLoader="javafml"
 loaderVersion="[47,)"
-license="All Rights Reserved"
+license="GNU GPLv3"
 
 [[mods]]
 modId="schedulemc"
@@ -19,7 +19,7 @@ ScheduleMC - Ein umfassendes Server-Management System
 • §aNPC-System§r für Arbeiter und automatische Ressourcen
 • Einfache Plot-Erstellung
 • §cRangbasiertes Berechtigungssystem§r
-• §9MySQL Datenbank§r für persistente Speicherung
+• §9JSON-Persistenz§r mit IncrementalSaveManager
 
 §7Perfekt für Roleplay- und Economy-Server!§r
 '''
