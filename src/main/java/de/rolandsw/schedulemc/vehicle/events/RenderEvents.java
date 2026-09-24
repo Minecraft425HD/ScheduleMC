@@ -21,9 +21,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @OnlyIn(Dist.CLIENT)
@@ -76,20 +78,27 @@ public class RenderEvents {
         return null;
     }
 
-    public static boolean onRenderExperienceBar(GuiGraphics guiGraphics, int i) {
-        Player player = mc.player;
-        EntityGenericVehicle vehicle = getVehicle();
-
-        if (vehicle == null || player == null) {
-            return false;
-        }
-
-        if (!player.equals(vehicle.getDriver())) {
-            return false;
-        }
-        renderFuelBar(guiGraphics, ((float) vehicle.getFuelAmount()) / ((float) vehicle.getMaxFuel()));
-        renderSpeed(guiGraphics, vehicle.getKilometerPerHour());
-        return true;
+    /**
+     * Ersetzt die Erfahrungsleiste durch Tank-/Tempoanzeige, solange der Spieler
+     * ein Fahrzeug fährt. Vormals per Mixin (GuiMixin) in Gui.renderExperienceBar
+     * injiziert; der Mixin wurde nie geladen (kein [[mixins]]-Eintrag in mods.toml,
+     * kein MixinConfigs-Manifest-Attribut, kein IMixinConnector-Service), daher lief
+     * dieser Code nie. Ersetzt durch das reguläre Forge-Overlay-Event.
+     */
+    @SubscribeEvent
+    public void onRenderGuiOverlay(RenderGuiOverlayEvent.Pre event) {
+        EventHelper.handleEvent(() -> {
+            if (event.getOverlay().id().equals(VanillaGuiOverlay.EXPERIENCE_BAR.id())) {
+                Player player = mc.player;
+                EntityGenericVehicle vehicle = getVehicle();
+                if (vehicle == null || player == null || !player.equals(vehicle.getDriver())) {
+                    return;
+                }
+                renderFuelBar(event.getGuiGraphics(), ((float) vehicle.getFuelAmount()) / ((float) vehicle.getMaxFuel()));
+                renderSpeed(event.getGuiGraphics(), vehicle.getKilometerPerHour());
+                event.setCanceled(true);
+            }
+        }, "onRenderGuiOverlay");
     }
 
     public static void renderFuelBar(GuiGraphics guiGraphics, float percent) {

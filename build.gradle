@@ -142,18 +142,6 @@ dependencies {
     // CoreLib for core functionality (networking, config, OBJ models, GUI system)
     implementation fg.deobf('de.maxhenkel.corelib:corelib:1.20.1-1.1.1')
 
-    // Optional integrations for Vehicle Mod - compileOnly means they're not required at runtime
-    // Users can optionally install these mods for additional features
-    compileOnly fg.deobf('maven.modrinth:jei:15.2.0.27') // JEI for 1.20.1
-    compileOnly fg.deobf('maven.modrinth:jade:11.8.0') // Jade for 1.20.1
-    compileOnly fg.deobf('maven.modrinth:the-one-probe:1.20.1-10.0.2-forge') // The One Probe for 1.20.1
-
-    // MapView dependencies - required for compilation
-    compileOnly 'org.spongepowered:mixin:0.8.5'
-    compileOnly 'io.github.llamalad7:mixinextras-common:0.5.0'
-    annotationProcessor 'io.github.llamalad7:mixinextras-common:0.5.0'
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-
     // Testing dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.1'
