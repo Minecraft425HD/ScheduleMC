@@ -193,3 +193,43 @@ als „Former Command“ gekennzeichnet.
 6. NPC-Wiki auf CITIZEN/MERCHANT/POLICE/TOW_TRUCK_DRIVER umstellen.
 7. `PROJECT_STRUCTURE.md` neu generieren oder löschen. Die Kennzahlen (Blöcke/Items/Commands/Apps/Waffen) aus **einer** generierten Quelle ziehen, statt sie in 5 Dokumenten zu pflegen.
 8. `CONFIGURATION.md`: Tobacco-Defaults korrigieren, `schedulemc-weapons.toml` und die 52 fehlenden Keys ergänzen. `schedulemc-server.toml` aus den Ressourcen entfernen.
+
+---
+
+## 6. Reichweite dieses Abgleichs — Nachtrag
+
+Der erste Durchgang (Abschnitte 1–5) war **stichprobenbasiert**: grep-Muster auf
+Zahlenbehauptungen, Commands, Config-Keys und API-Methoden — kein
+zeilenweiser Vergleich. Auf Nachfrage wurde ein zweiter, gezielterer
+Durchgang gemacht: Gang-Level-Formel, Lock-Typen, Towing-Mitgliedschaften,
+Vehicle-Chassis/Motoren/Reifen sowie eine Klassennamen-Suche über **alle
+1 569 Hauptklassen** gegen den gesamten Dokutext (README, CLAUDE.md, alle
+`docs/*.md`, alle `wiki/**/*.md`).
+
+**Zur Ausgangsfrage „ist jede Zeile doku-belegt?":** Nein, und das ist bei
+258 500 Zeilen auch kein sinnvoller Maßstab — Dokumentation beschreibt
+Verhalten und Schnittstellen, nicht Zeilen. Realistischer ist die Frage, ob
+jedes **Feature** irgendwo erwähnt ist. Auch das ist nicht der Fall:
+
+| # | Befund | Beleg |
+|---|---|---|
+| D1 | **Komplettes In-Game-Config-Editor-System ist in keiner Doku erwähnt.** 17 Screen-Klassen unter `client/gui/config/` (4 566 Zeilen: `EconomyConfigScreen`, `PoliceConfigScreen`, `TobaccoConfigScreen`, `PlotConfigScreen`, `WarehouseConfigScreen`, `DynamicPricingConfigScreen`, `StealingConfigScreen` u. a.), erreichbar über den regulären Forge-„Config"-Button im Mod-Menü (`ScheduleMC.java:341-343`, `ConfigScreenHandler`). Weder README, docs/ noch wiki/ erwähnen, dass es diese grafische Konfigurationsoberfläche überhaupt gibt. | `client/gui/ConfigScreen.java`, `ScheduleMC.java:341-343` |
+| D2 | **„Redemption Quest"-System (Reputations-Vergebung) ist komplett undokumentiert.** `npc/life/quest/RedemptionQuestManager.java` (229 Zeilen): Spieler können bei Fraktions-Reputation < -20 automatisch Quests (Sozialdienst, Geldstrafe, Kurierdienst, Wachpatrouille) erhalten und so +15 Reputation zurückgewinnen. Null Treffer für „Redemption" oder „Vergebungs-Quest" in README/docs/wiki. | `npc/life/quest/RedemptionQuestManager.java:14-24` |
+| D3 | **Faction-System (CITIZENS/TRADERS/LAW/UNDERWORLD) wird nur erwähnt, nie erklärt.** Taucht in `README.md` nur als Health-Check-Name (`/health faction`) und im Dateibaum auf; keine Doku beschreibt Reputationswerte, Schwellen oder Auswirkungen. | `npc/life/social/Faction.java` |
+| D4 | **Reifentypen:** README nennt „6 tire types", der Code registriert **7** (`standard`, `sport`, `premium`, `offroad`, `allterrain`, `heavyduty`, `winter`). | `vehicle/entity/vehicle/parts/PartRegistry.java` |
+
+Bestätigt (keine Abweichung gefunden): Gang-Level-Formel (200·Level^1,7,
+Max-Level 30, 656 059 XP, 20 Mitglieder-Cap), 5 Lock-Typen, 3
+Towing-Mitgliedschaftsstufen mit Config-gestützten Gebühren/Deckungen,
+5 Vehicle-Chassis-Typen, 3 Motoren (inkl. `PERFORMANCE_2_MOTOR`, den README
+korrekt mitzählt).
+
+**Bekannte Lücken auch in diesem Nachtrag:** Die Klassennamen-Suche markiert
+~230 weitere Klassen als „Name kommt im Dokutext nicht vor" (v. a. in
+`client`, `poppy`, `meth`, `vehicle`, `npc`) — das sind größtenteils interne
+Bausteine (Packets, Screens, BlockEntities einzelner Produktionsstufen), die
+über die jeweilige Feature-Seite thematisch, aber nicht namentlich abgedeckt
+sind (z. B. deckt `Poppy-System.md` die Opium/Heroin-Kette ab, nennt aber
+nicht `OpiumPressBlockEntity.java` beim Klassennamen). Diese Liste wurde
+nicht einzeln geprüft; ein vollständiger, funktionaler Check jeder dieser
+Klassen gegen die jeweilige Feature-Doku steht noch aus.
