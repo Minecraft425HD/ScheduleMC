@@ -3,11 +3,9 @@ package de.rolandsw.schedulemc.mapview;
 import de.rolandsw.schedulemc.mapview.service.data.MapDataManager;
 import de.rolandsw.schedulemc.mapview.integration.PacketBridge;
 import de.rolandsw.schedulemc.mapview.config.MapViewConfiguration;
-import de.rolandsw.schedulemc.mapview.presentation.renderer.MapViewRenderer;
 import de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager;
 import de.rolandsw.schedulemc.mapview.util.BiomeColors;
 import java.util.Optional;
-import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -15,7 +13,6 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.server.IntegratedServer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -119,14 +116,6 @@ public final class MapViewConstants {
         }
     }
 
-    public static boolean onChat(Component chat, GuiMessageTag indicator) {
-        return true;
-    }
-
-    public static boolean onSendChatMessage(String message) {
-        return true;
-    }
-
     public static void onShutDown() {
         MapViewConstants.getLogger().info("Saving all world maps");
         MapViewConstants.getLightMapInstance().getWorldMapData().purgeRegionCaches();
@@ -144,22 +133,6 @@ public final class MapViewConstants {
         String cmd = mapSettingsManager.serverTeleportCommand == null ? mapSettingsManager.teleportCommand : mapSettingsManager.serverTeleportCommand;
         cmd = cmd.replace("%p", MapViewConstants.getPlayer().getName().getString()).replace("%x", String.valueOf(x + 0.5)).replace("%y", String.valueOf(y)).replace("%z", String.valueOf(z + 0.5));
         MapViewConstants.getPlayer().connection.sendCommand(cmd);
-    }
-
-    public static int moveScoreboard(int bottomX, int entriesHeight) {
-        double unscaledHeight = MapViewRenderer.getMinTablistOffset(); // / scaleFactor;
-        if (!MapDataManager.mapOptions.minimapAllowed || MapDataManager.mapOptions.mapCorner != 1 || !MapDataManager.mapOptions.moveScoreBoardDown || !Double.isFinite(unscaledHeight)) {
-            return bottomX;
-        }
-        double scaleFactor = Minecraft.getInstance().getWindow().getGuiScale(); // 1x 2x 3x, ...
-        double mapHeightScaled = unscaledHeight * 1.37 / scaleFactor; // * 1.37 because unscaledHeight is just the map without the text around it
-
-        int fontHeight = Minecraft.getInstance().font.lineHeight; // height of the title line
-        float statusIconOffset = MapViewRenderer.getStatusIconOffset();
-        int statusIconOffsetInt = Float.isFinite(statusIconOffset) ? (int) statusIconOffset : 0;
-        int minBottom = (int) (mapHeightScaled + entriesHeight + fontHeight + statusIconOffsetInt);
-
-        return Math.max(bottomX, minBottom);
     }
 
     public static PacketBridge getPacketBridge() {

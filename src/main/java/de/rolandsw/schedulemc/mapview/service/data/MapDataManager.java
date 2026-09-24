@@ -22,7 +22,6 @@ import java.util.concurrent.Executor;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -117,10 +116,6 @@ public class MapDataManager implements PreparableReloadListener {
 
         MapViewConstants.tick();
         this.persistentMap.onTick();
-    }
-
-    public static void checkPermissionMessages(Component message) {
-        // Cave mode removed - no permission messages to check
     }
 
     public MapViewConfiguration getMapOptions() {

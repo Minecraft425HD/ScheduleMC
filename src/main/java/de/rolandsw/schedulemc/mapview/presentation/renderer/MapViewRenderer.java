@@ -1686,11 +1686,4 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         drawContext.drawString(minecraft.font, text, (int) x, (int) y, color);
     }
 
-    public static double getMinTablistOffset() {
-        return minTablistOffset;
-    }
-
-    public static float getStatusIconOffset() {
-        return statusIconOffset;
-    }
 }
