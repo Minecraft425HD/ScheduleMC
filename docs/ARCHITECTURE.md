@@ -1,7 +1,7 @@
 # ScheduleMC Architecture Documentation
 
 > Minecraft 1.20.1 Forge mod implementing a complete roleplay/economy server ecosystem.
-> **Version 3.8.0-beta** | **~249k LOC** across **1,561 Java files** organized into **44+ modules**.
+> **Version 3.9.0-beta** | **~260k LOC** across **1,610 Java files** organized into **44+ modules**.
 
 ---
 

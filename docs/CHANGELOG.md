@@ -6,6 +6,17 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.0-beta] - 2026-09-24
+
+### Docs / accuracy
+- 11 public I*API modules (no ITutorialAPI in source)
+- 8 plot types including INDUSTRIAL
+- Persistence: JSON + IncrementalSaveManager
+- License metadata: GNU GPLv3
+- WeaponItems: 26 registered items; no Laser/Heavy magazine items
+
+---
+
 ## [3.7.2-beta] - 2026-04-17
 
 ### Added
@@ -87,11 +98,11 @@ Format: `[version] - date — Summary of changes`
 - **Risk Premium System** — Configurable risk multipliers for illegal substances affecting market prices
 - **Savings Account Early Withdrawal** — Configurable penalty for early savings withdrawal
 - `IAchievementAPI` — Full public API for external achievement integration
-- `ITutorialAPI` — Tutorial progress control API for external mods
+- `ITutorialAPI` — **not implemented** (no interface in source)
 - 12 new test files covering Gang, Vehicle, Utility, Integration, and Command systems
 
 ### Changed
-- Increased total API modules to 12 (added Achievement and Market)
+- Public API is 11 I*API modules (Achievement + Market added; no Tutorial API)
 - `EconomyManager` now supports batch transaction processing via `BatchTransactionManager`
 - `PlotManager` spatial index upgraded to `ConcurrentHashMap`-based chunk grid (O(1) lookups)
 - `WalletManager` physical cash system expanded with Euro bills and coins as tradable items

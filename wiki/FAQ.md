@@ -2,7 +2,7 @@
 
 Comprehensive answers to common questions about ScheduleMC, the all-in-one roleplay and economy mod for Minecraft Forge 1.20.1.
 
-**Version:** 3.8.0-beta | **Last Updated:** 2026-04-13
+**Version:** 3.9.0-beta | **Last Updated:** 2026-09-24
 
 ---
 
@@ -52,7 +52,7 @@ ScheduleMC targets only Minecraft 1.20.1. It will not work on earlier versions, 
 
 ### Q: Is ScheduleMC free?
 
-**A:** ScheduleMC is distributed under the **All Rights Reserved** license. The `gradle.properties` file specifies the license as `All Rights Reserved`, meaning all rights are retained by the author, Luckas R. Schneider (Minecraft425HD). While the source code is available on GitHub, redistribution, modification, and commercial use may be restricted. Refer to the project's license terms for specific permissions.
+**A:** ScheduleMC is distributed under the **GNU GPLv3**. The `gradle.properties` / `mods.toml` license field is `GNU GPLv3`, meaning all rights are retained by the author, Luckas R. Schneider (Minecraft425HD). While the source code is available on GitHub, redistribution, modification, and commercial use may be restricted. Refer to the project's license terms for specific permissions.
 
 **Note:** The repository's LICENSE file contains the text of the GNU GPL v3, which may indicate a transition or dual-licensing arrangement. When in doubt, contact the developer for clarification.
 
@@ -117,14 +117,14 @@ These mods are entirely optional. ScheduleMC functions fully without them. They 
    ```
    .minecraft/
    └── mods/
-       └── ScheduleMC-3.8.0-beta.jar
+       └── ScheduleMC-3.9.0-beta.jar
    ```
 
    **For servers:**
    ```
    minecraft_server/
    └── mods/
-       └── ScheduleMC-3.8.0-beta.jar
+       └── ScheduleMC-3.9.0-beta.jar
    ```
 
 3. Launch Minecraft with the Forge profile (client) or start the server. ScheduleMC should appear in the mod list.
@@ -159,7 +159,7 @@ cd ScheduleMC
 ./gradlew build
 
 # 3. The built .jar is located at:
-#    build/libs/schedulemc-3.8.0-beta.jar
+#    build/libs/schedulemc-3.9.0-beta.jar
 ```
 
 **Additional development commands:**
@@ -321,12 +321,13 @@ The plot is now protected. Only you and trusted players can build, break blocks,
 
 ### Q: What are the plot types?
 
-**A:** ScheduleMC supports 5 plot types:
+**A:** ScheduleMC supports 8 plot types:
 
 | Type | Description | Who Can Create |
 |------|-------------|----------------|
 | **Residential** | Homes, apartments, and living spaces | All players |
 | **Commercial** | Businesses, offices, and shops | All players |
+| **Industrial** | Factories / processing | All players |
 | **Shop** | NPC shops with inventory and warehouse integration | All players |
 | **Public** | Parks, roads, spawn areas, and community spaces | Admins only |
 | **Government** | Town halls, prisons, hospitals, and official buildings | Admins only |
@@ -801,7 +802,7 @@ The protection is managed by the `ISmartphoneAPI` and tracks which players have 
 **Please include the following information in your bug report:**
 - Minecraft version (should be 1.20.1)
 - Forge version (e.g., 47.4.0)
-- ScheduleMC version (e.g., 3.8.0-beta)
+- ScheduleMC version (e.g., 3.9.0-beta)
 - Steps to reproduce the issue
 - Expected behavior vs. actual behavior
 - Log files from `.minecraft/logs/latest.log`
@@ -894,7 +895,7 @@ The `HealthCheckManager` automatically runs an initial health check on server st
 
 1. **Add ScheduleMC as a dependency** in your `build.gradle`:
    ```gradle
-   compileOnly files('libs/ScheduleMC-3.8.0-beta.jar')
+   compileOnly files('libs/ScheduleMC-3.9.0-beta.jar')
    ```
 
 2. **Access the API** through the singleton entry point:

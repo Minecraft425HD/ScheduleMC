@@ -39,7 +39,7 @@ The Plot Management System is the foundation of ScheduleMC's property and land o
 
 ### Key Features
 
-- **5 Plot Types** -- Residential, Commercial, Shop, Public, Government
+- **8 Plot Types** -- Residential, Commercial, Industrial, Shop, Public, Government, Prison, Towing Yard
 - **Visual Selection Tool** -- Plot Wand (Golden Axe) for intuitive boundary selection
 - **Apartment System** -- Multi-tenant rental units with deposits and rent
 - **Trust Management** -- Granular permission control for block and inventory access
@@ -92,7 +92,7 @@ PlotManager (Singleton)
 
 ## Plot Types
 
-ScheduleMC supports 5 distinct plot types, each with specific purposes and permissions.
+ScheduleMC supports 8 distinct plot types, each with specific purposes and permissions.
 
 ### Comparison Table
 
@@ -103,6 +103,9 @@ ScheduleMC supports 5 distinct plot types, each with specific purposes and permi
 | **SHOP** | Yellow | Admin/Player | Yes | No | Full |
 | **PUBLIC** | Gray | Server | No | No | None (open) |
 | **GOVERNMENT** | Red | Server | No | No | Admin-only |
+| **PRISON** | Dark red | Server | No | No | Police/admin |
+| **TOWING_YARD** | Orange | Player/Server | Yes | No | Full |
+| **INDUSTRIAL** | Brown | Player | Yes | No | Full (factory floor) |
 
 ### 1. Residential Plots
 
@@ -1154,7 +1157,7 @@ For related systems:
 
 [Back to Wiki Home](../Home.md) | [All Commands](../Commands.md)
 
-**Last Updated:** 2026-04-13 | **ScheduleMC v3.8.0-beta**
+**Last Updated:** 2026-09-24 | **ScheduleMC v3.9.0-beta**
 
 </div>
 

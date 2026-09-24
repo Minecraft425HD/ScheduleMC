@@ -86,12 +86,12 @@
 
 **ScheduleMC** is a large-scale Minecraft Forge mod that transforms a vanilla Minecraft server into a fully-featured roleplay and economy experience. It covers every aspect of city life simulation: owning and managing property, running businesses through complex production chains, interacting with AI-driven NPCs that follow daily schedules, driving vehicles, managing finances through a realistic banking system, and navigating a GTA-inspired police and crime system.
 
-The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib for OBJ model rendering, GUI systems, and networking utilities. It exposes a comprehensive public API with 12 modules, enabling third-party mods to integrate with any subsystem.
+The mod is built for Minecraft 1.20.1 with Forge 47.4.0 and leverages CoreLib for OBJ model rendering, GUI systems, and networking utilities. It exposes a comprehensive public API with 11 I*API modules, enabling third-party mods to integrate with any subsystem.
 
 ### Key Highlights
 
-- **~249k LOC (main + tests)** and **1,561 Java files** in the current repository snapshot
-- **12 API modules** with full external integration support
+- **~260k LOC (main + tests)** and **1,610 Java files** in the current repository snapshot
+- **11 API modules** with full external integration support
 - **16 major interconnected systems** with dozens of supporting subsystems
 - **14 production chains** (8 illegal, 6 legal) each with multi-step crafting processes
 - **137 vehicle system files** with 5 chassis types, 3 engines, 6 tire types
@@ -134,13 +134,13 @@ Für alle weiteren Detailzahlen (inkl. Historie) bitte `docs/REPO_METRICS.md` ve
 ### Client Installation
 
 1. Install Minecraft Forge 47.4.0 for your Minecraft 1.20.1 client.
-2. Place `schedulemc-3.8.0-beta.jar` and `corelib-1.20.1-1.1.1.jar` into your `.minecraft/mods/` folder.
+2. Place `schedulemc-3.9.0-beta.jar` and `corelib-1.20.1-1.1.1.jar` into your `.minecraft/mods/` folder.
 3. Launch Minecraft with the Forge profile.
 
 ```
 .minecraft/
   mods/
-    schedulemc-3.8.0-beta.jar
+    schedulemc-3.9.0-beta.jar
     corelib-1.20.1-1.1.1.jar
 ```
 
@@ -150,7 +150,7 @@ Für alle weiteren Detailzahlen (inkl. Historie) bitte `docs/REPO_METRICS.md` ve
 
 1. **Join the server.** Every new player receives a bank account with **1,000 Euro** starting balance.
 2. **Open your smartphone** (configurable keybind, default: `P`) to access the Map, Bank, Contacts, and other apps.
-3. **Find a plot.** Explore the city to find available plots. Plots come in types: Residential, Commercial, Shop, Public, and Government.
+3. **Find a plot.** Explore the city to find available plots. Plots come in types: Residential, Commercial, Industrial, Shop, Public, Government, Prison, and Towing Yard.
 4. **Rent an apartment.** Use `/plot apartment rent <name>` to rent an apartment unit.
 5. **Start earning money.** Sell items at shops, complete NPC quests, or start your own production business.
 6. **Explore production.** Grow coffee, produce wine, brew beer, make chocolate, harvest honey, or age cheese -- all legally. Or take risks with illegal operations for higher profits.
@@ -185,6 +185,7 @@ The plot system provides full land management with chunk-based spatial indexing 
 |---|---|---|---|
 | `RESIDENTIAL` | Yes | Yes | Player housing and apartments |
 | `COMMERCIAL` | Yes | Yes | Player-owned businesses |
+| `INDUSTRIAL` | Yes | Yes | Factories; restricted processing blocks require factory floor |
 | `SHOP` | No | No | State-owned shops operated by Merchant NPCs |
 | `PUBLIC` | No | No | Parks, roads, communal areas |
 | `GOVERNMENT` | No | No | Government buildings, administrative areas |
@@ -215,7 +216,7 @@ The plot system provides full land management with chunk-based spatial indexing 
 | `PlotProtectionHandler` | Block and interaction protection enforcement |
 | `PlotRegion` | Spatial region definition with world coordinates |
 | `PlotArea` | Abstract area representation for plot boundaries |
-| `PlotType` | Enum defining all 7 plot types and their capabilities |
+| `PlotType` | Enum defining all 8 plot types and their capabilities |
 
 ---
 
@@ -1024,10 +1025,10 @@ A progression system tracking player experience across production and other acti
 
 ### Achievement System
 
-A comprehensive achievement tracking system with 24 achievements across 5 categories, rewarding players for milestones in production, economy, social, crime, and exploration activities.
+A comprehensive achievement tracking system with ~35 achievements across 4 used categories, rewarding players for milestones in production, economy, social, crime, and exploration activities.
 
 **Features:**
-- **24 achievements** across 5 categories: Production, Economy, Social, Crime, and Exploration
+- **~35 achievements** across 4 used categories: Production, Economy, Social, Crime, and Exploration
 - **5 difficulty tiers**: Bronze, Silver, Gold, Diamond, and Platinum with increasing rewards
 - **Monetary rewards** scaling from 100 EUR (Bronze) to 50,000 EUR (Platinum)
 - **Automatic tracking** of player actions and progress via event listeners

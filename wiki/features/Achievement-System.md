@@ -4,7 +4,7 @@
 
 **Erfolge freischalten und Belohnungen verdienen**
 
-24 Achievements in 5 Kategorien mit bis zu 50.000 EUR Belohnung
+~35 Achievements in 4 Kategorien mit bis zu 50.000 EUR Belohnung
 
 [Back to Wiki Home](../Home.md) | [Commands Reference](../Commands.md)
 
@@ -35,7 +35,7 @@
 
 ## Overview
 
-The Achievement System provides 24 achievements across 5 categories with 5 difficulty tiers. Players unlock achievements through various in-game activities and receive monetary rewards. Progress is tracked automatically every 60 seconds and synchronized between server and client in real-time.
+The Achievement System provides ~35 achievements across 4 used categories with 5 difficulty tiers. Players unlock achievements through various in-game activities and receive monetary rewards. Progress is tracked automatically every 60 seconds and synchronized between server and client in real-time.
 
 ### Key Features
 

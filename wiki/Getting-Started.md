@@ -1,6 +1,6 @@
 # Getting Started with ScheduleMC
 
-The definitive beginner's guide to **ScheduleMC v3.8.0-beta** -- from installation to running your first roleplay economy server.
+The definitive beginner's guide to **ScheduleMC v3.9.0-beta** -- from installation to running your first roleplay economy server.
 
 ---
 
@@ -63,7 +63,7 @@ You should see output containing `openjdk version "17.x.x"` or similar. If not, 
 
 Download the latest ScheduleMC JAR from the [GitHub Releases page](https://github.com/Minecraft425HD/ScheduleMC/releases).
 
-The file will be named something like `ScheduleMC-3.8.0-beta.jar`.
+The file will be named something like `ScheduleMC-3.9.0-beta.jar`.
 
 ### Step 3: Place in the mods Folder
 
@@ -73,14 +73,14 @@ Copy the ScheduleMC JAR into your `mods/` directory:
 ```
 .minecraft/
   mods/
-    ScheduleMC-3.8.0-beta.jar
+    ScheduleMC-3.9.0-beta.jar
 ```
 
 **For Server Operators:**
 ```
 minecraft_server/
   mods/
-    ScheduleMC-3.8.0-beta.jar
+    ScheduleMC-3.9.0-beta.jar
 ```
 
 ### Step 4: Required Dependency -- CoreLib
@@ -256,12 +256,13 @@ Plots are protected land regions. Only the owner and trusted players can build i
 
 ### Plot Types
 
-ScheduleMC has **7 plot types**, each with different properties:
+ScheduleMC has **8 plot types**, each with different properties:
 
 | Type | Purchasable | Rentable | Description |
 |---|---|---|---|
 | **Residential** | Yes | Yes | Player homes and apartments |
 | **Commercial** | Yes | Yes | Businesses and offices |
+| **Industrial** | Yes | Yes | Factories / processing |
 | **Shop** | No | No | NPC merchant shops (state-owned) |
 | **Public** | No | No | Parks, roads, common areas |
 | **Government** | No | No | Town halls, official buildings |
@@ -280,6 +281,7 @@ Plot creation requires **OP level 2**. The workflow is:
 ```
 /plot create residential "My Home" 50000
 /plot create commercial "Downtown Office" 75000
+/plot create industrial "Factory" 80000
 /plot create shop "General Store"
 /plot create public "Central Park"
 /plot create government "City Hall"
@@ -287,7 +289,7 @@ Plot creation requires **OP level 2**. The workflow is:
 /plot create towing_yard "Impound Lot" 30000
 ```
 
-Purchasable types (residential, commercial, towing_yard) require a price argument. Non-purchasable types (shop, public, government, prison) do not.
+Purchasable types (residential, commercial, industrial, towing_yard) require a price argument. Non-purchasable types (shop, public, government, prison) do not.
 
 ### Plot Protection
 
@@ -958,7 +960,7 @@ Now that you have the basics, explore these resources to go deeper:
 
 ---
 
-*ScheduleMC v3.8.0-beta | Minecraft 1.20.1 | Forge 47.4.0+*
+*ScheduleMC v3.9.0-beta | Minecraft 1.20.1 | Forge 47.4.0+*
 
 [Back to Wiki Home](Home.md)
 
