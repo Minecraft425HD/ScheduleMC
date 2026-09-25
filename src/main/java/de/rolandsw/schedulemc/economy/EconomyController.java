@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.level.ProducerLevel;
 import de.rolandsw.schedulemc.level.XPSource;
-import de.rolandsw.schedulemc.market.MarketData;
 import de.rolandsw.schedulemc.production.core.ProductionQuality;
 import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
@@ -24,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * - PriceBounds (Preisgrenzen)
  * - RiskPremium (Risiko-Aufschläge)
  * - GlobalEconomyTracker (Inflation, Geldmenge)
- * - MarketData (Angebot/Nachfrage per Item)
+ * - DynamicPriceManager (Angebot/Nachfrage pro Produkt/Item, siehe getSupplyDemandMultiplier)
  * - EconomyCycle (Wirtschaftszyklus) — wird in Phase 2 hinzugefügt
  * - PriceManager Events (Wirtschafts-Events)
  *
@@ -53,11 +52,6 @@ public class EconomyController {
      * Item-zu-Kategorie Mapping für schnellen Lookup.
      */
     private final ConcurrentHashMap<String, ItemCategory> itemCategories = new ConcurrentHashMap<>();
-
-    /**
-     * MarketData pro Item-Identifier für S&D Tracking.
-     */
-    private final ConcurrentHashMap<String, MarketData> marketDataMap = new ConcurrentHashMap<>();
 
     /**
      * Aktueller Wirtschaftszyklus-Multiplikator (wird von EconomyCycle gesetzt).
@@ -137,19 +131,7 @@ public class EconomyController {
         }
 
         // Tracking & XP
-        if (playerUUID != null) {
-            GlobalEconomyTracker.getInstance().onSale(playerUUID, category, amount, afterTax);
-            updateSupplyOnSale(productId, amount);
-
-            // ProducerLevel XP vergeben
-            try {
-                XPSource xpSource = category.isIllegal() ? XPSource.SELL_ILLEGAL : XPSource.SELL_LEGAL;
-                ProducerLevel.getInstance().awardSaleXP(playerUUID, xpSource, amount,
-                        qualityMult, afterTax);
-            } catch (Exception e) {
-                LOGGER.debug("Could not award sale XP: {}", e.getMessage(), e);
-            }
-        }
+        recordCompletedSale(productId, amount, qualityMult, afterTax, playerUUID);
 
         LOGGER.debug("Sell price for {}(q={}, amt={}): {}€ (tax: {}%)",
                 productId, quality.getDisplayName(), amount, afterTax, taxRate * 100);
@@ -185,19 +167,7 @@ public class EconomyController {
         double taxRate = UnifiedPriceCalculator.getTaxRate(category);
         double afterTax = price * (1.0 - taxRate);
 
-        if (playerUUID != null) {
-            GlobalEconomyTracker.getInstance().onSale(playerUUID, category, amount, afterTax);
-            updateSupplyOnSale(productId, amount);
-
-            // ProducerLevel XP vergeben
-            try {
-                XPSource xpSource = category.isIllegal() ? XPSource.SELL_ILLEGAL : XPSource.SELL_LEGAL;
-                ProducerLevel.getInstance().awardSaleXP(playerUUID, xpSource, amount,
-                        qualityMultiplier, afterTax);
-            } catch (Exception e) {
-                LOGGER.debug("Could not award sale XP: {}", e.getMessage(), e);
-            }
-        }
+        recordCompletedSale(productId, amount, qualityMultiplier, afterTax, playerUUID);
 
         return afterTax;
     }
@@ -331,11 +301,14 @@ public class EconomyController {
         sb.append("§6Preis: §f").append(String.format("%.2f€", currentSellPrice));
         sb.append("\n§7Bereich: ").append(String.format("%.2f€ - %.2f€", range[0], range[1]));
 
-        // Trend
-        MarketData md = marketDataMap.get(productId);
-        if (md != null) {
-            MarketData.PriceTrend trend = md.getPriceTrend();
-            sb.append("\n§7Trend: ").append(trend.getFormatted());
+        // Trend (aus dem S&D-Multiplikator von DynamicPriceManager abgeleitet)
+        double sdMult = getSupplyDemandMultiplier(productId);
+        if (sdMult > 1.02) {
+            sb.append("\n§7Trend: §a↑ Steigend");
+        } else if (sdMult < 0.98) {
+            sb.append("\n§7Trend: §c↓ Fallend");
+        } else {
+            sb.append("\n§7Trend: §7→ Stabil");
         }
 
         // Risiko
@@ -447,11 +420,9 @@ public class EconomyController {
     // ═══════════════════════════════════════════════════════════
 
     private double getSupplyDemandMultiplier(String productId) {
-        MarketData md = marketDataMap.get(productId);
-        if (md != null) {
-            return md.getPriceMultiplier();
-        }
-        return 1.0; // Kein S&D Daten = neutraler Markt
+        de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager priceManager =
+                de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance();
+        return priceManager != null ? priceManager.getProductPriceMultiplier(productId) : 1.0;
     }
 
     private double getEventMultiplier(String productId) {
@@ -550,25 +521,39 @@ public class EconomyController {
     }
 
     private void updateSupplyOnSale(String productId, int amount) {
-        MarketData md = marketDataMap.get(productId);
-        if (md != null) {
-            md.onItemSold(amount);
+        de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager priceManager =
+                de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance();
+        if (priceManager != null) {
+            priceManager.onProductSold(productId, amount);
         }
     }
 
     /**
-     * Registriert MarketData für ein Produkt.
+     * Zeichnet einen abgeschlossenen Verkauf auf (Wirtschafts-Tracking, S&D, XP), OHNE den Preis
+     * neu zu berechnen — für Verkaufswege, die den Preis bereits anderweitig ausgehandelt/bezahlt
+     * haben (z.B. NPC-Verhandlungen), aber trotzdem denselben zentralen Tracking-Pfad wie
+     * {@link #getSellPrice} nutzen sollen.
+     *
+     * @param productId Produkt-Identifier (z.B. "CANNABIS_INDICA")
+     * @param amount    Verkaufte Menge
+     * @param quality   Qualitäts-Multiplikator (für XP-Berechnung)
+     * @param revenue   Tatsächlich erzielter Erlös
+     * @param playerUUID Spieler-UUID; bei {@code null} wird nichts aufgezeichnet (reine Preisvorschau)
      */
-    public void registerMarketData(String productId, MarketData data) {
-        marketDataMap.put(productId, data);
-    }
+    public void recordCompletedSale(String productId, int amount, double quality, double revenue,
+                                     @Nullable UUID playerUUID) {
+        if (playerUUID == null || amount <= 0) return;
 
-    /**
-     * Gibt MarketData für ein Produkt zurück.
-     */
-    @Nullable
-    public MarketData getMarketData(String productId) {
-        return marketDataMap.get(productId);
+        ItemCategory category = getCategory(productId);
+        GlobalEconomyTracker.getInstance().onSale(playerUUID, category, amount, revenue);
+        updateSupplyOnSale(productId, amount);
+
+        try {
+            XPSource xpSource = category.isIllegal() ? XPSource.SELL_ILLEGAL : XPSource.SELL_LEGAL;
+            ProducerLevel.getInstance().awardSaleXP(playerUUID, xpSource, amount, quality, revenue);
+        } catch (Exception e) {
+            LOGGER.debug("Could not award sale XP: {}", e.getMessage(), e);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -720,11 +705,8 @@ public class EconomyController {
     public void periodicUpdate() {
         GlobalEconomyTracker.getInstance().updateMoneySupplyStats();
 
-        // S&D Decay für alle registrierten MarketDatas
-        for (MarketData md : marketDataMap.values()) {
-            md.decaySupply(0.02);  // 2% Supply Decay pro Intervall
-            md.decayDemand(0.02); // 2% Demand Decay pro Intervall
-        }
+        // Hinweis: S&D-Decay läuft jetzt zentral in DynamicPriceManager.tick()
+        // (DYNAMIC_PRICING_SD_DECAY_RATE / DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES).
 
         // Razzia-Daten Decay
         RiskPremium.decayRaidData();

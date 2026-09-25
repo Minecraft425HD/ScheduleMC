@@ -915,6 +915,8 @@ The `DynamicPriceManager` (`de.rolandsw.schedulemc.npc.life.economy.DynamicPrice
 
 `DynamicPriceManager` tracks a real per-item supply/demand accumulator for NPC-shop items (registered on first purchase via `PurchaseItemPacket`, absorbed from the former `DynamicMarketManager`). Each purchase increases demand; the `sd_decay_rate` (default: `0.02` = 2% per update) decays both supply and demand back toward equilibrium. Combined with `update_interval_minutes` (default: 5), this means approximately 2% decay every 5 minutes. The resulting per-item price multiplier (`sd_factor`/`min_multiplier`/`max_multiplier`-bounded) is applied on top of the UDPS shop price in `PurchaseItemPacket`, and can be inspected in-game via `/market prices|trends|stats|top`.
 
+`DynamicPriceManager` also owns a second, string-keyed accumulator (`ProductMarketState`) for production-good sell/buy prices (`EconomyController.getSellPrice()`/`getBuyPrice()`, e.g. cannabis strains, tobacco types, coca variants) — this replaced a separate, permanently-empty `MarketData` map that used to live inside `EconomyController` itself. It uses the same `sd_factor`/`min_multiplier`/`max_multiplier`/`sd_decay_rate` config and decay cadence as the item-level market. It is populated by `EconomyController.recordCompletedSale()`, called from the actual point of sale (currently: `NegotiationPacket`'s NPC drug/tobacco deal completion) rather than from the price-preview calls in item tooltips.
+
 ### 9.5 Seasonal Market Pricing
 
 `market.SeasonalPriceModifier` applies a per-category price multiplier based

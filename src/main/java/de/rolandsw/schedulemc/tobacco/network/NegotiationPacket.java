@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.tobacco.network;
 
+import de.rolandsw.schedulemc.economy.EconomyController;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.economy.WalletManager;
 import de.rolandsw.schedulemc.economy.items.CashItem;
@@ -240,6 +241,20 @@ public class NegotiationPacket {
                     EconomyNetworkHandler.INSTANCE.send(
                         PacketDistributor.PLAYER.with(() -> player),
                         new SyncATMDataPacket(bankBalance, newWalletBalance, true, "")
+                    );
+                }
+
+                // UDPS: abgeschlossenen Verkauf zentral aufzeichnen (XP, Wirtschafts-Tracking, S&D).
+                // Der Preis wurde bereits über die Verhandlung festgelegt/bezahlt - hier wird nur
+                // noch der Verkauf ins zentrale Preissystem gemeldet, es wird nichts neu berechnet.
+                de.rolandsw.schedulemc.production.core.ProductionType soldVariant =
+                        PackagedDrugItem.parseVariant(variantStr);
+                if (soldVariant != null) {
+                    de.rolandsw.schedulemc.production.core.ProductionQuality soldQuality =
+                            PackagedDrugItem.parseQuality(qualityStr);
+                    EconomyController.getInstance().recordCompletedSale(
+                            soldVariant.getProductId(), offeredGrams,
+                            soldQuality.getPriceMultiplier(), price, player.getUUID()
                     );
                 }
 

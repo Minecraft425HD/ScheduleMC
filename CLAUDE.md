@@ -330,3 +330,83 @@ konfigurierten Grenzen hinausschießt.
 **Konsequenz:** `market/DynamicMarketManager.java` wurde gelöscht.
 **Nicht vorschlagen**, ein neues separates Item-S&D-System zu bauen oder
 `DynamicMarketManager` wiederherzustellen.
+
+---
+
+## Vollständige S&D-Konsolidierung + toter Verkaufsabschluss-Pfad (2026-09-25, Teil 2)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Auslöser:** Nutzer-Anfrage: "Alle Preise müssen von einem System überwacht
+werden ... es muss aber alles verifiziert und belegt sein, dass das gesamte
+dynamische Preis/kosten system auch wirklich nahtlos funktioniert!" — als
+Fortsetzung des DynamicPriceManager/DynamicMarketManager-Merges (siehe oben),
+da dort noch eine **dritte** S&D-Instanz übrig war: `EconomyController
+.marketDataMap` (String-keyed, getrennt von der Item-keyed `itemMarketData`
+in `DynamicPriceManager`).
+
+### Teil A: `EconomyController.marketDataMap` entfernt, auf DynamicPriceManager umgeleitet
+
+`marketDataMap`, `registerMarketData(String, MarketData)`, `getMarketData
+(String)` gelöscht (verifiziert: `registerMarketData` hatte im gesamten
+Repo null Aufrufer — die Map war zu 100 % tot, jeder S&D-Multiplikator für
+Produktions-Verkaufspreise war immer `1.0`). `DynamicPriceManager` bekam
+eine zweite, String-keyed Zustandsklasse `ProductMarketState` (supply/demand,
+gleiche Ratio^Faktor-Formel wie `MarketData`) für genau diesen Zweck —
+`getProductPriceMultiplier(String)`/`onProductSold(String,int)`/
+`onProductBought(String,int)`, Decay im selben Tick-Intervall wie das
+Item-Market. `EconomyController.getSupplyDemandMultiplier()`/
+`updateSupplyOnSale()` delegieren jetzt komplett dorthin. **Konsequenz:**
+`DynamicPriceManager` ist jetzt der EINZIGE Ort im gesamten Mod, der S&D-
+Zustand hält — sowohl für Item-keyed NPC-Shop-Ware als auch für String-keyed
+Produktions-Güter (Cannabis-Sorten, Tabak-Typen, Koka-Sorten, etc.).
+
+### Teil B: Verifizierter, gravierenderer Fund — Verkaufsabschluss rief nie mit echter UUID auf
+
+Beim Verifizieren, ob das S&D-System nach der Umleitung überhaupt jemals
+befüllt wird, wurde per Grep über **alle** Aufrufer von `EconomyController
+.getSellPrice()`/`ProductionType.calculateDynamicPrice()` im gesamten Repo
+(Honey/Beer/Chocolate/Wine/Coffee/Tobacco/Cannabis/Coca-Items, `ProductionType`
+selbst) festgestellt: **jeder einzelne Aufrufer übergibt `playerUUID = null`.**
+Diese Methoden werden ausschließlich aus `appendHoverText()` (Tooltip-Vorschau)
+aufgerufen, nie beim tatsächlichen Verkaufsabschluss. Der reale Geldfluss für
+Drogenverkäufe läuft komplett getrennt über `tobacco/network/NegotiationPacket
+.java` (NPC-Verhandlung: `WalletManager.addMoney`/`npc.getNpcData()
+.removeMoney()` direkt, ohne je `EconomyController` mit echter UUID
+aufzurufen). Konsequenz vor dem Fix: **`ProducerLevel.awardSaleXP()`
+(SELL_LEGAL/SELL_ILLEGAL) wurde im gesamten Spiel nie ausgelöst**,
+`GlobalEconomyTracker.onSale()` (Inflation/Geldmengen-Tracking) ebenfalls
+nie, und selbst nach Teil A wäre `ProductMarketState` für Produktions-Güter
+nie befüllt worden — trotz korrekter Verdrahtung wäre das System weiterhin
+funktional tot geblieben.
+
+**Fix:** `EconomyController.getSellPrice()`s duplizierter Tracking-Block
+(Economy-Tracking + S&D-Update + XP-Vergabe) wurde in eine neue, wieder-
+verwendbare Methode `recordCompletedSale(productId, amount, quality,
+revenue, playerUUID)` extrahiert (reduziert zugleich Code-Duplikation
+zwischen den beiden `getSellPrice()`-Overloads). `NegotiationPacket` ruft
+diese Methode direkt nach dem erfolgreichen Geldtransfer auf — der Preis
+wird NICHT neu berechnet (der bereits verhandelte/bezahlte Preis bleibt
+unverändert), nur Tracking/XP/S&D werden nachträglich gemeldet.
+Produkt-Identifikation läuft über `PackagedDrugItem.parseVariant()` +
+`ProductionType.getProductId()`/`getItemCategory()` (bereits vorhandene,
+korrekt funktionierende Infrastruktur — nur nie mit dem realen
+Verkaufsabschluss verknüpft).
+
+**Bekannte Lücke, bewusst nicht geraten:** `DrugType.METH` hat laut
+`PackagedDrugItem.parseVariant()`-Kommentar keine Sorten-Variante
+("Meth: keine Varianten") und wird von `parseVariant()` nicht auf einen
+`ProductionType` gemappt (gibt `null` zurück) — Meth-Verkäufe über
+`NegotiationPacket` lösen daher weiterhin **kein** S&D-Update/XP aus
+(`soldVariant == null` → Block wird übersprungen). Ein productId für Meth
+zu erraten (z. B. "METH_STANDARD") wäre unverifiziert gewesen. **Nicht
+vorschlagen**, dies durch Raten zu lösen — erst prüfen, ob/wie Meth-Sorten
+im Warenfluss überhaupt unterschieden werden, dann `parseVariant()` um
+einen echten `MethVariant`-Case erweitern, falls ein solcher Typ existiert
+oder sinnvoll wäre.
+
+**Nicht vorschlagen**, `AntiExploitManager.checkAndGetMultiplier()`
+nachträglich in `recordCompletedSale()` einzubauen — dessen Vertrag ist,
+den Preis VOR der Auszahlung zu reduzieren; bei einem bereits ausgehandelten
+und bezahlten Verkauf (wie in `NegotiationPacket`) kann das nicht mehr
+rückwirkend greifen, ohne die Auszahlungslogik neu zu designen.

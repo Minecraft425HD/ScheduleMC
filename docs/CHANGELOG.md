@@ -6,6 +6,38 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.2-beta] - 2026-09-25
+
+### Fixed — Drug-deal sales never triggered XP, economy tracking, or S&D updates
+Verified, via grepping every caller of `EconomyController.getSellPrice()`/`ProductionType
+.calculateDynamicPrice()` in the codebase (Honey/Beer/Chocolate/Wine/Coffee/Tobacco/Cannabis/
+Coca items), that **every single one** passes `playerUUID = null` — these calls only ever run
+from item tooltip previews, never from an actual sale. The real money transfer for drug/tobacco
+deals happens entirely inside `NegotiationPacket` (NPC negotiation), which paid the player
+directly via `WalletManager`/NPC wallet without ever calling back into `EconomyController` with
+a real player UUID. Result: `ProducerLevel.awardSaleXP()` (the `SELL_LEGAL`/`SELL_ILLEGAL` XP
+sources) was **never triggered anywhere in the game**, `GlobalEconomyTracker.onSale()` (inflation/
+money-supply tracking) never saw these sales, and supply/demand tracking for production goods
+was permanently empty regardless of how well the S&D system itself was wired.
+Extracted the duplicated tracking block from both `getSellPrice()` overloads into a new
+`EconomyController.recordCompletedSale(productId, amount, quality, revenue, playerUUID)`
+method (also reduces code duplication) and call it from `NegotiationPacket` right after a
+negotiated deal's money changes hands — the price itself is untouched (already negotiated/paid),
+only XP, economy tracking, and S&D are now reported. Covers cannabis, coca, poppy/heroin,
+mushroom, and tobacco deals (identified via the existing `PackagedDrugItem.parseVariant()` /
+`ProductionType.getProductId()`/`getItemCategory()` infrastructure). `DrugType.METH` has no
+variant type in `parseVariant()` and is knowingly left unresolved rather than guessing a
+product id — see `CLAUDE.md`.
+
+### Changed — Removed the third, also-dead S&D map in EconomyController
+`EconomyController.marketDataMap` (a separate, String-keyed `MarketData` map, confirmed 100%
+dead — `registerMarketData()` had zero callers anywhere) is deleted. `DynamicPriceManager`
+(already the sole item-level S&D owner as of the previous release) gained a second, String-keyed
+`ProductMarketState` map with the same ratio^factor math, and `EconomyController
+.getSupplyDemandMultiplier()`/`updateSupplyOnSale()` now delegate to it. `DynamicPriceManager`
+is now the single system that owns all supply/demand state in the mod, for both NPC-shop items
+and production-good sell/buy prices.
+
 ## [3.9.1-beta] - 2026-09-25
 
 ### Fixed — Config-screen slider ranges & style inconsistency

@@ -112,6 +112,13 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     /** Anzahl der bisher durchgeführten Item-Markt-Updates (Decay-Zyklen) */
     private long totalItemMarketUpdates = 0;
 
+    /**
+     * Supply&Demand-Zustand für abstrakte UDPS-Produkte (String-Key, z.B. "CANNABIS_INDICA").
+     * Ersetzt EconomyController.marketDataMap, das nie befüllt wurde ({@code registerMarketData()}
+     * hatte keinen Aufrufer) — jetzt der einzige S&D-Speicher im gesamten Mod.
+     */
+    private final Map<String, ProductMarketState> productMarketData = new ConcurrentHashMap<>();
+
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
@@ -150,6 +157,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
             if (lastMarketUpdateTick == -1 || currentTick - lastMarketUpdateTick >= ticksPerUpdate) {
                 updateMarketConditions();
                 updateItemMarketData();
+                updateProductMarketData();
                 lastMarketUpdateTick = currentTick;
             }
         }
@@ -495,6 +503,68 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         markDirty();
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // PRODUCT MARKET (Supply & Demand für abstrakte UDPS-Produkte, z.B. Anbau-/Drogen-Sorten)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Gibt den aktuellen S&D-Preismultiplikator für ein Produkt zurück (1.0 = neutral,
+     * z.B. wenn Dynamic Pricing deaktiviert ist oder das Produkt noch keine Verkäufe/Käufe hatte).
+     * Nutzt dieselbe Ratio^Faktor-Formel wie {@link MarketData#getPriceMultiplier()}.
+     */
+    public double getProductPriceMultiplier(String productId) {
+        if (!ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) return 1.0;
+        ProductMarketState state = productMarketData.get(productId);
+        if (state == null) return 1.0;
+
+        double sdFactor = ModConfigHandler.COMMON.DYNAMIC_PRICING_SD_FACTOR.get();
+        double minMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MIN_MULTIPLIER.get();
+        double maxMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MAX_MULTIPLIER.get();
+
+        double ratio = (double) state.demand / Math.max(1, state.supply);
+        double multiplier = Math.pow(ratio, sdFactor);
+        return Math.max(minMult, Math.min(maxMult, multiplier));
+    }
+
+    /**
+     * Ein Produkt wurde verkauft (Spieler verkauft an NPC/Markt) - erhöht Supply.
+     */
+    public void onProductSold(String productId, int amount) {
+        if (!ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get() || amount <= 0) return;
+        productMarketData.computeIfAbsent(productId, k -> new ProductMarketState()).supply += amount;
+        markDirty();
+    }
+
+    /**
+     * Ein Produkt wurde gekauft (Spieler kauft, z.B. Saatgut/Rohstoffe) - erhöht Demand.
+     */
+    public void onProductBought(String productId, int amount) {
+        if (!ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get() || amount <= 0) return;
+        productMarketData.computeIfAbsent(productId, k -> new ProductMarketState()).demand += amount;
+        markDirty();
+    }
+
+    /**
+     * Führt Decay für alle Produkt-Markt-Einträge aus, im selben Intervall wie
+     * {@link #updateItemMarketData()}.
+     */
+    private void updateProductMarketData() {
+        if (productMarketData.isEmpty()) return;
+
+        double decayRate = ModConfigHandler.COMMON.DYNAMIC_PRICING_SD_DECAY_RATE.get();
+        for (ProductMarketState state : productMarketData.values()) {
+            state.supply = Math.max(1, (int) (state.supply * (1.0 - decayRate)));
+            state.demand = Math.max(1, (int) (state.demand * (1.0 - decayRate)));
+        }
+        markDirty();
+    }
+
+    /** Supply&Demand-Zustand eines einzelnen UDPS-Produkts. */
+    public static class ProductMarketState {
+        public int supply = 100;
+        public int demand = 100;
+    }
+
     public MarketStatistics getItemMarketStatistics() {
         int totalItems = itemMarketData.size();
         int risingCount = 0;
@@ -831,6 +901,34 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
             }
         }
 
+        // Validate and load product market data (Supply&Demand, ehemals EconomyController.marketDataMap)
+        productMarketData.clear();
+        if (data.productMarketData != null) {
+            if (data.productMarketData.size() > 10000) {
+                LOGGER.warn("Product market data size ({}) exceeds limit, potential corruption",
+                    data.productMarketData.size());
+                correctedCount++;
+            }
+
+            for (Map.Entry<String, ProductMarketState> entry : data.productMarketData.entrySet()) {
+                try {
+                    String productId = entry.getKey();
+                    ProductMarketState state = entry.getValue();
+                    if (productId == null || productId.isEmpty() || state == null) {
+                        invalidCount++;
+                        continue;
+                    }
+                    ProductMarketState clean = new ProductMarketState();
+                    clean.supply = Math.max(1, state.supply);
+                    clean.demand = Math.max(1, state.demand);
+                    productMarketData.put(productId, clean);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading product market data for {}", entry.getKey(), e);
+                    invalidCount++;
+                }
+            }
+        }
+
         // SUMMARY
         if (invalidCount > 0 || correctedCount > 0) {
             LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
@@ -860,6 +958,8 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
                 md.getCurrentPrice(), md.getPreviousPrice(), md.getPreviousSupply(), md.getPreviousDemand()
             ));
         }
+
+        data.productMarketData = new HashMap<>(productMarketData);
         return data;
     }
 
@@ -881,6 +981,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         temporaryModifiers.clear();
         priceHistory.clear();
         itemMarketData.clear();
+        productMarketData.clear();
         lastKnownDay = -1;
     }
 
@@ -895,6 +996,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         public Map<String, TemporaryModifier> temporaryModifiers;
         public List<PriceSnapshot> priceHistory;
         public List<SerializedItemMarketData> itemMarketData;
+        public Map<String, ProductMarketState> productMarketData;
     }
 
     /**
