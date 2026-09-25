@@ -796,41 +796,89 @@ weiter (das UI ist konsistent und ehrlich — nur eben statisch, bis zum
 Skip). **Nicht vorschlagen**, die 14 `completeStep()`-Trigger blind zu
 raten — einzeln pro System verifizieren, falls gewünscht.
 
-### Gefunden, NICHT umgesetzt (Entscheidung ausstehend): ProductionConfig/ProductionRegistry/UnifiedProcessingBlockEntity — komplett totes Parallel-Framework
+### ProductionConfig/ProductionRegistry/UnifiedProcessingBlockEntity — komplett totes Parallel-Framework ENTFERNT (2026-09-25, Teil 7)
 
-Bei der Untersuchung von `ProductionRegistry` (0 Aufrufer) stellte sich
-heraus, dass es Teil eines **komplett unbenutzten, parallelen
-Produktions-Frameworks** ist, nicht nur eine einzelne tote Klasse:
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen, dieses Framework wiederherzustellen
 
-- `ProductionRegistry.java` (511 Zeilen) — zentrale Registry für
-  `ProductionConfig`s, 0 Aufrufer (`getInstance()`/`register()`/Lookups
-  werden nirgends aufgerufen).
-- `ProductionConfig.java` (316 Zeilen) — wird nur von
-  `UnifiedProcessingBlockEntity` referenziert.
-- `UnifiedProcessingBlockEntity.java` (545 Zeilen) — generische,
-  daten-getriebene Block-Entity für beliebige `ProductionConfig`s
-  (Input/Output-Slots, Processing-Time, Resource-Verbrauch). **Hat 0
-  Subklassen und wird nirgends instanziiert** — nur ein einziger
-  Kommentar in `ModConstants.java` erwähnt den Namen.
+**Vorgeschichte:** Ursprünglich (Teil 6) als "3 Dateien, 1.372 Zeilen" gemeldet und aus
+Vorsicht nicht gelöscht, weil das wie eine architektonische Grundsatzentscheidung aussah.
+Auf explizite Nutzeranfrage ("extrem gründlich recherchieren") wurde eine vollständige
+Tiefenanalyse nachgeholt — dabei stellte sich heraus, dass die ursprüngliche Meldung
+**zwei weitere Dateien desselben Frameworks übersehen hatte** und dass die Löschung, sauber
+verifiziert, gar keine Grundsatzentscheidung war, sondern ein normaler Dead-Code-Fund wie
+`NegotiationSystem` — nur größer.
 
-Das tatsächlich verwendete Produktionssystem sind die dokumentierten,
-handgeschriebenen `Abstract*BlockEntity`-Klassen pro Warengruppe (Beer/
-Wine/Tobacco/Cannabis, siehe Abschnitte oben in dieser Datei) — dieses
-generische Framework wurde offenbar als datengetriebene Alternative
-gebaut, aber nie an einen einzigen echten Block angeschlossen. **Das
-betrifft 3 Dateien, 1.372 Zeilen, kein Aufrufer irgendwo.**
+**Git-Archäologie:** Alle betroffenen Dateien reichen bis zum allerersten Commit des Repos
+zurück (`a070ed4`, Repo-Historie beginnt dort komplett neu) — keine Rückschlüsse über
+"wann/warum abgebrochen" möglich, das Framework war von Anfang an fertig und unbenutzt.
 
-**Nicht eigenständig gelöscht** (im Gegensatz zu z. B. `NegotiationSystem`
-oder `TradingComponent`), weil das eine architektonische Grundsatz-
-entscheidung ist, kein einfacher Duplikat-Fund: die Löschung eines
-kompletten, potenziell für zukünftige Warengruppen gedachten
-Frameworks braucht ein OK vom Repo-Owner (analog zur "Public API
-entfernt"-Entscheidung oben). **Empfehlung:** Entweder (a) löschen, wenn
-kein datengetriebenes Produktionssystem mehr geplant ist, oder (b) an
-mindestens einen echten Block anschließen, um zu beweisen, dass es
-funktioniert. **Nicht vorschlagen**, dieses Framework nebenbei in ein
-anderes Feature (z. B. ProductionEventManager) einzubauen, solange diese
-Grundsatzfrage offen ist.
+**Die tatsächlichen 9 Dateien (statt der ursprünglich gemeldeten 3), 2.753 Zeilen:**
+
+- `production/config/ProductionConfig.java` (316 Z.) — Builder-Pattern-Config pro Warensorte.
+- `production/config/ProductionRegistry.java` (511 Z.) — Singleton-Katalog; hardcodet einen
+  kompletten, parallelen 8-Kategorien-Warenkatalog (Tobacco/Cannabis/Coca/Poppy/Mushroom/
+  MDMA/LSD/Meth) mit echten, real registrierten Item-IDs (verifiziert z. B. gegen
+  `FreshTobaccoLeafItem`/`DriedBudItem`) — technisch funktionsfähig gemeint, aber `getInstance()`
+  wurde nachweislich nur aus der eigenen Methode heraus aufgerufen, nie von außen.
+- `production/blockentity/UnifiedProcessingBlockEntity.java` (545 Z.) — generische,
+  config-getriebene BlockEntity. Eigener Javadoc-Wortlaut: *"Ersetzt: AbstractDryingRackBlockEntity
+  (und 3 Subklassen), AbstractFermentationBarrelBlockEntity (und 3 Subklassen),
+  AbstractExtractionVatBlockEntity (und 3 Subklassen), AbstractRefineryBlockEntity (und 3
+  Subklassen), ReactionKettleBlockEntity (MDMA), FermentationTankBlockEntity (LSD), und viele
+  mehr... Reduziert ~2000 Zeilen Code auf eine einzige konfigurierbare Klasse."* Alle 6 dort
+  genannten Zielklassen existieren weiterhin unverändert und aktiv genutzt — die Ersetzung
+  fand nie statt. 0 Instanziierungen, 0 Subklassen.
+- `production/blockentity/AbstractProcessingBlockEntity.java` (317 Z.) — **zuvor nicht
+  gemeldeter, zweiter, unabhängiger** generischer Versuch (`<T extends ProductionType, Q
+  extends ProductionQuality>`, nutzt echten `ItemStackHandler`, erbt von der echten,
+  produktiv genutzten `AbstractItemHandlerBlockEntity`). 0 Subklassen — auch dieser zweite
+  Anlauf wurde nie zu Ende geführt.
+- `production/core/GenericQuality.java` (380 Z.) — eigener Javadoc-Wortlaut: *"Ersetzt:
+  TobaccoQuality (4 Tiers), CannabisQuality (5 Tiers), MDMAQuality (4 Tiers)."* Alle drei
+  Ziel-Enums sind weiterhin die real genutzten (46/26/12 Referenzen) — auch diese Ersetzung
+  fand nie statt.
+- `production/core/GenericPlantData.java` (319 Z.) — generische Pflanzenwachstums-Datenklasse,
+  0 echte Aufrufer (nur von den jetzt ebenfalls gelöschten Tests genutzt).
+- `production/core/ProductionStage.java` (56 Z.) — Interface für Produktionsphasen, 0
+  Implementierungen irgendwo, auch nicht innerhalb des toten Frameworks selbst.
+- `production/blocks/AbstractPlantBlock.java` (218 Z.) — der Block-Ebene-Gegenpart zu
+  `UnifiedProcessingBlockEntity`, 0 Subklassen. Die echten Pflanzenblöcke
+  (`TobaccoPlantBlock`, `CannabisPlantBlock`, `CocaPlantBlock`, …) erben direkt von `Block`.
+- `production/blocks/AbstractProcessingBlock.java` (91 Z.) — 0 Subklassen.
+
+Plus 2 Testdateien (653 Zeilen), die ausschließlich dieses Framework testeten und mitgelöscht
+wurden: `GenericProductionSystemTest.java`, `GenericQualityLookupTest.java`.
+
+**Verifiziert vor der Löschung:** Repo-weiter Grep auf alle 9 Klassennamen ergab 0
+verbleibende Referenzen außerhalb der zu löschenden Dateien selbst; die von den Javadocs
+behaupteten "ersetzten" Klassen (`TobaccoQuality`/`CannabisQuality`/`MDMAQuality`,
+`AbstractDryingRackBlockEntity`, `AbstractFermentationBarrelBlockEntity`,
+`AbstractExtractionVatBlockEntity`, `AbstractRefineryBlockEntity`, `ReactionKettleBlockEntity`,
+`FermentationTankBlockEntity`, `PlantPotBlock`, `AbstractItemHandlerBlockEntity`) sind alle
+unverändert vorhanden und aktiv referenziert — die Löschung hat keinerlei Auswirkung auf das
+tatsächlich laufende Produktionssystem.
+
+**Reales System zum Vergleich:** 115 echte Produktions-BlockEntity-Dateien über 12
+Warengruppen, gespalten in zwei komplett getrennte Architektur-Familien: 45 "legale" Klassen
+(Beer/Wine/Cheese/Chocolate/Coffee/Honey/Tobacco) mit der echten gemeinsamen
+`AbstractItemHandlerBlockEntity` als Basis, und 24 "illegale" Klassen (Cannabis/Coca/MDMA/
+LSD/Meth), die alle direkt von `BlockEntity` erben, ohne jede gemeinsame Basis — nicht einmal
+untereinander. Das tote Framework wollte offenbar genau diese Lücke schließen, hat es aber
+nie geschafft.
+
+**Doku-Bereinigung:** `docs/DEVELOPER_GUIDE.md` enthielt einen kompletten, irreführenden
+"Adding a New Production System"-Leitfaden (Step 1-8) mit der falschen Behauptung, alle
+existierenden Systeme (Tobacco, Cannabis, Coffee, Wine, …) seien auf diesem Framework
+aufgebaut — ersetzt durch eine korrekte Beschreibung des tatsächlichen Patterns
+(handgeschriebene Enums pro Warengruppe + `AbstractItemHandlerBlockEntity` für legale Waren
++ Supplier-Pattern für Größenvarianten). Passende Korrekturen auch in
+`docs/ARCHITECTURE.md`, `docs/CONFIGURATION.md`, `docs/TESTING.md`.
+
+**Nicht vorschlagen**, dieses Framework (oder Teile davon) wiederherzustellen. Falls
+künftig eine echte Vereinheitlichung gewünscht ist: der sinnvolle Ansatzpunkt wäre eine
+gemeinsame Basisklasse für die 24 "illegalen" BlockEntities (analog zu
+`AbstractItemHandlerBlockEntity` für die legalen Waren) — nicht die Wiederbelebung dieses
+Frameworks.
 
 ### Gefunden, NICHT umgesetzt (Entscheidung ausstehend): ProductionEventManager
 

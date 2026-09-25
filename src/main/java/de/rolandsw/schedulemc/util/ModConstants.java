@@ -50,8 +50,7 @@ public final class ModConstants {
     /**
      * Tick-Throttling-Intervall für Verarbeitungs-BlockEntities.
      * Verarbeitung läuft nur alle 5 Ticks statt jeden Tick (Faktor 5 weniger CPU-Last).
-     * Wird von AbstractFermentationBarrelBlockEntity, AbstractProcessingBlockEntity
-     * und UnifiedProcessingBlockEntity genutzt.
+     * Wird von AbstractFermentationBarrelBlockEntity genutzt.
      */
     public static final int PROCESSING_TICK_INTERVAL = 5;
 

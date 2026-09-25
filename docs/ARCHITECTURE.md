@@ -279,27 +279,29 @@ vehicle/
 
 **Dependencies:** CoreLib (`de.maxhenkel.corelib:corelib:1.20.1-1.1.1`) for networking, OBJ models, and GUI system.
 
-### 2.6 production/ -- Generic Production Framework (29 files)
+### 2.6 production/ -- Shared Production Infrastructure
 
-A reusable framework that all 14 production modules build upon.
+A set of genuinely shared building blocks that the 14 production modules use selectively
+-- **not** a generic framework every module is built on. An earlier, more ambitious attempt
+at a config-driven generic framework (`ProductionConfig`, `ProductionRegistry`,
+`UnifiedProcessingBlockEntity`, `AbstractProcessingBlockEntity`, `AbstractPlantBlock`,
+`AbstractProcessingBlock`, `GenericQuality`, `GenericPlantData`, `ProductionStage`) was
+built but never adopted by a single real block (verified: zero instantiations, zero
+subclasses) and was removed as dead code -- see `CLAUDE.md` for the full writeup. Each
+production module instead has its own hand-written `ProductionType`/`ProductionQuality`
+enums and block entities (see `docs/DEVELOPER_GUIDE.md` Section 5 for the real pattern).
 
 ```
 production/
-  ProductionSize.java
+  ProductionSize.java                   -- Shared size enum (Small/Medium/Large)
   blockentity/
-    AbstractProcessingBlockEntity.java  -- Template method for processing
+    AbstractItemHandlerBlockEntity.java -- Shared ItemStackHandler base (45 real subclasses:
+                                            beer/wine/cheese/chocolate/coffee/honey/tobacco)
     PlantPotBlockEntity.java            -- Plant pot logic
-    UnifiedProcessingBlockEntity.java   -- Unified processing system
   blocks/
-    AbstractPlantBlock.java             -- Base plant growth block
-    AbstractProcessingBlock.java        -- Base processing block
-    PlantPotBlock.java                  -- Plant pot block
-  config/
-    ProductionConfig.java               -- Builder-pattern configuration
-    ProductionRegistry.java             -- Central production type registry
+    PlantPotBlock.java                  -- Plant pot block, shared by several crop types
   core/
-    DrugType.java, GenericPlantData.java, GenericQuality.java,
-    PotType.java, ProductionQuality.java, ProductionStage.java, ProductionType.java
+    DrugType.java, PotType.java, ProductionQuality.java, ProductionType.java -- shared interfaces
   data/
     PlantPotData.java
   growth/
@@ -316,20 +318,9 @@ production/
     TobaccoPlantSerializer.java
 ```
 
-**ProductionConfig.Builder** enables declarative production type definition:
-
-```java
-new ProductionConfig.Builder("tobacco_virginia", "Virginia Tobacco")
-    .category(ProductionCategory.PLANT)
-    .basePrice(15.0)
-    .growthTicks(4800)
-    .baseYield(4)
-    .requiresLight(true)
-    .minLightLevel(10)
-    .addProcessingStage("drying", new ProcessingStageConfig(...))
-    .qualityTiers(GenericQuality.createStandard4TierSystem())
-    .build();
-```
+Note: cannabis/coca/mdma/lsd/meth block entities do **not** use
+`AbstractItemHandlerBlockEntity` -- they extend `BlockEntity` directly with their own
+fields, with no shared base across those five categories.
 
 ### 2.7 Individual Production Modules (14 modules, 607 files total)
 
@@ -883,14 +874,12 @@ public static AntiExploitManager getInstance() {
 ### Template Method
 
 - **`AbstractPersistenceManager<T>`** -- Defines save/load skeleton; subclasses implement `getDataType()`, `onDataLoaded()`, `getCurrentData()`, `onCriticalLoadFailure()`
-- **`AbstractProcessingBlockEntity`** -- Defines processing tick skeleton; subclasses implement specific processing logic
-- **`AbstractPlantBlock`** -- Defines growth tick skeleton; subclasses define growth stages
+- **`AbstractItemHandlerBlockEntity`** -- Defines ItemStackHandler/NBT plumbing shared by 45 real processing block entities; each subclass still hand-rolls its own `tick()`
 - **`AbstractPlantGrowthHandler`** -- Defines growth calculation skeleton
 
 ### Strategy
 
 - **Production growth handlers** -- Different `PlantGrowthHandler` implementations per crop (tobacco, cannabis, coca, poppy, mushroom) selected at runtime
-- **Processing stage configs** -- `ProcessingStageConfig` defines per-stage behavior, composed via `ProductionConfig.Builder`
 
 ### Observer
 
@@ -900,7 +889,6 @@ public static AntiExploitManager getInstance() {
 ### Registry
 
 - **Forge `DeferredRegister`** -- Used for all Minecraft registrations (items, blocks, entities, menus, creative tabs)
-- **`ProductionRegistry`** -- Custom registry for production configurations
 - **`UtilityRegistry`** -- Registers default utility types and resolves block references
 
 ### Command
@@ -914,12 +902,10 @@ public static AntiExploitManager getInstance() {
 
 ### Adapter
 
-- **Production adapters** -- Each production module (coffee, wine, etc.) adapts the generic production framework to its specific item/block types
 - **`SaveableWrapper`** -- Adapts any `Runnable` save function into the `ISaveable` interface for IncrementalSaveManager registration
 
 ### Builder
 
-- **`ProductionConfig.Builder`** -- Fluent builder for production type definitions
 - **`BatchTransactionManager`** -- Fluent builder for batch economy transactions
 
 ---

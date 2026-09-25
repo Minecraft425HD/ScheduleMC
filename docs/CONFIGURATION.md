@@ -445,49 +445,15 @@ All NPC behavioral constants are centralized in `NPCLifeConstants` (`de.rolandsw
 
 ## 5. Production Configuration
 
-### 5.1 ProductionConfig (Builder Pattern)
+There is no generic `ProductionConfig`/`ProcessingStageConfig` object — an earlier attempt
+at a config-driven, generic production system was built but never adopted by any real
+block and was removed as dead code (see `CLAUDE.md`). Each production category (tobacco,
+cannabis, coca, poppy, mushroom, meth, lsd, mdma, coffee, wine, cheese, chocolate, honey)
+instead has its own dedicated config section below (`[tobacco]`, `[cannabis]`, etc.) plus
+its own hand-written `ProductionType`/`ProductionQuality` enums in Java — see
+`docs/DEVELOPER_GUIDE.md` Section 5 for the real pattern to follow when adding a new one.
 
-Each production type is defined via `ProductionConfig.Builder` (`de.rolandsw.schedulemc.production.config.ProductionConfig`). Fields:
-
-| Field | Default | Description |
-|-------|---------|-------------|
-| `id` | (required) | Unique identifier (e.g., `"tobacco_virginia"`) |
-| `displayName` | (required) | Display name |
-| `colorCode` | `"&f"` | Minecraft color code |
-| `basePrice` | `10.0` | Base price per unit |
-| `growthTicks` | `3600` | Ticks to grow from stage 0 to 7 (~3 minutes) |
-| `baseYield` | `3` | Base harvest yield |
-| `category` | `PLANT` | Category: PLANT, MUSHROOM, CHEMICAL, EXTRACT, PROCESSED |
-| `requiresLight` | `true` | Whether the crop needs light |
-| `minLightLevel` | `8` | Minimum light level for growth |
-| `requiresWater` | `false` | Whether the crop needs water |
-| `requiresTemperature` | `false` | Temperature sensitivity |
-
-**Production Categories:**
-
-| Category | Description | Color |
-|----------|-------------|-------|
-| `PLANT` | Tobacco, Cannabis, Coca, Poppy | Green |
-| `MUSHROOM` | Mushrooms (special growth) | Pink |
-| `CHEMICAL` | Meth, LSD, MDMA (synthesized) | Cyan |
-| `EXTRACT` | Cocaine, Heroin (extracted) | Yellow |
-| `PROCESSED` | Fermented, dried products | Gold |
-
-### 5.2 Processing Stages
-
-Each production type can define multiple processing stages via `ProcessingStageConfig`:
-
-| Field | Description |
-|-------|-------------|
-| `stageName` | Name of the processing stage |
-| `processingTime` | Duration in ticks |
-| `inputItem` | Input item ID |
-| `outputItem` | Output item ID |
-| `preservesQuality` | Whether quality carries over |
-| `requiredResource` | Optional resource (e.g., "diesel", "water") |
-| `resourceAmount` | Amount of resource needed per process |
-
-### 5.3 Tobacco System (TobaccoConfig)
+### 5.1 Tobacco System (TobaccoConfig)
 
 Located under `[tobacco]`, `[drying_rack_capacities]`, `[fermentation_barrel_capacities]`, `[pot_capacities]`, `[bottle_effects]`, and `[grow_lights]` in the common config.
 

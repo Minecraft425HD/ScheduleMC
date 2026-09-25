@@ -6,6 +6,29 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.7-beta] - 2026-09-25
+
+### Removed — the dead parallel production framework, completely
+Follow-up to the 3.9.6-beta finding: a deeper investigation (requested explicitly, with a
+report) found the dead framework was larger than first reported — not 3 files/1,372 lines,
+but **9 files / 2,753 lines** (plus 2 test files / 653 lines that exclusively tested it):
+`ProductionConfig`, `ProductionRegistry`, `UnifiedProcessingBlockEntity`,
+`AbstractProcessingBlockEntity` (a second, independent generic-BlockEntity attempt, not
+previously found), `GenericQuality`, `GenericPlantData`, `ProductionStage`,
+`AbstractPlantBlock`, `AbstractProcessingBlock` (the Block-level half of the same
+framework), plus `GenericProductionSystemTest`/`GenericQualityLookupTest`. All verified to
+have zero real callers (zero instantiations, zero subclasses) before deletion; the classes
+they claimed to replace (`TobaccoQuality`/`CannabisQuality`/`MDMAQuality`,
+`AbstractDryingRackBlockEntity` and 5 other named `Abstract*BlockEntity` classes) are all
+still alive and unaffected. Corrected the misleading "Adding a New Production System"
+tutorial in `docs/DEVELOPER_GUIDE.md` (previously described this dead framework as the
+system every production module is built on) and cleaned up matching stale references in
+`docs/ARCHITECTURE.md`, `docs/CONFIGURATION.md`, `docs/TESTING.md`. See `CLAUDE.md` for the
+full writeup of what each class was, what it claimed to replace, and why it was never
+adopted.
+
+---
+
 ## [3.9.6-beta] - 2026-09-25
 
 ### Fixed — CompanionBehavior was never wired in (real gameplay bug)

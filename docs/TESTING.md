@@ -99,8 +99,6 @@ src/test/java/de/rolandsw/schedulemc/
 │       ├── NPCEmotionsTest.java
 │       └── NPCNeedsTest.java
 ├── production/
-│   ├── GenericProductionSystemTest.java
-│   ├── GenericQualityLookupTest.java
 │   ├── ProductionSizeTest.java
 │   └── nbt/
 │       └── PlantSerializerTest.java
@@ -340,12 +338,12 @@ class WalletManagerTest {
 
 **Packages:** `de.rolandsw.schedulemc.production`, `.production.nbt`, `.tobacco`
 
-**4 test files** covering the production chain framework:
+**3 test files** covering shared production infrastructure (note: `GenericProductionSystemTest`
+and `GenericQualityLookupTest` tested the now-removed dead `ProductionConfig`/`GenericQuality`
+framework — see `CLAUDE.md` — and were deleted along with it):
 
 | Test Class | Coverage Area |
 |-----------|---------------|
-| `GenericProductionSystemTest` | Generic production chain framework |
-| `GenericQualityLookupTest` | Quality-tier lookup logic |
 | `ProductionSizeTest` | Small/medium/large machine capacity calculations |
 | `PlantSerializerTest` | NBT serialization/deserialization of plant state |
 | `TobaccoQualityTest` | Tobacco-specific quality calculation |

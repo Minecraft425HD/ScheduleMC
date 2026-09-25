@@ -177,11 +177,10 @@ src/main/java/de/rolandsw/schedulemc/
 ├── vehicle/                     Vehicle system (137 files)
 │   └── Main.java                Vehicle mod integration entry point
 │
-├── production/                  Generic production framework
-│   ├── config/                  ProductionConfig (Builder pattern)
-│   ├── blocks/                  AbstractPlantBlock, AbstractProcessingBlock
-│   ├── blockentity/             Processing block entities
-│   ├── core/                    ProductionType, GenericQuality, PotType
+├── production/                  Shared production infrastructure
+│   ├── blocks/                  PlantPotBlock (shared pot/growth block used by real crops)
+│   ├── blockentity/             AbstractItemHandlerBlockEntity (shared ItemStackHandler base)
+│   ├── core/                    ProductionType, ProductionQuality, DrugType, PotType (shared interfaces)
 │   ├── items/                   PackagedDrugItem
 │   ├── growth/                  Growth stage logic
 │   ├── data/                    Production data persistence
@@ -466,192 +465,45 @@ ScheduleMC ships with German (primary) and English translations. Add entries to 
 
 ## 5. Adding a New Production System
 
-ScheduleMC provides a generic production framework that handles plant growth, processing
-stages, and quality tiers. Existing systems (tobacco, cannabis, coffee, wine, etc.) are
-all built on this framework.
+There is no generic, config-driven production framework in ScheduleMC — an earlier attempt
+at one (`ProductionConfig`/`ProductionRegistry`/`UnifiedProcessingBlockEntity`/`GenericQuality`
+and a few related classes) was built but never adopted by a single real block, and was
+removed as dead code (see `CLAUDE.md`). Every real production chain (tobacco, cannabis,
+coca, poppy, mushroom, meth, lsd, mdma, coffee, wine, cheese, chocolate, honey) is
+hand-written instead, following the pattern below.
 
-### Step 1: Define the Production Type
+### The real pattern
 
-Create an enum implementing `ProductionType` for your production variants:
+1. **Quality tiers**: a dedicated enum per goods category implementing `ProductionQuality`
+   (e.g. `TobaccoQuality`, `CannabisQuality`, `MDMAQuality` — 4 or 5 tiers each, not shared
+   across categories).
+2. **Production type/variant**: a dedicated enum or class per category implementing
+   `ProductionType` (e.g. `TobaccoType`, `CannabisStrain`, `MethVariant`). This interface
+   provides `getItemCategory()` (for `EconomyController` price/risk lookups) and
+   `calculateDynamicPrice()` (delegates to `EconomyController.getSellPrice()`).
+3. **Processing block entities**: extend the shared `AbstractItemHandlerBlockEntity`
+   (`production/blockentity/`) for "legal" goods categories (beer, wine, cheese, chocolate,
+   coffee, honey, tobacco) — it provides the `ItemStackHandler`/NBT plumbing, but each
+   concrete class (e.g. `AbstractDryingRackBlockEntity`) hand-rolls its own `tick()` and
+   progress logic; there is no shared generic tick loop to override. Illegal-drug categories
+   (cannabis, coca, mdma, lsd, meth) instead extend `BlockEntity` directly with their own
+   fields — there is currently no shared base across these five categories.
+4. **Size variants without subclass duplication**: where a machine comes in
+   Small/Medium/Large variants, use the `Supplier<Integer>`-based constructor pattern
+   (see `AbstractDryingRackBlockEntity`/`AbstractFermentationBarrelBlockEntity`) instead of
+   one subclass per size — this eliminates duplicated subclasses whose only job was
+   overriding 1-2 config getters. See `CLAUDE.md` for when this pattern is and isn't worth
+   applying (it was rejected for Beer/Wine, where subclasses also differ in display name and
+   menu type).
+5. **Plant blocks**: extend `Block` directly (see `TobaccoPlantBlock`, `CannabisPlantBlock`,
+   `CocaPlantBlock`); `PlantPotBlock` (`production/blocks/`) is the one real shared
+   building block used across several crop types for pot/growth-stage handling.
+6. **Pricing**: register the product with `EconomyController` (see
+   `EconomyController.initializeReferencePrices()`) rather than a standalone config object.
 
-```java
-package de.rolandsw.schedulemc.myproduct;
-
-import de.rolandsw.schedulemc.production.core.ProductionType;
-
-public enum MyProductType implements ProductionType {
-    VARIANT_A("Variant A", "variant_a"),
-    VARIANT_B("Variant B", "variant_b");
-
-    private final String displayName;
-    private final String id;
-
-    MyProductType(String displayName, String id) {
-        this.displayName = displayName;
-        this.id = id;
-    }
-
-    @Override
-    public String getDisplayName() { return displayName; }
-
-    @Override
-    public String getId() { return id; }
-}
-```
-
-### Step 2: Create a ProductionConfig
-
-Use the `ProductionConfig.Builder` to define production parameters:
-
-```java
-import de.rolandsw.schedulemc.production.config.ProductionConfig;
-import de.rolandsw.schedulemc.production.config.ProductionConfig.ProductionCategory;
-import de.rolandsw.schedulemc.production.config.ProductionConfig.ProcessingStageConfig;
-
-ProductionConfig myConfig = new ProductionConfig.Builder("my_product_a", "My Product A")
-    .colorCode("§a")                           // Minecraft color code
-    .basePrice(25.0)                           // Base price per unit in Euro
-    .growthTicks(4800)                         // Ticks to fully grow (0 to 7)
-    .baseYield(4)                              // Base harvest yield
-    .category(ProductionCategory.PLANT)        // PLANT, MUSHROOM, CHEMICAL, EXTRACT, PROCESSED
-    .requiresLight(true)                       // Needs light to grow
-    .minLightLevel(10)                         // Minimum light level
-    .requiresWater(true)                       // Needs water nearby
-    .requiresTemperature(false)                // Temperature check
-    .addProcessingStage("drying",              // Processing stage definition
-        new ProcessingStageConfig(
-            "Drying",                          // Stage name
-            2400,                              // Processing time in ticks
-            "schedulemc:fresh_my_product",     // Input item
-            "schedulemc:dried_my_product",     // Output item
-            true                               // Quality carries over
-        ))
-    .addProcessingStage("refining",
-        new ProcessingStageConfig(
-            "Refining",                        // Stage name
-            3600,                              // Processing time in ticks
-            "schedulemc:dried_my_product",     // Input item
-            "schedulemc:refined_my_product",   // Output item
-            true,                              // Quality carries over
-            "diesel",                          // Required resource
-            10                                 // Resource amount per process
-        ))
-    .build();
-```
-
-### Step 3: Create the Plant Block
-
-Extend `AbstractPlantBlock` for your crop:
-
-```java
-package de.rolandsw.schedulemc.myproduct.blocks;
-
-import de.rolandsw.schedulemc.myproduct.MyProductType;
-import de.rolandsw.schedulemc.production.blocks.AbstractPlantBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.state.BlockState;
-
-public class MyProductPlantBlock extends AbstractPlantBlock<MyProductType> {
-
-    public MyProductPlantBlock(MyProductType type) {
-        super(type);
-        // AbstractPlantBlock provides:
-        // - AGE property (0-7 growth stages)
-        // - HALF property (LOWER/UPPER for two-block-tall plants at stage 4+)
-        // - VoxelShape definitions for each stage
-        // - Automatic randomTick-based growth
-    }
-
-    @Override
-    public void randomTick(BlockState state, ServerLevel level, BlockPos pos,
-                           RandomSource random) {
-        // Call super for default growth behavior, or override for custom logic
-        super.randomTick(state, level, pos, random);
-    }
-
-    // Override getGrowthChance() to customize growth speed
-    // Override getHarvestDrops() to customize harvest results
-}
-```
-
-### Step 4: Create Processing Blocks
-
-Extend `AbstractProcessingBlock` for processing machinery:
-
-```java
-package de.rolandsw.schedulemc.myproduct.blocks;
-
-import de.rolandsw.schedulemc.production.blocks.AbstractProcessingBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-
-public class MyProcessingBlock extends AbstractProcessingBlock {
-
-    public MyProcessingBlock(Properties properties) {
-        super(properties);
-        // AbstractProcessingBlock provides:
-        // - Right-click to open GUI (MenuProvider)
-        // - Inventory drop on block break
-        // - BlockEntity support via EntityBlock
-    }
-
-    @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new MyProcessingBlockEntity(pos, state);
-    }
-}
-```
-
-### Step 5: Register Items, Blocks, and BlockEntities
-
-Follow the patterns in Section 3 to create registration classes, then wire them into
-the `ScheduleMC` constructor.
-
-### Step 6: Register with ProductionRegistry
-
-Register your production config with `de.rolandsw.schedulemc.production.config.ProductionRegistry`
-(a singleton via `ProductionRegistry.getInstance()`) so the generic production
-framework picks it up, following the pattern used by the existing production
-modules under `production/config/`.
-
-### Step 7: Create Resource Files
-
-Create all necessary model, texture, blockstate, and language files as described in
-Section 3. For plant blocks with multiple growth stages, you need blockstate variants
-for each AGE value (0-7) and each HALF (lower/upper).
-
-### Step 8: Wire Up Networking
-
-If your processing blocks need client-server communication (e.g., for GUI updates),
-create network packets and register them in `commonSetup`. See Section 9 for details.
-
-### Quality System
-
-The production framework includes a built-in quality system with tiers defined by
-`GenericQuality`. The default 4-tier system provides Bronze, Silver, Gold, and Diamond
-quality levels. Quality affects:
-
-- Sale price multiplier
-- Visual indicators (color codes)
-- Processing outcomes
-
-You can define custom quality tiers:
-
-```java
-GenericQuality[] customTiers = {
-    new GenericQuality("Common", "§7", 1.0),
-    new GenericQuality("Rare", "§9", 1.5),
-    new GenericQuality("Epic", "§5", 2.5),
-    new GenericQuality("Legendary", "§6", 4.0)
-};
-
-ProductionConfig config = new ProductionConfig.Builder("my_product", "My Product")
-    .qualityTiers(customTiers)
-    .build();
-```
+Follow an existing, similar category as your template (e.g. copy the tobacco or coffee
+package structure) rather than starting from a shared abstract base — that is how every
+real production chain in this codebase was built.
 
 ---
 
