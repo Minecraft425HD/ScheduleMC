@@ -201,3 +201,71 @@ Chest-GUI), `messaging/NPCMessageTemplates.java`, `npc/pathfinding/NPCNodeEvalua
 Dateien. **Nicht erneut vorschlagen**, denselben Scan zu wiederholen, ohne
 neuen Code-Zuwachs seit diesem Datum — er wurde bis zur Konvergenz
 durchlaufen (0 verbleibende Funde außer verifizierten Fehlalarmen).
+
+---
+
+## Backlog: Fehlende Features für 12 verbleibende Dead-Config-Werte (2026-09-25)
+
+**Status:** GEPLANT, NICHT UMGESETZT — bewusst zurückgestellt, kommt später
+
+Im Rahmen des Config-Wiring-Sweeps (siehe `docs/CHANGELOG.md`, Commit
+"fix: wire ~40 of 59 dead config settings into real game logic") wurden 59
+Config-Werte gefunden, die nirgends von echter Spiellogik gelesen wurden.
+47 davon wurden korrekt verdrahtet oder als verwaist entfernt. Für die
+verbleibenden 12 existiert **kein passendes Feature im Code** — sie
+brauchen neue Funktionalität, keine reine Verdrahtung. Plan pro Wert
+(Reihenfolge = empfohlene Umsetzungsreihenfolge):
+
+1. **`police.max_roadblocks`/`roadblock_duration_seconds` — Trigger fehlt**
+   (Quick Win, Infrastruktur existiert bereits vollständig in
+   `PoliceRoadblock.java`, nur `createRoadblock()` hat aktuell 0 Aufrufer):
+   In `PoliceAIHandler` bei `wantedLevel >= 4` und `POLICE_ROADBLOCK_ENABLED`
+   eine Position vor dem fliehenden Spieler berechnen und
+   `PoliceRoadblock.createRoadblock(...)` aufrufen.
+
+2. **`police.wanted_posters_min_level`**: Neues `WantedPosterItem` +
+   wandmontierter `WantedPosterBlock` (Name + Bounty aus
+   `WantedListSyncPacket`-Daten), ausgegeben/platziert ab konfiguriertem
+   Wanted-Level.
+
+3. **`police.speed_limit_default`**: Geschwindigkeitskontrolle — Fahrzeug-
+   Geschwindigkeit gegen das Limit prüfen, bei Überschreitung + Polizei-NPC
+   in Sichtweite eine Verkehrsstrafe wie in `TrafficViolationHandler`
+   auslösen.
+
+4. **`police.flanking_enabled`**: Bei ≥2 verfolgenden Polizei-NPCs in
+   `PoliceAIHandler` einen Offset-Punkt relativ zur Fluchtrichtung
+   anvisieren statt exakt dieselbe Zielposition wie der erste Verfolger.
+
+5. **`police.siren_sound_radius`**: Periodischer Sirenensound während
+   `PoliceVehiclePursuit`-Verfolgung. **Braucht eine Entscheidung:** eigenes
+   Sound-Asset registrieren oder bewusst einen Vanilla-Sound (z. B.
+   `RAID_HORN`) zweckentfremden — keine Audiodatei im Repo vorhanden.
+
+6. **`level_system.max_level`/`base_xp`/`xp_exponent`**: `LevelRequirements`s
+   `static final` XP-Tabelle (berechnet beim Klassenladen, vor
+   garantiertem Config-Load) auf eine bei Serverstart + Config-Reload neu
+   berechnete Tabelle umstellen (`static` statt `static final`,
+   `rebuildTable()`-Methode). Risiko: Off-by-one beim Array-Resize wäre
+   fatal fürs gesamte Levelsystem — sorgfältig gegen Level-Grenzwerte und
+   bestehende Spielstände mit Level > neuem Max testen.
+
+7. **`shop.buy_multiplier`/`sell_multiplier`**: **Braucht zuerst eine
+   Design-Entscheidung:** Soll `sell_multiplier` ein neues "Spieler
+   verkauft Item direkt an NPC"-Feature auslösen, oder den bestehenden
+   Warehouse-Sell-Preis skalieren? Außerdem: `buy_multiplier`s Default
+   (`1.5`) müsste vor dem Wiring auf `1.0` gesenkt werden, sonst steigen
+   alle Shop-Preise beim Wiring schlagartig um 50 % — das ist eine
+   Balance-Entscheidung, kein Bugfix.
+
+8. **UDPS `sd_decay_rate`/`daily_food_cost`/`daily_reference_income`**:
+   Größter Brocken. `DynamicPriceManager` (UDPS/NPC-Shops) ist eine reine
+   Zustandsmaschine (`MarketCondition`-Enum) ohne Angebot/Nachfrage-
+   Akkumulator — anders als `DynamicMarketManager` (Market-System), das
+   bereits ein echtes S&D-Modell hat. **Braucht zuerst eine
+   Design-Entscheidung:** eigenes S&D-Modell für UDPS bauen (Duplikation
+   zweier Preissysteme), oder NPC-Shop-Preise stattdessen an
+   `DynamicMarketManager` andocken (Vereinheitlichung)?
+
+**Nicht vorschlagen**, diese 12 Werte durch reine Constant-Swaps zu
+"fixen" — dafür fehlt echtes Feature-Code, kein Wiring-Fehler.
