@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.level.ProducerLevel;
 import de.rolandsw.schedulemc.level.XPSource;
 import de.rolandsw.schedulemc.market.MarketData;
@@ -750,12 +751,16 @@ public class EconomyController {
         GlobalEconomyTracker.getInstance().onNewDay();
 
         // EconomyCycle tägliches Update
-        try {
-            EconomyCycle cycle = EconomyCycle.getInstance();
-            cycle.onNewDay();
-            this.cycleMultiplier = cycle.getCurrentMultiplier();
-        } catch (Exception e) {
-            LOGGER.debug("EconomyCycle not available for daily update");
+        if (ModConfigHandler.COMMON.ECONOMY_CYCLE_ENABLED.get()) {
+            try {
+                EconomyCycle cycle = EconomyCycle.getInstance();
+                cycle.onNewDay();
+                this.cycleMultiplier = cycle.getCurrentMultiplier();
+            } catch (Exception e) {
+                LOGGER.debug("EconomyCycle not available for daily update");
+            }
+        } else {
+            this.cycleMultiplier = 1.0;
         }
 
         // PriceManager tägliche Event-Prüfung

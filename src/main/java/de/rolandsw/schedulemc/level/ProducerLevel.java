@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.level;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.level.network.LevelUpNotificationPacket;
 import de.rolandsw.schedulemc.level.network.ProducerLevelNetworkHandler;
 import de.rolandsw.schedulemc.util.GsonHelper;
@@ -85,6 +86,8 @@ public class ProducerLevel implements IncrementalSaveManager.ISaveable {
      * @return true wenn ein Level-Up stattfand
      */
     public boolean awardXP(UUID playerUUID, XPSource source, int amount, double qualityMultiplier) {
+        if (!ModConfigHandler.COMMON.LEVEL_SYSTEM_ENABLED.get()) return false;
+
         ProducerLevelData data = getOrCreateData(playerUUID);
 
         int xp = source.calculateXP(amount, qualityMultiplier);

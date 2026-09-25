@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.level;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
+
 /**
  * XP-Quellen für das Produzenten-Level-System.
  *
@@ -90,6 +92,9 @@ public enum XPSource {
      * @return Berechnete XP
      */
     public int calculateXP(int amount, double qualityMultiplier) {
-        return (int) (baseXP * amount * qualityMultiplier);
+        double riskMultiplier = illegal
+            ? ModConfigHandler.COMMON.LEVEL_ILLEGAL_XP_MULTIPLIER.get()
+            : ModConfigHandler.COMMON.LEVEL_LEGAL_XP_MULTIPLIER.get();
+        return (int) (baseXP * amount * qualityMultiplier * riskMultiplier);
     }
 }

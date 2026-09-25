@@ -15,16 +15,18 @@ public class NPCDrivingTask {
     private final CustomNPCEntity npc;
     private final List<BlockPos> path;
     private final BlockPos destination;
+    private final float speedMultiplier;
     private int currentIndex = 0;
     private int lastUpdateTick = 0;
     private boolean finished = false;
 
     private static final float BLOCKS_PER_TICK = 0.6f;
 
-    public NPCDrivingTask(CustomNPCEntity npc, List<BlockPos> path, BlockPos destination) {
+    public NPCDrivingTask(CustomNPCEntity npc, List<BlockPos> path, BlockPos destination, float speedMultiplier) {
         this.npc = npc;
         this.path = path;
         this.destination = destination;
+        this.speedMultiplier = speedMultiplier;
     }
 
     /**
@@ -44,7 +46,7 @@ public class NPCDrivingTask {
         lastUpdateTick = currentTick;
 
         // Kompensiere: Bei laengerem Intervall mehr Bloecke pro Schritt
-        int stepsToAdvance = Math.max(1, (int) (BLOCKS_PER_TICK * ticksElapsed));
+        int stepsToAdvance = Math.max(1, (int) (BLOCKS_PER_TICK * speedMultiplier * ticksElapsed));
         currentIndex = Math.min(currentIndex + stepsToAdvance, path.size() - 1);
 
         // Setze NPC-Position

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.life.economy;
 
 import com.google.gson.reflect.TypeToken;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.nbt.Tag;
@@ -63,11 +64,8 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     // CONSTANTS
     // ═══════════════════════════════════════════════════════════
 
-    /** Wie oft wird der Markt aktualisiert (in Ticks) */
-    public static final int UPDATE_INTERVAL = 24000; // Einmal pro Spieltag
-
-    /** Basis-Chance für Marktveränderungen */
-    public static final float MARKET_CHANGE_CHANCE = 0.3f;
+    /** 1 Minute = 1200 Ticks (20 Ticks/Sekunde) */
+    private static final long TICKS_PER_MINUTE = 1200L;
 
     /** Untere Grenze der zufälligen Preisschwankung (ergibt ±5%-Bereich: 0.95–1.05) */
     static final float PRICE_VARIANCE_MIN = 0.95f;
@@ -94,6 +92,9 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
 
     /** Letzter bekannter Tag */
     private long lastKnownDay = -1;
+
+    /** Tick, zu dem zuletzt updateMarketConditions() lief (DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES) */
+    private long lastMarketUpdateTick = -1;
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
@@ -125,8 +126,19 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
             return false;
         });
 
-        // Tageswechsel prüfen
-        long currentDay = level.getDayTime() / 24000;
+        long currentTick = level.getDayTime();
+
+        // Markt-Update-Intervall (konfigurierbar in Minuten, unabhaengig vom Tageswechsel)
+        if (ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) {
+            long ticksPerUpdate = ModConfigHandler.COMMON.DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES.get() * TICKS_PER_MINUTE;
+            if (lastMarketUpdateTick == -1 || currentTick - lastMarketUpdateTick >= ticksPerUpdate) {
+                updateMarketConditions();
+                lastMarketUpdateTick = currentTick;
+            }
+        }
+
+        // Tageswechsel prüfen (Saison + Snapshot bleiben tagesbasiert)
+        long currentDay = currentTick / 24000;
         if (lastKnownDay != -1 && currentDay > lastKnownDay) {
             onDayChange(currentDay, level);
         }
@@ -140,9 +152,6 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         // Saison aktualisieren (Serene Seasons falls installiert, sonst Spieltage-Zyklus)
         SeasonalPriceModifier.getInstance().updateSeason(currentDay, level);
 
-        // Markt-Update durchführen
-        updateMarketConditions();
-
         // Snapshot speichern
         savePriceSnapshot(currentDay);
         markDirty();
@@ -152,8 +161,10 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
      * Aktualisiert die Marktbedingungen
      */
     private void updateMarketConditions() {
+        double changeChance = ModConfigHandler.COMMON.DYNAMIC_PRICING_SD_FACTOR.get();
+
         // Globale Bedingung möglicherweise ändern
-        if (ThreadLocalRandom.current().nextDouble() < MARKET_CHANGE_CHANCE) {
+        if (ThreadLocalRandom.current().nextDouble() < changeChance) {
             MarketCondition[] possible = globalCondition.getPossibleTransitions();
             if (possible.length > 0) {
                 // Gewichtete Auswahl
@@ -173,7 +184,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         // Kategorie-Bedingungen ähnlich aktualisieren
         List<String> categoriesToUpdate = new ArrayList<>(categoryConditions.keySet());
         for (String category : categoriesToUpdate) {
-            if (ThreadLocalRandom.current().nextDouble() < MARKET_CHANGE_CHANCE * 0.5) {
+            if (ThreadLocalRandom.current().nextDouble() < changeChance * 0.5) {
                 MarketCondition current = categoryConditions.get(category);
                 MarketCondition[] possible = current.getPossibleTransitions();
                 if (possible.length > 0 && ThreadLocalRandom.current().nextDouble() < 0.5) {
@@ -292,6 +303,12 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
 
         // Zufällige kleine Schwankung (±5%)
         modifier *= PRICE_VARIANCE_MIN + (float) ThreadLocalRandom.current().nextDouble() * PRICE_VARIANCE_RANGE;
+
+        // Globale Multiplikator-Grenzen (verhindert unbegrenzte Preisexplosion/-verfall
+        // bei gestapelten Bedingungen/Saison/temporaeren Modifikatoren)
+        float minMultiplier = ModConfigHandler.COMMON.DYNAMIC_PRICING_MIN_MULTIPLIER.get().floatValue();
+        float maxMultiplier = ModConfigHandler.COMMON.DYNAMIC_PRICING_MAX_MULTIPLIER.get().floatValue();
+        modifier = Math.max(minMultiplier, Math.min(maxMultiplier, modifier));
 
         return Math.max(1, Math.round(basePrice * modifier));
     }

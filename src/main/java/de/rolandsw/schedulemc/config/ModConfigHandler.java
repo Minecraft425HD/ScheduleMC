@@ -60,7 +60,6 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.DoubleValue MIN_PLOT_PRICE;
         public final ForgeConfigSpec.DoubleValue MAX_PLOT_PRICE;
         public final ForgeConfigSpec.IntValue MAX_TRUSTED_PLAYERS;
-        public final ForgeConfigSpec.BooleanValue ALLOW_PLOT_TRANSFER;
         public final ForgeConfigSpec.DoubleValue REFUND_ON_ABANDON;
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> RESIDENTIAL_PLOT_BLOCKS;
         public final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> COMMERCIAL_PLOT_BLOCKS;
@@ -95,8 +94,6 @@ public class ModConfigHandler {
         // ═══════════════════════════════════════════════════════════
         public final ForgeConfigSpec.BooleanValue RENT_ENABLED;
         public final ForgeConfigSpec.DoubleValue MIN_RENT_PRICE;
-        public final ForgeConfigSpec.IntValue MIN_RENT_DAYS;
-        public final ForgeConfigSpec.IntValue MAX_RENT_DAYS;
         public final ForgeConfigSpec.BooleanValue AUTO_EVICT_EXPIRED;
         
         // ═══════════════════════════════════════════════════════════
@@ -370,10 +367,6 @@ public class ModConfigHandler {
                     .comment("Maximale Anzahl vertrauter Spieler pro Plot")
                     .defineInRange("max_trusted_players", 10, 1, 100);
 
-            ALLOW_PLOT_TRANSFER = builder
-                    .comment("Plots can be transferred")
-                    .define("allow_plot_transfer", true);
-
             REFUND_ON_ABANDON = builder
                     .comment("Refund when abandoning (0.0-1.0, 0.5 = 50%)")
                     .defineInRange("refund_on_abandon", 0.5, 0.0, 1.0);
@@ -550,14 +543,6 @@ public class ModConfigHandler {
             MIN_RENT_PRICE = builder
                     .comment("Minimaler Mietpreis pro Tag")
                     .defineInRange("min_rent_price", 10.0, 0.1, 10000.0);
-
-            MIN_RENT_DAYS = builder
-                    .comment("Minimale Mietdauer in Tagen")
-                    .defineInRange("min_rent_days", 1, 1, 365);
-
-            MAX_RENT_DAYS = builder
-                    .comment("Maximale Mietdauer in Tagen")
-                    .defineInRange("max_rent_days", 30, 1, 365);
 
             AUTO_EVICT_EXPIRED = builder
                     .comment("Automatically evict when rent has expired")

@@ -8,6 +8,64 @@ Format: `[version] - date — Summary of changes`
 
 ## [3.9.0-beta] - 2026-09-24
 
+### Fixed — Config Editor: ~40 previously-cosmetic settings now actually apply
+A full audit of every `ModConfigHandler` field found 59 settings, editable in the in-game
+Config Editor and saved to `schedulemc-common.toml`, that no game logic ever read — changing
+them in the UI silently did nothing. Wired the ones with a safe, behavior-preserving default
+into real code:
+
+- **Plot System**: `min_plot_size`/`max_plot_size` (now enforced as plot *area* in
+  `InputValidation.validatePlotRegion`, replacing a hardcoded 10,000-block-per-side-only
+  cap), `min_plot_price`/`max_plot_price` (enforced in `PlotSalePacket`),
+  `max_trusted_players` (enforced in `PlotCommand`/`PlotTrustPacket`, previously unlimited),
+  `refund_on_abandon` (now drives `PlotTaxService.calculateAbandonSplit`, replacing a
+  hardcoded 50%), `min_rent_price` (enforced in `PlotSalePacket`/`/plot rent`). Removed
+  `allow_plot_transfer` and `min_rent_days`/`max_rent_days` — dead config for features that
+  no longer exist (plot transfer was replaced by the Settings App sale/purchase flow years
+  ago; multi-day renting only ever existed in the unreferenced `RentManager` class, the live
+  rent-purchase flow always rents for a hardcoded 1 day).
+- **Police**: `vehicle_pursuit_enabled`, `vehicle_speed_multiplier` (now actually threaded
+  through `NPCDrivingScheduler`/`NPCDrivingTask` into pursuit speed), `siren_enabled`,
+  `warning_enabled`, `warning_timeout_seconds`, `traffic_violations_enabled`,
+  `container_scan_depth`, `evidence_multiplier_enabled` (now scales jail sentences by
+  evidence strength via `EvidenceManager`, previously collected but never applied),
+  `max_roadblocks`/`roadblock_duration_seconds` (wired into `PoliceRoadblock`, though nothing
+  currently calls `createRoadblock()` — that AI trigger was never built). `siren_sound_radius`,
+  `speed_limit_default`, `flanking_enabled`, and `wanted_posters_min_level` remain
+  unimplemented stubs — no corresponding feature exists in the codebase at all.
+- **Economy**: `shop_enabled` (gates `PurchaseItemPacket`), `ratings_enabled`,
+  `allow_multiple_ratings`, `min_rating`/`max_rating` (enforced in `PlotRatingPacket`/
+  `PlotRegion`, also fixed a UI bug letting the max-rating slider go to 10 despite the config
+  clamping to 5), `economy_cycle_enabled` (gates `EconomyCycle` in `EconomyController`),
+  `economy_cycle_min/max_duration_days` and `event_base_chance` (now clamp/scale the
+  6 per-phase hardcoded values in `EconomyCyclePhase` rather than being ignored),
+  `level_system_enabled` (gates `ProducerLevel.awardXP`), `illegal_xp_multiplier`/
+  `legal_xp_multiplier` (now applied in `XPSource.calculateXP`), all 5 `risk_premium.*`
+  fields (now read in `RiskPremium.java`, replacing 5 hardcoded constants with identical
+  default values), `save_interval_minutes` (now passed to `IncrementalSaveManager` at
+  startup instead of a hardcoded 1-minute interval). Left `shop.buy_multiplier`/
+  `sell_multiplier` and `dynamic_pricing.sd_decay_rate`/`daily_food_cost`/
+  `daily_reference_income` unwired: the first has a non-neutral default (`1.5`) that would
+  silently raise every shop price 50% rather than fix a bug, the rest have no corresponding
+  mechanism in `DynamicPriceManager` (which is a market-condition state machine, not a
+  supply/demand accumulator) to attach to. Also left `level_system.max_level`/`base_xp`/
+  `xp_exponent` unwired — `LevelRequirements`'s XP table is a `static final` array computed
+  at class-load time, before Forge guarantees config is loaded; wiring it safely needs a
+  config-reload hook, not a one-line substitution.
+- **Dynamic Pricing (UDPS)**: `enabled`, `min_multiplier`/`max_multiplier` (now clamp
+  `DynamicPriceManager.calculatePrice()`'s combined modifier, previously unbounded),
+  `update_interval_minutes` (now a real elapsed-time gate on `updateMarketConditions()`,
+  decoupled from the day-change/season logic that used to run it once per Minecraft day
+  regardless of this setting), `sd_factor` (repurposed as the daily market-condition
+  transition chance, replacing the hardcoded `MARKET_CHANGE_CHANCE = 0.3f`).
+- **NPC/Map Navigation**: `navigation.scan_radius`, `path_update_interval`,
+  `arrival_distance` — these actually belong to the smartphone/world-map road-navigation
+  system (`RoadNavigationService`), not NPC AI movement goals as their screen placement
+  implied; wired in, replacing 3 hardcoded constants with identical default values.
+
+See `docs/CONFIGURATION.md` for the full per-key breakdown, including which settings remain
+intentionally unwired and why.
+
 ### Removed
 - **Public API deleted** — the entire `de.rolandsw.schedulemc.api` package
   (`ScheduleMCAPI`, 11 `I*API` interfaces, all 11 `*APIImpl` classes, and the

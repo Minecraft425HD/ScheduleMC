@@ -175,14 +175,14 @@ Located under `[dynamic_pricing]`:
 
 | Key | Default | Range | Description |
 |-----|---------|-------|-------------|
-| `dynamic_pricing.enabled` | `true` | -- | Enable/disable dynamic pricing |
-| `dynamic_pricing.sd_factor` | `0.3` | 0.0 - 1.0 | Supply/demand influence factor |
-| `dynamic_pricing.min_multiplier` | `0.3` | 0.1 - 1.0 | Global minimum price multiplier |
-| `dynamic_pricing.max_multiplier` | `5.0` | 1.0 - 20.0 | Global maximum price multiplier |
-| `dynamic_pricing.update_interval_minutes` | `5` | 1 - 30 | Price recalculation interval in minutes |
-| `dynamic_pricing.sd_decay_rate` | `0.02` | 0.001 - 0.1 | Supply/demand decay rate per update (0.02 = 2%) |
-| `dynamic_pricing.daily_food_cost` | `20.0` | 5 - 200 | Expected daily food cost on Hard difficulty |
-| `dynamic_pricing.daily_reference_income` | `150.0` | 50 - 1,000 | Reference daily income for price calibration |
+| `dynamic_pricing.enabled` | `true` | -- | Enable/disable `DynamicPriceManager.updateMarketConditions()` |
+| `dynamic_pricing.sd_factor` | `0.3` | 0.0 - 1.0 | Daily chance for the global/category market condition to shift (repurposed from a fixed 30% constant; not a true supply/demand accumulator — `DynamicPriceManager` is state-machine based, not accumulator based) |
+| `dynamic_pricing.min_multiplier` | `0.3` | 0.1 - 1.0 | Global floor clamp on the combined price modifier in `calculatePrice()` |
+| `dynamic_pricing.max_multiplier` | `5.0` | 1.0 - 20.0 | Global ceiling clamp on the combined price modifier in `calculatePrice()` |
+| `dynamic_pricing.update_interval_minutes` | `5` | 1 - 30 | Real-time interval between `updateMarketConditions()` runs (independent of the day-change-driven season/snapshot logic) |
+| `dynamic_pricing.sd_decay_rate` | `0.02` | 0.001 - 0.1 | **Not currently applied** — no supply/demand decay accumulator exists in `DynamicPriceManager` to decay |
+| `dynamic_pricing.daily_food_cost` | `20.0` | 5 - 200 | **Not currently applied** — no reference to a food-cost baseline exists in the pricing code |
+| `dynamic_pricing.daily_reference_income` | `150.0` | 50 - 1,000 | **Not currently applied** — no reference-income calibration exists in the pricing code |
 | `dynamic_pricing.season_use_serene_seasons` | `true` | -- | Derive seasonal market prices (see [Section 9.5](#95-seasonal-market-pricing)) from the Serene Seasons mod if installed, instead of the internal 120-day calendar |
 
 ### 2.12 Economic Cycle
@@ -216,13 +216,22 @@ Located under `[level_system]`:
 | Key | Default | Range | Description |
 |-----|---------|-------|-------------|
 | `level_system.enabled` | `true` | -- | Enable producer level system |
-| `level_system.max_level` | `30` | 10 - 100 | Maximum producer level |
-| `level_system.base_xp` | `100` | 10 - 10,000 | Base XP required for level 1 |
-| `level_system.xp_exponent` | `1.8` | 1.0 - 3.0 | Exponent for XP curve (higher = steeper) |
+| `level_system.max_level` | `30` | 10 - 100 | Maximum producer level (see caveat below) |
+| `level_system.base_xp` | `100` | 10 - 10,000 | Base XP required for level 1 (see caveat below) |
+| `level_system.xp_exponent` | `1.8` | 1.0 - 3.0 | Exponent for XP curve (see caveat below) |
 | `level_system.illegal_xp_multiplier` | `1.5` | 0.5 - 5.0 | XP multiplier for illegal sales |
 | `level_system.legal_xp_multiplier` | `1.0` | 0.5 - 5.0 | XP multiplier for legal sales |
 
 **XP Formula:** `xp_for_level = base_xp * (level ^ xp_exponent)`
+
+**Caveat:** `max_level`, `base_xp`, and `xp_exponent` are not currently read from config.
+`LevelRequirements`'s XP lookup table is a `static final int[]` computed once at class-load
+time from hardcoded values (`MAX_LEVEL=30`, `BASE_XP=100`, `EXPONENT=1.8` — matching these
+defaults exactly), before Forge guarantees config is loaded. Wiring them safely requires
+converting that static table into one rebuilt from config at server start (and on config
+reload), which was intentionally not attempted here to avoid risking the entire level system
+on an untested change. `enabled`, `illegal_xp_multiplier`, and `legal_xp_multiplier` are fully
+live (`ProducerLevel.awardXP()` / `XPSource.calculateXP()`).
 
 ### 2.14 Risk Premium
 
@@ -257,13 +266,18 @@ Located under `[plots]` and `[rent]` in the common config.
 
 | Key | Default | Range | Description |
 |-----|---------|-------|-------------|
-| `plots.min_plot_size` | `64` | 1 - 1,000,000 | Minimum plot size in blocks |
-| `plots.max_plot_size` | `1,000,000` | 1 - 100,000,000 | Maximum plot size in blocks |
-| `plots.min_plot_price` | `1.0` | 0.01 - 1,000,000 | Minimum plot price |
-| `plots.max_plot_price` | `1,000,000.0` | 1 - 100,000,000 | Maximum plot price |
+| `plots.min_plot_size` | `64` | 1 - 1,000,000 | Minimum plot **area** in blocks² (width × length) |
+| `plots.max_plot_size` | `1,000,000` | 1 - 100,000,000 | Maximum plot **area** in blocks² (width × length) |
+| `plots.min_plot_price` | `1.0` | 0.01 - 1,000,000 | Minimum plot sale price |
+| `plots.max_plot_price` | `1,000,000.0` | 1 - 100,000,000 | Maximum plot sale price |
 | `plots.max_trusted_players` | `10` | 1 - 100 | Maximum trusted players per plot |
-| `plots.allow_plot_transfer` | `true` | -- | Whether plots can be transferred between players |
 | `plots.refund_on_abandon` | `0.5` | 0.0 - 1.0 | Refund percentage when abandoning (0.5 = 50%) |
+
+All five keys above are enforced in `InputValidation.validatePlotRegion()`, `PlotSalePacket`,
+`PlotCommand`/`PlotTrustPacket`, and `PlotTaxService.calculateAbandonSplit()` respectively.
+The `allow_plot_transfer` key was removed — the player-facing plot-transfer feature it once
+gated was deleted in an earlier refactor (replaced by the Settings App UI's sale/purchase
+flow), leaving it as dead config with nothing left to gate.
 
 ### 3.2 Plot Types
 
@@ -286,10 +300,13 @@ Located under `[rent]`:
 | Key | Default | Range | Description |
 |-----|---------|-------|-------------|
 | `rent.enabled` | `true` | -- | Enable rental system |
-| `rent.min_rent_price` | `10.0` | 0.1 - 10,000 | Minimum rent price per day |
-| `rent.min_rent_days` | `1` | 1 - 365 | Minimum rental period in days |
-| `rent.max_rent_days` | `30` | 1 - 365 | Maximum rental period in days |
+| `rent.min_rent_price` | `10.0` | 0.1 - 10,000 | Minimum rent price per day (enforced in `PlotSalePacket` and `/plot rent`) |
 | `rent.auto_evict` | `true` | -- | Automatically evict tenants when rent expires |
+
+The `min_rent_days`/`max_rent_days` keys were removed — the live rent-purchase flow
+(`PlotPurchasePacket`) always rents for a hardcoded 1 day per payment and has no
+"choose a duration" step to validate against; the multi-day `RentManager` class that would
+have used these is dead code with no callers.
 
 ### 3.4 Rating System
 
@@ -783,6 +800,25 @@ dead code once every call site had migrated to room-based scanning.
 | `police.patrol_wait_minutes` | `1` | 1 - 30 | Time at each patrol point |
 | `police.patrol_radius` | `3` | 1 - 20 | Movement radius around patrol points |
 
+**Vehicle Pursuit, Warnings, Roadblocks & Sentencing:**
+
+| Key | Default | Range | Description |
+|-----|---------|-------|-------------|
+| `police.vehicle_pursuit_enabled` | `true` | -- | Police NPCs chase a fleeing player by vehicle |
+| `police.vehicle_speed_multiplier` | `1.3` | 1.0 - 3.0 | Speed multiplier for police vehicles during pursuit |
+| `police.siren_enabled` | `true` | -- | Visual siren/lights during vehicle pursuit |
+| `police.warning_enabled` | `true` | -- | Grace-period warning instead of immediate pursuit at wanted level 1-2 |
+| `police.warning_timeout_seconds` | `10` | 5 - 60 | Grace period before pursuit starts |
+| `police.traffic_violations_enabled` | `true` | -- | Detect hit-and-run / reckless driving against NPCs |
+| `police.container_scan_depth` | `2` | 0 - 5 | Recursion depth when scanning shulker boxes during a raid |
+| `police.evidence_multiplier_enabled` | `true` | -- | Scale jail sentence by collected evidence strength (0.5x-2.0x, see `EvidenceManager`) |
+| `police.max_roadblocks` | `2` | 1 - 5 | Roadblocks per wanted player (`PoliceRoadblock`; not currently triggered by any AI decision — the class exists but nothing calls `createRoadblock()` yet) |
+| `police.roadblock_duration_seconds` | `300` | 60 - 1,200 | Roadblock lifetime once placed |
+
+`police.siren_sound_radius`, `police.speed_limit_default`, `police.flanking_enabled`, and
+`police.wanted_posters_min_level` remain defined but unimplemented — no siren sound, speed
+enforcement, flanking AI, or wanted-poster feature exists in the codebase to gate.
+
 ### 7.3 Prison System
 
 Defined in `PrisonManager` (`de.rolandsw.schedulemc.npc.crime.prison.PrisonManager`):
@@ -851,9 +887,14 @@ Located under `[shop]`:
 
 | Key | Default | Range | Description |
 |-----|---------|-------|-------------|
-| `shop.enabled` | `true` | -- | Enable shop system |
-| `shop.buy_multiplier` | `1.5` | 0.1 - 10.0 | Buy price multiplier (base price * multiplier) |
-| `shop.sell_multiplier` | `0.5` | 0.1 - 10.0 | Sell price multiplier |
+| `shop.enabled` | `true` | -- | Enable shop system (live: gates `PurchaseItemPacket`) |
+| `shop.buy_multiplier` | `1.5` | 0.1 - 10.0 | Buy price multiplier (base price * multiplier) — **not currently applied** |
+| `shop.sell_multiplier` | `0.5` | 0.1 - 10.0 | Sell price multiplier — **not currently applied**; no player-to-shop sell feature exists to apply it to |
+
+**Caveat:** `buy_multiplier`'s default (`1.5`) is not neutral — wiring it into
+`PurchaseItemPacket`'s price calculation would silently raise every shop price by 50% for
+any server already running with this default, which is a balance change rather than a bug
+fix. Left unwired pending an explicit decision on the intended default.
 
 ### 9.3 NPC Market Conditions
 

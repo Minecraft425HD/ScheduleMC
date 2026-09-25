@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.economy;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import org.slf4j.Logger;
 
 /**
@@ -25,14 +26,11 @@ public class RiskPremium {
      *
      * 1.0 = kein Aufschlag, 1.3 = 30% Aufschlag
      */
-    private static final double RISK_CANNABIS = 1.15;       // Niedrigstes Risiko
+    // Ohne Config-Eintrag (kein entsprechendes ModConfigHandler-Feld):
     private static final double RISK_TOBACCO = 1.10;        // Sehr niedriges Risiko
     private static final double RISK_MUSHROOM = 1.20;       // Niedriges Risiko
     private static final double RISK_LSD = 1.30;            // Mittleres Risiko
     private static final double RISK_MDMA = 1.30;           // Mittleres Risiko
-    private static final double RISK_COCAINE = 1.40;        // Hohes Risiko
-    private static final double RISK_METH = 1.45;           // Hohes Risiko
-    private static final double RISK_HEROIN = 1.50;         // Höchstes Risiko
 
     /**
      * Wanted-Level Multiplikatoren (0-5).
@@ -52,8 +50,6 @@ public class RiskPremium {
      * Dieser Aufschlag wird auf den Maschinen-Preis addiert,
      * da der Spieler die Maschine bei einer Razzia verlieren kann.
      */
-    private static final double CONFISCATION_RISK_MULTIPLIER = 1.25;
-
     // Aktuelle Razzia-Daten (werden vom PolizeiSystem gesetzt)
     private static volatile long lastRaidTimestamp = 0;
     private static volatile int recentRaidCount = 0;
@@ -101,7 +97,7 @@ public class RiskPremium {
      */
     public static double getConfiscationRiskMultiplier(ItemCategory category) {
         if (category == ItemCategory.MACHINE_ILLEGAL) {
-            return CONFISCATION_RISK_MULTIPLIER;
+            return ModConfigHandler.COMMON.RISK_CONFISCATION_MULTIPLIER.get();
         }
         return 1.0;
     }
@@ -159,14 +155,14 @@ public class RiskPremium {
 
     private static double getBaseRisk(ItemCategory category) {
         return switch (category) {
-            case CANNABIS -> RISK_CANNABIS;
+            case CANNABIS -> ModConfigHandler.COMMON.RISK_BASE_CANNABIS.get();
             case TOBACCO_PRODUCT -> RISK_TOBACCO;
             case MUSHROOM -> RISK_MUSHROOM;
             case LSD -> RISK_LSD;
             case MDMA -> RISK_MDMA;
-            case COCAINE -> RISK_COCAINE;
-            case METH -> RISK_METH;
-            case HEROIN -> RISK_HEROIN;
+            case COCAINE -> ModConfigHandler.COMMON.RISK_BASE_COCAINE.get();
+            case METH -> ModConfigHandler.COMMON.RISK_BASE_METH.get();
+            case HEROIN -> ModConfigHandler.COMMON.RISK_BASE_HEROIN.get();
             case SEED_ILLEGAL, CHEMICAL -> 1.10;
             case MACHINE_ILLEGAL -> 1.05;
             default -> 1.0;

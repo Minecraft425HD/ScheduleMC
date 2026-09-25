@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
+import de.rolandsw.schedulemc.npc.crime.evidence.EvidenceManager;
 import de.rolandsw.schedulemc.npc.crime.prison.network.ClosePrisonScreenPacket;
 import de.rolandsw.schedulemc.npc.crime.prison.network.OpenPrisonScreenPacket;
 import de.rolandsw.schedulemc.npc.crime.prison.network.PrisonNetworkHandler;
@@ -187,6 +189,13 @@ public class PrisonManager {
         }
 
         int jailSeconds = wantedLevel * JAIL_SECONDS_PER_WANTED_LEVEL;
+        if (ModConfigHandler.COMMON.POLICE_EVIDENCE_MULTIPLIER_ENABLED.get()) {
+            EvidenceManager evidenceManager = EvidenceManager.getInstance();
+            if (evidenceManager != null) {
+                float multiplier = evidenceManager.calculateSentenceMultiplier(playerId);
+                jailSeconds = Math.round(jailSeconds * multiplier);
+            }
+        }
         long jailTicks = jailSeconds * 20L;
         long currentTick = player.level().getGameTime();
         long releaseTime = currentTick + jailTicks;

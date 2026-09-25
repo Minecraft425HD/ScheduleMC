@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.EconomyManager;
 import de.rolandsw.schedulemc.items.ModItems;
 import de.rolandsw.schedulemc.items.PlotSelectionTool;
@@ -396,6 +397,11 @@ public class PlotCommand {
                     return;
                 }
 
+                if (plot.getTrustedCount() >= ModConfigHandler.COMMON.MAX_TRUSTED_PLAYERS.get()) {
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.trust.limit_reached").getString());
+                    return;
+                }
+
                 plot.addTrustedPlayer(trustPlayer.getUUID());
                 PlotManager.markDirty();
 
@@ -448,6 +454,12 @@ public class PlotCommand {
 
                 if (!plot.isOwnedBy(player.getUUID())) {
                     CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.not_your_plot").getString());
+                    return;
+                }
+
+                if (pricePerDay < ModConfigHandler.COMMON.MIN_RENT_PRICE.get()) {
+                    CommandExecutor.sendFailure(ctx.getSource(), Component.translatable("command.plot.rent.price_too_low",
+                        String.format("%.2f", ModConfigHandler.COMMON.MIN_RENT_PRICE.get())).getString());
                     return;
                 }
 

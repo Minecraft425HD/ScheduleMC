@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.mapview.navigation.graph;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.mapview.service.data.WorldMapData;
 import de.rolandsw.schedulemc.util.ThreadPoolManager;
 import net.minecraft.client.Minecraft;
@@ -31,10 +32,7 @@ public class RoadNavigationService {
     private static final Object INSTANCE_LOCK = new Object();
 
     // Konfiguration
-    private static final int DEFAULT_SCAN_RADIUS = 150; // Reduziert für bessere Performance
-    private static final int PATH_UPDATE_INTERVAL_MS = 1000; // Pfad-Update jede Sekunde
     private static final double MOVEMENT_THRESHOLD = 10.0; // Mindestbewegung für Neuberechnung
-    private static final double ARRIVAL_DISTANCE = 5.0; // Distanz für "angekommen"
     // Services
     private final WorldMapData mapData;
 
@@ -101,7 +99,7 @@ public class RoadNavigationService {
             return CompletableFuture.completedFuture(null);
         }
 
-        return buildGraph(player.getBlockX(), player.getBlockZ(), DEFAULT_SCAN_RADIUS);
+        return buildGraph(player.getBlockX(), player.getBlockZ(), ModConfigHandler.COMMON.NAVIGATION_SCAN_RADIUS.get());
     }
 
     /**
@@ -260,7 +258,7 @@ public class RoadNavigationService {
         BlockPos playerPos = player.blockPosition();
 
         // Prüfe ob Ziel erreicht
-        if (currentTarget.isNear(playerPos, ARRIVAL_DISTANCE)) {
+        if (currentTarget.isNear(playerPos, ModConfigHandler.COMMON.NAVIGATION_ARRIVAL_DISTANCE.get())) {
             LOGGER.info("[RoadNavigationService] Destination reached: {}", currentTarget.getDisplayName());
             notifyListeners(NavigationEvent.DESTINATION_REACHED);
             stopNavigation();
@@ -271,7 +269,7 @@ public class RoadNavigationService {
         // 1. Spieler sich signifikant von der letzten Pfad-Startposition entfernt hat
         // 2. Oder für bewegliche Ziele wenn das Ziel sich bewegt hat
         long now = System.currentTimeMillis();
-        if (now - lastPathUpdate >= PATH_UPDATE_INTERVAL_MS) {
+        if (now - lastPathUpdate >= ModConfigHandler.COMMON.NAVIGATION_PATH_UPDATE_INTERVAL.get()) {
             boolean shouldRecalculate = false;
 
             // Prüfe ob Spieler sich weit von der letzten Pfad-Startposition entfernt hat

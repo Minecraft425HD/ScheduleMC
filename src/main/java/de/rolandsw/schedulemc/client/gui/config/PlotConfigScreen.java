@@ -57,22 +57,10 @@ public class PlotConfigScreen extends Screen {
             "Refund: §e%.0f%%",
             ModConfigHandler.COMMON.REFUND_ON_ABANDON, 0, 1.0, 100));
 
-        // Toggles
-        boolean allowTransfer = ModConfigHandler.COMMON.ALLOW_PLOT_TRANSFER.get();
-        this.addRenderableWidget(Button.builder(
-            Component.literal("Transfer: " + (allowTransfer ? "§aALLOW" : "§cDENY")),
-            button -> {
-                boolean c = ModConfigHandler.COMMON.ALLOW_PLOT_TRANSFER.get();
-                ModConfigHandler.COMMON.ALLOW_PLOT_TRANSFER.set(!c);
-                ModConfigHandler.SPEC.save();
-                button.setMessage(Component.literal("Transfer: " + (!c ? "§aALLOW" : "§cDENY")));
-            }
-        ).bounds(leftCol, y + s * 3, w, 20).build());
-
         this.addRenderableWidget(Button.builder(
             Component.literal("Block Restrictions ..."),
             button -> this.minecraft.setScreen(new PlotBlockRestrictionConfigScreen(this))
-        ).bounds(rightCol, y + s * 3, w, 20).build());
+        ).bounds(this.width / 2 - 75, y + s * 3, w, 20).build());
 
         // Back Button
         this.addRenderableWidget(Button.builder(

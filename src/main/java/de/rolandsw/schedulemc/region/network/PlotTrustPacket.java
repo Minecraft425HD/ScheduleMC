@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.region.network;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.util.PacketHandler;
@@ -91,6 +92,12 @@ public class PlotTrustPacket {
 
                     if (plot.getTrustedPlayers().contains(targetUUID.toString())) {
                         player.sendSystemMessage(Component.translatable("message.plot.player_already_trusted", msg.playerName));
+                        return;
+                    }
+
+                    if (plot.getTrustedCount() >= ModConfigHandler.COMMON.MAX_TRUSTED_PLAYERS.get()) {
+                        player.sendSystemMessage(Component.translatable("message.plot.trust_limit_reached",
+                            ModConfigHandler.COMMON.MAX_TRUSTED_PLAYERS.get()));
                         return;
                     }
 

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Advanced Economy Config Screen - 34 Advanced Economy Options (SCROLLABLE!)
+ * Advanced Economy Config Screen - 33 Advanced Economy Options (SCROLLABLE!)
  * Includes: Rent, Shop, Ratings, Bank, Stock Market, Economy Cycle,
  *          Level System, Risk Premium, Anti-Exploit
  */
@@ -50,12 +50,6 @@ public class AdvancedEconomyConfigScreen extends Screen {
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Min Price: %.0f€",
                 ModConfigHandler.COMMON.MIN_RENT_PRICE, 1, 10000),
-            new IntSlider(0, 0, 180, "Min Days: %d",
-                ModConfigHandler.COMMON.MIN_RENT_DAYS, 1, 365)
-        );
-        configList.addRow(
-            new IntSlider(0, 0, 180, "Max Days: %d",
-                ModConfigHandler.COMMON.MAX_RENT_DAYS, 1, 365),
             null
         );
 
@@ -79,7 +73,7 @@ public class AdvancedEconomyConfigScreen extends Screen {
             new IntSlider(0, 0, 180, "Min Rating: %d",
                 ModConfigHandler.COMMON.MIN_RATING, 1, 5),
             new IntSlider(0, 0, 180, "Max Rating: %d",
-                ModConfigHandler.COMMON.MAX_RATING, 1, 10)
+                ModConfigHandler.COMMON.MAX_RATING, 1, 5)
         );
 
         // === BANK SYSTEM ===
@@ -198,7 +192,7 @@ public class AdvancedEconomyConfigScreen extends Screen {
 
         // Subtitle
         graphics.drawCenteredString(this.font,
-            Component.literal("§e34 Advanced Economy Options - Now Scrollable!"),
+            Component.literal("§e33 Advanced Economy Options - Now Scrollable!"),
             this.width / 2, 22, 0xFFFF55);
 
         // Info

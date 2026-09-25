@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.events;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -21,12 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PoliceRoadblock {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-
-    /** Maximale Anzahl Sperren pro Spieler */
-    public static final int MAX_ROADBLOCKS_PER_PLAYER = 2;
-
-    /** Dauer einer Sperre in Ticks (5 Minuten) */
-    public static final long ROADBLOCK_DURATION_TICKS = 6000L;
 
     /** Breite der Sperre in Bloecken */
     private static final int ROADBLOCK_WIDTH = 3;
@@ -51,7 +46,7 @@ public class PoliceRoadblock {
         public RoadblockData(BlockPos center, long creationTick, UUID targetPlayer) {
             this.center = center;
             this.creationTick = creationTick;
-            this.expirationTick = creationTick + ROADBLOCK_DURATION_TICKS;
+            this.expirationTick = creationTick + (ModConfigHandler.COMMON.POLICE_ROADBLOCK_DURATION_SECONDS.get() * 20L);
             this.barrierPositions = new ArrayList<>();
             this.originalBlocks = new HashMap<>();
             this.targetPlayer = targetPlayer;
@@ -71,9 +66,13 @@ public class PoliceRoadblock {
      * @return true wenn Sperre erstellt wurde
      */
     public static boolean createRoadblock(ServerLevel level, BlockPos location, UUID targetPlayer) {
+        if (!ModConfigHandler.COMMON.POLICE_ROADBLOCK_ENABLED.get()) {
+            return false;
+        }
+
         // Pruefe Limit
         List<RoadblockData> playerBlocks = activeRoadblocks.computeIfAbsent(targetPlayer, k -> new ArrayList<>());
-        if (playerBlocks.size() >= MAX_ROADBLOCKS_PER_PLAYER) {
+        if (playerBlocks.size() >= ModConfigHandler.COMMON.POLICE_MAX_ROADBLOCKS.get()) {
             return false;
         }
 

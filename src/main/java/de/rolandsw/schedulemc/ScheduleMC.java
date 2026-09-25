@@ -772,6 +772,7 @@ public class ScheduleMC {
             LOGGER.info("Registered {} managers with IncrementalSaveManager", saveManager.getRegisteredCount());
 
             // SaveManager starten
+            saveManager.setSaveInterval(ModConfigHandler.COMMON.SAVE_INTERVAL_MINUTES.get() * 60 * 20);
             saveManager.start();
             LOGGER.info("IncrementalSaveManager started - automatic background saves active");
 

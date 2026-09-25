@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.events;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.witness.CrimeType;
@@ -31,8 +32,10 @@ public class PoliceWarningSystem {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    /** Verwarnungs-Timeout in Ticks (10 Sekunden) */
-    public static final int WARNING_TIMEOUT_TICKS = 200;
+    /** Verwarnungs-Timeout in Ticks (konfigurierbar in Sekunden) */
+    private static int warningTimeoutTicks() {
+        return ModConfigHandler.COMMON.POLICE_WARNING_TIMEOUT_SECONDS.get() * 20;
+    }
 
     /** Maximale Bewegung waehrend Verwarnung (Bloecke) */
     private static final double MAX_MOVEMENT_DURING_WARNING = 3.0;
@@ -106,7 +109,7 @@ public class PoliceWarningSystem {
         // Warnungen senden
         player.sendSystemMessage(Component.translatable("event.police.warning_stop"));
         player.sendSystemMessage(Component.translatable("event.police.warning_timer",
-            WARNING_TIMEOUT_TICKS / 20));
+            warningTimeoutTicks() / 20));
         player.sendSystemMessage(Component.translatable("event.police.warning_comply"));
 
         // Polizei bleibt stehen
@@ -157,7 +160,7 @@ public class PoliceWarningSystem {
             return WarningStatus.FLED;
         }
 
-        if (elapsed >= WARNING_TIMEOUT_TICKS) {
+        if (elapsed >= warningTimeoutTicks()) {
             // Timer abgelaufen, Spieler hat sich ergeben
             data.status = WarningStatus.COMPLIED;
             activeWarnings.remove(playerUUID);
@@ -180,7 +183,7 @@ public class PoliceWarningSystem {
 
         // Timer laeuft noch
         if (elapsed % 40 == 0) { // Alle 2 Sekunden
-            int remaining = (int) ((WARNING_TIMEOUT_TICKS - elapsed) / 20);
+            int remaining = (int) ((warningTimeoutTicks() - elapsed) / 20);
             player.sendSystemMessage(Component.translatable("event.police.warning_remaining", remaining));
         }
 
@@ -207,7 +210,7 @@ public class PoliceWarningSystem {
     public static void cleanup(long currentTick) {
         activeWarnings.entrySet().removeIf(entry -> {
             long elapsed = currentTick - entry.getValue().issuedTick;
-            return elapsed > WARNING_TIMEOUT_TICKS * 2; // Safety-Cleanup
+            return elapsed > warningTimeoutTicks() * 2L; // Safety-Cleanup
         });
     }
 }

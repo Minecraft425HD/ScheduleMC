@@ -3,6 +3,7 @@ package de.rolandsw.schedulemc.economy;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import de.rolandsw.schedulemc.util.IncrementalSaveManager;
 import de.rolandsw.schedulemc.util.PersistenceHelper;
@@ -171,20 +172,24 @@ public class EconomyCycle implements IncrementalSaveManager.ISaveable {
      * Prüft und triggert Phase-spezifische Events.
      */
     private void checkPhaseEvents() {
-        double chance = currentPhase.getEventChance();
+        // Konfigurierbare Basis-Chance skaliert proportional zur NORMAL-Phase-Baseline (0.10),
+        // damit die relativen Unterschiede zwischen den Phasen erhalten bleiben.
+        double scale = ModConfigHandler.COMMON.ECONOMY_CYCLE_EVENT_BASE_CHANCE.get() / 0.10;
+        double chance = Math.min(1.0, currentPhase.getEventChance() * scale);
         if (ThreadLocalRandom.current().nextDouble() < chance) {
             PriceManager.checkDailyEvents();
         }
     }
 
     /**
-     * Würfelt die Dauer einer Phase.
+     * Würfelt die Dauer einer Phase, begrenzt durch die konfigurierbaren
+     * globalen Min/Max-Grenzen (klemmt die phasen-eigenen Werte ein).
      */
     private static int rollDuration(EconomyCyclePhase phase) {
-        return ThreadLocalRandom.current().nextInt(
-                phase.getMinDurationDays(),
-                phase.getMaxDurationDays() + 1
-        );
+        int min = Math.max(phase.getMinDurationDays(), ModConfigHandler.COMMON.ECONOMY_CYCLE_MIN_DURATION_DAYS.get());
+        int max = Math.min(phase.getMaxDurationDays(), ModConfigHandler.COMMON.ECONOMY_CYCLE_MAX_DURATION_DAYS.get());
+        if (max < min) max = min;
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 
     // ═══════════════════════════════════════════════════════════

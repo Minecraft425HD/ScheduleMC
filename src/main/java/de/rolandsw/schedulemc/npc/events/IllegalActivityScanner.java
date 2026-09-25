@@ -216,8 +216,7 @@ public class IllegalActivityScanner {
      * @param depth Aktuelle Rekursionstiefe
      */
     private static void scanContainerItem(ItemStack stack, ScanResult result, int depth) {
-        // Maximale Tiefe: 2 (Shulker in Shulker)
-        if (depth >= 2) return;
+        if (depth >= ModConfigHandler.COMMON.POLICE_CONTAINER_SCAN_DEPTH.get()) return;
 
         // Pruefe ob es ein Shulker-Box Item ist
         if (stack.getItem() instanceof net.minecraft.world.item.BlockItem blockItem

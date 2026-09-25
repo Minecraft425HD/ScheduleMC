@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.region;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.core.BlockPos;
 import java.util.*;
 
@@ -306,7 +307,8 @@ public class PlotRegion {
      * Fügt ein Rating hinzu (1-5 Sterne)
      */
     public void addRating(UUID playerUUID, int stars) {
-        int clampedStars = Math.max(1, Math.min(5, stars));
+        int clampedStars = Math.max(ModConfigHandler.COMMON.MIN_RATING.get(),
+            Math.min(ModConfigHandler.COMMON.MAX_RATING.get(), stars));
         getRatings().put(playerUUID.toString(), clampedStars);
     }
     

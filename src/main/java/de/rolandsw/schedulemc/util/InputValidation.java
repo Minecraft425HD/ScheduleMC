@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.util;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 
@@ -271,6 +272,14 @@ public class InputValidation {
         int dx = Math.abs(pos1.getX() - pos2.getX());
         int dz = Math.abs(pos1.getZ() - pos2.getZ());
         if (dx > 10000 || dz > 10000) {
+            return Result.failure("validation.plot.region_too_large");
+        }
+
+        long area = (long) dx * (long) dz;
+        if (area < ModConfigHandler.COMMON.MIN_PLOT_SIZE.get()) {
+            return Result.failure("validation.plot.region_too_small");
+        }
+        if (area > ModConfigHandler.COMMON.MAX_PLOT_SIZE.get()) {
             return Result.failure("validation.plot.region_too_large");
         }
         return Result.success();

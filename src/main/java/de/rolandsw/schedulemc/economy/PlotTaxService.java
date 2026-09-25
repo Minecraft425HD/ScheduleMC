@@ -117,7 +117,7 @@ public class PlotTaxService {
      * @return double[]{playerShare, stateShare}
      */
     public static double[] calculateAbandonSplit(long purchaseTime, double originalPrice) {
-        double playerShare = originalPrice * 0.5;
+        double playerShare = originalPrice * ModConfigHandler.COMMON.REFUND_ON_ABANDON.get();
         double stateShare = originalPrice - playerShare;
 
         if (isInSpeculationWindow(purchaseTime)) {

@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.network;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.economy.BlockShopCatalog;
 import de.rolandsw.schedulemc.level.ProducerLevel;
 import de.rolandsw.schedulemc.util.PacketHandler;
@@ -65,6 +66,10 @@ public class PurchaseItemPacket {
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
+            if (!ModConfigHandler.COMMON.SHOP_ENABLED.get()) {
+                player.sendSystemMessage(Component.translatable("message.shop.disabled"));
+                return;
+            }
             Entity entity = player.level().getEntity(merchantEntityId);
             if (entity instanceof CustomNPCEntity merchant) {
                 processPurchase(player, merchant, itemIndex, quantity);

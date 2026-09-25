@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.region.network;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.util.PacketHandler;
@@ -76,6 +77,13 @@ public class PlotSalePacket {
                         player.sendSystemMessage(Component.translatable("message.plot.price_invalid"));
                         return;
                     }
+                    if (msg.price < ModConfigHandler.COMMON.MIN_PLOT_PRICE.get()
+                            || msg.price > ModConfigHandler.COMMON.MAX_PLOT_PRICE.get()) {
+                        player.sendSystemMessage(Component.translatable("message.plot.price_out_of_range",
+                            String.format("%.2f", ModConfigHandler.COMMON.MIN_PLOT_PRICE.get()),
+                            String.format("%.2f", ModConfigHandler.COMMON.MAX_PLOT_PRICE.get())));
+                        return;
+                    }
                     plot.setSalePrice(msg.price);
                     plot.setForSale(true);
                     plot.setForRent(false);
@@ -88,6 +96,11 @@ public class PlotSalePacket {
                 case RENT:
                     if (msg.price <= 0) {
                         player.sendSystemMessage(Component.translatable("message.plot.price_invalid"));
+                        return;
+                    }
+                    if (msg.price < ModConfigHandler.COMMON.MIN_RENT_PRICE.get()) {
+                        player.sendSystemMessage(Component.translatable("message.plot.rent_price_too_low",
+                            String.format("%.2f", ModConfigHandler.COMMON.MIN_RENT_PRICE.get())));
                         return;
                     }
                     plot.setRentPricePerDay(msg.price);

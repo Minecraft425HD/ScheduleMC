@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.events;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.witness.CrimeType;
@@ -42,6 +43,10 @@ public class TrafficViolationHandler {
      */
     @SubscribeEvent
     public static void onEntityHurt(LivingHurtEvent event) {
+        if (!ModConfigHandler.COMMON.POLICE_TRAFFIC_VIOLATIONS_ENABLED.get()) {
+            return;
+        }
+
         // Nur wenn ein NPC verletzt wird
         if (!(event.getEntity() instanceof CustomNPCEntity npc)) {
             return;

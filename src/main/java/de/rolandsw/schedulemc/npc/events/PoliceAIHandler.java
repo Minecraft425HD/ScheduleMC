@@ -403,7 +403,8 @@ public class PoliceAIHandler {
                     }
 
                     // Feature 8: Verwarnungssystem bei Wanted 1-2
-                    if (PoliceWarningSystem.shouldWarnInsteadOfPursue(highestWantedLevel)
+                    if (ModConfigHandler.COMMON.POLICE_WARNING_ENABLED.get()
+                            && PoliceWarningSystem.shouldWarnInsteadOfPursue(highestWantedLevel)
                             && !PoliceWarningSystem.isWarned(targetCriminal.getUUID())) {
                         PoliceWarningSystem.issueWarning(npc, targetCriminal, currentTick);
                     } else if (PoliceWarningSystem.isWarned(targetCriminal.getUUID())) {
@@ -415,7 +416,8 @@ public class PoliceAIHandler {
                     }
 
                     // Feature 1: Fahrzeugverfolgung wenn Spieler in Fahrzeug
-                    if (PoliceVehiclePursuit.isPlayerInVehicle(targetCriminal)
+                    if (ModConfigHandler.COMMON.POLICE_VEHICLE_PURSUIT_ENABLED.get()
+                            && PoliceVehiclePursuit.isPlayerInVehicle(targetCriminal)
                             && PoliceVehiclePursuit.canStartVehiclePursuit(npc, targetCriminal)) {
                         PoliceVehiclePursuit.startVehiclePursuit(npc, targetCriminal);
                     } else if (!npc.isDriving()) {

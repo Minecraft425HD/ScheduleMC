@@ -54,6 +54,16 @@ public class NPCDrivingScheduler {
      * @return true wenn die Fahrt gestartet wurde
      */
     public static boolean startDriving(CustomNPCEntity npc, BlockPos destination) {
+        return startDriving(npc, destination, 1.0f);
+    }
+
+    /**
+     * Startet eine NPC-Fahrt mit einem Geschwindigkeits-Multiplikator
+     * (z.B. fuer Polizei-Verfolgungsjagden, siehe {@code POLICE_VEHICLE_SPEED_MULTIPLIER}).
+     *
+     * @param speedMultiplier 1.0 = normale Geschwindigkeit
+     */
+    public static boolean startDriving(CustomNPCEntity npc, BlockPos destination, float speedMultiplier) {
         // Bereits am Fahren?
         if (tasksByNpc.containsKey(npc.getUUID())) {
             return false;
@@ -77,7 +87,7 @@ public class NPCDrivingScheduler {
         }
 
         // Task erstellen und registrieren
-        NPCDrivingTask task = new NPCDrivingTask(npc, path, destination);
+        NPCDrivingTask task = new NPCDrivingTask(npc, path, destination, speedMultiplier);
         activeTasks.offerLast(task);
         tasksByNpc.put(npc.getUUID(), task);
 

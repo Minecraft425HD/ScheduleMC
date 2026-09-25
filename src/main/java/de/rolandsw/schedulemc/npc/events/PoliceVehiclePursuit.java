@@ -1,6 +1,7 @@
 package de.rolandsw.schedulemc.npc.events;
 
 import com.mojang.logging.LogUtils;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
 import de.rolandsw.schedulemc.npc.driving.NPCDrivingScheduler;
@@ -31,9 +32,6 @@ public class PoliceVehiclePursuit {
 
     /** Letzte bekannte Spieler-Position fuer Pfad-Update */
     private static final Map<UUID, BlockPos> lastKnownTargetPos = new ConcurrentHashMap<>();
-
-    /** Geschwindigkeits-Multiplikator fuer Polizei-Fahrzeuge */
-    public static final double POLICE_SPEED_MULTIPLIER = 1.3;
 
     /** Mindestabstand fuer Fahrzeugverfolgung (Bloecke) */
     private static final double MIN_PURSUIT_DISTANCE = 30.0;
@@ -79,7 +77,9 @@ public class PoliceVehiclePursuit {
             lastKnownTargetPos.put(policeUUID, targetPos);
 
             // Sirene aktivieren
-            police.setSirenActive(true);
+            if (ModConfigHandler.COMMON.POLICE_SIREN_ENABLED.get()) {
+                police.setSirenActive(true);
+            }
 
             LOGGER.info("[VEHICLE PURSUIT] {} startet Verfolgung von {}",
                 police.getNpcName(), target.getName().getString());
@@ -95,7 +95,8 @@ public class PoliceVehiclePursuit {
     private static boolean startDrivingToTarget(CustomNPCEntity police, BlockPos target) {
         // Setze Polizei-Farbe (blau, Index 3)
         police.setVehicleColor(3);
-        NPCDrivingScheduler.startDriving(police, target);
+        float speedMultiplier = (float) ModConfigHandler.COMMON.POLICE_VEHICLE_SPEED_MULTIPLIER.get().doubleValue();
+        NPCDrivingScheduler.startDriving(police, target, speedMultiplier);
         return police.isDriving();
     }
 

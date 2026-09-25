@@ -1,5 +1,6 @@
 package de.rolandsw.schedulemc.region.network;
 
+import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.region.PlotManager;
 import de.rolandsw.schedulemc.region.PlotRegion;
 import de.rolandsw.schedulemc.util.PacketHandler;
@@ -46,6 +47,11 @@ public class PlotRatingPacket {
      */
     public static void handle(PlotRatingPacket msg, Supplier<NetworkEvent.Context> ctx) {
         PacketHandler.handleServerPacket(ctx, player -> {
+            if (!ModConfigHandler.COMMON.RATINGS_ENABLED.get()) {
+                player.sendSystemMessage(Component.translatable("message.plot.ratings_disabled"));
+                return;
+            }
+
             PlotRegion plot = PlotManager.getPlot(msg.plotId);
 
             if (plot == null) {
@@ -54,7 +60,7 @@ public class PlotRatingPacket {
             }
 
             // Validiere Rating
-            if (msg.rating < 1 || msg.rating > 5) {
+            if (msg.rating < ModConfigHandler.COMMON.MIN_RATING.get() || msg.rating > ModConfigHandler.COMMON.MAX_RATING.get()) {
                 player.sendSystemMessage(Component.translatable("message.plot.rating_invalid"));
                 return;
             }
@@ -67,6 +73,10 @@ public class PlotRatingPacket {
 
             // Rating hinzufügen/aktualisieren
             boolean wasUpdated = plot.hasRated(player.getUUID());
+            if (wasUpdated && !ModConfigHandler.COMMON.ALLOW_MULTIPLE_RATINGS.get()) {
+                player.sendSystemMessage(Component.translatable("message.plot.rating_already_rated"));
+                return;
+            }
             plot.addRating(player.getUUID(), msg.rating);
             PlotManager.savePlots();
 
