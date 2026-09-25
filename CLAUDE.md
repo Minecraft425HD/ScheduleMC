@@ -1054,9 +1054,27 @@ Infrastruktur nach demselben Muster wie fast jeder Fund dieser Session. Gelösch
 
 **Nachfolgender repo-weiter Re-Scan (gleiche Methode wie Teil 9):** Keine neuen
 Kandidaten gefunden — die verbleibenden 23 Klassen mit 0 externen Referenzen sind exakt
-die bereits bekannten: die 20 `@Mod.EventBusSubscriber`/`@SubscribeEvent`-Klassen (real,
+die bereits bekannten: die 21 `@Mod.EventBusSubscriber`/`@SubscribeEvent`-Klassen (real,
 Forge-Fehlalarm) sowie `RedemptionQuestManager`/`WantedListSyncPacket` (bereits
 dokumentiert, Entscheidung offen).
+
+**Nachtrag: die 21 `@Mod.EventBusSubscriber`-Klassen einzeln verifiziert** (auf
+Nutzerwunsch, statt nur pauschal per Annotation gefiltert): `WeaponClientEventHandler`,
+`WeaponClientSetup`, `RecurringPaymentEventHandler`, `CreditScoreEventHandler`,
+`SecretDoorEventHandler`, `SecretDoorClientEventHandler`, `TrafficViolationHandler`,
+`NPCClientEvents`, `PrisonEventHandler`, `CompanionEventHandler`, `GangTabListHandler`,
+`GangNametagRenderer`, `SmartphoneKeyHandler`, `WantedLevelOverlay`,
+`HotbarTooltipOverlay`, `TobaccoPotHudOverlay`, `SmartphonePlayerHandler`,
+`InventoryBlockHandler`, `UpdateNotificationHandler`, `SmartphoneProtectionHandler`,
+`PlotProtectionHandler`. Bei allen 21: korrekte `@Mod.EventBusSubscriber`-Parameter
+(`modid`/`bus`/`value`, kein auskommentierter oder fehlender Lademechanismus wie einst
+bei den MapView-Mixins), mindestens eine `@SubscribeEvent`-Methode mit echter Logik
+(keine leeren Stubs), und die aufgerufenen Downstream-Manager (`PrisonManager`,
+`RecurringPaymentManager`, `CreditScoreManager`, `SmartphoneTracker`, `ClientGangCache`
+u. a.) sind selbst real und mehrfach referenziert. **Ergebnis: alle 21 echt und
+funktionsfähig — kein weiterer Fund.** Der Referenzzähl-Scan aus Teil 9/10 hat damit
+vollständige Abdeckung erreicht. **Nicht vorschlagen**, diese 21 Klassen erneut auf
+Totheit zu prüfen, ohne neuen Code-Zuwachs seit diesem Datum.
 
 **Gesamtbilanz des Aufräum-Durchlaufs (Teil 4 bis Teil 10, dieser durchgehenden
 Session):** 42 Dateien vollständig gelöscht, **8.026 Zeilen** entfernter Code (36 Dateien
