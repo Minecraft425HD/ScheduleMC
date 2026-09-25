@@ -941,3 +941,75 @@ geratene Stellen zu hängen — der Dialog-Trigger allein wäre machbar, aber
 ohne die Progress-Hooks bliebe die Quest niemals abschließbar
 (schlimmer als gar nicht angeboten). Eigenständig als Feature einplanen,
 falls gewünscht (Dialog-Trigger + alle 4 Progress-Hooks in einem Zug).
+
+---
+
+## Repo-weiter Orphan-Scan Teil 9: 4 echte Dopplungen + 15 isolierte Dateien entfernt (2026-09-25)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen, diese Klassen wiederherzustellen
+
+**Methode:** Systematischer Referenzzähl-Scan über alle 1.515 `.java`-Dateien in
+`src/main/java` (Tokenisierung + Cross-Reference-Zählung pro Klassenname). 48 Klassen mit
+0 externen Referenzen gefunden; nach Filtern von `package-info.java` und
+`@Mod.EventBusSubscriber`/`@SubscribeEvent`-annotierten Klassen (20 Stück, bekannter
+Forge-Auto-Registrierungs-Fehlalarm, nicht einzeln weiter verifiziert) blieben 23 echte
+Kandidaten.
+
+### Vier echte Dopplungen (von echtem Code ersetzt), gelöscht
+
+- **`region/PlotChunkCache.java`** (399 Z.) — eigener Javadoc beschreibt exakt das Problem,
+  das die tatsächlich genutzte `PlotCache`-Klasse (LRU-Cache + Spatial-Index, verdrahtet in
+  `PlotManager.getPlotAt()`) bereits löst. Ein überholter Alternativansatz (Chunk-basiertes
+  Caching statt Spatial-Index), nie eingebaut.
+- **`coffee/blockentity/AbstractCoffeeDryingTrayBlockEntity.java`** (290 Z.) — **explizit im
+  Code als tot markiert:** `CoffeeBlockEntities.java` Zeile 26-29 sagt wörtlich "Coffee
+  Drying Trays wurden durch TobaccoBlocks.SMALL/MEDIUM/BIG_DRYING_RACK ersetzt ... Die
+  Coffee-spezifischen BlockEntities ... können entfernt werden" — ein früherer Entwickler
+  hatte das bereits erkannt, nur nie ausgeführt.
+- **`coffee/CoffeeProcessingMethod.java`** (44 Z.) — WET/DRY-Enum; der DRY-Pfad (Drying
+  Tray) wurde entfernt (siehe oben), der reale `WetProcessingStationBlockEntity` nutzt
+  dieses Enum an keiner Stelle.
+- **`cheese/items/MilkBucketItem.java`** (12 Z.) — ebenfalls **explizit im Code als tot
+  markiert:** `CheeseItems.java` Zeile 27 sagt "MILK_BUCKET wurde entfernt - verwende
+  net.minecraft.world.item.Items.MILK_BUCKET". Die echte Käse-Kette nutzt den
+  Vanilla-Milcheimer.
+
+### Komplett isoliertes MapView-Subsystem + 1 triviale Utility, gelöscht (15 Dateien)
+
+- **`mapview/entityrender/`** (ganzes Paket, 6 Dateien: `EntityVariantDataFactory`,
+  `EntityVariantData`, `DefaultEntityVariantData`, `DefaultEntityVariantDataFactory`,
+  `TropicalFishVariantDataFactory`, `HorseVariantDataFactory`) — Variant-Color-Rendering für
+  Karten-Icons (z. B. Pferdefarben, Fischvarianten). Verifiziert: außerhalb dieses Pakets
+  referenziert **nichts** irgendeine dieser 6 Klassen — die "externen Treffer" beim ersten
+  Scan waren ausschließlich Querverweise der 6 Dateien untereinander (Interface→Implementierer,
+  Basisklasse→Subklasse), keine echte Nutzung von außen. Kein Reflection-Zugriff
+  (`Class.forName`/`.class`-Literale) im gesamten `mapview`-Modul gefunden.
+- **`mapview/util/AllocatedTexture.java`, `FloatBlitRenderState.java`,
+  `FourColoredRectangleRenderState.java`, `MapViewCachedOrthoProjectionMatrixBuffer.java`**
+  (4 Dateien, ~135 Z.) — leere/Stub-Implementierungen mit Kommentar "GuiElementRenderState
+  doesn't exist in 1.20.1"; vermutlich Überbleibsel desselben gescheiterten 1.20.1-Ports wie
+  die bereits dokumentierten MapView-Mixins (siehe "Mixin-Framework entfernt" oben).
+- **`mapview/util/BackgroundImageInfo.java`, `mapview/presentation/component/TextButton.java`,
+  `OptionSlider.java`, `mapview/data/cache/ComparisonRegionCache.java`** (4 Dateien, ~350 Z.)
+  — je einzeln verifiziert: 0 Instanziierungen. `ComparisonRegionCache` gehörte zu einem
+  "Comparison"-Feature, von dem sich sonst keine Spur im gesamten `mapview`-Modul findet.
+- **`vehicle/util/UniqueBlockPosList.java`** (30 Z.) — triviale Liste, 0 Referenzen.
+
+Alle 19 Löschungen vor dem Entfernen einzeln per Grep gegen `src/main/java` UND
+`src/test/java` verifiziert (0 verbleibende Referenzen), zusätzlich `src/main/resources`
+auf Registrierungs-/Asset-Bezüge geprüft. Betroffene Verzeichnisse (`mapview/entityrender/`)
+wurden komplett leer und sind aus dem Repo verschwunden.
+
+**Zurückgestellt (bewusst NICHT gelöscht, tiefere Prüfung + Nutzenanalyse folgt):**
+`util/CircuitBreaker.java`, `ServiceRegistry.java`, `PerformanceMonitor.java`,
+`HotReloadableConfig.java`, `TickThrottler.java`, `VersionedData.java` (6 Dateien, 1.456
+Zeilen) — siehe eigenen Abschnitt unten.
+
+**Bereits bekannt, weiterhin offen (aus Teil 6):** `RedemptionQuestManager`,
+`WantedListSyncPacket` — unverändert, Entscheidung steht noch aus.
+
+**Nicht vorschlagen**, denselben repo-weiten Referenzzähl-Scan zu wiederholen, ohne neuen
+Code-Zuwachs seit diesem Datum, und nicht ohne die 20 gefilterten
+`@Mod.EventBusSubscriber`/`@SubscribeEvent`-Klassen erneut zu prüfen, falls die
+Vollständigkeit dieses Scans in Frage steht — die wurden aus Zeitgründen nur pauschal
+per Annotation ausgeschlossen, nicht einzeln funktional verifiziert.

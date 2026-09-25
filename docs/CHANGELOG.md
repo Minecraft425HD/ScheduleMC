@@ -6,6 +6,33 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.9-beta] - 2026-09-25
+
+### Removed — a fresh repo-wide orphan scan found 19 more dead files
+A systematic reference-count scan across all 1,515 Java files found 48 zero-external-reference
+classes; after filtering `package-info.java` and Forge-auto-registered
+`@Mod.EventBusSubscriber`/`@SubscribeEvent` classes, 23 real candidates remained. Of those:
+
+- **4 genuine duplicates**, each individually verified against real, still-used code:
+  `PlotChunkCache` (superseded by the actually-wired `PlotCache`, same problem, different
+  approach), `AbstractCoffeeDryingTrayBlockEntity` and `MilkBucketItem` (both explicitly
+  marked dead in existing code comments — coffee drying now reuses tobacco's shared drying
+  rack, cheese now uses the vanilla milk bucket), `CoffeeProcessingMethod` (its only
+  consumer, the coffee drying path, was already removed).
+- **The entire isolated `mapview/entityrender/` package** (6 files) — entity variant color
+  rendering for map icons, verified to have zero references from outside the package itself.
+- **4 stub/leftover files** in `mapview/util/` with a "doesn't exist in 1.20.1" comment,
+  likely remnants of the same failed port already documented for the MapView mixins.
+- **4 more isolated MapView files** (`BackgroundImageInfo`, `TextButton`, `OptionSlider`,
+  `ComparisonRegionCache`) and **1 trivial vehicle utility** (`UniqueBlockPosList`).
+
+19 files total, all individually verified with zero remaining references before deletion.
+Deliberately left `util/CircuitBreaker`/`ServiceRegistry`/`PerformanceMonitor`/
+`HotReloadableConfig`/`TickThrottler`/`VersionedData` (6 files, 1,456 lines) for a deeper
+look at whether they're worth wiring in rather than deleting — see CLAUDE.md.
+
+---
+
 ## [3.9.8-beta] - 2026-09-25
 
 ### Removed — ProductionEventManager, confirmed dead a second time
