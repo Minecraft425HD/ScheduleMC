@@ -6,6 +6,26 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.15-beta] - 2026-09-25
+
+### Added — Speed limit enforcement wired up (backlog #3)
+`police.speed_limit_default` (a DoubleValue in the same unit as
+`EntityGenericVehicle.getSpeed()`, blocks/tick — default 0.5 is ~36 km/h) now has real
+effect. New `TrafficViolationHandler.onPlayerTick()` checks once per second whether a
+player driving an `EntityGenericVehicle` exceeds the configured limit; if so, and at
+least one police NPC within the existing detection radius can actually see the player
+(reusing `PoliceAIHandler.getPoliceInRadius()` + `PoliceSearchBehavior.isPlayerHidden()`,
+the same line-of-sight combination the escape system already uses), it issues
+`CrimeType.TRAFFIC_VIOLATION` through the same `CrimeManager`/`WitnessManager` path as
+the handler's existing hit-and-run/reckless-driving checks, sharing the same
+per-player cooldown so a speeding tick and a collision in the same window don't double
+up. New lang key `event.traffic.speeding` in both `en_us.json`/`de_de.json`.
+
+Deliberately no road-surface check for this feature — a speed limit applies to any
+vehicle going too fast, not just ones on a recognized road block.
+
+---
+
 ## [3.9.14-beta] - 2026-09-25
 
 ### Added — Road detection for vehicle roadblocks only

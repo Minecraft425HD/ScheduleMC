@@ -1770,6 +1770,7 @@
   "event.time.week_passed": "Eine Woche ist vergangen",
   "event.traffic.hit_and_run": "§c⚠ Unfallflucht! Fahndungsstufe erhöht!",
   "event.traffic.reckless_driving": "§e⚠ Rücksichtsloses Fahren! Geldstrafe ausgestellt.",
+  "event.traffic.speeding": "§e⚠ Geschwindigkeitsüberschreitung! Geldstrafe ausgestellt.",
   "event.weather.clear": "Wetter aufgeklart",
   "event.weather.storm_warning": "Sturmwarnung!",
   "fluid.schedulemc.diesel": "Diesel",

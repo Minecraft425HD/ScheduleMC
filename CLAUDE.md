@@ -224,10 +224,8 @@ brauchen neue Funktionalität, keine reine Verdrahtung. Plan pro Wert
    `WantedListSyncPacket`-Daten), ausgegeben/platziert ab konfiguriertem
    Wanted-Level.
 
-3. **`police.speed_limit_default`**: Geschwindigkeitskontrolle — Fahrzeug-
-   Geschwindigkeit gegen das Limit prüfen, bei Überschreitung + Polizei-NPC
-   in Sichtweite eine Verkehrsstrafe wie in `TrafficViolationHandler`
-   auslösen.
+3. **`police.speed_limit_default`** — ERLEDIGT
+   (2026-09-25, Teil 15, siehe eigener Abschnitt unten).
 
 4. **`police.flanking_enabled`**: Bei ≥2 verfolgenden Polizei-NPCs in
    `PoliceAIHandler` einen Offset-Punkt relativ zur Fluchtrichtung
@@ -1241,3 +1239,55 @@ später an der dann aktuellen Spielerposition.
 **Nicht vorschlagen:** die Straßen-Erkennung auch für Fußgänger-Verfolgungen zu
 aktivieren, oder `RoadBlockDetector.isRoadAt(...)`/`getBlockStateFromWorld(...)`
 (die client-only Overloads) direkt aus server-seitigem Code aufzurufen.
+
+---
+
+## Geschwindigkeitskontrolle verdrahtet (2026-09-25, Teil 15)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Betrifft:** Backlog-Punkt 3 ("Fehlende Features für 12 verbleibende Dead-Config-Werte",
+`police.speed_limit_default`).
+
+**Recherche vor der Umsetzung:**
+- `ModConfigHandler.COMMON.POLICE_SPEED_LIMIT_DEFAULT` ist ein `DoubleValue`, Range
+  0.1–2.0, Default 0.5. Verglichen mit `PhysicsComponent.getKilometerPerHour()` =
+  `getSpeed() * 20 * 60 * 60 / 1000` = `getSpeed() * 72` wurde verifiziert: der
+  Config-Wert ist in derselben Einheit wie `EntityGenericVehicle.getSpeed()`
+  (Blöcke/Tick), nicht in km/h — Default 0.5 Blöcke/Tick entspricht 36 km/h, ein
+  plausibles Straßen-Tempolimit; der Config-Range 0.1–2.0 entspricht 7.2–144 km/h.
+- `TrafficViolationHandler.java` (bereits real genutzt für Kollisions-Verkehrsdelikte,
+  `@Mod.EventBusSubscriber`, `onEntityHurt(LivingHurtEvent)`) war der vom Backlog-Eintrag
+  selbst benannte richtige Ort für die Erweiterung.
+- Für "Polizei-NPC in Sichtweite" wurde bewusst **keine** neue Sichtlinien-Logik gebaut,
+  sondern die bereits bestehende, produktiv genutzte Kombination aus
+  `PoliceAIHandler.getPoliceInRadius(Vec3, double, List)` (Radius-Vorauswahl, gecacht) +
+  `PoliceSearchBehavior.isPlayerHidden(ServerPlayer, CustomNPCEntity)` (echte
+  Sichtlinien-/Fenster-Prüfung per Raycast) wiederverwendet — exakt dieselbe Kombination,
+  die das bestehende Escape-System in `PoliceAIHandler.onPlayerTick()` für die
+  "kann Spieler sich verstecken"-Logik nutzt.
+
+**Umsetzung:** Neue Methode `TrafficViolationHandler.onPlayerTick(TickEvent.PlayerTickEvent)`
+(`@SubscribeEvent`, 1x/Sekunde geprüft): wenn `POLICE_TRAFFIC_VIOLATIONS_ENABLED`, der
+Spieler in einem `EntityGenericVehicle` sitzt, `Math.abs(vehicle.getSpeed())` das
+konfigurierte Limit überschreitet, kein Cooldown aktiv ist (teilt sich den bestehenden
+`violationCooldowns`-Cooldown mit den Kollisions-Verkehrsdelikten — eine Sekunde Speeding
+UND eine Kollision im selben 30-Sekunden-Fenster sollen nicht zwei separate Strafen
+auslösen) UND mindestens eine Polizei-NPC im Detection-Radius (`ConfigCache
+.getPoliceDetectionRadius()`) den Spieler laut `isPlayerHidden()` tatsächlich sehen kann,
+wird `CrimeManager.addWantedLevel(..., CrimeType.TRAFFIC_VIOLATION, ...)` ausgelöst und
+`WitnessManager.registerCrime(...)` informiert — identisches Muster wie die bestehenden
+Hit-and-Run/Reckless-Driving-Zweige in derselben Klasse. Nutzt den bereits vorhandenen,
+für genau diesen Zweck vorgesehenen `CrimeType.TRAFFIC_VIOLATION` (0 Wanted-Sterne, 200€
+Strafe, RECKLESS_DRIVING/HIT_AND_RUN als schwerere Nachbarwerte) statt einen neuen
+CrimeType anzulegen. Neue Lang-Keys `event.traffic.speeding` in `en_us.json`/`de_de.json`,
+direkt neben den bestehenden `event.traffic.*`-Keys.
+
+**Bewusst NICHT umgesetzt:** keine eigene "ist der Spieler auf einer Straße"-Prüfung für
+das Tempolimit — ein Tempolimit gilt unabhängig vom Untergrund für jedes Fahrzeug, das
+schneller fährt als erlaubt, nicht nur auf erkannten Straßenblöcken.
+
+**Nicht vorschlagen:** eine separate Sichtlinien-Implementierung für dieses Feature zu
+bauen — `PoliceSearchBehavior.isPlayerHidden()` deckt das bereits ab und wird jetzt an
+einer dritten Stelle wiederverwendet (Escape-System, Verfolgungs-KI, jetzt
+Geschwindigkeitskontrolle).

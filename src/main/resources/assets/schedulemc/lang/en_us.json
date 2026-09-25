@@ -1773,6 +1773,7 @@
   "event.time.week_passed": "A week has passed",
   "event.traffic.hit_and_run": "§c⚠ Hit and run! Wanted level increased!",
   "event.traffic.reckless_driving": "§e⚠ Reckless driving! Fine issued.",
+  "event.traffic.speeding": "§e⚠ Speeding! Fine issued.",
   "event.weather.clear": "Weather cleared",
   "event.weather.storm_warning": "Storm warning!",
   "fluid.schedulemc.diesel": "Diesel",
