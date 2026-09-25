@@ -709,3 +709,178 @@ Feature, kein Wiring-Quick-Win. **Nicht vorschlagen**, dieses Paket ohne
 UI + Sende-Trigger zu registrieren — das wäre ein hohler Fix. Eigenständig
 als Feature einplanen, falls gewünscht (Screen + Trigger + Registrierung
 in einem Zug).
+
+---
+
+## Restliche Kandidaten aus dem Orphan-Scan (2026-09-25, Teil 6)
+
+**Status:** TEILWEISE UMGESETZT — Rest dokumentiert, Entscheidung ausstehend
+
+Fortsetzung des Scans über die 7 zuvor gemeldeten Kandidaten
+(TutorialManager, RedemptionQuestManager, ProductionEventManager,
+ProductionRegistry, DialogueConsequenceSystem, DialogueHelper,
+CompanionBehavior).
+
+### Umgesetzt: Zwei echte Dopplungen gelöscht (DialogueHelper, DialogueConsequenceSystem)
+
+Verifiziert per Nachlesen des bereits real funktionierenden Dialogsystems
+(`DialogueManager`/`DialogueNode`/`DialogueOption`/`DialogueAction`/
+`DialogueCondition`/`DefaultDialogueTrees`/`NPCDialogueProvider`, angebunden
+über `StartDialoguePacket`/`SelectDialogueOptionPacket`/`DialogueStatePacket`,
+0 Bezug zu `DialogueHelper`/`DialogueConsequenceSystem`):
+
+- `DialogueHelper.getGreeting()`/`getAvailableOptions()` duplizierten exakt
+  das, was `DialogueNode.getDisplayText()` (mit `ConditionalText`) und
+  `DialogueNode.getVisibleOptions()` (mit `DialogueOption.isVisible()`) im
+  echten System bereits generisch und bedingungsbasiert leisten.
+- `DialogueConsequenceSystem.applyConsequence()` duplizierte exakt das, was
+  `DialogueAction.modifyFactionReputation()`/`payMoney()`/
+  `giveTempDiscount()`/`startQuest()`/`completeQuest()` im echten System
+  bereits leisten — und zwar vollständiger (inkl. echter
+  `MissionEventBridge`-Anbindung, die `DialogueConsequenceSystem` gar nicht
+  hatte).
+
+Beide Klassen hatten 0 externe Aufrufer und waren reine, nie angeschlossene
+Parallel-Implementierungen — echte Dopplungen wie zuvor `NegotiationSystem`.
+Gelöscht (307 + 259 Zeilen). **Nicht vorschlagen**, sie wiederherzustellen.
+
+### Umgesetzt: CompanionBehavior tatsächlich verdrahtet (echter Gameplay-Bug-Fix)
+
+`CompanionManager` (Rekrutierung/Beschwörung/Befehle/Persistenz) war
+vollständig funktional und über Packets erreichbar — ein rekrutierter
+Begleiter konnte beschworen und per `giveCommand()` (FOLLOW/STAY/SCOUT/
+ATTACK/DEFEND/HEAL/RETURN/FREE) gesteuert werden. Aber `CompanionBehavior`
+(die Klasse, die diese Befehle tatsächlich in Bewegung/Kampf/Aktion
+umsetzt) hatte 0 Aufrufer — `CompanionManager.tick()` rief nur
+`data.tick()` (reine Cooldown-Buchhaltung) auf. **Konsequenz vor dem Fix:**
+Ein beschworener Begleiter stand nur da, folgte nicht, kämpfte nicht,
+erkundete nicht — trotz vollständig funktionierender Rekrutierung/Befehle.
+
+`CompanionBehavior` selbst enthielt bereits die vorgesehene
+Anschlussstelle: eine innere `CompanionFollowGoal extends Goal`-Klasse, die
+pro Tick `behavior.tick(level)` aufruft. Fix: neue Methode
+`CustomNPCEntity.attachCompanionBehavior(CompanionBehavior)` (fügt die Goal
+mit Priorität 1 zum `goalSelector` hinzu), aufgerufen aus
+`CompanionManager.summon()` direkt nach dem Erzeugen der Entity — vor
+`level.addFreshEntity(entity)`. Kein bestehendes Verhalten wurde entfernt,
+nur die fehlende Verbindung ergänzt.
+
+### Umgesetzt: TutorialManager-Lebenszyklus verdrahtet (mit dokumentierter Einschränkung)
+
+`TutorialManager` (`managers/TutorialManager.java`) war ein vollständiges,
+aber 0 Aufrufer habendes Onboarding-System (6 Phasen, 14 Schritte,
+JSON-persistiert). Verifiziert: **kein** `/tutorial`-Befehl existierte
+irgendwo im Code — `TutorialManager.java` war die einzige Fundstelle für
+"tutorial" im gesamten Repository.
+
+**Umgesetzt (sicher, ohne Ratespiel):**
+- `TutorialManager.initialize(server)` in `ScheduleMC.onServerStarted()`.
+- Registrierung beim `IncrementalSaveManager` (Persistenz beim Shutdown).
+- `TutorialManager.onPlayerJoin(player)` in `ScheduleMC.onPlayerLoggedIn()`
+  (zeigt Willkommensnachricht / aktuellen Fortschritt beim Login).
+- Neuer Befehl `/tutorial skip` (`managers/TutorialCommand.java`), registriert
+  in `ScheduleMC.onRegisterCommands()`.
+
+**Bewusst NICHT umgesetzt:** Die 14 `completeStep()`-Aufrufe, die den
+Spieler tatsächlich durch die Phasen bringen sollen (z. B. "Kaufe dein
+erstes Grundstück" → `TutorialStep.BUY_PLOT`), sind über komplett
+unabhängige Systeme verteilt (Economy-Commands, Plot-Kauf, Produktions-
+Blockentities, NPC-Handel-Packets, Gang-Missionen, `/market`). Jeden dieser
+14 Trigger-Punkte richtig zu identifizieren und zu verifizieren wäre ein
+eigener, breiter Sweep über viele unabhängige Systeme — zu groß und zu
+ratespiel-anfällig, um hier nebenbei erledigt zu werden. **Aktueller
+Zustand:** Ein Spieler sieht beim Login die Phase-1-Hinweise ("Prüfe dein
+Guthaben mit /money", "Besuche einen Bankautomaten") und kann mit
+`/tutorial skip` überspringen, aber die Phase schaltet nie automatisch
+weiter (das UI ist konsistent und ehrlich — nur eben statisch, bis zum
+Skip). **Nicht vorschlagen**, die 14 `completeStep()`-Trigger blind zu
+raten — einzeln pro System verifizieren, falls gewünscht.
+
+### Gefunden, NICHT umgesetzt (Entscheidung ausstehend): ProductionConfig/ProductionRegistry/UnifiedProcessingBlockEntity — komplett totes Parallel-Framework
+
+Bei der Untersuchung von `ProductionRegistry` (0 Aufrufer) stellte sich
+heraus, dass es Teil eines **komplett unbenutzten, parallelen
+Produktions-Frameworks** ist, nicht nur eine einzelne tote Klasse:
+
+- `ProductionRegistry.java` (511 Zeilen) — zentrale Registry für
+  `ProductionConfig`s, 0 Aufrufer (`getInstance()`/`register()`/Lookups
+  werden nirgends aufgerufen).
+- `ProductionConfig.java` (316 Zeilen) — wird nur von
+  `UnifiedProcessingBlockEntity` referenziert.
+- `UnifiedProcessingBlockEntity.java` (545 Zeilen) — generische,
+  daten-getriebene Block-Entity für beliebige `ProductionConfig`s
+  (Input/Output-Slots, Processing-Time, Resource-Verbrauch). **Hat 0
+  Subklassen und wird nirgends instanziiert** — nur ein einziger
+  Kommentar in `ModConstants.java` erwähnt den Namen.
+
+Das tatsächlich verwendete Produktionssystem sind die dokumentierten,
+handgeschriebenen `Abstract*BlockEntity`-Klassen pro Warengruppe (Beer/
+Wine/Tobacco/Cannabis, siehe Abschnitte oben in dieser Datei) — dieses
+generische Framework wurde offenbar als datengetriebene Alternative
+gebaut, aber nie an einen einzigen echten Block angeschlossen. **Das
+betrifft 3 Dateien, 1.372 Zeilen, kein Aufrufer irgendwo.**
+
+**Nicht eigenständig gelöscht** (im Gegensatz zu z. B. `NegotiationSystem`
+oder `TradingComponent`), weil das eine architektonische Grundsatz-
+entscheidung ist, kein einfacher Duplikat-Fund: die Löschung eines
+kompletten, potenziell für zukünftige Warengruppen gedachten
+Frameworks braucht ein OK vom Repo-Owner (analog zur "Public API
+entfernt"-Entscheidung oben). **Empfehlung:** Entweder (a) löschen, wenn
+kein datengetriebenes Produktionssystem mehr geplant ist, oder (b) an
+mindestens einen echten Block anschließen, um zu beweisen, dass es
+funktioniert. **Nicht vorschlagen**, dieses Framework nebenbei in ein
+anderes Feature (z. B. ProductionEventManager) einzubauen, solange diese
+Grundsatzfrage offen ist.
+
+### Gefunden, NICHT umgesetzt (Entscheidung ausstehend): ProductionEventManager
+
+`production/events/ProductionEventManager.java` (432 Zeilen) — vollständiges
+Zufallsevent-System (8 Events: Polizeirazzia, Rekordernte, Chemieunfall,
+etc., je mit Ertrags-/Geschwindigkeits-/Preis-/Qualitäts-Modifikator), 0
+Aufrufer. `onDayChange(long, MinecraftServer)` ist exakt nach dem gleichen
+Muster gebaut wie `DynamicPriceManager.onDayChange()` (bereits diese Session
+verdrahtet) — der Trigger-Teil wäre also ein sicherer, verifizierter
+Quick-Win (Tageswechsel-Erkennung in `NPCLifeSystemIntegration.tick()`,
+analog zum bestehenden `priceManager.tick(level)`-Muster).
+
+**Warum trotzdem nicht umgesetzt:** Nur den Trigger zu verdrahten (Events
+starten/broadcasten) wäre ein hohler Fix wie bei `WantedListSyncPacket` —
+die Events hätten eine Chat-Nachricht, aber keine Spielwirkung, weil
+niemand `getCombinedYieldModifier()`/`getCombinedSpeedModifier()`/
+`getCombinedPriceModifier()`/`getCombinedQualityChange()` abfragt. Diese
+müssten in die tatsächliche Produktionslogik (Tick-Geschwindigkeit, Ertrag,
+Qualität in den echten `Abstract*BlockEntity`-Klassen) und in die
+Preisberechnung (`EconomyController`/`ProductionType.calculateDynamicPrice()`)
+einfließen — das sind Änderungen an der Kernschleife praktisch aller
+Produktionsblöcke im Spiel, mit echtem Balance-Risiko (z. B. `police_raid`
+setzt Ertrag/Geschwindigkeit auf 0.0 — ein Bug in der Integration würde
+serverweit ALLE Produktionen einfrieren). Zusätzlich offen: die
+`EventCategory.LEGAL`/`ILLEGAL`-Zuordnung pro Warengruppe existiert noch
+nirgends als verifizierbare Zuordnungstabelle. **Nicht vorschlagen**, dies
+ohne explizite Freigabe in die Kern-Tick-Schleife einzubauen — zu groß und
+zu risikoreich für einen Nebenbei-Fix.
+
+### Gefunden, NICHT umgesetzt (Entscheidung ausstehend): RedemptionQuestManager
+
+`npc/life/quest/RedemptionQuestManager.java` (229 Zeilen) — Vergebungs-
+Quest-System für Spieler mit Fraktions-Reputation < -20, 0 Aufrufer.
+**Keine Dopplung** von `QuestManager` (904 Zeilen, real verdrahtet, tickt,
+persistiert): `QuestManager`s Quests verlangen eine **Mindest**-Reputation
+zum Annehmen (`minFactionRep`), sind also für Spieler mit stark negativer
+Reputation gar nicht verfügbar — `RedemptionQuestManager` deckt exakt diese
+Lücke ab (Reputation *wiederherstellen*, nicht *ausbauen*). Eine
+komplementäre, nicht dopplerische Funktion.
+
+**Warum trotzdem nicht umgesetzt:** Es fehlt ein Start-Trigger (z. B. ein
+neuer `DialogueAction.offerRedemptionQuest()`, analog zu
+`DialogueAction.checkForQuest()`/`offerQuest()`, der bei niedriger
+Reputation im Dialog erscheint) UND die 4 `reportProgress()`-Trigger
+(Community Service: 5 NPCs helfen: kein verifizierbarer "NPC geholfen"-Hook
+gefunden; Spende: Geldstrafe zahlen; Kurierdienst: 3 Waren an NPCs liefern;
+Wachpatrouille: 5 Minuten patrouillieren) sind über mehrere unabhängige
+Systeme verteilt und teilweise (Community Service) hat keinen
+verifizierbaren Hook im Code. **Nicht vorschlagen**, `reportProgress()` an
+geratene Stellen zu hängen — der Dialog-Trigger allein wäre machbar, aber
+ohne die Progress-Hooks bliebe die Quest niemals abschließbar
+(schlimmer als gar nicht angeboten). Eigenständig als Feature einplanen,
+falls gewünscht (Dialog-Trigger + alle 4 Progress-Hooks in einem Zug).

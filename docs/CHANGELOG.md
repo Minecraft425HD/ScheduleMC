@@ -6,6 +6,48 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.6-beta] - 2026-09-25
+
+### Fixed — CompanionBehavior was never wired in (real gameplay bug)
+Recruited companions could be summoned and commanded (FOLLOW/STAY/SCOUT/ATTACK/DEFEND/HEAL/
+RETURN/FREE all worked via packets), but the actual AI class that executes those commands
+(`CompanionBehavior`) had zero callers — a summoned companion just stood still. Added
+`CustomNPCEntity.attachCompanionBehavior()`, called from `CompanionManager.summon()`, which
+registers the already-built `CompanionBehavior.CompanionFollowGoal` on the entity's goal
+selector. Companions now actually follow, fight, scout, and heal.
+
+### Removed — two genuine dialogue-system duplicates
+`DialogueHelper` and `DialogueConsequenceSystem` (566 lines combined) turned out to duplicate,
+with zero callers, functionality the already-wired dialogue system (`DialogueNode`/
+`DialogueOption`/`DialogueAction`/`DialogueCondition`, driven by `StartDialoguePacket`/
+`SelectDialogueOptionPacket`) already provides more completely. Deleted both.
+
+### Added — TutorialManager lifecycle wired in (partial, documented)
+`TutorialManager` was a complete onboarding system with zero callers and no `/tutorial` command
+anywhere in the codebase. Wired `initialize()`, save-manager registration, `onPlayerJoin()` (shows
+progress on login), and a new `/tutorial skip` command. The 14 `completeStep()` triggers that
+would auto-advance tutorial phases are NOT wired — they're scattered across unrelated systems
+(economy, plot, production, NPC trade, gangs, market) and are documented as a deferred follow-up
+in CLAUDE.md rather than guessed.
+
+### Investigated, not changed — three larger findings requiring a decision
+- **`ProductionConfig`/`ProductionRegistry`/`UnifiedProcessingBlockEntity`** (1,372 lines) turned
+  out to be an entirely unused parallel production framework — `UnifiedProcessingBlockEntity` has
+  zero subclasses and is never instantiated anywhere. The real production system is the
+  hand-written `Abstract*BlockEntity` classes per goods category. Documented as an architecture
+  question (delete vs. wire to a real block) rather than deleted unilaterally.
+- **`ProductionEventManager`** (432 lines, random production events) has a safe trigger point
+  (mirrors the already-wired `DynamicPriceManager.onDayChange()` pattern) but wiring only the
+  trigger would be a hollow fix — its yield/speed/price/quality modifiers are never read by
+  anything, and doing so would mean touching the core tick loop of every production block with
+  real balance risk (one event sets yield/speed to 0.0 for all illegal production).
+- **`RedemptionQuestManager`** (229 lines) is a genuine complement to `QuestManager`, not a
+  duplicate (it covers recovering from negative reputation, which `QuestManager`'s
+  minimum-reputation gate can't). Left unwired because 3 of its 4 progress hooks have no
+  verifiable trigger in the current codebase.
+
+---
+
 ## [3.9.5-beta] - 2026-09-25
 
 ### Changed — Merged NPCInteractionManager and NPCSocialInteractionManager

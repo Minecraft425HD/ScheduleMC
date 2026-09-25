@@ -188,6 +188,14 @@ public class CustomNPCEntity extends PathfinderMob {
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this)); // Zufällig umschauen
     }
 
+    /**
+     * Registriert das Begleiter-Verhalten für einen als Companion beschworenen NPC.
+     * Wird von {@code CompanionManager.summon()} aufgerufen, direkt nach dem Spawnen.
+     */
+    public void attachCompanionBehavior(de.rolandsw.schedulemc.npc.life.companion.CompanionBehavior behavior) {
+        this.goalSelector.addGoal(1, new de.rolandsw.schedulemc.npc.life.companion.CompanionBehavior.CompanionFollowGoal(this, behavior));
+    }
+
     @Override
     protected PathNavigation createNavigation(Level level) {
         return new NPCPathNavigation(this, level);

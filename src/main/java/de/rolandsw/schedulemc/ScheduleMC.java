@@ -446,6 +446,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.territory.MapCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.npc.crime.BountyCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.npc.crime.CrimeRecordCommand.register(event.getDispatcher());
+            de.rolandsw.schedulemc.managers.TutorialCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.market.MarketCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.market.SeasonCommand.register(event.getDispatcher());
             de.rolandsw.schedulemc.gang.GangCommand.register(event.getDispatcher());
@@ -580,6 +581,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.life.world.WorldEventManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.initialize(server);
             de.rolandsw.schedulemc.economy.WarehouseMarketBridge.getInstance().setServer(server);
+            de.rolandsw.schedulemc.managers.TutorialManager.initialize(server);
             LOGGER.info("NPC Life System Managers initialized (9/9 completed)");
             // Re-initialize manager references in all existing NPCLifeSystemIntegration instances.
             // LevelEvent.Load fires before ServerStartedEvent, so integrations created during level load
@@ -645,6 +647,7 @@ public class ScheduleMC {
             saveManager.register(de.rolandsw.schedulemc.npc.life.social.NPCInteractionManager.getInstance());
             saveManager.register(de.rolandsw.schedulemc.npc.life.world.WorldEventManager.getInstance());
             saveManager.register(de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance());
+            saveManager.register(de.rolandsw.schedulemc.managers.TutorialManager.getInstance());
 
             // NPC System (Priority 5)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
@@ -933,6 +936,13 @@ public class ScheduleMC {
                 // Broadcast aktualisierte Infos an alle (neuer Spieler hinzugefuegt)
                 de.rolandsw.schedulemc.gang.network.GangSyncHelper.broadcastAllPlayerInfos(
                         serverPlayer.getServer());
+
+                // Tutorial/Onboarding: Fortschritt anzeigen bzw. Willkommensnachricht senden
+                de.rolandsw.schedulemc.managers.TutorialManager tutorialManager =
+                        de.rolandsw.schedulemc.managers.TutorialManager.getInstance();
+                if (tutorialManager != null) {
+                    tutorialManager.onPlayerJoin(serverPlayer);
+                }
             }
         }, "onPlayerLoggedIn");
     }

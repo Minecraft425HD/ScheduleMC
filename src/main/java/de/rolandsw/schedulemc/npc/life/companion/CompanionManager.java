@@ -213,6 +213,7 @@ public class CompanionManager extends AbstractPersistenceManager<CompanionManage
             entity.setCustomName(net.minecraft.network.chat.Component.literal(data.getName()));
             entity.setCustomNameVisible(true);
         }
+        entity.attachCompanionBehavior(new CompanionBehavior(entity, data));
         level.addFreshEntity(entity);
         activeCompanionEntities.put(companionUUID, entity);
         return entity;
