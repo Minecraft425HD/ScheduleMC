@@ -842,7 +842,10 @@ public class ScheduleMC {
                 try {
                     de.rolandsw.schedulemc.gang.network.GangSyncHelper.broadcastAllPlayerInfos(server);
                     // Wochenbeitraege einziehen (prueft intern ob faellig)
-                    de.rolandsw.schedulemc.gang.GangManager.getInstance().collectWeeklyFees(server);
+                    de.rolandsw.schedulemc.gang.GangManager gangMgr = de.rolandsw.schedulemc.gang.GangManager.getInstance();
+                    if (gangMgr != null) {
+                        gangMgr.collectWeeklyFees(server);
+                    }
                     // Gang-Missionen: Reset pruefen, neue generieren, Threshold-Check
                     de.rolandsw.schedulemc.gang.mission.GangMissionManager mm = de.rolandsw.schedulemc.gang.mission.GangMissionManager.getInstance();
                     if (mm != null) {

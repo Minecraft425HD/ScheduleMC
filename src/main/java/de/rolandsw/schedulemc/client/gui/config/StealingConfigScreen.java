@@ -32,20 +32,20 @@ public class StealingConfigScreen extends Screen {
         int s = 25;
 
         this.addRenderableWidget(new DoubleSlider(leftCol, y, w,
-            "Indicator Speed: §e%.2f",
-            ModConfigHandler.COMMON.STEALING_INDICATOR_SPEED, 0.01, 1.0));
+            "Indicator Speed: §e%.3f",
+            ModConfigHandler.COMMON.STEALING_INDICATOR_SPEED, 0.001, 0.2));
 
         this.addRenderableWidget(new IntSlider(rightCol, y, w,
             "Max Attempts: §e%d",
-            ModConfigHandler.COMMON.STEALING_MAX_ATTEMPTS, 1, 20));
+            ModConfigHandler.COMMON.STEALING_MAX_ATTEMPTS, 1, 10));
 
         this.addRenderableWidget(new DoubleSlider(leftCol, y + s, w,
-            "Min Zone: §e%.1f",
-            ModConfigHandler.COMMON.STEALING_MIN_ZONE_SIZE, 0.1, 1.0));
+            "Min Zone: §e%.2f",
+            ModConfigHandler.COMMON.STEALING_MIN_ZONE_SIZE, 0.01, 0.5));
 
         this.addRenderableWidget(new DoubleSlider(rightCol, y + s, w,
-            "Max Zone: §e%.1f",
-            ModConfigHandler.COMMON.STEALING_MAX_ZONE_SIZE, 0.1, 1.0));
+            "Max Zone: §e%.2f",
+            ModConfigHandler.COMMON.STEALING_MAX_ZONE_SIZE, 0.01, 0.5));
 
         // Back Button
         this.addRenderableWidget(Button.builder(

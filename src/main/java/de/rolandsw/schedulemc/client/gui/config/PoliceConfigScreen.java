@@ -42,9 +42,9 @@ public class PoliceConfigScreen extends Screen {
         configList.addHeader("§c👮 DETECTION & ARREST");
         configList.addRow(
             new IntSlider(0, 0, 180, "Arrest Cooldown: %ds",
-                ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS, 1, 300),
+                ModConfigHandler.COMMON.POLICE_ARREST_COOLDOWN_SECONDS, 1, 60),
             new IntSlider(0, 0, 180, "Detection Radius: %d blocks",
-                ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS, 5, 100)
+                ModConfigHandler.COMMON.POLICE_DETECTION_RADIUS, 8, 128)
         );
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Arrest Distance: %.1f blocks",
@@ -57,15 +57,15 @@ public class PoliceConfigScreen extends Screen {
         configList.addHeader("§e🔍 SEARCH & PURSUIT");
         configList.addRow(
             new IntSlider(0, 0, 180, "Search Duration: %ds",
-                ModConfigHandler.COMMON.POLICE_SEARCH_DURATION_SECONDS, 10, 600),
+                ModConfigHandler.COMMON.POLICE_SEARCH_DURATION_SECONDS, 10, 300),
             new IntSlider(0, 0, 180, "Search Radius: %d blocks",
-                ModConfigHandler.COMMON.POLICE_SEARCH_RADIUS, 10, 200)
+                ModConfigHandler.COMMON.POLICE_SEARCH_RADIUS, 10, 100)
         );
         configList.addRow(
             new IntSlider(0, 0, 180, "Target Update: %ds",
-                ModConfigHandler.COMMON.POLICE_SEARCH_TARGET_UPDATE_SECONDS, 1, 30),
+                ModConfigHandler.COMMON.POLICE_SEARCH_TARGET_UPDATE_SECONDS, 5, 60),
             new IntSlider(0, 0, 180, "Backup Radius: %d blocks",
-                ModConfigHandler.COMMON.POLICE_BACKUP_SEARCH_RADIUS, 10, 500)
+                ModConfigHandler.COMMON.POLICE_BACKUP_SEARCH_RADIUS, 20, 100)
         );
         configList.addRow(
             new BoolButton(0, 0, 180, "Indoor Hiding",
@@ -83,25 +83,25 @@ public class PoliceConfigScreen extends Screen {
         configList.addHeader("§4🏠 RAIDS & SCANNING");
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Illegal Cash: %.0f€",
-                ModConfigHandler.COMMON.POLICE_ILLEGAL_CASH_THRESHOLD, 1000, 1000000),
+                ModConfigHandler.COMMON.POLICE_ILLEGAL_CASH_THRESHOLD, 1000.0, 100000.0),
             new DoubleSlider(0, 0, 180, "Account Fine: %.0f%%",
-                ModConfigHandler.COMMON.POLICE_RAID_ACCOUNT_PERCENTAGE, 0, 1.0, 100)
+                ModConfigHandler.COMMON.POLICE_RAID_ACCOUNT_PERCENTAGE, 0.01, 0.5, 100)
         );
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Min Fine: %.0f€",
-                ModConfigHandler.COMMON.POLICE_RAID_MIN_FINE, 100, 100000),
+                ModConfigHandler.COMMON.POLICE_RAID_MIN_FINE, 100.0, 50000.0),
             new IntSlider(0, 0, 180, "Max Room Size: %d",
-                ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_SIZE, 10, 1000)
+                ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_SIZE, 50, 2000)
         );
         configList.addRow(
             new IntSlider(0, 0, 180, "Scan Depth: %d",
-                ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_DEPTH, 1, 20),
+                ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_DEPTH, 10, 100),
             new IntSlider(0, 0, 180, "Extra Rooms: %d",
                 ModConfigHandler.COMMON.POLICE_ROOM_SCAN_MAX_ADDITIONAL_ROOMS, 0, 10)
         );
         configList.addRow(
             new IntSlider(0, 0, 180, "Container Depth: %d",
-                ModConfigHandler.COMMON.POLICE_CONTAINER_SCAN_DEPTH, 1, 10),
+                ModConfigHandler.COMMON.POLICE_CONTAINER_SCAN_DEPTH, 0, 5),
             null
         );
 
@@ -111,13 +111,13 @@ public class PoliceConfigScreen extends Screen {
             new IntSlider(0, 0, 180, "Station Wait: %d min",
                 ModConfigHandler.COMMON.POLICE_STATION_WAIT_MINUTES, 1, 60),
             new IntSlider(0, 0, 180, "Station Radius: %d blocks",
-                ModConfigHandler.COMMON.POLICE_STATION_RADIUS, 10, 200)
+                ModConfigHandler.COMMON.POLICE_STATION_RADIUS, 3, 50)
         );
         configList.addRow(
             new IntSlider(0, 0, 180, "Patrol Wait: %d min",
-                ModConfigHandler.COMMON.POLICE_PATROL_WAIT_MINUTES, 1, 60),
+                ModConfigHandler.COMMON.POLICE_PATROL_WAIT_MINUTES, 1, 30),
             new IntSlider(0, 0, 180, "Patrol Radius: %d blocks",
-                ModConfigHandler.COMMON.POLICE_PATROL_RADIUS, 10, 200)
+                ModConfigHandler.COMMON.POLICE_PATROL_RADIUS, 1, 20)
         );
 
         // === VEHICLES & PURSUIT ===
@@ -126,7 +126,7 @@ public class PoliceConfigScreen extends Screen {
             new BoolButton(0, 0, 180, "Vehicle Chase",
                 ModConfigHandler.COMMON.POLICE_VEHICLE_PURSUIT_ENABLED),
             new DoubleSlider(0, 0, 180, "Speed: %.1fx",
-                ModConfigHandler.COMMON.POLICE_VEHICLE_SPEED_MULTIPLIER, 0.5, 3.0)
+                ModConfigHandler.COMMON.POLICE_VEHICLE_SPEED_MULTIPLIER, 1.0, 3.0)
         );
         configList.addRow(
             new BoolButton(0, 0, 180, "Siren Enabled",
@@ -141,11 +141,11 @@ public class PoliceConfigScreen extends Screen {
             new BoolButton(0, 0, 180, "Roadblocks",
                 ModConfigHandler.COMMON.POLICE_ROADBLOCK_ENABLED),
             new IntSlider(0, 0, 180, "Max Roadblocks: %d",
-                ModConfigHandler.COMMON.POLICE_MAX_ROADBLOCKS, 1, 20)
+                ModConfigHandler.COMMON.POLICE_MAX_ROADBLOCKS, 1, 5)
         );
         configList.addRow(
             new IntSlider(0, 0, 180, "Duration: %ds",
-                ModConfigHandler.COMMON.POLICE_ROADBLOCK_DURATION_SECONDS, 30, 600),
+                ModConfigHandler.COMMON.POLICE_ROADBLOCK_DURATION_SECONDS, 60, 1200),
             null
         );
 
@@ -154,8 +154,8 @@ public class PoliceConfigScreen extends Screen {
         configList.addRow(
             new BoolButton(0, 0, 180, "Traffic Violations",
                 ModConfigHandler.COMMON.POLICE_TRAFFIC_VIOLATIONS_ENABLED),
-            new DoubleSlider(0, 0, 180, "Speed Limit: %.0f",
-                ModConfigHandler.COMMON.POLICE_SPEED_LIMIT_DEFAULT, 20, 200)
+            new DoubleSlider(0, 0, 180, "Speed Limit: %.2f",
+                ModConfigHandler.COMMON.POLICE_SPEED_LIMIT_DEFAULT, 0.1, 2.0)
         );
 
         // === WARNINGS & WANTED ===

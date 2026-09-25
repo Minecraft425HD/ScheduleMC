@@ -49,7 +49,7 @@ public class AdvancedEconomyConfigScreen extends Screen {
         );
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Min Price: %.0f€",
-                ModConfigHandler.COMMON.MIN_RENT_PRICE, 1, 10000),
+                ModConfigHandler.COMMON.MIN_RENT_PRICE, 0.1, 10000.0),
             null
         );
 
@@ -80,24 +80,24 @@ public class AdvancedEconomyConfigScreen extends Screen {
         configList.addHeader("§2$ BANK SYSTEM");
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Deposit Limit: %.0f€",
-                ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT, 1000, 10000000),
+                ModConfigHandler.COMMON.BANK_DEPOSIT_LIMIT, 100.0, 1000000.0),
             new DoubleSlider(0, 0, 180, "Transfer Limit: %.0f€",
-                ModConfigHandler.COMMON.BANK_TRANSFER_DAILY_LIMIT, 1000, 10000000)
+                ModConfigHandler.COMMON.BANK_TRANSFER_DAILY_LIMIT, 10.0, 100000.0)
         );
 
         // === STOCK MARKET ===
         configList.addHeader("§6📈 STOCK MARKET");
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Gold Base: %.0f€",
-                ModConfigHandler.COMMON.STOCK_GOLD_BASE_PRICE, 1, 10000),
+                ModConfigHandler.COMMON.STOCK_GOLD_BASE_PRICE, 10.0, 10000.0),
             new DoubleSlider(0, 0, 180, "Diamond Base: %.0f€",
-                ModConfigHandler.COMMON.STOCK_DIAMOND_BASE_PRICE, 1, 10000)
+                ModConfigHandler.COMMON.STOCK_DIAMOND_BASE_PRICE, 10.0, 10000.0)
         );
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Emerald Base: %.0f€",
-                ModConfigHandler.COMMON.STOCK_EMERALD_BASE_PRICE, 1, 10000),
+                ModConfigHandler.COMMON.STOCK_EMERALD_BASE_PRICE, 10.0, 10000.0),
             new DoubleSlider(0, 0, 180, "Max Change: %.0f%%",
-                ModConfigHandler.COMMON.STOCK_MAX_PRICE_CHANGE_PERCENT, 0, 1.0, 100)
+                ModConfigHandler.COMMON.STOCK_MAX_PRICE_CHANGE_PERCENT, 0.01, 0.5, 100)
         );
 
         // === ECONOMY CYCLE ===
@@ -106,11 +106,11 @@ public class AdvancedEconomyConfigScreen extends Screen {
             new BoolButton(0, 0, 180, "Cycle Enabled",
                 ModConfigHandler.COMMON.ECONOMY_CYCLE_ENABLED),
             new IntSlider(0, 0, 180, "Min Duration: %d days",
-                ModConfigHandler.COMMON.ECONOMY_CYCLE_MIN_DURATION_DAYS, 1, 365)
+                ModConfigHandler.COMMON.ECONOMY_CYCLE_MIN_DURATION_DAYS, 1, 30)
         );
         configList.addRow(
             new IntSlider(0, 0, 180, "Max Duration: %d days",
-                ModConfigHandler.COMMON.ECONOMY_CYCLE_MAX_DURATION_DAYS, 1, 365),
+                ModConfigHandler.COMMON.ECONOMY_CYCLE_MAX_DURATION_DAYS, 2, 60),
             new DoubleSlider(0, 0, 180, "Event Chance: %.0f%%",
                 ModConfigHandler.COMMON.ECONOMY_CYCLE_EVENT_BASE_CHANCE, 0, 1.0, 100)
         );
@@ -121,38 +121,38 @@ public class AdvancedEconomyConfigScreen extends Screen {
             new BoolButton(0, 0, 180, "Levels Enabled",
                 ModConfigHandler.COMMON.LEVEL_SYSTEM_ENABLED),
             new IntSlider(0, 0, 180, "Max Level: %d",
-                ModConfigHandler.COMMON.LEVEL_MAX, 1, 100)
+                ModConfigHandler.COMMON.LEVEL_MAX, 10, 100)
         );
         configList.addRow(
             new IntSlider(0, 0, 180, "Base XP: %d",
-                ModConfigHandler.COMMON.LEVEL_BASE_XP, 100, 100000),
+                ModConfigHandler.COMMON.LEVEL_BASE_XP, 10, 10000),
             new DoubleSlider(0, 0, 180, "XP Exponent: %.2f",
                 ModConfigHandler.COMMON.LEVEL_XP_EXPONENT, 1.0, 3.0)
         );
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Illegal XP: %.1fx",
-                ModConfigHandler.COMMON.LEVEL_ILLEGAL_XP_MULTIPLIER, 0.1, 10.0),
+                ModConfigHandler.COMMON.LEVEL_ILLEGAL_XP_MULTIPLIER, 0.5, 5.0),
             new DoubleSlider(0, 0, 180, "Legal XP: %.1fx",
-                ModConfigHandler.COMMON.LEVEL_LEGAL_XP_MULTIPLIER, 0.1, 10.0)
+                ModConfigHandler.COMMON.LEVEL_LEGAL_XP_MULTIPLIER, 0.5, 5.0)
         );
 
         // === RISK PREMIUM ===
         configList.addHeader("§c⚠ RISK PREMIUM");
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Cannabis: %.2f",
-                ModConfigHandler.COMMON.RISK_BASE_CANNABIS, 0, 10.0),
+                ModConfigHandler.COMMON.RISK_BASE_CANNABIS, 1.0, 3.0),
             new DoubleSlider(0, 0, 180, "Cocaine: %.2f",
-                ModConfigHandler.COMMON.RISK_BASE_COCAINE, 0, 10.0)
+                ModConfigHandler.COMMON.RISK_BASE_COCAINE, 1.0, 3.0)
         );
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Heroin: %.2f",
-                ModConfigHandler.COMMON.RISK_BASE_HEROIN, 0, 10.0),
+                ModConfigHandler.COMMON.RISK_BASE_HEROIN, 1.0, 3.0),
             new DoubleSlider(0, 0, 180, "Meth: %.2f",
-                ModConfigHandler.COMMON.RISK_BASE_METH, 0, 10.0)
+                ModConfigHandler.COMMON.RISK_BASE_METH, 1.0, 3.0)
         );
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Confiscation: %.2fx",
-                ModConfigHandler.COMMON.RISK_CONFISCATION_MULTIPLIER, 0, 10.0),
+                ModConfigHandler.COMMON.RISK_CONFISCATION_MULTIPLIER, 1.0, 3.0),
             null
         );
 
@@ -160,15 +160,15 @@ public class AdvancedEconomyConfigScreen extends Screen {
         configList.addHeader("§4⚔ ANTI-EXPLOIT");
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Daily Limit: %.0f€",
-                ModConfigHandler.COMMON.ANTI_EXPLOIT_DAILY_SELL_LIMIT, 1000, 10000000),
+                ModConfigHandler.COMMON.ANTI_EXPLOIT_DAILY_SELL_LIMIT, 0.0, 1000000.0),
             new IntSlider(0, 0, 180, "Sell Cooldown: %ds",
-                ModConfigHandler.COMMON.ANTI_EXPLOIT_MASS_SELL_COOLDOWN_SECONDS, 1, 600)
+                ModConfigHandler.COMMON.ANTI_EXPLOIT_MASS_SELL_COOLDOWN_SECONDS, 5, 300)
         );
         configList.addRow(
             new IntSlider(0, 0, 180, "Sell Threshold: %d",
-                ModConfigHandler.COMMON.ANTI_EXPLOIT_MASS_SELL_THRESHOLD, 1, 1000),
+                ModConfigHandler.COMMON.ANTI_EXPLOIT_MASS_SELL_THRESHOLD, 10, 1000),
             new DoubleSlider(0, 0, 180, "Sell Penalty: %.0f%%",
-                ModConfigHandler.COMMON.ANTI_EXPLOIT_MASS_SELL_PENALTY, 0, 1.0, 100)
+                ModConfigHandler.COMMON.ANTI_EXPLOIT_MASS_SELL_PENALTY, 0.1, 1.0, 100)
         );
 
         // Back Button

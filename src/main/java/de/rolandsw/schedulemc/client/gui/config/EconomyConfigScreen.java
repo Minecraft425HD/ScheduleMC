@@ -42,7 +42,7 @@ public class EconomyConfigScreen extends Screen {
         configList.addHeader("§6💰 BASIC ECONOMY");
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Start Balance: %.0f€",
-                ModConfigHandler.COMMON.START_BALANCE, 0, 10000),
+                ModConfigHandler.COMMON.START_BALANCE, 0.0, 1000000.0),
             new IntSlider(0, 0, 180, "Save Interval: %d min",
                 ModConfigHandler.COMMON.SAVE_INTERVAL_MINUTES, 1, 60)
         );
@@ -51,9 +51,9 @@ public class EconomyConfigScreen extends Screen {
         configList.addHeader("§e⭐ DAILY REWARDS");
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Daily Reward: %.0f€",
-                ModConfigHandler.COMMON.DAILY_REWARD, 1, 1000),
+                ModConfigHandler.COMMON.DAILY_REWARD, 1.0, 10000.0),
             new DoubleSlider(0, 0, 180, "Streak Bonus: %.0f€",
-                ModConfigHandler.COMMON.DAILY_REWARD_STREAK_BONUS, 0, 500)
+                ModConfigHandler.COMMON.DAILY_REWARD_STREAK_BONUS, 0.0, 1000.0)
         );
         configList.addRow(
             new IntSlider(0, 0, 180, "Max Streak: %d days",
@@ -101,7 +101,7 @@ public class EconomyConfigScreen extends Screen {
         configList.addHeader("§d📊 TAX SYSTEM");
         configList.addRow(
             new DoubleSlider(0, 0, 180, "Property Tax: %.0f€/chunk",
-                ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK, 0, 1000),
+                ModConfigHandler.COMMON.TAX_PROPERTY_PER_CHUNK, 0.0, 10000.0),
             new DoubleSlider(0, 0, 180, "Sales Tax: %.0f%%",
                 ModConfigHandler.COMMON.TAX_SALES_RATE, 0, 1.0, 100)
         );

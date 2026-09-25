@@ -40,12 +40,12 @@ public class PlotConfigScreen extends Screen {
         // Min Price
         this.addRenderableWidget(new DoubleSlider(leftCol, y + s, w,
             "Min Price: §e%.0f€",
-            ModConfigHandler.COMMON.MIN_PLOT_PRICE, 1, 10000));
+            ModConfigHandler.COMMON.MIN_PLOT_PRICE, 0.01, 1000000.0));
 
         // Max Price
         this.addRenderableWidget(new DoubleSlider(rightCol, y + s, w,
             "Max Price: §e%.0f€",
-            ModConfigHandler.COMMON.MAX_PLOT_PRICE, 1000, 1000000));
+            ModConfigHandler.COMMON.MAX_PLOT_PRICE, 1.0, 100000000.0));
 
         // Max Trusted Players
         this.addRenderableWidget(new IntSlider(leftCol, y + s * 2, w,

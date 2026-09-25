@@ -33,15 +33,15 @@ public class NPCConfigScreen extends Screen {
         // NAVIGATION SETTINGS
         this.addRenderableWidget(new IntSlider(centerX - w/2, y, w,
             "Scan Radius: §e%d blocks",
-            ModConfigHandler.COMMON.NAVIGATION_SCAN_RADIUS, 5, 100));
+            ModConfigHandler.COMMON.NAVIGATION_SCAN_RADIUS, 100, 2000));
 
         this.addRenderableWidget(new IntSlider(centerX - w/2, y + s, w,
-            "Path Update: §e%d ticks",
-            ModConfigHandler.COMMON.NAVIGATION_PATH_UPDATE_INTERVAL, 1, 100));
+            "Path Update: §e%dms",
+            ModConfigHandler.COMMON.NAVIGATION_PATH_UPDATE_INTERVAL, 500, 10000));
 
         this.addRenderableWidget(new DoubleSlider(centerX - w/2, y + s * 2, w,
             "Arrival Distance: §e%.1f blocks",
-            ModConfigHandler.COMMON.NAVIGATION_ARRIVAL_DISTANCE, 0.5, 5.0));
+            ModConfigHandler.COMMON.NAVIGATION_ARRIVAL_DISTANCE, 1.0, 50.0));
 
         // Block Lists Button
         this.addRenderableWidget(Button.builder(
