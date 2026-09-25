@@ -31,7 +31,11 @@ NPC-shop items on first purchase, applies the item's live S&D price multiplier, 
 the purchase back into the demand tracker — so the config-driven `sd_factor`/
 `min_multiplier`/`max_multiplier`/`sd_decay_rate` values (previously only affecting the
 unrelated `MarketCondition` state machine, or entirely unused in `sd_decay_rate`'s case)
-now have a real, player-visible effect on NPC shop prices. `/market prices|trends|stats|top`
+now have a real, player-visible effect on NPC shop prices. The per-item price also folds in
+`SeasonalPriceModifier` (via a new `ItemCategory` → seasonal-category mapping applied at
+registration), so NPC shop prices for plants/food/chemicals/weapons/luxury/building-material
+items fluctuate with the season the same way UDPS category prices already did — previously
+the per-item market had no seasonal component at all. `/market prices|trends|stats|top`
 and `HealthCheckManager`'s market check now read from `DynamicPriceManager` instead of the
 deleted class. Persistence merged into the existing `npc_life_prices.json`; the separate
 `plotmod_market.json` file is no longer written.

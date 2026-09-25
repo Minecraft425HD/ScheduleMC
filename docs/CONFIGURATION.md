@@ -929,6 +929,15 @@ Otherwise the system falls back to an internal 120-game-day calendar (4
 seasons of 30 days: Spring, Summer, Autumn, Winter). Players can check the
 current season and its active price effects in-game with `/season`.
 
+The seasonal modifier is applied in two places: on the UDPS category price
+via `DynamicPriceManager.calculatePrice()`, and — since the
+`DynamicPriceManager`/`DynamicMarketManager` merge (§9.4) — on the
+per-item NPC-shop price via `getItemPriceMultiplier()`. Each registered
+item is mapped from its `ItemCategory` to one of the seasonal categories
+(PLANT, MUSHROOM, CHEMICAL, FOOD, WEAPONS, LUXURY, BUILDING) at
+registration time; categories with no sensible seasonal analogue (tools,
+machines, pots, services, "other") get a neutral 1.0 factor instead.
+
 ---
 
 ## 10. Smartphone Configuration

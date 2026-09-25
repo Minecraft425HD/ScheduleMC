@@ -160,17 +160,19 @@ public class PurchaseItemPacket {
 
         // UDPS: Dynamischen Shop-Preis berechnen
         double dynamicUnitPrice;
+        de.rolandsw.schedulemc.economy.ItemCategory shopCategory;
         try {
-            de.rolandsw.schedulemc.economy.ItemCategory shopCategory =
-                    de.rolandsw.schedulemc.economy.ItemCategory.fromMerchantCategory(merchant.getMerchantCategory());
+            shopCategory = de.rolandsw.schedulemc.economy.ItemCategory.fromMerchantCategory(merchant.getMerchantCategory());
             dynamicUnitPrice = de.rolandsw.schedulemc.economy.EconomyController.getInstance()
                     .getDynamicShopPrice(entry.getPrice(), shopCategory, 1);
         } catch (Exception e) {
+            shopCategory = de.rolandsw.schedulemc.economy.ItemCategory.OTHER;
             dynamicUnitPrice = entry.getPrice();
         }
 
-        // Dynamic Pricing: Item-eigenes Supply&Demand berücksichtigen (Shop-Item-Markt)
-        // Ausgenommen: Tankrechnungen (Papier-Platzhalter-Item) und Fahrzeuge (eigene Preislogik unten)
+        // Dynamic Pricing: Item-eigenes Supply&Demand + saisonaler Preismodifikator berücksichtigen
+        // (Shop-Item-Markt). Ausgenommen: Tankrechnungen (Papier-Platzhalter-Item) und Fahrzeuge
+        // (eigene Preislogik unten).
         boolean isBillOrVehicleEntry =
                 (merchant.getMerchantCategory() == MerchantCategory.GAS_STATION
                         && entry.getItem().hasTag() && entry.getItem().getTag() != null)
@@ -180,7 +182,7 @@ public class PurchaseItemPacket {
         de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager priceManager =
                 de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance();
         if (priceManager != null && !isBillOrVehicleEntry) {
-            priceManager.registerItem(entry.getItem().getItem(), entry.getPrice());
+            priceManager.registerItem(entry.getItem().getItem(), entry.getPrice(), shopCategory);
             dynamicUnitPrice *= priceManager.getItemPriceMultiplier(entry.getItem().getItem());
         }
 

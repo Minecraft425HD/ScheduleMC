@@ -314,6 +314,19 @@ beiden genannten Klassen zum Zusammenführen benannt; `EconomyController`
 ist ein größeres, für Produktionsgüter bereits aktiv genutztes System
 (`getSellPrice`/`getBuyPrice`) und bleibt ein separates, offenes Thema.
 
+`getItemPriceMultiplier()` bezieht zusätzlich `SeasonalPriceModifier` mit
+ein (Nutzer-Nachtrag: "Vergiss nicht den saisonalen Preis mit
+reinzunehmen!") — `registerItem(Item, double, ItemCategory)` ordnet das
+Item über `mapToSeasonalCategory()` einer der bestehenden
+`SeasonalPriceModifier`-Kategorien zu (PLANT/MUSHROOM/CHEMICAL/FOOD/
+WEAPONS/LUXURY/BUILDING; Kategorien ohne sinnvollen saisonalen Bezug wie
+Maschinen/Werkzeuge/Sonstiges bleiben unzugeordnet = neutraler Faktor
+1.0). `PurchaseItemPacket` übergibt dafür die ohnehin schon berechnete
+`shopCategory` (aus `ItemCategory.fromMerchantCategory()`). Ergebnis wird
+nach dem saisonalen Multiplizieren erneut auf `min_multiplier`/
+`max_multiplier` geclamped, damit Season × S&D nicht über die
+konfigurierten Grenzen hinausschießt.
+
 **Konsequenz:** `market/DynamicMarketManager.java` wurde gelöscht.
 **Nicht vorschlagen**, ein neues separates Item-S&D-System zu bauen oder
 `DynamicMarketManager` wiederherzustellen.

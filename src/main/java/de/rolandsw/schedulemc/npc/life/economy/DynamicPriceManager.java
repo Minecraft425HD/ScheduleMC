@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 
+import de.rolandsw.schedulemc.economy.ItemCategory;
 import de.rolandsw.schedulemc.market.MarketData;
 import de.rolandsw.schedulemc.market.SeasonalPriceModifier;
 
@@ -104,6 +105,9 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
 
     /** Per-Item Supply&Demand-Daten für NPC-Shop-Items (ehemals DynamicMarketManager) */
     private final Map<Item, MarketData> itemMarketData = new ConcurrentHashMap<>();
+
+    /** Item -> Saisonal-Kategorie (für SeasonalPriceModifier), sofern zuordenbar */
+    private final Map<Item, String> itemSeasonalCategory = new ConcurrentHashMap<>();
 
     /** Anzahl der bisher durchgeführten Item-Markt-Updates (Decay-Zyklen) */
     private long totalItemMarketUpdates = 0;
@@ -342,12 +346,46 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
      * Registriert ein Item im Supply&Demand-Markt (falls noch nicht registriert).
      */
     public void registerItem(Item item, double basePrice) {
-        if (itemMarketData.containsKey(item)) return;
-        double sdFactor = ModConfigHandler.COMMON.DYNAMIC_PRICING_SD_FACTOR.get();
-        double minMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MIN_MULTIPLIER.get();
-        double maxMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MAX_MULTIPLIER.get();
-        itemMarketData.put(item, new MarketData(item, basePrice, sdFactor, minMult, maxMult));
-        markDirty();
+        registerItem(item, basePrice, (String) null);
+    }
+
+    /**
+     * Registriert ein Item im Supply&Demand-Markt und ordnet es einer {@link ItemCategory}
+     * für den saisonalen Preismodifikator zu (siehe {@link SeasonalPriceModifier}).
+     */
+    public void registerItem(Item item, double basePrice, ItemCategory economyCategory) {
+        registerItem(item, basePrice, mapToSeasonalCategory(economyCategory));
+    }
+
+    private void registerItem(Item item, double basePrice, @Nullable String seasonalCategory) {
+        if (!itemMarketData.containsKey(item)) {
+            double sdFactor = ModConfigHandler.COMMON.DYNAMIC_PRICING_SD_FACTOR.get();
+            double minMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MIN_MULTIPLIER.get();
+            double maxMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MAX_MULTIPLIER.get();
+            itemMarketData.put(item, new MarketData(item, basePrice, sdFactor, minMult, maxMult));
+            markDirty();
+        }
+        if (seasonalCategory != null) {
+            itemSeasonalCategory.put(item, seasonalCategory);
+        }
+    }
+
+    /**
+     * Ordnet eine Produkt-Kategorie (aus dem UDPS-System) der passenden
+     * {@link SeasonalPriceModifier}-Kategorie zu, sofern ein saisonaler Bezug sinnvoll ist.
+     */
+    @Nullable
+    private static String mapToSeasonalCategory(ItemCategory category) {
+        return switch (category) {
+            case CANNABIS, TOBACCO_PRODUCT, SEED_ILLEGAL, SEED_LEGAL, RAW_MATERIAL -> "PLANT";
+            case MUSHROOM -> "MUSHROOM";
+            case CHEMICAL, COCAINE, HEROIN, METH, MDMA, LSD -> "CHEMICAL";
+            case FOOD, WINE, BEER, COFFEE, CHEESE, CHOCOLATE, HONEY -> "FOOD";
+            case WEAPON -> "WEAPONS";
+            case RARE_ITEM, VEHICLE, VEHICLE_UPGRADE -> "LUXURY";
+            case BUILDING_MATERIAL -> "BUILDING";
+            default -> null; // Maschinen, Töpfe, Werkzeuge, Dienstleistungen etc. — kein saisonaler Bezug
+        };
     }
 
     /**
@@ -375,13 +413,24 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     }
 
     /**
-     * Gibt den aktuellen S&D-Preismultiplikator für ein Item zurück (1.0 = neutral,
-     * z.B. wenn Dynamic Pricing deaktiviert ist oder das Item nicht registriert wurde).
+     * Gibt den aktuellen Preismultiplikator für ein Item zurück (S&D × saisonaler Modifikator,
+     * 1.0 = neutral, z.B. wenn Dynamic Pricing deaktiviert ist oder das Item nicht registriert wurde).
      */
     public double getItemPriceMultiplier(Item item) {
         if (!ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) return 1.0;
         MarketData data = itemMarketData.get(item);
-        return data != null ? data.getPriceMultiplier() : 1.0;
+        if (data == null) return 1.0;
+
+        double multiplier = data.getPriceMultiplier();
+
+        String seasonalCategory = itemSeasonalCategory.get(item);
+        if (seasonalCategory != null) {
+            multiplier *= SeasonalPriceModifier.getInstance().getModifier(seasonalCategory);
+        }
+
+        double minMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MIN_MULTIPLIER.get();
+        double maxMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MAX_MULTIPLIER.get();
+        return Math.max(minMult, Math.min(maxMult, multiplier));
     }
 
     /**
