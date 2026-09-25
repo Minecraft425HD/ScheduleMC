@@ -424,6 +424,17 @@ public class PoliceAIHandler {
                         npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
                     }
 
+                    // Feature 3: Strassensperre vor dem fliehenden Spieler errichten (ab Wanted-Level 4)
+                    if (ModConfigHandler.COMMON.POLICE_ROADBLOCK_ENABLED.get()
+                            && highestWantedLevel >= 4
+                            && npc.tickCount % 100 == 0
+                            && npc.level() instanceof ServerLevel roadblockLevel) {
+                        BlockPos roadblockPos = computeRoadblockPosition(roadblockLevel, targetCriminal);
+                        if (roadblockPos != null) {
+                            PoliceRoadblock.createRoadblock(roadblockLevel, roadblockPos, targetCriminal.getUUID());
+                        }
+                    }
+
                     // Warnung alle 5 Sekunden
                     if (npc.tickCount % 100 == 0) {
                         targetCriminal.sendSystemMessage(
@@ -467,6 +478,36 @@ public class PoliceAIHandler {
             }
         }
         });
+    }
+
+    /** Entfernung, in der eine Strassensperre vor dem fliehenden Spieler platziert wird */
+    private static final int ROADBLOCK_LOOKAHEAD_DISTANCE = 15;
+
+    /**
+     * Berechnet eine Position vor dem fliehenden Spieler (in Bewegungsrichtung), an der
+     * eine Strassensperre errichtet werden kann. Nutzt die Bewegungsrichtung des Spielers,
+     * falls dieser sich kaum bewegt wird stattdessen die Richtung von Polizei zu Spieler
+     * fortgesetzt. Die Höhe wird über die MOTION_BLOCKING-Heightmap bestimmt.
+     *
+     * @return Position auf Bodenhöhe vor dem Spieler, oder null falls keine sinnvolle
+     *         Richtung ermittelt werden konnte (Spieler und Polizei an derselben Stelle)
+     */
+    @javax.annotation.Nullable
+    private static BlockPos computeRoadblockPosition(ServerLevel level, ServerPlayer target) {
+        Vec3 velocity = target.getDeltaMovement();
+        Vec3 direction;
+        if (velocity.horizontalDistanceSqr() > 0.01) {
+            direction = new Vec3(velocity.x, 0, velocity.z).normalize();
+        } else {
+            return null;
+        }
+
+        BlockPos targetPos = target.blockPosition();
+        int aheadX = targetPos.getX() + (int) Math.round(direction.x * ROADBLOCK_LOOKAHEAD_DISTANCE);
+        int aheadZ = targetPos.getZ() + (int) Math.round(direction.z * ROADBLOCK_LOOKAHEAD_DISTANCE);
+        int groundY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, aheadX, aheadZ);
+
+        return new BlockPos(aheadX, groundY, aheadZ);
     }
 
     /**

@@ -6,6 +6,27 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.13-beta] - 2026-09-25
+
+### Added — Police roadblock trigger wired up (backlog #1)
+`PoliceRoadblock.java` was fully implemented (placement, expiration timer, cleanup on
+arrest/logout) but `createRoadblock()` and `tick()` had 0 callers. Fixed:
+`ScheduleMC.onServerTick()` now calls `PoliceRoadblock.tick(server.overworld())`
+alongside the existing police-cache updates, and `PoliceAIHandler.onPoliceAI()` now
+calls `PoliceRoadblock.createRoadblock(...)` every 5 seconds during an active,
+non-hidden pursuit once the target's wanted level reaches 4+ (gated by
+`police.roadblock_enabled`). The new helper `computeRoadblockPosition` projects a point
+15 blocks ahead of the fleeing player along their horizontal movement direction, using
+the same `Heightmap.Types.MOTION_BLOCKING` ground-height lookup already used elsewhere
+in the codebase (`RoadBlockDetector`, `MapViewRenderer`); if the player is nearly
+stationary, no roadblock is placed rather than guessing a direction.
+
+Deliberately out of scope: no check that the computed position is actually on a road —
+`PoliceRoadblock`'s own original javadoc never claimed that, and adding real road
+detection to a live AI decision would be a materially larger, unrequested feature.
+
+---
+
 ## [3.9.12-beta] - 2026-09-25
 
 ### Added — Wanted Poster feature, built from scratch (WantedPosterItem + WantedPosterBlock)

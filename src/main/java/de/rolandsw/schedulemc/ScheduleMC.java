@@ -790,6 +790,9 @@ public class ScheduleMC {
             long currentTick = server.overworld() != null ? server.overworld().getGameTime() : 0;
             de.rolandsw.schedulemc.npc.events.PoliceAIHandler.updatePlayerCache(server, currentTick);
             de.rolandsw.schedulemc.npc.events.PoliceAIHandler.updatePoliceCache(server, currentTick);
+            if (server.overworld() != null) {
+                de.rolandsw.schedulemc.npc.events.PoliceRoadblock.tick(server.overworld());
+            }
 
             // Economy Systems - Tick every server tick for day tracking
             if (server.overworld() != null) {

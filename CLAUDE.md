@@ -216,12 +216,8 @@ verbleibenden 12 existiert **kein passendes Feature im Code** — sie
 brauchen neue Funktionalität, keine reine Verdrahtung. Plan pro Wert
 (Reihenfolge = empfohlene Umsetzungsreihenfolge):
 
-1. **`police.max_roadblocks`/`roadblock_duration_seconds` — Trigger fehlt**
-   (Quick Win, Infrastruktur existiert bereits vollständig in
-   `PoliceRoadblock.java`, nur `createRoadblock()` hat aktuell 0 Aufrufer):
-   In `PoliceAIHandler` bei `wantedLevel >= 4` und `POLICE_ROADBLOCK_ENABLED`
-   eine Position vor dem fliehenden Spieler berechnen und
-   `PoliceRoadblock.createRoadblock(...)` aufrufen.
+1. **`police.max_roadblocks`/`roadblock_duration_seconds`** — ERLEDIGT
+   (2026-09-25, Teil 13, siehe eigener Abschnitt unten).
 
 2. **`police.wanted_posters_min_level`**: Neues `WantedPosterItem` +
    wandmontierter `WantedPosterBlock` (Name + Bounty aus
@@ -1175,3 +1171,51 @@ jeweiligen `VoxelShape`), `models/item/wanted_poster.json` (`item/generated` mit
 **Nicht vorschlagen:** dieses Feature erneut zu bauen, `WantedListSyncPacket`
 wiederherzustellen, oder die Scope-Entscheidungen (Chat-Anzeige statt In-World-Renderer,
 wiederverwendete Textur) ohne explizite Nutzeranfrage rückgängig zu machen/auszubauen.
+
+---
+
+## Roadblock-Trigger verdrahtet (2026-09-25, Teil 13)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Betrifft:** Backlog-Punkt 1 ("Fehlende Features für 12 verbleibende Dead-Config-Werte",
+`police.max_roadblocks`/`police.roadblock_duration_seconds`).
+
+**Vorgefundener Zustand:** `PoliceRoadblock.java` war vollständig implementiert
+(Platzierung, Ablauf-Timer, Cleanup bei Festnahme/Logout), aber sowohl
+`createRoadblock()` als auch `tick()` hatten 0 Aufrufer — verifiziert per Grep, die
+einzigen externen Referenzen waren `removeAllForPlayer()` (aus `PoliceAIHandler.arrestPlayer`
+und `PlayerDisconnectHandler`).
+
+**Fix, zwei Teile:**
+1. `ScheduleMC.onServerTick()`: `PoliceRoadblock.tick(server.overworld())` direkt neben
+   den bestehenden `PoliceAIHandler.updatePlayerCache`/`updatePoliceCache`-Aufrufen
+   ergänzt. Nutzt bewusst `server.overworld()` statt einer Schleife über
+   `server.getAllLevels()`, konsistent mit der oben dokumentierten Architekturentscheidung
+   "ScheduleMC nutzt genau eine Dimension (Overworld)".
+2. `PoliceAIHandler.onPoliceAI()`: neuer Block direkt nach der bestehenden
+   Verfolgungs-/Fahrzeugverfolgungs-Logik (nicht versteckt, normale Verfolgung),
+   ausgelöst alle 100 Ticks (5 Sekunden, gleiches Intervall wie die bestehende
+   "Stop"-Warnung) wenn `POLICE_ROADBLOCK_ENABLED` UND `highestWantedLevel >= 4`:
+   neue Methode `computeRoadblockPosition(ServerLevel, ServerPlayer)` berechnet eine
+   Position vor dem Spieler in dessen horizontaler Bewegungsrichtung
+   (`target.getDeltaMovement()`, normalisiert, 15 Blöcke voraus), Bodenhöhe über
+   `level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z)` (gleiches Muster wie
+   `RoadBlockDetector`/`MapViewRenderer`). Bewegt sich der Spieler kaum (Geschwindigkeit
+   ≤ 0.01² horizontal), wird bewusst **kein** Plakat platziert (`null`-Rückgabe) statt
+   eine willkürliche Richtung zu raten — ein stehender Spieler braucht keine Sperre vor
+   sich. `PoliceRoadblock.createRoadblock()` übernimmt danach selbst die
+   Max-Sperren-pro-Spieler-Prüfung (Config `POLICE_MAX_ROADBLOCKS`) und den
+   `POLICE_ROADBLOCK_ENABLED`-Check erneut (doppelt geprüft, aber redundant statt riskant).
+
+**Bewusst NICHT umgesetzt:** kein Pathfinding-/Straßen-Erkennungs-Check, ob die
+berechnete Position überhaupt auf einer "Straße" liegt (das MapView-Modul hat einen
+`RoadBlockDetector`, der aber für die Kartenansicht gedacht ist, nicht für Live-KI-
+Entscheidungen, und eine Integration hätte eine deutlich größere, nicht angefragte
+Änderung bedeutet). Die Sperre wird schlicht auf der Bodenhöhe vor dem Spieler platziert,
+unabhängig vom Untergrund — das entspricht dem ursprünglich in `PoliceRoadblock.java`s
+eigenem Javadoc beschriebenen Funktionsumfang ("Temporaere Barrieren auf Strassen"), der
+bereits vor diesem Fix keine Straßen-Erkennung vorsah.
+
+**Nicht vorschlagen:** eine Straßen-Erkennung für die Platzierung zu ergänzen, ohne dass
+das explizit gewünscht wird — das wäre ein eigenständiges, größeres Feature.
