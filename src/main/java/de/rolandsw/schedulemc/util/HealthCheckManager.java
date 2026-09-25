@@ -8,7 +8,6 @@ import de.rolandsw.schedulemc.gang.mission.GangMissionManager;
 import de.rolandsw.schedulemc.gang.scenario.ScenarioManager;
 import de.rolandsw.schedulemc.lock.LockManager;
 import de.rolandsw.schedulemc.managers.DailyRewardManager;
-import de.rolandsw.schedulemc.market.DynamicMarketManager;
 import de.rolandsw.schedulemc.messaging.MessageManager;
 import de.rolandsw.schedulemc.npc.crime.BountyManager;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
@@ -200,9 +199,9 @@ public class HealthCheckManager {
             return new ComponentHealth("Lock", SystemHealth.HEALTHY, "Aktiv, " + mgr.getLockCount() + " Locks registriert");
         });
         registerCheck("market", "Welt", () -> {
-            DynamicMarketManager mgr = DynamicMarketManager.getInstance();
+            DynamicPriceManager mgr = DynamicPriceManager.getInstance();
             if (mgr == null) return notInitialized("Market");
-            boolean enabled = mgr.isEnabled();
+            boolean enabled = de.rolandsw.schedulemc.config.ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get();
             return new ComponentHealth("Dynamic Market",
                 enabled ? SystemHealth.HEALTHY : SystemHealth.DEGRADED,
                 enabled ? "Active, market simulation running" : "Deaktiviert");

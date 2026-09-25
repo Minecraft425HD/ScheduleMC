@@ -518,12 +518,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.crime.BountyManager.initialize(server);
             de.rolandsw.schedulemc.territory.TerritoryManager.initialize(server);
 
-            // Market System - Load market data and enable simulation
-            de.rolandsw.schedulemc.market.DynamicMarketManager market =
-                de.rolandsw.schedulemc.market.DynamicMarketManager.getInstance();
-            market.load();
-            market.setEnabled(true);
-            LOGGER.info("Crime, Territory, and Market Systems initialized");
+            LOGGER.info("Crime and Territory Systems initialized");
 
             // Economy System - Advanced Features
             EconomyManager.initialize(server);
@@ -606,13 +601,6 @@ public class ScheduleMC {
             // Crime & Territory Systems (Priority 2)
             saveManager.register(de.rolandsw.schedulemc.npc.crime.BountyManager.initialize(server));
             saveManager.register(de.rolandsw.schedulemc.territory.TerritoryManager.initialize(server));
-
-            // Market System (Priority 3)
-            saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
-                "DynamicMarketManager",
-                () -> de.rolandsw.schedulemc.market.DynamicMarketManager.getInstance().save(),
-                3
-            ));
 
             // Player Systems (Priority 4)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(

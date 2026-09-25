@@ -489,7 +489,7 @@ mapview/
 | `territory/` | 11 | Territory control, territory map |
 | `towing/` | 15 | Towing service, yard management, membership |
 | `utility/` | 8 | Plot utilities (electricity, water, etc.) |
-| `market/` | 3 | DynamicMarketManager, MarketCommand |
+| `market/` | 2 | MarketCommand, MarketData |
 | `managers/` | N/A | DailyRewardManager, NPCNameRegistry, RentManager |
 | `events/` | N/A | BlockProtectionHandler, InventoryRestrictionHandler, PlayerDisconnectHandler |
 | `player/` | N/A | PlayerTracker, PlayerSettingsManager, network handlers |
@@ -592,7 +592,7 @@ public interface ISaveable {
 | Priority | Managers |
 |----------|----------|
 | 0-2 | EconomyManager, PlotManager, BountyManager, TerritoryManager |
-| 3 | DynamicMarketManager, TransactionHistory, InterestManager, LoanManager, TaxManager, SavingsAccountManager, OverdraftManager, RecurringPaymentManager, CreditScoreManager, CreditLoanManager, GangManager |
+| 3 | TransactionHistory, InterestManager, LoanManager, TaxManager, SavingsAccountManager, OverdraftManager, RecurringPaymentManager, CreditScoreManager, CreditLoanManager, GangManager |
 | 4 | PlayerTracker, PlayerSettingsManager, WalletManager, DailyRewardManager, GangMissionManager |
 | 5 | MessageManager, FactionManager, WitnessManager, NPCRelationshipManager, CompanionManager, QuestManager, DialogueManager, NPCInteractionManager, WorldEventManager, DynamicPriceManager, NPCNameRegistry, LockManager, FuelBillManager, VehicleSpawnRegistry, FuelStationRegistry |
 | 6 | MembershipManager, TowingYardManager, WarehouseManager, PlotUtilityManager |
@@ -871,7 +871,7 @@ public static AntiExploitManager getInstance() {
 }
 ```
 
-**Singleton managers:** EconomyManager, PlotManager, AntiExploitManager, WarehouseManager, AchievementManager, GangManager, TerritoryManager, BountyManager, LockManager, DynamicMarketManager, all 9 NPC Life System managers.
+**Singleton managers:** EconomyManager, PlotManager, AntiExploitManager, WarehouseManager, AchievementManager, GangManager, TerritoryManager, BountyManager, LockManager, all 9 NPC Life System managers (incl. DynamicPriceManager, which also tracks per-item supply/demand for NPC-shop items).
 
 ### Factory
 

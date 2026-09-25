@@ -2,6 +2,8 @@ package de.rolandsw.schedulemc.market;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import de.rolandsw.schedulemc.config.ModConfigHandler;
+import de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -38,9 +40,9 @@ public class MarketCommand {
      */
     private static int showPrices(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
-        DynamicMarketManager manager = DynamicMarketManager.getInstance();
+        DynamicPriceManager manager = DynamicPriceManager.getInstance();
 
-        if (!manager.isEnabled()) {
+        if (manager == null || !ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) {
             source.sendFailure(Component.translatable("command.market.disabled"));
             return 0;
         }
@@ -48,7 +50,7 @@ public class MarketCommand {
         source.sendSuccess(() -> Component.translatable("command.market.prices_header"), false);
 
         int count = 0;
-        for (MarketData data : manager.getAllMarketData()) {
+        for (MarketData data : manager.getAllItemMarketData()) {
             MarketData.PriceTrend trend = data.getPriceTrend();
 
             source.sendSuccess(() -> Component.literal(String.format(
@@ -74,9 +76,9 @@ public class MarketCommand {
      */
     private static int showTrends(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
-        DynamicMarketManager manager = DynamicMarketManager.getInstance();
+        DynamicPriceManager manager = DynamicPriceManager.getInstance();
 
-        if (!manager.isEnabled()) {
+        if (manager == null || !ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) {
             source.sendFailure(Component.translatable("command.market.disabled"));
             return 0;
         }
@@ -115,14 +117,14 @@ public class MarketCommand {
      */
     private static int showStats(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
-        DynamicMarketManager manager = DynamicMarketManager.getInstance();
+        DynamicPriceManager manager = DynamicPriceManager.getInstance();
 
-        if (!manager.isEnabled()) {
+        if (manager == null || !ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) {
             source.sendFailure(Component.translatable("command.market.disabled"));
             return 0;
         }
 
-        DynamicMarketManager.MarketStatistics stats = manager.getStatistics();
+        DynamicPriceManager.MarketStatistics stats = manager.getItemMarketStatistics();
 
         source.sendSuccess(() -> Component.translatable("command.market.stats_header"), false);
         source.sendSuccess(() -> Component.translatable("command.market.registered_items", stats.totalItems()), false);
@@ -141,9 +143,9 @@ public class MarketCommand {
      */
     private static int showTopPrices(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
-        DynamicMarketManager manager = DynamicMarketManager.getInstance();
+        DynamicPriceManager manager = DynamicPriceManager.getInstance();
 
-        if (!manager.isEnabled()) {
+        if (manager == null || !ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) {
             source.sendFailure(Component.translatable("command.market.disabled"));
             return 0;
         }

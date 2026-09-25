@@ -4,10 +4,14 @@ import com.google.gson.reflect.TypeToken;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
 
+import de.rolandsw.schedulemc.market.MarketData;
 import de.rolandsw.schedulemc.market.SeasonalPriceModifier;
 
 import javax.annotation.Nullable;
@@ -24,6 +28,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * - Kategorie-spezifische Bedingungen
  * - Zeitbasierte Schwankungen
  * - Event-basierte Änderungen
+ * - Per-Item Supply&Demand-Tracking für NPC-Shop-Items (ehemals DynamicMarketManager,
+ *   siehe CLAUDE.md "DynamicPriceManager/DynamicMarketManager Merge" 2026-09-25)
  */
 public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPriceManager.DynamicPriceManagerData> {
 
@@ -96,6 +102,12 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     /** Tick, zu dem zuletzt updateMarketConditions() lief (DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES) */
     private long lastMarketUpdateTick = -1;
 
+    /** Per-Item Supply&Demand-Daten für NPC-Shop-Items (ehemals DynamicMarketManager) */
+    private final Map<Item, MarketData> itemMarketData = new ConcurrentHashMap<>();
+
+    /** Anzahl der bisher durchgeführten Item-Markt-Updates (Decay-Zyklen) */
+    private long totalItemMarketUpdates = 0;
+
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
     // ═══════════════════════════════════════════════════════════
@@ -133,6 +145,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
             long ticksPerUpdate = ModConfigHandler.COMMON.DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES.get() * TICKS_PER_MINUTE;
             if (lastMarketUpdateTick == -1 || currentTick - lastMarketUpdateTick >= ticksPerUpdate) {
                 updateMarketConditions();
+                updateItemMarketData();
                 lastMarketUpdateTick = currentTick;
             }
         }
@@ -319,6 +332,202 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     public int calculatePriceWithNPC(int basePrice, String category, float npcModifier) {
         int marketPrice = calculatePrice(basePrice, category);
         return Math.max(1, Math.round(marketPrice * npcModifier));
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // ITEM MARKET (Supply & Demand für NPC-Shop-Items)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Registriert ein Item im Supply&Demand-Markt (falls noch nicht registriert).
+     */
+    public void registerItem(Item item, double basePrice) {
+        if (itemMarketData.containsKey(item)) return;
+        double sdFactor = ModConfigHandler.COMMON.DYNAMIC_PRICING_SD_FACTOR.get();
+        double minMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MIN_MULTIPLIER.get();
+        double maxMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MAX_MULTIPLIER.get();
+        itemMarketData.put(item, new MarketData(item, basePrice, sdFactor, minMult, maxMult));
+        markDirty();
+    }
+
+    /**
+     * Item wurde an einen NPC verkauft (Spieler verkauft) - erhöht Supply.
+     */
+    public void onItemSoldToNPC(Item item, int amount) {
+        if (!ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) return;
+        MarketData data = itemMarketData.get(item);
+        if (data != null) {
+            data.onItemSold(amount);
+            markDirty();
+        }
+    }
+
+    /**
+     * Item wurde von einem NPC gekauft (Spieler kauft) - erhöht Demand.
+     */
+    public void onItemBoughtFromNPC(Item item, int amount) {
+        if (!ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) return;
+        MarketData data = itemMarketData.get(item);
+        if (data != null) {
+            data.onItemBought(amount);
+            markDirty();
+        }
+    }
+
+    /**
+     * Gibt den aktuellen S&D-Preismultiplikator für ein Item zurück (1.0 = neutral,
+     * z.B. wenn Dynamic Pricing deaktiviert ist oder das Item nicht registriert wurde).
+     */
+    public double getItemPriceMultiplier(Item item) {
+        if (!ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) return 1.0;
+        MarketData data = itemMarketData.get(item);
+        return data != null ? data.getPriceMultiplier() : 1.0;
+    }
+
+    /**
+     * Holt aktuellen Marktpreis eines Items (0 wenn nicht registriert).
+     */
+    public double getCurrentItemPrice(Item item) {
+        MarketData data = itemMarketData.get(item);
+        return data != null ? data.getCurrentPrice() : 0.0;
+    }
+
+    @Nullable
+    public MarketData getItemMarketData(Item item) {
+        return itemMarketData.get(item);
+    }
+
+    public Collection<MarketData> getAllItemMarketData() {
+        return new ArrayList<>(itemMarketData.values());
+    }
+
+    public List<MarketData> getTopPricedItems(int limit) {
+        List<MarketData> all = new ArrayList<>(itemMarketData.values());
+        all.sort((a, b) -> Double.compare(b.getCurrentPrice(), a.getCurrentPrice()));
+        return all.subList(0, Math.min(limit, all.size()));
+    }
+
+    public List<MarketData> getTrendingUpItems(int limit) {
+        List<MarketData> rising = new ArrayList<>();
+        for (MarketData data : itemMarketData.values()) {
+            if (data.getPriceTrend() == MarketData.PriceTrend.RISING) {
+                rising.add(data);
+            }
+        }
+        rising.sort((a, b) -> Double.compare(b.getPriceChangePercent(), a.getPriceChangePercent()));
+        return rising.subList(0, Math.min(limit, rising.size()));
+    }
+
+    public List<MarketData> getTrendingDownItems(int limit) {
+        List<MarketData> falling = new ArrayList<>();
+        for (MarketData data : itemMarketData.values()) {
+            if (data.getPriceTrend() == MarketData.PriceTrend.FALLING) {
+                falling.add(data);
+            }
+        }
+        falling.sort((a, b) -> Double.compare(a.getPriceChangePercent(), b.getPriceChangePercent()));
+        return falling.subList(0, Math.min(limit, falling.size()));
+    }
+
+    /**
+     * Führt Decay (Supply&Demand-Abkühlung) für alle Item-Markt-Einträge aus.
+     * Läuft im gleichen Intervall wie updateMarketConditions() (DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES).
+     */
+    private void updateItemMarketData() {
+        if (itemMarketData.isEmpty()) return;
+
+        double decayRate = ModConfigHandler.COMMON.DYNAMIC_PRICING_SD_DECAY_RATE.get();
+        for (MarketData data : itemMarketData.values()) {
+            data.snapshotForTrend();
+            data.decaySupply(decayRate);
+            data.decayDemand(decayRate);
+        }
+        totalItemMarketUpdates++;
+        markDirty();
+    }
+
+    public MarketStatistics getItemMarketStatistics() {
+        int totalItems = itemMarketData.size();
+        int risingCount = 0;
+        int fallingCount = 0;
+        int stableCount = 0;
+        double avgPrice = 0;
+        double avgMultiplier = 0;
+
+        for (MarketData data : itemMarketData.values()) {
+            switch (data.getPriceTrend()) {
+                case RISING -> risingCount++;
+                case FALLING -> fallingCount++;
+                case STABLE -> stableCount++;
+            }
+            avgPrice += data.getCurrentPrice();
+            avgMultiplier += data.getPriceMultiplier();
+        }
+
+        if (totalItems > 0) {
+            avgPrice /= totalItems;
+            avgMultiplier /= totalItems;
+        }
+
+        return new MarketStatistics(totalItems, risingCount, fallingCount, stableCount,
+            avgPrice, avgMultiplier, totalItemMarketUpdates);
+    }
+
+    /**
+     * Erstellt einen spieler-sichtbaren Marktbericht als Chat-Nachricht (Top 5 steigend/fallend).
+     */
+    public String getPlayerItemMarketReport() {
+        if (itemMarketData.isEmpty()) {
+            return "§7No market data available.";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("§6§l=== Market Overview ===§r\n");
+
+        List<MarketData> rising = getTrendingUpItems(5);
+        if (!rising.isEmpty()) {
+            sb.append("\n§a↑ Rising prices:\n");
+            for (MarketData data : rising) {
+                sb.append(String.format("  §f%s: §a+%.1f%% §7(%.2f€)\n",
+                    data.getItemName(), data.getPriceChangePercent(), data.getCurrentPrice()));
+            }
+        }
+
+        List<MarketData> falling = getTrendingDownItems(5);
+        if (!falling.isEmpty()) {
+            sb.append("\n§c↓ Falling prices:\n");
+            for (MarketData data : falling) {
+                sb.append(String.format("  §f%s: §c%.1f%% §7(%.2f€)\n",
+                    data.getItemName(), data.getPriceChangePercent(), data.getCurrentPrice()));
+            }
+        }
+
+        MarketStatistics stats = getItemMarketStatistics();
+        sb.append(String.format("\n§7Items: %d | §a↑%d §c↓%d §e↔%d",
+            stats.totalItems(), stats.risingCount(), stats.fallingCount(), stats.stableCount()));
+
+        return sb.toString();
+    }
+
+    /**
+     * Item-Markt-Statistiken (ehemals DynamicMarketManager.MarketStatistics).
+     */
+    public record MarketStatistics(
+        int totalItems,
+        int risingCount,
+        int fallingCount,
+        int stableCount,
+        double averagePrice,
+        double averageMultiplier,
+        long totalUpdates
+    ) {
+        @Override
+        public String toString() {
+            return String.format(
+                "MarketStats{items=%d, rising=%d, falling=%d, stable=%d, avgPrice=%.2f, avgMult=%.2fx, updates=%d}",
+                totalItems, risingCount, fallingCount, stableCount, averagePrice, averageMultiplier, totalUpdates
+            );
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -533,6 +742,46 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
             }
         }
 
+        // Validate and load item market data (Supply&Demand, ehemals DynamicMarketManager)
+        itemMarketData.clear();
+        if (data.itemMarketData != null) {
+            if (data.itemMarketData.size() > 10000) {
+                LOGGER.warn("Item market data size ({}) exceeds limit, potential corruption",
+                    data.itemMarketData.size());
+                correctedCount++;
+            }
+
+            double sdFactor = ModConfigHandler.COMMON.DYNAMIC_PRICING_SD_FACTOR.get();
+            double minMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MIN_MULTIPLIER.get();
+            double maxMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MAX_MULTIPLIER.get();
+
+            for (SerializedItemMarketData serialized : data.itemMarketData) {
+                try {
+                    if (serialized == null || serialized.itemId == null) {
+                        invalidCount++;
+                        continue;
+                    }
+                    ResourceLocation itemId = ResourceLocation.parse(serialized.itemId);
+                    Item item = BuiltInRegistries.ITEM.get(itemId);
+                    if (item == null || item == net.minecraft.world.item.Items.AIR) {
+                        LOGGER.warn("Could not deserialize market item {} - not found in registry", serialized.itemId);
+                        invalidCount++;
+                        continue;
+                    }
+
+                    MarketData marketData = new MarketData(
+                        item, serialized.basePrice, sdFactor, minMult, maxMult,
+                        serialized.supply, serialized.demand, serialized.currentPrice,
+                        serialized.previousPrice, serialized.previousSupply, serialized.previousDemand
+                    );
+                    itemMarketData.put(item, marketData);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading item market data", e);
+                    invalidCount++;
+                }
+            }
+        }
+
         // SUMMARY
         if (invalidCount > 0 || correctedCount > 0) {
             LOGGER.warn("Data validation: {} invalid entries, {} corrected entries",
@@ -551,6 +800,17 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         data.categoryConditions = new HashMap<>(categoryConditions);
         data.temporaryModifiers = new HashMap<>(temporaryModifiers);
         data.priceHistory = new ArrayList<>(priceHistory);
+
+        data.itemMarketData = new ArrayList<>();
+        for (Map.Entry<Item, MarketData> entry : itemMarketData.entrySet()) {
+            ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(entry.getKey());
+            if (itemId == null) continue;
+            MarketData md = entry.getValue();
+            data.itemMarketData.add(new SerializedItemMarketData(
+                itemId.toString(), md.getBasePrice(), md.getSupply(), md.getDemand(),
+                md.getCurrentPrice(), md.getPreviousPrice(), md.getPreviousSupply(), md.getPreviousDemand()
+            ));
+        }
         return data;
     }
 
@@ -571,6 +831,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         categoryConditions.clear();
         temporaryModifiers.clear();
         priceHistory.clear();
+        itemMarketData.clear();
         lastKnownDay = -1;
     }
 
@@ -584,6 +845,36 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         public Map<String, MarketCondition> categoryConditions;
         public Map<String, TemporaryModifier> temporaryModifiers;
         public List<PriceSnapshot> priceHistory;
+        public List<SerializedItemMarketData> itemMarketData;
+    }
+
+    /**
+     * Serialisierbare Item-Markt-Daten (Item wird als ResourceLocation-String gespeichert).
+     */
+    public static class SerializedItemMarketData {
+        public String itemId;
+        public double basePrice;
+        public int supply;
+        public int demand;
+        public double currentPrice;
+        public double previousPrice;
+        public int previousSupply;
+        public int previousDemand;
+
+        public SerializedItemMarketData() {}
+
+        public SerializedItemMarketData(String itemId, double basePrice, int supply, int demand,
+                                         double currentPrice, double previousPrice,
+                                         int previousSupply, int previousDemand) {
+            this.itemId = itemId;
+            this.basePrice = basePrice;
+            this.supply = supply;
+            this.demand = demand;
+            this.currentPrice = currentPrice;
+            this.previousPrice = previousPrice;
+            this.previousSupply = previousSupply;
+            this.previousDemand = previousDemand;
+        }
     }
 
     public static class TemporaryModifier {

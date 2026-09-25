@@ -176,11 +176,11 @@ Located under `[dynamic_pricing]`:
 | Key | Default | Range | Description |
 |-----|---------|-------|-------------|
 | `dynamic_pricing.enabled` | `true` | -- | Enable/disable `DynamicPriceManager.updateMarketConditions()` |
-| `dynamic_pricing.sd_factor` | `0.3` | 0.0 - 1.0 | Daily chance for the global/category market condition to shift (repurposed from a fixed 30% constant; not a true supply/demand accumulator — `DynamicPriceManager` is state-machine based, not accumulator based) |
-| `dynamic_pricing.min_multiplier` | `0.3` | 0.1 - 1.0 | Global floor clamp on the combined price modifier in `calculatePrice()` |
-| `dynamic_pricing.max_multiplier` | `5.0` | 1.0 - 20.0 | Global ceiling clamp on the combined price modifier in `calculatePrice()` |
+| `dynamic_pricing.sd_factor` | `0.3` | 0.0 - 1.0 | Dual use: (1) chance for the global/category `MarketCondition` state machine to shift on each update, and (2) the supply/demand exponent for `DynamicPriceManager`'s per-item market (`MarketData`, price = basePrice × (demand/supply)^sd_factor) |
+| `dynamic_pricing.min_multiplier` | `0.3` | 0.1 - 1.0 | Floor clamp on the combined price modifier in `calculatePrice()`, and on the per-item S&D multiplier in `MarketData` |
+| `dynamic_pricing.max_multiplier` | `5.0` | 1.0 - 20.0 | Ceiling clamp on the combined price modifier in `calculatePrice()`, and on the per-item S&D multiplier in `MarketData` |
 | `dynamic_pricing.update_interval_minutes` | `5` | 1 - 30 | Real-time interval between `updateMarketConditions()` runs (independent of the day-change-driven season/snapshot logic) |
-| `dynamic_pricing.sd_decay_rate` | `0.02` | 0.001 - 0.1 | **Not currently applied** — no supply/demand decay accumulator exists in `DynamicPriceManager` to decay |
+| `dynamic_pricing.sd_decay_rate` | `0.02` | 0.001 - 0.1 | Decay rate applied to per-item supply/demand levels tracked by `DynamicPriceManager`'s item market (NPC-shop items), each `update_interval_minutes` cycle |
 | `dynamic_pricing.daily_food_cost` | `20.0` | 5 - 200 | **Not currently applied** — no reference to a food-cost baseline exists in the pricing code |
 | `dynamic_pricing.daily_reference_income` | `150.0` | 50 - 1,000 | **Not currently applied** — no reference-income calibration exists in the pricing code |
 | `dynamic_pricing.season_use_serene_seasons` | `true` | -- | Derive seasonal market prices (see [Section 9.5](#95-seasonal-market-pricing)) from the Serene Seasons mod if installed, instead of the internal 120-day calendar |
@@ -913,7 +913,7 @@ The `DynamicPriceManager` (`de.rolandsw.schedulemc.npc.life.economy.DynamicPrice
 
 ### 9.4 Supply/Demand Decay
 
-The `sd_decay_rate` (default: `0.02` = 2% per update) controls how quickly supply/demand levels return to equilibrium. Combined with `update_interval_minutes` (default: 5), this means approximately 2% decay every 5 minutes.
+`DynamicPriceManager` tracks a real per-item supply/demand accumulator for NPC-shop items (registered on first purchase via `PurchaseItemPacket`, absorbed from the former `DynamicMarketManager`). Each purchase increases demand; the `sd_decay_rate` (default: `0.02` = 2% per update) decays both supply and demand back toward equilibrium. Combined with `update_interval_minutes` (default: 5), this means approximately 2% decay every 5 minutes. The resulting per-item price multiplier (`sd_factor`/`min_multiplier`/`max_multiplier`-bounded) is applied on top of the UDPS shop price in `PurchaseItemPacket`, and can be inspected in-game via `/market prices|trends|stats|top`.
 
 ### 9.5 Seasonal Market Pricing
 

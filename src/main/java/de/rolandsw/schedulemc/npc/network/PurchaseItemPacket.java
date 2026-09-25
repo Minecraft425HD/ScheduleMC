@@ -169,6 +169,21 @@ public class PurchaseItemPacket {
             dynamicUnitPrice = entry.getPrice();
         }
 
+        // Dynamic Pricing: Item-eigenes Supply&Demand berücksichtigen (Shop-Item-Markt)
+        // Ausgenommen: Tankrechnungen (Papier-Platzhalter-Item) und Fahrzeuge (eigene Preislogik unten)
+        boolean isBillOrVehicleEntry =
+                (merchant.getMerchantCategory() == MerchantCategory.GAS_STATION
+                        && entry.getItem().hasTag() && entry.getItem().getTag() != null)
+                || (merchant.getMerchantCategory() == MerchantCategory.CAR_DEALER
+                        && entry.getItem().getItem() instanceof ItemSpawnVehicle);
+
+        de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager priceManager =
+                de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.getInstance();
+        if (priceManager != null && !isBillOrVehicleEntry) {
+            priceManager.registerItem(entry.getItem().getItem(), entry.getPrice());
+            dynamicUnitPrice *= priceManager.getItemPriceMultiplier(entry.getItem().getItem());
+        }
+
         // SICHERHEIT: Berechne mit long um Overflow zu erkennen
         long basePriceLong = (long) Math.ceil(dynamicUnitPrice) * safeQuantity;
         long totalPriceLong = (long) (basePriceLong * priceModifier);
@@ -262,6 +277,11 @@ public class PurchaseItemPacket {
 
             // Reduziere Lagerbestand (nutze Warehouse-Integration)
             merchant.getNpcData().onItemSoldFromWarehouse(player.level(), entry, quantity, totalPrice);
+
+            // Dynamic Pricing: Kauf erhöht Nachfrage für zukünftige Preisberechnungen
+            if (priceManager != null) {
+                priceManager.onItemBoughtFromNPC(entry.getItem().getItem(), quantity);
+            }
 
             player.sendSystemMessage(Component.translatable("network.purchase.success",
                 String.valueOf(quantity),

@@ -6,6 +6,36 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.1-beta] - 2026-09-25
+
+### Fixed — Config-screen slider ranges & style inconsistency
+- Corrected all UI slider `min`/`max` bounds across 7 config screens (Police, Advanced
+  Economy, Economy, NPC/Navigation, Plot, Stealing, Workshop) to exactly match their
+  `ForgeConfigSpec.defineInRange()` bounds — 66 mismatches found and fixed. A mismatched
+  slider could silently write a value outside the field's actual spec-enforced range, or
+  make part of the visible slider track produce a clamped, unreachable value. Also fixed 3
+  label/precision bugs the corrected (tighter) ranges exposed (Police speed limit, Stealing
+  indicator/zone sliders), and a pre-existing mislabeling on the NPC navigation path-update
+  slider (said "ticks", the value is actually milliseconds).
+- Fixed a style inconsistency in `ScheduleMC`'s weekly gang-fee task: `GangManager
+  .getInstance()` was called without the defensive null-check every other manager singleton
+  in the same method uses.
+
+### Changed — DynamicPriceManager/DynamicMarketManager merge
+Merged the two overlapping, only-partially-functional pricing systems into one. See
+`CLAUDE.md` ("DynamicPriceManager/DynamicMarketManager Merge") for the full rationale.
+`DynamicPriceManager` now also owns a real per-item supply/demand market (absorbed from
+the deleted `DynamicMarketManager`, which was 100% inert — nothing ever called its
+`registerItem`/`setEnabled`/`.tick()`/`load()`). `PurchaseItemPacket` now registers
+NPC-shop items on first purchase, applies the item's live S&D price multiplier, and feeds
+the purchase back into the demand tracker — so the config-driven `sd_factor`/
+`min_multiplier`/`max_multiplier`/`sd_decay_rate` values (previously only affecting the
+unrelated `MarketCondition` state machine, or entirely unused in `sd_decay_rate`'s case)
+now have a real, player-visible effect on NPC shop prices. `/market prices|trends|stats|top`
+and `HealthCheckManager`'s market check now read from `DynamicPriceManager` instead of the
+deleted class. Persistence merged into the existing `npc_life_prices.json`; the separate
+`plotmod_market.json` file is no longer written.
+
 ## [3.9.0-beta] - 2026-09-24
 
 ### Fixed — Config Editor: ~40 previously-cosmetic settings now actually apply
@@ -44,11 +74,12 @@ into real code:
   fields (now read in `RiskPremium.java`, replacing 5 hardcoded constants with identical
   default values), `save_interval_minutes` (now passed to `IncrementalSaveManager` at
   startup instead of a hardcoded 1-minute interval). Left `shop.buy_multiplier`/
-  `sell_multiplier` and `dynamic_pricing.sd_decay_rate`/`daily_food_cost`/
-  `daily_reference_income` unwired: the first has a non-neutral default (`1.5`) that would
-  silently raise every shop price 50% rather than fix a bug, the rest have no corresponding
-  mechanism in `DynamicPriceManager` (which is a market-condition state machine, not a
-  supply/demand accumulator) to attach to. Also left `level_system.max_level`/`base_xp`/
+  `sell_multiplier` and `dynamic_pricing.daily_food_cost`/`daily_reference_income` unwired:
+  the first has a non-neutral default (`1.5`) that would silently raise every shop price 50%
+  rather than fix a bug, the rest have no corresponding mechanism anywhere in the codebase to
+  attach to. (`dynamic_pricing.sd_decay_rate` was wired in the following release, 3.9.1-beta,
+  as part of the `DynamicPriceManager`/`DynamicMarketManager` merge.) Also left
+  `level_system.max_level`/`base_xp`/
   `xp_exponent` unwired — `LevelRequirements`'s XP table is a `static final` array computed
   at class-load time, before Forge guarantees config is loaded; wiring it safely needs a
   config-reload hook, not a one-line substitution.

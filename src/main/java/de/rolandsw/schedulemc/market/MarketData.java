@@ -65,10 +65,10 @@ public class MarketData {
     }
 
     /**
-     * Package-private constructor for deserialization
-     * Restores saved market state
+     * Constructor for deserialization / restoring saved market state.
+     * Public so persistence managers outside this package (e.g. DynamicPriceManager) can use it.
      */
-    MarketData(Item item, double basePrice, double supplyDemandFactor,
+    public MarketData(Item item, double basePrice, double supplyDemandFactor,
               double minPriceMultiplier, double maxPriceMultiplier,
               int supply, int demand, double currentPrice,
               double previousPrice, int previousSupply, int previousDemand) {

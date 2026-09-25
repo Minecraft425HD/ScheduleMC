@@ -259,13 +259,61 @@ brauchen neue Funktionalität, keine reine Verdrahtung. Plan pro Wert
    Balance-Entscheidung, kein Bugfix.
 
 8. **UDPS `sd_decay_rate`/`daily_food_cost`/`daily_reference_income`**:
-   Größter Brocken. `DynamicPriceManager` (UDPS/NPC-Shops) ist eine reine
-   Zustandsmaschine (`MarketCondition`-Enum) ohne Angebot/Nachfrage-
-   Akkumulator — anders als `DynamicMarketManager` (Market-System), das
-   bereits ein echtes S&D-Modell hat. **Braucht zuerst eine
-   Design-Entscheidung:** eigenes S&D-Modell für UDPS bauen (Duplikation
-   zweier Preissysteme), oder NPC-Shop-Preise stattdessen an
-   `DynamicMarketManager` andocken (Vereinheitlichung)?
+   **`sd_decay_rate` ist erledigt** (siehe "DynamicPriceManager/
+   DynamicMarketManager Merge" unten) — `daily_food_cost`/
+   `daily_reference_income` bleiben offen (keine NPC-Lebenshaltungskosten-
+   Simulation im Code vorhanden, die diese Werte lesen könnte).
 
-**Nicht vorschlagen**, diese 12 Werte durch reine Constant-Swaps zu
+**Nicht vorschlagen**, diese Werte durch reine Constant-Swaps zu
 "fixen" — dafür fehlt echtes Feature-Code, kein Wiring-Fehler.
+
+---
+
+## DynamicPriceManager/DynamicMarketManager Merge (2026-09-25)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Betrifft:**
+- `npc/life/economy/DynamicPriceManager.java` (UDPS-Kategorie-Preisstaffel,
+  `MarketCondition`-Zustandsmaschine)
+- `market/DynamicMarketManager.java` (gelöscht) — hatte ein vollständiges,
+  aber nie befülltes Item-Level Supply&Demand-Modell (`MarketData`).
+
+**Begründung:** Es gab vier parallele, sich überschneidende Preissysteme:
+`DynamicPriceManager` (einziges mit echter Wirkung, über
+`NPCLifeSystemIntegration`/`PriceModifier`), `DynamicMarketManager`
+(fertiges S&D-Modell, aber 100 % inert — `registerItem`/`setEnabled`/
+`.tick()`/`load()` wurden nie von außen aufgerufen), `EconomyController
+.marketDataMap` (dritte, separat String-keyed `MarketData`-Map, ebenfalls
+100 % inert, da `registerMarketData()` nirgends aufgerufen wird) und
+`EconomyController.getDynamicShopPrice()` (hartkodiert `sdMult=1.0` für
+NPC-Shop-Käufe).
+
+**Umsetzung:** `DynamicMarketManager`s Item-Level-S&D-Tracking
+(`registerItem`, `onItemSoldToNPC`/`onItemBoughtFromNPC`,
+`getCurrentPrice`, `getTopPricedItems`, `getTrendingUp/DownItems`,
+`getStatistics`, `getPlayerMarketReport`, Decay) wurde vollständig in
+`DynamicPriceManager` übernommen (neue Map `itemMarketData`, Methoden
+siehe Abschnitt "ITEM MARKET"). Nutzt jetzt die bereits verdrahteten
+Config-Werte `DYNAMIC_PRICING_SD_FACTOR`/`MIN_MULTIPLIER`/
+`MAX_MULTIPLIER`/`ENABLED` statt eigener hartkodierter Defaults, und gibt
+`DYNAMIC_PRICING_SD_DECAY_RATE` erstmals eine echte Wirkung (Supply/
+Demand-Decay im gleichen Intervall wie `updateMarketConditions()`).
+Persistenz läuft jetzt über die bestehende `DynamicPriceManagerData`/
+`npc_life_prices.json` (kein separates `plotmod_market.json` mehr nötig).
+
+`PurchaseItemPacket` (NPC-Shop-Kauf) registriert das gekaufte Item beim
+ersten Kauf automatisch, multipliziert den UDPS-Preis mit
+`getItemPriceMultiplier()` und meldet den Kauf per
+`onItemBoughtFromNPC()` — das S&D-Modell wird dadurch zum ersten Mal
+tatsächlich befüllt und wirkt auf zukünftige Preise. `MarketCommand`
+(`/market`) und `HealthCheckManager` wurden auf `DynamicPriceManager`
+umgestellt. `EconomyController.marketDataMap`/`getDynamicShopPrice()`
+wurden bewusst **nicht** angefasst — der Nutzer hat explizit nur die
+beiden genannten Klassen zum Zusammenführen benannt; `EconomyController`
+ist ein größeres, für Produktionsgüter bereits aktiv genutztes System
+(`getSellPrice`/`getBuyPrice`) und bleibt ein separates, offenes Thema.
+
+**Konsequenz:** `market/DynamicMarketManager.java` wurde gelöscht.
+**Nicht vorschlagen**, ein neues separates Item-S&D-System zu bauen oder
+`DynamicMarketManager` wiederherzustellen.
