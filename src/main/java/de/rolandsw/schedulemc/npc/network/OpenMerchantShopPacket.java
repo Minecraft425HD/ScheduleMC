@@ -93,14 +93,13 @@ public class OpenMerchantShopPacket {
                     // ═══════════════════════════════════════════════════════════
                     // NPC LIFE SYSTEM INTEGRATION: Price Modifiers
                     // ═══════════════════════════════════════════════════════════
-                    float npcPriceModifier = npc.getPersonalPriceModifier();
+                    ServerLevel serverLevel = player.serverLevel();
+                    // Spieler kauft aus dem BuyShop -> isBuying=true
+                    float npcPriceModifier = npc.getPersonalPriceModifier(player, serverLevel, true);
 
                     // WorldEventManager Preismodifikator
-                    float worldEventModifier = 1.0f;
-                    if (player.level() instanceof ServerLevel serverLevel) {
-                        WorldEventManager worldEventManager = WorldEventManager.getManager(serverLevel);
-                        worldEventModifier = worldEventManager.getCombinedPriceModifier(player.blockPosition());
-                    }
+                    WorldEventManager worldEventManager = WorldEventManager.getManager(serverLevel);
+                    float worldEventModifier = worldEventManager.getCombinedPriceModifier(player.blockPosition());
 
                     // Kombinierter Modifikator für Preise
                     float combinedPriceModifier = npcPriceModifier * worldEventModifier;

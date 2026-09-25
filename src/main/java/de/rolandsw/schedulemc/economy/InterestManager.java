@@ -149,6 +149,11 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
     private void checkWeeklyPayouts() {
         Map<UUID, Double> balances = EconomyManager.getAllAccounts();
 
+        // Alle fälligen Zinszahlungen in einem Batch sammeln statt einzeln zu deponieren -
+        // bei vielen Konten (Server mit hunderten Spielern) ein einziger Durchlauf statt N.
+        BatchTransactionManager batch = BatchTransactionManager.create();
+        Map<UUID, Double> paidInterest = new HashMap<>();
+
         for (Map.Entry<UUID, Double> entry : balances.entrySet()) {
             UUID playerUUID = entry.getKey();
             double balance = entry.getValue();
@@ -157,12 +162,52 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
             long daysSinceLastPayout = currentDay - lastPayout;
 
             if (daysSinceLastPayout >= WEEK_IN_DAYS) {
-                payoutInterest(playerUUID, balance);
+                double interest = calculateInterest(balance);
+                if (interest >= 0.005) {
+                    batch.deposit(playerUUID, interest, TransactionType.INTEREST,
+                        Component.translatable("manager.interest.weekly_interest",
+                            String.format("%.1f", INTEREST_RATE * 100)).getString());
+                    paidInterest.put(playerUUID, interest);
+                }
                 lastInterestPayout.put(playerUUID, currentDay);
             }
         }
 
+        if (!batch.isEmpty()) {
+            BatchTransactionManager.BatchResult result = batch.execute();
+            LOGGER.info("Weekly interest payout: {}", result);
+            notifyInterestRecipients(paidInterest);
+        }
+
         save();
+    }
+
+    /**
+     * Berechnet den fälligen Wochenzins für einen Kontostand (geclampt auf MAX_INTEREST_PER_WEEK,
+     * auf 2 Nachkommastellen gerundet). Gibt 0 zurück, wenn kein Zins fällig ist.
+     */
+    private double calculateInterest(double balance) {
+        if (balance <= 0) {
+            return 0.0;
+        }
+        double interest = balance * INTEREST_RATE;
+        interest = Math.min(interest, MAX_INTEREST_PER_WEEK);
+        return Math.round(interest * 100.0) / 100.0;
+    }
+
+    /**
+     * Benachrichtigt alle online befindlichen Spieler über ihre erhaltene Zinszahlung.
+     */
+    private void notifyInterestRecipients(Map<UUID, Double> paidInterest) {
+        for (Map.Entry<UUID, Double> entry : paidInterest.entrySet()) {
+            ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
+            if (player != null) {
+                player.sendSystemMessage(Component.translatable("manager.interest.paid",
+                    String.format("%.2f", entry.getValue()),
+                    String.format("%.2f", EconomyManager.getBalance(entry.getKey()))
+                ));
+            }
+        }
     }
 
     @Override
@@ -179,37 +224,6 @@ public class InterestManager extends AbstractPersistenceManager<Map<UUID, Long>>
     protected void onCriticalLoadFailure() {
         lastInterestPayout.clear();
         LOGGER.warn("InterestManager: Gestartet mit leeren Daten nach kritischem Fehler");
-    }
-
-    /**
-     * Zahlt Zinsen an einen Spieler
-     */
-    private void payoutInterest(UUID playerUUID, double balance) {
-        if (balance <= 0) {
-            return;
-        }
-
-        double interest = balance * INTEREST_RATE;
-        interest = Math.min(interest, MAX_INTEREST_PER_WEEK);
-        interest = Math.round(interest * 100.0) / 100.0;
-
-        // Kein Zins bei abgerundetem Nullbetrag
-        if (interest < 0.005) {
-            return;
-        }
-
-        EconomyManager.deposit(playerUUID, interest, TransactionType.INTEREST,
-            Component.translatable("manager.interest.weekly_interest",
-                String.format("%.1f", INTEREST_RATE * 100)).getString());
-
-        // Benachrichtige Spieler wenn online
-        ServerPlayer player = server.getPlayerList().getPlayer(playerUUID);
-        if (player != null) {
-            player.sendSystemMessage(Component.translatable("manager.interest.paid",
-                String.format("%.2f", interest),
-                String.format("%.2f", EconomyManager.getBalance(playerUUID))
-            ));
-        }
     }
 
     /**

@@ -131,14 +131,13 @@ public class NegotiationPacket {
             // ═══════════════════════════════════════════════════════════
             // NPC LIFE SYSTEM INTEGRATION: Price Modifiers
             // ═══════════════════════════════════════════════════════════
-            float npcPriceModifier = npc.getPersonalPriceModifier();
+            ServerLevel serverLevel = player.serverLevel();
+            // Spieler verkauft an den NPC -> isBuying=false
+            float npcPriceModifier = npc.getPersonalPriceModifier(player, serverLevel, false);
 
             // WorldEventManager Preismodifikator
-            float worldEventModifier = 1.0f;
-            if (player.level() instanceof ServerLevel serverLevel) {
-                WorldEventManager worldEventManager = WorldEventManager.getManager(serverLevel);
-                worldEventModifier = worldEventManager.getCombinedPriceModifier(player.blockPosition());
-            }
+            WorldEventManager worldEventManager = WorldEventManager.getManager(serverLevel);
+            float worldEventModifier = worldEventManager.getCombinedPriceModifier(player.blockPosition());
 
             // Kombinierter Modifikator: NPC-Emotionen + World Events
             float combinedModifier = npcPriceModifier * worldEventModifier;

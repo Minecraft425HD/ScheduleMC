@@ -22,9 +22,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * Liest Füllstände aller Warehouses und berechnet:
  * - Durchschnittliche Füllrate pro Item-Typ
  * - Warehouse-basierte Preis-Multiplikatoren
- * - Angebot/Nachfrage-Signale für den EconomyController
+ * - Angebot/Nachfrage-Signale
  *
- * Wird periodisch (alle 5 Minuten) aktualisiert.
+ * Wird 1x pro Minecraft-Tag aktualisiert (aus {@code DynamicPriceManager.onDayChange()},
+ * NICHT in Echtzeit), damit Lagerbestände - wie alle anderen S&D-Signale - nur gedämpft über
+ * den 7-Tage-Gleitdurchschnitt in die tatsächlich genutzten Item-Preise einfließen
+ * (siehe {@code DynamicPriceManager.getItemPriceMultiplier()}/{@code computeRawItemMultiplier()}).
  */
 public class WarehouseMarketBridge {
 
@@ -81,7 +84,7 @@ public class WarehouseMarketBridge {
 
     /**
      * Scannt alle Warehouses und aktualisiert die Füllstands-Daten.
-     * Sollte alle 5 Minuten aufgerufen werden.
+     * Wird 1x pro Minecraft-Tag von {@code DynamicPriceManager.onDayChange()} aufgerufen.
      */
     public void updateWarehouseData() {
         if (server == null) return;

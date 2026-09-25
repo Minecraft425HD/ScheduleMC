@@ -6,6 +6,50 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.4-beta] - 2026-09-25
+
+### Added — Wired in four fully-built but completely orphaned systems
+All four had zero external callers anywhere in the codebase (verified by grep), despite being
+complete, working implementations:
+- **`WarehouseMarketBridge`** (real warehouse-stock-based supply/demand signal) now feeds into
+  `DynamicPriceManager`'s item price multiplier, but only once per Minecraft day
+  (`onDayChange()` → `updateWarehouseData()`), not in real time — it rides the same 7-day
+  rolling average as the rest of the S&D system, so a single day's stock swing only shifts the
+  used price by ~1/7.
+- **`PriceModifier`** (the complete NPC price-modifier calculation: trait/greed + emotion +
+  faction reputation + player relationship + market condition) now backs
+  `CustomNPCEntity.getPersonalPriceModifier(player, level, isBuying)`, replacing the previous
+  greed+emotion-only inline calculation that was missing faction/reputation/market factors
+  entirely. All 3 real call sites (`PurchaseItemPacket`, `NegotiationPacket`,
+  `OpenMerchantShopPacket`) updated.
+- **`BatchTransactionManager`** now batches `InterestManager`'s weekly interest payout across
+  all accounts in one pass instead of depositing one at a time (its stated "66-90% performance
+  win" doesn't actually apply to this codebase's `EconomyManager.markDirty()`, which is already
+  a cheap idempotent flag set — the real value here is the cleaner bulk API and batch
+  statistics, not a performance fix).
+- **`CrimeEventHandler.registerVandalism()`/`registerTrespassing()`** now fire from
+  `BlockProtectionHandler`'s existing plot-permission checks: breaking a block in a plot you
+  don't have access to now reports Vandalism to the witness system, placing one reports
+  Trespassing — previously the action was silently cancelled with no crime record at all.
+
+### Removed — Two more duplicate/dead systems found while wiring the above
+- **`npc/entity/component/TradingComponent`** — turned out to be a *third* implementation of
+  the NPC price modifier (alongside `PriceModifier` and the inline one in `CustomNPCEntity`).
+  It ticked every 20 ticks for every NPC computing a near-identical greed+emotion value that
+  **nothing ever read** — pure wasted computation, not just dead code. Deleted along with its
+  registration.
+- **`npc/life/economy/NegotiationSystem`** — a generic round-based price-negotiation system,
+  superseded by the tobacco/drug-specific `NegotiationEngine` (the one actually used by
+  `NegotiationPacket`). Zero callers; deleted rather than wired in since the newer engine
+  already covers the same use case completely.
+
+Also found, documented but intentionally left alone: `npc/life/witness/BriberySystem`
+("bribe a witness to suppress their report") is itself completely unwired (0 callers) —
+looks like an unfinished feature needing a real UI/packet flow, not a wiring fix. Several
+`CrimeType` values (`DRUG_USE`, `FRAUD`, `BRIBERY`) still have no real trigger anywhere in the
+game; no safe existing hook was found for them, so nothing was guessed in. See `CLAUDE.md` for
+the full verification trail.
+
 ## [3.9.3-beta] - 2026-09-25
 
 ### Added — Meth now has 3 separately-priced purity variants

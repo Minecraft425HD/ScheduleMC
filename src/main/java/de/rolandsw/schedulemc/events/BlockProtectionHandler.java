@@ -70,6 +70,10 @@ public class BlockProtectionHandler {
 
             if (!checkPlotPermission(player, pos, "abbauen")) {
                 event.setCanceled(true);
+                // Unerlaubtes Abbauen in fremdem Plot = Vandalismus (Zeugen-/Verbrechenssystem)
+                if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                    de.rolandsw.schedulemc.npc.life.witness.CrimeEventHandler.registerVandalism(serverPlayer, pos);
+                }
             }
         });
     }
@@ -400,6 +404,10 @@ public class BlockProtectionHandler {
 
             if (!checkPlotPermission(player, pos, "platzieren")) {
                 event.setCanceled(true);
+                // Unerlaubtes Platzieren in fremdem Plot = Hausfriedensbruch (Zeugen-/Verbrechenssystem)
+                if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                    de.rolandsw.schedulemc.npc.life.witness.CrimeEventHandler.registerTrespassing(serverPlayer, pos);
+                }
                 return;
             }
 

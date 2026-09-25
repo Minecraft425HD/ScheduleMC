@@ -578,6 +578,7 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.life.social.NPCInteractionManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.world.WorldEventManager.initialize(server);
             de.rolandsw.schedulemc.npc.life.economy.DynamicPriceManager.initialize(server);
+            de.rolandsw.schedulemc.economy.WarehouseMarketBridge.getInstance().setServer(server);
             LOGGER.info("NPC Life System Managers initialized (9/9 completed)");
             // Re-initialize manager references in all existing NPCLifeSystemIntegration instances.
             // LevelEvent.Load fires before ServerStartedEvent, so integrations created during level load

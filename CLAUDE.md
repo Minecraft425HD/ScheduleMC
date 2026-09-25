@@ -480,3 +480,138 @@ Fehlersuche/Balance-Beobachtung erschweren.
 **Nicht vorschlagen**, das 7-Tage-Fenster oder den Tages-Takt als neuen
 Config-Wert aufzubohren, ohne dass das explizit gewünscht wird — der
 Nutzer hat "7 Minecraft Tage" und "1x pro Tag" konkret benannt.
+
+---
+
+## Vier verwaiste Systeme eingebaut, zwei Dopplungen gelöscht (2026-09-25, Teil 4)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Auslöser:** Fortsetzung der Dopplungssuche. Vier weitere, komplett fertig
+gebaute, aber nie verdrahtete Systeme gefunden (0 externe Aufrufer,
+verifiziert per Grep) sowie eine dritte Dopplung des NPC-Preismodifikators.
+Nutzer-Entscheidung: alle einbauen statt löschen (außer der offensichtlich
+obsoleten Dopplung).
+
+### 1. `WarehouseMarketBridge` → in DynamicPriceManager eingebaut, 1x/Tag + 7-Tage-Ø
+
+`economy/WarehouseMarketBridge.java` (+ `WarehouseStockLevel.java`) berechnet
+aus echten Warehouse-Füllständen einen Preis-Multiplikator
+(`getWarehousePriceMultiplier(itemDescriptionId)`). War zu 100 % tot
+(`updateWarehouseData()` nie getickt, `setServer()` nie aufgerufen).
+
+**Einbau (bewusst NICHT in Echtzeit, wie vom Nutzer verlangt):**
+- `ScheduleMC.onServerStarted()`: `WarehouseMarketBridge.getInstance().setServer(server)`
+  direkt neben `DynamicPriceManager.initialize(server)`.
+- `DynamicPriceManager.onDayChange()`: ruft `WarehouseMarketBridge.updateWarehouseData()`
+  **einmal pro Minecraft-Tag** auf (VOR `updatePriceSmoothingSnapshots()`), NICHT
+  mehr "alle 5 Minuten" wie ursprünglich in der (nie erreichten) Doku vorgesehen.
+- `DynamicPriceManager.computeRawItemMultiplier(Item, MarketData)`: multipliziert
+  den Warehouse-Preis-Multiplikator (`item.getDescriptionId()`-Key, identisch zum
+  Schema in `WarehouseMarketBridge`) mit ein. Da diese Methode selbst nur beim
+  täglichen Snapshot bzw. beim Erst-Seeden eines Items aufgerufen wird (siehe
+  Preisglättung-Abschnitt oben), erbt das Warehouse-Signal automatisch dieselbe
+  1x/Tag-+-7-Tage-Ø-Dämpfung wie alle anderen S&D-Faktoren — **keine
+  separate Glättungslogik nötig.**
+
+### 2. `PriceModifier` vollständig eingebaut, `TradingComponent` gelöscht (dritte Dopplung!)
+
+Bei der Umsetzung stellte sich heraus: es gab nicht zwei, sondern **drei**
+Implementierungen desselben NPC-Preismodifikators:
+1. `CustomNPCEntity.getPersonalPriceModifier()` — die tatsächlich von allen 3
+   realen Aufrufern (`PurchaseItemPacket`, `NegotiationPacket`,
+   `OpenMerchantShopPacket`) genutzte Methode (nur Gier + Emotion).
+2. `npc/entity/component/TradingComponent.java` — tickte alle 20 Ticks für
+   JEDEN NPC eine fast identische Gier+Emotion-Berechnung, aber **niemand las
+   das Ergebnis** (`getPersonalPriceModifier()`/`isWillingToTrade()`/
+   `setTradeCooldown()` der Komponente hatten 0 externe Aufrufer) — reine
+   Verschwendung von Tick-Zeit, nicht nur toter Code.
+3. `npc/life/economy/PriceModifier.java` — die vollständigste Version
+   (Gier + Emotion + Fraktions-Reputation + Spieler-Beziehung/Memory-Tags +
+   Marktbedingung), 0 Aufrufer.
+
+**Fix:** `CustomNPCEntity.getPersonalPriceModifier()` bekam eine neue
+Signatur `(ServerPlayer player, ServerLevel level, boolean isBuying)` und
+delegiert jetzt vollständig an `PriceModifier.calculateModifier(this, player,
+level, isBuying)`. Alle 3 realen Aufrufer wurden angepasst (`isBuying=true`
+für Käufe des Spielers, `isBuying=false` für `NegotiationPacket`, wo der
+Spieler an den NPC verkauft) — `player.serverLevel()` statt manuellem
+`player.level() instanceof ServerLevel`-Check. `TradingComponent.java` und
+seine Registrierung in `CustomNPCEntity.initializeComponents()` wurden
+komplett gelöscht (spart NBT-Persistenz eines nutzlosen `tradeCooldown`-Feldes
+und den 20-Tick-Berechnungsaufwand pro NPC). **Nicht vorschlagen**, eine der
+beiden gelöschten/ersetzten Implementierungen wiederherzustellen.
+
+### 3. `NegotiationSystem` gelöscht (echte Dopplung, kein Einbau sinnvoll)
+
+`npc/life/economy/NegotiationSystem.java` — ein generisches, rundenbasiertes
+Rabatt-Verhandlungssystem, 0 Aufrufer. Wurde ersetzt durch das
+tabak-/drogenspezifische `tobacco/business/NegotiationEngine.java`
+(tatsächlich von `NegotiationPacket` genutzt, inkl. Stimmungs-Tracking,
+Cooldowns, NPC-Ablehnung). Da beide dieselbe Aufgabe für denselben
+Anwendungsfall (Preisverhandlung mit einem NPC) lösen und die Engine
+bereits vollständig produktiv ist, wurde `NegotiationSystem` ersatzlos
+gelöscht statt eingebaut. **Nicht vorschlagen**, es wiederherzustellen.
+
+### 4. `BatchTransactionManager` in `InterestManager` eingebaut
+
+`economy/BatchTransactionManager.java` — fertige Fluent-API zum Sammeln
+mehrerer Economy-Transaktionen und Ausführen in einem Durchlauf, 0 Aufrufer.
+**Wichtige Einschränkung, die beim Einbau berücksichtigt wurde:**
+`EconomyManager.markDirty()` setzt nur ein `volatile boolean` — bei N
+Aufrufen entsteht dadurch praktisch kein Mehraufwand; die im Klassenkommentar
+behauptete "66-90% Performance-Gewinn"-Begründung trifft auf die aktuelle
+`EconomyManager`-Implementierung NICHT zu. Der reale Wert des Einbaus liegt
+also nicht in der (nicht vorhandenen) Performance-Ersparnis, sondern in der
+saubereren Bulk-API mit Statistik-Rückgabe (`BatchResult`). Eingebaut in
+`InterestManager.checkWeeklyPayouts()` (wöchentliche Zinsauszahlung an ALLE
+Konten — der klassische Bulk-Anwendungsfall): sammelt alle fälligen
+Zinszahlungen in einem `BatchTransactionManager`, führt sie in einem
+Durchlauf aus, benachrichtigt danach die betroffenen Online-Spieler. Die alte
+`payoutInterest(UUID, double)`-Methode wurde durch `calculateInterest(double)`
+(reine Berechnung) + `notifyInterestRecipients(Map)` (Benachrichtigung nach
+Batch-Ausführung) ersetzt. **Nicht vorschlagen**, denselben Einbau an
+weiteren Stellen zu wiederholen, ohne dass dort echte Massentransaktionen
+(viele Accounts in einer Schleife) vorliegen — für Einzeltransaktionen bringt
+`BatchTransactionManager` keinen Vorteil.
+
+### 5. `CrimeEventHandler`: `registerVandalism`/`registerTrespassing` eingebaut, Rest dokumentiert
+
+Von den 8 toten `register*`-Hilfsmethoden in `npc/life/witness/
+CrimeEventHandler.java` wurden `registerVandalism`/`registerTrespassing`
+mit einem verifizierten, bereits existierenden Hook verdrahtet:
+`events/BlockProtectionHandler.java`s `onBlockBreak`/`onBlockPlace` kennen
+bereits `checkPlotPermission()` (true/false, ob der Spieler im fremden Plot
+agieren darf) — bei Ablehnung wird das Event zwar schon gecancelt, aber
+bisher NIE als Verbrechen gemeldet. Jetzt: abgelehntes Abbauen →
+`registerVandalism(serverPlayer, pos)`, abgelehntes Platzieren →
+`registerTrespassing(serverPlayer, pos)`.
+
+**Bewusst NICHT geraten (verifiziert, kein sicherer Hook gefunden):**
+- `registerDrugUse`/`CrimeType.DRUG_USE` — kein "Spieler konsumiert Droge"-
+  Event/Hook im Code gefunden.
+- `registerFraud`/`CrimeType.FRAUD` — keine Betrugs-/Täuschungs-Mechanik im
+  Code gefunden, die das auslösen könnte.
+- `registerTheft`/`registerRobbery`/`registerDrugDealing`/
+  `registerEvadingPolice` — diese Verbrechen werden bereits real erkannt,
+  aber über **direkte** `witnessManager.registerCrime(...)`-Aufrufe in
+  `StealingAttemptPacket`, `PoliceRaidPenalty`, `PoliceAIHandler`,
+  `HackingToolItem` (nicht über die `CrimeEventHandler`-Fassade). Ein
+  Umbau auf die Fassade wurde NICHT vorgenommen, da die Wrapper-Methoden
+  ihren `CrimeType` teils selbst aus einem Schwellenwert ableiten
+  (z. B. `registerTheft(amount)`), was bei blindem Austausch die
+  Verbrechens-Einstufung an diesen Stellen unbeabsichtigt ändern könnte —
+  hätte zuerst pro Aufrufer einzeln verifiziert werden müssen.
+  `PoliceWarningSystem.EVADING_POLICE` nutzt zudem gar nicht das
+  Witness-System, sondern das separate `CrimeManager`-Wanted-Level-System
+  — zwei unterschiedliche Mechaniken, die zufällig denselben `CrimeType`-
+  Enum-Wert teilen.
+
+**Neuer, verwandter Fund (nicht behoben, da eigenständiges Feature):**
+`npc/life/witness/BriberySystem.java` — eine komplette "Zeugen bestechen um
+Meldung zu unterdrücken"-Mechanik (`attemptBribe()`), ebenfalls 0 Aufrufer
+(keine GUI/Packet nutzt sie). Zusammen mit `CrimeType.BRIBERY` (auch 0
+Aufrufer) ist das vermutlich ein eigenes, nie fertiggestelltes Feature
+(bräuchte einen Dialog-/Packet-Flow, kein reines Wiring). **Nicht
+vorschlagen**, dies "nebenbei" mit zu implementieren — eigenständig
+einplanen, falls gewünscht.

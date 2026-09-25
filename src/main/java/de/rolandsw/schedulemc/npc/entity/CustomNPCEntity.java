@@ -10,7 +10,6 @@ import de.rolandsw.schedulemc.npc.entity.component.NPCComponent;
 import de.rolandsw.schedulemc.npc.entity.component.NPCComponentHolder;
 import de.rolandsw.schedulemc.npc.entity.component.ActivityTrackingComponent;
 import de.rolandsw.schedulemc.npc.entity.component.DrivingComponent;
-import de.rolandsw.schedulemc.npc.entity.component.TradingComponent;
 import de.rolandsw.schedulemc.npc.life.core.NPCLifeData;
 import de.rolandsw.schedulemc.npc.life.core.NPCNeeds;
 import de.rolandsw.schedulemc.npc.life.core.NPCEmotions;
@@ -145,7 +144,6 @@ public class CustomNPCEntity extends PathfinderMob {
     private void initializeComponents() {
         components.addComponent(new DrivingComponent(), this);
         components.addComponent(new ActivityTrackingComponent(), this);
-        components.addComponent(new TradingComponent(), this);
     }
 
     @Override
@@ -815,28 +813,17 @@ public class CustomNPCEntity extends PathfinderMob {
     }
 
     /**
-     * Gibt den Preismodifikator basierend auf NPC-Zustand zurück
-     * Kann für dynamische Preise verwendet werden
+     * Gibt den vollständigen Preismodifikator für eine Transaktion mit einem bestimmten
+     * Spieler zurück: NPC-Traits (Gier) + NPC-Emotionen + Fraktions-Reputation des Spielers
+     * + persönliche Spieler-Beziehung (Stammkunden-Rabatt/Straftäter-Aufschlag) +
+     * Marktbedingung (siehe {@link de.rolandsw.schedulemc.npc.life.economy.PriceModifier}).
+     *
+     * @param player   der handelnde Spieler (für Fraktions-/Beziehungs-Faktoren)
+     * @param level    die ServerLevel (für Fraktions-Manager und Marktbedingung)
+     * @param isBuying true wenn der Spieler kauft, false wenn der Spieler an den NPC verkauft
      */
-    public float getPersonalPriceModifier() {
-        if (lifeData == null) return 1.0f;
-
-        float modifier = 1.0f;
-
-        // Gierige NPCs verlangen mehr
-        modifier += lifeData.getTraits().getGreed() / 200.0f; // -0.5 bis +0.5
-
-        // Glückliche NPCs geben Rabatt
-        if (lifeData.getEmotions().getCurrentEmotion() == EmotionState.HAPPY) {
-            modifier -= lifeData.getEmotions().getIntensity() / 400.0f;
-        }
-
-        // Ängstliche NPCs senken Preise
-        if (lifeData.getEmotions().getCurrentEmotion() == EmotionState.FEARFUL) {
-            modifier -= lifeData.getEmotions().getIntensity() / 300.0f;
-        }
-
-        return Math.max(0.5f, Math.min(1.5f, modifier));
+    public float getPersonalPriceModifier(ServerPlayer player, ServerLevel level, boolean isBuying) {
+        return de.rolandsw.schedulemc.npc.life.economy.PriceModifier.calculateModifier(this, player, level, isBuying);
     }
 
     // ═══════════════════════════════════════════════════════════

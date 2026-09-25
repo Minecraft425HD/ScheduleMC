@@ -195,6 +195,10 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         // Saison aktualisieren (Serene Seasons falls installiert, sonst Spieltage-Zyklus)
         SeasonalPriceModifier.getInstance().updateSeason(currentDay, level);
 
+        // Lagerbestände scannen (1x/Tag, NICHT in Echtzeit) - fließt über
+        // computeRawItemMultiplier() in den unten folgenden Gleitdurchschnitt mit ein.
+        de.rolandsw.schedulemc.economy.WarehouseMarketBridge.getInstance().updateWarehouseData();
+
         // Item-/Produkt-Preise: 1x/Tag neu in den 7-Tage-Gleitdurchschnitt einrollen
         updatePriceSmoothingSnapshots();
 
@@ -475,6 +479,11 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         if (seasonalCategory != null) {
             multiplier *= SeasonalPriceModifier.getInstance().getModifier(seasonalCategory);
         }
+
+        // Lager-Füllstand (nur 1x/Tag per updateWarehouseData() in onDayChange() aktualisiert,
+        // NICHT in Echtzeit) - hoher Füllstand = günstiger, niedriger Füllstand = teurer.
+        multiplier *= de.rolandsw.schedulemc.economy.WarehouseMarketBridge.getInstance()
+                .getWarehousePriceMultiplier(item.getDescriptionId());
 
         double minMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MIN_MULTIPLIER.get();
         double maxMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MAX_MULTIPLIER.get();

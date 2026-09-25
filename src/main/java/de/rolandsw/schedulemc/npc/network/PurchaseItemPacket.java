@@ -156,7 +156,7 @@ public class PurchaseItemPacket {
         // ═══════════════════════════════════════════════════════════
         // NPC LIFE SYSTEM INTEGRATION: Dynamische Preisanpassung
         // ═══════════════════════════════════════════════════════════
-        float priceModifier = merchant.getPersonalPriceModifier();
+        float priceModifier = merchant.getPersonalPriceModifier(player, player.serverLevel(), true);
 
         // UDPS: Dynamischen Shop-Preis berechnen
         double dynamicUnitPrice;

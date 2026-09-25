@@ -919,6 +919,8 @@ The `DynamicPriceManager` (`de.rolandsw.schedulemc.npc.life.economy.DynamicPrice
 
 **Price smoothing:** the raw supply/demand multiplier above updates continuously (every purchase/sale, decayed on the `update_interval_minutes` cadence), but the multiplier actually charged to players is a rolling 7-Minecraft-day average of that raw value, recalculated once per Minecraft day at day-rollover — not on every query. This bounds how far a single transaction (or a single bad day) can move the live price, while still letting sustained supply/demand pressure clearly shift it over time. `/market prices|trends|stats|top` deliberately still shows the raw, unsmoothed live data (for admins/diagnostics); only the price actually paid is smoothed.
 
+**Warehouse stock signal:** `economy.WarehouseMarketBridge` scans all warehouses' actual stock levels once per Minecraft day (from the same `onDayChange()` hook, before the smoothing snapshot above) and feeds a fill-rate-based price multiplier (high stock → cheaper, low stock → pricier) into each item's raw multiplier calculation. Since this happens inside the same raw-computation step that gets rolled into the 7-day average, warehouse stock affects prices with the same once-a-day, damped cadence as everything else — never in real time.
+
 ### 9.5 Seasonal Market Pricing
 
 `market.SeasonalPriceModifier` applies a per-category price multiplier based
