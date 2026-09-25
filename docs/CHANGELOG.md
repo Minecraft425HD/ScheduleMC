@@ -6,6 +6,28 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.11-beta] - 2026-09-25
+
+### Removed — RedemptionQuestManager, after a second thorough hook search
+Re-investigated whether any of the 4 progress triggers (help 5 NPCs, pay a fine, deliver
+3 goods, patrol 5 minutes) have a safe, verifiable hook — including a fresh look at the
+mission/ package (PlayerMissionManager, ScenarioObjective) discovered later in this
+session as a possible generic delivery/patrol objective source. Same conclusion as the
+original finding: no generic "helped an NPC" event exists, the one automatic
+surrender-fine mechanic (PoliceWarningSystem) is unrelated (reduces wanted level, not
+faction reputation, and isn't player-initiated), the mission system is a curated
+editor-driven main/side-quest engine rather than a generic delivery mechanic, and player
+patrol tracking doesn't exist (only NPC patrol goals do). Only the start trigger (a
+dialogue option offering the quest at low reputation) would have been safe to add, but a
+quest a player can accept and never finish is worse than not offering it. Deleted per
+explicit user decision. Updated wiki/features/NPC-System.md, which had a "not wired up"
+section for this plus a second, already-stale section for the previously-removed
+DialogueConsequenceSystem.
+
+Running total for this cleanup arc: 43 files, 8,255 lines of dead code removed.
+
+---
+
 ## [3.9.10-beta] - 2026-09-25
 
 ### Removed — the deferred util/ infrastructure cluster, after a use-case analysis

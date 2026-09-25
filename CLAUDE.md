@@ -917,30 +917,47 @@ Geschwindigkeit/Qualität nur mit großem Aufwand über ~115 Produktions-BlockEn
 riskant) bleibt als Referenz erhalten, falls das Feature künftig doch gewünscht und neu
 gebaut werden soll — aber nicht durch Wiederherstellung dieser Datei.
 
-### Gefunden, NICHT umgesetzt (Entscheidung ausstehend): RedemptionQuestManager
+### RedemptionQuestManager ENTFERNT (2026-09-25, Teil 11)
 
-`npc/life/quest/RedemptionQuestManager.java` (229 Zeilen) — Vergebungs-
-Quest-System für Spieler mit Fraktions-Reputation < -20, 0 Aufrufer.
-**Keine Dopplung** von `QuestManager` (904 Zeilen, real verdrahtet, tickt,
-persistiert): `QuestManager`s Quests verlangen eine **Mindest**-Reputation
-zum Annehmen (`minFactionRep`), sind also für Spieler mit stark negativer
-Reputation gar nicht verfügbar — `RedemptionQuestManager` deckt exakt diese
-Lücke ab (Reputation *wiederherstellen*, nicht *ausbauen*). Eine
-komplementäre, nicht dopplerische Funktion.
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen, diese Klasse wiederherzustellen
 
-**Warum trotzdem nicht umgesetzt:** Es fehlt ein Start-Trigger (z. B. ein
-neuer `DialogueAction.offerRedemptionQuest()`, analog zu
-`DialogueAction.checkForQuest()`/`offerQuest()`, der bei niedriger
-Reputation im Dialog erscheint) UND die 4 `reportProgress()`-Trigger
-(Community Service: 5 NPCs helfen: kein verifizierbarer "NPC geholfen"-Hook
-gefunden; Spende: Geldstrafe zahlen; Kurierdienst: 3 Waren an NPCs liefern;
-Wachpatrouille: 5 Minuten patrouillieren) sind über mehrere unabhängige
-Systeme verteilt und teilweise (Community Service) hat keinen
-verifizierbaren Hook im Code. **Nicht vorschlagen**, `reportProgress()` an
-geratene Stellen zu hängen — der Dialog-Trigger allein wäre machbar, aber
-ohne die Progress-Hooks bliebe die Quest niemals abschließbar
-(schlimmer als gar nicht angeboten). Eigenständig als Feature einplanen,
-falls gewünscht (Dialog-Trigger + alle 4 Progress-Hooks in einem Zug).
+**Vorgeschichte:** In Teil 6 als "gefunden, nicht umgesetzt, Entscheidung ausstehend"
+gemeldet — Vergebungs-Quest-System für Spieler mit Fraktions-Reputation < -20, 0
+Aufrufer, **keine Dopplung** von `QuestManager` (der verlangt eine Mindest-Reputation
+zum Annehmen, ist also für stark negative Reputation gar nicht verfügbar —
+`RedemptionQuestManager` deckte eine echte, komplementäre Lücke ab).
+
+**Auf explizite Nutzeranfrage erneut recherchiert**, ob es einen sicheren Start- oder
+Progress-Trigger gibt (auch unter Einbeziehung des inzwischen entdeckten
+Mission-Systems, `mission/`-Paket mit `PlayerMissionManager`/`ScenarioObjective`, als
+möglicher generischer "Liefere Item"/"Patrouilliere"-Objective-Quelle):
+
+- **Community Service** (5 NPCs helfen): kein generischer "Spieler hat NPC geholfen"-
+  Hook gefunden. Der einzige `MemoryType.HELPED`-Treffer ist Begleiter-Rekrutierung —
+  ein völlig anderer Kontext.
+- **Spende** (Geldstrafe zahlen): Es gibt eine automatische "Ergeben bei
+  Polizei-Warnung"-Geldstrafe (`PoliceWarningSystem`), aber die ist automatisch,
+  reduziert den Wanted-Level (nicht Fraktions-Reputation) und ist keine
+  Spieler-initiierte Wiedergutmachungs-Aktion.
+- **Kurierdienst** (3 Waren an NPCs liefern): Das `mission/`-Paket ist ein
+  editor-/skript-gesteuertes Haupt-/Nebenmissionssystem für kuratierte Inhalte, kein
+  generischer "liefere Item X an beliebigen NPC"-Mechanismus.
+- **Wachpatrouille** (5 Minuten patrouillieren): Patrouillen existieren nur für
+  Polizei-NPCs (`PolicePatrolGoal`), nicht als Zeit-Tracking für Spieler.
+
+Das deckt sich exakt mit dem ursprünglichen Teil-6-Befund — auch nach erneuter,
+gründlicher Suche kein sicherer Hook für die 4 Progress-Trigger. Nur der Start-Trigger
+(Dialog-Option bei niedriger Reputation) wäre risikofrei gewesen — aber eine Quest, die
+sich annehmen, aber nie abschließen lässt, wäre schlechter als gar keine. **Auf
+Nutzerentscheidung hin vollständig gelöscht** statt nur den halben (Start-)Trigger zu
+bauen. `wiki/features/NPC-System.md` enthielt einen "Implemented, Not Wired Up"-Abschnitt
+dazu (und einen zweiten, bereits seit Teil 6 veralteten Abschnitt zu
+`DialogueConsequenceSystem`) — beide durch eine kurze, korrekte Notiz ersetzt.
+
+**Nicht vorschlagen**, diese Klasse wiederherzustellen, ohne dass zuerst mindestens
+einer der 4 Progress-Trigger durch ein neues, bewusst entworfenes Feature (nicht
+"gefundenes Wiring") ersetzt wird — z. B. ein neuer Dialog-"Spenden"-Button oder ein
+neuer Dialog-"Helfen"-Button, die von Grund auf gebaut werden müssten.
 
 ---
 
