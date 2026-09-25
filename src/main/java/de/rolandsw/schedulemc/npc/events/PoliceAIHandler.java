@@ -430,7 +430,12 @@ public class PoliceAIHandler {
                             && npc.tickCount % 100 == 0
                             && npc.level() instanceof ServerLevel roadblockLevel) {
                         BlockPos roadblockPos = computeRoadblockPosition(roadblockLevel, targetCriminal);
-                        if (roadblockPos != null) {
+                        // Strassen-Erkennung nur bei Fahrzeugflucht relevant: zu Fuss ist der
+                        // Spieler nicht an Strassen gebunden, eine Sperre "im Nichts" macht dort
+                        // trotzdem Sinn. Im Fahrzeug wäre eine Sperre abseits der Strasse dagegen
+                        // wirkungslos, da sie einfach umfahren werden könnte.
+                        boolean requiresRoad = PoliceVehiclePursuit.isPlayerInVehicle(targetCriminal);
+                        if (roadblockPos != null && (!requiresRoad || isOnRoad(roadblockLevel, roadblockPos))) {
                             PoliceRoadblock.createRoadblock(roadblockLevel, roadblockPos, targetCriminal.getUUID());
                         }
                     }
@@ -508,6 +513,20 @@ public class PoliceAIHandler {
         int groundY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, aheadX, aheadZ);
 
         return new BlockPos(aheadX, groundY, aheadZ);
+    }
+
+    /**
+     * Prüft ob die berechnete Sperr-Position auf einem als Strasse konfigurierten Block steht
+     * (der Block direkt unter der Sperre, analog zu {@code RoadBlockDetector}s eigenem
+     * Welt-Fallback). Nutzt bewusst nur die reinen, config-basierten
+     * {@code RoadBlockDetector.isRoadBlock(...)}-Overloads statt {@code isRoadAt(...)}/
+     * {@code getBlockStateFromWorld(...)} — letztere greifen auf {@code Minecraft.getInstance()}
+     * zu und sind damit client-only; ein Aufruf davon aus diesem Server-seitigen KI-Code würde
+     * auf einem Dedicated Server abstürzen.
+     */
+    private static boolean isOnRoad(ServerLevel level, BlockPos roadblockPos) {
+        net.minecraft.world.level.block.state.BlockState ground = level.getBlockState(roadblockPos.below());
+        return de.rolandsw.schedulemc.mapview.navigation.graph.RoadBlockDetector.isRoadBlock(ground);
     }
 
     /**

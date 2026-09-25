@@ -1208,14 +1208,36 @@ und `PlayerDisconnectHandler`).
    Max-Sperren-pro-Spieler-Prüfung (Config `POLICE_MAX_ROADBLOCKS`) und den
    `POLICE_ROADBLOCK_ENABLED`-Check erneut (doppelt geprüft, aber redundant statt riskant).
 
-**Bewusst NICHT umgesetzt:** kein Pathfinding-/Straßen-Erkennungs-Check, ob die
-berechnete Position überhaupt auf einer "Straße" liegt (das MapView-Modul hat einen
-`RoadBlockDetector`, der aber für die Kartenansicht gedacht ist, nicht für Live-KI-
-Entscheidungen, und eine Integration hätte eine deutlich größere, nicht angefragte
-Änderung bedeutet). Die Sperre wird schlicht auf der Bodenhöhe vor dem Spieler platziert,
-unabhängig vom Untergrund — das entspricht dem ursprünglich in `PoliceRoadblock.java`s
-eigenem Javadoc beschriebenen Funktionsumfang ("Temporaere Barrieren auf Strassen"), der
-bereits vor diesem Fix keine Straßen-Erkennung vorsah.
+**Update (2026-09-25, Teil 14): Straßen-Erkennung ergänzt, aber nur bei Fahrzeugflucht.**
+Nutzer-Korrektur: "Das soll natürlich nur Straßenerkennung haben wenn man sich in einem
+Fahrzeug befindet sonst macht es doch keinen Sinn!" — zu Fuß ist ein Spieler nicht an
+Straßen gebunden (kann über jedes Gelände fliehen), eine Sperre "im Nichts" ist dort
+trotzdem sinnvoll; im Fahrzeug wäre eine Sperre abseits der Straße dagegen wirkungslos
+(einfach umfahrbar).
 
-**Nicht vorschlagen:** eine Straßen-Erkennung für die Platzierung zu ergänzen, ohne dass
-das explizit gewünscht wird — das wäre ein eigenständiges, größeres Feature.
+**Umsetzung:** Neue private Methode `PoliceAIHandler.isOnRoad(ServerLevel, BlockPos)`
+prüft den Block unter der berechneten Sperr-Position gegen
+`RoadBlockDetector.isRoadBlock(BlockState)` (aus dem MapView-Modul,
+`mapview/navigation/graph/RoadBlockDetector.java`). **Wichtig, verifiziert vor dem
+Einbau:** `RoadBlockDetector` hat mehrere Overloads — `isRoadAt(WorldMapData, ...)` und
+dessen privates `getBlockStateFromWorld(...)` greifen auf `Minecraft.getInstance()` zu
+und sind damit **client-only**; ein Aufruf davon aus dem server-seitigen
+`PoliceAIHandler` (läuft in `LivingEvent.LivingTickEvent`, welches auf beiden Seiten
+feuert, hier aber im Server-Kontext ausgewertet wird) hätte auf einem Dedicated Server
+zu einem `NullPointerException`/Crash geführt. Die tatsächlich genutzten Overloads
+`isRoadBlock(Block)`/`isRoadBlock(BlockState)` sind dagegen rein config-basiert
+(`ModConfigHandler.COMMON.NAVIGATION_ROAD_BLOCKS`/`NPC_WALKABLE_BLOCKS`, per
+`ForgeRegistries.BLOCKS` aufgelöst) und funktionieren auf beiden Seiten identisch —
+nur diese werden verwendet.
+
+Der Trigger-Block in `onPoliceAI()` prüft jetzt `PoliceVehiclePursuit.isPlayerInVehicle
+(targetCriminal)`: ist der Spieler im Fahrzeug, wird die Sperre nur errichtet wenn
+`isOnRoad(...)` true zurückgibt; zu Fuß entfällt die Prüfung komplett (Verhalten wie in
+Teil 13). Liegt die berechnete Position bei einer Fahrzeugflucht nicht auf einem
+Straßenblock, wird in diesem 5-Sekunden-Zyklus einfach keine Sperre gebaut — die
+Verfolgung läuft normal weiter und der nächste Versuch folgt automatisch 5 Sekunden
+später an der dann aktuellen Spielerposition.
+
+**Nicht vorschlagen:** die Straßen-Erkennung auch für Fußgänger-Verfolgungen zu
+aktivieren, oder `RoadBlockDetector.isRoadAt(...)`/`getBlockStateFromWorld(...)`
+(die client-only Overloads) direkt aus server-seitigem Code aufzurufen.

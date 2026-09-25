@@ -6,6 +6,21 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.14-beta] - 2026-09-25
+
+### Added — Road detection for vehicle roadblocks only
+Per user correction, roadblocks now check the ground block against
+`RoadBlockDetector.isRoadBlock(...)` before placing, but only when the fleeing player
+is in a vehicle — a pedestrian isn't confined to roads, so a roadblock placed "in the
+open" still makes sense there, while a roadblock off-road during a car chase would just
+be driven around. New `PoliceAIHandler.isOnRoad(ServerLevel, BlockPos)` checks the block
+below the computed position; deliberately uses only `RoadBlockDetector`'s config-based
+`isRoadBlock(Block)`/`isRoadBlock(BlockState)` overloads, never `isRoadAt(...)` or its
+private `getBlockStateFromWorld(...)`, since those call `Minecraft.getInstance()` and
+would crash on a dedicated server if invoked from this server-side AI code.
+
+---
+
 ## [3.9.13-beta] - 2026-09-25
 
 ### Added — Police roadblock trigger wired up (backlog #1)
