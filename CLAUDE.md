@@ -1013,3 +1013,55 @@ Code-Zuwachs seit diesem Datum, und nicht ohne die 20 gefilterten
 `@Mod.EventBusSubscriber`/`@SubscribeEvent`-Klassen erneut zu prüfen, falls die
 Vollständigkeit dieses Scans in Frage steht — die wurden aus Zeitgründen nur pauschal
 per Annotation ausgeschlossen, nicht einzeln funktional verifiziert.
+
+### `util/`-Infrastruktur-Cluster ENTFERNT nach Nutzenanalyse (2026-09-25, Teil 10)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen, diese Klassen wiederherzustellen
+
+Die in Teil 9 zurückgestellten 6 Dateien (`CircuitBreaker`, `ServiceRegistry`,
+`PerformanceMonitor`, `HotReloadableConfig`, `TickThrottler`, `VersionedData`, 1.456
+Zeilen) wurden auf Nutzerwunsch einzeln gegen den echten Code verifiziert, ob sie eine
+**aktuell bestehende** Lücke schließen — nicht nur, ob sie 0 Aufrufer haben:
+
+- **`TickThrottler`** zitiert `PlantPotBlockEntity` als Beleg — diese Klasse hat aber
+  bereits ihr eigenes, handgeschriebenes `tickCounter`/Intervall-Muster (Zeile 34-59).
+  Dasselbe Muster existiert unverändert in Dutzenden weiterer BlockEntities. Einbetten
+  würde nichts reparieren, nur eine breite Dedupliziierungs-Refaktorierung auslösen.
+- **`ServiceRegistry`** würde das bestehende, vollständig funktionierende
+  Manager-Initialisierungssystem (30+ Manager, geordnet in
+  `ScheduleMC.onServerStarted()`, sauberes Shutdown über `IncrementalSaveManager`)
+  ersetzen — ohne neue Fähigkeit zu gewinnen, nur ein anderes Architekturmuster für
+  etwas bereits Funktionierendes.
+- **`PerformanceMonitor`** hat kein Ziel: keine Stelle im Code misst aktuell
+  Operationszeiten; `HealthCheckManager` (real, bereits existierend) deckt einen
+  anderen Zweck ab (Zustandsprüfung, keine Zeitmessung).
+- **`HotReloadableConfig<T>`** zielt auf JSON-Config-Dateien mit `WatchService`. Die
+  echte Konfiguration läuft komplett über Forges `ForgeConfigSpec` (TOML) — **Forge
+  bringt Hot-Reload dafür bereits eingebaut mit** (`ModConfigEvent.Reloading`). Keine
+  JSON-Config-Datei im Repo würde dieses Format überhaupt nutzen.
+- **`CircuitBreaker`** schützt vor wiederholten Aufrufen unzuverlässiger externer
+  Abhängigkeiten. Im gesamten Repo gibt es genau einen externen Netzwerkaufruf
+  (`VersionChecker.java`) — ein einmaliger Check beim Serverstart mit bereits eigenem
+  try/catch, kein wiederholter Hot-Path, für den ein Circuit-Breaker Sinn ergäbe.
+- **`VersionedData`** (Datenmigration bei Speicherformat-Änderungen) widerspricht der
+  bereits getroffenen Architekturentscheidung oben ("Sprachkonvention", 2026-06-10):
+  *"Keine Rückwärtskompatibilität nötig — die Mod ist in Entwicklung."* Kein Manager hat
+  aktuell einen echten Migrationsbedarf.
+
+**Ergebnis:** Bei keiner der 6 Dateien existiert eine aktuelle, echte Lücke im Code, die
+sie schließen würde — alle sind durchdacht dokumentierte, aber rein spekulative
+Infrastruktur nach demselben Muster wie fast jeder Fund dieser Session. Gelöscht.
+
+**Nachfolgender repo-weiter Re-Scan (gleiche Methode wie Teil 9):** Keine neuen
+Kandidaten gefunden — die verbleibenden 23 Klassen mit 0 externen Referenzen sind exakt
+die bereits bekannten: die 20 `@Mod.EventBusSubscriber`/`@SubscribeEvent`-Klassen (real,
+Forge-Fehlalarm) sowie `RedemptionQuestManager`/`WantedListSyncPacket` (bereits
+dokumentiert, Entscheidung offen).
+
+**Gesamtbilanz des Aufräum-Durchlaufs (Teil 4 bis Teil 10, dieser durchgehenden
+Session):** 42 Dateien vollständig gelöscht, **8.026 Zeilen** entfernter Code (36 Dateien
+/ 6.570 Zeilen in den zuvor dokumentierten Commits, plus diese 6 Dateien / 1.456 Zeilen).
+Dazu kommen die parallel dokumentierten *Einbau*-Fixes (WarehouseMarketBridge,
+PriceModifier, BatchTransactionManager, CompanionBehavior, TutorialManager-Lebenszyklus,
+CrimeEventHandler-Vandalismus/Trespassing), die eigenständig gezählt werden, da sie
+Code hinzufügen statt entfernen.

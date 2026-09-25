@@ -6,6 +6,31 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.10-beta] - 2026-09-25
+
+### Removed — the deferred util/ infrastructure cluster, after a use-case analysis
+The 6 files held back in 3.9.9-beta (`CircuitBreaker`, `ServiceRegistry`,
+`PerformanceMonitor`, `HotReloadableConfig`, `TickThrottler`, `VersionedData`, 1,456
+lines) were checked one by one against the actual codebase for a genuine, currently
+unmet need rather than just zero-caller status: `TickThrottler`'s own cited example
+(`PlantPotBlockEntity`) already hand-rolls the same throttling it would provide;
+`ServiceRegistry` would replace an already-working manager-lifecycle system with no new
+capability; `PerformanceMonitor` has no operation-timing call site anywhere to attach to;
+`HotReloadableConfig` targets JSON files, but the mod's real config is Forge's
+`ForgeConfigSpec`, which already hot-reloads; `CircuitBreaker`'s only plausible target
+(the mod's one external HTTP call, a one-shot startup version check) isn't a repeated
+call a circuit breaker would protect; `VersionedData` contradicts the project's own
+stated "no backward compatibility needed, still in development" stance. None had an
+active gap to fill. A follow-up repo-wide re-scan (same method as before) found nothing
+new — the remaining zero-reference classes are the already-known Forge-auto-registered
+handlers and the two still-open decisions (`RedemptionQuestManager`,
+`WantedListSyncPacket`).
+
+**Running total for this cleanup arc (3.9.6-beta through 3.9.10-beta): 42 files, 8,026
+lines of dead code removed.**
+
+---
+
 ## [3.9.9-beta] - 2026-09-25
 
 ### Removed — a fresh repo-wide orphan scan found 19 more dead files
