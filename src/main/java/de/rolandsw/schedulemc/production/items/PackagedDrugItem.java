@@ -18,6 +18,7 @@ import de.rolandsw.schedulemc.coca.CocaType;
 import de.rolandsw.schedulemc.coca.CrackQuality;
 import de.rolandsw.schedulemc.poppy.PoppyType;
 import de.rolandsw.schedulemc.meth.MethQuality;
+import de.rolandsw.schedulemc.meth.MethVariant;
 import de.rolandsw.schedulemc.mushroom.MushroomType;
 import de.rolandsw.schedulemc.cannabis.CannabisQuality;
 import de.rolandsw.schedulemc.cannabis.CannabisStrain;
@@ -226,6 +227,26 @@ public class PackagedDrugItem extends Item {
         }
     }
 
+    /**
+     * Löst den {@link ProductionType} für ein verpacktes Drogen-Item auf.
+     *
+     * Meth-Sonderfall: Meth hat keine Sorten-NBT ("Variant" bleibt leer, siehe
+     * {@link #parseVariant(String)}), sondern nur eine Reinheits-Qualität ({@link MethQuality}) -
+     * diese bestimmt stattdessen direkt, welches der 3 {@link MethVariant}-Produkte gilt.
+     * Für alle anderen Drogentypen wird ganz normal die Sorten-NBT geparst.
+     */
+    @Nullable
+    public static ProductionType resolveVariant(DrugType drugType, ItemStack stack) {
+        if (drugType == DrugType.METH) {
+            ProductionQuality quality = parseQuality(getQuality(stack));
+            if (quality instanceof MethQuality methQuality) {
+                return MethVariant.fromQuality(methQuality);
+            }
+            return null;
+        }
+        return parseVariant(getVariant(stack));
+    }
+
     // ═══════════════════════════════════════════════════════════
     // PRICE CALCULATION
     // ═══════════════════════════════════════════════════════════
@@ -240,7 +261,7 @@ public class PackagedDrugItem extends Item {
      * - Kokain: 2.00 - 3.50€/g (Bolivianisch bis Kolumbianisch)
      * - Crack: 2.00 - 3.50€/g (gleiche Varianten wie Kokain)
      * - Heroin: 2.00 - 5.00€/g (Indisch bis Afghanisch)
-     * - Meth: 3.00€/g (keine Varianten)
+     * - Meth: 2.00 - 5.00€/g (Standard bis Blue Sky, aus Qualität abgeleitet, siehe MethVariant)
      * - Pilze: 2.00 - 6.00€/g (Mexicana bis Azurescens)
      * - Cannabis: 2.00 - 3.50€/g (Autoflower bis Hybrid)
      */
@@ -248,7 +269,7 @@ public class PackagedDrugItem extends Item {
         DrugType drugType = getDrugType(stack);
         int weight = getWeight(stack);
         ProductionQuality quality = parseQuality(getQuality(stack));
-        ProductionType variant = parseVariant(getVariant(stack));
+        ProductionType variant = resolveVariant(drugType, stack);
 
         // Dynamische Preisberechnung über EconomyController
         if (variant != null) {

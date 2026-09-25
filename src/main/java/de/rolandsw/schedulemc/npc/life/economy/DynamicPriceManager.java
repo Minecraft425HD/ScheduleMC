@@ -80,6 +80,16 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     /** Bandbreite der zufälligen Preisschwankung (10%) */
     static final float PRICE_VARIANCE_RANGE = 0.1f;
 
+    /**
+     * Anzahl Minecraft-Tage, über die der tatsächlich für Item-/Produkt-Preise genutzte
+     * S&D-Multiplikator geglättet wird (gleitender Durchschnitt). Der rohe S&D-Wert wird
+     * weiterhin laufend aktualisiert (Supply/Demand ändern sich sofort bei jedem Kauf/Verkauf),
+     * aber der EFFEKTIVE, für Preise genutzte Multiplikator wird nur 1x pro Minecraft-Tag
+     * (bei Tageswechsel) neu in dieses Fenster eingerollt — spürbare, aber gedämpfte Bewegung
+     * statt sofortiger Preissprünge bei jeder einzelnen Transaktion.
+     */
+    private static final int PRICE_SMOOTHING_WINDOW_DAYS = 7;
+
     // ═══════════════════════════════════════════════════════════
     // DATA
     // ═══════════════════════════════════════════════════════════
@@ -118,6 +128,14 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
      * hatte keinen Aufrufer) — jetzt der einzige S&D-Speicher im gesamten Mod.
      */
     private final Map<String, ProductMarketState> productMarketData = new ConcurrentHashMap<>();
+
+    /**
+     * Item -> geglätteter (7-Minecraft-Tage-Durchschnitt) Preismultiplikator, nur 1x pro
+     * Minecraft-Tag aktualisiert. Das Gegenstück für {@link #productMarketData} trägt seine
+     * Glättungsdaten direkt in {@link ProductMarketState}, da es dort ohnehin schon ein
+     * eigenes, pro Produkt persistiertes Objekt gibt.
+     */
+    private final Map<Item, PriceSmoothingState> itemPriceSmoothing = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
@@ -176,6 +194,9 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     private void onDayChange(long currentDay, ServerLevel level) {
         // Saison aktualisieren (Serene Seasons falls installiert, sonst Spieltage-Zyklus)
         SeasonalPriceModifier.getInstance().updateSeason(currentDay, level);
+
+        // Item-/Produkt-Preise: 1x/Tag neu in den 7-Tage-Gleitdurchschnitt einrollen
+        updatePriceSmoothingSnapshots();
 
         // Snapshot speichern
         savePriceSnapshot(currentDay);
@@ -421,14 +442,33 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     }
 
     /**
-     * Gibt den aktuellen Preismultiplikator für ein Item zurück (S&D × saisonaler Modifikator,
-     * 1.0 = neutral, z.B. wenn Dynamic Pricing deaktiviert ist oder das Item nicht registriert wurde).
+     * Gibt den tatsächlich für Preise genutzten Multiplikator für ein Item zurück (S&D ×
+     * saisonaler Modifikator, geglättet über {@link #PRICE_SMOOTHING_WINDOW_DAYS}
+     * Minecraft-Tage). 1.0 = neutral, z.B. wenn Dynamic Pricing deaktiviert ist oder das Item
+     * nicht registriert wurde. Wird nur 1x pro Minecraft-Tag neu berechnet (siehe
+     * {@link #onDayChange}) — bei der allerersten Abfrage eines frisch registrierten Items wird
+     * einmalig sofort mit dem aktuellen Rohwert geseedet, damit es nicht bis zum nächsten
+     * Tageswechsel künstlich neutral bepreist bleibt.
      */
     public double getItemPriceMultiplier(Item item) {
         if (!ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) return 1.0;
         MarketData data = itemMarketData.get(item);
         if (data == null) return 1.0;
 
+        PriceSmoothingState smoothing = itemPriceSmoothing.computeIfAbsent(item, k -> new PriceSmoothingState());
+        if (smoothing.history.isEmpty()) {
+            smoothing.effectiveMultiplier = recordAndAverage(smoothing.history, computeRawItemMultiplier(item, data));
+            markDirty();
+        }
+        return smoothing.effectiveMultiplier;
+    }
+
+    /**
+     * Berechnet den rohen, unverzögerten Preismultiplikator für ein Item (S&D × Saison,
+     * geclampt). Wird sowohl beim Seeden eines neuen Items als auch beim täglichen
+     * Glättungs-Update ({@link #updatePriceSmoothingSnapshots()}) verwendet.
+     */
+    private double computeRawItemMultiplier(Item item, MarketData data) {
         double multiplier = data.getPriceMultiplier();
 
         String seasonalCategory = itemSeasonalCategory.get(item);
@@ -508,15 +548,28 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Gibt den aktuellen S&D-Preismultiplikator für ein Produkt zurück (1.0 = neutral,
-     * z.B. wenn Dynamic Pricing deaktiviert ist oder das Produkt noch keine Verkäufe/Käufe hatte).
-     * Nutzt dieselbe Ratio^Faktor-Formel wie {@link MarketData#getPriceMultiplier()}.
+     * Gibt den tatsächlich für Preise genutzten Multiplikator für ein Produkt zurück, geglättet
+     * über {@link #PRICE_SMOOTHING_WINDOW_DAYS} Minecraft-Tage (1.0 = neutral, z.B. wenn Dynamic
+     * Pricing deaktiviert ist oder das Produkt noch keine Verkäufe/Käufe hatte). Siehe
+     * {@link #getItemPriceMultiplier(Item)} für dasselbe Prinzip auf Item-Ebene.
      */
     public double getProductPriceMultiplier(String productId) {
         if (!ModConfigHandler.COMMON.DYNAMIC_PRICING_ENABLED.get()) return 1.0;
         ProductMarketState state = productMarketData.get(productId);
         if (state == null) return 1.0;
 
+        if (state.multiplierHistory.isEmpty()) {
+            state.effectiveMultiplier = recordAndAverage(state.multiplierHistory, computeRawProductMultiplier(state));
+            markDirty();
+        }
+        return state.effectiveMultiplier;
+    }
+
+    /**
+     * Berechnet den rohen, unverzögerten S&D-Preismultiplikator für ein Produkt (geclampt).
+     * Nutzt dieselbe Ratio^Faktor-Formel wie {@link MarketData#getPriceMultiplier()}.
+     */
+    private double computeRawProductMultiplier(ProductMarketState state) {
         double sdFactor = ModConfigHandler.COMMON.DYNAMIC_PRICING_SD_FACTOR.get();
         double minMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MIN_MULTIPLIER.get();
         double maxMult = ModConfigHandler.COMMON.DYNAMIC_PRICING_MAX_MULTIPLIER.get();
@@ -563,6 +616,53 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
     public static class ProductMarketState {
         public int supply = 100;
         public int demand = 100;
+        /** Letzte bis zu {@link #PRICE_SMOOTHING_WINDOW_DAYS} täglichen Roh-Multiplikatoren. */
+        public List<Double> multiplierHistory = new ArrayList<>();
+        /** Zuletzt berechneter, geglätteter (7-Tage-Ø) Multiplikator — das ist der genutzte Preis. */
+        public double effectiveMultiplier = 1.0;
+    }
+
+    /** Geglätteter Preiszustand eines einzelnen Items (Gegenstück zu {@link ProductMarketState}). */
+    public static class PriceSmoothingState {
+        public final List<Double> history = new ArrayList<>();
+        public double effectiveMultiplier = 1.0;
+    }
+
+    /**
+     * Rollt {@code rawValue} in {@code history} ein (FIFO, max. {@link #PRICE_SMOOTHING_WINDOW_DAYS}
+     * Einträge) und gibt den neuen arithmetischen Durchschnitt zurück. Das ist der "gleitende
+     * 7-Minecraft-Tage-Durchschnitt", der Preisbewegung spürbar, aber gedämpft macht.
+     */
+    private static double recordAndAverage(List<Double> history, double rawValue) {
+        history.add(rawValue);
+        while (history.size() > PRICE_SMOOTHING_WINDOW_DAYS) {
+            history.remove(0);
+        }
+        double sum = 0;
+        for (double v : history) {
+            sum += v;
+        }
+        return sum / history.size();
+    }
+
+    /**
+     * Läuft 1x pro Minecraft-Tag (aus {@link #onDayChange}): berechnet für jedes registrierte
+     * Item/Produkt den aktuellen Rohmultiplikator und rollt ihn in den 7-Tage-Gleitdurchschnitt
+     * ein. Der dadurch aktualisierte {@code effectiveMultiplier} ist das, was
+     * {@link #getItemPriceMultiplier(Item)}/{@link #getProductPriceMultiplier(String)}
+     * tatsächlich zurückgeben — Käufe/Verkäufe ändern weiterhin sofort Supply/Demand, wirken
+     * sich auf den genutzten Preis aber erst beim nächsten Tageswechsel aus, und dann nur
+     * anteilig (1 von {@link #PRICE_SMOOTHING_WINDOW_DAYS} Tageswerten).
+     */
+    private void updatePriceSmoothingSnapshots() {
+        for (Map.Entry<Item, MarketData> entry : itemMarketData.entrySet()) {
+            PriceSmoothingState smoothing = itemPriceSmoothing.computeIfAbsent(entry.getKey(), k -> new PriceSmoothingState());
+            smoothing.effectiveMultiplier = recordAndAverage(smoothing.history,
+                    computeRawItemMultiplier(entry.getKey(), entry.getValue()));
+        }
+        for (ProductMarketState state : productMarketData.values()) {
+            state.effectiveMultiplier = recordAndAverage(state.multiplierHistory, computeRawProductMultiplier(state));
+        }
     }
 
     public MarketStatistics getItemMarketStatistics() {
@@ -901,6 +1001,46 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
             }
         }
 
+        // Validate and load item price smoothing (7-Minecraft-Tage-Gleitdurchschnitt)
+        itemPriceSmoothing.clear();
+        if (data.itemPriceSmoothing != null) {
+            if (data.itemPriceSmoothing.size() > 10000) {
+                LOGGER.warn("Item price smoothing size ({}) exceeds limit, potential corruption",
+                    data.itemPriceSmoothing.size());
+                correctedCount++;
+            }
+
+            for (SerializedItemSmoothing serialized : data.itemPriceSmoothing) {
+                try {
+                    if (serialized == null || serialized.itemId == null) {
+                        invalidCount++;
+                        continue;
+                    }
+                    ResourceLocation itemId = ResourceLocation.parse(serialized.itemId);
+                    Item item = BuiltInRegistries.ITEM.get(itemId);
+                    if (item == null || item == net.minecraft.world.item.Items.AIR) {
+                        invalidCount++;
+                        continue;
+                    }
+
+                    PriceSmoothingState smoothing = new PriceSmoothingState();
+                    if (serialized.history != null) {
+                        for (Double v : serialized.history) {
+                            if (v != null) smoothing.history.add(v);
+                        }
+                        while (smoothing.history.size() > PRICE_SMOOTHING_WINDOW_DAYS) {
+                            smoothing.history.remove(0);
+                        }
+                    }
+                    smoothing.effectiveMultiplier = smoothing.history.isEmpty() ? 1.0 : serialized.effectiveMultiplier;
+                    itemPriceSmoothing.put(item, smoothing);
+                } catch (Exception e) {
+                    LOGGER.error("Error loading item price smoothing", e);
+                    invalidCount++;
+                }
+            }
+        }
+
         // Validate and load product market data (Supply&Demand, ehemals EconomyController.marketDataMap)
         productMarketData.clear();
         if (data.productMarketData != null) {
@@ -921,6 +1061,15 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
                     ProductMarketState clean = new ProductMarketState();
                     clean.supply = Math.max(1, state.supply);
                     clean.demand = Math.max(1, state.demand);
+                    if (state.multiplierHistory != null) {
+                        for (Double v : state.multiplierHistory) {
+                            if (v != null) clean.multiplierHistory.add(v);
+                        }
+                        while (clean.multiplierHistory.size() > PRICE_SMOOTHING_WINDOW_DAYS) {
+                            clean.multiplierHistory.remove(0);
+                        }
+                    }
+                    clean.effectiveMultiplier = clean.multiplierHistory.isEmpty() ? 1.0 : state.effectiveMultiplier;
                     productMarketData.put(productId, clean);
                 } catch (Exception e) {
                     LOGGER.error("Error loading product market data for {}", entry.getKey(), e);
@@ -960,6 +1109,16 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         }
 
         data.productMarketData = new HashMap<>(productMarketData);
+
+        data.itemPriceSmoothing = new ArrayList<>();
+        for (Map.Entry<Item, PriceSmoothingState> entry : itemPriceSmoothing.entrySet()) {
+            ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(entry.getKey());
+            if (itemId == null) continue;
+            PriceSmoothingState smoothing = entry.getValue();
+            data.itemPriceSmoothing.add(new SerializedItemSmoothing(
+                itemId.toString(), new ArrayList<>(smoothing.history), smoothing.effectiveMultiplier
+            ));
+        }
         return data;
     }
 
@@ -982,6 +1141,7 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         priceHistory.clear();
         itemMarketData.clear();
         productMarketData.clear();
+        itemPriceSmoothing.clear();
         lastKnownDay = -1;
     }
 
@@ -997,6 +1157,24 @@ public class DynamicPriceManager extends AbstractPersistenceManager<DynamicPrice
         public List<PriceSnapshot> priceHistory;
         public List<SerializedItemMarketData> itemMarketData;
         public Map<String, ProductMarketState> productMarketData;
+        public List<SerializedItemSmoothing> itemPriceSmoothing;
+    }
+
+    /**
+     * Serialisierbarer Preisglättungs-Zustand eines Items (Item als ResourceLocation-String).
+     */
+    public static class SerializedItemSmoothing {
+        public String itemId;
+        public List<Double> history;
+        public double effectiveMultiplier;
+
+        public SerializedItemSmoothing() {}
+
+        public SerializedItemSmoothing(String itemId, List<Double> history, double effectiveMultiplier) {
+            this.itemId = itemId;
+            this.history = history;
+            this.effectiveMultiplier = effectiveMultiplier;
+        }
     }
 
     /**

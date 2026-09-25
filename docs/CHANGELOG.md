@@ -6,6 +6,35 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.3-beta] - 2026-09-25
+
+### Added — Meth now has 3 separately-priced purity variants
+Meth previously used a single flat fallback price regardless of purity, because it has no
+strain/variety NBT the way cannabis/tobacco/coca/poppy do — `PackagedDrugItem.parseVariant()`
+always returned `null` for it, so it never got a UDPS product id (dead code path noted in the
+previous release). New `meth/MethVariant.java` (`STANDARD`/`GOOD`/`BLUE_SKY`, base prices
+30/50/80€, its own S&D-tracked UDPS product) is derived from `MethQuality` instead of a
+missing variant tag (`MethVariant.fromQuality()`: POOR+GOOD→STANDARD, VERY_GOOD→GOOD,
+LEGENDARY→BLUE_SKY). `PackagedDrugItem.resolveVariant(DrugType, ItemStack)` picks the right
+resolution strategy per drug type and is now used by both the tooltip price preview and the
+real `NegotiationPacket` sale-completion path. Renamed the pre-existing German product key
+`METH_GUT` to `METH_GOOD` everywhere (`EconomyController`, `ModConfigHandler` config defaults,
+`EconomyPricesConfigScreen`).
+
+### Changed — Prices now recalculate once per Minecraft day, smoothed over a 7-day average
+Previously, `DynamicPriceManager.getItemPriceMultiplier()`/`getProductPriceMultiplier()`
+recomputed the live supply/demand multiplier on every single price query, so one large
+transaction could swing the price all the way to its configured bound instantly. The
+underlying supply/demand accumulation is unchanged (still updates immediately on every
+purchase/sale, still decays on the existing `update_interval_minutes` cadence) — but the
+multiplier actually used for pricing is now a rolling 7-Minecraft-day average, recalculated
+once per day at day-rollover. A single day's spike now only shifts the used price by roughly
+1/7; sustained pressure over several days still clearly moves it. New per-item
+(`DynamicPriceManager.PriceSmoothingState`) and per-product (`ProductMarketState`'s new
+`multiplierHistory`/`effectiveMultiplier` fields) history, persisted so it survives restarts.
+`/market prices|trends|stats|top` intentionally still shows the raw, live-updating S&D data
+for admin/diagnostic visibility — only the price actually charged is smoothed.
+
 ## [3.9.2-beta] - 2026-09-25
 
 ### Fixed — Drug-deal sales never triggered XP, economy tracking, or S&D updates

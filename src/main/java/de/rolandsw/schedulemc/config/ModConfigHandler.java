@@ -1099,7 +1099,7 @@ public class ModConfigHandler {
                     // Heroin (Mohn)
                     "POPPY_INDIAN=20.0", "POPPY_TURKISH=35.0", "POPPY_AFGHAN=55.0",
                     // Meth
-                    "METH_STANDARD=30.0", "METH_GUT=50.0", "METH_BLUE_SKY=80.0",
+                    "METH_STANDARD=30.0", "METH_GOOD=50.0", "METH_BLUE_SKY=80.0",
                     // MDMA
                     "MDMA_SCHLECHT=8.0", "MDMA_STANDARD=18.0",
                     "MDMA_GUT=30.0", "MDMA_PREMIUM=50.0",

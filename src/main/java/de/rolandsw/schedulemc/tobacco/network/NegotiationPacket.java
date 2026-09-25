@@ -248,7 +248,7 @@ public class NegotiationPacket {
                 // Der Preis wurde bereits über die Verhandlung festgelegt/bezahlt - hier wird nur
                 // noch der Verkauf ins zentrale Preissystem gemeldet, es wird nichts neu berechnet.
                 de.rolandsw.schedulemc.production.core.ProductionType soldVariant =
-                        PackagedDrugItem.parseVariant(variantStr);
+                        PackagedDrugItem.resolveVariant(drugType, playerItem);
                 if (soldVariant != null) {
                     de.rolandsw.schedulemc.production.core.ProductionQuality soldQuality =
                             PackagedDrugItem.parseQuality(qualityStr);

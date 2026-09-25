@@ -62,7 +62,7 @@ public class EconomyPricesConfigScreen extends Screen {
         // METH
         {null, "§b", "gui.economy_prices.cat.meth"},
         {"METH_STANDARD",      "enum.meth_quality.standard"},
-        {"METH_GUT",           "enum.meth_quality.good"},
+        {"METH_GOOD",          "enum.meth_quality.good"},
         {"METH_BLUE_SKY",      "enum.meth_quality.blue_sky"},
         // MDMA
         {null, "§d", "gui.economy_prices.cat.mdma"},

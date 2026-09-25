@@ -393,20 +393,90 @@ Produkt-Identifikation läuft über `PackagedDrugItem.parseVariant()` +
 korrekt funktionierende Infrastruktur — nur nie mit dem realen
 Verkaufsabschluss verknüpft).
 
-**Bekannte Lücke, bewusst nicht geraten:** `DrugType.METH` hat laut
-`PackagedDrugItem.parseVariant()`-Kommentar keine Sorten-Variante
-("Meth: keine Varianten") und wird von `parseVariant()` nicht auf einen
-`ProductionType` gemappt (gibt `null` zurück) — Meth-Verkäufe über
-`NegotiationPacket` lösen daher weiterhin **kein** S&D-Update/XP aus
-(`soldVariant == null` → Block wird übersprungen). Ein productId für Meth
-zu erraten (z. B. "METH_STANDARD") wäre unverifiziert gewesen. **Nicht
-vorschlagen**, dies durch Raten zu lösen — erst prüfen, ob/wie Meth-Sorten
-im Warenfluss überhaupt unterschieden werden, dann `parseVariant()` um
-einen echten `MethVariant`-Case erweitern, falls ein solcher Typ existiert
-oder sinnvoll wäre.
+**Update (2026-09-25, Teil 3): Meth-Lücke geschlossen.** Nutzer-Korrektur:
+Meth hat sehr wohl 3 unterschiedlich zu bepreisende Varianten — nur eben
+nicht als anbaubare Sorte (keine "Variant"-NBT), sondern als
+Reinheitsstufe. Neue Klasse `meth/MethVariant.java` (`implements
+ProductionType`, 3 Konstanten STANDARD/GOOD/BLUE_SKY, je eigener
+Basispreis 30/50/80€, `getProductId()` = "METH_STANDARD"/"METH_GOOD"/
+"METH_BLUE_SKY") mit `fromQuality(MethQuality)`-Mapping (POOR+GOOD→
+STANDARD, VERY_GOOD→GOOD, LEGENDARY→BLUE_SKY). `PackagedDrugItem` bekam
+eine neue `resolveVariant(DrugType, ItemStack)`-Methode, die für METH über
+die Qualität auflöst statt über die (bei Meth leere) Varianten-NBT, und für
+alle anderen Drogen wie bisher `parseVariant()` nutzt — verwendet jetzt von
+sowohl `PackagedDrugItem.calculatePrice()` (Tooltip) als auch
+`NegotiationPacket` (echter Verkaufsabschluss, siehe oben). Der alte,
+deutsche Produkt-Key `METH_GUT` wurde durchgängig zu `METH_GOOD`
+umbenannt (Sprachkonvention; betrifft `EconomyController
+.initializeReferencePrices()`, `ModConfigHandler.PRODUCT_PRICES`-Default
+und `EconomyPricesConfigScreen`). **Nicht vorschlagen**, diese Änderung
+rückgängig zu machen oder Meth wieder auf einen einzigen Fallback-Preis
+zu reduzieren.
 
 **Nicht vorschlagen**, `AntiExploitManager.checkAndGetMultiplier()`
 nachträglich in `recordCompletedSale()` einzubauen — dessen Vertrag ist,
 den Preis VOR der Auszahlung zu reduzieren; bei einem bereits ausgehandelten
 und bezahlten Verkauf (wie in `NegotiationPacket`) kann das nicht mehr
 rückwirkend greifen, ohne die Auszahlungslogik neu zu designen.
+
+---
+
+## Preisglättung: 1x/Minecraft-Tag, 7-Tage-Gleitdurchschnitt (2026-09-25, Teil 3)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Auslöser:** Nutzer-Anfrage: "der preis soll nur 1 mal pro minecraft Tag
+neu berechnet werden anhand der Lagerbestände ... es soll sich aber im
+Rahmen bewegen ... eher der Durchschnitt von 7 minecraft Tagen angepasst
+werden."
+
+**Problem vorher:** `getItemPriceMultiplier()`/`getProductPriceMultiplier()`
+berechneten den S&D-Multiplikator bei JEDER Preisabfrage live aus dem
+aktuellen Supply/Demand-Stand — ein einzelner großer Kauf konnte den Preis
+sofort und beliebig weit (bis zum konfigurierten Min/Max) springen lassen.
+
+**Lösung — "intelligente" Glättung statt reiner Drosselung:**
+Rohberechnung (S&D-Ratio^Faktor × Saison, wie bisher) bleibt unverändert
+und läuft weiterhin laufend (Supply/Demand ändern sich sofort bei jedem
+Kauf/Verkauf, `updateItemMarketData()`/`updateProductMarketData()` decayen
+weiterhin im `DYNAMIC_PRICING_UPDATE_INTERVAL_MINUTES`-Takt). NEU: der von
+`getItemPriceMultiplier()`/`getProductPriceMultiplier()` tatsächlich
+zurückgegebene (= für Preise genutzte) Wert ist ab jetzt ein **gleitender
+Durchschnitt der letzten 7 Minecraft-Tage** dieses Rohwerts
+(`PRICE_SMOOTHING_WINDOW_DAYS = 7`), der nur 1x pro Minecraft-Tag (bei
+Tageswechsel, `onDayChange()` → `updatePriceSmoothingSnapshots()`) neu
+berechnet wird. Ein einzelner Tag mit extremem Angebots-/Nachfrage-
+Ausschlag verschiebt den genutzten Preis dadurch nur um ca. 1/7 — spürbar,
+aber gedämpft; hält sich über mehrere Tage sustained Druck (z. B. andauernd
+niedriges Angebot) trotzdem klar durch, weil der Durchschnitt dann
+kontinuierlich in diese Richtung wandert.
+
+Implementiert über zwei kleine Speicherklassen: `DynamicPriceManager
+.PriceSmoothingState` (Item-Ebene, eigene `Map<Item, PriceSmoothingState>
+itemPriceSmoothing`) und `ProductMarketState` bekam die Felder
+`multiplierHistory`/`effectiveMultiplier` direkt dazu (da dort ohnehin
+schon ein persistiertes Objekt pro Produkt existiert). Gemeinsame Logik in
+der statischen Hilfsmethode `recordAndAverage(List<Double> history,
+double rawValue)` (FIFO-Deque-Verhalten über eine simple `List`, Cap bei 7
+Einträgen, gibt den neuen Mittelwert zurück). Bei der allerersten Abfrage
+eines frisch registrierten Items/Produkts (vor dem ersten Tageswechsel)
+wird einmalig sofort mit dem aktuellen Rohwert geseedet, damit neue Ware
+nicht bis zum nächsten Tag künstlich neutral (1.0) bepreist bleibt.
+Beide History-Listen werden vollständig persistiert (`SerializedItemSmoothing`
+in `DynamicPriceManagerData.itemPriceSmoothing`), überleben also
+Serverneustarts.
+
+**Bewusst unverändert gelassen:** `/market prices|trends|stats|top`
+(`getAllItemMarketData()`/`getCurrentItemPrice()`/`getPriceTrend()` etc.)
+zeigt weiterhin die ROHEN, live aktualisierten Supply/Demand-Werte — das
+ist die Admin-/Diagnose-Ansicht des tatsächlichen Marktzustands, nicht der
+geglättete Endkundenpreis. Nur der tatsächlich beim Kauf/Verkauf
+verrechnete Preis (`getItemPriceMultiplier()`/`getProductPriceMultiplier()`,
+genutzt von `PurchaseItemPacket`/`EconomyController.getSellPrice()`/
+`getBuyPrice()`) läuft durch die Glättung. **Nicht vorschlagen**, die
+Glättung auch auf die `/market`-Diagnoseausgabe anzuwenden — das würde die
+Fehlersuche/Balance-Beobachtung erschweren.
+
+**Nicht vorschlagen**, das 7-Tage-Fenster oder den Tages-Takt als neuen
+Config-Wert aufzubohren, ohne dass das explizit gewünscht wird — der
+Nutzer hat "7 Minecraft Tage" und "1x pro Tag" konkret benannt.

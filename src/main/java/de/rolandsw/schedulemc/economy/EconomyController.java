@@ -605,9 +605,9 @@ public class EconomyController {
         registerProduct("POPPY_TURKISH", 35.0, ItemCategory.HEROIN);
         registerProduct("POPPY_AFGHAN", 55.0, ItemCategory.HEROIN);
 
-        // ═══ METH ═══
+        // ═══ METH ═══ (3 Reinheitsstufen, siehe MethVariant)
         registerProduct("METH_STANDARD", 30.0, ItemCategory.METH);
-        registerProduct("METH_GUT", 50.0, ItemCategory.METH);
+        registerProduct("METH_GOOD", 50.0, ItemCategory.METH);
         registerProduct("METH_BLUE_SKY", 80.0, ItemCategory.METH);
 
         // ═══ MDMA ═══
