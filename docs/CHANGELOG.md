@@ -6,6 +6,19 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.8-beta] - 2026-09-25
+
+### Removed — ProductionEventManager, confirmed dead a second time
+Re-verified from scratch on explicit request ("is this in use?! research thoroughly") —
+zero callers anywhere (repo-wide search across all file types, not just `.java`; no
+`getInstance()` calls; no calls to any of its public API methods; no Forge auto-registration
+annotation; no reflection). Deleted `production/events/ProductionEventManager.java` (432
+lines) and the now-empty `production/events/` directory. Corrected a pre-existing, unrelated
+inaccuracy found along the way in `docs/CODE_VS_DOCS_ABGLEICH_2026-09-24.md` (falsely claimed
+this class used `SeasonalPriceModifier`, which it never did).
+
+---
+
 ## [3.9.7-beta] - 2026-09-25
 
 ### Removed — the dead parallel production framework, completely

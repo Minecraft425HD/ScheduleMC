@@ -880,33 +880,42 @@ gemeinsame Basisklasse für die 24 "illegalen" BlockEntities (analog zu
 `AbstractItemHandlerBlockEntity` für die legalen Waren) — nicht die Wiederbelebung dieses
 Frameworks.
 
-### Gefunden, NICHT umgesetzt (Entscheidung ausstehend): ProductionEventManager
+### ProductionEventManager ENTFERNT (2026-09-25, Teil 8)
 
-`production/events/ProductionEventManager.java` (432 Zeilen) — vollständiges
-Zufallsevent-System (8 Events: Polizeirazzia, Rekordernte, Chemieunfall,
-etc., je mit Ertrags-/Geschwindigkeits-/Preis-/Qualitäts-Modifikator), 0
-Aufrufer. `onDayChange(long, MinecraftServer)` ist exakt nach dem gleichen
-Muster gebaut wie `DynamicPriceManager.onDayChange()` (bereits diese Session
-verdrahtet) — der Trigger-Teil wäre also ein sicherer, verifizierter
-Quick-Win (Tageswechsel-Erkennung in `NPCLifeSystemIntegration.tick()`,
-analog zum bestehenden `priceManager.tick(level)`-Muster).
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen, diese Klasse wiederherzustellen
 
-**Warum trotzdem nicht umgesetzt:** Nur den Trigger zu verdrahten (Events
-starten/broadcasten) wäre ein hohler Fix wie bei `WantedListSyncPacket` —
-die Events hätten eine Chat-Nachricht, aber keine Spielwirkung, weil
-niemand `getCombinedYieldModifier()`/`getCombinedSpeedModifier()`/
-`getCombinedPriceModifier()`/`getCombinedQualityChange()` abfragt. Diese
-müssten in die tatsächliche Produktionslogik (Tick-Geschwindigkeit, Ertrag,
-Qualität in den echten `Abstract*BlockEntity`-Klassen) und in die
-Preisberechnung (`EconomyController`/`ProductionType.calculateDynamicPrice()`)
-einfließen — das sind Änderungen an der Kernschleife praktisch aller
-Produktionsblöcke im Spiel, mit echtem Balance-Risiko (z. B. `police_raid`
-setzt Ertrag/Geschwindigkeit auf 0.0 — ein Bug in der Integration würde
-serverweit ALLE Produktionen einfrieren). Zusätzlich offen: die
-`EventCategory.LEGAL`/`ILLEGAL`-Zuordnung pro Warengruppe existiert noch
-nirgends als verifizierbare Zuordnungstabelle. **Nicht vorschlagen**, dies
-ohne explizite Freigabe in die Kern-Tick-Schleife einzubauen — zu groß und
-zu risikoreich für einen Nebenbei-Fix.
+**Vorgeschichte:** In Teil 6 als "gefunden, nicht umgesetzt, Entscheidung ausstehend"
+gemeldet (vollständiges Zufallsevent-System, 8 Events wie Polizeirazzia/Rekordernte/
+Chemieunfall mit Ertrags-/Geschwindigkeits-/Preis-/Qualitäts-Modifikatoren, 0 Aufrufer).
+Auf explizite Nutzerfrage ("ist der productioneventmanager in nutzung?! gründlich
+recherchieren!") wurde die Nutzung ein zweites Mal, unabhängig von der ursprünglichen
+Meldung, vollständig neu verifiziert:
+
+- Repo-weite Textsuche (alle Dateitypen, nicht nur `.java`): der Klassenname taucht nur
+  in der eigenen Datei sowie in `CLAUDE.md`/`docs/CHANGELOG.md` (dieser eigenen
+  Dokumentation) und einem einzigen, bereits vor dieser Session bestehenden Audit-Dokument
+  (`docs/CODE_VS_DOCS_ABGLEICH_2026-09-24.md`) auf — dort mit einer nachweislich falschen
+  Behauptung ("wird von `SeasonalPriceModifier` genutzt"; die Klasse referenzierte
+  `SeasonalPriceModifier` an keiner Stelle), korrigiert.
+- `getInstance()`: 0 Aufrufe irgendwo im Code.
+- Alle öffentlichen API-Methoden (`onDayChange`, `getCombinedYieldModifier`,
+  `getCombinedSpeedModifier`, `getCombinedPriceModifier`, `getCombinedQualityChange`,
+  `isEventActive`, `getEventReport`, `getActiveEvents`): 0 Aufrufe. (Eine andere, echte
+  Klasse `WorldEventManager` hat zufällig gleichnamige Methoden — dort aber real verdrahtet
+  und aktiv genutzt von `NegotiationPacket`/`OpenMerchantShopPacket`/`PurchaseItemPacket`;
+  keine Verwechslungsgefahr im Code, nur bei reiner Methodennamen-Suche.)
+- Kein `@Mod.EventBusSubscriber`/`@SubscribeEvent` (schließt den bekannten
+  Forge-Auto-Registrierungs-Fehlalarm aus), keine Reflection-Nutzung, kein statischer
+  Initialisierungsblock.
+
+**Ergebnis:** zu 100 % bestätigt toter Code, keine neuen Erkenntnisse gegenüber Teil 6 —
+nur vollständigere Verifikation. `production/events/ProductionEventManager.java` (432
+Zeilen) gelöscht, das jetzt leere Verzeichnis `production/events/` mitentfernt. Keine
+Testdatei referenzierte die Klasse. Die im ursprünglichen Fund beschriebene
+Integrationsoption (Trigger via `onDayChange()` + Preis-Modifikator risikoarm, Ertrag/
+Geschwindigkeit/Qualität nur mit großem Aufwand über ~115 Produktions-BlockEntities
+riskant) bleibt als Referenz erhalten, falls das Feature künftig doch gewünscht und neu
+gebaut werden soll — aber nicht durch Wiederherstellung dieser Datei.
 
 ### Gefunden, NICHT umgesetzt (Entscheidung ausstehend): RedemptionQuestManager
 
