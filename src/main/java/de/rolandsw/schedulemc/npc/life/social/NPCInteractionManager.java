@@ -9,6 +9,7 @@ import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import de.rolandsw.schedulemc.util.GsonHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
@@ -24,8 +25,13 @@ import java.util.concurrent.ThreadLocalRandom;
  * - Handel zwischen NPCs
  * - Soziale Interaktionen (Gespräche, Grüße)
  * - Gerüchte verbreiten
+ * - Ambiente, automatische Interaktionen zwischen nahen NPCs samt langfristiger
+ *   NPC-zu-NPC-Beziehungswerte (siehe {@link #autoTriggerNearbyInteractions}) —
+ *   übernommen aus dem ehemals separaten, nie getickten
+ *   {@code NPCSocialInteractionManager} (siehe CLAUDE.md "NPCInteractionManager/
+ *   NPCSocialInteractionManager Merge").
  */
-public class NPCInteractionManager extends AbstractPersistenceManager<Map<String, Object>> {
+public class NPCInteractionManager extends AbstractPersistenceManager<NPCInteractionManager.InteractionManagerData> {
 
     // ═══════════════════════════════════════════════════════════
     // SINGLETON
@@ -82,6 +88,12 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
 
     /** Cooldowns: NPC UUID Pair -> Ticks until can interact again (TRANSIENT - nicht persistiert) */
     private final Map<String, Integer> interactionCooldowns = new ConcurrentHashMap<>();
+
+    /**
+     * Langfristige NPC-zu-NPC-Beziehungswerte (-100 bis 100), PERSISTIERT.
+     * NPC1-UUID -> NPC2-UUID -> Beziehungswert. Übernommen aus NPCSocialInteractionManager.
+     */
+    private final Map<UUID, Map<UUID, Integer>> npcRelations = new ConcurrentHashMap<>();
 
     // ═══════════════════════════════════════════════════════════
     // CONSTRUCTOR
@@ -368,33 +380,167 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
     }
 
     // ═══════════════════════════════════════════════════════════
+    // AMBIENT NPC-NPC RELATIONS (übernommen aus NPCSocialInteractionManager)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Gibt den Beziehungswert zwischen zwei NPCs zurück (-100 bis 100, 0 = neutral).
+     */
+    public int getRelation(UUID npc1, UUID npc2) {
+        Map<UUID, Integer> relations = npcRelations.get(npc1);
+        if (relations != null) {
+            Integer val = relations.get(npc2);
+            if (val != null) return val;
+        }
+        return 0;
+    }
+
+    /**
+     * Verändert den Beziehungswert zwischen zwei NPCs (bidirektional, geclampt auf -100..100).
+     */
+    public void modifyRelation(UUID npc1, UUID npc2, int change) {
+        applyRelationChange(npc1, npc2, change);
+        applyRelationChange(npc2, npc1, change);
+        markDirty();
+    }
+
+    private void applyRelationChange(UUID from, UUID to, int change) {
+        npcRelations.computeIfAbsent(from, k -> new ConcurrentHashMap<>())
+            .merge(to, change, (old, delta) -> Math.max(-100, Math.min(100, old + delta)));
+    }
+
+    /**
+     * Spieler schlichtet einen Streit zwischen zwei NPCs (verbessert die Beziehung).
+     *
+     * @return true wenn tatsächlich ein Streit vorlag (Beziehung war negativ)
+     */
+    public boolean mediateConflict(UUID npc1, UUID npc2) {
+        if (getRelation(npc1, npc2) >= 0) return false;
+        modifyRelation(npc1, npc2, 20);
+        return true;
+    }
+
+    /**
+     * Sucht alle NPC-Paare in Reichweite und löst pro Paar (falls {@link #canInteract} es
+     * erlaubt) eine zufällige, vom aktuellen Beziehungswert abhängige ambiente Interaktion aus
+     * (Begrüßung, Gespräch inkl. Gerüchte-Austausch, Handelsanbahnung, oder - bei schlechter
+     * Beziehung - ein Streit). Gedacht für einen gedrosselten Aufruf (z.B. alle 200 Ticks),
+     * NICHT jeden Tick - die Methode scannt alle NPCs der Level.
+     */
+    public void autoTriggerNearbyInteractions(ServerLevel level) {
+        List<CustomNPCEntity> npcs = level.getEntitiesOfClass(CustomNPCEntity.class,
+            new AABB(level.getWorldBorder().getMinX(), level.getMinBuildHeight(), level.getWorldBorder().getMinZ(),
+                     level.getWorldBorder().getMaxX(), level.getMaxBuildHeight(), level.getWorldBorder().getMaxZ()));
+
+        for (int i = 0; i < npcs.size(); i++) {
+            for (int j = i + 1; j < npcs.size(); j++) {
+                CustomNPCEntity npc1 = npcs.get(i);
+                CustomNPCEntity npc2 = npcs.get(j);
+
+                if (npc1.distanceTo(npc2) > INTERACTION_RANGE) continue;
+                if (!canInteract(npc1, npc2)) continue;
+
+                triggerAmbientInteraction(npc1, npc2, level);
+            }
+        }
+    }
+
+    private void triggerAmbientInteraction(CustomNPCEntity npc1, CustomNPCEntity npc2, ServerLevel level) {
+        UUID id1 = npc1.getNpcData().getNpcUUID();
+        UUID id2 = npc2.getNpcData().getNpcUUID();
+        int relation = getRelation(id1, id2);
+        ThreadLocalRandom rng = ThreadLocalRandom.current();
+
+        if (relation > 30) {
+            // Gute Beziehung: meist Gespräch, manchmal Handel
+            if (rng.nextFloat() < 0.7f) {
+                converse(npc1, npc2, level);
+            } else {
+                initiateNPCTrade(npc1, npc2);
+            }
+            modifyRelation(id1, id2, 5);
+        } else if (relation < -30) {
+            // Schlechte Beziehung: meist Streit (keine Kontext-Warnung möglich, daher nur Beziehungsabbau),
+            // manchmal doch eine (kurze) Begrüßung
+            if (rng.nextFloat() < 0.6f) {
+                modifyRelation(id1, id2, -3);
+                setCooldown(npc1, npc2);
+            } else {
+                greet(npc1, npc2);
+                modifyRelation(id1, id2, 1);
+            }
+        } else {
+            // Neutral: gemischt
+            float roll = rng.nextFloat();
+            if (roll < 0.4f) {
+                greet(npc1, npc2);
+                modifyRelation(id1, id2, 1);
+            } else if (roll < 0.7f) {
+                converse(npc1, npc2, level);
+                modifyRelation(id1, id2, 2);
+            } else {
+                initiateNPCTrade(npc1, npc2);
+                modifyRelation(id1, id2, 5);
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // ABSTRACT PERSISTENCE MANAGER IMPLEMENTATION
     // ═══════════════════════════════════════════════════════════
 
     @Override
     protected Type getDataType() {
-        return new TypeToken<Map<String, Object>>(){}.getType();
+        return new TypeToken<InteractionManagerData>(){}.getType();
     }
 
     @Override
-    protected void onDataLoaded(Map<String, Object> data) {
-        // Keine persistenten Daten - aktive Interaktionen und Cooldowns
-        // werden bei Level-Load automatisch zurückgesetzt
+    protected void onDataLoaded(InteractionManagerData data) {
+        // Aktive Interaktionen und Cooldowns werden bei Level-Load bewusst zurückgesetzt
+        // (transient, ergeben nach einem Neustart keinen Sinn mehr).
         activeInteractions.clear();
         interactionCooldowns.clear();
+        npcRelations.clear();
 
         int invalidCount = 0;
         int correctedCount = 0;
 
-        // NULL CHECK
-        if (data == null) {
-            LOGGER.warn("Null data loaded, using defaults");
-            invalidCount++;
-        } else if (!data.isEmpty()) {
-            // If data is not empty, log a warning since we don't persist data
-            LOGGER.warn("Unexpected data loaded ({}), ignoring - no persistent data expected",
-                data.size());
-            correctedCount++;
+        if (data == null || data.npcRelations == null) {
+            if (data == null) {
+                LOGGER.warn("Null data loaded, using defaults");
+                invalidCount++;
+            }
+        } else {
+            if (data.npcRelations.size() > 10000) {
+                LOGGER.warn("NPC relation map size ({}) exceeds limit, potential corruption",
+                    data.npcRelations.size());
+                correctedCount++;
+            }
+            for (Map.Entry<String, Map<String, Integer>> outer : data.npcRelations.entrySet()) {
+                UUID npc1;
+                try {
+                    npc1 = UUID.fromString(outer.getKey());
+                } catch (IllegalArgumentException e) {
+                    invalidCount++;
+                    continue;
+                }
+                Map<UUID, Integer> inner = new ConcurrentHashMap<>();
+                if (outer.getValue() != null) {
+                    for (Map.Entry<String, Integer> entry : outer.getValue().entrySet()) {
+                        try {
+                            UUID npc2 = UUID.fromString(entry.getKey());
+                            if (entry.getValue() == null) {
+                                invalidCount++;
+                                continue;
+                            }
+                            inner.put(npc2, Math.max(-100, Math.min(100, entry.getValue())));
+                        } catch (IllegalArgumentException e) {
+                            invalidCount++;
+                        }
+                    }
+                }
+                npcRelations.put(npc1, inner);
+            }
         }
 
         // SUMMARY
@@ -408,9 +554,17 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
     }
 
     @Override
-    protected Map<String, Object> getCurrentData() {
-        // Keine persistenten Daten
-        return new HashMap<>();
+    protected InteractionManagerData getCurrentData() {
+        InteractionManagerData data = new InteractionManagerData();
+        data.npcRelations = new HashMap<>();
+        for (Map.Entry<UUID, Map<UUID, Integer>> outer : npcRelations.entrySet()) {
+            Map<String, Integer> inner = new HashMap<>();
+            for (Map.Entry<UUID, Integer> entry : outer.getValue().entrySet()) {
+                inner.put(entry.getKey().toString(), entry.getValue());
+            }
+            data.npcRelations.put(outer.getKey().toString(), inner);
+        }
+        return data;
     }
 
     @Override
@@ -420,20 +574,29 @@ public class NPCInteractionManager extends AbstractPersistenceManager<Map<String
 
     @Override
     protected String getHealthDetails() {
-        return String.format("%d active, %d cooldowns",
-            activeInteractions.size(), interactionCooldowns.size());
+        return String.format("%d active, %d cooldowns, %d NPC relations tracked",
+            activeInteractions.size(), interactionCooldowns.size(), npcRelations.size());
     }
 
     @Override
     protected void onCriticalLoadFailure() {
         activeInteractions.clear();
         interactionCooldowns.clear();
+        npcRelations.clear();
     }
 
     @Override
     public String toString() {
-        return String.format("NPCInteractionManager{activeInteractions=%d, cooldowns=%d}",
-            activeInteractions.size(), interactionCooldowns.size());
+        return String.format("NPCInteractionManager{activeInteractions=%d, cooldowns=%d, relations=%d}",
+            activeInteractions.size(), interactionCooldowns.size(), npcRelations.size());
+    }
+
+    /**
+     * Serialisierbare Daten (nur die langfristigen NPC-zu-NPC-Beziehungswerte;
+     * aktive Interaktionen/Cooldowns sind bewusst transient).
+     */
+    public static class InteractionManagerData {
+        public Map<String, Map<String, Integer>> npcRelations;
     }
 
     // ═══════════════════════════════════════════════════════════

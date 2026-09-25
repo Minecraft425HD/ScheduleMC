@@ -6,6 +6,33 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.5-beta] - 2026-09-25
+
+### Changed — Merged NPCInteractionManager and NPCSocialInteractionManager
+Verified before merging (per explicit request) whether these were a simple duplicate or whether
+one side had more current features — found neither: `NPCInteractionManager` was ticked regularly
+but none of its rich action methods (`converse()`, `greet()`, `initiateNPCTrade()`) were ever
+triggered by anything; `NPCSocialInteractionManager` was a complete, self-contained NPC-relation
+simulator with real trigger logic, but was never ticked at all. Merged the trigger/scan logic
+(`autoTriggerNearbyInteractions()`) into `NPCInteractionManager`, wired it into
+`NPCLifeSystemIntegration.tick()` at a 200-tick (10s) cadence, and made the NPC-relation map
+(`npcRelations`) persisted (previously transient, lost on every restart). Deleted
+`NPCSocialInteractionManager.java` (208 lines, verified zero remaining references).
+
+### Added — Registered `CrimeRecordCommand`
+`/crimerecord <player> [evidence|clear]` was fully implemented but never registered with any
+command dispatcher. Now registered in `ScheduleMC.onRegisterCommands()`.
+
+### Investigated, not changed — `WantedListSyncPacket`
+Verified this packet (meant to back a "Wanted Posters" smartphone app) is unregistered, its
+client-side cache has zero readers, no server code ever constructs/sends it, and — checked
+against all 15 registered smartphone apps in `SmartphoneScreen.java` — no such app exists at all.
+Registering the packet alone would be a hollow fix (nothing would ever send or display it); a real
+fix needs a new UI screen plus a new send-trigger, which is a new feature, not a wiring quick win.
+Left unregistered and documented as a deferred gap in CLAUDE.md.
+
+---
+
 ## [3.9.4-beta] - 2026-09-25
 
 ### Added — Wired in four fully-built but completely orphaned systems

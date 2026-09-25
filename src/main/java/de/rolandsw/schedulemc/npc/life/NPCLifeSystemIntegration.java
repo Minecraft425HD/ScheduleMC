@@ -149,6 +149,12 @@ public class NPCLifeSystemIntegration {
             questManager.tick(level);
         }
 
+        // Alle 200 Ticks (10 Sekunden): ambiente NPC-zu-NPC-Interaktionen (Begrüßung, Gespräch,
+        // Handelsanbahnung, Streit je nach Beziehungswert) - siehe autoTriggerNearbyInteractions()
+        if (tickCounter % 200 == 0) {
+            interactionManager.autoTriggerNearbyInteractions(level);
+        }
+
         // Alle 2400 Ticks (2 Minuten)
         if (tickCounter % 2400 == 0) {
             worldEventManager.tick(level);

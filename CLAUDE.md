@@ -615,3 +615,97 @@ Aufrufer) ist das vermutlich ein eigenes, nie fertiggestelltes Feature
 (bräuchte einen Dialog-/Packet-Flow, kein reines Wiring). **Nicht
 vorschlagen**, dies "nebenbei" mit zu implementieren — eigenständig
 einplanen, falls gewünscht.
+
+---
+
+## NPCInteractionManager/NPCSocialInteractionManager-Merge + zwei Quick-Wins (2026-09-25, Teil 5)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Auslöser:** Fortsetzung des Orphan-Scans. Auf den ersten Blick sahen
+`npc/life/social/NPCInteractionManager.java` und
+`npc/life/social/NPCSocialInteractionManager.java` wie eine klassische
+Dopplung aus (beide: NPC-NPC-Beziehungen, beide: "Interaktion" im Namen).
+Der Nutzer verlangte ausdrücklich, das VOR einer Löschung zu verifizieren
+("prüfe ob es eine dopplung ist oder ob die features aktueller sind") —
+diese Prüfung ergab, dass es **keine einfache Dopplung** war:
+
+- `NPCInteractionManager`: wird tatsächlich über `NPCLifeSystemIntegration
+  .tick()` als `interactionManager.tick()` regelmäßig aufgerufen (per Grep
+  auf die lokale Variable verifiziert, nicht nur auf den Klassennamen —
+  ein Klassennamen-Grep hätte hier einen falschen Negativbefund geliefert).
+  Es besitzt bereits reichhaltige Aktionsmethoden (`converse()`, `greet()`,
+  `initiateNPCTrade()`, Cooldown-Verwaltung), aber **keine** dieser
+  Methoden wird von irgendwo aus ausgelöst — der Tick lief leer.
+- `NPCSocialInteractionManager`: ein vollständiger, eigenständiger
+  Beziehungs-Simulator (`npcRelations`-Map, `NPCInteractionType`-Enum mit
+  Beziehungsänderungswerten, `tick(ServerLevel)` mit Scan-und-Trigger-Logik,
+  `mediateConflict`) — aber komplett unregistriert, `tick()` wurde von
+  niemandem aufgerufen.
+
+Beide Klassen waren also **halb-tot, aber auf komplementäre Art**: die eine
+war angeschlossen, aber inhaltsleer; die andere war inhaltlich vollständig,
+aber nie angeschlossen. Eine simple "lösche die ältere" hätte funktionierende
+Aktionsmethoden (`NPCInteractionManager`) oder die einzige vorhandene
+autonome Trigger-Logik (`NPCSocialInteractionManager`) vernichtet.
+
+**Merge (statt Löschung):** Die Scan-und-Trigger-Logik von
+`NPCSocialInteractionManager` wurde nach `NPCInteractionManager` übernommen
+(`autoTriggerNearbyInteractions(ServerLevel)` + `triggerAmbientInteraction()`),
+ruft dort aber die bereits vorhandenen, reicheren Aktionsmethoden
+(`converse()`/`greet()`/`initiateNPCTrade()`) auf statt eigene zu
+duplizieren. Die Beziehungsverwaltung (`npcRelations`, `getRelation()`,
+`modifyRelation()`, `mediateConflict()`) wurde ebenfalls übernommen, jetzt
+aber **persistiert** (`InteractionManagerData` via
+`AbstractPersistenceManager`, vorher war `NPCSocialInteractionManager`s
+Map rein transient und ging bei jedem Serverneustart verloren).
+`NPCLifeSystemIntegration.tick()` ruft `interactionManager
+.autoTriggerNearbyInteractions(level)` jetzt alle 200 Ticks (10 Sekunden)
+auf — ein neuer, eigener Zeitraster-Block, getrennt vom bestehenden
+100-Tick-Block. `NPCSocialInteractionManager.java` wurde danach vollständig
+gelöscht (verifiziert: 0 verbleibende Referenzen).
+
+**Nicht vorschlagen**, diese beiden Klassen erneut als Dopplung zu prüfen
+oder eine der beiden Implementierungen wiederherzustellen.
+
+### Quick Win 1: `CrimeRecordCommand` registriert
+
+`npc/crime/CrimeRecordCommand.java` (`/crimerecord <player> [evidence|clear]`)
+war vollständig implementiert (nutzt reale `CrimeManager`-/
+`EvidenceManager`-Methoden, alle Signaturen per Grep verifiziert), hatte
+aber 0 Aufrufer — der Befehl wurde nirgends registriert. Fix: ein Aufruf
+`CrimeRecordCommand.register(event.getDispatcher())` in
+`ScheduleMC.onRegisterCommands()`, direkt neben der bestehenden
+`BountyCommand`-Registrierung.
+
+**Bekannter, nicht behobener Altbestand:** `CrimeRecordCommand.java`
+enthält mehrere hartkodierte deutsche User-facing-Strings (z. B. "Crime
+Record:", "Wanted Level:", "Verbrechen gesamt:"). Das verstößt gegen die
+Sprachkonvention oben, wurde aber von `scripts/check-german-strings.sh`
+nicht erkannt (Guard meldet weiterhin "OK") und ist nicht durch diese
+Registrierung neu entstanden. **Nicht im Rahmen dieser Änderung behoben**
+— eigenständig einplanen, falls gewünscht (inkl. Prüfung, warum der Guard
+diese Strings nicht erfasst).
+
+### Quick Win 2 (geprüft, NICHT umgesetzt): `WantedListSyncPacket`
+
+`npc/network/WantedListSyncPacket.java` + `WantedListClientCache` — laut
+eigenem Kommentar für "Feature 5: Fahndungsplakate" (Wanted-Posters-App
+auf dem Smartphone) gedacht. Verifiziert: das Paket ist **nicht** in
+`NPCNetworkHandler` registriert, `WantedListClientCache` hat 0 Referenzen
+irgendwo sonst im Code. Zusätzlich verifiziert (`SmartphoneScreen.java`,
+alle 15 registrierten Apps durchgesehen): es gibt **keine** "Wanted
+Posters"-App im Smartphone — `CrimeStatsAppScreen` existiert, ist aber ein
+anderes Feature. Es gibt außerdem keinen Server-Code, der dieses Paket
+jemals konstruieren/senden würde.
+
+**Entscheidung:** Nicht registriert. Ein bloßes `registerMessage()` würde
+ein Paket an den Netzwerk-Channel anschließen, das nie gesendet und dessen
+Cache nie gelesen wird — technisch "verdrahtet", aber ohne jede
+Spielwirkung, also kein echter Fix. Eine echte Lösung bräuchte eine neue
+UI-Screen (Wanted-Posters-App) UND einen neuen Sende-Trigger (z. B.
+periodischer Server-Broadcast oder On-Demand-Anfrage) — das ist ein neues
+Feature, kein Wiring-Quick-Win. **Nicht vorschlagen**, dieses Paket ohne
+UI + Sende-Trigger zu registrieren — das wäre ein hohler Fix. Eigenständig
+als Feature einplanen, falls gewünscht (Screen + Trigger + Registrierung
+in einem Zug).
