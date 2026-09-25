@@ -262,6 +262,11 @@ public class ScheduleMC {
         WineBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         WineMenuTypes.MENUS.register(modEventBus);
 
+        // Wanted-Poster registrieren
+        de.rolandsw.schedulemc.npc.crime.poster.WantedPosterRegistry.BLOCKS.register(modEventBus);
+        de.rolandsw.schedulemc.npc.crime.poster.WantedPosterRegistry.ITEMS.register(modEventBus);
+        de.rolandsw.schedulemc.npc.crime.poster.WantedPosterRegistry.BLOCK_ENTITIES.register(modEventBus);
+
         // Cheese-System registrieren
         CheeseItems.ITEMS.register(modEventBus);
         CheeseBlocks.BLOCKS.register(modEventBus);

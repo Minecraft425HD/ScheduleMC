@@ -6,6 +6,43 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.12-beta] - 2026-09-25
+
+### Added — Wanted Poster feature, built from scratch (WantedPosterItem + WantedPosterBlock)
+Per explicit user request, fully implemented the poster feature previously only
+sketched in the config-wiring backlog (`police.wanted_posters_min_level`). New package
+`npc/crime/poster/`: `WantedPosterItem` (a `BlockItem` carrying target UUID/name, wanted
+level and bounty as NBT), `WantedPosterBlock` (wall-mounted like a painting, placeable
+only against sturdy vertical faces, right-click shows the data as translatable chat
+messages), `WantedPosterBlockEntity` (persists and syncs the poster's data via the
+standard `ClientboundBlockEntityDataPacket` mechanism), and `WantedPosterRegistry`
+(registers block/item/block-entity-type, wired into `ScheduleMC`'s constructor and
+`ModCreativeTabs`).
+
+Auto-issuance: `CrimeManager.addWantedLevel` now calls
+`issueWantedPosterIfThresholdCrossed`, which gives every online player except the wanted
+one a copy of the poster the first time a player's wanted level crosses the configured
+`police.wanted_posters_min_level` threshold (not on every subsequent crime past it).
+Bounty amount is read from the existing `BountyManager`.
+
+Two deliberate scope decisions (documented in CLAUDE.md Teil 12, not silent
+simplifications): no custom `BlockEntityRenderer` for in-world dynamic text (no
+precedent for one anywhere in this codebase, and no way to test a new renderer without
+compiling), so the block shows its data via chat instead; and the existing
+`blotter_paper.png` texture is reused for both the item icon and block face rather than
+creating new art, since no image-generation tool is available in this environment.
+
+### Removed — WantedListSyncPacket, superseded by the new design
+`npc/network/WantedListSyncPacket.java` and its inner `WantedListClientCache` (0 external
+references, previously investigated in 3.9.x/Teil 5-9) are no longer needed: the new
+`WantedPosterBlockEntity` syncs itself per-block via the standard vanilla mechanism
+instead of needing a separate "sync the whole wanted list" packet.
+
+Running total for this cleanup arc: 44 files, 8,352 lines of dead code removed (the
+poster feature's own new files are additions, not part of this total).
+
+---
+
 ## [3.9.11-beta] - 2026-09-25
 
 ### Removed — RedemptionQuestManager, after a second thorough hook search

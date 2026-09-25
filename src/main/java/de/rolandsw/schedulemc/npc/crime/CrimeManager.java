@@ -101,6 +101,7 @@ public class CrimeManager {
      * FIX 2: Ruft BountyManager.createAutoBounty() auf wenn Level >= 3
      */
     public static void addWantedLevel(UUID playerUUID, int amount, long currentDay) {
+        int previousLevel = getWantedLevel(playerUUID);
         wantedLevels.compute(playerUUID, (key, current) -> {
             int currentLevel = current != null ? current : 0;
             return Math.min(MAX_WANTED_LEVEL, currentLevel + amount);
@@ -117,6 +118,59 @@ public class CrimeManager {
             }
         } catch (Exception e) {
             LOGGER.debug("BountyManager not available: {}", e.getMessage(), e);
+        }
+
+        issueWantedPosterIfThresholdCrossed(playerUUID, previousLevel, newLevel);
+    }
+
+    /**
+     * Gibt allen Online-Spielern (außer dem Gesuchten selbst) ein
+     * {@link de.rolandsw.schedulemc.npc.crime.poster.WantedPosterItem} sobald ein
+     * Spieler das konfigurierte Mindest-Wanted-Level ({@code police.wanted_posters_min_level})
+     * zum ersten Mal erreicht oder überschreitet. Löst nur beim Überschreiten der Schwelle
+     * aus (nicht bei jedem weiteren Verbrechen darüber), damit nicht bei jedem Folgeverbrechen
+     * erneut Plakate verteilt werden.
+     */
+    private static void issueWantedPosterIfThresholdCrossed(UUID playerUUID, int previousLevel, int newLevel) {
+        int minLevel = de.rolandsw.schedulemc.config.ModConfigHandler.COMMON.POLICE_WANTED_POSTERS_MIN_LEVEL.get();
+        if (previousLevel >= minLevel || newLevel < minLevel) {
+            return;
+        }
+
+        net.minecraft.server.MinecraftServer server =
+            net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+        if (server == null) {
+            return;
+        }
+
+        net.minecraft.server.level.ServerPlayer target = server.getPlayerList().getPlayer(playerUUID);
+        if (target == null) {
+            // Kein online Spieler zum Zeitpunkt der Eskalation - kein sicherer Namens-Fallback vorhanden.
+            return;
+        }
+
+        String targetName = target.getGameProfile().getName();
+        double bountyAmount = 0.0;
+        try {
+            BountyData bounty = BountyManager.getInstance().getActiveBounty(playerUUID);
+            if (bounty != null) {
+                bountyAmount = bounty.getAmount();
+            }
+        } catch (Exception e) {
+            LOGGER.debug("BountyManager not available for poster bounty lookup: {}", e.getMessage(), e);
+        }
+
+        for (net.minecraft.server.level.ServerPlayer recipient : server.getPlayerList().getPlayers()) {
+            if (recipient.getUUID().equals(playerUUID)) {
+                continue;
+            }
+            net.minecraft.world.item.ItemStack poster = de.rolandsw.schedulemc.npc.crime.poster.WantedPosterItem.create(
+                playerUUID, targetName, newLevel, bountyAmount);
+            if (!recipient.getInventory().add(poster)) {
+                recipient.drop(poster, false);
+            }
+            recipient.sendSystemMessage(net.minecraft.network.chat.Component.translatable(
+                "message.wanted_poster.issued", targetName));
         }
     }
 

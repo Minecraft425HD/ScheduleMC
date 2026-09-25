@@ -1100,3 +1100,78 @@ Dazu kommen die parallel dokumentierten *Einbau*-Fixes (WarehouseMarketBridge,
 PriceModifier, BatchTransactionManager, CompanionBehavior, TutorialManager-Lebenszyklus,
 CrimeEventHandler-Vandalismus/Trespassing), die eigenständig gezählt werden, da sie
 Code hinzufügen statt entfernen.
+
+---
+
+## Wanted-Poster-Feature vollständig gebaut (2026-09-25, Teil 12)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen, das Feature erneut zu bauen oder
+`WantedListSyncPacket` wiederherzustellen
+
+**Auslöser:** Fortsetzung der `WantedListSyncPacket`-Untersuchung aus Teil 5/6/9. Statt
+das alte, nie gesendete Sync-Paket samt Client-Cache zu registrieren (das hätte laut
+damaliger Analyse ein "hohler Fix" ohne echte UI ergeben), hat der Nutzer explizit
+verlangt, das im Backlog-Abschnitt oben ("Backlog: Fehlende Features für 12 verbleibende
+Dead-Config-Werte", Punkt 2) bereits beschriebene Feature **vollständig neu zu bauen**:
+"Baue das feature vollständig ein! Komplett!"
+
+**Neues Paket:** `npc/crime/poster/` mit vier neuen Klassen:
+- `WantedPosterItem` (extends `BlockItem`) — trägt Zielspieler-UUID/-Name, Wanted-Level
+  und Kopfgeld als NBT; `create(UUID, String, int, double)`-Fabrikmethode; Tooltip zeigt
+  Name/Sterne/Kopfgeld.
+- `WantedPosterBlock` (extends `HorizontalDirectionalBlock implements EntityBlock`) —
+  wandmontiert wie ein Bild, nur an vertikalen, tragfähigen Wänden platzierbar
+  (`getStateForPlacement`/`canSurvive` prüfen `isFaceSturdy`), je Blickrichtung eigene
+  dünne `VoxelShape`. Rechtsklick zeigt die Daten als Chat-Nachrichten.
+- `WantedPosterBlockEntity` — übernimmt die NBT-Daten des Items beim Platzieren
+  (`readFromItem`), persistiert sie (`saveAdditional`/`load`), synct sie an Clients
+  (`getUpdateTag`/`getUpdatePacket` via `ClientboundBlockEntityDataPacket`).
+- `WantedPosterRegistry` — `DeferredRegister` für Block/Item/BlockEntityType
+  (`WANTED_POSTER_BLOCK`/`WANTED_POSTER_ITEM`/`WANTED_POSTER_BLOCK_ENTITY`), registriert
+  in `ScheduleMC`s Konstruktor neben dem Wine-System.
+
+**Bewusste Scope-Entscheidungen (kein Ratespiel, dokumentiert statt stillschweigend
+vereinfacht):**
+- **Keine dynamische In-World-Textdarstellung.** Es gibt im gesamten Repo kein Präzedenzbeispiel
+  für einen `BlockEntityRenderer`, der Text auf einen Block rendert (verifiziert per Grep).
+  Ein neuer, ungetesteter Renderer für dieses eine Feature wäre ein hohes Risiko ohne
+  Möglichkeit, ihn in dieser Umgebung zu kompilieren/zu testen. Stattdessen zeigt Rechtsklick
+  die Daten als `Component.translatable`-Chat-Nachrichten (`message.wanted_poster.*`).
+- **Wiederverwendete Textur statt neuer Pixel-Art.** Es steht in dieser Umgebung kein
+  Bildgenerierungs-Tool zur Verfügung. Item-Icon und Block-Textur nutzen die bereits
+  vorhandene `textures/item/blotter_paper.png` (32×32 RGBA, verifiziert).
+- **Auto-Ausgabe an alle Online-Spieler außer dem Gesuchten selbst**, nicht an den
+  Gesuchten oder eine einzelne Polizei-NPC-Inventar-Instanz — es gibt keine
+  "Polizei-NPC-Inventar"-Mechanik, die ein Item ausgeben könnte. Broadcast an
+  `server.getPlayerList().getPlayers()` ist ein bereits etabliertes Muster im Repo (siehe
+  z. B. `GangSyncHelper`, `NPCNameSyncHandler`, `PoliceAIHandler`).
+
+**Auto-Ausgabe-Hook:** `CrimeManager.addWantedLevel(UUID, int, long)` — neue Methode
+`issueWantedPosterIfThresholdCrossed(UUID, int previousLevel, int newLevel)`, aufgerufen
+direkt nach der bereits bestehenden `BountyManager.createAutoBounty`-Anbindung (FIX 2).
+Löst nur beim **Überschreiten** der konfigurierten Schwelle
+(`ModConfigHandler.COMMON.POLICE_WANTED_POSTERS_MIN_LEVEL`, Default 3) aus
+(`previousLevel < minLevel && newLevel >= minLevel`), nicht bei jedem weiteren Verbrechen
+danach. Kopfgeld-Betrag kommt aus `BountyManager.getInstance().getActiveBounty(UUID)`
+(0.0 falls noch keine Bounty existiert). Ist zum Auslösezeitpunkt kein Online-Spieler mit
+dieser UUID vorhanden, wird kein Plakat ausgegeben (kein Offline-Namens-Fallback über
+Profile-Cache — Wanted-Level-Eskalationen passieren ausschließlich durch Live-Aktionen
+eines Online-Spielers, ein Offline-Fall wäre ohnehin nicht real erreichbar).
+
+**`WantedListSyncPacket.java` + `WantedListClientCache` gelöscht:** Verifiziert 0
+verbleibende Referenzen (nur noch in `docs/CHANGELOG.md` als historische Notiz). Das neue
+Design braucht kein separates "sync ganze Wanted-Liste"-Paket — die `BlockEntity`
+synct sich über den vorhandenen vanilla `ClientboundBlockEntityDataPacket`-Mechanismus
+selbst, pro Plakat statt pro globaler Liste.
+
+**Assets:** `blockstates/wanted_poster.json` (4 Facing-Varianten, je eigenes Modell statt
+Rotations-Mathematik, um Y-Rotations-Fehler ohne Testmöglichkeit zu vermeiden),
+`models/block/wanted_poster_{north,south,west,east}.json` (dünne Box passend zur
+jeweiligen `VoxelShape`), `models/item/wanted_poster.json` (`item/generated` mit
+`blotter_paper`-Textur). Lang-Keys in `en_us.json`/`de_de.json`:
+`block.schedulemc.wanted_poster`, `item.schedulemc.wanted_poster`,
+`message.wanted_poster.{blank,bounty,header,issued,level,name}`.
+
+**Nicht vorschlagen:** dieses Feature erneut zu bauen, `WantedListSyncPacket`
+wiederherzustellen, oder die Scope-Entscheidungen (Chat-Anzeige statt In-World-Renderer,
+wiederverwendete Textur) ohne explizite Nutzeranfrage rückgängig zu machen/auszubauen.

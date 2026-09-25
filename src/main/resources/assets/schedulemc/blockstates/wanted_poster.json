@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "schedulemc:block/wanted_poster_north" },
+    "facing=south": { "model": "schedulemc:block/wanted_poster_south" },
+    "facing=west": { "model": "schedulemc:block/wanted_poster_west" },
+    "facing=east": { "model": "schedulemc:block/wanted_poster_east" }
+  }
+}

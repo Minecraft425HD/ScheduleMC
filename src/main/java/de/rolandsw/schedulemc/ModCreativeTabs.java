@@ -90,6 +90,11 @@ public class ModCreativeTabs {
                 output.accept(de.rolandsw.schedulemc.secretdoors.SecretDoors.HATCH.get());
 
                 // ═══════════════════════════════════════════════════════════
+                // FAHNDUNG (Wanted Posters)
+                // ═══════════════════════════════════════════════════════════
+                output.accept(de.rolandsw.schedulemc.npc.crime.poster.WantedPosterRegistry.WANTED_POSTER_ITEM.get());
+
+                // ═══════════════════════════════════════════════════════════
                 // SCHLOSS-SYSTEM (Locks, Keys, Lock Picks)
                 // ═══════════════════════════════════════════════════════════
                 output.accept(de.rolandsw.schedulemc.lock.items.LockItems.SIMPLE_LOCK.get());
