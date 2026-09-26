@@ -6,6 +6,28 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.19-beta] - 2026-09-26
+
+### Added — real police pursuit vehicles with destructibility
+Police vehicle pursuit previously used a pure visual illusion (`NPCDrivingScheduler`/
+`NPCVehicleAssignment` only set flags on the NPC itself, no real vehicle entity, no
+collision, no way to shoot it). New `PoliceVehicleAI` spawns a real
+`EntityGenericVehicle` (existing limousine model, blue paint) only when
+`PoliceVehiclePursuit.startVehiclePursuit` fires (i.e. only when the player is confirmed
+fleeing by car), mounts the police NPC as its AI-controlled driver, and steers it with a
+PIT-maneuver-style approach that targets the player's vehicle's rear quarter rather than
+its center. `WeaponBulletEntity.onHitEntity()` gained a generic `EntityGenericVehicle`
+branch so bullets damage ANY vehicle (player or police) through the same
+`DamageComponent` scale collisions already use. `PhysicsComponent` gained an
+NPC-controlled bypass (`EntityGenericVehicle.isNpcControlled()`) for its control-flag
+checks, additive only — the existing player-driver path is unchanged. On destruction
+(damage reaches 100), the vehicle is left behind as a wreck and the officer is
+withdrawn/removed entirely, per explicit user decision. See CLAUDE.md "Teil 19" for the
+full design rationale, the four `AskUserQuestion` decisions this was built from, and the
+documented scope trade-offs (siren light-bar not yet ported to real vehicles; Teil 17
+flanking now foot-pursuit-only; no artificial speed advantage for police, so the player
+keeps a real chance to escape).
+
 ## [3.9.18-beta] - 2026-09-26
 
 ### Added — police siren sound (backlog #5)

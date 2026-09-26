@@ -1,5 +1,7 @@
 package de.rolandsw.schedulemc.weapon.entity;
 
+import de.rolandsw.schedulemc.vehicle.VehicleConstants;
+import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import de.rolandsw.schedulemc.weapon.attachment.Attachment;
 import de.rolandsw.schedulemc.weapon.item.WeaponItems;
 import de.rolandsw.schedulemc.weapon.particle.WeaponParticles;
@@ -88,6 +90,29 @@ public class WeaponBulletEntity extends AbstractArrow {
             if (this.level() instanceof ServerLevel server) {
                 server.sendParticles(WeaponParticles.BLOOD.get(),
                         living.getX(), living.getY() + 1, living.getZ(), 10, 0.2, 0.2, 0.2, 0);
+            }
+        } else if (target instanceof EntityGenericVehicle vehicle) {
+            // Generisch fuer alle Fahrzeuge (nicht nur Polizei) - Schuesse beschaedigen
+            // Fahrzeuge genau wie Kollisionen, ueber dieselbe DamageComponent-Skala (0-100).
+            float damage = this.entityData.get(DAMAGE);
+            String ammoTypeId = this.entityData.get(AMMO_TYPE);
+            Item ammoType = WeaponItems.ITEMS.getEntries().stream()
+                    .map(reg -> reg.get())
+                    .filter(item -> item.getDescriptionId().equals(ammoTypeId))
+                    .findFirst().orElse(WeaponItems.AMMO_STANDARD.get());
+
+            if (ammoType == WeaponItems.AMMO_AP.get()) {
+                damage *= 1.5;
+            } else if (ammoType == WeaponItems.AMMO_RUBBER.get()) {
+                damage *= 0.3;
+            }
+
+            vehicle.getDamageComponent().addDamage(damage * VehicleConstants.BULLET_VEHICLE_DAMAGE_SCALE);
+
+            if (this.level() instanceof ServerLevel server) {
+                server.sendParticles(net.minecraft.core.particles.ParticleTypes.CRIT,
+                        result.getLocation().x, result.getLocation().y, result.getLocation().z,
+                        10, 0.1, 0.1, 0.1, 0.1);
             }
         }
         this.discard();

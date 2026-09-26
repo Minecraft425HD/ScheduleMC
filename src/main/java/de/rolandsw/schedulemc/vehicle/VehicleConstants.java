@@ -165,4 +165,34 @@ public final class VehicleConstants {
      */
     public static final double DEFAULT_PLAYER_Y_OFFSET = 0.2D;
 
+    // ═══════════════════════════════════════════════════════════
+    // BULLET DAMAGE (Schüsse auf Fahrzeuge, generisch für alle Fahrzeuge)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Skaliert Waffen-Schaden (typ. 5-15) auf die Fahrzeug-Schadensskala (0-100).
+     */
+    public static final float BULLET_VEHICLE_DAMAGE_SCALE = 2.0F;
+
+    // ═══════════════════════════════════════════════════════════
+    // POLICE VEHICLE AI (echte Polizei-Fahrzeugverfolgung)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * PIT-Manöver: Ziel-Offset hinter dem Spieler-Fahrzeug (in Blöcken).
+     */
+    public static final double PIT_REAR_OFFSET = 1.5D;
+
+    /**
+     * PIT-Manöver: Ziel-Offset seitlich versetzt zum Spieler-Fahrzeug (in Blöcken) -
+     * zielt auf das Heck-Viertel statt die Fahrzeugmitte.
+     */
+    public static final double PIT_SIDE_OFFSET = 2.0D;
+
+    /**
+     * Lenk-Toleranz (Grad) - unterhalb dieser Winkelabweichung wird nicht mehr gelenkt,
+     * um Zittern (Links-Rechts-Flackern) zu vermeiden.
+     */
+    public static final double PIT_STEERING_TOLERANCE_DEGREES = 5.0D;
+
 }

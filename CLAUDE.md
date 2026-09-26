@@ -1455,3 +1455,148 @@ bei Fußverfolgung — Sirenen gehören zum Fahrzeug, nicht zum laufenden Polizi
 
 **Nicht vorschlagen:** ein eigenes Sirenen-Sound-Asset zu registrieren oder die Sirene auf
 Fußverfolgungen auszuweiten, ohne dass das explizit gewünscht wird.
+
+---
+
+## Echtes Polizei-Fahrzeug für Verfolgungsjagden (2026-09-26, Teil 19)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Auslöser:** Nutzer-Anfrage nach der Sirenensound-Implementierung (Teil 18): "Nur die
+polizeifahrzeuge sollen eine Sirene bei einer Verfolgungsjagd bekommen mit Fahrzeugen die
+Kollision haben die polizeifahrzeuge sollen erst erscheinen wenn der Spieler mit dem Auto
+flüchtet. Das polizei Fahrzeug soll auch genau wie das Spieler Fahrzeug kaputt gehen
+können durch Schüsse und Kollisionen. Die polizeifahrzeuge sollen das Ziel haben den
+Spieler aus dem Fahrzeug zu bewegen aber es soll für den Spieler trotzdem möglich sein zu
+flüchten. Wenn die Polizei auf das Spieler Fahrzeug schießt soll es auch schaden nehmen
+wie Spieler die auf ein Fahrzeug eines Spielers schießen."
+
+**Vorgefundener Zustand:** Das bestehende NPC-Fahrzeugsystem
+(`npc/driving/NPCDrivingScheduler`/`NPCVehicleAssignment`) ist eine reine Fahr-Illusion —
+es spawnt nie ein echtes `EntityGenericVehicle`, sondern setzt nur `isDriving`/
+`vehicleColor` auf dem NPC selbst; `NPCVehicleLayer` zeichnet dazu ein Fahrzeug-Mesh direkt
+um den NPC herum. Ohne echte Fahrzeug-Entity gibt es keine Kollision, keine
+Schuss-Trefferbox, keine Zerstörbarkeit — der Grund, warum dieses Feature ein neues,
+echtes Fahrzeug brauchte statt einer Erweiterung der Illusion. Zusätzlich verifiziert:
+`EntityVehicleBase.getDriver()`/`getControllingPassenger()` verlangen hart einen
+`Player`-Passagier — ein NPC-Fahrer wurde von der bestehenden Steuerungs-Logik
+(`PhysicsComponent.isForward/isBackward/isLeft/isRight`) also grundsätzlich nie akzeptiert.
+
+**Vier Entscheidungen per `AskUserQuestion` geklärt, bevor Code geschrieben wurde:**
+1. Reihenfolge: **erst der komplette Plan, dann alles zusammen umsetzen** (nicht
+   Phase-für-Phase mit Zwischen-Bestätigungen).
+2. Fahrzeug-Modell/Farbe: **bestehendes Modell (Limousine-Chassis) + Blau** (Index 3,
+   analog zur bestehenden `NPCVehicleAssignment`-Konvention für Polizei) — kein neues
+   Fahrzeugmodell/keine neue Textur.
+3. Rammen-KI: **gezielte PIT-Manöver-KI** (zielt auf einen Punkt seitlich-hinten am
+   Spielerfahrzeug, nicht auf dessen Mitte) statt einer einfachen Direkt-Ansteuerung.
+4. Bei Zerstörung: **Fahrzeug bleibt als Wrack liegen, Polizist verschwindet/wird
+   abgezogen** (nicht: Polizist verfolgt zu Fuß weiter).
+
+**Umsetzung, vier Teile:**
+
+1. **`WeaponBulletEntity.onHitEntity()`** (generisch, nicht polizei-spezifisch): neuer
+   `else if (target instanceof EntityGenericVehicle vehicle)`-Zweig, parallel zum
+   bestehenden `LivingEntity`-Zweig. Waffen-Schaden (inkl. AP-/Rubber-Munitions-
+   Multiplikator, identische Werte wie beim Living-Zweig) wird über
+   `VehicleConstants.BULLET_VEHICLE_DAMAGE_SCALE` (2.0) auf die 0-100-Schadensskala von
+   `DamageComponent` skaliert und per `addDamage()` angewendet — dieselbe Methode, die
+   auch Kollisionsschaden verursacht. Da diese Änderung generisch in `WeaponBulletEntity`
+   liegt, gilt "Schüsse beschädigen Fahrzeuge" jetzt für ALLE Fahrzeuge (Spieler- wie
+   Polizeifahrzeuge), nicht nur für Polizeifahrzeuge — exakt die vom Nutzer verlangte
+   Symmetrie ("soll es auch schaden nehmen wie Spieler die auf ein Fahrzeug eines
+   Spielers schießen").
+
+2. **Neue Klasse `npc/events/PoliceVehicleAI.java`**: `spawnAndMount(CustomNPCEntity)`
+   erstellt per `VehicleFactory.createVehicle(...)` eine vollständig ausgestattete
+   Standard-Limousine (Chassis/Motor/4 Reifen/Stoßstange/Tank/Kennzeichen — identisches
+   Muster wie `ItemSpawnVehicle`), setzt Farbe Blau, montiert den Polizei-NPC per
+   `startRiding()` und startet den Motor direkt (`setStarted(true)`, ohne den
+   Player-Pfad). `tick(CustomNPCEntity, ServerPlayer)` berechnet jeden Server-Tick (nicht
+   nur alle 3 Sekunden wie der restliche Verfolgungs-Code, da Fahrphysik einen deutlich
+   engeren Regelkreis braucht) einen PIT-Manöver-Zielpunkt
+   (`computePitAimPoint` — seitlich-hinten am Zielfahrzeug, Seite abhängig davon, auf
+   welcher Seite sich der Verfolger bereits befindet, mit Fallback für ein nahezu
+   stehendes Ziel) und lenkt per `steerTowards()` (Winkeldifferenz zur aktuellen
+   Fahrzeugausrichtung, mit `PIT_STEERING_TOLERANCE_DEGREES`-Totzone gegen Lenk-Zittern).
+   `despawn(police, asWreck)`: `asWreck=false` (normales Verfolgungsende) entfernt das
+   Fahrzeug und wirft Passagiere sauber aus; `asWreck=true` (Zerstörung) lässt das
+   Fahrzeug unangetastet als Wrack liegen und entfernt stattdessen den Polizisten
+   (`police.discard()`) — exakt die vom Nutzer gewählte, NICHT empfohlene Option.
+
+3. **`EntityVehicleBase`/`EntityGenericVehicle`/`PhysicsComponent`**: `getDriver()`
+   bewusst UNVERÄNDERT gelassen (bleibt Player-only, um keinerlei bestehendes
+   Spieler-Steuerungsverhalten zu riskieren). Stattdessen neues, paralleles Feld
+   `EntityGenericVehicle.npcDriver` (nicht persistiert — Polizeifahrzeuge sind pro
+   Verfolgung temporär) + `isNpcControlled()`. `PhysicsComponent.isForward/isBackward/
+   isLeft/isRight` bekamen eine neue private Hilfsmethode `canControlVehicle()`, die
+   zusätzlich zum bisherigen Player-Check (`getDriver()!=null && canPlayerDriveVehicle`)
+   auch `vehicle.isNpcControlled()` akzeptiert — rein additiv, ändert nichts am
+   bestehenden Spieler-Pfad. Neue Methode `EntityGenericVehicle.updateAIControls(...)`
+   (Wrapper ohne Player-Parameter) als KI-Gegenstück zu den bestehenden
+   `updateControls(..., Player)`-Overloads.
+
+4. **`PoliceVehiclePursuit.java`**: `startVehiclePursuit` ruft jetzt
+   `PoliceVehicleAI.spawnAndMount(...)` statt des alten
+   `NPCDrivingScheduler.startDriving(...)` — das echte Fahrzeug erscheint dadurch exakt
+   an der vom Nutzer verlangten Stelle: erst wenn `PoliceAIHandler` bereits
+   `isPlayerInVehicle(target)` geprüft hat (unverändert seit Teil 1/17). `tick(server)`
+   ruft `PoliceVehicleAI.tick(...)` jetzt für jede aktive Verfolgung JEDEN Server-Tick auf
+   (vorher: nur alle 3 Sekunden, ausreichend für die alte Illusion, zu grob für echte
+   Fahrphysik), während Sirene/Abbruch-Bedingungen (Spieler offline, nicht mehr wanted)
+   weiterhin im bisherigen 3-Sekunden-Takt laufen. `canStartVehiclePursuit` verlangt nicht
+   mehr `NPCVehicleAssignment.hasVehicle(...)` (ohne Verhaltensänderung, da
+   `registerPoliceNPC` Polizei-NPCs ohnehin immer einen simulierten Vehicle-Besitz gibt —
+   die Prüfung war für dieses Feature redundant geworden, da das echte Fahrzeug jetzt
+   unabhängig frisch gespawnt wird).
+
+**Rendering-Konflikt gelöst:** `NPCVehicleLayer` (die Illusions-Fahrzeug-Zeichnung um den
+NPC) hätte bei einem echten, gerittenen Fahrzeug ein zweites, überlagerndes Fahrzeug
+gezeichnet. Fix: neuer Guard `if (npc.isPassenger()) return;` direkt nach dem bestehenden
+`isDriving()`-Guard — ein NPC, der tatsächlich auf einem echten Fahrzeug reitet
+(`isPassenger()==true`), bekommt die Illusions-Layer nicht mehr gezeichnet.
+
+**Bewusst dokumentierte Nebeneffekte/Vereinfachungen (kein Ratespiel, klar begrenzter
+Scope für die erste Version):**
+- **Sirenen-Blaulicht (`NPCSirenLayer`) rendert weiterhin nur, wenn `npc.isDriving()==true`**
+  — für ein echtes Verfolgungsfahrzeug wird `isDriving()` bewusst NICHT gesetzt (würde mit
+  der jetzt geskippten `NPCVehicleLayer`-Sitzpose kollidieren), das Blaulicht fehlt daher
+  aktuell auf echten Verfolgungsfahrzeugen. Der Sirenen-SOUND (Teil 18) ist davon
+  unabhängig und funktioniert unverändert. Eine spätere Erweiterung könnte das Blaulicht
+  direkt am `EntityGenericVehicle` statt am NPC rendern — nicht Teil dieser Änderung.
+- **Teil 17s Flankier-System (`computeFlankingTarget`) gilt jetzt nur noch für
+  Fuß-Verfolgungen**, nicht mehr für Fahrzeugverfolgungen — die PIT-Manöver-Zielpunkt-
+  Berechnung in `PoliceVehicleAI` übernimmt für echte Fahrzeuge dieselbe Rolle (mehrere
+  Verfolger nähern sich naturgemäß von verschiedenen Seiten, da jeder seine eigene
+  aktuelle Position zur Seitenwahl nutzt) und ersetzt die alte Offset-Punkt-Logik für
+  diesen Fall vollständig.
+- **Kollisionsschaden zwischen zwei Fahrzeugen** (Polizei rammt Spieler oder umgekehrt)
+  brauchte KEINEN zusätzlichen Code: `PhysicsComponent.controlVehicle()` löst bereits bei
+  `horizontalCollision` (Kollision mit einer nicht passierbaren Entity, wozu ein anderes
+  `EntityGenericVehicle` zählt, da `canBeCollidedWith()==true`) `onCollision(speed)` auf
+  BEIDEN beteiligten Fahrzeugen unabhängig aus — die bestehende, generische
+  Kollisionsschaden-Logik greift also automatisch, sobald echte Polizeifahrzeuge
+  existieren.
+- **Fluchtchance für den Spieler:** das Polizeifahrzeug nutzt dieselben Fahrzeugteile
+  (Motor/Chassis) wie ein Spielerfahrzeug — keine künstliche Geschwindigkeits-
+  Überlegenheit. Die PIT-KI muss den Spieler durch Manöver (Anfahrt an eine Flanke)
+  stellen, nicht durch rohe Geschwindigkeit — der bestehende Config-Wert
+  `police.vehicle_speed_multiplier` wirkt auf dieses neue System bewusst NICHT mehr ein
+  (er bleibt für andere Zwecke im Code, hat hier aber keine Wirkung), da ein fairer
+  Wettlauf mit derselben Fahrzeugklasse dem Nutzer-Wunsch "es soll für den Spieler
+  trotzdem möglich sein zu flüchten" besser entspricht als eine erneute künstliche
+  Geschwindigkeits-Anhebung.
+- **NPC-Navigation während der Fahrt:** der Polizei-NPC bleibt technisch ein normaler Mob
+  mit laufendem Goal-Selector, während er auf dem Fahrzeug reitet (kein zusätzlicher
+  Riding-Suppression-Code) — analog dazu, wie auch Spieler beim Reiten ihre eigene
+  Physik/Eingabe behalten. Die tatsächliche Position wird ohnehin jeden Tick durch
+  `positionRider()` überschrieben, ein Navigationsversuch hat daher keine sichtbare
+  Auswirkung.
+
+**Nicht vorschlagen:** `EntityVehicleBase.getDriver()`/`getControllingPassenger()` so zu
+ändern, dass sie NPCs direkt akzeptieren (bewusst vermieden, um den bestehenden
+Spieler-Steuerungspfad nicht anzufassen) — stattdessen bei Bedarf das bestehende
+`isNpcControlled()`/`npcDriver`-Feld weiterverwenden. Nicht vorschlagen, das
+Sirenen-Blaulicht "nebenbei" auf echte Fahrzeuge zu verlegen oder die PIT-KI-Konstanten
+(`PIT_REAR_OFFSET`/`PIT_SIDE_OFFSET`/`PIT_STEERING_TOLERANCE_DEGREES`) in Config-Werte
+umzuwandeln, ohne dass das explizit gewünscht wird.

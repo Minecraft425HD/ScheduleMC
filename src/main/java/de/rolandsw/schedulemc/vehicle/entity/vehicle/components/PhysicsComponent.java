@@ -539,12 +539,24 @@ public class PhysicsComponent extends VehicleComponent {
         return vehicle.getEntityData().get(STARTED);
     }
 
+    /**
+     * Steuerungsflags (FORWARD/BACKWARD/LEFT/RIGHT) sind normalerweise nur gültig, solange
+     * ein echter Player-Fahrer sie gesetzt hat (siehe {@code getDriver()}). Ein
+     * KI-gesteuertes Fahrzeug (Polizei-Verfolgung, {@code vehicle.isNpcControlled()}) hat
+     * keinen Player-Fahrer und würde sonst nie fahren - daher wird der Player-Check in
+     * diesem Fall übersprungen.
+     */
+    private boolean canControlVehicle() {
+        return vehicle.isNpcControlled()
+            || (vehicle.getDriver() != null && canPlayerDriveVehicle(vehicle.getDriver()));
+    }
+
     public void setForward(boolean forward) {
         vehicle.getEntityData().set(FORWARD, forward);
     }
 
     public boolean isForward() {
-        if (vehicle.getDriver() == null || !canPlayerDriveVehicle(vehicle.getDriver())) {
+        if (!canControlVehicle()) {
             return false;
         }
         return vehicle.getEntityData().get(FORWARD);
@@ -555,7 +567,7 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public boolean isBackward() {
-        if (vehicle.getDriver() == null || !canPlayerDriveVehicle(vehicle.getDriver())) {
+        if (!canControlVehicle()) {
             return false;
         }
         return vehicle.getEntityData().get(BACKWARD);
@@ -566,7 +578,7 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public boolean isLeft() {
-        if (vehicle.getDriver() == null || !canPlayerDriveVehicle(vehicle.getDriver())) {
+        if (!canControlVehicle()) {
             return false;
         }
         return vehicle.getEntityData().get(LEFT);
@@ -577,7 +589,7 @@ public class PhysicsComponent extends VehicleComponent {
     }
 
     public boolean isRight() {
-        if (vehicle.getDriver() == null || !canPlayerDriveVehicle(vehicle.getDriver())) {
+        if (!canControlVehicle()) {
             return false;
         }
         return vehicle.getEntityData().get(RIGHT);

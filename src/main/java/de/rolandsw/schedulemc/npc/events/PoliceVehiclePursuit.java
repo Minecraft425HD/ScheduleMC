@@ -4,8 +4,6 @@ import com.mojang.logging.LogUtils;
 import de.rolandsw.schedulemc.config.ModConfigHandler;
 import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.data.NPCType;
-import de.rolandsw.schedulemc.npc.driving.NPCDrivingScheduler;
-import de.rolandsw.schedulemc.npc.driving.NPCVehicleAssignment;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,13 +13,14 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Feature 1: Polizei-Fahrzeugverfolgung
+ * Feature 1: Polizei-Fahrzeugverfolgung (Teil 19: echtes Fahrzeug statt Illusion)
  *
- * Polizei-NPCs nutzen das NPC-Driving-System fuer Verfolgungsjagden.
- * - Aktiviert wenn Spieler in Fahrzeug flieht UND Polizei Fahrzeug hat
- * - Polizei faehrt 30% schneller als normale NPCs
- * - Verfolgt Spieler-Position dynamisch ueber RoadGraph
- * - Beendet Verfolgung wenn Spieler aussteigt oder gefangen
+ * Polizei-NPCs erhalten ein echtes {@code EntityGenericVehicle} (siehe
+ * {@code PoliceVehicleAI}), sobald ein Spieler tatsächlich per Fahrzeug flieht.
+ * - Aktiviert wenn Spieler in Fahrzeug flieht (siehe {@code PoliceAIHandler})
+ * - Steuerung per gezieltem PIT-Manöver statt direkter Zielverfolgung
+ * - Fahrzeug ist per Schuss/Kollision zerstörbar wie ein Spielerfahrzeug
+ * - Beendet Verfolgung wenn Spieler aussteigt, gefangen wird oder das Fahrzeug zerstört wird
  */
 public class PoliceVehiclePursuit {
 
@@ -39,10 +38,11 @@ public class PoliceVehiclePursuit {
     /** Maximaler Abstand bevor Verfolgung abgebrochen wird */
     private static final double MAX_PURSUIT_DISTANCE = 200.0;
 
-    /** Intervall fuer Pfad-Updates (Ticks) */
+    /** Intervall fuer Sirenensound/Cleanup-Pruefungen (Ticks) - die Fahrzeugsteuerung
+     *  selbst (PoliceVehicleAI.tick) laeuft jeden Tick, da sie echte Fahrphysik steuert. */
     private static final int PATH_UPDATE_INTERVAL = 60; // 3 Sekunden
 
-    /** Tick-Counter fuer Pfad-Updates */
+    /** Tick-Counter fuer die 3-Sekunden-Pruefungen */
     private static volatile int tickCounter = 0;
 
     /**
@@ -61,20 +61,13 @@ public class PoliceVehiclePursuit {
             return false;
         }
 
-        // Polizei muss Fahrzeug haben
-        if (!(police.level() instanceof net.minecraft.server.level.ServerLevel sl)
-                || !NPCVehicleAssignment.get(sl).hasVehicle(policeUUID)) {
-            return false;
-        }
-
-        // Starte Fahrt zum Spieler (ggf. Flankier-Offset statt direktem Zielpunkt)
-        BlockPos targetPos = computeDrivingDestination(police, target);
-        boolean started = NPCDrivingScheduler.canDrive(police, targetPos)
-            && startDrivingToTarget(police, targetPos);
+        // Feature: echtes Polizei-Fahrzeug statt reiner Fahr-Illusion (siehe PoliceVehicleAI) -
+        // erscheint bewusst erst hier, also nur wenn der Spieler tatsächlich per Fahrzeug flieht.
+        boolean started = PoliceVehicleAI.spawnAndMount(police);
 
         if (started) {
             activeVehiclePursuits.put(policeUUID, targetUUID);
-            lastKnownTargetPos.put(policeUUID, targetPos);
+            lastKnownTargetPos.put(policeUUID, target.blockPosition());
 
             // Sirene aktivieren
             if (ModConfigHandler.COMMON.POLICE_SIREN_ENABLED.get()) {
@@ -90,41 +83,19 @@ public class PoliceVehiclePursuit {
     }
 
     /**
-     * Feature 4: Liefert bei aktiviertem Flankieren und ≥2 Verfolgern einen seitlichen
-     * Offset-Punkt statt der exakten Spielerposition (siehe
-     * {@code PoliceAIHandler.computeFlankingTarget}) - dieselbe Logik wie bei der
-     * Fuss-Verfolgung, nur als Fahrziel statt Navigations-Ziel.
-     */
-    private static BlockPos computeDrivingDestination(CustomNPCEntity police, ServerPlayer target) {
-        if (ModConfigHandler.COMMON.POLICE_FLANKING_ENABLED.get()) {
-            net.minecraft.world.phys.Vec3 flankTarget = PoliceAIHandler.computeFlankingTarget(police, target);
-            if (flankTarget != null) {
-                return BlockPos.containing(flankTarget);
-            }
-        }
-        return target.blockPosition();
-    }
-
-    /**
-     * Startet Fahrt mit erhoehter Geschwindigkeit
-     */
-    private static boolean startDrivingToTarget(CustomNPCEntity police, BlockPos target) {
-        // Setze Polizei-Farbe (blau, Index 3)
-        police.setVehicleColor(3);
-        float speedMultiplier = (float) ModConfigHandler.COMMON.POLICE_VEHICLE_SPEED_MULTIPLIER.get().doubleValue();
-        NPCDrivingScheduler.startDriving(police, target, speedMultiplier);
-        return police.isDriving();
-    }
-
-    /**
      * Stoppt eine Fahrzeugverfolgung
      */
     public static void stopVehiclePursuit(CustomNPCEntity police) {
         UUID policeUUID = police.getUUID();
         if (activeVehiclePursuits.remove(policeUUID) != null) {
             lastKnownTargetPos.remove(policeUUID);
-            NPCDrivingScheduler.stopDriving(police);
             police.setSirenActive(false);
+
+            // Nur despawnen wenn das Fahrzeug noch existiert (bei Zerstörung hat
+            // PoliceVehicleAI.tick() bereits selbst despawn(asWreck=true) aufgerufen und
+            // stopVehiclePursuit ausgelöst - ein erneuter despawn(false) hier wäre dann ein
+            // no-op, da PoliceVehicleAI.policeToVehicle den Eintrag bereits entfernt hat).
+            PoliceVehicleAI.despawn(police, false);
 
             LOGGER.info("[VEHICLE PURSUIT] {} beendet Verfolgung", police.getNpcName());
         }
@@ -138,11 +109,27 @@ public class PoliceVehiclePursuit {
     }
 
     /**
-     * Wird jeden Server-Tick aufgerufen - aktualisiert Verfolgungen
+     * Wird jeden Server-Tick aufgerufen - steuert das echte Verfolgungsfahrzeug jeden Tick
+     * (fuer fluessige Fahrphysik) und aktualisiert Sirene/Abbruch-Bedingungen alle 3 Sekunden.
      */
     public static void tick(net.minecraft.server.MinecraftServer server) {
-        tickCounter++;
+        if (!activeVehiclePursuits.isEmpty()) {
+            for (Map.Entry<UUID, UUID> entry : activeVehiclePursuits.entrySet()) {
+                UUID policeUUID = entry.getKey();
+                UUID targetUUID = entry.getValue();
 
+                ServerPlayer target = server.getPlayerList().getPlayer(targetUUID);
+                if (target == null) {
+                    continue;
+                }
+                CustomNPCEntity police = PoliceAIHandler.findPoliceByUUID(policeUUID);
+                if (police != null) {
+                    PoliceVehicleAI.tick(police, target);
+                }
+            }
+        }
+
+        tickCounter++;
         if (tickCounter < PATH_UPDATE_INTERVAL) {
             return;
         }
@@ -161,6 +148,10 @@ public class PoliceVehiclePursuit {
                 // Spieler offline - stoppe Verfolgung
                 it.remove();
                 lastKnownTargetPos.remove(policeUUID);
+                CustomNPCEntity police = PoliceAIHandler.findPoliceByUUID(policeUUID);
+                if (police != null) {
+                    PoliceVehicleAI.despawn(police, false);
+                }
                 continue;
             }
 
@@ -168,38 +159,30 @@ public class PoliceVehiclePursuit {
             if (CrimeManager.getWantedLevel(targetUUID) <= 0) {
                 it.remove();
                 lastKnownTargetPos.remove(policeUUID);
+                CustomNPCEntity police = PoliceAIHandler.findPoliceByUUID(policeUUID);
+                if (police != null) {
+                    police.setSirenActive(false);
+                    PoliceVehicleAI.despawn(police, false);
+                }
+                continue;
+            }
+
+            // Nicht mehr in Fahrzeugverfolgung (z. B. Fahrzeug wurde bereits zerstört und
+            // PoliceVehicleAI hat den Polizisten abgezogen) - dann existiert der NPC evtl.
+            // gar nicht mehr, einfach überspringen.
+            CustomNPCEntity sirenPolice = PoliceAIHandler.findPoliceByUUID(policeUUID);
+            if (sirenPolice == null) {
                 continue;
             }
 
             // Feature 5: Periodischer Sirenensound (alle 3 Sekunden, gleicher Takt wie
-            // dieser Pfad-Update-Zyklus) - unabhaengig davon ob sich der Spieler bewegt hat
+            // dieser Pfad-Update-Zyklus) - unabhaengig davon ob sich der Spieler bewegt hat.
+            // Nur bei aktiver Fahrzeugverfolgung (nicht mehr relevant fuer Fuss-Sirenenlicht).
             if (ModConfigHandler.COMMON.POLICE_SIREN_ENABLED.get()) {
-                CustomNPCEntity sirenPolice = PoliceAIHandler.findPoliceByUUID(policeUUID);
-                if (sirenPolice != null) {
-                    playSirenSound(sirenPolice);
-                }
+                playSirenSound(sirenPolice);
             }
 
-            // Prüfe Abstand
-            BlockPos currentTargetPos = target.blockPosition();
-            BlockPos lastPos = lastKnownTargetPos.get(policeUUID);
-
-            if (lastPos != null) {
-                double distanceMoved = Math.sqrt(lastPos.distSqr(currentTargetPos));
-                if (distanceMoved > 20) {
-                    // Spieler hat sich bewegt - Update Pfad
-                    lastKnownTargetPos.put(policeUUID, currentTargetPos);
-
-                    // Feature 4: Flankier-Ziel neu berechnen und Fahrt erneut anstossen -
-                    // ohne diesen Re-Issue würde ein Flankierer sein einmalig gesetztes
-                    // Offset-Ziel nie an die (mittlerweile weitergezogene) Fluchtrichtung
-                    // anpassen.
-                    CustomNPCEntity police = PoliceAIHandler.findPoliceByUUID(policeUUID);
-                    if (police != null) {
-                        startDrivingToTarget(police, computeDrivingDestination(police, target));
-                    }
-                }
-            }
+            lastKnownTargetPos.put(policeUUID, target.blockPosition());
         }
     }
 
@@ -235,11 +218,7 @@ public class PoliceVehiclePursuit {
         if (police.getNpcType() != NPCType.POLICE) return false;
 
         // Polizei darf nicht bereits fahren
-        if (police.isDriving()) return false;
-
-        // Polizei muss Fahrzeug haben
-        if (!(police.level() instanceof net.minecraft.server.level.ServerLevel sl)
-                || !NPCVehicleAssignment.get(sl).hasVehicle(police.getUUID())) return false;
+        if (police.isDriving() || police.isPassenger()) return false;
 
         // Abstand muss gross genug sein
         double distance = police.distanceTo(target);
@@ -252,5 +231,6 @@ public class PoliceVehiclePursuit {
     public static void cleanup(UUID policeUUID) {
         activeVehiclePursuits.remove(policeUUID);
         lastKnownTargetPos.remove(policeUUID);
+        PoliceVehicleAI.cleanup(policeUUID);
     }
 }

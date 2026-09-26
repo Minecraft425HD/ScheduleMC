@@ -60,6 +60,13 @@ public class NPCVehicleLayer extends RenderLayer<CustomNPCEntity, CustomNPCModel
             return;
         }
 
+        // Faehrt der NPC ein echtes Fahrzeug (Polizei-Verfolgungsjagd, siehe
+        // PoliceVehicleAI), reitet er bereits auf einer echten EntityGenericVehicle -
+        // die Illusions-Fahrzeuglayer würde ein zweites, überlagerndes Fahrzeug zeichnen.
+        if (npc.isPassenger()) {
+            return;
+        }
+
         // Lazy-load OBJ Model
         if (cachedModel == null) {
             cachedModel = new OBJModel(VEHICLE_MODEL_LOCATION);

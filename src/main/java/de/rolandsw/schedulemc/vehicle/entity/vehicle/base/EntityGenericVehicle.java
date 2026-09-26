@@ -88,6 +88,27 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
 
     private boolean isSpawned = true;
 
+    /**
+     * Wenn gesetzt, wird dieses Fahrzeug von einer KI (Polizei-NPC-Verfolgung) statt einem
+     * Spieler gesteuert - {@code PhysicsComponent} erlaubt in diesem Fall FORWARD/BACKWARD/
+     * LEFT/RIGHT auch ohne Player-Fahrer (siehe {@code EntityVehicleBase.getDriver()}, das
+     * bewusst Player-only bleibt, um kein bestehendes Spieler-Steuerungsverhalten zu ändern).
+     * Nicht persistiert - Polizei-Fahrzeuge sind pro Verfolgungsjagd temporär.
+     */
+    private de.rolandsw.schedulemc.npc.entity.CustomNPCEntity npcDriver;
+
+    public void setNpcDriver(de.rolandsw.schedulemc.npc.entity.CustomNPCEntity npcDriver) {
+        this.npcDriver = npcDriver;
+    }
+
+    public de.rolandsw.schedulemc.npc.entity.CustomNPCEntity getNpcDriver() {
+        return npcDriver;
+    }
+
+    public boolean isNpcControlled() {
+        return npcDriver != null;
+    }
+
     public EntityGenericVehicle(EntityType type, Level worldIn) {
         super(type, worldIn);
         initializeComponents();
@@ -1135,6 +1156,14 @@ public class EntityGenericVehicle extends EntityVehicleBase implements Container
     }
 
     public void updateControls(boolean forward, boolean backward, boolean left, boolean right, net.minecraft.server.level.ServerPlayer player) {
+        physicsComponent.updateControls(forward, backward, left, right);
+    }
+
+    /**
+     * Steuerungs-Eingang für KI-Fahrer (siehe {@code npcDriver}/{@code isNpcControlled()}) -
+     * ohne Player-Parameter, da hier kein Player fährt.
+     */
+    public void updateAIControls(boolean forward, boolean backward, boolean left, boolean right) {
         physicsComponent.updateControls(forward, backward, left, right);
     }
 
