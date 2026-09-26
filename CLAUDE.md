@@ -2090,3 +2090,40 @@ denselben Arnis-Save laden und die FPS prüfen.
 zu dokumentieren, bevor die Diagnose abgeschlossen ist — er ist ein temporäres Diagnose-
 Werkzeug für genau diesen offenen Fall. Nach Abschluss der Diagnose entscheiden, ob er
 entfernt oder (falls nützlich) zu einem echten, dokumentierten Debug-Feature ausgebaut wird.
+
+
+---
+
+## mapview als Ursache bestätigt, Kill-Switch in Tick/Render aufgesplittet (2026-09-27, Teil 27)
+
+**Status:** DIAGNOSE LÄUFT — Ursache auf das Modul eingegrenzt, genaue Stelle noch offen
+
+**Bestätigt:** Nutzer-Test mit `-Dschedulemc.disableMapview=true` (Teil 26) ergab normale
+FPS ("fps ist normal mit dem flag"). Das gesamte mapview-Modul ist damit zweifelsfrei die
+Ursache — trotz der beiden bereits behobenen Abwärts-Scan-Bugs (Teil 24/25) steckt dort
+noch mindestens eine weitere, bisher nicht gefundene teure Stelle, die speziell mit dieser
+großen/dichten Arnis-Stadtkarte skaliert (leere Welt = normal, s. Teil 26).
+
+**Nächster Bisektionsschritt:** das bisherige Ein-Flag-`MAPVIEW_DISABLED` in
+`MapViewConstants` wurde in zwei unabhängige Flags aufgesplittet, damit ohne erneuten
+Build zwischen den beiden Haupt-Einstiegspunkten unterschieden werden kann:
+- `-Dschedulemc.disableMapviewTick=true` → deaktiviert nur `clientTick()` →
+  `WorldMapData.onTick()` (Datenaufbau-Seite: `chunkCache.checkIfChunksBecameSurroundedByLoaded()`,
+  `WorldMapData.refreshNearbyChunks()`, `chunkUpdateQueue`-Abarbeitung).
+- `-Dschedulemc.disableMapviewRender=true` → deaktiviert nur `renderOverlay()` →
+  `MapViewRenderer.onTickInGame()` (Render-Seite: `drawMinimap()`, `mapCalc()`-Anstoß,
+  `MapViewRenderer.refreshNearbyChunks()`, `checkForChanges()`).
+
+Verdächtige Kandidaten für den nächsten Fund, falls die Bisektion auf die Tick-Seite
+zeigt: `WorldMapData.refreshNearbyChunks()` markiert alle ~81 Chunks im 4-Chunk-Radius um
+den Spieler alle 2 Sekunden als "dirty" — bewusst NICHT hinter `worldmapAllowed` gegatet
+(siehe Teil 21, wegen der Navigations-Abhängigkeit), läuft also immer. Auf einer Karte, in
+der praktisch jeder dieser 81 Chunks dichten, abwechslungsreichen Content hat (im
+Gegensatz zu einer leeren Welt), könnte die daraus resultierende volle `getPixelColor()`-
+Neuberechnung (inkl. Biom-Tint + Licht-Abfragen) pro markiertem Chunk deutlich teurer sein
+als auf einer leeren Karte — noch nicht verifiziert, nur eine Hypothese für die nächste
+Runde.
+
+**Nicht vorschlagen:** ohne das Ergebnis dieser zweigeteilten Bisektion weiterzuraten oder
+den O(384)-Scan-Fix aus Teil 24/25 in Frage zu stellen — der war real und richtig, hat nur
+nicht das gesamte Problem gelöst.

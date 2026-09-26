@@ -6,6 +6,19 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.27-beta] - 2026-09-27
+
+### Diagnostic — mapview confirmed as cause, kill switch split into tick/render halves
+User tested the 3.9.26-beta kill switch and confirmed normal FPS with
+`-Dschedulemc.disableMapview=true` — the mapview module is conclusively the cause,
+though not (fully) explained by the two already-fixed descent-loop bugs (3.9.24/25-beta).
+Split the single flag into `-Dschedulemc.disableMapviewTick=true` (disables
+`MapViewConstants.clientTick()`, the data-building side) and
+`-Dschedulemc.disableMapviewRender=true` (disables `renderOverlay()`, the rendering side)
+so the next test round can narrow which half is responsible without another rebuild. See
+CLAUDE.md "Teil 27" for the leading hypothesis (the periodic `WorldMapData
+.refreshNearbyChunks()` rescan, intentionally left ungated in 3.9.21-beta) and next steps.
+
 ## [3.9.26-beta] - 2026-09-27
 
 ### Diagnostic — mapview kill switch to isolate a still-unresolved FPS issue
