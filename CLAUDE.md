@@ -1764,3 +1764,75 @@ Full-Grid-Scan (mit oder ohne Thread-Pool) zurückzubauen, oder `WorldMapData
 .refreshNearbyChunks()` nachträglich hinter `worldmapAllowed` zu gaten, ohne vorher zu
 verifizieren, dass das Navigationssystem (`RoadNavigationService` u. a.) davon unabhängig
 mit Chunk-Daten versorgt wird.
+
+---
+
+## NPC-Marker auf Map/Minimap gefunden und behoben (2026-09-26, Teil 22)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Auslöser:** Nutzer-Meldung: "man sieht die npcs nicht auf der map und auch nicht auf der
+minimap!" — Fortsetzung der Performance-Recherche aus Teil 21, wo `NPCMapRenderer
+.getVisibleNPCs()` als ungedrosselter Per-Frame-AABB-Scan gemeldet wurde (siehe unten). Auf
+explizite Anfrage zuerst der Sichtbarkeits-Bug behoben, danach der bereits angekündigte
+Performance-Fix, beides mit Build-Verifikation.
+
+**Ausgeschlossene Hypothesen (einzeln verifiziert, kein Ratespiel):**
+- `NPCActivityStatus.AT_WORK`/`AT_HOME`-Filter: `NPCLocationData.workLocation`/
+  `homeLocation` sind `@Nullable` und werden NUR über das Admin-Tool `NPCLocationTool`
+  (Rechtsklick-Zuweisung) gesetzt — bei einem frisch gespawnten NPC ohne diese Zuweisung
+  ist `workLocation == null`, `isAtWorkLocation()` liefert daher immer `false`,
+  `calculateActivityStatus()` fällt auf `ROAMING` (sichtbar) zurück. Der Filter kann also
+  bei Standard-NPCs nicht die Ursache für pauschale Unsichtbarkeit sein.
+- `EntityDataAccessor`-Sync (`NPC_TYPE_ORDINAL`/`ACTIVITY_STATUS`): `getNpcType()`/
+  `getActivityStatus()` lesen client-safe aus `SynchedEntityData`, `syncToClient()` wird
+  sowohl bei `setNpcData()` als auch in `readAdditionalSaveData()` (nach NBT-Laden)
+  aufgerufen — kein Null-/Stale-Data-Risiko gefunden.
+- `clientTrackingRange(10)` (Chunks) bei der `CustomNPCEntity`-Registrierung: Standardwert,
+  keine ungewöhnliche Einschränkung.
+- `WorldMapScreen` (eigene, separate NPC-Marker-Aufrufstelle, Zeile ~1339): nutzt
+  ausschließlich echte `Screen.width`/`height`-Pixelkoordinaten, kein `scScale`-
+  Zwischenraum — von diesem Bug nicht betroffen (davon unabhängig ohnehin über die
+  deaktivierte M-Taste nicht erreichbar, siehe Abschnitt "Dimension-System" o. ä.).
+
+**Tatsächlicher Fund — fehlende `scaleProj`-Transformation:** `MapViewRenderer` rendert die
+Minimap/Vollbildkarte in einem virtuellen `scScale`-Koordinatenraum (`scScale` skaliert mit
+der Fenstergröße, unabhängig von der echten GUI-Skalierung `guiScale`). **Jede** andere
+Draw-Methode in dieser Klasse — `renderMap()`, `drawArrow()`, `renderMapFull()`,
+`drawDirections()`, sowie `MapOverlayRenderer.renderNavigationOverlay()` — wendet vor dem
+eigentlichen Zeichnen `graphics.pose().scale(scaleProj, scaleProj, 1.0f)` an
+(`scaleProj = scScale / guiScale`), um von diesem virtuellen Raum in echte GUI-Pixel zu
+konvertieren. `MapOverlayRenderer.renderNPCMarkers()` war die EINE Ausnahme — bekam
+`scaleProj` nicht einmal als Parameter übergeben und zeichnete `mapX`/`mapY`
+(virtuelle Koordinaten) direkt auf die echte Pixel-Leinwand. Die NPC-Marker wurden also
+tatsächlich gezeichnet, nur an der falschen Bildschirmposition (korrekt nur zufällig, wenn
+`scScale == guiScale` — in der Praxis fast nie der Fall) — dadurch praktisch immer
+unsichtbar, auf Minimap wie Vollbildkarte gleichermaßen.
+
+**Fix:** `MapOverlayRenderer.renderNPCMarkers()` bekam einen neuen `float scaleProj`-
+Parameter und wendet jetzt exakt dasselbe `pushPose()`/`scale(scaleProj, scaleProj, 1.0f)`/
+`popPose()`-Muster an wie `renderNavigationOverlay()` (dieselbe Klasse, direkt daneben).
+Beide Aufrufstellen in `MapViewRenderer` (Minimap- und Vollbild-Zweig in `drawMinimap()`)
+übergeben jetzt `scaleProj` mit.
+
+**Zusätzlich umgesetzt (bereits in Teil 21 als Performance-Fund angekündigt):**
+`NPCMapRenderer.getVisibleNPCs()` machte bei JEDEM Render-Frame einen frischen
+`ClientLevel.getEntities()`-AABB-Scan (plus neue `AABB`/`ArrayList`-Allokation) — ohne
+Cache oder Drosselung, anders als jeder andere HUD-Overlay in diesem Repo
+(`PlotInfoHudOverlay`, `TobaccoPotHudOverlay`). Neues Cache-Feld `cachedVisibleNPCs` mit
+200ms-Intervall + 4-Block-Toleranz (Zentrum/Radius) — NPC-Punkte auf der Karte müssen
+nicht frame-genau aktuell sein, spart aber bei typisch 60+ FPS ca. 10-15x der Scans, während
+Minimap oder Vollbildkarte sichtbar sind.
+
+**Verifikation:** Echter `./gradlew compileJava`-Lauf (0 Fehler, nur die 3 bekannten,
+session-unabhängigen Deprecation-Warnungen) nach JEDER der beiden Änderungen einzeln
+gegengeprüft. Echter `./gradlew test`-Lauf nach beiden Änderungen — alle 36 Testklassen
+grün, 0 Failures/Errors. Beide Guard-Skripte (`check-german-strings.sh`,
+`repo_hygiene_check.sh`) weiterhin "OK". Repo-weiter Grep bestätigt: `renderNPCMarkers()`
+hat genau 2 Aufrufer (beide in `MapViewRenderer`, beide aktualisiert) — keine weitere
+Aufrufstelle übersehen. Der bekannte Testlauf-Seiteneffekt auf
+`config/plotmod_economy.json` wurde vor jedem Commit zurückgesetzt.
+
+**Nicht vorschlagen:** diesen Bug erneut zu suchen oder die `scaleProj`-Transformation aus
+`renderNPCMarkers()` wieder zu entfernen — sie ist notwendig, nicht optional (ohne sie sind
+NPC-Marker wieder unsichtbar, außer bei zufälliger `scScale == guiScale`-Übereinstimmung).

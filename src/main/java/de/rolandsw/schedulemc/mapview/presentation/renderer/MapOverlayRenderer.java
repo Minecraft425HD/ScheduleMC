@@ -86,19 +86,32 @@ public class MapOverlayRenderer {
      * @param scHeight  scaled screen height
      * @param lastX     last known player X
      * @param lastZ     last known player Z
+     * @param scaleProj GUI-scale correction factor (scScale / guiScale). mapX/mapY/mapSize/
+     *                  scWidth/scHeight are all in the "virtual scScale" coordinate space that
+     *                  {@code renderMap}/{@code drawArrow}/{@code renderNavigationOverlay} draw
+     *                  in - without applying this same pose scale here, the markers are drawn in
+     *                  that virtual space directly onto the real (GUI-scaled) pixel canvas and
+     *                  land at the wrong screen position (NPCs invisible on both minimap and
+     *                  worldmap whenever scScale != guiScale, i.e. in practice almost always).
      */
     public void renderNPCMarkers(GuiGraphics graphics, int mapX, int mapY,
                                   int mapSize, float zoom, boolean fullscreen,
-                                  float direction, int scWidth, int scHeight, int lastX, int lastZ) {
+                                  float direction, int scWidth, int scHeight, int lastX, int lastZ,
+                                  float scaleProj) {
         float rotation = 0;
         if (this.options.rotates && !fullscreen) {
             rotation = direction;
         }
+
+        graphics.pose().pushPose();
+        graphics.pose().scale(scaleProj, scaleProj, 1.0f);
 
         if (fullscreen) {
             npcMapRenderer.renderOnWorldmap(graphics, lastX, lastZ, scWidth, scHeight, zoom, 0, 0);
         } else {
             npcMapRenderer.renderOnMinimap(graphics, lastX, lastZ, mapSize, zoom, mapX, mapY, rotation);
         }
+
+        graphics.pose().popPose();
     }
 }

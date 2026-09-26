@@ -6,6 +6,47 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.22-beta] - 2026-09-26
+
+### Fixed — NPC markers never rendered on minimap/worldmap (wrong screen position, not a visibility filter)
+User report: NPCs never show up as dots on either the minimap or the worldmap. Traced the
+render call chain (`MapViewRenderer.drawMinimap()` → `MapOverlayRenderer.renderNPCMarkers()`
+→ `NPCMapRenderer`) end to end, including ruling out the activity-status filter
+(`NPCActivityStatus.AT_WORK`/`AT_HOME`) as the cause — verified `workLocation`/`homeLocation`
+default to `null` (only set via the admin `NPCLocationTool`), so a default NPC always
+evaluates to `ROAMING` (visible) regardless of time of day.
+
+The actual bug: `mapX`/`mapY`/`mapSize`/`scWidth`/`scHeight` passed into
+`renderNPCMarkers()` are all in the virtual `scScale` coordinate space that every *other*
+draw call in `MapViewRenderer` (`renderMap`, `drawArrow`, `renderMapFull`, `drawDirections`,
+`MapOverlayRenderer.renderNavigationOverlay`) converts to real GUI pixels via
+`graphics.pose().scale(scaleProj, scaleProj, 1.0f)` before drawing — `renderNPCMarkers()` was
+the one call site that never received or applied `scaleProj`. NPC markers were being drawn,
+just at the wrong screen position (correct only by coincidence when `scScale == guiScale`),
+which in practice made them invisible on both the minimap and the worldmap.
+
+**Fix:** `MapOverlayRenderer.renderNPCMarkers()` now takes a `scaleProj` parameter and
+wraps its draw calls in the same `pushPose()`/`scale(scaleProj, scaleProj, 1.0f)`/`popPose()`
+pattern as `renderNavigationOverlay()`; both call sites in `MapViewRenderer` (minimap and
+fullscreen) now pass `scaleProj` through. `WorldMapScreen`'s own, separate NPC-marker call
+was checked and confirmed unaffected — it uses `Screen`'s own real-pixel `width`/`height`
+directly, no `scScale` virtual space involved (and that screen is unreachable anyway per the
+disabled M-keybind, see CLAUDE.md "Dimension-System"-adjacent map notes).
+
+### Improved — NPC marker scan no longer runs unthrottled every render frame
+While root-causing the above, found `NPCMapRenderer.getVisibleNPCs()` performs a fresh
+`ClientLevel.getEntities()` AABB scan (plus a new `AABB`/`ArrayList` allocation) on every
+single render frame the minimap is visible, with no caching or throttling — unlike every
+other HUD overlay in this codebase (`PlotInfoHudOverlay`, `TobaccoPotHudOverlay`, etc.),
+which all cache and only recompute on a meaningful state change. Added a 200ms/4-block-
+tolerance cache, mirroring that established pattern — cosmetically imperceptible (NPC dots
+don't need frame-perfect positions), but cuts the scan rate by roughly 10-15x while the
+minimap or worldmap is showing.
+
+Verified via real `./gradlew compileJava`/`test` (0 errors, 36/36 test classes green) and
+both guard scripts. See CLAUDE.md "Teil 22" for the full investigation, including the ruled-
+out hypotheses (activity-status filter, client entity tracking range, `NPCType` sync safety).
+
 ## [3.9.21-beta] - 2026-09-26
 
 ### Fixed — always-on minimap subsystem was the FPS root cause (reported: low FPS with nothing mod-related placed in the world)

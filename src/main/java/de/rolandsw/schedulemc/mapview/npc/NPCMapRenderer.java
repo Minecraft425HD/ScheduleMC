@@ -52,6 +52,20 @@ public class NPCMapRenderer {
     private float pulseAnimation = 0;
     private static final float PULSE_SPEED = 0.05f;
 
+    // PERFORMANCE: getVisibleNPCs() macht einen AABB-Entity-Scan über das Level - das ist
+    // unnötig teuer, wenn es bei jedem einzelnen Render-Frame (60+/Sekunde) wiederholt wird,
+    // während sich Spielerposition/-radius kaum ändern. Cache das Ergebnis und rechne nur neu,
+    // wenn sich Zentrum/Radius seit dem letzten Scan spürbar geändert haben ODER das
+    // Scan-Intervall abgelaufen ist (NPC-Punkte auf der Karte müssen nicht frame-genau
+    // aktuell sein).
+    private static final long SCAN_INTERVAL_MS = 200;
+    private static final int SCAN_POSITION_TOLERANCE = 4; // Blöcke
+    private long lastScanTime = 0;
+    private int lastScanCenterX = Integer.MIN_VALUE;
+    private int lastScanCenterZ = Integer.MIN_VALUE;
+    private int lastScanRadius = -1;
+    private List<CustomNPCEntity> cachedVisibleNPCs = new ArrayList<>();
+
     /**
      * Rendert alle sichtbaren NPCs auf der Minimap
      *
@@ -246,10 +260,26 @@ public class NPCMapRenderer {
      * Filtert Polizei und NPCs auf Arbeit/Zuhause
      */
     private List<CustomNPCEntity> getVisibleNPCs(int centerX, int centerZ, int radius) {
+        long now = System.currentTimeMillis();
+        boolean withinInterval = now - lastScanTime < SCAN_INTERVAL_MS;
+        boolean sameRadius = radius == lastScanRadius;
+        boolean withinPositionTolerance =
+                Math.abs(centerX - lastScanCenterX) <= SCAN_POSITION_TOLERANCE
+                        && Math.abs(centerZ - lastScanCenterZ) <= SCAN_POSITION_TOLERANCE;
+
+        if (withinInterval && sameRadius && withinPositionTolerance) {
+            return cachedVisibleNPCs;
+        }
+
         List<CustomNPCEntity> result = new ArrayList<>();
 
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
+            cachedVisibleNPCs = result;
+            lastScanTime = now;
+            lastScanCenterX = centerX;
+            lastScanCenterZ = centerZ;
+            lastScanRadius = radius;
             return result;
         }
 
@@ -278,6 +308,11 @@ public class NPCMapRenderer {
             result.add(npc);
         }
 
+        cachedVisibleNPCs = result;
+        lastScanTime = now;
+        lastScanCenterX = centerX;
+        lastScanCenterZ = centerZ;
+        lastScanRadius = radius;
         return result;
     }
 

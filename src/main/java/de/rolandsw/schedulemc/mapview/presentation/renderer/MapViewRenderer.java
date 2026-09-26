@@ -540,7 +540,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             // Render NPCs auf Fullscreen-Karte
             this.overlayRenderer.renderNPCMarkers(drawContext, this.scWidth / 2, this.scHeight / 2,
                     Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true,
-                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ);
+                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ, scaleProj);
             this.drawArrow(drawContext, this.scWidth / 2, this.scHeight / 2, scaleProj);
         } else {
             this.renderMap(drawContext, mapX, mapY, scScale, scaleProj);
@@ -550,7 +550,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ);
             // Render NPCs auf Minimap
             this.overlayRenderer.renderNPCMarkers(drawContext, mapX, mapY, 64, (float) this.zoomScale, false,
-                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ);
+                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ, scaleProj);
             this.drawArrow(drawContext, mapX, mapY, scaleProj);
         }
     }
