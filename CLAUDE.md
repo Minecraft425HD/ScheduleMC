@@ -2035,3 +2035,58 @@ diesem Fix weiterhin bestehen sollte, muss weiter nach zusätzlichen Ursachen ge
 werden (z. B. `RegionCache.isSurroundedByLoaded()` — ein separater, noch nicht auf
 Redundanz/Kosten geprüfter 3×3-Chunk-Nachbar-Check — wurde in dieser Session gesichtet,
 aber nicht weiter untersucht).
+
+
+---
+
+## Diagnose-Kill-Switch für das komplette mapview-Modul (2026-09-27, Teil 26)
+
+**Status:** DIAGNOSE LÄUFT — vorläufiger Debug-Baustein, kein abgeschlossener Fix
+
+**Auslöser:** Nutzer-Rückmeldung "immernoch 3 fps!" NACH dem Teil-25-Fix (bestätigt: frisch
+gebaut, alte jar ersetzt). Weitere Verifikation ergab entscheidende neue Fakten:
+- Server-Tick-Aufzeichnung (`/debug start`/`/debug stop`) lief über 413,69 Sekunden bei
+  exakt **20,00 Ticks/Sekunde** — der Server-Thread lag zu keinem Zeitpunkt zurück. Der
+  Bug liegt also zu 100 % auf der Client-/Render-Seite, nicht in irgendeiner Server-Tick-
+  Logik (schließt NPCInteractionManager, PoliceRoadblock, SpeedCameraManager u. Ä. aus).
+- Fliegen auf Y=300+ über der gesamten Arnis-Stadt ändert nichts (weiterhin 3 FPS) —
+  schwacher Test (geladene Chunks um die X/Z-Position bleiben unabhängig von der Y-Höhe
+  gleich), liefert also keinen eindeutigen Ausschluss reiner Rendering-Geometrie-Kosten.
+- **Entscheidender Befund:** Eine brandneue, leere Vanilla-Welt (kein Arnis) mit demselben
+  aktuellen Mod-Build läuft mit normaler FPS. Exakt derselbe Arnis-Save-Ordner
+  ("Arnis World 5") mit der Mod-jar aus `mods/` entfernt läuft ebenfalls mit normaler FPS
+  (vom Nutzer explizit als "exakt derselbe Save-Ordner, nur jar entfernt" bestätigt). Der
+  Bug ist also zweifelsfrei mod-verursacht UND spezifisch an den Inhalt/die Größe dieser
+  einen (von einem externen Tool namens "Arnis" aus echten OpenStreetMap-Daten generierten)
+  Stadtkarte gebunden — nicht an jeden Weltbeitritt generell.
+
+**Kein Zugriff auf einen Profiler in dieser Session** (Nutzer kann/will Spark nicht
+installieren) — die bisherigen zwei Fixes (Teil 24 + 25) waren beide echte, verifizierte
+Bugs (unbegrenzter Abwärts-Scan bis zu 384 Iterationen/Spalte), aber laut Nutzer-
+Rückmeldung nicht die (alleinige) Ursache dieses konkreten Falls. Ohne Profiler-Daten wäre
+jeder weitere Fix reines Rätselraten in einem bereits zweimal gescheiterten Muster.
+
+**Umsetzung — Kill-Switch statt weiterem Rätselraten:** `MapViewConstants.clientTick()`
+und `renderOverlay()` (die beiden einzigen Einstiegspunkte des gesamten mapview-Moduls,
+aufgerufen aus `ForgeEvents.onClientTick()`/`onRenderGui()`) geben jetzt sofort zurück,
+wenn die neue statische Flag `MAPVIEW_DISABLED` (`Boolean.getBoolean
+("schedulemc.disableMapview")`) gesetzt ist. Aktivierung ohne erneuten Build: JVM-Argument
+`-Dschedulemc.disableMapview=true`, in PrismLauncher unter "Instance Settings" → "Java" →
+"JVM Args" eintragbar. Damit kann der Nutzer das KOMPLETTE mapview-Modul (Datenaufbau +
+Rendering) per Bisektion ein/ausschalten, ohne für jeden Test neu zu bauen.
+
+**Nächster Schritt (noch nicht vom Nutzer getestet):** Mit `-Dschedulemc.disableMapview=true`
+denselben Arnis-Save laden und die FPS prüfen.
+- **FPS normal** → mapview ist zweifelsfrei die Ursache; weitere Bisektion nötig, welcher
+  Teil davon (Datenaufbau, Rendering, periodische Rescans) — dann OHNE die Flag, aber mit
+  gezielten Kommentar-Outs einzelner Teile (`refreshNearbyChunks()`, `checkIfChunksChanged()`,
+  `drawMinimap()`) weiter eingrenzen.
+- **FPS weiterhin 3** → mapview ist NICHT die Ursache (trotz der beiden echten Bugfixes in
+  Teil 24/25) — die Suche muss sich auf andere Systeme richten, die ebenfalls am
+  Chunk-Laden hängen könnten (z. B. `NPCLifeSystemIntegration`, `WitnessManager`s
+  Entity-Scans, oder etwas völlig außerhalb der bisher untersuchten Module).
+
+**Nicht vorschlagen:** diesen Kill-Switch als dauerhaftes Nutzer-Feature zu bewerben oder
+zu dokumentieren, bevor die Diagnose abgeschlossen ist — er ist ein temporäres Diagnose-
+Werkzeug für genau diesen offenen Fall. Nach Abschluss der Diagnose entscheiden, ob er
+entfernt oder (falls nützlich) zu einem echten, dokumentierten Debug-Feature ausgebaut wird.

@@ -89,7 +89,21 @@ public final class MapViewConstants {
         MapViewConstants.getLightMapInstance().lateInit(true, false);
     }
 
+    // DIAGNOSTIC (2026-09-27, Teil 26): Temporärer Kill-Switch, um bei einem gemeldeten,
+    // bisher trotz zweier behobener Bugs weiterhin bestehenden FPS-Einbruch auf einer
+    // konkreten Nutzer-Weltkarte per Bisektion festzustellen, ob das komplette mapview-
+    // Modul (Tick + Render-Overlay) überhaupt die Ursache ist - ohne dass der Nutzer einen
+    // Profiler installieren muss. Aktivierung: JVM-Argument -Dschedulemc.disableMapview=true
+    // (z. B. in PrismLauncher unter Instance Settings -> Java -> JVM Args). Siehe CLAUDE.md
+    // Teil 26. **Nicht als dauerhaftes Feature gedacht** - nach Abschluss der Diagnose
+    // wieder entfernen, falls nicht explizit als dauerhafte Option gewünscht.
+    private static final boolean MAPVIEW_DISABLED = Boolean.getBoolean("schedulemc.disableMapview");
+
     public static void clientTick() {
+        if (MAPVIEW_DISABLED) {
+            return;
+        }
+
         if (!initialized) {
             lateInit();
         }
@@ -101,6 +115,10 @@ public final class MapViewConstants {
     }
 
     public static void renderOverlay(GuiGraphics guiGraphics) {
+        if (MAPVIEW_DISABLED) {
+            return;
+        }
+
         if (!initialized) {
             lateInit();
         }

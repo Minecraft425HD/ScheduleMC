@@ -6,6 +6,28 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.26-beta] - 2026-09-27
+
+### Diagnostic — mapview kill switch to isolate a still-unresolved FPS issue
+Follow-up to 3.9.25-beta: user confirmed rebuilding and reinstalling, but still reports 3
+FPS on their Arnis-generated (OpenStreetMap-derived) city map. New facts gathered this
+round: the server tick recording (`/debug start`/`/debug stop`) held a perfect 20.00
+ticks/second over a 413-second sample — the server thread never lagged, so this is
+conclusively a client/render-side issue, not any server-tick system. Flying to Y=300+
+over the whole city made no difference. Critically: a brand-new empty vanilla world with
+the same build runs at normal FPS, and the exact same Arnis save with the mod jar removed
+also runs at normal FPS — so the bug is definitely mod-caused and specific to this map's
+content/size, not a universal per-world-join regression.
+
+With no profiler available in this environment and the user unable to install one (Spark),
+added a diagnostic-only kill switch: `MapViewConstants.clientTick()`/`renderOverlay()`
+(the mapview module's only two per-frame entry points) now return immediately if the JVM
+property `-Dschedulemc.disableMapview=true` is set — no rebuild needed to toggle it, just
+add that flag under PrismLauncher's Instance Settings → Java → JVM Args. This lets the user
+bisect whether the entire mapview module is the cause without further code guessing. Not a
+finished fix — see CLAUDE.md "Teil 26" for the exact next step and how to interpret either
+outcome.
+
 ## [3.9.25-beta] - 2026-09-26
 
 ### Fixed — second, independent copy of the same unbounded per-column descent, in the persistent map-data path
