@@ -230,10 +230,8 @@ brauchen neue Funktionalität, keine reine Verdrahtung. Plan pro Wert
 4. **`police.flanking_enabled`** — ERLEDIGT
    (2026-09-26, Teil 17, siehe eigener Abschnitt unten).
 
-5. **`police.siren_sound_radius`**: Periodischer Sirenensound während
-   `PoliceVehiclePursuit`-Verfolgung. **Braucht eine Entscheidung:** eigenes
-   Sound-Asset registrieren oder bewusst einen Vanilla-Sound (z. B.
-   `RAID_HORN`) zweckentfremden — keine Audiodatei im Repo vorhanden.
+5. **`police.siren_sound_radius`** — ERLEDIGT
+   (2026-09-26, Teil 18, siehe eigener Abschnitt unten).
 
 6. **`level_system.max_level`/`base_xp`/`xp_exponent`**: `LevelRequirements`s
    `static final` XP-Tabelle (berechnet beim Klassenladen, vor
@@ -1428,3 +1426,32 @@ bisher nur die Spieler-UUID, nicht die Polizei-Entity selbst auflöste.
 **Nicht vorschlagen:** die festen Winkel-/Abstands-Konstanten in Config-Werte
 umzuwandeln, oder die Rollenverteilung auf eine feste UUID-Reihenfolge statt der
 dynamischen Nächster-Verfolger-Logik umzustellen, ohne dass das explizit gewünscht wird.
+
+---
+
+## Sirenensound verdrahtet (2026-09-26, Teil 18)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Betrifft:** Backlog-Punkt 5 ("Fehlende Features für 12 verbleibende Dead-Config-Werte",
+`police.siren_sound_radius`). Vorgefunden: `POLICE_SIREN_ENABLED`/`setSirenActive()`
+steuerten bereits ausschließlich eine **visuelle** Blaulicht-Anzeige (`NPCSirenLayer`,
+Client-Renderer) — kein Ton. `police.siren_sound_radius` hatte 0 Lesestellen.
+
+**Sound-Entscheidung (per `AskUserQuestion`):** Vanilla `SoundEvents.RAID_HORN`
+zweckentfremdet statt eigenes Asset — keine Audiodatei im Repo, kein Bildgenerierungs-
+/Audiogenerierungs-Tool in dieser Umgebung verfügbar.
+
+**Umsetzung:** Neue private Methode `PoliceVehiclePursuit.playSirenSound(CustomNPCEntity)`,
+aufgerufen aus `tick()` im bereits bestehenden 3-Sekunden-Takt (`PATH_UPDATE_INTERVAL`) für
+jede aktive Fahrzeugverfolgung — unabhängig davon, ob sich der Spieler bewegt hat (anders
+als der direkt daneben liegende Pfad-Update-Block, der nur bei Bewegung >20 Blöcke
+auslöst). Nutzt `level.playSound(null, x, y, z, RAID_HORN, SoundSource.NEUTRAL, volume,
+1.0f)` (etabliertes Muster aus `GunItem`/`GrenadeItem`/`ModSounds`), mit
+`volume = max(1.0, radius/16)` — Vanilla-Lautstärke 1.0 entspricht ca. 16 Blöcken Hörweite,
+der konfigurierte `siren_sound_radius` (Default 50, Range 10–200) wird darüber linear
+skaliert. Bewusst nur bei Fahrzeugverfolgung (wie im Backlog-Text selbst benannt), nicht
+bei Fußverfolgung — Sirenen gehören zum Fahrzeug, nicht zum laufenden Polizisten.
+
+**Nicht vorschlagen:** ein eigenes Sirenen-Sound-Asset zu registrieren oder die Sirene auf
+Fußverfolgungen auszuweiten, ohne dass das explizit gewünscht wird.

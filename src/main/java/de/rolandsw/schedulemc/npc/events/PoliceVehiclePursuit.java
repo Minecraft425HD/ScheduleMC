@@ -171,6 +171,15 @@ public class PoliceVehiclePursuit {
                 continue;
             }
 
+            // Feature 5: Periodischer Sirenensound (alle 3 Sekunden, gleicher Takt wie
+            // dieser Pfad-Update-Zyklus) - unabhaengig davon ob sich der Spieler bewegt hat
+            if (ModConfigHandler.COMMON.POLICE_SIREN_ENABLED.get()) {
+                CustomNPCEntity sirenPolice = PoliceAIHandler.findPoliceByUUID(policeUUID);
+                if (sirenPolice != null) {
+                    playSirenSound(sirenPolice);
+                }
+            }
+
             // Prüfe Abstand
             BlockPos currentTargetPos = target.blockPosition();
             BlockPos lastPos = lastKnownTargetPos.get(policeUUID);
@@ -192,6 +201,23 @@ public class PoliceVehiclePursuit {
                 }
             }
         }
+    }
+
+    /**
+     * Feature 5: Sirenensound während der Fahrzeugverfolgung. Nutzt bewusst den
+     * Vanilla-Sound {@code RAID_HORN} zweckentfremdet statt eines eigenen Sound-Assets
+     * (keine Audiodatei im Repo vorhanden, Nutzerentscheidung). Lautstärke wird aus dem
+     * konfigurierten Hörradius abgeleitet (Vanilla-Lautstärke 1.0 ≈ 16 Blöcke Hörweite).
+     */
+    private static void playSirenSound(CustomNPCEntity police) {
+        if (!(police.level() instanceof net.minecraft.server.level.ServerLevel level)) return;
+
+        int radius = ModConfigHandler.COMMON.POLICE_SIREN_SOUND_RADIUS.get();
+        float volume = Math.max(1.0f, radius / 16.0f);
+
+        level.playSound(null, police.getX(), police.getY(), police.getZ(),
+            net.minecraft.sounds.SoundEvents.RAID_HORN, net.minecraft.sounds.SoundSource.NEUTRAL,
+            volume, 1.0f);
     }
 
     /**

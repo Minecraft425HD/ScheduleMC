@@ -6,6 +6,20 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.18-beta] - 2026-09-26
+
+### Added — police siren sound (backlog #5)
+`police.siren_sound_radius` previously had no code reading it — `POLICE_SIREN_ENABLED`
+only drove a visual light-bar effect (`NPCSirenLayer`), no sound. New
+`PoliceVehiclePursuit.playSirenSound()` broadcasts the vanilla `SoundEvents.RAID_HORN`
+(reused per user decision, no custom audio asset available) every 3 seconds during an
+active vehicle pursuit, with volume scaled from the configured radius
+(`max(1.0, radius/16)`, matching vanilla's ~16-block-per-volume-unit falloff). Scoped to
+vehicle pursuit only, matching the backlog's own wording — sirens belong to the car, not
+a pursuing officer on foot.
+
+---
+
 ## [3.9.17-beta] - 2026-09-26
 
 ### Added — police flanking wired up (backlog #4)
