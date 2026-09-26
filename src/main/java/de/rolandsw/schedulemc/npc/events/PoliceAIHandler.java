@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.world.phys.Vec3;
 
@@ -52,6 +53,10 @@ public class PoliceAIHandler {
     private static final int AI_UPDATE_INTERVAL_TICKS = 20; // Alle 1 Sekunde
     private static final int MAX_ARREST_TIMER_ENTRIES = 1000;
     private static final int MAX_CACHE_ENTRIES = 500; // Max Einträge für LRU-Caches
+
+    // Feature 4: Flankieren (feste Konstanten statt Config-Wert, siehe CLAUDE.md)
+    private static final double FLANKING_ANGLE_DEGREES = 50.0;
+    private static final double FLANKING_DISTANCE = 8.0;
 
     // UUID -> Arrest Start Time (in Ticks) - mit automatischem Cleanup
     // SICHERHEIT: Collections.synchronizedMap wrapper, da LinkedHashMap nicht thread-safe ist
@@ -421,7 +426,16 @@ public class PoliceAIHandler {
                             && PoliceVehiclePursuit.canStartVehiclePursuit(npc, targetCriminal)) {
                         PoliceVehiclePursuit.startVehiclePursuit(npc, targetCriminal);
                     } else if (!npc.isDriving()) {
-                        npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
+                        // Feature 4: Bei >=2 Verfolgern zielt jeder Verfolger ausser dem
+                        // naechsten auf einen seitlichen Offset-Punkt statt exakt auf den
+                        // Spieler - Flankieren statt Auflaufen hintereinander.
+                        Vec3 flankTarget = ModConfigHandler.COMMON.POLICE_FLANKING_ENABLED.get()
+                            ? computeFlankingTarget(npc, targetCriminal) : null;
+                        if (flankTarget != null) {
+                            npc.getNavigation().moveTo(flankTarget.x, flankTarget.y, flankTarget.z, POLICE_SPEED);
+                        } else {
+                            npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED);
+                        }
                     }
 
                     // Feature 3: Strassensperre vor dem fliehenden Spieler errichten (ab Wanted-Level 4)
@@ -527,6 +541,75 @@ public class PoliceAIHandler {
     private static boolean isOnRoad(ServerLevel level, BlockPos roadblockPos) {
         net.minecraft.world.level.block.state.BlockState ground = level.getBlockState(roadblockPos.below());
         return de.rolandsw.schedulemc.mapview.navigation.graph.RoadBlockDetector.isRoadBlock(ground);
+    }
+
+    /**
+     * Feature 4: Berechnet bei ≥2 Verfolgern für alle Verfolger AUSSER dem nächsten
+     * (kürzeste aktuelle Distanz zum Ziel) einen seitlichen Offset-Punkt relativ zur
+     * Fluchtrichtung des Spielers, statt dass alle exakt dieselbe Position anvisieren.
+     * Bewegt sich der Spieler kaum, wird die Richtung von diesem NPC zum Spieler als
+     * Fluchtrichtung verwendet (Flankieren soll auch bei stehendem Ziel funktionieren,
+     * anders als die Fluchtrichtungs-Logik der Strassensperre in Teil 13, die dort
+     * bewusst keine Sperre baut).
+     *
+     * @return der Offset-Zielpunkt für diesen NPC, oder {@code null} wenn dieser NPC
+     *         selbst der nächste Verfolger ist bzw. weniger als 2 Verfolger aktiv sind
+     */
+    @javax.annotation.Nullable
+    static Vec3 computeFlankingTarget(CustomNPCEntity npc, ServerPlayer target) {
+        Set<UUID> pursuers = PoliceBackupSystem.getAssignedPolice(target.getUUID());
+        if (pursuers.size() < 2) return null;
+
+        Vec3 targetPos = target.position();
+        double myDistSq = npc.distanceToSqr(target);
+
+        // Rang unter den ANDEREN Verfolgern, die naeher am Ziel sind als dieser NPC
+        int rank = 0;
+        for (CachedPoliceData data : policeCache) {
+            if (data.uuid.equals(npc.getUUID())) continue;
+            if (!pursuers.contains(data.uuid)) continue;
+            if (data.position.distanceToSqr(targetPos) < myDistSq) {
+                rank++;
+            }
+        }
+        if (rank == 0) return null; // dieser NPC ist selbst der naechste Verfolger
+
+        Vec3 flee = target.getDeltaMovement();
+        if (flee.horizontalDistanceSqr() < 0.0001) {
+            flee = targetPos.subtract(npc.position());
+        }
+        if (flee.horizontalDistanceSqr() < 0.0001) {
+            flee = new Vec3(1, 0, 0);
+        }
+        flee = new Vec3(flee.x, 0, flee.z).normalize();
+
+        // Flankierer wechselseitig links/rechts, mit steigendem Winkel je weiterem Rang
+        int side = (rank % 2 == 1) ? 1 : -1;
+        int multiplier = (rank + 1) / 2;
+        double angleRad = Math.toRadians(FLANKING_ANGLE_DEGREES * multiplier * side);
+        double cos = Math.cos(angleRad);
+        double sin = Math.sin(angleRad);
+        double offsetX = flee.x * cos - flee.z * sin;
+        double offsetZ = flee.x * sin + flee.z * cos;
+
+        return new Vec3(
+            targetPos.x + offsetX * FLANKING_DISTANCE,
+            targetPos.y,
+            targetPos.z + offsetZ * FLANKING_DISTANCE
+        );
+    }
+
+    /**
+     * Sucht einen Polizei-NPC im gecachten Bestand anhand seiner UUID (für
+     * {@code PoliceVehiclePursuit}s periodisches Nachjustieren des Flankier-Ziels
+     * während einer Fahrzeugverfolgung, ohne einen eigenen World-Scan zu benötigen).
+     */
+    @javax.annotation.Nullable
+    static CustomNPCEntity findPoliceByUUID(UUID uuid) {
+        for (CachedPoliceData data : policeCache) {
+            if (data.uuid.equals(uuid)) return data.npc;
+        }
+        return null;
     }
 
     /**

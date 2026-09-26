@@ -6,6 +6,27 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.17-beta] - 2026-09-26
+
+### Added — police flanking wired up (backlog #4)
+`police.flanking_enabled` previously had no code reading it. New
+`PoliceAIHandler.computeFlankingTarget()` returns a side offset point (fixed 50°
+angle, 8-block distance, alternating left/right per additional pursuer) for every
+pursuing police NPC except the one currently closest to the target, using the flee
+direction (`target.getDeltaMovement()`, falling back to the NPC-to-target direction
+when the target is nearly stationary) — applied to both foot pursuit
+(`npc.getNavigation().moveTo(...)`) and vehicle pursuit (`PoliceVehiclePursuit
+.startVehiclePursuit`/periodic re-issue in `tick()`). New
+`PoliceBackupSystem.getAssignedPolice(UUID)` exposes the actual set of pursuing police
+UUIDs (previously only a count was available) needed to rank pursuers by distance.
+
+Also fixed a latent no-op in `PoliceVehiclePursuit.tick()`: its 3-second "player moved
+>20 blocks" check updated bookkeeping only, never actually re-issuing the drive command —
+now it recomputes the (possibly flanking) destination and redrives, via a new
+`PoliceAIHandler.findPoliceByUUID()` cache lookup.
+
+---
+
 ## [3.9.16-beta] - 2026-09-26
 
 ### Changed — speed camera marker tool + 7-Minecraft-day rotation

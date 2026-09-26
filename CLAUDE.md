@@ -227,9 +227,8 @@ brauchen neue Funktionalität, keine reine Verdrahtung. Plan pro Wert
 3. **`police.speed_limit_default`** — ERLEDIGT
    (2026-09-25, Teil 15, siehe eigener Abschnitt unten).
 
-4. **`police.flanking_enabled`**: Bei ≥2 verfolgenden Polizei-NPCs in
-   `PoliceAIHandler` einen Offset-Punkt relativ zur Fluchtrichtung
-   anvisieren statt exakt dieselbe Zielposition wie der erste Verfolger.
+4. **`police.flanking_enabled`** — ERLEDIGT
+   (2026-09-26, Teil 17, siehe eigener Abschnitt unten).
 
 5. **`police.siren_sound_radius`**: Periodischer Sirenensound während
    `PoliceVehiclePursuit`-Verfolgung. **Braucht eine Entscheidung:** eigenes
@@ -1369,3 +1368,63 @@ inzwischen dort gebaut hat).
 
 **Nicht vorschlagen:** die 7-Tage-Rotation als Config-Wert aufzubohren, oder die
 Markierungs-Trennung zurückzunehmen, ohne dass das explizit gewünscht wird.
+
+---
+
+## Flankieren verdrahtet (2026-09-26, Teil 17)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Betrifft:** Backlog-Punkt 4 ("Fehlende Features für 12 verbleibende Dead-Config-Werte",
+`police.flanking_enabled`).
+
+**Vorab per `AskUserQuestion` geklärt (drei Entscheidungen, jeweils empfohlene Option
+gewählt):**
+1. Geltungsbereich: **immer** (Fuß- UND Fahrzeugverfolgung), nicht nur Fahrzeug.
+2. Offset-Winkel/-Abstand: **feste Konstanten** im Code, kein neuer Config-Wert.
+3. Rollenverteilung: **nächster Verfolger bleibt direkt**, alle weiter entfernten
+   flankieren (dynamisch, kein fester Zustand).
+
+**Vorgefundene Datenbasis:** `PoliceBackupSystem.activePolice` (`Map<UUID Spieler,
+Set<UUID> Polizei>`) trackt bereits, welche Polizei-NPCs einen Spieler aktuell verfolgen
+(`registerPolice`/`getActivePoliceCount`) — nur eine öffentliche Möglichkeit, die
+tatsächliche Menge (nicht nur die Anzahl) abzufragen, fehlte. Neue Methode
+`PoliceBackupSystem.getAssignedPolice(UUID)` (gibt eine unveränderliche Kopie zurück).
+
+**Umsetzung — neue Methode `PoliceAIHandler.computeFlankingTarget(CustomNPCEntity,
+ServerPlayer)`:**
+- Gibt `null` zurück, wenn weniger als 2 Verfolger aktiv sind, ODER dieser NPC selbst der
+  nächste Verfolger ist (Distanzvergleich gegen alle anderen zugewiesenen Polizei-NPCs im
+  bereits bestehenden `policeCache`, kein zusätzlicher World-Scan nötig).
+- Andernfalls: Rang unter den ANDEREN, näheren Verfolgern bestimmt Winkel/Seite
+  (wechselseitig links/rechts, mit `FLANKING_ANGLE_DEGREES = 50.0` pro weiterem Rang-Paar,
+  `FLANKING_DISTANCE = 8.0` Blöcke Abstand vom Ziel).
+- Fluchtrichtung: `target.getDeltaMovement()` (horizontal), bei nahezu stehendem Ziel
+  Fallback auf die Richtung von diesem NPC zum Ziel (Flankieren soll auch bei stehendem
+  Ziel einen sinnvollen Punkt liefern — anders als bei der Straßensperre in Teil 13, wo
+  bei Stillstand bewusst KEINE Sperre gebaut wird, weil eine Sperre ohne Bewegungsrichtung
+  dort keinen Sinn ergibt; ein Flankier-Punkt um ein stehendes Ziel herum aber schon).
+
+**Fuß-Verfolgung** (`PoliceAIHandler.onPoliceAI()`): der bisherige
+`npc.getNavigation().moveTo(targetCriminal, POLICE_SPEED)`-Aufruf nutzt bei aktiviertem
+Flankieren und vorhandenem Offset-Punkt jetzt `moveTo(x, y, z, POLICE_SPEED)` auf den
+Flankier-Punkt statt direkt auf den Spieler.
+
+**Fahrzeug-Verfolgung** (`PoliceVehiclePursuit`): neue private Methode
+`computeDrivingDestination(CustomNPCEntity, ServerPlayer)` liefert beim Start der
+Verfolgung (`startVehiclePursuit`) denselben Flankier-Punkt als Fahrziel
+(`BlockPos.containing(...)`) statt `target.blockPosition()`. **Wichtige Ergänzung:** Da
+`tick()` bereits alle 3 Sekunden prüft, ob sich der Spieler >20 Blöcke bewegt hat, aber
+bisher nur Buchhaltung (`lastKnownTargetPos`) aktualisierte, OHNE die Fahrt tatsächlich neu
+anzustoßen (Kommentar im Code deutete das als bereits automatisch gelöst an — war es aber
+nicht, das Fahrziel blieb der ursprüngliche einmalige Punkt), wurde dieser Effekt jetzt
+genutzt: bei Bewegung >20 Blöcke wird der Flankier-Punkt neu berechnet und
+`startDrivingToTarget(...)` erneut aufgerufen — sonst hätte ein Flankierer sein einmalig
+gesetztes Offset-Ziel nie an eine geänderte Fluchtrichtung angepasst. Dafür neue Methode
+`PoliceAIHandler.findPoliceByUUID(UUID)` (sucht im bereits bestehenden `policeCache` nach
+der Polizei-NPC-Instanz, kein zusätzlicher World-Scan), da `PoliceVehiclePursuit.tick()`
+bisher nur die Spieler-UUID, nicht die Polizei-Entity selbst auflöste.
+
+**Nicht vorschlagen:** die festen Winkel-/Abstands-Konstanten in Config-Werte
+umzuwandeln, oder die Rollenverteilung auf eine feste UUID-Reihenfolge statt der
+dynamischen Nächster-Verfolger-Logik umzustellen, ohne dass das explizit gewünscht wird.

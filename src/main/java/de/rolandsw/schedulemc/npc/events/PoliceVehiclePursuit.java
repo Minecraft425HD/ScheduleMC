@@ -67,8 +67,8 @@ public class PoliceVehiclePursuit {
             return false;
         }
 
-        // Starte Fahrt zum Spieler
-        BlockPos targetPos = target.blockPosition();
+        // Starte Fahrt zum Spieler (ggf. Flankier-Offset statt direktem Zielpunkt)
+        BlockPos targetPos = computeDrivingDestination(police, target);
         boolean started = NPCDrivingScheduler.canDrive(police, targetPos)
             && startDrivingToTarget(police, targetPos);
 
@@ -87,6 +87,22 @@ public class PoliceVehiclePursuit {
         }
 
         return false;
+    }
+
+    /**
+     * Feature 4: Liefert bei aktiviertem Flankieren und ≥2 Verfolgern einen seitlichen
+     * Offset-Punkt statt der exakten Spielerposition (siehe
+     * {@code PoliceAIHandler.computeFlankingTarget}) - dieselbe Logik wie bei der
+     * Fuss-Verfolgung, nur als Fahrziel statt Navigations-Ziel.
+     */
+    private static BlockPos computeDrivingDestination(CustomNPCEntity police, ServerPlayer target) {
+        if (ModConfigHandler.COMMON.POLICE_FLANKING_ENABLED.get()) {
+            net.minecraft.world.phys.Vec3 flankTarget = PoliceAIHandler.computeFlankingTarget(police, target);
+            if (flankTarget != null) {
+                return BlockPos.containing(flankTarget);
+            }
+        }
+        return target.blockPosition();
     }
 
     /**
@@ -164,7 +180,15 @@ public class PoliceVehiclePursuit {
                 if (distanceMoved > 20) {
                     // Spieler hat sich bewegt - Update Pfad
                     lastKnownTargetPos.put(policeUUID, currentTargetPos);
-                    // Pfad wird beim naechsten NPCDrivingScheduler-Tick aktualisiert
+
+                    // Feature 4: Flankier-Ziel neu berechnen und Fahrt erneut anstossen -
+                    // ohne diesen Re-Issue würde ein Flankierer sein einmalig gesetztes
+                    // Offset-Ziel nie an die (mittlerweile weitergezogene) Fluchtrichtung
+                    // anpassen.
+                    CustomNPCEntity police = PoliceAIHandler.findPoliceByUUID(policeUUID);
+                    if (police != null) {
+                        startDrivingToTarget(police, computeDrivingDestination(police, target));
+                    }
                 }
             }
         }

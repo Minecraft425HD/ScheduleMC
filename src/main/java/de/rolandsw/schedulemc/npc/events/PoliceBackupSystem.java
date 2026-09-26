@@ -70,6 +70,15 @@ public class PoliceBackupSystem {
     }
 
     /**
+     * Gibt eine Kopie der UUIDs aller Polizei-NPCs zurück, die diesen Spieler aktuell
+     * verfolgen (für Feature 4: Flankieren, siehe {@code PoliceAIHandler}).
+     */
+    public static Set<UUID> getAssignedPolice(UUID playerUUID) {
+        Set<UUID> police = activePolice.get(playerUUID);
+        return police != null ? Set.copyOf(police) : Set.of();
+    }
+
+    /**
      * Prüft ob weitere Polizisten hinzugezogen werden können
      */
     public static boolean canCallBackup(UUID playerUUID) {
