@@ -6,6 +6,20 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.28-beta] - 2026-09-27
+
+### Diagnostic — render side confirmed as cause, added drawMinimap()/upload() bisection flag
+User tested the 3.9.27-beta split flags: `disableMapviewTick=true` still 3 FPS,
+`disableMapviewRender=true` gave 100 FPS. The cause is conclusively in
+`MapViewRenderer.onTickInGame()` (render side), not the background data-building tick.
+Leading suspect: `renderMap()`'s synchronous `mapImages[zoom].upload()` GPU texture
+upload on the render thread, gated only by `imageChanged` — which `mapCalc()` sets true
+on almost every movement tick (`offsetX`/`offsetZ != 0`). Added
+`-Dschedulemc.disableMapviewDraw=true` to disable only the `drawMinimap()` call while
+keeping `checkForChanges()`/`refreshNearbyChunks()`/the `mapCalc()` trigger running, to
+confirm whether the upload itself is the cause before attempting any fix. See CLAUDE.md
+"Teil 28" — not yet confirmed by the user.
+
 ## [3.9.27-beta] - 2026-09-27
 
 ### Diagnostic — mapview confirmed as cause, kill switch split into tick/render halves

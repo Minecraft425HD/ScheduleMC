@@ -422,7 +422,16 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.error = "";
         }
 
-        if (enabled && MapDataManager.mapOptions.minimapAllowed) {
+        // DIAGNOSTIC (2026-09-27, Teil 28): weiterer Bisektionsschritt, nachdem Teil 27
+        // bestätigt hat, dass die Render-Seite (onTickInGame) die Ursache ist, nicht die
+        // Tick-/Datenaufbau-Seite. Dieses Flag deaktiviert NUR den eigentlichen
+        // Minimap-Zeichenaufruf (drawMinimap -> renderMap -> mapImages[zoom].upload(),
+        // ein synchroner GPU-Textur-Upload auf dem Render-Thread), während
+        // checkForChanges()/refreshNearbyChunks()/der mapCalc()-Anstoß weiterhin laufen -
+        // damit lässt sich unterscheiden, ob der Textur-Upload selbst oder die übrige
+        // Buchhaltung in onTickInGame die eigentliche Ursache ist. Siehe CLAUDE.md Teil 28.
+        boolean drawDisabled = Boolean.getBoolean("schedulemc.disableMapviewDraw");
+        if (!drawDisabled && enabled && MapDataManager.mapOptions.minimapAllowed) {
             this.drawMinimap(drawContext);
         }
 

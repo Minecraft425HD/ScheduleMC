@@ -2127,3 +2127,47 @@ Runde.
 **Nicht vorschlagen:** ohne das Ergebnis dieser zweigeteilten Bisektion weiterzuraten oder
 den O(384)-Scan-Fix aus Teil 24/25 in Frage zu stellen — der war real und richtig, hat nur
 nicht das gesamte Problem gelöst.
+
+
+---
+
+## Render-Seite bestätigt, dritte Bisektion auf drawMinimap()/upload() (2026-09-27, Teil 28)
+
+**Status:** DIAGNOSE LÄUFT — starker Verdacht identifiziert, noch nicht vom Nutzer bestätigt
+
+**Bestätigt:** Nutzer-Test der Teil-27-Flags war eindeutig:
+- `-Dschedulemc.disableMapviewTick=true` → weiterhin 3 FPS (Tick-/Datenaufbau-Seite ist
+  NICHT die Ursache).
+- `-Dschedulemc.disableMapviewRender=true` → 100 FPS (Render-Seite ist die Ursache).
+
+Damit ist die Ursache auf `MapViewRenderer.onTickInGame()` eingegrenzt.
+
+**Verdächtigste Stelle gefunden:** `renderMap()` (Zeile ~1019-1024) führt bei
+`this.imageChanged == true` einen **synchronen** `this.mapImages[this.zoom].upload()`
+aus — ein GPU-Textur-Upload direkt auf dem Render-Thread. `imageChanged` wird in
+`mapCalc()` auf `true` gesetzt, sobald `doFull || offsetX != 0 || offsetZ != 0 ||
+needHeightMap || needLight || skyColorChanged` — bei einem laufenden/fliegenden Spieler
+ist `offsetX`/`offsetZ` praktisch bei jedem `mapCalc()`-Durchlauf ungleich 0, der
+Upload würde also nahezu jeden Frame erneut ausgelöst, solange sich der Spieler bewegt.
+Kandidat für die Content-Abhängigkeit (leere Welt normal, Arnis-Stadt 3 FPS): eine
+detailreiche/farblich stark wechselnde Karte könnte häufiger `doFull`/`needHeightMap`/
+`needLight` auslösen als eine großteils uniforme leere Welt, wodurch der teure Upload-Pfad
+dort deutlich öfter tatsächlich Arbeit verursacht — noch nicht verifiziert.
+
+**Nächster Bisektionsschritt:** neues Flag `-Dschedulemc.disableMapviewDraw=true`
+(`MapViewRenderer.onTickInGame()`) deaktiviert NUR den `drawMinimap()`-Aufruf (also
+`renderMap()`/`upload()`), lässt aber `checkForChanges()`, `refreshNearbyChunks()` und den
+`mapCalc()`-Anstoß (Notify an den Async-Worker) weiterhin laufen — damit lässt sich
+unterscheiden, ob der Textur-Upload selbst oder die übrige Buchhaltung in
+`onTickInGame()` (die trotz `disableMapviewRender=true` mit-deaktiviert wurde) die
+eigentliche Ursache ist.
+
+**Falls bestätigt (Upload ist die Ursache):** möglicher Fix-Ansatz für die nächste Runde:
+`upload()` nur dann aufrufen, wenn tatsächlich ein sichtbarer Unterschied vorliegt, oder
+den Upload von der Bewegungs-Frequenz entkoppeln (z. B. auf denselben Wert wie die
+UI-Redraw-Rate drosseln, oder asynchron über einen Doppelpuffer). Noch nicht umgesetzt -
+erst nach Bestätigung durch den Nutzer.
+
+**Nicht vorschlagen:** ohne Bestätigung des `disableMapviewDraw`-Tests direkt am
+`upload()`-Aufruf herumzufixen — das wäre wieder Ratespiel im bereits zweimal
+gescheiterten Muster (Teil 24/25 lösten reale, aber nicht die vollständige Ursache).
