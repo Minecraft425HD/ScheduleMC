@@ -1972,3 +1972,66 @@ Deklaration selbst, vor der Löschung geprüft).
 Durchscheinen oder die separate Transparenz-/Foliage-Ebene wiederherzustellen, ohne dass
 das explizit gewünscht wird — die Minimap soll laut expliziter Nutzeranfrage dauerhaft nur
 den flachen, obersten sichtbaren Block zeigen.
+
+---
+
+## Zweiter Fundort desselben Abwärts-Scan-Bugs im persistenten Karten-Datenpfad (2026-09-26, Teil 25)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Auslöser:** Nutzer-Rückmeldung nach dem Test des Teil-24-Fixes: "immernoch 3 fps! es lag
+nicht an der minimap". Das bedeutet: der in Teil 24 behobene Bug in
+`MapViewRenderer.getPixelColor()` war entweder nicht die alleinige Ursache, oder es gab
+eine zweite Stelle mit demselben Problem. Ein repo-weiter Grep auf `getMinBuildHeight()`
+(dasselbe Muster wie der bereits behobene Bug) förderte genau das zutage: eine
+**unabhängig geschriebene, exakte Kopie** desselben unbegrenzten Abwärts-Scans in
+`WorldMapData.getAndStoreData()` — von Teil 24 nicht berührt, weil sie auf einem
+komplett anderen Aufrufpfad liegt.
+
+**Aufrufkette (verifiziert):**
+```
+RegionCache.doLoadChunkData(LevelChunk, chunkX, chunkZ)   [pro neu geladenem/geändertem Chunk]
+ → 256× (pro Spalte) WorldMapData.getAndStoreData(...)
+   → (vorher) unbegrenzter Abwärts-Scan bis zu 384 Iterationen
+```
+Dieser Pfad läuft in der PERSISTENTEN Region-Cache-Pipeline (baut Kartendaten für
+Speicherung/Anzeige auf), unabhängig davon, ob die Minimap überhaupt sichtbar ist oder
+gerendert wird — läuft also potenziell auf jedem neu geladenen Chunk direkt beim
+Weltbeitritt, exakt passend zum gemeldeten Symptom ("sofort ab Weltbeitritt", "überall auf
+der Karte").
+
+**Fix:** identische Vereinfachung wie in Teil 24 (dieselbe Nutzerdirektive gilt
+unverändert: nur der flache, oberste `MOTION_BLOCKING`-Block, kein Abwärts-Scan, kein
+Meeresboden-Durchscheinen, keine separate Foliage-/Transparenz-Ebene). Der
+`!underground`-Zweig von `getAndStoreData()` macht jetzt genau einen Heightmap-Lookup +
+einen Block-State-Fetch (O(1) statt bis zu 384 Iterationen pro Spalte). Die Variablen
+`seafloorHeight`/`transparentHeight`/`seafloorBlockState`/`transparentBlockState` bleiben
+dadurch in JEDEM Aufrufpfad permanent auf ihrem Initialwert (bottomY/air) — die
+nachgelagerten `getLight()`/Setter-Aufrufe dafür sind bereits reine, günstige
+Referenzvergleich-Frühausstiege (`!= BlockDatabase.air.defaultBlockState()`), brauchten
+also keine weitere Code-Entfernung, nur `final` zur Dokumentation dieser Invariante. Drei
+jetzt ungenutzte Imports entfernt (`Direction`, `LeavesBlock`, `Shapes`, `VoxelShape`) —
+`StainedGlassBlock` bleibt, da weiterhin von `applyHeight()` genutzt.
+
+**Separat verifiziert:** `WorldMapData.getPixelColor()` (eine dritte Methode in derselben
+Datei, aufgerufen aus `RegionCache` beim tatsächlichen Rendern) hat KEINEN eigenen
+Abwärts-Scan — sie liest nur die von `getAndStoreData()` bereits aufbereiteten,
+gecachten Werte aus `mapData` und musste nicht geändert werden.
+
+**Verifikation:** Echter `./gradlew compileJava`-Lauf (0 Fehler, nur die 3 bekannten,
+session-unabhängigen Deprecation-Warnungen) und echter `./gradlew test`-Lauf (alle 36
+Testklassen grün, 0 Failures/Errors). Beide Guard-Skripte weiterhin "OK". Der bekannte
+Testlauf-Seiteneffekt auf `config/plotmod_economy.json`/`.backup_*.gz` wurde vor dem
+Commit zurückgesetzt.
+
+**Ehrlich offen gelassen:** Ob dieser zweite Fundort den vom Nutzer gemeldeten,
+weiterhin bestehenden 3-FPS-Einbruch VOLLSTÄNDIG erklärt, konnte in dieser Session nicht
+verifiziert werden — der Nutzer konnte den gebauten Fix noch nicht selbst testen. Es ist
+ein zweiter, real bestätigter Fund exakt desselben Bug-Musters auf einem Pfad, der zum
+gemeldeten Symptom passt (läuft beim Chunk-Laden, unabhängig von der Minimap-Sichtbarkeit)
+— aber keine garantiert abschließende Antwort. **Nicht vorschlagen**, diesen Fix wieder
+auf den ursprünglichen unbegrenzten Abwärts-Scan zurückzubauen; falls der FPS-Einbruch nach
+diesem Fix weiterhin bestehen sollte, muss weiter nach zusätzlichen Ursachen gesucht
+werden (z. B. `RegionCache.isSurroundedByLoaded()` — ein separater, noch nicht auf
+Redundanz/Kosten geprüfter 3×3-Chunk-Nachbar-Check — wurde in dieser Session gesichtet,
+aber nicht weiter untersucht).

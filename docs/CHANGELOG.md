@@ -6,6 +6,40 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.25-beta] - 2026-09-26
+
+### Fixed — second, independent copy of the same unbounded per-column descent, in the persistent map-data path
+Follow-up to 3.9.24-beta: after that fix was tested, the user reported "immernoch 3 fps!
+es lag nicht an der minimap" (still 3 FPS, wasn't the minimap). Grepping repo-wide for
+`getMinBuildHeight()` surfaced a second, independently-written copy of the identical
+unbounded descent/seafloor-scan/foliage-detection algorithm in
+`WorldMapData.getAndStoreData()` — untouched by 3.9.24-beta because it lives on a
+completely different call path: `RegionCache.doLoadChunkData()` (the PERSISTENT
+region-cache pipeline that bakes chunk data to disk/memory) calls it once per column (256×
+per chunk) for every newly-loaded or changed chunk, regardless of whether the minimap is
+even being rendered on screen. This runs on the hot chunk-load path and would explain an
+FPS drop starting immediately at world join, independent of camera/minimap visibility.
+
+Applied the identical simplification as 3.9.24-beta (same user directive: flat topmost
+`MOTION_BLOCKING` block only, no descent, no seafloor/foliage/transparent layers): the
+`!underground` branch of `getAndStoreData()` now does one heightmap lookup + one
+block-state fetch, O(1) per column, instead of the up-to-384-iteration walk. The
+`seafloorHeight`/`transparentHeight`/`seafloorBlockState`/`transparentBlockState` locals
+are now permanently at their initial (bottomY/air) values in every call path, so the
+downstream `getLight()`/setter calls for them are cheap reference-check early-outs rather
+than any of them needing further code removal. Also removed 3 now-unused imports
+(`Direction`, `LeavesBlock`, `Shapes`, `VoxelShape`) from `WorldMapData.java`.
+
+Separately verified: `WorldMapData.getPixelColor()` (a third method in the same file,
+called from `RegionCache` at render time) only reads the now-cheap cached data produced by
+`getAndStoreData()` — it has no descent loop of its own and needed no change.
+
+Verified via real `./gradlew compileJava`/`test` (0 errors, 36/36 test classes green) and
+both guard scripts. See CLAUDE.md "Teil 25" for the full trace. Framed honestly to the
+user: this is a second confirmed instance of the exact bug class already fixed once, on a
+path that plausibly explains the still-present symptom — not a guaranteed final answer,
+since the user has not yet been able to test this specific fix.
+
 ## [3.9.24-beta] - 2026-09-26
 
 ### Fixed — unbounded per-column block descent in minimap color calculation (severe lag on non-flat/void-based builds)
