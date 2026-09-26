@@ -6,6 +6,29 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.21-beta] - 2026-09-26
+
+### Fixed — first real runClient log, 9 pre-existing asset/data bugs
+First actual `runClient` run (on a real machine) surfaced issues static compile/test
+checks can't see. Client launched successfully overall (no crash), but the log showed:
+- `illegal_weapons` item tag referenced 4 never-implemented items (`knife`, `crowbar`,
+  `brass_knuckles`, `switchblade`) — trimmed to the one real item (`baseball_bat`).
+- 5 fan block models (`fan_tier1/2/3` + `_lower` variants) used a nonexistent vanilla
+  parent model `block/cube_orientable` — corrected to `block/orientable`.
+- `remote_control` item model referenced `minecraft:item/clock`, which doesn't exist
+  (vanilla clocks are an animated frame set) — fixed to `minecraft:item/clock_00`.
+- `ale_yeast` (a real, used item) had no texture at all — pointed at the existing
+  `lager_yeast` texture instead of creating new art.
+- `speed_camera_marker` (registered in 3.9.16) and `cocoa_shells` (pre-existing,
+  produced by `WinnowingMachineBlockEntity`) had no item model files at all — created,
+  reusing `plot_selection_tool` and `roasted_cocoa_beans` respectively.
+
+Also identified but left as an open decision: `check.dependsOn
+jacocoTestCoverageVerification` fails `./gradlew build` (60% global instruction coverage
+required, actual ~2%; several `util.*` classes required at 80% line coverage, actual 0%).
+This is a stale, pre-existing gate — no prior session ever got far enough to trigger it —
+and changing its threshold is a policy call for the repo owner, not something fixed here.
+
 ## [3.9.20-beta] - 2026-09-26
 
 ### Fixed — first real compile run, 3 blocking bugs

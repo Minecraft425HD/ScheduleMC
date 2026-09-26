@@ -1,10 +1,6 @@
 {
   "replace": false,
   "values": [
-    "schedulemc:knife",
-    "schedulemc:baseball_bat",
-    "schedulemc:crowbar",
-    "schedulemc:brass_knuckles",
-    "schedulemc:switchblade"
+    "schedulemc:baseball_bat"
   ]
 }

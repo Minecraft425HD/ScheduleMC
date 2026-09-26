@@ -1,5 +1,5 @@
 {
-  "parent": "block/cube_orientable",
+  "parent": "block/orientable",
   "textures": {
     "top":   "schedulemc:block/fan_tier1_side",
     "front": "schedulemc:block/fan_tier1_front",
