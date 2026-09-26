@@ -1674,3 +1674,93 @@ neuer Code hinzukam — der Build ist jetzt grün. Falls künftige Sessions wied
 statisch (Grep/Brace-Balance) verifizieren können, weil diese Umgebung keine Java-17-
 Toolchain vorinstalliert hat: der obige Adoptium-Download-Workaround ist reproduzierbar
 und sollte zuerst versucht werden, bevor auf rein statische Prüfung zurückgefallen wird.
+
+---
+
+## FPS-Root-Cause: immer aktives Minimap-Subsystem (2026-09-26, Teil 21)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Auslöser:** Nutzer-Meldung anhand eines echten `runClient`-Logs: "wir haben zu wenig fps
+sogar wenn noch nichts von der mod in der welt platziert wurde! analysiere die log und die
+gesamte repo um die ursachen zu finden!" Das Log zeigte u. a. `[RoadNavigationService]
+Initialized`/`[NavigationOverlay] Initialized` direkt beim Weltbeitritt — Hinweis, dass
+sich das komplette `mapview`-Modul (ein JourneyMap-/Xaero's-Minimap-artiges Subsystem)
+immer initialisiert, unabhängig davon ob überhaupt eine Karte je geöffnet wird
+(`MapViewConfiguration.java:49-50`: `worldmapAllowed`/`minimapAllowed = true` als
+Default, keine Ausnahme für Spieler, die die Karte nie öffnen).
+
+**Aufrufkette verifiziert (jede Stufe einzeln gelesen, kein Rätselraten):**
+```
+ForgeEvents.onClientTick()  [jeden Client-Tick, unconditional]
+ → MapViewConstants.clientTick() → MapDataManager.onTick()
+  → WorldMapData.onTick() (WorldMapData.java:163)
+   → chunkCache.checkIfChunksBecameSurroundedByLoaded()
+```
+
+**Hauptbefund — `ChunkCache.checkIfChunksBecameSurroundedByLoaded()`:** Bei einem
+33×33=1089-Chunk-Grid (`WorldMapData` legt seinen `ChunkCache` mit dieser Größe an,
+`WorldMapData.java:142`) wurde bei JEDEM Client-Tick das **komplette** Grid neu gescannt —
+1089 `CompletableFuture`s an einen Thread-Pool submitted, danach `.join()` (der
+Client-Thread blockiert synchron bis alle fertig sind). Jede der 1089 Prüfungen
+(`MapChunk.checkIfChunkBecameSurroundedByLoaded`) ruft selbst bis zu ~10
+`ClientLevel.getChunk()`-Aufrufe auf (sich selbst + 3×3-Nachbar-Scan) — also bis zu ~10.000
+Chunk-Lookups + 1089 Future-Allokationen + ein blockierendes `join()`, 20×/Sekunde,
+dauerhaft ab Weltbeitritt, **komplett unabhängig davon ob die Karte sichtbar ist oder
+irgendein Mod-Inhalt in der Welt steht.** Auffällig: die Schwesterklasse
+`checkIfChunksChanged()` in derselben Datei hatte bereits ein `dirtyChunks`-Set als
+Performance-Fix erhalten (Kommentar "Vorher: iterierte über alle... Jetzt: nur über
+geänderte Chunks") — dieselbe Optimierung wurde für
+`checkIfChunksBecameSurroundedByLoaded()` offenbar nie nachgezogen.
+
+**Fix:** Neues `pendingSurroundCheck`-Set (analog zu `dirtyChunks`), befüllt an denselben
+Stellen wie `dirtyChunks` (`fillAllChunks()`, beide Move-Loops in `centerChunks()`) — ein
+Chunk bleibt drin bis er tatsächlich als umschlossen erkannt wird (kann mehrere Ticks
+dauern, während Nachbar-Chunks noch asynchron nachladen), danach wird er entfernt.
+`checkIfChunksBecameSurroundedByLoaded()` iteriert jetzt nur noch über diese (typischerweise
+kleine, nur die "Rand"-Chunks umfassende) Menge statt über das komplette Grid — die
+Thread-Pool-Parallelisierung wurde dabei komplett entfernt (bei einer kleinen Arbeitsmenge
+nicht mehr nötig; beseitigt zugleich ein latentes Thread-Safety-Risiko, da die alten
+Worker-Tasks `ClientLevel`-Chunk-Speicher von einem Thread außerhalb des Client-Threads
+gelesen haben). Neue Methode `MapChunk.isMarkedSurroundedByLoaded()` (gibt das zuletzt
+berechnete, gecachte Flag zurück, ohne erneut Chunks nachzuschlagen) wird von `ChunkCache`
+genutzt, um zu entscheiden, ob ein Index aus der Pending-Liste entfernt werden kann.
+
+**Zweiter, kleinerer Fund — doppelte periodische 9×9-Chunk-Rescans:** Es gibt zwei
+unabhängige "alle 2 Sekunden nahegelegene Chunks neu scannen"-Implementierungen
+(`WorldMapData.refreshNearbyChunks()` und `MapViewRenderer.refreshNearbyChunks()`, beide
+mit eigener `PERIODIC_REFRESH_INTERVAL_MS`-Konstante) — vermutlich aus zwei getrennten
+Refactoring-Durchgängen entstanden. `MapViewRenderer`s Variante lief unconditional, obwohl
+ihre Daten ausschließlich von `mapCalc()` zwei Zeilen darunter konsumiert werden, welches
+selbst bereits korrekt hinter `this.options.minimapAllowed` gated ist — reine
+Verschwendung (81 `world.getChunk()`-Aufrufe alle 2 Sekunden), wenn die Minimap
+deaktiviert ist. Fix: `refreshNearbyChunks()`-Aufruf in `MapViewRenderer.onTickInGame()`
+hinter denselben `minimapAllowed`-Check gestellt wie `mapCalc()` direkt darunter.
+
+**Bewusst NICHT angefasst:** `WorldMapData.refreshNearbyChunks()` (die zweite,
+strukturell ähnliche periodische Scan-Methode) wurde NICHT hinter `worldmapAllowed`
+gegated, obwohl das auf den ersten Blick symmetrisch aussehen würde. Verifiziert per Grep:
+`RoadNavigationService`/`RoadGraphBuilder`/`RoadBlockDetector` (das komplette
+Straßen-Navigations-Feature aus Teil 13/14/17) hängen direkt von `WorldMapData` ab
+(`isRegionLoaded`/`isGroundAt`/`getHeightAt`, gespeist über `RegionCache`-Objekte, die
+wiederum durch genau diese `refreshNearbyChunks()`-Methode befüllt werden). Ein
+zusätzliches Gating hinter `worldmapAllowed` hätte bei deaktivierter Weltkarte auch die
+Navigationsdaten in der Nähe des Spielers verhungern lassen — ein bestehendes,
+funktionierendes Feature hätte kaputt werden können, nur um eine (bei Default-Konfiguration
+ohnehin aktive) Optimierung zu erzwingen. Das bereits vorhandene Gating auf
+Enqueue-Ebene (`WorldMapData.processChunk()`: `if (MapDataManager.mapOptions
+.worldmapAllowed)`) ist vorbestehendes Verhalten und wurde unverändert gelassen.
+
+**Verifikation:** Echter `./gradlew compileJava`-Lauf (JDK 17 Toolchain aus Teil 20) — 0
+Fehler, nur die 3 bereits bekannten, session-unabhängigen Deprecation-Warnungen. Echter
+`./gradlew test`-Lauf — alle 36 Testklassen grün, keine Failures/Errors (keine Tests
+referenzieren `ChunkCache`/`MapChunk`/`MapViewRenderer` direkt, aber die Gesamtsuite
+bestätigt keine Kollateralschäden an angrenzenden Systemen). Beide Guard-Skripte
+(`check-german-strings.sh`, `repo_hygiene_check.sh`) weiterhin "OK". Der bekannte
+Testlauf-Seiteneffekt auf `config/plotmod_economy.json` wurde vor dem Commit zurückgesetzt.
+
+**Nicht vorschlagen:** `checkIfChunksBecameSurroundedByLoaded()` wieder auf einen
+Full-Grid-Scan (mit oder ohne Thread-Pool) zurückzubauen, oder `WorldMapData
+.refreshNearbyChunks()` nachträglich hinter `worldmapAllowed` zu gaten, ohne vorher zu
+verifizieren, dass das Navigationssystem (`RoadNavigationService` u. a.) davon unabhängig
+mit Chunk-Daten versorgt wird.

@@ -26,6 +26,10 @@ public class ChunkCache {
     // Performance-Optimierung: Dirty-Flag System - nur modified Chunks tracken
     private final Set<Integer> dirtyChunks = new HashSet<>();
     private boolean fullCheckNeeded = false;
+    // Performance-Optimierung: nur Chunks prüfen, die noch NICHT als "von geladenen Chunks umschlossen"
+    // markiert sind - vorher wurde JEDEN Tick das komplette Grid (bis zu 33x33=1089 Chunks) neu
+    // gescannt, unabhängig davon ob sich am Umschlossen-Status irgendetwas geändert haben konnte.
+    private final Set<Integer> pendingSurroundCheck = new HashSet<>();
 
     public ChunkCache(int width, int height, MapChangeListener changeObserver) {
         this.width = width;
@@ -57,6 +61,7 @@ public class ChunkCache {
                         int index = x + z * this.width;
                         this.mapChunks[index] = new MapChunk(currentChunk.getPos().x - (middleX - x), currentChunk.getPos().z - (middleZ - z));
                         dirtyChunks.add(index); // Neue Chunks sind dirty
+                        pendingSurroundCheck.add(index); // Neue Chunks sind noch nicht als umschlossen bekannt
                     }
                 }
 
@@ -65,6 +70,7 @@ public class ChunkCache {
                         int index = x + z * this.width;
                         this.mapChunks[index] = new MapChunk(currentChunk.getPos().x - (middleX - x), currentChunk.getPos().z - (middleZ - z));
                         dirtyChunks.add(index); // Neue Chunks sind dirty
+                        pendingSurroundCheck.add(index); // Neue Chunks sind noch nicht als umschlossen bekannt
                     }
                 }
             } else {
@@ -87,11 +93,13 @@ public class ChunkCache {
 
         // Performance-Optimierung: Markiere alle Chunks als dirty nach Full-Fill
         dirtyChunks.clear();
+        pendingSurroundCheck.clear();
         for (int z = 0; z < this.height; ++z) {
             for (int x = 0; x < this.width; ++x) {
                 int index = x + z * this.width;
                 this.mapChunks[index] = new MapChunk(currentChunk.getPos().x - (middleX - x), currentChunk.getPos().z - (middleZ - z));
                 dirtyChunks.add(index); // Alle neuen Chunks sind dirty
+                pendingSurroundCheck.add(index); // Alle neuen Chunks sind noch nicht als umschlossen bekannt
             }
         }
 
@@ -154,31 +162,31 @@ public class ChunkCache {
     }
 
     public void checkIfChunksBecameSurroundedByLoaded() {
-        if (this.loaded) {
-            // Performance-Optimierung: Parallel processing für große Chunk-Arrays
-            // Bei zoom=4 (33x33=1089 Chunks) kann Parallelverarbeitung 2-4x schneller sein
-            int totalChunks = this.width * this.height;
-            if (totalChunks > 100) { // Nur bei >100 Chunks parallel (ab zoom=2)
-                // Parallele Verarbeitung mit AsyncPersistenceManager
-                java.util.concurrent.CompletableFuture<?>[] futures = new java.util.concurrent.CompletableFuture<?>[totalChunks];
-                int idx = 0;
-                for (int z = this.height - 1; z >= 0; --z) {
-                    for (int x = 0; x < this.width; ++x, ++idx) {
-                        final int index = x + z * this.width;
-                        futures[idx] = java.util.concurrent.CompletableFuture.runAsync(() -> {
-                            this.mapChunks[index].checkIfChunkBecameSurroundedByLoaded(this.changeObserver);
-                        }, de.rolandsw.schedulemc.mapview.data.persistence.AsyncPersistenceManager.getExecutorService());
-                    }
-                }
-                // Warte auf alle Tasks
-                java.util.concurrent.CompletableFuture.allOf(futures).join();
-            } else {
-                // Sequential processing für kleine Arrays (overhead würde nicht lohnen)
-                for (int z = this.height - 1; z >= 0; --z) {
-                    for (int x = 0; x < this.width; ++x) {
-                        this.mapChunks[x + z * this.width].checkIfChunkBecameSurroundedByLoaded(this.changeObserver);
-                    }
-                }
+        if (!this.loaded || this.pendingSurroundCheck.isEmpty()) {
+            return;
+        }
+
+        // Performance-Optimierung (2026-09-26): Vorher wurde hier JEDEN Tick das komplette
+        // Grid (bis zu 33x33=1089 Chunks) neu gescannt - über 1089 CompletableFutures an einen
+        // Thread-Pool submitted und der Client-Thread hat per join() synchron auf alle gewartet,
+        // 20x/Sekunde, unabhängig davon ob überhaupt eine Karte sichtbar war. Jetzt wird nur noch
+        // die (typischerweise kleine) Menge an Chunks geprüft, die noch nicht als "von geladenen
+        // Chunks umschlossen" markiert sind - analog zum bereits vorhandenen dirtyChunks-Muster
+        // in checkIfChunksChanged(). Ein Chunk verlässt pendingSurroundCheck erst, sobald er
+        // tatsächlich umschlossen ist; bis dahin wird er bei jedem Tick erneut geprüft (z. B.
+        // während benachbarte Chunks noch asynchron vom Server nachladen).
+        Iterator<Integer> iterator = this.pendingSurroundCheck.iterator();
+        while (iterator.hasNext()) {
+            int index = iterator.next();
+            if (index < 0 || index >= this.mapChunks.length) {
+                iterator.remove();
+                continue;
+            }
+
+            MapChunk mapChunk = this.mapChunks[index];
+            mapChunk.checkIfChunkBecameSurroundedByLoaded(this.changeObserver);
+            if (mapChunk.isMarkedSurroundedByLoaded()) {
+                iterator.remove();
             }
         }
     }

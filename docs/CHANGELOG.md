@@ -6,6 +6,42 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.21-beta] - 2026-09-26
+
+### Fixed — always-on minimap subsystem was the FPS root cause (reported: low FPS with nothing mod-related placed in the world)
+Root-caused via a real `runClient` log plus a full trace of the mapview tick/render call
+chain (`ForgeEvents` → `MapViewConstants` → `MapDataManager` → `WorldMapData`/
+`MapViewRenderer`). The minimap/worldmap subsystem is on by default
+(`MapViewConfiguration.minimapAllowed`/`worldmapAllowed = true`) and its tick/render hooks
+run completely unconditionally, independent of whether any map UI is ever opened.
+
+- **`ChunkCache.checkIfChunksBecameSurroundedByLoaded()`** (called every single client tick
+  from `WorldMapData.onTick()`, no throttle): rescanned the *entire* 33×33=1089-chunk grid
+  every tick, submitting 1089 `CompletableFuture`s to a shared thread pool and blocking the
+  client thread on `.join()` until all finished — 20×/second, forever, from world join
+  onward. Each of those 1089 checks itself does up to ~10 `ClientLevel.getChunk()` calls
+  (self + 3×3 neighbor scan), so this was up to ~10,000 chunk lookups + 1089 future
+  allocations + a synchronous join, every tick. Rewritten to track a `pendingSurroundCheck`
+  set (same pattern the neighboring `checkIfChunksChanged()` already used for its own
+  dirty-tracking) — only chunks not yet known to be "surrounded by loaded" are re-checked
+  each tick, and a chunk leaves the set once it actually becomes surrounded. Removed the
+  thread-pool parallelism entirely (no longer needed once the working set is small; also
+  removes a latent thread-safety hazard of touching `ClientLevel` chunk storage from
+  off-thread workers).
+- **`MapViewRenderer.onTickInGame()`**: its own periodic 9×9-chunk `refreshNearbyChunks()`
+  (every 2 seconds, every render frame checked) ran unconditionally, unlike the identical
+  `mapCalc()` gate two lines below it — the scanned data is exclusively consumed by
+  `mapCalc()`, so it was pure waste whenever the minimap is disabled. Gated behind
+  `this.options.minimapAllowed` to match.
+
+Verified: real `./gradlew compileJava`/`test` run (JDK 17 toolchain per Teil 20), 0 errors,
+full suite green (36 test classes, 0 failures). `RoadNavigationService`/`NavigationOverlay`
+(consumers of `WorldMapData`, unrelated `ChunkCache` instance) checked and confirmed
+unaffected — `WorldMapData`'s own `refreshNearbyChunks()` was intentionally left untouched
+since its output also feeds road-navigation data, not just the worldmap screen. See
+CLAUDE.md "Teil 21" for the full call-chain trace and the reasoning for what was
+deliberately *not* changed.
+
 ## [3.9.20-beta] - 2026-09-26
 
 ### Fixed — first real compile run, 3 blocking bugs

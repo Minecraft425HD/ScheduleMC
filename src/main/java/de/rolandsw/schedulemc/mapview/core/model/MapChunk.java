@@ -80,6 +80,15 @@ public class MapChunk {
 
     }
 
+    /**
+     * Gibt das zuletzt von {@link #checkIfChunkBecameSurroundedByLoaded} berechnete Ergebnis
+     * zurück, ohne es neu zu berechnen (kein Chunk-/Nachbar-Lookup). Wird von {@code ChunkCache}
+     * genutzt, um einen Chunk aus der Pending-Liste zu entfernen, sobald er als umschlossen gilt.
+     */
+    public boolean isMarkedSurroundedByLoaded() {
+        return this.isSurroundedByLoaded;
+    }
+
     public boolean isSurroundedByLoaded() {
         this.chunk = MapViewConstants.getPlayer().level().getChunk(this.x, this.z);
         this.isLoaded = this.chunk != null && !this.chunk.isEmpty() && MapViewConstants.getPlayer().level().hasChunk(this.x, this.z);

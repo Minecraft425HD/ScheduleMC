@@ -336,11 +336,17 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.checkForChanges();
         }
 
-        // Periodic chunk refresh for minimap to detect block changes
-        long now = System.currentTimeMillis();
-        if (now - lastPeriodicRefresh >= PERIODIC_REFRESH_INTERVAL_MS) {
-            lastPeriodicRefresh = now;
-            refreshNearbyChunks();
+        // Periodic chunk refresh for minimap to detect block changes.
+        // PERFORMANCE (2026-09-26): previously ran unconditionally every 2 seconds even when
+        // the minimap itself is disabled (minimapAllowed=false) - this data is exclusively
+        // consumed by mapCalc() below, which is already gated by minimapAllowed, so scanning
+        // an unused chunk radius here was pure waste. Gated to match.
+        if (this.options.minimapAllowed) {
+            long now = System.currentTimeMillis();
+            if (now - lastPeriodicRefresh >= PERIODIC_REFRESH_INTERVAL_MS) {
+                lastPeriodicRefresh = now;
+                refreshNearbyChunks();
+            }
         }
 
         this.lightingState.calculateCurrentLightAndSkyColor(this.timer);
