@@ -6,23 +6,35 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
-## [3.9.15-beta] - 2026-09-25
+## [3.9.15-beta] - 2026-09-26
 
-### Added — Speed limit enforcement wired up (backlog #3)
-`police.speed_limit_default` (a DoubleValue in the same unit as
-`EntityGenericVehicle.getSpeed()`, blocks/tick — default 0.5 is ~36 km/h) now has real
-effect. New `TrafficViolationHandler.onPlayerTick()` checks once per second whether a
-player driving an `EntityGenericVehicle` exceeds the configured limit; if so, and at
-least one police NPC within the existing detection radius can actually see the player
-(reusing `PoliceAIHandler.getPoliceInRadius()` + `PoliceSearchBehavior.isPlayerHidden()`,
-the same line-of-sight combination the escape system already uses), it issues
-`CrimeType.TRAFFIC_VIOLATION` through the same `CrimeManager`/`WitnessManager` path as
-the handler's existing hit-and-run/reckless-driving checks, sharing the same
-per-player cooldown so a speeding tick and a collision in the same window don't double
-up. New lang key `event.traffic.speeding` in both `en_us.json`/`de_de.json`.
+### Reverted — the police-line-of-sight interpretation of backlog #3
+The first attempt at `police.speed_limit_default` (a `TrafficViolationHandler.onPlayerTick()`
+addition requiring a police NPC to have line-of-sight on a speeding player) was built on a
+wrong reading of the backlog entry's wording. User correction: this config value is meant
+to power a physical speed camera ("Blitzer") block placed at the roadside, not a police
+NPC "seeing" how fast someone drives. Fully reverted (method, imports, the
+`event.traffic.speeding` lang key) before building the correct feature.
 
-Deliberately no road-surface check for this feature — a speed limit applies to any
-vehicle going too fast, not just ones on a recognized road block.
+### Added — Speed camera ("Blitzer") feature, built from scratch
+No speed camera / radar / CCTV block existed anywhere in the codebase — this is a new
+feature, not a wiring fix. Per the user's design answers: admin-placed physical blocks at
+marked locations, only a rotating subset of which is active at any time (like real
+speed traps), issuing the same immediate `CrimeManager`/`WitnessManager` penalty as the
+existing collision-based traffic violations, using vanilla Observer textures (no new art).
+
+New package `npc/events/speedcamera/`: `SpeedCameraBlock` (a freestanding, admin-placed
+directional block — cosmetic facing only, detection is radius-based and
+direction-independent to avoid the untested rotation-math risk from the roadblock
+feature), `SpeedCameraBlockEntity` (ticks once per second while active, scans a 6-block
+radius for speeding vehicles via `EntityGenericVehicle.getSpeed()`), `SpeedCameraManager`
+(an `AbstractPersistenceManager` singleton tracking every placed camera position as
+`Set<Long>` via `BlockPos.asLong()`, rotating the active subset on a configurable
+interval), and `SpeedCameraRegistry` (block/item/block-entity-type registration).
+
+Two new config values needed for the requested rotation behavior (not in the original
+12-item backlog): `police.speed_camera_active_count` (default 3) and
+`police.speed_camera_rotation_minutes` (default 30), with `PoliceConfigScreen` entries.
 
 ---
 

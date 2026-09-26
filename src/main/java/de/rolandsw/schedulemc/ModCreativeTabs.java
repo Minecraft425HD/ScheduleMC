@@ -95,6 +95,11 @@ public class ModCreativeTabs {
                 output.accept(de.rolandsw.schedulemc.npc.crime.poster.WantedPosterRegistry.WANTED_POSTER_ITEM.get());
 
                 // ═══════════════════════════════════════════════════════════
+                // VERKEHRSKONTROLLE (Speed Camera - für Admin/Stadtplanung)
+                // ═══════════════════════════════════════════════════════════
+                output.accept(de.rolandsw.schedulemc.npc.events.speedcamera.SpeedCameraRegistry.SPEED_CAMERA_ITEM.get());
+
+                // ═══════════════════════════════════════════════════════════
                 // SCHLOSS-SYSTEM (Locks, Keys, Lock Picks)
                 // ═══════════════════════════════════════════════════════════
                 output.accept(de.rolandsw.schedulemc.lock.items.LockItems.SIMPLE_LOCK.get());

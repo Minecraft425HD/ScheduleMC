@@ -157,6 +157,12 @@ public class PoliceConfigScreen extends Screen {
             new DoubleSlider(0, 0, 180, "Speed Limit: %.2f",
                 ModConfigHandler.COMMON.POLICE_SPEED_LIMIT_DEFAULT, 0.1, 2.0)
         );
+        configList.addRow(
+            new IntSlider(0, 0, 180, "Active Speed Cameras: %d",
+                ModConfigHandler.COMMON.POLICE_SPEED_CAMERA_ACTIVE_COUNT, 0, 50),
+            new IntSlider(0, 0, 180, "Camera Rotation: %dmin",
+                ModConfigHandler.COMMON.POLICE_SPEED_CAMERA_ROTATION_MINUTES, 5, 240)
+        );
 
         // === WARNINGS & WANTED ===
         configList.addHeader("§d⚠ WARNINGS & WANTED");

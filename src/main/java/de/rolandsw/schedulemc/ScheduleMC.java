@@ -267,6 +267,11 @@ public class ScheduleMC {
         de.rolandsw.schedulemc.npc.crime.poster.WantedPosterRegistry.ITEMS.register(modEventBus);
         de.rolandsw.schedulemc.npc.crime.poster.WantedPosterRegistry.BLOCK_ENTITIES.register(modEventBus);
 
+        // Blitzer (Speed Camera) registrieren
+        de.rolandsw.schedulemc.npc.events.speedcamera.SpeedCameraRegistry.BLOCKS.register(modEventBus);
+        de.rolandsw.schedulemc.npc.events.speedcamera.SpeedCameraRegistry.ITEMS.register(modEventBus);
+        de.rolandsw.schedulemc.npc.events.speedcamera.SpeedCameraRegistry.BLOCK_ENTITIES.register(modEventBus);
+
         // Cheese-System registrieren
         CheeseItems.ITEMS.register(modEventBus);
         CheeseBlocks.BLOCKS.register(modEventBus);
@@ -524,6 +529,7 @@ public class ScheduleMC {
             // Crime & Territory Systems - Initialize managers with persistence
             de.rolandsw.schedulemc.npc.crime.BountyManager.initialize(server);
             de.rolandsw.schedulemc.territory.TerritoryManager.initialize(server);
+            de.rolandsw.schedulemc.npc.events.speedcamera.SpeedCameraManager.initialize(server);
 
             LOGGER.info("Crime and Territory Systems initialized");
 
@@ -610,6 +616,7 @@ public class ScheduleMC {
             // Crime & Territory Systems (Priority 2)
             saveManager.register(de.rolandsw.schedulemc.npc.crime.BountyManager.initialize(server));
             saveManager.register(de.rolandsw.schedulemc.territory.TerritoryManager.initialize(server));
+            saveManager.register(de.rolandsw.schedulemc.npc.events.speedcamera.SpeedCameraManager.initialize(server));
 
             // Player Systems (Priority 4)
             saveManager.register(new de.rolandsw.schedulemc.util.SaveableWrapper(
@@ -792,6 +799,11 @@ public class ScheduleMC {
             de.rolandsw.schedulemc.npc.events.PoliceAIHandler.updatePoliceCache(server, currentTick);
             if (server.overworld() != null) {
                 de.rolandsw.schedulemc.npc.events.PoliceRoadblock.tick(server.overworld());
+                de.rolandsw.schedulemc.npc.events.speedcamera.SpeedCameraManager speedCameraManager =
+                    de.rolandsw.schedulemc.npc.events.speedcamera.SpeedCameraManager.getInstance();
+                if (speedCameraManager != null) {
+                    speedCameraManager.tick(server.overworld());
+                }
             }
 
             // Economy Systems - Tick every server tick for day tracking

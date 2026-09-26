@@ -1242,52 +1242,88 @@ aktivieren, oder `RoadBlockDetector.isRoadAt(...)`/`getBlockStateFromWorld(...)`
 
 ---
 
-## Geschwindigkeitskontrolle verdrahtet (2026-09-25, Teil 15)
+## Blitzer-Feature gebaut (2026-09-25/26, Teil 15)
 
 **Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
 
 **Betrifft:** Backlog-Punkt 3 ("Fehlende Features für 12 verbleibende Dead-Config-Werte",
 `police.speed_limit_default`).
 
-**Recherche vor der Umsetzung:**
-- `ModConfigHandler.COMMON.POLICE_SPEED_LIMIT_DEFAULT` ist ein `DoubleValue`, Range
-  0.1–2.0, Default 0.5. Verglichen mit `PhysicsComponent.getKilometerPerHour()` =
-  `getSpeed() * 20 * 60 * 60 / 1000` = `getSpeed() * 72` wurde verifiziert: der
-  Config-Wert ist in derselben Einheit wie `EntityGenericVehicle.getSpeed()`
-  (Blöcke/Tick), nicht in km/h — Default 0.5 Blöcke/Tick entspricht 36 km/h, ein
-  plausibles Straßen-Tempolimit; der Config-Range 0.1–2.0 entspricht 7.2–144 km/h.
-- `TrafficViolationHandler.java` (bereits real genutzt für Kollisions-Verkehrsdelikte,
-  `@Mod.EventBusSubscriber`, `onEntityHurt(LivingHurtEvent)`) war der vom Backlog-Eintrag
-  selbst benannte richtige Ort für die Erweiterung.
-- Für "Polizei-NPC in Sichtweite" wurde bewusst **keine** neue Sichtlinien-Logik gebaut,
-  sondern die bereits bestehende, produktiv genutzte Kombination aus
-  `PoliceAIHandler.getPoliceInRadius(Vec3, double, List)` (Radius-Vorauswahl, gecacht) +
-  `PoliceSearchBehavior.isPlayerHidden(ServerPlayer, CustomNPCEntity)` (echte
-  Sichtlinien-/Fenster-Prüfung per Raycast) wiederverwendet — exakt dieselbe Kombination,
-  die das bestehende Escape-System in `PoliceAIHandler.onPlayerTick()` für die
-  "kann Spieler sich verstecken"-Logik nutzt.
+**Fehlversuch, der verworfen wurde:** Der erste Ansatz interpretierte "Polizei-NPC in
+Sichtweite" aus dem ursprünglichen Backlog-Wortlaut wörtlich und baute eine Erweiterung
+in `TrafficViolationHandler` (`onPlayerTick`), die eine Verkehrsstrafe nur auslöste, wenn
+eine Polizei-NPC laut `PoliceSearchBehavior.isPlayerHidden()` freie Sicht auf den zu
+schnell fahrenden Spieler hatte. **Nutzer-Korrektur:** "police.speed_limit_default ist
+dafür da um einen Blitzer block an den Straßenrand zu stellen nicht dass Polizisten
+'sehen' können wie schnell jemand fährt!" — dieser gesamte Ansatz wurde vollständig
+zurückgenommen (Methode, Imports, Lang-Key `event.traffic.speeding` wieder entfernt,
+Datei auf den Stand vor Teil 15 zurückgesetzt), da er auf einer falschen Annahme beruhte.
 
-**Umsetzung:** Neue Methode `TrafficViolationHandler.onPlayerTick(TickEvent.PlayerTickEvent)`
-(`@SubscribeEvent`, 1x/Sekunde geprüft): wenn `POLICE_TRAFFIC_VIOLATIONS_ENABLED`, der
-Spieler in einem `EntityGenericVehicle` sitzt, `Math.abs(vehicle.getSpeed())` das
-konfigurierte Limit überschreitet, kein Cooldown aktiv ist (teilt sich den bestehenden
-`violationCooldowns`-Cooldown mit den Kollisions-Verkehrsdelikten — eine Sekunde Speeding
-UND eine Kollision im selben 30-Sekunden-Fenster sollen nicht zwei separate Strafen
-auslösen) UND mindestens eine Polizei-NPC im Detection-Radius (`ConfigCache
-.getPoliceDetectionRadius()`) den Spieler laut `isPlayerHidden()` tatsächlich sehen kann,
-wird `CrimeManager.addWantedLevel(..., CrimeType.TRAFFIC_VIOLATION, ...)` ausgelöst und
-`WitnessManager.registerCrime(...)` informiert — identisches Muster wie die bestehenden
-Hit-and-Run/Reckless-Driving-Zweige in derselben Klasse. Nutzt den bereits vorhandenen,
-für genau diesen Zweck vorgesehenen `CrimeType.TRAFFIC_VIOLATION` (0 Wanted-Sterne, 200€
-Strafe, RECKLESS_DRIVING/HIT_AND_RUN als schwerere Nachbarwerte) statt einen neuen
-CrimeType anzulegen. Neue Lang-Keys `event.traffic.speeding` in `en_us.json`/`de_de.json`,
-direkt neben den bestehenden `event.traffic.*`-Keys.
+**Neu recherchiert:** Repo-weite Suche nach "blitzer"/"speedcamera"/"radar"/"cctv"
+ergab **keinen** existierenden Blitzer-/Kamera-Block irgendeiner Art — dies ist also ein
+komplett neues Feature, kein reines Wiring. Vor dem Bau per `AskUserQuestion` geklärt:
 
-**Bewusst NICHT umgesetzt:** keine eigene "ist der Spieler auf einer Straße"-Prüfung für
-das Tempolimit — ein Tempolimit gilt unabhängig vom Untergrund für jedes Fahrzeug, das
-schneller fährt als erlaubt, nicht nur auf erkannten Straßenblöcken.
+1. **Platzierung:** Nutzer-Antwort: "Es soll verschiedene markierte Punkte geben die man
+   konfigurieren können soll und dort kann ein Blitzer sein, so wie im echten Leben
+   sollen nicht alle Blitzer statisch sein. Der admin/Stadtmauer kümmert sich um
+   Platzierung." → Admin platziert den Block physisch (wie ATM/Warehouse-Blöcke), aber
+   nicht jeder platzierte Blitzer ist dauerhaft aktiv — eine rotierende Teilmenge ist
+   "scharf", der Rest ist Attrappe/inaktiv, genau wie im echten Straßenverkehr.
+2. **Konsequenz bei Verstoß:** Sofort-Strafe (identischer `CrimeManager`/`WitnessManager`-
+   Pfad wie die bestehenden Kollisions-Verkehrsdelikte in `TrafficViolationHandler`).
+3. **Textur:** Vanilla-Block ohne Custom-Textur (Beispiel Observer wegen der
+   "Linse"-Optik wurde in der Frage selbst vorgeschlagen und vom Nutzer gewählt).
 
-**Nicht vorschlagen:** eine separate Sichtlinien-Implementierung für dieses Feature zu
-bauen — `PoliceSearchBehavior.isPlayerHidden()` deckt das bereits ab und wird jetzt an
-einer dritten Stelle wiederverwendet (Escape-System, Verfolgungs-KI, jetzt
-Geschwindigkeitskontrolle).
+**Neues Paket `npc/events/speedcamera/`:**
+- `SpeedCameraBlock` (extends `HorizontalDirectionalBlock implements EntityBlock`) —
+  freistehender, admin-platzierbarer Block (kein Wandmontage wie beim Wanted-Poster).
+  FACING ist rein kosmetisch (Blickrichtung beim Platzieren, wie bei `ATMBlock`), die
+  Erfassung selbst ist radiusbasiert und richtungsunabhängig — bewusst **keine**
+  Fahrspur-/Blickrichtungs-Erkennung, um kein ungetestetes Winkel-/Rotationsrisiko
+  einzugehen (Lehre aus dem Roadblock-Feature, Teil 13/14). Rechtsklick zeigt
+  Aktiv/Inaktiv-Status als Chat-Nachricht. `setPlacedBy`/`onRemove` registrieren/
+  deregistrieren die Position bei `SpeedCameraManager`.
+- `SpeedCameraBlockEntity` — tickt (via `getTicker`, Standard-Ticker-Muster wie
+  `PerforationPressBlock` u.a.) 1x/Sekunde, aber nur wenn `active == true`: scannt
+  einen Radius von 6 Blöcken (`AABB(worldPosition).inflate(6.0)`, Muster aus
+  `WitnessManager.java`) nach `ServerPlayer` in einem `EntityGenericVehicle`, vergleicht
+  `Math.abs(vehicle.getSpeed())` gegen `POLICE_SPEED_LIMIT_DEFAULT`. Bei Verstoß: gleicher
+  `CrimeManager.addWantedLevel(..., CrimeType.TRAFFIC_VIOLATION, ...)` +
+  `WitnessManager.registerCrime(...)`-Pfad wie die bestehenden Kollisions-Verkehrsdelikte.
+  `active` wird persistiert und an Clients gesynct (`getUpdateTag`/`getUpdatePacket`,
+  Standardmuster aus Teil 12).
+- `SpeedCameraManager` (extends `AbstractPersistenceManager`, Singleton-Muster wie
+  `BountyManager`) — verwaltet **alle** platzierten Blitzer-Positionen
+  (`Set<Long>` via `BlockPos.asLong()`/`BlockPos.of(long)`, bereits etabliertes
+  Persistenz-Muster aus `SecretDoorMissionAccessManager`/`RemoteControlItem`) und rollt im
+  konfigurierten Minuten-Takt (`police.speed_camera_rotation_minutes`) eine neue aktive
+  Teilmenge (`police.speed_camera_active_count`) aus — echtes Rotieren, nicht nur ein
+  Anzeige-Flag: die jeweiligen `SpeedCameraBlockEntity`-Instanzen werden aktiv
+  umgeschaltet. Eigener, von `TrafficViolationHandler`s Kollisions-Cooldown getrennter
+  Pro-Spieler-Cooldown (`tryRecordViolation`), damit ein stehendes/langsam vorbeifahrendes
+  Fahrzeug im Erfassungsradius nicht mehrfach hintereinander geblitzt wird.
+- `SpeedCameraRegistry` — `DeferredRegister` für Block/Item/BlockEntityType, registriert
+  in `ScheduleMC`s Konstruktor neben dem Wanted-Poster-Paket.
+
+**Neue Config-Werte** (nicht im ursprünglichen 12er-Backlog enthalten, aber für das vom
+Nutzer verlangte Rotations-Verhalten notwendig): `police.speed_camera_active_count`
+(Default 3, Range 0–50) und `police.speed_camera_rotation_minutes` (Default 30, Range
+5–240), inkl. UI-Einträge in `PoliceConfigScreen`.
+
+**Lifecycle:** `SpeedCameraManager.initialize(server)` in `ScheduleMC.onServerStarted()`
++ Registrierung beim `IncrementalSaveManager` (identisches Muster wie `BountyManager`).
+`SpeedCameraManager.tick(server.overworld())` in `ScheduleMC.onServerTick()`, direkt neben
+`PoliceRoadblock.tick(...)` — rollt intern selbst, wie oft tatsächlich rotiert wird.
+
+**Assets:** `blockstates/speed_camera.json` (4 Y-Rotationen 0/90/180/270 für
+north/east/south/west — bei einem vollen Würfel unproblematisch, anders als beim dünnen
+Wanted-Poster in Teil 12 keine Rotations-Risiken), `models/block/speed_camera.json`
+(ein Würfel-Element, Texturen `minecraft:block/observer_top`/`observer_side`/
+`observer_front`, komplett wiederverwendete Vanilla-Texturen, keine eigene Pixel-Art),
+`models/item/speed_camera.json` (referenziert das Block-Modell). Lang-Keys:
+`block.schedulemc.speed_camera`, `item.schedulemc.speed_camera`,
+`message.speed_camera.status_{active,inactive}`, `event.traffic.speed_camera`.
+
+**Nicht vorschlagen:** eine Fahrspur-/Blickrichtungs-abhängige Erfassung nachzurüsten,
+oder die zurückgenommene "Polizei-NPC in Sichtweite"-Interpretation erneut aufzugreifen —
+`police.speed_limit_default` gehört ausschließlich zum Blitzer-Feature.

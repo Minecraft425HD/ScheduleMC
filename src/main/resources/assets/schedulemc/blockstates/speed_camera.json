@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "schedulemc:block/speed_camera" },
+    "facing=east": { "model": "schedulemc:block/speed_camera", "y": 90 },
+    "facing=south": { "model": "schedulemc:block/speed_camera", "y": 180 },
+    "facing=west": { "model": "schedulemc:block/speed_camera", "y": 270 }
+  }
+}

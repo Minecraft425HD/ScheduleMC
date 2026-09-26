@@ -165,6 +165,8 @@ public class ModConfigHandler {
         public final ForgeConfigSpec.IntValue POLICE_WARNING_TIMEOUT_SECONDS;
         public final ForgeConfigSpec.BooleanValue POLICE_TRAFFIC_VIOLATIONS_ENABLED;
         public final ForgeConfigSpec.DoubleValue POLICE_SPEED_LIMIT_DEFAULT;
+        public final ForgeConfigSpec.IntValue POLICE_SPEED_CAMERA_ACTIVE_COUNT;
+        public final ForgeConfigSpec.IntValue POLICE_SPEED_CAMERA_ROTATION_MINUTES;
         public final ForgeConfigSpec.IntValue POLICE_CONTAINER_SCAN_DEPTH;
         public final ForgeConfigSpec.BooleanValue POLICE_EVIDENCE_MULTIPLIER_ENABLED;
         public final ForgeConfigSpec.BooleanValue POLICE_FLANKING_ENABLED;
@@ -772,8 +774,14 @@ public class ModConfigHandler {
                     .comment("Aktiviert Verkehrsdelikte (NPC ueberfahren etc.)")
                     .define("traffic_violations_enabled", true);
             POLICE_SPEED_LIMIT_DEFAULT = builder
-                    .comment("Default speed limit for traffic violations")
+                    .comment("Default speed limit for traffic violations (blocks/tick, same unit as vehicle getSpeed())")
                     .defineInRange("speed_limit_default", 0.5, 0.1, 2.0);
+            POLICE_SPEED_CAMERA_ACTIVE_COUNT = builder
+                    .comment("How many placed speed cameras are active at once (like real life, not every camera is always on)")
+                    .defineInRange("speed_camera_active_count", 3, 0, 50);
+            POLICE_SPEED_CAMERA_ROTATION_MINUTES = builder
+                    .comment("How often (real-world minutes) the active speed camera set is re-rolled")
+                    .defineInRange("speed_camera_rotation_minutes", 30, 5, 240);
             POLICE_CONTAINER_SCAN_DEPTH = builder
                     .comment("Maximum recursion depth for container scanning (shulker boxes)")
                     .defineInRange("container_scan_depth", 2, 0, 5);

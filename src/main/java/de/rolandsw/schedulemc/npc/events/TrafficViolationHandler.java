@@ -6,20 +6,14 @@ import de.rolandsw.schedulemc.npc.crime.CrimeManager;
 import de.rolandsw.schedulemc.npc.entity.CustomNPCEntity;
 import de.rolandsw.schedulemc.npc.life.witness.CrimeType;
 import de.rolandsw.schedulemc.npc.life.witness.WitnessManager;
-import de.rolandsw.schedulemc.util.ConfigCache;
-import de.rolandsw.schedulemc.util.EventHelper;
-import de.rolandsw.schedulemc.vehicle.entity.vehicle.base.EntityGenericVehicle;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -115,70 +109,6 @@ public class TrafficViolationHandler {
                 ? CrimeType.HIT_AND_RUN : CrimeType.RECKLESS_DRIVING;
             witnessManager.registerCrime(driver, crimeType, npc.blockPosition(), serverLevel, null);
         }
-    }
-
-    /**
-     * Feature 3 (Backlog #3): Geschwindigkeitskontrolle
-     *
-     * Prueft periodisch, ob ein fahrender Spieler das konfigurierte Speed-Limit
-     * (`police.speed_limit_default`, in Bloecken/Tick - identische Einheit wie
-     * {@code EntityGenericVehicle.getSpeed()}) ueberschreitet UND dabei von einer
-     * Polizei-NPC gesehen wird (Sichtlinie, nicht nur Radius - nutzt dieselbe
-     * {@code PoliceSearchBehavior.isPlayerHidden}-Pruefung wie das bestehende
-     * Verstecken-System). Nur dann wird eine Verkehrsstrafe ausgeloest - ein Limit
-     * ohne jede Kontrollinstanz in der Naehe waere unrealistisch strikt.
-     */
-    @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        EventHelper.handlePlayerTickEnd(event, p -> {
-            if (!ModConfigHandler.COMMON.POLICE_TRAFFIC_VIOLATIONS_ENABLED.get()) return;
-            if (!(p instanceof ServerPlayer driver)) return;
-            if (driver.tickCount % 20 != 0) return; // Nur 1x pro Sekunde pruefen
-
-            if (!(driver.getVehicle() instanceof EntityGenericVehicle vehicle)) return;
-
-            float speedLimit = ModConfigHandler.COMMON.POLICE_SPEED_LIMIT_DEFAULT.get().floatValue();
-            if (Math.abs(vehicle.getSpeed()) <= speedLimit) return;
-
-            // Cooldown pruefen (gemeinsam mit Kollisions-Verkehrsdelikten, verhindert Spam)
-            UUID driverUUID = driver.getUUID();
-            Long lastViolation = violationCooldowns.get(driverUUID);
-            if (lastViolation != null && System.currentTimeMillis() - lastViolation < VIOLATION_COOLDOWN_MS) {
-                return;
-            }
-
-            // Nur bestrafen wenn eine Polizei-NPC den Spieler tatsaechlich sehen kann
-            int detectionRadius = ConfigCache.getPoliceDetectionRadius();
-            List<CustomNPCEntity> nearbyPolice = new ArrayList<>();
-            PoliceAIHandler.getPoliceInRadius(driver.position(), detectionRadius, nearbyPolice);
-
-            boolean seenByPolice = false;
-            for (CustomNPCEntity police : nearbyPolice) {
-                if (!PoliceSearchBehavior.isPlayerHidden(driver, police)) {
-                    seenByPolice = true;
-                    break;
-                }
-            }
-            if (!seenByPolice) return;
-
-            violationCooldowns.put(driverUUID, System.currentTimeMillis());
-
-            long currentDay = driver.level().getDayTime() / 24000;
-            CrimeManager.addWantedLevel(driverUUID, CrimeType.TRAFFIC_VIOLATION.getWantedStars(), currentDay,
-                CrimeType.TRAFFIC_VIOLATION, driver.blockPosition());
-
-            driver.sendSystemMessage(
-                net.minecraft.network.chat.Component.translatable("event.traffic.speeding"));
-
-            if (driver.level() instanceof ServerLevel serverLevel) {
-                WitnessManager witnessManager = WitnessManager.getManager(serverLevel);
-                witnessManager.registerCrime(driver, CrimeType.TRAFFIC_VIOLATION,
-                    driver.blockPosition(), serverLevel, null);
-            }
-
-            LOGGER.info("[TRAFFIC] {} - Geschwindigkeitsueberschreitung ({} > Limit {})",
-                driver.getName().getString(), vehicle.getSpeed(), speedLimit);
-        });
     }
 
     /**
