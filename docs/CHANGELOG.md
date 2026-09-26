@@ -6,6 +6,39 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.24-beta] - 2026-09-26
+
+### Fixed — unbounded per-column block descent in minimap color calculation (severe lag on non-flat/void-based builds)
+Follow-up to 3.9.23-beta: the reported 3-FPS map turned out to have **zero mod content
+placed** (0 NPCs, 0 plots) — a vanilla flat world gave 120 FPS on the same setup, so the
+O(n²) NPC fix wasn't the (full) cause. Root-caused to
+`MapViewRenderer.getPixelColor()`: for every block column of every processed chunk, it
+started at the vanilla `MOTION_BLOCKING` heightmap block and, if that block wasn't
+light-opaque (glass, fences, slabs — extremely common on detailed/void-based builds), it
+walked straight down one block at a time (with a block lookup + light-occlusion/voxel-shape
+check per step) until it hit an opaque block or `world.getMinBuildHeight()` (-64 in 1.20.1)
+— up to 384 iterations per column, times 256 columns per chunk, on the client main thread.
+A flat world's heightmap block is opaque ground, so the loop never runs; a build with any
+sustained non-opaque top layer (or on a cleared/void base) walks the whole way down,
+repeatedly, for every newly-loaded/changed chunk.
+
+Per explicit user direction ("die minimap muss nur ... den letzten sichtbaren Block von
+oben darstellen können ohne Schatten oder Blöcke unterhalb der obersten Schicht"), this
+wasn't just capped — the whole "find the real surface underneath" concept (plus the
+seafloor-under-water peek-through, the separate foliage overlay layer, and the
+height-based relief-shading/"heightmap"+"slopemap" effect) was removed. The minimap now
+shows exactly the single topmost heightmap block's own color, O(1) per column (one
+heightmap lookup + one block-state fetch), no descent, no shading. Removed ~415 lines of
+now-dead code as a result: the descent loop, the seafloor-scan loop, the transparent/
+foliage-layer color compositing, and the `applyHeight()`/`getBlockHeight()`/
+`getSeafloorHeight()`/`getTransparentHeight()` helper methods (all verified to have zero
+remaining callers after the simplification), plus their now-unused imports and fields.
+
+Verified via real `./gradlew compileJava`/`test` (0 errors, 36/36 test classes green) and
+both guard scripts. See CLAUDE.md "Teil 24" for the root-cause trace and the explicit
+scope of the visual simplification (no relief shading, no water-transparency seafloor
+peek-through, no separate foliage layer — flat top-block color only, as requested).
+
 ## [3.9.23-beta] - 2026-09-26
 
 ### Fixed — O(n²) all-pairs NPC scan across the entire world border (severe lag on large/dense maps)

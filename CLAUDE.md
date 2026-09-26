@@ -1908,3 +1908,67 @@ ohne die tatsächliche NPC-Dichte zu kennen.
 
 **Nicht vorschlagen:** `autoTriggerNearbyInteractions()` wieder auf den vollen
 `for i / for j = i+1`-All-Pairs-Scan über die komplette Weltgrenze zurückzubauen.
+
+---
+
+## Minimap: unbegrenzter Abwärts-Scan pro Block-Spalte behoben + Vereinfachung (2026-09-26, Teil 24)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Auslöser:** Direkte Fortsetzung von Teil 23. Nutzer stellte klar: die 16k-Stadtkarte
+hatte **0 Mod-Inhalte** platziert (0 NPCs, 0 Plots) — eine reine Flat-World auf demselben
+Setup läuft mit 120 FPS. Der O(n²)-NPC-Fix aus Teil 23 konnte also nicht die (alleinige)
+Ursache sein. Per `AskUserQuestion` weiter eingegrenzt: Einbruch überall auf der Karte,
+nicht nur nahe der Bebauung.
+
+**Gefunden:** `MapViewRenderer.getPixelColor()` ermittelte für jede Block-Spalte jedes
+verarbeiteten Chunks zunächst den obersten `MOTION_BLOCKING`-Heightmap-Block. War dieser
+nicht lichtopak (Glas, Zaun, Geländer, Slab — auf detailreichen oder auf Void/geräumtem
+Untergrund gebauten Karten praktisch überall der Fall), lief eine `while`-Schleife Block
+für Block nach unten (Block-Lookup + Licht-Okklusions-/Voxel-Shape-Berechnung pro
+Iteration), bis ein opaker Block gefunden wurde oder `world.getMinBuildHeight()` (**-64**
+in 1.20.1) erreicht war — bis zu **384 Iterationen pro Spalte**, × 256 Spalten/Chunk, auf
+dem Client-Haupt-Thread. Bei einer Flat-World ist der oberste Heightmap-Block bereits
+opaker Boden → Schleife läuft nie. Bei einer Karte mit durchgängig nicht-opakem
+Oberflächen-Layer (oder auf Void-Basis gebaut) läuft sie fast bis zum Boden — für jeden
+neu geladenen/geänderten Chunk erneut.
+
+**Nutzerdirektive für den Fix (wörtlich):** "die minimap muss nur in der vogelperspektive
+den letzten sichtbaren block von oben darstellen können ohne schatten oder blöcke
+unterhalb der obersten schicht!" — daher keine bloße Tiefenbegrenzung, sondern
+vollständige Streichung des gesamten "finde die echte Oberfläche darunter"-Konzepts:
+
+- Der Abwärts-Scan entfällt komplett — der oberste `MOTION_BLOCKING`-Block wird direkt
+  als Oberfläche verwendet (ein Heightmap-Lookup + ein Block-State-Fetch, O(1) statt
+  O(384)).
+- Das Meeresboden-Durchscheinen unter Wasser (`waterTransparency`) entfällt.
+- Die separate Transparenz-Layer-Farbmischung (`blockTransparency`) entfällt.
+- Die separate Foliage-Overlay-Ebene (Blume/Blätter über der eigentlichen Oberfläche)
+  entfällt für den Overworld-Pfad.
+- Der `applyHeight()`-Relief-Schatten (`heightmap`/`slopemap`-Optionen, beide
+  standardmäßig `true`) entfällt — die Minimap zeigt die Blockfarbe jetzt flach, ohne
+  Höhen-/Hangschattierung.
+
+**Aufräumung (verifiziert dead, danach gelöscht):** `applyHeight()`,
+`getBlockHeight()`, `getSeafloorHeight()`, `getTransparentHeight()` (0 verbleibende
+Aufrufer nach der Vereinfachung — repo-intern per Grep bestätigt, `getNetherHeight()`
+bewusst NICHT gelöscht, da weiterhin vom unangetasteten Nether/Cave-Zweig genutzt, auch
+wenn dieser laut "Dimension-System"-Abschnitt oben in der Praxis nie aktiv wird), dazu
+die jetzt ungenutzten Felder/lokalen Variablen (`transparentBlockState`-Feld,
+`seafloorHeight`/`transparentHeight`/`seafloorColor`/`transparentColor`/`foliageColor`/
+`seafloorBlockState` u. a.) und die dadurch verwaisten Imports (`Direction`, `Shapes`,
+`VoxelShape`, `LeavesBlock`, `StainedGlassBlock`). Insgesamt **433 Zeilen entfernt, 17
+hinzugefügt** (netto -416 Zeilen) in `MapViewRenderer.java`.
+
+**Verifikation:** Echter `./gradlew compileJava`-Lauf nach jedem der drei Teilschritte
+(Höhen-Vereinfachung, Helper-Methoden-Löschung, Feld-/Import-Aufräumung) — 0 Fehler, nur
+die 3 bekannten, session-unabhängigen Deprecation-Warnungen. Echter `./gradlew test`-Lauf
+— alle 36 Testklassen grün, 0 Failures/Errors. Beide Guard-Skripte weiterhin "OK". Repo-
+weiter Grep bestätigt: 0 verbleibende Aufrufer der gelöschten Methoden, alle entfernten
+Imports/Felder tatsächlich ungenutzt (jeweils exakt 1 Fundstelle = nur noch die
+Deklaration selbst, vor der Löschung geprüft).
+
+**Nicht vorschlagen:** die Relief-Schattierung (`applyHeight`), das Meeresboden-
+Durchscheinen oder die separate Transparenz-/Foliage-Ebene wiederherzustellen, ohne dass
+das explizit gewünscht wird — die Minimap soll laut expliziter Nutzeranfrage dauerhaft nur
+den flachen, obersten sichtbaren Block zeigen.
