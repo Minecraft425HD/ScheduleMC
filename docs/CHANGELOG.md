@@ -6,6 +6,33 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.16-beta] - 2026-09-26
+
+### Changed — speed camera marker tool + 7-Minecraft-day rotation
+Per user confirmation ("Ja genau so aber die Position soll sich random alle 7 tage
+wechseln"), reworked how speed camera locations are managed:
+
+- New `SpeedCameraMarkerItem` (right-click to mark/unmark a position, no block placed)
+  decouples "where a camera can appear" from "where a physical block sits". Admins no
+  longer need to build a permanent camera block at every possible location — only mark
+  the spot. `SpeedCameraManager` now places/removes the actual `SpeedCameraBlock` itself
+  via `level.setBlock(...)` for whichever marked spots are in the current active subset,
+  so cameras genuinely appear and disappear rather than sitting there as always-visible
+  dummies. The plain `SpeedCameraBlock`/`SpeedCameraItem` from 3.9.15-beta still exists for
+  admins who want a permanent, non-rotating checkpoint.
+- Rotation interval changed from a configurable real-time minutes value to a fixed
+  7-Minecraft-day cycle (`SpeedCameraManager.ROTATION_INTERVAL_DAYS`), tracked via
+  `overworld.getDayTime() / 24000L` against a persisted `lastRotationDay`. Deliberately not
+  a config value, matching the price-smoothing precedent — the user named "every 7 days"
+  specifically. `police.speed_camera_rotation_minutes` removed from `ModConfigHandler`/
+  `PoliceConfigScreen`; `police.speed_camera_active_count` stays.
+- Simplification: since the block now only exists while active, the `active` boolean
+  field (and its NBT persistence/client sync) was removed from `SpeedCameraBlockEntity`
+  entirely — presence of the block is the active signal. Right-clicking an active camera
+  now shows days remaining until the next rotation instead of an active/inactive status.
+
+---
+
 ## [3.9.15-beta] - 2026-09-26
 
 ### Reverted — the police-line-of-sight interpretation of backlog #3

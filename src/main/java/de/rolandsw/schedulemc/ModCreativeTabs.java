@@ -98,6 +98,7 @@ public class ModCreativeTabs {
                 // VERKEHRSKONTROLLE (Speed Camera - für Admin/Stadtplanung)
                 // ═══════════════════════════════════════════════════════════
                 output.accept(de.rolandsw.schedulemc.npc.events.speedcamera.SpeedCameraRegistry.SPEED_CAMERA_ITEM.get());
+                output.accept(de.rolandsw.schedulemc.npc.events.speedcamera.SpeedCameraRegistry.SPEED_CAMERA_MARKER_ITEM.get());
 
                 // ═══════════════════════════════════════════════════════════
                 // SCHLOSS-SYSTEM (Locks, Keys, Lock Picks)

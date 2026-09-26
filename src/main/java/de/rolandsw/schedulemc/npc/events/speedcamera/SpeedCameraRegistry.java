@@ -13,7 +13,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 /**
- * Registrierung von {@link SpeedCameraBlock} + zugehöriger {@link SpeedCameraBlockEntity}.
+ * Registrierung von {@link SpeedCameraBlock} + zugehöriger {@link SpeedCameraBlockEntity}
+ * sowie dem admin-Markierungswerkzeug {@link SpeedCameraMarkerItem}.
  */
 public class SpeedCameraRegistry {
 
@@ -40,6 +41,11 @@ public class SpeedCameraRegistry {
     public static final RegistryObject<Item> SPEED_CAMERA_ITEM = ITEMS.register(
         "speed_camera",
         () -> new BlockItem(SPEED_CAMERA_BLOCK.get(), new Item.Properties())
+    );
+
+    public static final RegistryObject<Item> SPEED_CAMERA_MARKER_ITEM = ITEMS.register(
+        "speed_camera_marker",
+        () -> new SpeedCameraMarkerItem(new Item.Properties().stacksTo(1))
     );
 
     public static final RegistryObject<BlockEntityType<SpeedCameraBlockEntity>> SPEED_CAMERA_BLOCK_ENTITY =

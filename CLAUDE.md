@@ -1327,3 +1327,45 @@ Wanted-Poster in Teil 12 keine Rotations-Risiken), `models/block/speed_camera.js
 **Nicht vorschlagen:** eine Fahrspur-/Blickrichtungs-abhängige Erfassung nachzurüsten,
 oder die zurückgenommene "Polizei-NPC in Sichtweite"-Interpretation erneut aufzugreifen —
 `police.speed_limit_default` gehört ausschließlich zum Blitzer-Feature.
+
+**Update (2026-09-26): Marker-Tool statt Admin-Block-Platzierung, 7-Tage-Rotation statt
+Minuten-Config.** Nutzer-Bestätigung des in der vorherigen Antwort vorgeschlagenen Umbaus:
+"Ja genau so aber die Position soll sich random alle 7 tage wechseln." Zwei Änderungen:
+
+1. **Trennung von Markierung und physischem Block.** Vorher musste der Admin an JEDEM
+   möglichen Standort dauerhaft einen sichtbaren `SpeedCameraBlock` hinstellen (auch wenn
+   inaktiv). Jetzt: neues Item `SpeedCameraMarkerItem` (`speed_camera_marker`,
+   `useOn(UseOnContext)`, Muster wie `RemoteControlItem`) markiert/entmarkiert bei
+   Rechtsklick nur die **Position** bei `SpeedCameraManager` (`registerMarker`/
+   `unregisterMarker`) — es wird dabei kein Block platziert. Der Manager selbst
+   platziert/entfernt den echten `SpeedCameraBlock` per `level.setBlock(...)` an den
+   jeweils aktiven markierten Punkten. Der Blitzer "taucht auf" und "verschwindet" also
+   wirklich, statt als Attrappe dauerhaft sichtbar zu sein. `SpeedCameraBlock` hat dadurch
+   keine `setPlacedBy`/`onRemove`-Registrierungshooks mehr (das alte
+   `SPEED_CAMERA_ITEM`/`BlockItem` bleibt trotzdem registriert und im Creative-Tab — ein
+   Admin kann den Block weiterhin auch direkt/dauerhaft platzieren, z. B. für einen
+   bewusst permanenten Kontrollpunkt; das ist unabhängig von der Rotation).
+2. **Rotation alle 7 Minecraft-Tage statt konfigurierbarer Minuten.** `SpeedCameraManager
+   .tick(ServerLevel)` vergleicht jetzt `overworld.getDayTime() / 24000L` gegen
+   `lastRotationDay` (persistiert) mit einem fest verdrahteten `ROTATION_INTERVAL_DAYS = 7`
+   — bewusst **kein** neuer Config-Wert, analog zur Preisglättung (Teil 3), da der Nutzer
+   "alle 7 Tage" konkret benannt hat. `police.speed_camera_rotation_minutes` wieder aus
+   `ModConfigHandler`/`PoliceConfigScreen` entfernt; `police.speed_camera_active_count`
+   bleibt (beschreibt weiterhin, wie viele der markierten Punkte gleichzeitig aktiv sind).
+
+**Nebeneffekt-Vereinfachung:** Da der Block jetzt nur noch existiert, während er aktiv
+ist, wurde das vorherige `active`-Boolean-Feld auf der `SpeedCameraBlockEntity`
+(inkl. `setActive`/`isActive`/NBT-Persistenz/Client-Sync) komplett entfernt — die bloße
+Existenz des Blocks IST das Aktiv-Signal. Rechtsklick auf einen aktiven Blitzer zeigt
+jetzt stattdessen die verbleibenden Tage bis zur nächsten Rotation
+(`SpeedCameraManager.getDaysUntilNextRotation(ServerLevel)`).
+
+**Bewusst NICHT umgesetzt:** kein Sicherheits-Check, ob ein markierter Punkt beim
+Aktivieren noch frei ist (`placeCameraIfEmpty` überspringt die Platzierung einfach, wenn
+dort inzwischen etwas Nicht-Ersetzbares gebaut wurde, statt es zu zerstören) — und beim
+Entfernen wird nur abgeräumt, wenn an der Position tatsächlich noch ein
+`SpeedCameraBlock` steht (kein blindes Überschreiben von etwas, das ein Spieler
+inzwischen dort gebaut hat).
+
+**Nicht vorschlagen:** die 7-Tage-Rotation als Config-Wert aufzubohren, oder die
+Markierungs-Trennung zurückzunehmen, ohne dass das explizit gewünscht wird.

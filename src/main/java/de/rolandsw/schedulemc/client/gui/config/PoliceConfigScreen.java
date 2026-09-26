@@ -160,8 +160,7 @@ public class PoliceConfigScreen extends Screen {
         configList.addRow(
             new IntSlider(0, 0, 180, "Active Speed Cameras: %d",
                 ModConfigHandler.COMMON.POLICE_SPEED_CAMERA_ACTIVE_COUNT, 0, 50),
-            new IntSlider(0, 0, 180, "Camera Rotation: %dmin",
-                ModConfigHandler.COMMON.POLICE_SPEED_CAMERA_ROTATION_MINUTES, 5, 240)
+            null
         );
 
         // === WARNINGS & WANTED ===

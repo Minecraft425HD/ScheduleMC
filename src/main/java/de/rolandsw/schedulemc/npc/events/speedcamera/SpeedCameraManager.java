@@ -7,6 +7,8 @@ import de.rolandsw.schedulemc.util.AbstractPersistenceManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
@@ -20,10 +22,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Verwaltet alle im Overworld platzierten {@link SpeedCameraBlock}-Positionen und
- * rotiert periodisch, welche Teilmenge davon gerade aktiv ist - wie im echten Leben
- * ist nicht jeder markierte Blitzer-Standort dauerhaft besetzt
- * ({@code police.speed_camera_active_count}/{@code speed_camera_rotation_minutes}).
+ * Verwaltet alle admin-markierten Blitzer-Standorte und rotiert alle 7 Minecraft-Tage
+ * (fester Takt, siehe Begründung unten), welche Teilmenge davon gerade tatsächlich einen
+ * physischen {@link SpeedCameraBlock} trägt - wie im echten Leben taucht der Blitzer nur
+ * temporär an einem von mehreren möglichen Standorten auf, statt dauerhaft überall zu
+ * stehen. Markierung erfolgt über {@link SpeedCameraMarkerItem}, nicht durch manuelles
+ * Block-Platzieren.
  */
 public class SpeedCameraManager extends AbstractPersistenceManager<SpeedCameraManager.SpeedCameraData> {
 
@@ -33,10 +37,16 @@ public class SpeedCameraManager extends AbstractPersistenceManager<SpeedCameraMa
     /** Cooldown pro Spieler, damit ein Fahrzeug im Radius nicht mehrfach denselben Blitzer auslöst */
     private static final long VIOLATION_COOLDOWN_MS = 30_000L;
 
-    private final Set<Long> allCameras = ConcurrentHashMap.newKeySet();
-    private final Set<Long> activeCameras = ConcurrentHashMap.newKeySet();
+    /**
+     * Rotations-Takt in Minecraft-Tagen. Bewusst fest verdrahtet statt als Config-Wert,
+     * analog zur Preisglättung (Teil 3): der Nutzer hat "alle 7 Tage" konkret benannt.
+     */
+    private static final long ROTATION_INTERVAL_DAYS = 7L;
+
+    private final Set<Long> markedPositions = ConcurrentHashMap.newKeySet();
+    private final Set<Long> activeCameraPositions = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Long> violationCooldowns = new ConcurrentHashMap<>();
-    private volatile long lastRotationGameTime = -1L;
+    private volatile long lastRotationDay = -1L;
     private volatile MinecraftServer server;
 
     private SpeedCameraManager(MinecraftServer server) {
@@ -68,64 +78,109 @@ public class SpeedCameraManager extends AbstractPersistenceManager<SpeedCameraMa
     }
 
     // ═══════════════════════════════════════════════════════════
-    // KAMERA-REGISTRIERUNG
+    // MARKIERUNG (über SpeedCameraMarkerItem, kein physischer Block)
     // ═══════════════════════════════════════════════════════════
 
-    public void registerCamera(BlockPos pos) {
-        allCameras.add(pos.asLong());
+    public boolean isMarked(BlockPos pos) {
+        return markedPositions.contains(pos.asLong());
+    }
+
+    public void registerMarker(BlockPos pos) {
+        markedPositions.add(pos.asLong());
         markDirty();
     }
 
-    public void unregisterCamera(BlockPos pos) {
+    /**
+     * Entfernt eine Markierung und räumt einen dort ggf. aktiven Blitzer sofort ab
+     * (nur wenn an dieser Stelle tatsächlich noch ein {@link SpeedCameraBlock} steht -
+     * ein Spieler könnte den Platz inzwischen anders bebaut haben).
+     */
+    public void unregisterMarker(ServerLevel overworld, BlockPos pos) {
         long key = pos.asLong();
-        allCameras.remove(key);
-        activeCameras.remove(key);
+        markedPositions.remove(key);
+        if (activeCameraPositions.remove(key)) {
+            removeCameraIfPresent(overworld, pos);
+        }
         markDirty();
     }
 
+    public int getMarkedCount() {
+        return markedPositions.size();
+    }
+
+    /**
+     * @return verbleibende Minecraft-Tage bis zur nächsten Rotation (für die
+     *         Rechtsklick-Statusanzeige an einem aktiven {@link SpeedCameraBlock})
+     */
+    public long getDaysUntilNextRotation(ServerLevel overworld) {
+        if (lastRotationDay < 0) return 0L;
+        long currentDay = overworld.getDayTime() / 24000L;
+        long elapsed = currentDay - lastRotationDay;
+        return Math.max(0L, ROTATION_INTERVAL_DAYS - elapsed);
+    }
+
     // ═══════════════════════════════════════════════════════════
-    // AKTIV/INAKTIV-ROTATION
+    // AKTIV-ROTATION (alle 7 Minecraft-Tage)
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * Wird jeden Server-Tick aufgerufen; rollt intern selbst, wie oft tatsächlich
-     * geprüft/rotiert wird (im konfigurierten Minuten-Takt).
+     * Wird jeden Server-Tick aufgerufen; rotiert intern nur alle {@link #ROTATION_INTERVAL_DAYS}
+     * Minecraft-Tage tatsächlich (Erstlauf nach Serverstart sofort, damit markierte Punkte
+     * nicht erst 7 Tage auf ihren ersten Blitzer warten).
      */
     public void tick(ServerLevel overworld) {
-        long currentTick = overworld.getGameTime();
+        long currentDay = overworld.getDayTime() / 24000L;
 
-        // Erste Prüfung nach dem Serverstart sofort ausführen, danach im konfigurierten Takt
-        long rotationIntervalTicks = ModConfigHandler.COMMON.POLICE_SPEED_CAMERA_ROTATION_MINUTES.get() * 60L * 20L;
-        if (lastRotationGameTime >= 0 && currentTick - lastRotationGameTime < rotationIntervalTicks) {
+        if (lastRotationDay >= 0 && currentDay - lastRotationDay < ROTATION_INTERVAL_DAYS) {
+            violationCooldowns.entrySet().removeIf(
+                entry -> System.currentTimeMillis() - entry.getValue() > VIOLATION_COOLDOWN_MS * 2
+            );
             return;
         }
-        lastRotationGameTime = currentTick;
+        lastRotationDay = currentDay;
 
         rotateActiveCameras(overworld);
-        violationCooldowns.entrySet().removeIf(
-            entry -> System.currentTimeMillis() - entry.getValue() > VIOLATION_COOLDOWN_MS * 2
-        );
     }
 
     private void rotateActiveCameras(ServerLevel overworld) {
         int activeCount = ModConfigHandler.COMMON.POLICE_SPEED_CAMERA_ACTIVE_COUNT.get();
 
-        List<Long> candidates = new ArrayList<>(allCameras);
+        List<Long> candidates = new ArrayList<>(markedPositions);
         Collections.shuffle(candidates);
-
         Set<Long> newActive = new HashSet<>(candidates.subList(0, Math.min(activeCount, candidates.size())));
 
-        for (Long key : allCameras) {
-            boolean shouldBeActive = newActive.contains(key);
-            BlockPos pos = BlockPos.of(key);
-            if (overworld.getBlockEntity(pos) instanceof SpeedCameraBlockEntity camera) {
-                camera.setActive(shouldBeActive);
+        // Alte aktive Standorte, die nicht erneut gezogen wurden, wieder abräumen
+        for (Long key : activeCameraPositions) {
+            if (!newActive.contains(key)) {
+                removeCameraIfPresent(overworld, BlockPos.of(key));
             }
         }
 
-        activeCameras.clear();
-        activeCameras.addAll(newActive);
+        // Neu gezogene Standorte physisch bebauen
+        for (Long key : newActive) {
+            if (!activeCameraPositions.contains(key)) {
+                placeCameraIfEmpty(overworld, BlockPos.of(key));
+            }
+        }
+
+        activeCameraPositions.clear();
+        activeCameraPositions.addAll(newActive);
         markDirty();
+    }
+
+    private void placeCameraIfEmpty(ServerLevel overworld, BlockPos pos) {
+        BlockState current = overworld.getBlockState(pos);
+        if (!current.isAir() && !current.canBeReplaced()) {
+            // Markierter Punkt ist inzwischen zugebaut - überspringen statt etwas zu zerstören
+            return;
+        }
+        overworld.setBlock(pos, SpeedCameraRegistry.SPEED_CAMERA_BLOCK.get().defaultBlockState(), 3);
+    }
+
+    private void removeCameraIfPresent(ServerLevel overworld, BlockPos pos) {
+        if (overworld.getBlockState(pos).getBlock() == SpeedCameraRegistry.SPEED_CAMERA_BLOCK.get()) {
+            overworld.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -150,8 +205,9 @@ public class SpeedCameraManager extends AbstractPersistenceManager<SpeedCameraMa
     // ═══════════════════════════════════════════════════════════
 
     public static class SpeedCameraData {
-        public Set<Long> allCameras = new HashSet<>();
-        public Set<Long> activeCameras = new HashSet<>();
+        public Set<Long> markedPositions = new HashSet<>();
+        public Set<Long> activeCameraPositions = new HashSet<>();
+        public long lastRotationDay = -1L;
     }
 
     @Override
@@ -161,25 +217,27 @@ public class SpeedCameraManager extends AbstractPersistenceManager<SpeedCameraMa
 
     @Override
     protected void onDataLoaded(SpeedCameraData data) {
-        allCameras.clear();
-        activeCameras.clear();
+        markedPositions.clear();
+        activeCameraPositions.clear();
         if (data == null) {
             LOGGER.warn("Null data loaded for SpeedCameraManager");
             return;
         }
-        if (data.allCameras != null) {
-            allCameras.addAll(data.allCameras);
+        if (data.markedPositions != null) {
+            markedPositions.addAll(data.markedPositions);
         }
-        if (data.activeCameras != null) {
-            activeCameras.addAll(data.activeCameras);
+        if (data.activeCameraPositions != null) {
+            activeCameraPositions.addAll(data.activeCameraPositions);
         }
+        lastRotationDay = data.lastRotationDay;
     }
 
     @Override
     protected SpeedCameraData getCurrentData() {
         SpeedCameraData data = new SpeedCameraData();
-        data.allCameras = new HashSet<>(allCameras);
-        data.activeCameras = new HashSet<>(activeCameras);
+        data.markedPositions = new HashSet<>(markedPositions);
+        data.activeCameraPositions = new HashSet<>(activeCameraPositions);
+        data.lastRotationDay = lastRotationDay;
         return data;
     }
 
@@ -190,12 +248,12 @@ public class SpeedCameraManager extends AbstractPersistenceManager<SpeedCameraMa
 
     @Override
     protected String getHealthDetails() {
-        return String.format("Cameras: %d total, %d active", allCameras.size(), activeCameras.size());
+        return String.format("Marked: %d, active: %d", markedPositions.size(), activeCameraPositions.size());
     }
 
     @Override
     protected void onCriticalLoadFailure() {
-        allCameras.clear();
-        activeCameras.clear();
+        markedPositions.clear();
+        activeCameraPositions.clear();
     }
 }
