@@ -199,7 +199,7 @@ public class PoliceVehiclePursuit {
         float volume = Math.max(1.0f, radius / 16.0f);
 
         level.playSound(null, police.getX(), police.getY(), police.getZ(),
-            net.minecraft.sounds.SoundEvents.RAID_HORN, net.minecraft.sounds.SoundSource.NEUTRAL,
+            net.minecraft.sounds.SoundEvents.RAID_HORN.value(), net.minecraft.sounds.SoundSource.NEUTRAL,
             volume, 1.0f);
     }
 

@@ -291,11 +291,9 @@ public class NegotiationPacket {
                 // Quest-System: Melde erfolgreiche Verhandlung
                 QuestEventHandler.reportSuccessfulNegotiation(player, npc);
 
-                // Life-System: Koordiniere Manager-Updates
-                if (player.level() instanceof ServerLevel serverLevel) {
-                    NPCLifeSystemIntegration integration = NPCLifeSystemIntegration.get(serverLevel);
-                    integration.onTradeCompleted(player, npc, (int) price);
-                }
+                // Life-System: Koordiniere Manager-Updates (serverLevel bereits oben deklariert)
+                NPCLifeSystemIntegration integration = NPCLifeSystemIntegration.get(serverLevel);
+                integration.onTradeCompleted(player, npc, (int) price);
 
                 // Erfolgsmeldung mit aktuellem Wallet-Wert
                 if (walletItem.getItem() instanceof CashItem) {

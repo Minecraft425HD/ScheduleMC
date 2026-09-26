@@ -6,6 +6,28 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.20-beta] - 2026-09-26
+
+### Fixed — first real compile run, 3 blocking bugs
+The project had never actually been compiled in this session's environment before now
+(prior verification was grep/brace-balance-based). Got a real `./gradlew compileJava` /
+`compileTestJava` / `test` run working and fixed everything it caught:
+- `PoliceVehiclePursuit.playSirenSound()` (this session, 3.9.18): `SoundEvents.RAID_HORN`
+  is a `Holder<SoundEvent>`, not a raw `SoundEvent` — added `.value()`.
+- `NegotiationPacket.handle()` (pre-existing): a duplicate `serverLevel` variable
+  declaration in the same method scope — a real "already defined" compile error, unused
+  since that code path was added. Removed the redundant `instanceof` re-declaration.
+- `WantedPosterBlock.isPathfindable()` (pre-existing, 3.9.13): wrong override signature
+  (missing `BlockGetter`/`BlockPos` parameters) — fixed to match `Block`'s real 4-param
+  signature.
+- Deleted `EconomyAPIExtendedTest.java`, an orphaned test for `EconomyAPIImpl` (deleted
+  along with the whole `api` package on 2026-09-24) that was missed at the time and
+  blocked `compileTestJava`.
+
+Result: `compileJava` and `compileTestJava` both clean (only pre-existing deprecation
+warnings), full test suite green (625 tests, 0 failures, 0 errors). See CLAUDE.md "Teil
+20" for the Java 17 toolchain workaround this environment needed to run Gradle at all.
+
 ## [3.9.19-beta] - 2026-09-26
 
 ### Added — real police pursuit vehicles with destructibility

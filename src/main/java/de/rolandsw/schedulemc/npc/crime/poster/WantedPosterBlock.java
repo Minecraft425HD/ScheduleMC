@@ -91,7 +91,7 @@ public class WantedPosterBlock extends HorizontalDirectionalBlock implements Ent
     }
 
     @Override
-    public boolean isPathfindable(BlockState state, PathComputationType type) {
+    public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
         return false;
     }
 

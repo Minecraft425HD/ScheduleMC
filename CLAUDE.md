@@ -1600,3 +1600,77 @@ Spieler-Steuerungspfad nicht anzufassen) — stattdessen bei Bedarf das bestehen
 Sirenen-Blaulicht "nebenbei" auf echte Fahrzeuge zu verlegen oder die PIT-KI-Konstanten
 (`PIT_REAR_OFFSET`/`PIT_SIDE_OFFSET`/`PIT_STEERING_TOLERANCE_DEGREES`) in Config-Werte
 umzuwandeln, ohne dass das explizit gewünscht wird.
+
+---
+
+## Erster echter Compile-Lauf des Repos + 3 Bugs behoben (2026-09-26, Teil 20)
+
+**Status:** ABGESCHLOSSEN
+
+**Auslöser:** Nutzer-Anfrage: "Du sollst alles prüfen was du kannst und korregieren wenn
+was nicht korrekt funktioniert" — nach Teil 19 war die Umgebung noch nie tatsächlich
+kompiliert worden (frühere Sessions haben ausschließlich per Grep/Brace-Balance/Guard-
+Skripten statisch verifiziert, siehe frühere Teile). Diese Session hat zum ersten Mal
+tatsächlich `./gradlew compileJava`/`compileTestJava`/`test` zum Laufen gebracht:
+
+**Umgebungs-Hürde:** ForgeGradle 6 verlangt für einen internen Remap-Schritt zwingend ein
+echtes Java-17-Toolchain (nicht per `java.toolchain.languageVersion` im Build-Skript
+umgehbar — der interne `HackyJavaCompile`-Task von ForgeGradle prüft das unabhängig).
+Diese Session-Umgebung hatte nur Java 21 vorinstalliert. Eclipse Temurin 17 wurde direkt
+von `api.adoptium.net` heruntergeladen (via den vorkonfigurierten Proxy erreichbar,
+`apt-get install openjdk-17-*` schlug dagegen fehl — Paket auf dem Mirror nicht
+verfügbar) und nach `/opt/jdk17` entpackt, dann über
+`~/.gradle/gradle.properties` (`org.gradle.java.installations.paths=/opt/jdk17`, außerhalb
+des Repos, nicht versioniert) bei Gradle registriert. `build.gradle`s
+`languageVersion = JavaLanguageVersion.of(17)` blieb unverändert — nur eine temporäre
+Testkopie (auf 21) wurde während der Fehlersuche genutzt und wieder zurückgesetzt (per
+`git diff` verifiziert: 0 Änderungen an `build.gradle` im finalen Stand).
+
+**Drei echte Compile-Fehler gefunden und behoben (1 aus Teil 18/19 dieser Session, 2
+vorbestehend/unabhängig von dieser Session, aber den gesamten Build blockierend):**
+
+1. **`PoliceVehiclePursuit.playSirenSound()` (eigener Bug, Teil 18):**
+   `SoundEvents.RAID_HORN` ist ein `Holder<SoundEvent>` (bzw. `Reference<SoundEvent>`),
+   nicht direkt ein `SoundEvent` — die genutzte `Level.playSound(Player, double, double,
+   double, SoundEvent, SoundSource, float, float)`-Überladung verlangt aber den rohen
+   Typ. Fix: `.value()` ergänzt (`SoundEvents.RAID_HORN.value()`), analog zu bereits
+   bestehenden Stellen im Repo (`TileEntityWorkshop`, `PerforationPressBlock`), die
+   denselben Zugriff bereits korrekt nutzen.
+
+2. **`NegotiationPacket.handle()` — Doppel-Deklaration `serverLevel` (vorbestehend, aus
+   dem in CLAUDE.md dokumentierten "Vollständige S&D-Konsolidierung"-Umbau, Teil 2):**
+   Zeile 134 deklariert bereits `ServerLevel serverLevel = player.serverLevel();` für den
+   Preismodifikator-Block; der später hinzugefügte `NPCLifeSystemIntegration`-Aufruf
+   (ebenfalls Teil 2) deklarierte per `if (player.level() instanceof ServerLevel
+   serverLevel)` im selben Methodenrumpf eine zweite, gleichnamige Variable — ein echter
+   Compile-Fehler ("variable serverLevel is already defined"), der offenbar seit Teil 2
+   nie durch einen echten Build aufgefallen ist. Fix: die zweite Deklaration entfernt,
+   die bereits vorhandene `serverLevel`-Variable (identischer Wert, `player.serverLevel()`
+   == `player.level()` für einen `ServerPlayer`) wiederverwendet.
+
+3. **`WantedPosterBlock.isPathfindable()` — falsche Override-Signatur (vorbestehend, aus
+   Teil 12):** Implementiert mit `(BlockState, PathComputationType)`, aber `Block.
+   isPathfindable(...)` in 1.20.1 hat die Signatur `(BlockState, BlockGetter, BlockPos,
+   PathComputationType)` (4 Parameter) — `@Override` schlug fehl. Fix: Signatur auf die
+   korrekte 4-Parameter-Form korrigiert (Rückgabewert `false` unverändert).
+
+**Zusätzlich: verwaister Test gelöscht.** `compileTestJava` scheiterte an
+`EconomyAPIExtendedTest.java` (261 Zeilen) — testet ausschließlich `EconomyAPIImpl`, das
+laut CLAUDE.md-Abschnitt "Public API entfernt (2026-09-24)" bewusst gelöscht wurde. Die
+Testdatei wurde beim damaligen API-Entfernen offenbar übersehen. Gelöscht (keine
+Wiederherstellung der API, siehe Begründung im referenzierten Abschnitt).
+
+**Ergebnis nach den Fixes:** `compileJava` — 0 Fehler (nur 18 vorbestehende, harmlose
+Deprecation-Warnungen zu `ResourceLocation(String[,String])`/
+`FMLJavaModLoadingContext.get()`, alle unabhängig von dieser Session). `compileTestJava`
+— 0 Fehler. `test` — 625 Tests, 0 Failures, 0 Errors (alle 36 Testklassen). Beide Guard-
+Skripte (`check-german-strings.sh`, `repo_hygiene_check.sh`) weiterhin "OK". Ein durch den
+Testlauf selbst verursachter Seiteneffekt (`config/plotmod_economy.json` wurde von einem
+Test mit Zufalls-UUIDs überschrieben, plus eine automatische `.backup_*.gz`-Datei) wurde
+vor dem Commit zurückgesetzt bzw. gelöscht — kein Teil dieser Änderung.
+
+**Nicht vorschlagen:** diesen Compile-Lauf zu wiederholen, ohne dass seit diesem Datum
+neuer Code hinzukam — der Build ist jetzt grün. Falls künftige Sessions wieder nur
+statisch (Grep/Brace-Balance) verifizieren können, weil diese Umgebung keine Java-17-
+Toolchain vorinstalliert hat: der obige Adoptium-Download-Workaround ist reproduzierbar
+und sollte zuerst versucht werden, bevor auf rein statische Prüfung zurückgefallen wird.
