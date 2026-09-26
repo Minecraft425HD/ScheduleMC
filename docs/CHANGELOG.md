@@ -6,6 +6,32 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.23-beta] - 2026-09-26
+
+### Fixed — O(n²) all-pairs NPC scan across the entire world border (severe lag on large/dense maps)
+User report: a pre-built 16000-block city map with many NPCs drops to ~3 FPS immediately on
+joining, in singleplayer, with stock render/simulation distance. Root-caused to
+`NPCInteractionManager.autoTriggerNearbyInteractions()` (called every 200 ticks / 10s from
+`NPCLifeSystemIntegration.tick()`): it queried **every** `CustomNPCEntity` in an `AABB`
+spanning the entire world border, then ran a nested `for i / for j = i+1` loop comparing
+**every pair** — an O(n²) scan across the whole loaded NPC population, even though the
+actual interaction range is only 8 blocks. On a densely-NPC'd city map this turns into
+millions of real `Entity.distanceTo()` calls on the integrated (singleplayer) server thread,
+which shares the process with the client's render thread.
+
+Rewrote to bucket NPCs into a spatial grid sized to `INTERACTION_RANGE` and only compare
+each NPC against the ~9 grid cells that could plausibly contain a neighbor within range
+(a `Set`-based pair-dedup avoids double-processing), cutting the number of comparisons by
+>99% on a synthetic 3000-NPC/16000-block benchmark (4,498,500 → 38,741) while producing an
+*identical* result set to the old brute-force approach (verified against 200 randomized
+trials, including clustered "city center" scenarios, with zero mismatches).
+
+Verified via real `./gradlew compileJava`/`test` (36/36 test classes green) and both guard
+scripts. See CLAUDE.md "Teil 23" for the full derivation and the standalone correctness/
+benchmark scripts used to verify it (no unit test exists for this entity-heavy class, so
+verification was done via an isolated reimplementation of just the grid math against a
+brute-force reference, run outside Gradle).
+
 ## [3.9.22-beta] - 2026-09-26
 
 ### Fixed — NPC markers never rendered on minimap/worldmap (wrong screen position, not a visibility filter)

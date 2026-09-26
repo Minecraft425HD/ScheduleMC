@@ -432,17 +432,68 @@ public class NPCInteractionManager extends AbstractPersistenceManager<NPCInterac
             new AABB(level.getWorldBorder().getMinX(), level.getMinBuildHeight(), level.getWorldBorder().getMinZ(),
                      level.getWorldBorder().getMaxX(), level.getMaxBuildHeight(), level.getWorldBorder().getMaxZ()));
 
-        for (int i = 0; i < npcs.size(); i++) {
-            for (int j = i + 1; j < npcs.size(); j++) {
-                CustomNPCEntity npc1 = npcs.get(i);
-                CustomNPCEntity npc2 = npcs.get(j);
+        if (npcs.size() < 2) {
+            return;
+        }
 
-                if (npc1.distanceTo(npc2) > INTERACTION_RANGE) continue;
-                if (!canInteract(npc1, npc2)) continue;
+        // PERFORMANCE (2026-09-26, Teil 23): die alte Implementierung verglich JEDES NPC-Paar
+        // im gesamten Level (O(n^2)), unabhängig von INTERACTION_RANGE (8 Blöcke) - auf einer
+        // großen, vorgebauten Karte mit vielen hundert/tausend NPCs war das ein sofortiger,
+        // massiver Server-Tick-Lag-Spike direkt ab Weltbeitritt (Singleplayer-Integrated-Server
+        // teilt sich den Prozess mit dem Client-Render-Thread). Bucket die NPCs stattdessen in
+        // ein räumliches Grid mit Zellgröße == INTERACTION_RANGE - zwei Punkte mit Abstand
+        // <= INTERACTION_RANGE liegen dadurch garantiert in derselben oder einer der 8
+        // Nachbarzellen, sodass nur noch NPCs verglichen werden, die überhaupt in Reichweite
+        // sein KÖNNEN, statt aller NPCs auf der gesamten Karte gegeneinander.
+        Map<Long, List<CustomNPCEntity>> grid = new HashMap<>();
+        for (CustomNPCEntity npc : npcs) {
+            long cell = packCell(cellCoord(npc.getX()), cellCoord(npc.getZ()));
+            grid.computeIfAbsent(cell, k -> new ArrayList<>()).add(npc);
+        }
 
-                triggerAmbientInteraction(npc1, npc2, level);
+        Set<Long> processedPairs = new HashSet<>();
+
+        for (CustomNPCEntity npc1 : npcs) {
+            int cellX = cellCoord(npc1.getX());
+            int cellZ = cellCoord(npc1.getZ());
+
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    List<CustomNPCEntity> bucket = grid.get(packCell(cellX + dx, cellZ + dz));
+                    if (bucket == null) {
+                        continue;
+                    }
+
+                    for (CustomNPCEntity npc2 : bucket) {
+                        if (npc1.getId() == npc2.getId()) {
+                            continue;
+                        }
+                        if (!processedPairs.add(pairKey(npc1.getId(), npc2.getId()))) {
+                            continue; // dieses Paar wurde (aus der anderen Richtung) schon geprüft
+                        }
+
+                        if (npc1.distanceTo(npc2) > INTERACTION_RANGE) continue;
+                        if (!canInteract(npc1, npc2)) continue;
+
+                        triggerAmbientInteraction(npc1, npc2, level);
+                    }
+                }
             }
         }
+    }
+
+    private static int cellCoord(double coordinate) {
+        return (int) Math.floor(coordinate / INTERACTION_RANGE);
+    }
+
+    private static long packCell(int cellX, int cellZ) {
+        return (((long) cellX) << 32) | (cellZ & 0xFFFFFFFFL);
+    }
+
+    private static long pairKey(int entityId1, int entityId2) {
+        int min = Math.min(entityId1, entityId2);
+        int max = Math.max(entityId1, entityId2);
+        return (((long) min) << 32) | (max & 0xFFFFFFFFL);
     }
 
     private void triggerAmbientInteraction(CustomNPCEntity npc1, CustomNPCEntity npc2, ServerLevel level) {

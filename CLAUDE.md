@@ -1836,3 +1836,75 @@ Aufrufstelle übersehen. Der bekannte Testlauf-Seiteneffekt auf
 **Nicht vorschlagen:** diesen Bug erneut zu suchen oder die `scaleProj`-Transformation aus
 `renderNPCMarkers()` wieder zu entfernen — sie ist notwendig, nicht optional (ohne sie sind
 NPC-Marker wieder unsichtbar, außer bei zufälliger `scScale == guiScale`-Übereinstimmung).
+
+---
+
+## O(n²) NPC-Interaktions-Scan über die ganze Weltgrenze behoben (2026-09-26, Teil 23)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen
+
+**Auslöser:** Nutzer-Meldung: "ich habe gerade versucht eine 16k karte mit der mod zu
+starten habe aber nur 3 fps max." Per `AskUserQuestion` geklärt: Singleplayer, vanilla
+Render-/Simulation-Distance (8-12), **vorgebaute Stadtkarte mit vielen NPCs**, Einbruch
+**sofort beim Weltbeitritt**.
+
+**Gefunden:** `NPCInteractionManager.autoTriggerNearbyInteractions(ServerLevel)`
+(aufgerufen alle 200 Ticks/10 Sekunden aus `NPCLifeSystemIntegration.tick()`, siehe Teil 5)
+holte per `level.getEntitiesOfClass(CustomNPCEntity.class, AABB)` **alle** NPCs in einer
+AABB, die exakt der **kompletten Weltgrenze** entsprach (`level.getWorldBorder().getMinX()`
+bis `getMaxX()`/`getMinZ()`/`getMaxZ()`) — bei einer 16000-Block-Karte also praktisch die
+gesamte geladene NPC-Population. Danach ein klassisches `for i / for j = i+1`-Nested-Loop,
+das **jedes** Paar verglich (`npc1.distanceTo(npc2)`), obwohl `INTERACTION_RANGE` nur 8
+Blöcke beträgt — ein echter O(n²)-Scan über die ganze Karte für eine Reichweiten-Prüfung,
+die nur eine winzige lokale Umgebung braucht. Bei einer dicht mit NPCs bebauten Stadtkarte
+(Läden brauchen Verkäufer, dazu Bewohner, Polizei, …) summiert sich das zu Millionen echter
+`Entity.distanceTo()`-Aufrufen — auf dem Integrated-Server-Thread, der sich in Singleplayer
+den Prozess mit dem Client-Render-Thread teilt.
+
+**Fix:** NPCs werden jetzt in ein räumliches Grid mit Zellgröße `INTERACTION_RANGE`
+gebuckelt (`packCell(cellCoord(x), cellCoord(z))`, gepackt als `long`-Key). Für jedes NPC
+werden nur noch die eigene Zelle plus die 8 Nachbarzellen (3×3) durchsucht — geometrisch
+garantiert ausreichend, da zwei Punkte mit Abstand ≤ `INTERACTION_RANGE` bei einer Zellgröße
+== `INTERACTION_RANGE` nie mehr als 1 Zelle in jeder Achse voneinander entfernt liegen
+können. Ein `Set<Long>` mit kanonischem Paar-Key (`min(id1,id2) << 32 | max(id1,id2)`)
+verhindert Doppel-Verarbeitung (jedes Paar kann über beide Richtungen der 3×3-Suche
+gefunden werden).
+
+**Verifikation (kein bestehender Unit-Test für diese Entity-schwere Klasse, daher isoliert
+reimplementiert und im Scratchpad, außerhalb von Gradle, geprüft):**
+- **Korrektheit:** Standalone-Java-Programm, das dieselbe Grid-Logik gegen eine
+  brute-force-O(n²)-Referenz über 200 randomisierte Durchläufe (5-300 Punkte, teils über
+  eine simulierte 16000-Block-Fläche verstreut, teils in "Stadt-Cluster" konzentriert)
+  vergleicht — **0 Abweichungen** in allen 200 Durchläufen, das Grid-Ergebnis ist exakt
+  identisch mit der brute-force-Referenz.
+- **Performance:** Synthetischer Benchmark mit 3000 NPCs über 30 "Stadtblock"-Cluster
+  verteilt über eine 16000-Block-Fläche: Vergleichsanzahl sinkt von 4.498.500
+  (brute-force) auf 38.741 (Grid) — **>99 % weniger Vergleiche**. Ehrlich dokumentiert:
+  bei extrem billigen Vergleichsoperationen (reines `Math.sqrt`) kann der
+  HashMap/HashSet-Overhead des Grids den Gewinn in einem synthetischen Mikro-Benchmark
+  sogar auffressen (im ersten, JIT-kalten Lauf war Grid sogar langsamer) — der echte
+  Produktionscode vergleicht aber über `Entity.distanceTo()` (virtueller Methodenaufruf +
+  Vektor-Subtraktion auf echten Minecraft-Entities), was deutlich teurer ist als ein
+  nackter `double`-Sqrt, sodass die 99%ige Reduktion der Vergleichsanzahl dort real
+  durchschlägt statt vom Collection-Overhead aufgefressen zu werden.
+- **Build:** Echter `./gradlew compileJava`/`test`-Lauf — 0 Fehler, alle 36 Testklassen
+  grün. Repo-weiter Grep bestätigt: `getWorldBorder().getMinX()`/`getMaxX()` kommt nur an
+  dieser einen Stelle im gesamten Repo vor — kein zweites Vorkommen dieses Musters
+  übersehen. Beide Guard-Skripte weiterhin "OK".
+
+**Bewusst offen gelassen:** Ob der gemeldete 3-FPS-Einbruch durch diesen Fix VOLLSTÄNDIG
+behoben ist, konnte nicht abschließend verifiziert werden — `autoTriggerNearbyInteractions`
+läuft nur alle 10 Sekunden, würde also eher einen periodischen Stotterer als einen
+dauerhaften Frame-Einbruch "sofort ab Weltbeitritt" erklären. Falls die Stadtkarte
+gleichzeitig sehr viele NPCs (mehrere hundert/tausend) in Spieler-Nähe geladen hat, ist ein
+Teil des Problems vermutlich schlicht die aufsummierte Basis-Tick-Kosten vieler
+KI-/Pathfinding-Mobs gleichzeitig (`CustomNPCEntity.tick()`, Goal-Selector, Navigation) —
+das ist keine "gefundene" Ineffizienz, sondern eine grundsätzliche Skalierungsfrage, die vor
+einem Eingriff (z. B. distanzbasierte KI-Drosselung für NPCs weit entfernt von jedem
+Spieler) erst mit einer echten Zahl (wie viele NPCs sind in Spieler-Nähe geladen?)
+geklärt werden sollte. **Nicht vorschlagen**, diesen O(n²)-Fund als alleinige,
+vollständige Erklärung für jeden gemeldeten FPS-Einbruch auf großen Karten zu behandeln,
+ohne die tatsächliche NPC-Dichte zu kennen.
+
+**Nicht vorschlagen:** `autoTriggerNearbyInteractions()` wieder auf den vollen
+`for i / for j = i+1`-All-Pairs-Scan über die komplette Weltgrenze zurückzubauen.
