@@ -6,6 +6,28 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.37-beta] - 2026-09-27
+
+### Fix — replace getScaledInstance() in the per-block-state color path with Java2D
+User confirmed the Teil-35 fix worked exactly as designed (the terrain reload log line
+appears only once, no repetition), yet FPS still stayed at ~3 indefinitely while
+exploring — ruling out the one-time atlas load as the ongoing cause. Root cause: before
+Teil 35, `this.loaded` never flipped true, so `getBlockColor()` always returned early
+without ever reaching the per-block-state color computation path — it was invisible
+until the atlas actually started loading successfully. That path,
+`getColorForCoordinatesAndImage()`, runs once per newly-encountered block state (cached
+afterward) and used `Image.getScaledInstance()` to downsample a texture region to one
+average-color pixel. `getScaledInstance()` is a well-known Java performance trap: it
+routes through the old asynchronous AWT Toolkit image-producer pipeline instead of
+Java2D, with real per-call overhead. On a real OSM-derived city with thousands of
+distinct block states (orientations, materials, decorative variants), this explains an
+ongoing slowdown that persists while exploring new areas, not a one-time hitch.
+Replaced with direct `Graphics2D.drawImage()` bilinear downsampling, which stays inside
+the fast Java2D pipeline. Also added an additive diagnostic counter (logs every 250
+color cache misses with total/average time) to confirm the actual miss count and cost
+rather than assuming. See CLAUDE.md "Teil 36" — awaiting the user's confirmation that
+FPS stays normal while exploring new parts of the map.
+
 ## [3.9.36-beta] - 2026-09-27
 
 ### Fix — decouple the expensive atlas re-read from routine world-change detection

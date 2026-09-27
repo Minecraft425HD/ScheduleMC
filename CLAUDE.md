@@ -2692,3 +2692,84 @@ ohne dass der Nutzer bestätigt hat, dass er die Wiederholung tatsächlich nicht
 verhindert. Nicht vorschlagen, den einmaligen Erstlade-Hitch als "noch nicht behoben"
 zu behandeln, ohne zu prüfen, ob der jeweilige Test tatsächlich ein zweiter Trigger
 innerhalb derselben Sitzung war statt eines frischen Weltbeitritts.
+
+---
+
+## Neue Ursache gefunden: getScaledInstance()-Falle im Block-Farb-Cache-Miss-Pfad (2026-09-27, Teil 36)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen, `getScaledInstance()` an dieser
+Stelle wiederherzustellen
+
+**Auslöser:** Nutzer bestätigte per `AskUserQuestion`-Serie drei entscheidende Fakten
+zum Teil-35-Fix:
+1. Der Test war ein **kompletter Neustart** (nicht nur Welt verlassen/erneut betreten)
+   → `Atlas neu gelesen=true` beim Beitritt ist dabei erwartet und korrekt (Teil-35-
+   Fix funktioniert wie vorgesehen — verhindert nur WIEDERHOLTE Reloads, nicht den
+   einmaligen pro Sitzung).
+2. Das Log zeigt `Terrain-Farb-Reload abgeschlossen` **nur EINMAL** im gesamten Log —
+   der Teil-35-Fix wirkt also nachweislich: keine Wiederholung des ~3,6s-Atlas-Reads.
+3. **Trotzdem bleibt die FPS UNBEGRENZT (nicht nur kurz) niedrig** — weit über die
+   einmalige ~3,6-Sekunden-Ladezeit hinaus. Das schließt `loadColors()`/den Atlas-Read
+   als (alleinige) Ursache der vom Nutzer beobachteten anhaltenden 3-FPS-Situation aus
+   — ein einmaliger, abgeschlossener 3,6s-Vorgang kann keine dauerhaft anhaltende
+   Verlangsamung erklären.
+
+**Neue Root Cause gefunden (Code gelesen, kein Ratespiel):** Vor dem Teil-35-Fix
+schlug `this.loaded` NIE auf `true` um (da der Atlas-Read effektiv blockierte/nie
+sauber durchlief bzw. der gesamte darauffolgende Rendering-Pfad durch die Bisektions-
+Flags zeitweise deaktiviert war) — dadurch wurde `getBlockColor()`/
+`getBlockColorWithDefaultTint()` immer im `else`-Zweig (`return 0`) beendet, **ohne
+jemals den teuren Block-Farb-Berechnungspfad überhaupt zu erreichen**. Jetzt, wo der
+Atlas durch Teil 35 korrekt lädt, wird dieser Pfad zum ersten Mal in dieser Session
+überhaupt sichtbar aktiv — und genau dort liegt die neue, echte Ursache:
+
+`getColorForCoordinatesAndImage()` (aufgerufen einmal PRO NEU ANGETROFFENEM
+Block-State — danach in `blockColors[]` gecacht) nutzte
+`BufferedImage.getScaledInstance(1, 1, SMOOTH)`, um eine Block-Textur-Region auf einen
+einzelnen Durchschnittsfarb-Pixel herunterzuskalieren. `Image.getScaledInstance()` ist
+eine **bekannte Java-Performance-Falle**: es läuft über die alte, asynchrone
+AWT-Toolkit-`ImageProducer`/`ImageConsumer`-Pipeline (nicht über die schnelle
+Java2D-Rendering-Pipeline), mit erheblichem Overhead PRO AUFRUF. Da dieser Pfad genau
+einmal pro **neuem** Block-State läuft, erklärt das exakt das gemeldete Symptom: keine
+kurze, abgeschlossene Verzögerung, sondern eine **fortlaufende** Verlangsamung, die
+anhält, solange der Spieler neue Bereiche dieser inhaltlich extrem vielfältigen
+OSM-Stadtkarte erkundet (viele tausend unterschiedliche Block-States durch
+Ausrichtungen, Materialien, Deko-Varianten über die riesige, generierte Bebauung) —
+jeder neue Block-State löst einen weiteren teuren `getScaledInstance()`-Aufruf aus.
+
+**Fix:** `getColorForCoordinatesAndImage()` nutzt jetzt direktes Downsampling über
+`Graphics2D.drawImage(blockTexture, 0, 0, 1, 1, null)` mit
+`RenderingHints.VALUE_INTERPOLATION_BILINEAR` statt `getScaledInstance()` +
+`Graphics.drawImage(Image, ...)` — läuft komplett innerhalb der schnellen
+Java2D-Pipeline, ohne die Toolkit-Altlast. Liefert ein visuell gleichwertiges
+(bilinear statt flächen-gemitteltes) Downsampling-Ergebnis für eine 1×1-Zielgröße.
+
+**Zusätzlich — Diagnose-Zähler statt bloßer Annahme:** `getBlockColor(MutableBlockPos,
+int)` (der Cache-Miss-Pfad) bekam einen additiven Zähler (`colorCacheMissCount`/
+`colorCacheMissTotalNanos`), der alle 250 Cache-Misses eine INFO-Log-Zeile ausgibt
+(`[DIAGNOSTIC Teil36] block color cache misses={} totalMs={} avgMicros={}`) — damit
+lässt sich beim nächsten Test direkt ablesen, ob (a) tatsächlich viele tausend
+verschiedene Block-States durchlaufen werden (bestätigt die Hypothese "extrem vielfältige
+Karte") und (b) wie viel Gesamtzeit dieser Pfad nach dem Fix noch kostet.
+
+**Verifikation:** Echter `./gradlew compileJava`-Lauf — 0 Fehler, nur die 3 bekannten
+Deprecation-Warnungen. Echter `./gradlew test`-Lauf — alle 36 Testklassen grün, 0
+Failures/Errors. Beide Guard-Skripte weiterhin "OK". Der bekannte Testlauf-Seiteneffekt
+auf `config/plotmod_economy.json`/`.backup_*.gz` wurde vor dem Commit zurückgesetzt.
+**Nicht durch einen echten Client-Lauf in dieser Umgebung verifizierbar** (kein Display/
+GPU-Kontext) — der Nutzer muss bestätigen, dass FPS nach diesem Fix beim Erkunden der
+Stadt normal bleiben, und im Log nach `[DIAGNOSTIC Teil36]` suchen, um zu sehen, wie
+viele Cache-Misses tatsächlich auftreten und wie schnell der neue Pfad im Vergleich ist.
+
+**Falls dieser Fix nicht ausreicht:** die verbleibenden, noch ungeprüften Teile
+derselben `getColor()`-Kette (`getColorForBlockPosBlockStateAndFacing()` — nutzt
+`BakedModel.getQuads()` + eine eigene `BlockModel`-Klasse mit `getImage()`, für
+Blöcke mit `RenderShape.MODEL`; `applyDefaultBuiltInShading()`/`checkForBiomeTinting()`/
+`applyShape()`) wurden in dieser Runde NICHT einzeln geprüft — falls der
+Diagnose-Zähler weiterhin hohe `avgMicros`-Werte zeigt, dort als Nächstes ansetzen,
+mit derselben Zeitmess-Diagnose-vor-Fix-Disziplin wie in Teil 34.
+
+**Nicht vorschlagen:** `getScaledInstance()` an dieser Stelle wiederherzustellen, oder
+den `colorCacheMissCount`-Diagnose-Zähler zu entfernen, ohne dass der Nutzer bestätigt
+hat, dass die FPS jetzt auch beim Erkunden neuer Kartenbereiche normal bleiben (nicht
+nur beim ersten Weltbeitritt).

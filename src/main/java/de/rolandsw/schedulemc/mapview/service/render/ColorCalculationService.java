@@ -44,7 +44,9 @@ import net.minecraft.world.level.chunk.LevelChunk;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.io.IOException;
@@ -314,6 +316,14 @@ public class ColorCalculationService {
         return this.getBlockColor(this.dummyBlockPos, blockStateID);
     }
 
+    // DIAGNOSTIC (2026-09-27, Teil 36): zaehlt, wie oft die teure Erst-Berechnung eines
+    // Block-States (getColor(), inkl. des jetzt gefixten Downsampling-Pfads) tatsaechlich
+    // laeuft, und wie viel Zeit das insgesamt kostet - soll klaeren, ob dieser Pfad die
+    // vom Nutzer gemeldete ANHALTENDE (nicht nur kurzzeitige) FPS-Senkung erklaert, statt
+    // das nur anzunehmen. Rein additiv, keine Verhaltensaenderung. Loggt alle 250 Treffer.
+    private long colorCacheMissCount;
+    private long colorCacheMissTotalNanos;
+
     /**
      * SICHERHEIT: Synchronized für Thread-safe Array-Zugriff während Resize
      */
@@ -329,8 +339,17 @@ public class ColorCalculationService {
             col = this.blockColors[blockStateID];
 
             if (col == 0xFEFF00FF || col == 0x1B000000) {
+                long startNanos = System.nanoTime();
                 BlockState blockState = BlockDatabase.getStateById(blockStateID);
                 col = this.blockColors[blockStateID] = this.getColor(blockPos, blockState);
+                this.colorCacheMissTotalNanos += System.nanoTime() - startNanos;
+                this.colorCacheMissCount++;
+                if (this.colorCacheMissCount % 250 == 0) {
+                    MapViewConstants.getLogger().info(
+                            "[DIAGNOSTIC Teil36] block color cache misses={} totalMs={} avgMicros={}",
+                            this.colorCacheMissCount, this.colorCacheMissTotalNanos / 1_000_000L,
+                            this.colorCacheMissTotalNanos / 1_000L / this.colorCacheMissCount);
+                }
             }
 
             return col;
@@ -466,11 +485,29 @@ public class ColorCalculationService {
             int bottom = (int) Math.ceil(uv[3] * imageBuff.getHeight());
 
             try {
+                // FIX (2026-09-27, Teil 36): getColorForCoordinatesAndImage() laeuft lazily,
+                // einmal pro NEU angetroffenem Block-State (danach in blockColors[] gecacht,
+                // siehe getBlockColor()). Auf einer riesigen, inhaltlich extrem vielfaeltigen
+                // OSM-Stadtkarte (viele tausend unterschiedliche Block-States durch
+                // Ausrichtungen/Materialien/Deko-Varianten) laeuft dieser Pfad daher fortlaufend
+                // beim Erkunden neuer Bereiche - nicht nur einmalig - und erklaert damit die
+                // vom Nutzer gemeldete UNBEGRENZT anhaltende (nicht nur kurze) FPS-Senkung, die
+                // durch den Atlas-Ladefix (Teil 35) allein nicht behoben wurde: vorher schlug
+                // `this.loaded` nie auf true um (Atlas-Laden schlug fehl/lief nie durch), wodurch
+                // dieser komplette Block-Farb-Berechnungspfad nie erreicht wurde - jetzt, wo der
+                // Atlas korrekt laedt, wird dieser Pfad zum ersten Mal ueberhaupt sichtbar teuer.
+                //
+                // `Image.getScaledInstance(1, 1, SMOOTH)` ist eine bekannte Java-Performance-
+                // Falle: es laeuft ueber die alte, asynchrone AWT-Toolkit-ImageProducer/Consumer-
+                // Pipeline (nicht ueber Java2D), was pro Aufruf erheblichen Overhead bedeutet -
+                // besonders bei sehr vielen Aufrufen. Fix: direktes Downsampling ueber
+                // Graphics2D.drawImage() mit bilinearer Interpolation - laeuft komplett innerhalb
+                // der schnellen Java2D-Rendering-Pipeline, ohne die Toolkit-Altlast.
                 BufferedImage blockTexture = imageBuff.getSubimage(left, top, right - left, bottom - top);
-                Image singlePixel = blockTexture.getScaledInstance(1, 1, 4);
                 BufferedImage singlePixelBuff = new BufferedImage(1, 1, imageBuff.getType());
-                Graphics gfx = singlePixelBuff.createGraphics();
-                gfx.drawImage(singlePixel, 0, 0, null);
+                Graphics2D gfx = singlePixelBuff.createGraphics();
+                gfx.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                gfx.drawImage(blockTexture, 0, 0, 1, 1, null);
                 gfx.dispose();
                 color = singlePixelBuff.getRGB(0, 0);
             } catch (RasterFormatException var12) {
