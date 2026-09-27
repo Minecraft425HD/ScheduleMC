@@ -337,8 +337,17 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             }
         }
 
+        // DIAGNOSTIC (2026-09-27, Teil 30): weder disableMapviewDraw noch
+        // disableMapviewCalc (auch nicht zusammen) haben die 3-FPS-Ursache behoben -
+        // beide sind damit ausgeschlossen. Verbleibende, bisher nicht isolierte Teile von
+        // onTickInGame(): checkForChanges(), die eigene refreshNearbyChunks()-Variante
+        // dieser Klasse und calculateCurrentLightAndSkyColor(). Dieses Flag deaktiviert
+        // alle drei zusammen, um zu bestätigen, ob die Ursache dort liegt, bevor einzeln
+        // weiter bisektiert wird. Siehe CLAUDE.md Teil 30.
+        boolean bookkeepingDisabled = Boolean.getBoolean("schedulemc.disableMapviewBookkeeping");
+
         // Performance-Optimierung: Throttle checkForChanges - nur alle 20 Ticks (1x/Sek)
-        if (this.timer % 20 == 0) {
+        if (!bookkeepingDisabled && this.timer % 20 == 0) {
             this.checkForChanges();
         }
 
@@ -347,7 +356,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         // the minimap itself is disabled (minimapAllowed=false) - this data is exclusively
         // consumed by mapCalc() below, which is already gated by minimapAllowed, so scanning
         // an unused chunk radius here was pure waste. Gated to match.
-        if (this.options.minimapAllowed) {
+        if (!bookkeepingDisabled && this.options.minimapAllowed) {
             long now = System.currentTimeMillis();
             if (now - lastPeriodicRefresh >= PERIODIC_REFRESH_INTERVAL_MS) {
                 lastPeriodicRefresh = now;
@@ -355,7 +364,9 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             }
         }
 
-        this.lightingState.calculateCurrentLightAndSkyColor(this.timer);
+        if (!bookkeepingDisabled) {
+            this.lightingState.calculateCurrentLightAndSkyColor(this.timer);
+        }
 
         // Performance-Optimierung: Throttle map updates - nur wenn sich Player bewegt hat oder throttle-Intervall erreicht
         int currentX = MinecraftAccessor.xCoord();

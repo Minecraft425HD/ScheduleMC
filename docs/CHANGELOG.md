@@ -6,6 +6,19 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.30-beta] - 2026-09-27
+
+### Diagnostic — draw and async recompute ruled out together, bisecting remaining bookkeeping
+User tested `disableMapviewDraw=true` and `disableMapviewCalc=true` together (no rebuild):
+still 3 FPS. Both the GPU texture upload and the async mapCalc() recompute are ruled out,
+individually and combined. Re-verified the full call chain (renderOverlay ->
+MapDataManager.onTickInGame -> RenderCoordinationService.onTickInGame ->
+MapViewRenderer.onTickInGame) to confirm no fourth hidden path was missed. Added
+`-Dschedulemc.disableMapviewBookkeeping=true` to disable the three remaining untested
+pieces together: `checkForChanges()`, MapViewRenderer's own `refreshNearbyChunks()`, and
+the per-frame `calculateCurrentLightAndSkyColor()`. See CLAUDE.md "Teil 30" — not yet
+tested.
+
 ## [3.9.29-beta] - 2026-09-27
 
 ### Diagnostic — texture-upload hypothesis ruled out, bisecting async mapCalc() next

@@ -2217,3 +2217,45 @@ komplett unverändert aktiv.
 Datenstrukturen herumzuoptimieren — die letzten beiden Bisektionsschritte (Teil 27
 Render-Seite bestätigt, Teil 28 Upload widerlegt) haben gezeigt, dass Vermutungen hier
 zuverlässig durch echte Tests verifiziert werden müssen, bevor Code geändert wird.
+
+
+---
+
+## Draw und Calc gemeinsam ausgeschlossen, Bisektion auf restliche onTickInGame()-Buchhaltung (2026-09-27, Teil 30)
+
+**Status:** DIAGNOSE LÄUFT — zwei Hypothesen widerlegt, dritte Bisektion läuft
+
+**Widerlegt:** Nutzer-Test mit `-Dschedulemc.disableMapviewDraw=true
+-Dschedulemc.disableMapviewCalc=true` (beide gleichzeitig, ohne Rebuild getestet) ergab
+weiterhin 3 FPS. Damit sind sowohl der GPU-Textur-Upload (Teil 28) als auch die
+asynchrone `mapCalc()`-Neuberechnung (Teil 29) — einzeln UND in Kombination — als Ursache
+ausgeschlossen.
+
+**Aufrufkette erneut vollständig nachgelesen (kein Rätselraten):** `renderOverlay()` →
+`MapDataManager.onTickInGame()` → `RenderCoordinationService.onTickInGame()` (dispatcht
+nur noch eine ausstehende Chat-Nachricht dazu, sonst reine Weiterleitung) →
+`MapViewRenderer.onTickInGame()` — bestätigt: keine versteckte vierte Stelle übersehen.
+
+**Verbleibende, bisher NICHT isolierte Teile von `onTickInGame()`:** `checkForChanges()`
+(1×/Sekunde), `MapViewRenderer.refreshNearbyChunks()` (eigene, alle 2 Sekunden laufende
+Variante dieser Klasse — 81 `world.getChunk()`-Aufrufe + `registerChangeAt()`),
+`lightingState.calculateCurrentLightAndSkyColor()` (JEDEN Frame, u. a. ein
+Biom-Lookup + Registry-Zugriff pro Frame). Neues Flag
+`-Dschedulemc.disableMapviewBookkeeping=true` deaktiviert alle drei zusammen (die
+Zoom-/Fullscreen-Tastenabfragen und der Notify-Block bleiben aktiv, da rein trivial).
+
+- **FPS normal** → einer dieser drei Teile ist die Ursache; nächster Schritt: einzeln
+  weiter bisektieren (z. B. erst nur `calculateCurrentLightAndSkyColor()` wieder
+  aktivieren, dann nur `refreshNearbyChunks()`, um den genauen Übeltäter zu isolieren).
+- **FPS weiterhin 3** → keiner der bisher identifizierten Bestandteile von
+  `onTickInGame()` ist die Ursache — dann muss der Bug entweder in einem bisher
+  übersehenen Codepfad liegen (z. B. `MapDataManager`/`RenderCoordinationService` selbst,
+  obwohl gerade erneut nachgelesen und unauffällig) oder es handelt sich um ein reines
+  JVM-/GC-/Allokations-Verhalten, das durch das bloße Vorhandensein des Renderer-Objekts
+  (unabhängig vom tatsächlich ausgeführten Code) beeinflusst wird — dann wäre der nächste,
+  radikalere Test, `MapViewRenderer`s Konstruktion selbst zu überspringen (kein
+  Objekt anlegen), was aber tiefere Eingriffe in `RenderCoordinationService
+  .ensureRendererInitialized()` erfordern würde.
+
+**Nicht vorschlagen:** den Upload- oder mapCalc()-Verdacht aus Teil 28/29 erneut
+aufzugreifen — beide sind durch echte Tests (einzeln und kombiniert) widerlegt.
