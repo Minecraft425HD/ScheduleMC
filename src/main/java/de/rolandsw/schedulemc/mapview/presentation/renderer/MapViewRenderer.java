@@ -252,7 +252,19 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         if (minecraft != null) {
             while (!Thread.currentThread().isInterrupted()) {
                 if (this.world != null) {
-                    if (this.options.minimapAllowed) {
+                    // DIAGNOSTIC (2026-09-27, Teil 29): disableMapviewDraw (nur der
+                    // drawMinimap()/upload()-Aufruf) allein hat NICHT geholfen (weiterhin
+                    // 3 FPS) - die Ursache liegt also nicht im GPU-Textur-Upload selbst,
+                    // sondern entweder in der übrigen onTickInGame()-Buchhaltung oder in
+                    // diesem asynchronen mapCalc()-Aufruf hier (läuft zwar auf einem
+                    // eigenen Worker-Thread, könnte aber durch CPU-Kontention/GC-Druck
+                    // trotzdem den Render-Thread ausbremsen). Dieses Flag deaktiviert NUR
+                    // den mapCalc()-Aufruf (inkl. des direkt folgenden centerChunks()/
+                    // checkIfChunksChanged()), lässt aber die Wait/Notify-Schleife selbst
+                    // weiterlaufen - damit lässt sich isolieren, ob die asynchrone
+                    // Neuberechnung die Ursache ist. Siehe CLAUDE.md Teil 29.
+                    boolean calcDisabled = Boolean.getBoolean("schedulemc.disableMapviewCalc");
+                    if (!calcDisabled && this.options.minimapAllowed) {
                         try {
                             this.mapCalc(this.doFullRender);
                             if (!this.doFullRender) {

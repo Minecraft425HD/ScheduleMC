@@ -6,6 +6,22 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.29-beta] - 2026-09-27
+
+### Diagnostic — texture-upload hypothesis ruled out, bisecting async mapCalc() next
+User tested `disableMapviewDraw=true` (disables only `drawMinimap()`/`renderMap()`/the
+GPU texture upload): still 3 FPS. The synchronous upload theorized in 3.9.28-beta is
+ruled out. Since `disableMapviewRender=true` (disables all of `onTickInGame()`, which
+also stops the notify that wakes the async `mapCalc()` worker) gives 100 FPS, the cause
+must be in one of the parts `disableMapviewDraw` doesn't cover: `checkForChanges()`,
+`MapViewRenderer.refreshNearbyChunks()`, the lighting calc, or — leading suspect — the
+async `mapCalc()` recompute itself (CPU contention or GC pressure from its per-pixel
+work, even though it runs off the render thread). Added
+`-Dschedulemc.disableMapviewCalc=true` to disable only the `mapCalc()` call in the async
+worker loop (the wait/notify loop itself keeps running) while leaving all of
+`onTickInGame()` — draw, checkForChanges, refreshNearbyChunks — untouched, to isolate
+whether the async recompute is the cause. See CLAUDE.md "Teil 29" — not yet tested.
+
 ## [3.9.28-beta] - 2026-09-27
 
 ### Diagnostic — render side confirmed as cause, added drawMinimap()/upload() bisection flag

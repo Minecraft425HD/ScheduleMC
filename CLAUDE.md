@@ -2171,3 +2171,49 @@ erst nach Bestätigung durch den Nutzer.
 **Nicht vorschlagen:** ohne Bestätigung des `disableMapviewDraw`-Tests direkt am
 `upload()`-Aufruf herumzufixen — das wäre wieder Ratespiel im bereits zweimal
 gescheiterten Muster (Teil 24/25 lösten reale, aber nicht die vollständige Ursache).
+
+
+---
+
+## Textur-Upload entlastet, Verdacht auf async mapCalc()/GC-Druck (2026-09-27, Teil 29)
+
+**Status:** DIAGNOSE LÄUFT — Upload-Hypothese widerlegt, neue Bisektion auf async mapCalc()
+
+**Widerlegt:** Nutzer-Test von `-Dschedulemc.disableMapviewDraw=true` (nur `drawMinimap()`/
+`renderMap()`/`mapImages[zoom].upload()` deaktiviert, Rest von `onTickInGame()` läuft
+weiter) ergab weiterhin 3 FPS. Der in Teil 28 vermutete synchrone GPU-Textur-Upload auf
+dem Render-Thread ist damit **NICHT** die Ursache — diese Hypothese ist erledigt.
+
+Da aber `-Dschedulemc.disableMapviewRender=true` (deaktiviert die GESAMTE
+`onTickInGame()`-Methode, inklusive des Notify-Aufrufs an den asynchronen `mapCalc()`-
+Worker-Thread) nachweislich 100 FPS ergibt (Teil 28), muss die Ursache in einem der
+verbleibenden Teile von `onTickInGame()` liegen, die `disableMapviewDraw` NICHT abdeckt:
+`checkForChanges()`, `MapViewRenderer.refreshNearbyChunks()` (eigene periodische Variante),
+`lightingState.calculateCurrentLightAndSkyColor()`, oder — der naheliegendste Verdacht —
+der **Notify-Aufruf, der den asynchronen `mapCalc()`-Worker-Thread aufweckt**. Obwohl
+`mapCalc()` selbst auf einem separaten Thread läuft (nicht dem Render-Thread), könnte die
+dadurch ausgelöste kontinuierliche Neuberechnung (Biom-Tint, Licht-Abfragen, Bild-Array-
+Kopien für `moveX`/`moveY`) über CPU-Kern-Kontention oder GC-Druck (häufige große
+Array-/Objekt-Allokationen im `mapCalc()`-Datenpfad) trotzdem den Render-Thread ausbremsen
+— gerade auf einer inhaltsreichen Karte, wo `doFull`/`needHeightMap`/`needTint`/`needLight`
+deutlich häufiger echte Arbeit auslösen als auf einer leeren Welt.
+
+**Neuer Bisektionsschritt:** `-Dschedulemc.disableMapviewCalc=true` deaktiviert NUR den
+`mapCalc()`-Aufruf (+ das direkt folgende `centerChunks()`/`checkIfChunksChanged()`) im
+asynchronen `MapViewRenderer.run()`-Worker-Loop — die Wait/Notify-Schleife selbst läuft
+weiter (der Worker-Thread existiert weiter, tut aber nichts). `onTickInGame()` (inkl.
+`drawMinimap()`, `checkForChanges()`, `refreshNearbyChunks()`, Notify-Aufruf) bleibt
+komplett unverändert aktiv.
+- **FPS normal mit `disableMapviewCalc`** → die asynchrone `mapCalc()`-Neuberechnung
+  (bzw. deren Nebenwirkungen wie GC-Druck) ist die Ursache — nächster Schritt: `mapCalc()`
+  selbst auf Allokationen/Häufigkeit optimieren (z. B. `doFull`-Auslöser seltener, weniger
+  Array-Neuallokation bei `moveX`/`moveY`, Biom-Tint-Berechnung günstiger).
+- **FPS weiterhin 3** → auch `mapCalc()` ist NICHT die Ursache — dann bleiben nur noch
+  `checkForChanges()`, `MapViewRenderer.refreshNearbyChunks()` oder
+  `calculateCurrentLightAndSkyColor()` als Kandidaten für die nächste, noch feinere
+  Bisektion.
+
+**Nicht vorschlagen:** ohne Bestätigung dieses Tests an `mapCalc()` oder dessen
+Datenstrukturen herumzuoptimieren — die letzten beiden Bisektionsschritte (Teil 27
+Render-Seite bestätigt, Teil 28 Upload widerlegt) haben gezeigt, dass Vermutungen hier
+zuverlässig durch echte Tests verifiziert werden müssen, bevor Code geändert wird.
