@@ -132,12 +132,26 @@ public class ColorCalculationService {
                 this.sizeOfBiomeArray = largestBiomeID + 1;
                 biomesChanged = true;
             }
+
+            // DIAGNOSTIC (2026-09-27, Teil 32): checkForChanges() wurde per Bisektion (Teil 31)
+            // als alleinige Ursache eines gemeldeten FPS-Einbruchs bestaetigt, obwohl die Methode
+            // nur ~1x/Sekunde aufgerufen wird. Dieser Log-Eintrag soll klaeren, ob der
+            // "world changed"-Zweig (und damit der teure loadColors()-Reload weiter unten)
+            // auf der betroffenen Karte ungewoehnlich oft ausgeloest wird, statt wie erwartet
+            // nur einmal beim Weltbeitritt/Dimensionswechsel. Rein additiv, keine Verhaltensaenderung.
+            MapViewConstants.getLogger().warn("[DIAGNOSTIC Teil32] checkForChanges(): world reference changed (biomesChanged={}, sizeOfBiomeArray={})", biomesChanged, this.sizeOfBiomeArray);
         }
 
         boolean changed = this.resourcePacksChanged || biomesChanged;
         this.resourcePacksChanged = false;
         if (changed) {
+            // DIAGNOSTIC (2026-09-27, Teil 32): Misst, wie teuer der loadColors()-Reload
+            // (BlockDatabase-Scan, GPU-Textur-Readback, OptiFine-Verarbeitung, forceFullRender)
+            // tatsaechlich ist, sobald er ausgeloest wird - siehe CLAUDE.md Teil 32.
+            long startNanos = System.nanoTime();
             this.loadColors();
+            long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000L;
+            MapViewConstants.getLogger().warn("[DIAGNOSTIC Teil32] loadColors() took {} ms (resourcePacksChanged={}, biomesChanged={})", elapsedMs, this.resourcePacksChanged, biomesChanged);
         }
 
         return changed;

@@ -6,6 +6,28 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.32-beta] - 2026-09-27
+
+### Diagnostic — checkForChanges() confirmed as sole cause, timing/frequency logging added
+User tested all three Teil-31 flags individually: `disableMapviewCheckForChanges=true` →
+100 FPS; `disableMapviewOwnRefresh=true` → still 3 FPS; `disableMapviewLighting=true` →
+still 3 FPS. The previously stated leading suspect (`refreshNearbyChunks()`) is disproven
+— `MapViewRenderer.checkForChanges()` alone is the cause. Read its body: the only
+non-trivial call inside is `ColorCalculationService.checkForChanges()`, which on a world
+change re-scans the biome registry and, if `resourcePacksChanged || biomesChanged`, runs
+`loadColors()` — a potentially expensive reload including a synchronous GPU texture-atlas
+readback (`loadTexturePackTerrainImage()`), a full block-registry scan, and OptiFine
+processing. Also discovered `MapViewRenderer.timer` increments once per rendered *frame*,
+not once per server tick, so at 3 FPS the `timer % 20 == 0` throttle only fires roughly
+once every 6-7 seconds — yet disabling it alone still restores 100 FPS, meaning either
+`loadColors()` fires repeatedly (not just once per world join as expected) or a single
+call is expensive enough to crater the FPS average on its own. Added two additive WARN-level
+log lines (`[DIAGNOSTIC Teil32]`) in `ColorCalculationService.checkForChanges()`: one
+logging entry into the world-changed branch (should fire once, not repeatedly), one timing
+`loadColors()`'s actual duration in ms when triggered. No behavior change. See CLAUDE.md
+"Teil 32" — awaiting the user's log output to confirm the actual expensive code path
+before writing a fix.
+
 ## [3.9.31-beta] - 2026-09-27
 
 ### Diagnostic — bookkeeping confirmed as cause, split into three individual flags

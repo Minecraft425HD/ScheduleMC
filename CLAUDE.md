@@ -2300,3 +2300,91 @@ genauen Übeltäter zweifelsfrei zu isolieren) — Empfehlung: zuerst
 
 **Nicht vorschlagen:** den Upload- oder mapCalc()-Verdacht aus Teil 28/29 erneut
 aufzugreifen — beide bleiben widerlegt, unabhängig vom Ausgang dieser Bisektion.
+
+
+---
+
+## checkForChanges() als alleinige Ursache bestätigt, Timing-Diagnose eingebaut (2026-09-27, Teil 32)
+
+**Status:** DIAGNOSE LÄUFT — Ursache auf eine Methode eingegrenzt, konkreter teurer Codepfad
+noch nicht bestätigt
+
+**Bestätigt:** Nutzer-Test der drei feingranularen Teil-31-Flags, alle drei EINZELN getestet:
+- `-Dschedulemc.disableMapviewCheckForChanges=true` → **100 FPS**
+- `-Dschedulemc.disableMapviewOwnRefresh=true` → weiterhin 3 FPS
+- `-Dschedulemc.disableMapviewLighting=true` → weiterhin 3 FPS
+
+Der in Teil 31 genannte "führende Verdacht" (`refreshNearbyChunks()`) ist damit **widerlegt**
+— nur `MapViewRenderer.checkForChanges()` (nicht zu verwechseln mit der gleichnamigen
+`ColorCalculationService.checkForChanges()`, die sie aufruft) ist die Ursache.
+
+**Gelesener Methodenkörper** (`MapViewRenderer.checkForChanges()`):
+```java
+private void checkForChanges() {
+    boolean changed = false;
+    if (this.colorManager.checkForChanges()) {
+        changed = true;
+    }
+    if (this.options.isChanged()) {
+        // mapImages/mapResources auf filtering umschalten, trivial
+        changed = true;
+        this.setZoomScale();
+    }
+    if (changed) {
+        this.doFullRender = true;
+        MapViewConstants.getLightMapInstance().getSettingsAndLightingChangeNotifier().notifyOfChanges();
+    }
+}
+```
+Der einzige nicht-triviale Aufruf ist `this.colorManager.checkForChanges()`
+(`ColorCalculationService.checkForChanges()`). Dessen Körper: bei geänderter Welt-Referenz
+(`this.world != MapViewConstants.getClientWorld()`) wird die Biome-Registry durchlaufen
+(Größenvergleich `sizeOfBiomeArray`), und falls `resourcePacksChanged || biomesChanged`
+wahr ist, läuft `loadColors()` — ein potenziell teurer Reload:
+`BlockDatabase.getBlocks()` (Registry-Scan, weltunabhängig), `loadColorPicker()`
+(Resource-I/O), `loadTexturePackTerrainImage()` (**synchroner GPU→CPU-Textur-Readback**
+des gesamten Block-Atlas via `GLUtils.readTextureContentsToBufferedImage`),
+`loadSpecialColors()`, OptiFine-Verarbeitung, und `forceFullRender(true)`.
+
+**Wichtiger Befund beim Nachlesen der Aufruf-Frequenz:** `MapViewRenderer.timer` wird in
+`onTickInGame()` (aufgerufen einmal pro Render-**Frame**, nicht pro Server-Tick) am Ende
+inkrementiert (`this.timer = this.timer > 5000 ? 0 : this.timer + 1;`), und der
+`checkForChanges()`-Aufruf ist an `this.timer % 20 == 0` gebunden — also alle 20
+**Frames**, nicht alle 20 Server-Ticks/Sekunden wie in Teil 30/31 vereinfacht angenommen.
+Bei 100 FPS entspricht das ~5 Aufrufen/Sekunde, bei den gemeldeten 3 FPS aber nur etwa
+1 Aufruf alle ~6-7 Sekunden. Dass eine derart selten laufende Methode trotzdem die
+**gesamte** Ursache eines Einbruchs auf 3 FPS sein kann, ist nur plausibel, wenn ein
+einzelner Aufruf so lange blockiert, dass er einen sich selbst verstärkenden Effekt hat
+(ein einzelner Jank-Spike von mehreren Sekunden crasht den gleitenden FPS-Mittelwert massiv,
+und solange `changed` weiterhin wahr bleibt, wiederholt sich der teure `loadColors()`-Reload
+bei jedem weiteren Erreichen von `timer % 20 == 0`, unabhängig davon, wie selten das bei
+niedriger FPS tatsächlich vorkommt).
+
+**Unter normalem Spielverlauf sollte `changed` nur EINMAL wahr sein** (Welt-Beitritt/
+Dimensionswechsel setzt `this.world` einmalig, `resourcePacksChanged` nur bei einem
+Resource-Reload) — die eigentliche offene Frage ist, ob auf der Arnis-Karte
+`changed` aus einem noch unbekannten Grund wiederholt wahr wird (z. B. weil sich die
+Welt-Referenz oder die ermittelte Biom-Registry-Größe zwischen Aufrufen tatsächlich
+ändert), oder ob bereits ein einziger `loadColors()`-Aufruf (z. B. durch den GPU-Textur-
+Readback) so teuer ist, dass er allein den gemeldeten Einbruch erklärt.
+
+**Umsetzung — Timing-/Häufigkeits-Diagnose statt weiterem Ratespiel:**
+`ColorCalculationService.checkForChanges()` bekam zwei rein additive, verhaltensneutrale
+Log-Zeilen (Log-Level WARN, damit sie ohne Log-Level-Änderung sichtbar sind):
+1. Beim Betreten des `world != this.world`-Zweigs: loggt, ob `biomesChanged` dabei wahr
+   wurde und den neuen `sizeOfBiomeArray`-Wert — zeigt, wie oft dieser Zweig tatsächlich
+   betreten wird (erwartet: einmalig pro Weltbeitritt).
+2. Bei tatsächlicher Ausführung von `loadColors()`: misst die Dauer in Millisekunden via
+   `System.nanoTime()` vor/nach dem Aufruf und loggt sie zusammen mit den beiden
+   Auslöse-Flags.
+
+**Nächster Schritt:** Nutzer bittet, den Arnis-Save erneut zu laden (mit dem neuen Build,
+ohne einen der `disableMapview*`-Flags) und die Logdatei nach Zeilen mit
+`[DIAGNOSTIC Teil32]` zu durchsuchen — insbesondere Häufigkeit der ersten Log-Zeile
+(sollte 1x sein, nicht wiederholt) und die gemessene Dauer der zweiten Log-Zeile bei
+ihrem/ihren Vorkommen.
+
+**Nicht vorschlagen:** ohne die Log-Auswertung direkt an `loadColors()`/
+`loadTexturePackTerrainImage()` herumzufixen — die letzten beiden Bisektionsrunden (Teil
+28/29) haben mehrfach gezeigt, dass plausibel klingende Verdächtige durch echte Daten
+widerlegt werden können, bevor ein Fix geschrieben wird.
