@@ -6,6 +6,27 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.36-beta] - 2026-09-27
+
+### Fix — decouple the expensive atlas re-read from routine world-change detection
+User's fine-grained timing log confirmed the actual cause: this mod's block/item texture
+atlas is 16384x16384 pixels (~268M pixels, ~1GB), a real consequence of the sheer number
+of textures across its many production chains — not a code bug. glGetTexImage (761ms)
+and the already-optimized bulk pixel conversion (2412ms) are a genuine, physical cost at
+that resolution. The real, fixable bug: this expensive read was tied to every `changed`
+detection in `checkForChanges()`, including `biomesChanged`, which fires on every world/
+dimension switch within a client session (even though the atlas never actually changes
+between world switches — only a real resource-pack reload changes it). This explained
+the Teil-33 mid-session recurrence exactly. Fix: `checkForChanges()` now captures whether
+resource packs actually changed before resetting the flag, and `loadColors()` takes a new
+`reloadTerrainImage` parameter (true only on an actual resource-pack reload or the very
+first load this session) — the expensive atlas read now runs only then, while the cheap
+parts (block registry scan, color-array reset, OptiFine) still run on every biome-count
+trigger. The one-time ~3.6s hitch on first load per session remains (a physical cost of
+the atlas size), but it no longer repeats on every subsequent world/dimension switch. See
+CLAUDE.md "Teil 35" — awaiting the user's confirmation that a second trigger within the
+same session no longer causes a second full reload.
+
 ## [3.9.35-beta] - 2026-09-27
 
 ### Diagnostic — bulk-setRGB fix halved the reload time, but 3413ms remains unexplained

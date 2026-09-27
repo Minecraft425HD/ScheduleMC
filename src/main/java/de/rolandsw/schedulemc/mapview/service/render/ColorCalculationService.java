@@ -134,41 +134,68 @@ public class ColorCalculationService {
             }
         }
 
-        boolean changed = this.resourcePacksChanged || biomesChanged;
+        // FIX (2026-09-27, Teil 35): resourcePacksChanged VOR dem Zuruecksetzen sichern - wird
+        // gebraucht, um loadColors() unten mitzuteilen, ob der teure Textur-Atlas-Reload
+        // tatsaechlich noetig ist (siehe Begruendung an loadColors()).
+        boolean resourcePacksChangedNow = this.resourcePacksChanged;
+        boolean changed = resourcePacksChangedNow || biomesChanged;
         this.resourcePacksChanged = false;
         if (changed) {
-            // FIX (2026-09-27, Teil 33): loadColors() ruft GLUtils.readTextureContentsToBufferedImage()
-            // auf, um den Block-Textur-Atlas zu lesen. Frueher (Teil 32) wurde dieser Aufruf per
-            // Gnadenfrist verzoegert, in der irrigen Annahme, glGetTexImage() muesse auf einen GPU-
-            // Upload-Rueckstand warten. Per Log widerlegt: eine 5s-Verzoegerung aenderte die Dauer
-            // NICHT (6246ms verzoegert vs. 6819ms sofort) - die Kosten waren nie GPU-Wartezeit,
-            // sondern der anschliessende Pixel-Konvertierungs-Loop in GLUtils (width*height einzelne
-            // BufferedImage.setRGB()-Aufrufe). Dort behoben (Bulk-setRGB), die Verzoegerung hier
-            // ist damit wieder unnoetig und entfernt - loadColors() laeuft wieder sofort.
+            // FIX (2026-09-27, Teil 34/35): Per Diagnose-Logging bestaetigt (Teil 34): der Block-
+            // Textur-Atlas dieses Mods ist 16384x16384 Pixel (~268 Mio. Pixel, ~1 GB) - eine
+            // Folge der schieren Menge an registrierten Block-/Item-Texturen ueber Dutzende
+            // Warengruppen. Allein glGetTexImage() + Pixel-Array-Konvertierung (bereits Bulk-
+            // optimiert, Teil 33) brauchen dafuer ~3,6 Sekunden - ein echter, physikalischer
+            // Aufwand fuer diese Atlas-Groesse, keine weitere Code-Ineffizienz.
+            //
+            // ABER: dieser teure Read war bisher an JEDE Erkennung von `changed` gebunden,
+            // also auch an `biomesChanged` - und `biomesChanged` wird bei JEDEM Welt-/
+            // Dimensionswechsel innerhalb derselben Client-Sitzung erneut wahr (sizeOfBiomeArray
+            // startet bei 1), OBWOHL sich der Textur-Atlas dabei nicht aendert (Texturen werden
+            // nicht pro Weltwechsel neu hochgeladen). Nutzer-Log (Teil 33) bestaetigte genau
+            // diesen Fall: ein zweiter, voller Reload mitten im Spiel, weit nach dem Beitritt.
+            //
+            // Fix: der teure Atlas-Read (`loadColorPicker()`/`loadTexturePackTerrainImage()`)
+            // laeuft nur noch, wenn Ressourcenpakete TATSAECHLICH neu geladen wurden
+            // (`resourcePacksChangedNow`) oder beim allerersten Mal (`!this.loadedTerrainImage`)
+            // - nicht mehr bei jedem reinen "Welt geaendert"-Trigger. Der einmalige ~3,6-Sekunden-
+            // Hitch beim ersten Laden bleibt (physikalisch bedingt durch die Atlas-Groesse), aber
+            // er wiederholt sich nicht mehr unnoetig bei jedem weiteren Welt-/Dimensionswechsel.
+            boolean reloadTerrainImage = resourcePacksChangedNow || !this.loadedTerrainImage;
             long startNanos = System.nanoTime();
-            this.loadColors();
+            this.loadColors(reloadTerrainImage);
             long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000L;
-            MapViewConstants.getLogger().info("[MapDataManager] Terrain-Farb-Reload abgeschlossen ({} ms)", elapsedMs);
+            MapViewConstants.getLogger().info("[MapDataManager] Terrain-Farb-Reload abgeschlossen ({} ms, Atlas neu gelesen={})", elapsedMs, reloadTerrainImage);
         }
 
         return changed;
     }
 
-    private void loadColors() {
+    private void loadColors(boolean reloadTerrainImage) {
         // DIAGNOSTIC (2026-09-27, Teil 34): loadColors() ist von 6819ms (Teil 32) auf
-        // 3413ms (Teil 33, nach dem Bulk-setRGB-Fix) gesunken, aber noch immer weit von den
-        // erwarteten <100ms fuer eine reine Pixel-Array-Konvertierung entfernt. Feingranulare
-        // Zeitmessung pro Teilschritt, um den verbleibenden Kandidaten (glGetTexImage()-GPU-
-        // Transfer selbst, OptiFine-Verarbeitung, oder etwas anderes) zu identifizieren, statt
-        // erneut zu raten - siehe CLAUDE.md Teil 34. Rein additiv, keine Verhaltensaenderung.
+        // 3413ms (Teil 33, nach dem Bulk-setRGB-Fix) gesunken. Teil 34 bestaetigte per
+        // feingranularer Zeitmessung: der Atlas ist 16384x16384 Pixel - die verbleibende
+        // Dauer ist ein echter, physikalischer Aufwand fuer diese Groesse (glGetTexImage +
+        // Pixel-Konvertierung), keine weitere Code-Ineffizienz. Teil 35 stellt sicher, dass
+        // dieser teure Teil nur noch bei tatsaechlichem Ressourcenpaket-Wechsel oder beim
+        // allerersten Laden laeuft (siehe `reloadTerrainImage`-Parameter), nicht mehr bei
+        // jedem reinen Welt-/Dimensionswechsel. Zeitmessung bleibt erhalten, um sichtbar zu
+        // machen, ob/wann der teure Pfad tatsaechlich noch laeuft.
         long t0 = System.nanoTime();
-        this.loadedTerrainImage = false;
         BlockDatabase.getBlocks();
         long t1 = System.nanoTime();
-        this.loadColorPicker();
-        long t2 = System.nanoTime();
-        this.loadTexturePackTerrainImage();
-        long t3 = System.nanoTime();
+        long t2;
+        long t3;
+        if (reloadTerrainImage) {
+            this.loadedTerrainImage = false;
+            this.loadColorPicker();
+            t2 = System.nanoTime();
+            this.loadTexturePackTerrainImage();
+            t3 = System.nanoTime();
+        } else {
+            t2 = t1;
+            t3 = t1;
+        }
         TextureAtlasSprite missing = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(ResourceLocation.parse("missingno"));
         this.failedToLoadX = missing.getU0();
         this.failedToLoadY = missing.getV0();

@@ -2610,3 +2610,85 @@ gezeigt, dass auch scheinbar naheliegende Optimierungen (Gnadenfrist, Bulk-setRG
 einen Teil des Problems trafen oder (im Fall der Gnadenfrist) komplett daneben lagen —
 erst die Zahlen aus dieser feingranularen Messung zeigen, wo die verbleibenden ~3,4
 Sekunden tatsächlich liegen.
+
+---
+
+## Root Cause endgültig identifiziert: 16384×16384-Atlas + unnötige Wiederholung (2026-09-27, Teil 35)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen, den Atlas-Read grundlegend
+umzubauen, ohne dass das explizit gewünscht wird
+
+**Auslöser:** Nutzer-Log der Teil-34-Diagnose lieferte die entscheidenden Zahlen:
+```
+[DIAGNOSTIC Teil34] readTextureContentsToBufferedImage: 16384x16384 atlas, glGetTexImage=761ms, pixelConvert=2412ms
+[DIAGNOSTIC Teil34] loadColors() breakdown (ms): getBlocks=2 colorPicker=38 terrainImage=3587 missingSprite=0 specialColors=0 optifine(installed=false)=0 total=3629
+```
+
+**Root Cause bestätigt:** Der Block-Textur-Atlas dieses Mods ist tatsächlich
+**16384×16384 Pixel** — ca. 268 Millionen Pixel, ~1 GB als RGBA. Das ist eine direkte
+Folge der schieren Anzahl registrierter Block-/Item-Texturen über Dutzende Warengruppen
+(Beer/Wine/Cheese/Chocolate/Coffee/Honey/Tobacco/Cannabis/Coca/MDMA/LSD/Meth,
+Fahrzeuge, Waffen, Wanted-Poster, Blitzer, …) — kein Bug, sondern eine reale
+Größenordnung dieses ungewöhnlich inhaltsreichen Mods. `glGetTexImage()` (761ms) +
+Pixel-Array-Konvertierung (2412ms, bereits Bulk-optimiert seit Teil 33) sind für diese
+Pixelmenge ein **echter, physikalischer Aufwand** — keine weitere Code-Ineffizienz, die
+sich im GL-Aufruf oder der Konvertierung selbst noch beheben ließe, ohne den
+Leseansatz grundlegend zu ändern (z. B. CPU-seitige Sprite-Daten statt GPU-Readback —
+siehe "Nicht vorschlagen" unten, weiterhin nicht gewählt).
+
+**Der eigentliche, behebbare Bug:** Dieser ~3,6-Sekunden-Read war an JEDE Erkennung von
+`changed` in `checkForChanges()` gebunden — also auch an `biomesChanged`, das bei JEDEM
+Welt-/Dimensionswechsel innerhalb derselben Client-Sitzung erneut wahr wird
+(`sizeOfBiomeArray` startet bei 1 im Konstruktor), OBWOHL sich der Textur-Atlas dabei
+nie ändert (Texturen werden nicht pro Weltwechsel neu auf die GPU hochgeladen — nur ein
+echter Ressourcenpaket-Reload ändert sie). Genau das hatte der Nutzer in Teil 33
+beobachtet: ein zweiter, voller ~3,6s-Reload mitten im laufenden Spiel, weit nach dem
+Weltbeitritt, ohne dass Ressourcenpakete neu geladen wurden.
+
+**Fix — teuren Atlas-Read von der reinen Welt-Änderungs-Erkennung entkoppelt:**
+`checkForChanges()` sichert jetzt `resourcePacksChangedNow` (den tatsächlichen
+Ressourcenpaket-Reload-Status) VOR dem Zurücksetzen des Feldes, und `loadColors()`
+bekam einen neuen Parameter `boolean reloadTerrainImage` (`resourcePacksChangedNow ||
+!this.loadedTerrainImage`, also: echter Ressourcenpaket-Wechsel ODER allererstes Laden
+in dieser Client-Sitzung). `loadColorPicker()`/`loadTexturePackTerrainImage()` (der
+teure Teil, ~3,6s) laufen jetzt NUR NOCH, wenn `reloadTerrainImage` wahr ist — ein
+reiner `biomesChanged`-Trigger (jeder Welt-/Dimensionswechsel) löst diese beiden nicht
+mehr aus, wohl aber weiterhin die günstigen Teile (`BlockDatabase.getBlocks()`,
+Farb-Array-Reset, `loadSpecialColors()`, OptiFine-Verarbeitung falls installiert,
+`forceFullRender(true)`).
+
+**Ehrlich dokumentierte Grenze dieses Fixes:** Der EINMALIGE ~3,6-Sekunden-Hitch beim
+allerersten Laden pro Client-Sitzung (z. B. beim ersten Weltbeitritt nach dem Start des
+Spiels) bleibt bestehen — das ist physikalisch durch die Atlas-Größe bedingt und wurde
+NICHT behoben, nur die unnötige WIEDERHOLUNG bei jedem weiteren Welt-/Dimensionswechsel
+danach. Falls der Nutzer beim nächsten Test wieder einen frischen Weltbeitritt testet
+(nicht einen zweiten, mitten im Spiel), wird der einmalige Hitch weiterhin auftreten
+und "3 FPS" für die Dauer dieses einen Ladevorgangs zeigen — das ist erwartet und kein
+Zeichen, dass dieser Fix nicht gewirkt hat. Der Fix zeigt seine Wirkung erst, wenn
+danach (z. B. nach erneutem Betreten der Welt, Smartphone-Interaktion, o. ä.) KEIN
+zweiter Hitch mehr auftritt.
+
+**Verifikation:** Echter `./gradlew compileJava`-Lauf — 0 Fehler, nur die 3 bekannten
+Deprecation-Warnungen. Echter `./gradlew test`-Lauf — alle 36 Testklassen grün, 0
+Failures/Errors. Beide Guard-Skripte weiterhin "OK". Der bekannte Testlauf-Seiteneffekt
+auf `config/plotmod_economy.json`/`.backup_*.gz` wurde vor dem Commit zurückgesetzt.
+**Nicht durch einen echten Client-Lauf in dieser Umgebung verifizierbar** (kein Display/
+GPU-Kontext) — der Nutzer muss bestätigen, dass (a) der erste Weltbeitritt weiterhin
+einmalig ~3,6s braucht (erwartet, unverändert) und (b) ein zweiter Trigger (z. B.
+erneutes Betreten derselben Welt, oder die in Teil 33 beobachtete Smartphone-Interaktion)
+jetzt im Log `Atlas neu gelesen=false` und eine sehr kurze Dauer zeigt statt eines
+zweiten vollen Reloads.
+
+**Falls auch der EINMALIGE Hitch beim ersten Laden stört:** das wäre ein separates,
+deutlich invasiveres Vorhaben (z. B. den Atlas-Read auf einen Hintergrund-Thread
+auslagern mit vorübergehend fehlenden/veralteten Minimap-Farben, oder den Atlas selbst
+zu verkleinern, was Eingriffe außerhalb dieses Moduls in die Textur-Registrierung
+bräuchte) — nicht Teil dieses Fixes, nur auf explizite Nutzeranfrage angehen.
+
+**Nicht vorschlagen:** den `glGetTexImage`-Readback durch eine CPU-seitige Alternative
+zu ersetzen (unverändert von Teil 32/33 übernommene Einschränkung — nicht in dieser
+Umgebung testbar), oder den `reloadTerrainImage`-Entkopplungs-Mechanismus zu entfernen,
+ohne dass der Nutzer bestätigt hat, dass er die Wiederholung tatsächlich nicht mehr
+verhindert. Nicht vorschlagen, den einmaligen Erstlade-Hitch als "noch nicht behoben"
+zu behandeln, ohne zu prüfen, ob der jeweilige Test tatsächlich ein zweiter Trigger
+innerhalb derselben Sitzung war statt eines frischen Weltbeitritts.
