@@ -6,6 +6,18 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.31-beta] - 2026-09-27
+
+### Diagnostic — bookkeeping confirmed as cause, split into three individual flags
+User tested `disableMapviewBookkeeping=true` (disables checkForChanges,
+MapViewRenderer's own refreshNearbyChunks, and the per-frame lighting calc together):
+100 FPS. The cause is confirmed in one of these three, with the texture upload and async
+mapCalc() both already ruled out. Split the combined flag into three independent ones —
+`disableMapviewCheckForChanges`, `disableMapviewOwnRefresh` (leading suspect: its own
+`world.getChunk()` calls for 81 nearby chunks, which stayed active and un-implicated
+during the earlier mapCalc-only test), and `disableMapviewLighting` — to pin down which
+one it actually is. See CLAUDE.md "Teil 31" — not yet individually tested.
+
 ## [3.9.30-beta] - 2026-09-27
 
 ### Diagnostic — draw and async recompute ruled out together, bisecting remaining bookkeeping

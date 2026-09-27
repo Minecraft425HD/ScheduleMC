@@ -2259,3 +2259,44 @@ Zoom-/Fullscreen-Tastenabfragen und der Notify-Block bleiben aktiv, da rein triv
 
 **Nicht vorschlagen:** den Upload- oder mapCalc()-Verdacht aus Teil 28/29 erneut
 aufzugreifen — beide sind durch echte Tests (einzeln und kombiniert) widerlegt.
+
+
+---
+
+## Bookkeeping als Ursache bestätigt, in drei einzelne Flags aufgesplittet (2026-09-27, Teil 31)
+
+**Status:** DIAGNOSE LÄUFT — genauer Übeltäter unter drei Kandidaten fast eingekreist
+
+**Bestätigt:** Nutzer-Test von `-Dschedulemc.disableMapviewBookkeeping=true` (Teil 30)
+ergab **100 FPS**. Damit ist die Ursache endlich zweifelsfrei eingegrenzt: einer der drei
+Teile `checkForChanges()`, `MapViewRenderer.refreshNearbyChunks()` (eigene, alle 2
+Sekunden laufende Variante) oder `lightingState.calculateCurrentLightAndSkyColor()`
+(jeden Frame). Weder der GPU-Textur-Upload (Teil 28) noch die asynchrone `mapCalc()`-
+Neuberechnung (Teil 29) sind beteiligt — beide liefen in diesem Test unverändert weiter
+und waren bereits einzeln UND kombiniert widerlegt (Teil 30).
+
+**Führender Verdacht:** `MapViewRenderer.refreshNearbyChunks()` — ruft für 81 Chunks im
+4-Chunk-Radius `this.world.getChunk(chunkX, chunkZ)` auf. Wichtig: Als `disableMapviewCalc`
+(Teil 29) getestet wurde, blieb diese Methode selbst unverändert aktiv (nur der
+nachgelagerte `mapCalc()`/`checkIfChunksChanged()`-Konsum der dabei per
+`registerChangeAt()` markierten Chunks wurde deaktiviert) — trotzdem blieb es bei 3 FPS.
+Das bedeutet: falls dieser Kandidat tatsächlich die Ursache ist, muss die Kosten bereits
+in `refreshNearbyChunks()`s eigenem `world.getChunk()`-Aufruf selbst liegen (nicht in der
+nachgelagerten Verarbeitung) — z. B. weil auf dieser großen/dicht gespeicherten
+Arnis-Karte `getChunk()` für Chunks am Rand des 4-Chunk-Radius öfter tatsächliche
+Chunk-Deserialisierung/-Ladevorgänge synchron auf dem Render-Thread auslöst, statt nur
+einen billigen Cache-Hit zu liefern (auf einer leeren, frisch generierten Welt wären
+nahezu alle Chunks um den Spieler bereits im einfachsten Zustand vorhanden).
+
+**Neue, feingranulare Flags** (das bisherige `disableMapviewBookkeeping` bleibt als
+"alle drei zusammen"-Abkürzung erhalten):
+- `-Dschedulemc.disableMapviewCheckForChanges=true`
+- `-Dschedulemc.disableMapviewOwnRefresh=true` (führender Verdacht — nur diese Methode)
+- `-Dschedulemc.disableMapviewLighting=true`
+
+**Nächster Schritt:** genau EIN Flag zur Zeit testen (nicht mehrere gleichzeitig, um den
+genauen Übeltäter zweifelsfrei zu isolieren) — Empfehlung: zuerst
+`disableMapviewOwnRefresh` allein testen, da der wahrscheinlichste Kandidat.
+
+**Nicht vorschlagen:** den Upload- oder mapCalc()-Verdacht aus Teil 28/29 erneut
+aufzugreifen — beide bleiben widerlegt, unabhängig vom Ausgang dieser Bisektion.

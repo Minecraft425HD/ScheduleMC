@@ -337,17 +337,19 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             }
         }
 
-        // DIAGNOSTIC (2026-09-27, Teil 30): weder disableMapviewDraw noch
-        // disableMapviewCalc (auch nicht zusammen) haben die 3-FPS-Ursache behoben -
-        // beide sind damit ausgeschlossen. Verbleibende, bisher nicht isolierte Teile von
-        // onTickInGame(): checkForChanges(), die eigene refreshNearbyChunks()-Variante
-        // dieser Klasse und calculateCurrentLightAndSkyColor(). Dieses Flag deaktiviert
-        // alle drei zusammen, um zu bestätigen, ob die Ursache dort liegt, bevor einzeln
-        // weiter bisektiert wird. Siehe CLAUDE.md Teil 30.
+        // DIAGNOSTIC (2026-09-27, Teil 31): disableMapviewBookkeeping (Teil 30, alle drei
+        // Teile zusammen) hat den Fix bestätigt - 100 FPS. Jetzt in drei unabhängige Flags
+        // aufgesplittet, um herauszufinden, WELCHER der drei Teile es tatsächlich ist.
+        // Jedes Flag deaktiviert NUR seinen eigenen Teil; das alte Sammel-Flag
+        // (disableMapviewBookkeeping) bleibt als "alle drei" Abkürzung erhalten. Siehe
+        // CLAUDE.md Teil 31.
         boolean bookkeepingDisabled = Boolean.getBoolean("schedulemc.disableMapviewBookkeeping");
+        boolean checkForChangesDisabled = bookkeepingDisabled || Boolean.getBoolean("schedulemc.disableMapviewCheckForChanges");
+        boolean ownRefreshDisabled = bookkeepingDisabled || Boolean.getBoolean("schedulemc.disableMapviewOwnRefresh");
+        boolean lightingDisabled = bookkeepingDisabled || Boolean.getBoolean("schedulemc.disableMapviewLighting");
 
         // Performance-Optimierung: Throttle checkForChanges - nur alle 20 Ticks (1x/Sek)
-        if (!bookkeepingDisabled && this.timer % 20 == 0) {
+        if (!checkForChangesDisabled && this.timer % 20 == 0) {
             this.checkForChanges();
         }
 
@@ -356,7 +358,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         // the minimap itself is disabled (minimapAllowed=false) - this data is exclusively
         // consumed by mapCalc() below, which is already gated by minimapAllowed, so scanning
         // an unused chunk radius here was pure waste. Gated to match.
-        if (!bookkeepingDisabled && this.options.minimapAllowed) {
+        if (!ownRefreshDisabled && this.options.minimapAllowed) {
             long now = System.currentTimeMillis();
             if (now - lastPeriodicRefresh >= PERIODIC_REFRESH_INTERVAL_MS) {
                 lastPeriodicRefresh = now;
@@ -364,7 +366,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             }
         }
 
-        if (!bookkeepingDisabled) {
+        if (!lightingDisabled) {
             this.lightingState.calculateCurrentLightAndSkyColor(this.timer);
         }
 
