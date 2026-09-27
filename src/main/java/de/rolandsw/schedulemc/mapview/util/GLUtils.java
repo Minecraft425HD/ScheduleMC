@@ -31,7 +31,16 @@ public class GLUtils {
         int bufferSize = width * height * 4; // 4 bytes per pixel (RGBA)
         ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
 
+        // DIAGNOSTIC (2026-09-27, Teil 34): misst getrennt, wie viel Zeit der eigentliche
+        // GPU-Transfer (glGetTexImage) gegenueber der anschliessenden Pixel-Array-Konvertierung
+        // braucht - der Bulk-setRGB-Fix aus Teil 33 halbierte die Gesamtdauer (6819ms->3413ms),
+        // aber 3413ms ist immer noch weit von den erwarteten <100ms entfernt. Muss geklaert
+        // werden, ob der Rest im GPU-Transfer selbst liegt (Atlas-Groesse) oder weiterhin im
+        // Java-Code. Rein additiv, keine Verhaltensaenderung. Siehe CLAUDE.md Teil 34.
+        long gpuStart = System.nanoTime();
         GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+        long gpuElapsedMs = (System.nanoTime() - gpuStart) / 1_000_000L;
+        long convertStart = System.nanoTime();
 
         // FIX (2026-09-27, Teil 33): Der vorherige Code rief BufferedImage.setRGB(x, y, pixel)
         // EINZELN pro Pixel auf (width*height Aufrufe). Jeder einzelne setRGB()-Aufruf geht durch
@@ -58,6 +67,11 @@ public class GLUtils {
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         image.setRGB(0, 0, width, height, pixels, 0, width);
+        long convertElapsedMs = (System.nanoTime() - convertStart) / 1_000_000L;
+
+        de.rolandsw.schedulemc.mapview.MapViewConstants.getLogger().info(
+                "[DIAGNOSTIC Teil34] readTextureContentsToBufferedImage: {}x{} atlas, glGetTexImage={}ms, pixelConvert={}ms",
+                width, height, gpuElapsedMs, convertElapsedMs);
 
         // Call the consumer with the result
         resultConsumer.accept(image);

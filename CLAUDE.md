@@ -2552,3 +2552,61 @@ echte Messdaten (identische Dauer mit UND ohne Verzögerung) widerlegt, nicht nu
 als Fix für einen Performance-Fund in diesem Modul einzusetzen, ohne vorher per Log zu
 bestätigen, dass die Kosten tatsächlich mit Wartezeit skalieren (wie in Teil 33 geschehen,
 aber diesmal negativ bestätigt).
+
+---
+
+## Teil 33 nur teilweise erfolgreich, feingranulare Zeitmessung pro Teilschritt eingebaut (2026-09-27, Teil 34)
+
+**Status:** DIAGNOSE LÄUFT — Bulk-setRGB-Fix halbierte die Dauer, aber 3413ms ist immer
+noch weit von "billig" entfernt; genaue verbleibende Kostenstelle noch nicht identifiziert
+
+**Auslöser:** Nutzer-Rückmeldung nach dem Teil-33-Fix: "fps liegen bei 3!" — per
+`AskUserQuestion` geklärt: frischer Build mit dem Bulk-setRGB-Fix, und das Timing-Log zeigt:
+
+```
+[MapDataManager] Terrain-Farb-Reload abgeschlossen (3413 ms)
+```
+
+**Einordnung:** Der Bulk-setRGB-Fix (Teil 33) hat die Dauer real reduziert — von 6819ms
+(Teil 32, unfixiert) bzw. 6246ms (Teil 32, mit Gnadenfrist) auf 3413ms, ungefähr eine
+Halbierung. Das bestätigt: der Pixel-für-Pixel-`setRGB()`-Loop WAR ein echter, relevanter
+Kostenfaktor. Aber 3413ms ist immer noch weit von den für eine reine In-Memory-Array-
+Konvertierung erwarteten <100ms entfernt — es gibt also noch mindestens eine weitere,
+bisher nicht isolierte teure Stelle innerhalb von `loadColors()`, entweder im GPU-Transfer
+selbst (`glGetTexImage()`, der VOR dem jetzt gefixten Pixel-Loop läuft und nie separat
+gemessen wurde) oder in einem der anderen Teilschritte (`loadColorPicker()`,
+`loadSpecialColors()`, OptiFine-Verarbeitung).
+
+**Umsetzung — feingranulare Zeitmessung statt weiterem Ratespiel:**
+1. `ColorCalculationService.loadColors()`: Zeitstempel um jeden Teilschritt
+   (`BlockDatabase.getBlocks()`, `loadColorPicker()`, `loadTexturePackTerrainImage()`,
+   Missing-Sprite-Lookup, `loadSpecialColors()`, OptiFine-Block inkl. `isInstalled()`-Flag),
+   ein einziger zusammenfassender INFO-Log mit allen Einzeldauern + Gesamtdauer
+   (`[DIAGNOSTIC Teil34] loadColors() breakdown (ms): ...`).
+2. `GLUtils.readTextureContentsToBufferedImage()`: misst GETRENNT die Dauer des reinen
+   `glGetTexImage()`-GPU-Transfers und die Dauer der (Teil-33-gefixten) Pixel-Array-
+   Konvertierung, plus die tatsächliche Atlas-Auflösung (Breite×Höhe) — falls der Atlas
+   ungewöhnlich groß ist (z. B. durch die vielen eigenen Texturen dieses Mods), würde sich
+   das hier direkt zeigen.
+
+Beide Log-Zeilen sind rein additiv (keine Verhaltensänderung), Log-Level INFO (wie das
+bestehende Reload-Log aus Teil 33/34, ohne die WARN-Flut der ursprünglichen Teil-32-
+Diagnosephase).
+
+**Verifikation:** Echter `./gradlew compileJava`-Lauf — 0 Fehler, nur die 3 bekannten
+Deprecation-Warnungen. Echter `./gradlew test`-Lauf — alle 36 Testklassen grün, 0
+Failures/Errors. Beide Guard-Skripte weiterhin "OK". Der bekannte Testlauf-Seiteneffekt
+auf `config/plotmod_economy.json`/`.backup_*.gz` wurde vor dem Commit zurückgesetzt.
+
+**Nächster Schritt:** Nutzer bittet, den Arnis-Save erneut zu laden und im Log nach
+`[DIAGNOSTIC Teil34]` zu suchen — insbesondere: (a) wie groß ist der gemeldete Atlas
+(Breite×Höhe), (b) wie viel `glGetTexImage`-Zeit vs. Pixel-Konvertierungs-Zeit in der
+`GLUtils`-Zeile, (c) welcher Teilschritt in der `loadColors()`-Breakdown-Zeile den
+größten Anteil der 3413ms trägt.
+
+**Nicht vorschlagen:** ohne diese Aufschlüsselung weiter an `loadColors()`/`GLUtils`
+herumzufixen — die letzten drei Bisektionsrunden (Teil 32/33/34) haben durchgehend
+gezeigt, dass auch scheinbar naheliegende Optimierungen (Gnadenfrist, Bulk-setRGB) nur
+einen Teil des Problems trafen oder (im Fall der Gnadenfrist) komplett daneben lagen —
+erst die Zahlen aus dieser feingranularen Messung zeigen, wo die verbleibenden ~3,4
+Sekunden tatsächlich liegen.

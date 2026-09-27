@@ -155,21 +155,36 @@ public class ColorCalculationService {
     }
 
     private void loadColors() {
+        // DIAGNOSTIC (2026-09-27, Teil 34): loadColors() ist von 6819ms (Teil 32) auf
+        // 3413ms (Teil 33, nach dem Bulk-setRGB-Fix) gesunken, aber noch immer weit von den
+        // erwarteten <100ms fuer eine reine Pixel-Array-Konvertierung entfernt. Feingranulare
+        // Zeitmessung pro Teilschritt, um den verbleibenden Kandidaten (glGetTexImage()-GPU-
+        // Transfer selbst, OptiFine-Verarbeitung, oder etwas anderes) zu identifizieren, statt
+        // erneut zu raten - siehe CLAUDE.md Teil 34. Rein additiv, keine Verhaltensaenderung.
+        long t0 = System.nanoTime();
         this.loadedTerrainImage = false;
         BlockDatabase.getBlocks();
+        long t1 = System.nanoTime();
         this.loadColorPicker();
+        long t2 = System.nanoTime();
         this.loadTexturePackTerrainImage();
+        long t3 = System.nanoTime();
         TextureAtlasSprite missing = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(ResourceLocation.parse("missingno"));
         this.failedToLoadX = missing.getU0();
         this.failedToLoadY = missing.getV0();
         this.loaded = false;  // NOPMD
+        long t4 = System.nanoTime();
 
+        long t5;
+        long t6;
         try {
             Arrays.fill(this.blockColors, 0xFEFF00FF);
             Arrays.fill(this.blockColorsWithDefaultTint, 0xFEFF00FF);
             this.loadSpecialColors();
+            t5 = System.nanoTime();
             this.optifineLoader.clear();
-            if (this.optifineLoader.isInstalled()) {
+            boolean optifineInstalled = this.optifineLoader.isInstalled();
+            if (optifineInstalled) {
                 try {
                     this.optifineLoader.processCTM();
                 } catch (Exception var4) {
@@ -182,13 +197,20 @@ public class ColorCalculationService {
                     MapViewConstants.getLogger().error("error loading custom color properties " + var3.getLocalizedMessage(), var3);
                 }
             }
+            t6 = System.nanoTime();
 
             MapViewConstants.getLightMapInstance().getMap().forceFullRender(true);
         } catch (Exception var5) {
             MapViewConstants.getLogger().error("error loading pack", var5);
+            t5 = t4;
+            t6 = t4;
         }
 
         this.loaded = true;
+        MapViewConstants.getLogger().info(
+                "[DIAGNOSTIC Teil34] loadColors() breakdown (ms): getBlocks={} colorPicker={} terrainImage={} missingSprite={} specialColors={} optifine(installed={})={} total={}",
+                (t1 - t0) / 1_000_000L, (t2 - t1) / 1_000_000L, (t3 - t2) / 1_000_000L, (t4 - t3) / 1_000_000L,
+                (t5 - t4) / 1_000_000L, this.optifineLoader.isInstalled(), (t6 - t5) / 1_000_000L, (System.nanoTime() - t0) / 1_000_000L);
     }
 
     private void loadColorPicker() {

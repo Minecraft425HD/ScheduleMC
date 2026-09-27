@@ -6,6 +6,19 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.35-beta] - 2026-09-27
+
+### Diagnostic — bulk-setRGB fix halved the reload time, but 3413ms remains unexplained
+User's log confirmed the Teil-33 fix reduced the reload from 6819/6246 ms to 3413 ms —
+real progress, but still far from the <100ms expected for a pure in-memory pixel
+conversion. Added fine-grained timing around every sub-step of
+`ColorCalculationService.loadColors()` (getBlocks, colorPicker, terrainImage, missing
+sprite lookup, specialColors, OptiFine) in one summary INFO log, plus split timing inside
+`GLUtils.readTextureContentsToBufferedImage()` between the raw `glGetTexImage()` GPU
+transfer and the pixel-array conversion, along with the actual atlas resolution. Purely
+additive, no behavior change. See CLAUDE.md "Teil 34" — awaiting the user's log output to
+find where the remaining ~3.4 seconds actually goes before changing anything further.
+
 ## [3.9.34-beta] - 2026-09-27
 
 ### Fix — real root cause was a per-pixel setRGB loop, not GPU backlog; grace period reverted
