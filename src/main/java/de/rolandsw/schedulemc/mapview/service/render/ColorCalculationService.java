@@ -100,6 +100,27 @@ public class ColorCalculationService {
         ++this.sizeOfBiomeArray;
     }
 
+    // FIX (2026-09-27, Teil 32): loadColors() ruft letztlich GL11.glGetTexImage() auf
+    // (via loadTexturePackTerrainImage() -> GLUtils.readTextureContentsToBufferedImage()),
+    // um den Block-Textur-Atlas von der GPU zurückzulesen. glGetTexImage() erzwingt einen
+    // vollen GPU-Pipeline-Sync - der Aufruf blockiert, bis der Treiber JEDEN bereits
+    // eingereichten Draw-Call abgearbeitet hat. Direkt beim Weltbeitritt ist die GPU-
+    // Warteschlange auf einer großen/dichten Karte (bestätigt: Arnis-OSM-Stadtkarte) mit
+    // tausenden Chunk-Mesh-Uploads geflutet - der Sync-Aufruf muss auf deren komplette
+    // Abarbeitung warten, was den Call von normal <10ms auf mehrere Sekunden aufbläht
+    // (per Diagnose-Logging gemessen: 6819 ms bei einem einzigen Aufruf). Auf einer leeren
+    // Welt ist diese Warteschlange fast leer, der Aufruf bleibt dort billig - das erklärt
+    // exakt die beobachtete Kartengrößen-Abhängigkeit.
+    // Fix: den teuren Reload nicht mehr sofort bei der ersten erkannten Änderung ausführen,
+    // sondern erst, nachdem seit der Erkennung eine kurze Gnadenfrist verstrichen ist - genug
+    // Zeit, damit der anfängliche Chunk-Upload-Schwall (am stärksten in den ersten Sekunden
+    // nach dem Weltbeitritt) abklingen kann, bevor der GPU-Sync erzwungen wird. Die Prüfung
+    // in checkForChanges() läuft ohnehin bereits alle ~20 Frames erneut - dieser bestehende
+    // Rhythmus wird als natürlicher Retry-Mechanismus genutzt, kein zusätzlicher Tick-Hook
+    // nötig. Persistiert nichts, überlebt keinen Neustart - reiner In-Memory-Timer.
+    private static final long COLOR_RELOAD_GRACE_PERIOD_NANOS = 5_000_000_000L; // 5 Sekunden
+    private long pendingReloadSinceNanos = -1L;
+
     public int getAirColor() {
         return this.blockColors[BlockDatabase.airID];
     }
@@ -132,26 +153,29 @@ public class ColorCalculationService {
                 this.sizeOfBiomeArray = largestBiomeID + 1;
                 biomesChanged = true;
             }
-
-            // DIAGNOSTIC (2026-09-27, Teil 32): checkForChanges() wurde per Bisektion (Teil 31)
-            // als alleinige Ursache eines gemeldeten FPS-Einbruchs bestaetigt, obwohl die Methode
-            // nur ~1x/Sekunde aufgerufen wird. Dieser Log-Eintrag soll klaeren, ob der
-            // "world changed"-Zweig (und damit der teure loadColors()-Reload weiter unten)
-            // auf der betroffenen Karte ungewoehnlich oft ausgeloest wird, statt wie erwartet
-            // nur einmal beim Weltbeitritt/Dimensionswechsel. Rein additiv, keine Verhaltensaenderung.
-            MapViewConstants.getLogger().warn("[DIAGNOSTIC Teil32] checkForChanges(): world reference changed (biomesChanged={}, sizeOfBiomeArray={})", biomesChanged, this.sizeOfBiomeArray);
         }
 
-        boolean changed = this.resourcePacksChanged || biomesChanged;
+        // FIX (2026-09-27, Teil 32): loadColors() nicht mehr sofort ausfuehren, sobald ein
+        // Wechsel erkannt wird, sondern erst nach COLOR_RELOAD_GRACE_PERIOD_NANOS seit der
+        // ERSTEN Erkennung - siehe Begruendung am Feld oben. resourcePacksChanged/biomesChanged
+        // setzen nur noch den Pending-Zeitstempel (falls nicht schon gesetzt); die eigentliche,
+        // teure Arbeit wandert in den Grace-Period-Block weiter unten, der auf jedem der
+        // bereits alle ~20 Frames wiederkehrenden Aufrufe dieser Methode erneut geprueft wird.
+        if ((this.resourcePacksChanged || biomesChanged) && this.pendingReloadSinceNanos < 0) {
+            this.pendingReloadSinceNanos = System.nanoTime();
+        }
         this.resourcePacksChanged = false;
-        if (changed) {
-            // DIAGNOSTIC (2026-09-27, Teil 32): Misst, wie teuer der loadColors()-Reload
-            // (BlockDatabase-Scan, GPU-Textur-Readback, OptiFine-Verarbeitung, forceFullRender)
-            // tatsaechlich ist, sobald er ausgeloest wird - siehe CLAUDE.md Teil 32.
+
+        boolean changed = false;
+        if (this.pendingReloadSinceNanos >= 0
+                && System.nanoTime() - this.pendingReloadSinceNanos >= COLOR_RELOAD_GRACE_PERIOD_NANOS) {
             long startNanos = System.nanoTime();
             this.loadColors();
             long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000L;
-            MapViewConstants.getLogger().warn("[DIAGNOSTIC Teil32] loadColors() took {} ms (resourcePacksChanged={}, biomesChanged={})", elapsedMs, this.resourcePacksChanged, biomesChanged);
+            MapViewConstants.getLogger().info("[MapDataManager] Terrain-Farb-Reload abgeschlossen ({} ms, nach {} ms Gnadenfrist seit Erkennung)",
+                    elapsedMs, (startNanos - this.pendingReloadSinceNanos) / 1_000_000L);
+            this.pendingReloadSinceNanos = -1L;
+            changed = true;
         }
 
         return changed;

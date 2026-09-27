@@ -2388,3 +2388,73 @@ ihrem/ihren Vorkommen.
 `loadTexturePackTerrainImage()` herumzufixen — die letzten beiden Bisektionsrunden (Teil
 28/29) haben mehrfach gezeigt, dass plausibel klingende Verdächtige durch echte Daten
 widerlegt werden können, bevor ein Fix geschrieben wird.
+
+**Update (2026-09-27, Teil 32 abgeschlossen): Root Cause bestätigt und behoben.**
+Nutzer-Log lieferte die entscheidenden Zeilen:
+```
+[DIAGNOSTIC Teil32] checkForChanges(): world reference changed (biomesChanged=true, sizeOfBiomeArray=64)
+[DIAGNOSTIC Teil32] loadColors() took 6819 ms (resourcePacksChanged=false, biomesChanged=true)
+```
+Ein EINZIGER `loadColors()`-Aufruf, exakt einmal beim Weltbeitritt (nicht wiederholt),
+brauchte **6819 ms**. Da jeder FPS-Test dieser Session einen frischen Weltbeitritt
+erforderte (JVM-Flags brauchen einen Neustart) und der Nutzer die FPS jeweils kurz danach
+ablas, erklärt ein einziger ~7-Sekunden-Freeze direkt nach dem Beitritt vollständig das
+durchgehend gemeldete "3 FPS" — unabhängig davon, dass die Methode selbst nur alle ~20
+Frames aufgerufen wird.
+
+**Root Cause identifiziert (Code gelesen, kein Ratespiel):** `loadColors()` →
+`loadTexturePackTerrainImage()` → `GLUtils.readTextureContentsToBufferedImage()` → ruft
+`GL11.glGetTexImage(...)` auf, um den kompletten Block-Textur-Atlas von der GPU
+zurückzulesen. `glGetTexImage` erzwingt einen vollen GPU-Pipeline-Sync — der Treiber muss
+JEDEN bereits eingereichten Draw-Call fertig abarbeiten, bevor er die Pixel zurückgeben
+kann. Direkt beim Beitritt einer großen/dichten Karte (bestätigt: Arnis-OSM-Stadt) flutet
+das initiale Chunk-Mesh-Hochladen die GPU-Warteschlange mit tausenden Draw-Calls — der
+Sync-Aufruf wartet auf deren komplette Abarbeitung, was ihn von normalerweise <10ms auf
+mehrere Sekunden aufbläht. Auf einer leeren Welt ist diese Warteschlange beim Beitritt
+fast leer, der Aufruf bleibt dort billig — das erklärt exakt die beobachtete
+Kartengrößen-/Dichte-Abhängigkeit (leere Welt normal, Arnis-Stadt 3 FPS), ohne weitere
+Annahmen zu benötigen. `sizeOfBiomeArray=64` ist dabei kein Arnis-spezifischer Wert,
+sondern die normale Größe der Vanilla-Biom-Registry — der `biomesChanged`-Zweig feuert
+bei JEDEM Weltbeitritt einmalig (da `sizeOfBiomeArray` im Konstruktor mit 1 startet), nur
+die WARTEZEIT dabei ist auf dieser Karte pathologisch, nicht das Feuern selbst.
+
+**Fix — Gnadenfrist statt sofortigem Reload:** `ColorCalculationService.checkForChanges()`
+löst `loadColors()` nicht mehr sofort bei der ersten erkannten Änderung aus, sondern
+merkt sich nur einen `pendingReloadSinceNanos`-Zeitstempel und führt den teuren Reload
+erst aus, sobald seit dieser ersten Erkennung `COLOR_RELOAD_GRACE_PERIOD_NANOS` (5
+Sekunden, feste Konstante) verstrichen sind. Da `checkForChanges()` ohnehin bereits alle
+~20 Frames erneut aufgerufen wird, ist das ein reiner Zustands-Check ohne neuen
+Tick-Hook — die Methode "pollt" die Gnadenfrist einfach bei ihren bereits bestehenden
+Aufrufen ab. Das gibt dem initialen Chunk-Upload-Schwall Zeit abzuklingen, bevor der
+GPU-Sync erzwungen wird, verzögert den Farb-Reload aber nur um wenige Sekunden (nicht
+sicherheitsrelevant — Minimap zeigt in dieser kurzen Zeit ggf. noch Platzhalter-/Vorwelt-
+Farben, kein Crash- oder Korrektheitsrisiko). Die Diagnose-Logs wurden durch einen
+regulären INFO-Log ersetzt (`"Terrain-Farb-Reload abgeschlossen ({} ms, nach {} ms
+Gnadenfrist seit Erkennung)"`), damit im normalen Betrieb sichtbar bleibt, ob/wann der
+Reload tatsächlich läuft, ohne die WARN-Log-Flut der Diagnosephase zu behalten.
+
+**Verifikation:** Echter `./gradlew compileJava`-Lauf — 0 Fehler, nur die 3 bekannten
+Deprecation-Warnungen. Echter `./gradlew test`-Lauf — alle 36 Testklassen grün, 0
+Failures/Errors. Beide Guard-Skripte weiterhin "OK". Der bekannte Testlauf-Seiteneffekt
+auf `config/plotmod_economy.json`/`.backup_*.gz` wurde vor dem Commit zurückgesetzt.
+**Nicht durch einen echten Client-Lauf in dieser Umgebung verifizierbar** (kein Display/
+GPU-Kontext in dieser Session) — der Nutzer muss den frischen Build gegen den Arnis-Save
+testen, um zu bestätigen, dass die 5-Sekunden-Verzögerung den GPU-Sync tatsächlich aus
+dem initialen Upload-Schwall herausschiebt und die FPS dauerhaft normal bleiben (nicht
+nur beim ersten Beitritt, sondern auch bei erneutem Betreten/Verlassen der Welt, falls
+zwischenzeitlich ein Resourcepack-Reload einen zweiten `loadColors()`-Zyklus auslöst).
+
+**Falls die 5 Sekunden auf dieser Karte nicht ausreichen** (GPU-Warteschlange beim
+Beitritt noch immer nicht abgeklungen, Freeze tritt weiterhin auf, nur später/kürzer):
+`COLOR_RELOAD_GRACE_PERIOD_NANOS` in `ColorCalculationService.java` ist eine einzelne,
+leicht erhöhbare Konstante — vor einer Erhöhung aber erst per Log bestätigen, dass der
+Reload tatsächlich noch während eines GPU-Backlogs läuft, statt blind zu erhöhen.
+
+**Nicht vorschlagen:** `glGetTexImage`/den GPU-Textur-Readback grundlegend durch eine
+CPU-seitige Alternative (z. B. Lesen aus den ursprünglichen Sprite-`NativeImage`s vor dem
+Atlas-Stitching) zu ersetzen, ohne dass verifiziert wurde, ob Minecraft in dieser Version
+die CPU-seitigen Pixel-Daten nach dem GPU-Upload überhaupt noch vorhält — das wäre ein
+deutlich invasiverer Umbau als diese Gnadenfrist-Verzögerung und wurde bewusst nicht
+gewählt, weil er in dieser Umgebung nicht gegen einen echten Client getestet werden kann.
+Nicht vorschlagen, die Gnadenfrist auf 0 zu setzen oder den Mechanismus zu entfernen, ohne
+dass der Nutzer bestätigt hat, dass die Ursache anderswo liegt.

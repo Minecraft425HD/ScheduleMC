@@ -6,6 +6,25 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.33-beta] - 2026-09-27
+
+### Fix — deferred the expensive terrain-color reload past the initial GPU upload burst
+User's log confirmed the root cause: a single `loadColors()` call at world join took
+6819 ms (triggered by the normal, always-fires-once `biomesChanged` branch, not anything
+Arnis-specific). Traced it to `GLUtils.readTextureContentsToBufferedImage()`'s
+`GL11.glGetTexImage(...)` call, which forces a full GPU pipeline sync — the driver must
+finish every already-submitted draw call first. On a huge/dense city map, world join
+floods the GPU queue with thousands of chunk-mesh uploads, so the sync stalls for
+seconds; on an empty world the queue is nearly empty and the same call is cheap. This
+fully explains the map-size dependency without further guessing. Fix:
+`ColorCalculationService.checkForChanges()` no longer runs `loadColors()` immediately on
+detecting a change — it now records a pending timestamp and only executes the reload
+once 5 seconds have passed, reusing the method's existing ~20-frame polling cadence
+instead of adding a new tick hook. This gives the initial chunk-upload burst time to
+drain before the GPU sync is forced. Diagnostic WARN logs replaced with a single
+informational log line. See CLAUDE.md "Teil 32" (final update) — not yet confirmed by
+the user against the real Arnis save.
+
 ## [3.9.32-beta] - 2026-09-27
 
 ### Diagnostic — checkForChanges() confirmed as sole cause, timing/frequency logging added
