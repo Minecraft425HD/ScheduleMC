@@ -2458,3 +2458,97 @@ deutlich invasiverer Umbau als diese Gnadenfrist-Verzögerung und wurde bewusst 
 gewählt, weil er in dieser Umgebung nicht gegen einen echten Client getestet werden kann.
 Nicht vorschlagen, die Gnadenfrist auf 0 zu setzen oder den Mechanismus zu entfernen, ohne
 dass der Nutzer bestätigt hat, dass die Ursache anderswo liegt.
+
+---
+
+## Teil 32 widerlegt: Gnadenfrist half nicht — echte Ursache war ein O(n) Pixel-Loop, nicht GPU-Backlog (2026-09-27, Teil 33)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen, den Fix aus Teil 32 (Gnadenfrist)
+wiederherzustellen
+
+**Auslöser:** Nutzer-Rückmeldung: "fps sind immernoch 3 nach dem ich das smartphone
+geöffnet habe und die map dann wieder raus und dann die minimap wieder geladen hat!" — per
+`AskUserQuestion` geklärt: Dieser Test lief **weit im laufenden Spiel** (nicht kurz nach
+Weltbeitritt), und das neue INFO-Log aus Teil 32 zeigte tatsächlich einen erneuten Reload:
+
+```
+[MapDataManager] Terrain-Farb-Reload abgeschlossen (6246 ms, nach 5041 ms Gnadenfrist seit Erkennung)
+```
+
+**Entscheidender Befund:** Die Gnadenfrist (5 Sekunden Wartezeit vor dem Reload, Teil 32)
+hat die Dauer NICHT reduziert — 6246 ms MIT Verzögerung ist praktisch identisch mit den
+6819 ms OHNE Verzögerung aus Teil 32. Das widerlegt die gesamte Teil-32-Hypothese ("GPU-
+Warteschlange muss abklingen") direkt: Wenn `glGetTexImage()` tatsächlich auf einen
+GPU-Upload-Rückstand warten müsste, hätte 5 Sekunden Vorlauf die Wartezeit verkürzen oder
+eliminieren müssen. Die Tatsache, dass die Dauer bei BEIDEN Aufrufen (mit und ohne Wartezeit)
+nahezu identisch blieb, zeigt: die Kosten sind ein **fixer, wartezeit-unabhängiger Aufwand**
+— kein Warten auf irgendetwas, sondern eine tatsächliche Berechnung, die bei jedem Aufruf
+gleich lange dauert.
+
+**Echte Ursache gefunden (Code nachgelesen, kein Ratespiel):**
+`GLUtils.readTextureContentsToBufferedImage()` (aufgerufen aus `loadTexturePackTerrainImage()`)
+las den Textur-Atlas per `glGetTexImage()` EINMALIG korrekt in einen `ByteBuffer` (das ist
+schnell) — aber wandelte ihn danach in einer verschachtelten `for`-Schleife **Pixel für
+Pixel** in ein `BufferedImage` um, mit einem einzelnen `image.setRGB(x, y, pixel)`-Aufruf
+PRO Pixel (width×height Aufrufe insgesamt). Jeder einzelne `setRGB()`-Aufruf durchläuft
+Raster-Bounds-Checks und eine `ColorModel`-Komponentenkonvertierung — bei einem großen
+Textur-Atlas (dieser Mod registriert Hunderte eigene Block-/Item-Texturen zusätzlich zu
+Vanilla, der Atlas ist dadurch deutlich größer als bei einem unmodifizierten Client) läppert
+sich das zu mehreren Millionen Einzelaufrufen, die insgesamt mehrere Sekunden reine
+CPU-Zeit kosten — **komplett unabhängig davon, ob/wie lange vorher gewartet wurde**, und
+auch unabhängig vom tatsächlichen Weltinhalt (Kartengröße/-dichte). Das erklärt zugleich,
+warum dieser Reload jetzt (anders als in Teil 32 angenommen) auch **mitten im Spiel** erneut
+auftrat, nicht nur beim Weltbeitritt: `checkForChanges()`s `world != this.world`-Vergleich
+detektierte offenbar zu diesem späteren Zeitpunkt einen (bisher nicht weiter untersuchten,
+aber für den Fix irrelevanten) erneuten "Welt geändert"-Zustand — der eigentliche Bug war
+nie, WANN der Reload läuft, sondern dass er JEDES MAL, unabhängig vom Zeitpunkt, unnötig
+langsam ist.
+
+**Fix — Bulk-Pixel-Schreiben statt Einzelaufrufen:**
+`GLUtils.readTextureContentsToBufferedImage()` baut jetzt ein `int[]`-Array mit allen
+Pixeln (Standard-ARGB-Packing, `0xAARRGGBB`) in einer einfachen Schleife über primitive
+Arrays (kein Methodenaufruf-Overhead pro Pixel), und schreibt es dann in **einem einzigen**
+`BufferedImage.setRGB(0, 0, width, height, pixels, 0, width)`-Bulk-Aufruf — dem Standard-
+JDK-Idiom für schnelles Pixel-Schreiben (deutlich weniger Overhead als N Einzelaufrufe,
+da die interne Konvertierung nur einmal für den ganzen Block statt N-mal pro Pixel läuft).
+Bildtyp von `TYPE_4BYTE_ABGR` auf `TYPE_INT_ARGB` umgestellt, da die Bulk-Variante für
+dieses Format den schnellsten (Passthrough-)Pfad nimmt. **Vor der Umstellung verifiziert:**
+alle Aufrufer von `terrainBuff` (dem Ergebnis-Bild) lesen ausschließlich über das
+formatunabhängige `BufferedImage.getRGB(x,y)` (`ColorCalculationService`,
+`OptiFineColorLoader`, `ImageHelper`, `BlockModel`) — kein Aufrufer greift auf Raster/
+DataBuffer direkt zu (der einzige Treffer dafür im `mapview`-Modul, `RegionCache.java:659`,
+betrifft ein komplett anderes `BufferedImage`, nicht `terrainBuff`). Der Bildtyp-Wechsel ist
+für alle bestehenden Konsumenten daher unsichtbar.
+
+**Teil-32-Gnadenfrist entfernt:** Da die eigentliche Ursache jetzt behoben ist, wurde die
+5-Sekunden-Verzögerung aus Teil 32 (`COLOR_RELOAD_GRACE_PERIOD_NANOS`/
+`pendingReloadSinceNanos` in `ColorCalculationService`) wieder entfernt — sie beruhte auf
+einer inzwischen widerlegten Annahme und hätte, wäre sie belassen worden, nur unnötig
+verzögert, ohne einen Vorteil zu bieten. `checkForChanges()` löst `loadColors()` jetzt
+wieder sofort bei Erkennung aus, wie vor Teil 32 — nur dass `loadColors()` selbst durch den
+Bulk-Pixel-Fix jetzt tatsächlich schnell ist. Das Timing-Log (`"Terrain-Farb-Reload
+abgeschlossen ({} ms)"`) bleibt erhalten, um im normalen Betrieb sichtbar zu machen, wie
+lange der Reload künftig tatsächlich dauert.
+
+**Verifikation:** Echter `./gradlew compileJava`-Lauf — 0 Fehler, nur die 3 bekannten
+Deprecation-Warnungen. Echter `./gradlew test`-Lauf — alle 36 Testklassen grün, 0
+Failures/Errors. Beide Guard-Skripte weiterhin "OK". Der bekannte Testlauf-Seiteneffekt auf
+`config/plotmod_economy.json`/`.backup_*.gz` wurde vor dem Commit zurückgesetzt.
+**Nicht durch einen echten Client-Lauf in dieser Umgebung verifizierbar** (kein Display/
+GPU-Kontext) — der Nutzer muss den frischen Build gegen den Arnis-Save testen und dabei
+auf die neue Dauer im `"Terrain-Farb-Reload abgeschlossen"`-Log achten (sollte jetzt im
+niedrigen einstelligen Millisekundenbereich statt mehreren Sekunden liegen).
+
+**Falls die Dauer weiterhin hoch bleibt** (Bulk-Fix wirkt nicht ausreichend, oder eine
+andere Stelle ist ebenfalls betroffen): als Nächstes prüfen, ob der GESAMTE gemeldete
+Zeitraum tatsächlich in `readTextureContentsToBufferedImage()` liegt oder ob `loadColors()`s
+andere Schritte (`loadColorPicker()`, `loadSpecialColors()`, OptiFine-Verarbeitung) einen
+relevanten Anteil beitragen — dafür ggf. das bestehende Timing-Log um Zwischenzeitstempel
+pro Teilschritt erweitern, statt erneut zu raten.
+
+**Nicht vorschlagen:** die Gnadenfrist aus Teil 32 wiederherzustellen — sie wurde durch
+echte Messdaten (identische Dauer mit UND ohne Verzögerung) widerlegt, nicht nur als
+"nicht ausreichend" eingestuft. Nicht vorschlagen, erneut eine zeitbasierte Verzögerung
+als Fix für einen Performance-Fund in diesem Modul einzusetzen, ohne vorher per Log zu
+bestätigen, dass die Kosten tatsächlich mit Wartezeit skalieren (wie in Teil 33 geschehen,
+aber diesmal negativ bestätigt).

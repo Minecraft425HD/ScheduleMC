@@ -100,27 +100,6 @@ public class ColorCalculationService {
         ++this.sizeOfBiomeArray;
     }
 
-    // FIX (2026-09-27, Teil 32): loadColors() ruft letztlich GL11.glGetTexImage() auf
-    // (via loadTexturePackTerrainImage() -> GLUtils.readTextureContentsToBufferedImage()),
-    // um den Block-Textur-Atlas von der GPU zurückzulesen. glGetTexImage() erzwingt einen
-    // vollen GPU-Pipeline-Sync - der Aufruf blockiert, bis der Treiber JEDEN bereits
-    // eingereichten Draw-Call abgearbeitet hat. Direkt beim Weltbeitritt ist die GPU-
-    // Warteschlange auf einer großen/dichten Karte (bestätigt: Arnis-OSM-Stadtkarte) mit
-    // tausenden Chunk-Mesh-Uploads geflutet - der Sync-Aufruf muss auf deren komplette
-    // Abarbeitung warten, was den Call von normal <10ms auf mehrere Sekunden aufbläht
-    // (per Diagnose-Logging gemessen: 6819 ms bei einem einzigen Aufruf). Auf einer leeren
-    // Welt ist diese Warteschlange fast leer, der Aufruf bleibt dort billig - das erklärt
-    // exakt die beobachtete Kartengrößen-Abhängigkeit.
-    // Fix: den teuren Reload nicht mehr sofort bei der ersten erkannten Änderung ausführen,
-    // sondern erst, nachdem seit der Erkennung eine kurze Gnadenfrist verstrichen ist - genug
-    // Zeit, damit der anfängliche Chunk-Upload-Schwall (am stärksten in den ersten Sekunden
-    // nach dem Weltbeitritt) abklingen kann, bevor der GPU-Sync erzwungen wird. Die Prüfung
-    // in checkForChanges() läuft ohnehin bereits alle ~20 Frames erneut - dieser bestehende
-    // Rhythmus wird als natürlicher Retry-Mechanismus genutzt, kein zusätzlicher Tick-Hook
-    // nötig. Persistiert nichts, überlebt keinen Neustart - reiner In-Memory-Timer.
-    private static final long COLOR_RELOAD_GRACE_PERIOD_NANOS = 5_000_000_000L; // 5 Sekunden
-    private long pendingReloadSinceNanos = -1L;
-
     public int getAirColor() {
         return this.blockColors[BlockDatabase.airID];
     }
@@ -155,27 +134,21 @@ public class ColorCalculationService {
             }
         }
 
-        // FIX (2026-09-27, Teil 32): loadColors() nicht mehr sofort ausfuehren, sobald ein
-        // Wechsel erkannt wird, sondern erst nach COLOR_RELOAD_GRACE_PERIOD_NANOS seit der
-        // ERSTEN Erkennung - siehe Begruendung am Feld oben. resourcePacksChanged/biomesChanged
-        // setzen nur noch den Pending-Zeitstempel (falls nicht schon gesetzt); die eigentliche,
-        // teure Arbeit wandert in den Grace-Period-Block weiter unten, der auf jedem der
-        // bereits alle ~20 Frames wiederkehrenden Aufrufe dieser Methode erneut geprueft wird.
-        if ((this.resourcePacksChanged || biomesChanged) && this.pendingReloadSinceNanos < 0) {
-            this.pendingReloadSinceNanos = System.nanoTime();
-        }
+        boolean changed = this.resourcePacksChanged || biomesChanged;
         this.resourcePacksChanged = false;
-
-        boolean changed = false;
-        if (this.pendingReloadSinceNanos >= 0
-                && System.nanoTime() - this.pendingReloadSinceNanos >= COLOR_RELOAD_GRACE_PERIOD_NANOS) {
+        if (changed) {
+            // FIX (2026-09-27, Teil 33): loadColors() ruft GLUtils.readTextureContentsToBufferedImage()
+            // auf, um den Block-Textur-Atlas zu lesen. Frueher (Teil 32) wurde dieser Aufruf per
+            // Gnadenfrist verzoegert, in der irrigen Annahme, glGetTexImage() muesse auf einen GPU-
+            // Upload-Rueckstand warten. Per Log widerlegt: eine 5s-Verzoegerung aenderte die Dauer
+            // NICHT (6246ms verzoegert vs. 6819ms sofort) - die Kosten waren nie GPU-Wartezeit,
+            // sondern der anschliessende Pixel-Konvertierungs-Loop in GLUtils (width*height einzelne
+            // BufferedImage.setRGB()-Aufrufe). Dort behoben (Bulk-setRGB), die Verzoegerung hier
+            // ist damit wieder unnoetig und entfernt - loadColors() laeuft wieder sofort.
             long startNanos = System.nanoTime();
             this.loadColors();
             long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000L;
-            MapViewConstants.getLogger().info("[MapDataManager] Terrain-Farb-Reload abgeschlossen ({} ms, nach {} ms Gnadenfrist seit Erkennung)",
-                    elapsedMs, (startNanos - this.pendingReloadSinceNanos) / 1_000_000L);
-            this.pendingReloadSinceNanos = -1L;
-            changed = true;
+            MapViewConstants.getLogger().info("[MapDataManager] Terrain-Farb-Reload abgeschlossen ({} ms)", elapsedMs);
         }
 
         return changed;

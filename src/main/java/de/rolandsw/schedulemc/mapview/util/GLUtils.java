@@ -33,22 +33,31 @@ public class GLUtils {
 
         GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
-        // Convert to BufferedImage
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int index = (x + y * width) * 4;
-                int r = buffer.get(index) & 0xFF;
-                int g = buffer.get(index + 1) & 0xFF;
-                int b = buffer.get(index + 2) & 0xFF;
-                int a = buffer.get(index + 3) & 0xFF;
-
-                // Convert RGBA to ABGR for BufferedImage
-                int pixel = (a << 24) | (b << 16) | (g << 8) | r;
-                image.setRGB(x, y, pixel);
-            }
+        // FIX (2026-09-27, Teil 33): Der vorherige Code rief BufferedImage.setRGB(x, y, pixel)
+        // EINZELN pro Pixel auf (width*height Aufrufe). Jeder einzelne setRGB()-Aufruf geht durch
+        // Raster-Bounds-Checks + ColorModel-Komponentenkonvertierung - bei einem großen Textur-
+        // Atlas (dieser Mod registriert hunderte eigene Block-/Item-Texturen) summiert sich das
+        // auf mehrere Sekunden CPU-Zeit, GAR NICHT durch GPU-Treiber-Wartezeit verursacht (wurde
+        // per Diagnose-Logging widerlegt: eine 5-Sekunden-Verzögerung vor dem Aufruf hat die
+        // gemessene Dauer nicht reduziert - 6246ms nach der Verzögerung vs. 6819ms ohne). Fix:
+        // ein einziger Bulk-setRGB(...)-Aufruf mit einem fertig vorbereiteten int[]-Array
+        // (Standard-JDK-Idiom für schnelles Pixel-Schreiben) statt width*height Einzelaufrufen.
+        // TYPE_INT_ARGB statt TYPE_4BYTE_ABGR, da die Bulk-Variante für genau dieses Format den
+        // schnellsten (Passthrough-)Pfad nimmt. Alle Aufrufer von terrainBuff lesen ausschließlich
+        // über das formatunabhängige BufferedImage.getRGB(x,y) - der Bildtyp-Wechsel ist für sie
+        // unsichtbar (verifiziert per Grep, siehe CLAUDE.md Teil 33).
+        int[] pixels = new int[width * height];
+        for (int i = 0; i < pixels.length; i++) {
+            int index = i * 4;
+            int r = buffer.get(index) & 0xFF;
+            int g = buffer.get(index + 1) & 0xFF;
+            int b = buffer.get(index + 2) & 0xFF;
+            int a = buffer.get(index + 3) & 0xFF;
+            pixels[i] = (a << 24) | (r << 16) | (g << 8) | b;
         }
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        image.setRGB(0, 0, width, height, pixels, 0, width);
 
         // Call the consumer with the result
         resultConsumer.accept(image);

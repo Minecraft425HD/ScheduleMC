@@ -6,6 +6,27 @@ Format: `[version] - date — Summary of changes`
 
 ---
 
+## [3.9.34-beta] - 2026-09-27
+
+### Fix — real root cause was a per-pixel setRGB loop, not GPU backlog; grace period reverted
+User's follow-up test disproved the grace-period fix: delaying the reload by 5 seconds
+gave 6246 ms, essentially identical to the un-delayed 6819 ms from before. If the cost
+were really the GPU catching up on a queued backlog, waiting should have helped — it
+didn't, meaning the cost is a fixed, wait-independent computation, not a wait on
+anything. Traced it to `GLUtils.readTextureContentsToBufferedImage()`: after reading the
+texture atlas into a ByteBuffer (fast), it converted every single pixel with its own
+`BufferedImage.setRGB(x, y, pixel)` call — millions of calls for this mod's
+larger-than-vanilla atlas (hundreds of custom block/item textures), each paying raster
+bounds-checking and ColorModel conversion overhead. Replaced with a single bulk
+`setRGB(0, 0, width, height, pixels, 0, width)` call fed by a plain int[] array built in
+a tight primitive loop, and switched the image type to TYPE_INT_ARGB (the fastest
+passthrough format for that bulk call). Verified every consumer of the resulting image
+reads only through the format-agnostic `getRGB(x, y)`, so the type change is invisible to
+them. Reverted the now-pointless 5-second grace period from the previous fix — it was
+based on a disproven theory and only added delay without benefit; `checkForChanges()`
+runs the reload immediately again, but the reload itself is now fast. See CLAUDE.md
+"Teil 33" — not yet confirmed by the user against the real Arnis save.
+
 ## [3.9.33-beta] - 2026-09-27
 
 ### Fix — deferred the expensive terrain-color reload past the initial GPU upload burst
