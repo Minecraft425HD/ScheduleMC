@@ -44,9 +44,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 
 import javax.imageio.ImageIO;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.io.IOException;
@@ -136,84 +134,31 @@ public class ColorCalculationService {
             }
         }
 
-        // FIX (2026-09-27, Teil 35): resourcePacksChanged VOR dem Zuruecksetzen sichern - wird
-        // gebraucht, um loadColors() unten mitzuteilen, ob der teure Textur-Atlas-Reload
-        // tatsaechlich noetig ist (siehe Begruendung an loadColors()).
-        boolean resourcePacksChangedNow = this.resourcePacksChanged;
-        boolean changed = resourcePacksChangedNow || biomesChanged;
+        boolean changed = this.resourcePacksChanged || biomesChanged;
         this.resourcePacksChanged = false;
         if (changed) {
-            // FIX (2026-09-27, Teil 34/35): Per Diagnose-Logging bestaetigt (Teil 34): der Block-
-            // Textur-Atlas dieses Mods ist 16384x16384 Pixel (~268 Mio. Pixel, ~1 GB) - eine
-            // Folge der schieren Menge an registrierten Block-/Item-Texturen ueber Dutzende
-            // Warengruppen. Allein glGetTexImage() + Pixel-Array-Konvertierung (bereits Bulk-
-            // optimiert, Teil 33) brauchen dafuer ~3,6 Sekunden - ein echter, physikalischer
-            // Aufwand fuer diese Atlas-Groesse, keine weitere Code-Ineffizienz.
-            //
-            // ABER: dieser teure Read war bisher an JEDE Erkennung von `changed` gebunden,
-            // also auch an `biomesChanged` - und `biomesChanged` wird bei JEDEM Welt-/
-            // Dimensionswechsel innerhalb derselben Client-Sitzung erneut wahr (sizeOfBiomeArray
-            // startet bei 1), OBWOHL sich der Textur-Atlas dabei nicht aendert (Texturen werden
-            // nicht pro Weltwechsel neu hochgeladen). Nutzer-Log (Teil 33) bestaetigte genau
-            // diesen Fall: ein zweiter, voller Reload mitten im Spiel, weit nach dem Beitritt.
-            //
-            // Fix: der teure Atlas-Read (`loadColorPicker()`/`loadTexturePackTerrainImage()`)
-            // laeuft nur noch, wenn Ressourcenpakete TATSAECHLICH neu geladen wurden
-            // (`resourcePacksChangedNow`) oder beim allerersten Mal (`!this.loadedTerrainImage`)
-            // - nicht mehr bei jedem reinen "Welt geaendert"-Trigger. Der einmalige ~3,6-Sekunden-
-            // Hitch beim ersten Laden bleibt (physikalisch bedingt durch die Atlas-Groesse), aber
-            // er wiederholt sich nicht mehr unnoetig bei jedem weiteren Welt-/Dimensionswechsel.
-            boolean reloadTerrainImage = resourcePacksChangedNow || !this.loadedTerrainImage;
-            long startNanos = System.nanoTime();
-            this.loadColors(reloadTerrainImage);
-            long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000L;
-            MapViewConstants.getLogger().info("[MapDataManager] Terrain-Farb-Reload abgeschlossen ({} ms, Atlas neu gelesen={})", elapsedMs, reloadTerrainImage);
+            this.loadColors();
         }
 
         return changed;
     }
 
-    private void loadColors(boolean reloadTerrainImage) {
-        // DIAGNOSTIC (2026-09-27, Teil 34): loadColors() ist von 6819ms (Teil 32) auf
-        // 3413ms (Teil 33, nach dem Bulk-setRGB-Fix) gesunken. Teil 34 bestaetigte per
-        // feingranularer Zeitmessung: der Atlas ist 16384x16384 Pixel - die verbleibende
-        // Dauer ist ein echter, physikalischer Aufwand fuer diese Groesse (glGetTexImage +
-        // Pixel-Konvertierung), keine weitere Code-Ineffizienz. Teil 35 stellt sicher, dass
-        // dieser teure Teil nur noch bei tatsaechlichem Ressourcenpaket-Wechsel oder beim
-        // allerersten Laden laeuft (siehe `reloadTerrainImage`-Parameter), nicht mehr bei
-        // jedem reinen Welt-/Dimensionswechsel. Zeitmessung bleibt erhalten, um sichtbar zu
-        // machen, ob/wann der teure Pfad tatsaechlich noch laeuft.
-        long t0 = System.nanoTime();
+    private void loadColors() {
+        this.loadedTerrainImage = false;
         BlockDatabase.getBlocks();
-        long t1 = System.nanoTime();
-        long t2;
-        long t3;
-        if (reloadTerrainImage) {
-            this.loadedTerrainImage = false;
-            this.loadColorPicker();
-            t2 = System.nanoTime();
-            this.loadTexturePackTerrainImage();
-            t3 = System.nanoTime();
-        } else {
-            t2 = t1;
-            t3 = t1;
-        }
+        this.loadColorPicker();
+        this.loadTexturePackTerrainImage();
         TextureAtlasSprite missing = MapViewConstants.getMinecraft().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(ResourceLocation.parse("missingno"));
         this.failedToLoadX = missing.getU0();
         this.failedToLoadY = missing.getV0();
         this.loaded = false;  // NOPMD
-        long t4 = System.nanoTime();
 
-        long t5;
-        long t6;
         try {
             Arrays.fill(this.blockColors, 0xFEFF00FF);
             Arrays.fill(this.blockColorsWithDefaultTint, 0xFEFF00FF);
             this.loadSpecialColors();
-            t5 = System.nanoTime();
             this.optifineLoader.clear();
-            boolean optifineInstalled = this.optifineLoader.isInstalled();
-            if (optifineInstalled) {
+            if (this.optifineLoader.isInstalled()) {
                 try {
                     this.optifineLoader.processCTM();
                 } catch (Exception var4) {
@@ -226,20 +171,13 @@ public class ColorCalculationService {
                     MapViewConstants.getLogger().error("error loading custom color properties " + var3.getLocalizedMessage(), var3);
                 }
             }
-            t6 = System.nanoTime();
 
             MapViewConstants.getLightMapInstance().getMap().forceFullRender(true);
         } catch (Exception var5) {
             MapViewConstants.getLogger().error("error loading pack", var5);
-            t5 = t4;
-            t6 = t4;
         }
 
         this.loaded = true;
-        MapViewConstants.getLogger().info(
-                "[DIAGNOSTIC Teil34] loadColors() breakdown (ms): getBlocks={} colorPicker={} terrainImage={} missingSprite={} specialColors={} optifine(installed={})={} total={}",
-                (t1 - t0) / 1_000_000L, (t2 - t1) / 1_000_000L, (t3 - t2) / 1_000_000L, (t4 - t3) / 1_000_000L,
-                (t5 - t4) / 1_000_000L, this.optifineLoader.isInstalled(), (t6 - t5) / 1_000_000L, (System.nanoTime() - t0) / 1_000_000L);
     }
 
     private void loadColorPicker() {
@@ -316,14 +254,6 @@ public class ColorCalculationService {
         return this.getBlockColor(this.dummyBlockPos, blockStateID);
     }
 
-    // DIAGNOSTIC (2026-09-27, Teil 36): zaehlt, wie oft die teure Erst-Berechnung eines
-    // Block-States (getColor(), inkl. des jetzt gefixten Downsampling-Pfads) tatsaechlich
-    // laeuft, und wie viel Zeit das insgesamt kostet - soll klaeren, ob dieser Pfad die
-    // vom Nutzer gemeldete ANHALTENDE (nicht nur kurzzeitige) FPS-Senkung erklaert, statt
-    // das nur anzunehmen. Rein additiv, keine Verhaltensaenderung. Loggt alle 250 Treffer.
-    private long colorCacheMissCount;
-    private long colorCacheMissTotalNanos;
-
     /**
      * SICHERHEIT: Synchronized für Thread-safe Array-Zugriff während Resize
      */
@@ -339,17 +269,8 @@ public class ColorCalculationService {
             col = this.blockColors[blockStateID];
 
             if (col == 0xFEFF00FF || col == 0x1B000000) {
-                long startNanos = System.nanoTime();
                 BlockState blockState = BlockDatabase.getStateById(blockStateID);
                 col = this.blockColors[blockStateID] = this.getColor(blockPos, blockState);
-                this.colorCacheMissTotalNanos += System.nanoTime() - startNanos;
-                this.colorCacheMissCount++;
-                if (this.colorCacheMissCount % 250 == 0) {
-                    MapViewConstants.getLogger().info(
-                            "[DIAGNOSTIC Teil36] block color cache misses={} totalMs={} avgMicros={}",
-                            this.colorCacheMissCount, this.colorCacheMissTotalNanos / 1_000_000L,
-                            this.colorCacheMissTotalNanos / 1_000L / this.colorCacheMissCount);
-                }
             }
 
             return col;
@@ -485,29 +406,11 @@ public class ColorCalculationService {
             int bottom = (int) Math.ceil(uv[3] * imageBuff.getHeight());
 
             try {
-                // FIX (2026-09-27, Teil 36): getColorForCoordinatesAndImage() laeuft lazily,
-                // einmal pro NEU angetroffenem Block-State (danach in blockColors[] gecacht,
-                // siehe getBlockColor()). Auf einer riesigen, inhaltlich extrem vielfaeltigen
-                // OSM-Stadtkarte (viele tausend unterschiedliche Block-States durch
-                // Ausrichtungen/Materialien/Deko-Varianten) laeuft dieser Pfad daher fortlaufend
-                // beim Erkunden neuer Bereiche - nicht nur einmalig - und erklaert damit die
-                // vom Nutzer gemeldete UNBEGRENZT anhaltende (nicht nur kurze) FPS-Senkung, die
-                // durch den Atlas-Ladefix (Teil 35) allein nicht behoben wurde: vorher schlug
-                // `this.loaded` nie auf true um (Atlas-Laden schlug fehl/lief nie durch), wodurch
-                // dieser komplette Block-Farb-Berechnungspfad nie erreicht wurde - jetzt, wo der
-                // Atlas korrekt laedt, wird dieser Pfad zum ersten Mal ueberhaupt sichtbar teuer.
-                //
-                // `Image.getScaledInstance(1, 1, SMOOTH)` ist eine bekannte Java-Performance-
-                // Falle: es laeuft ueber die alte, asynchrone AWT-Toolkit-ImageProducer/Consumer-
-                // Pipeline (nicht ueber Java2D), was pro Aufruf erheblichen Overhead bedeutet -
-                // besonders bei sehr vielen Aufrufen. Fix: direktes Downsampling ueber
-                // Graphics2D.drawImage() mit bilinearer Interpolation - laeuft komplett innerhalb
-                // der schnellen Java2D-Rendering-Pipeline, ohne die Toolkit-Altlast.
                 BufferedImage blockTexture = imageBuff.getSubimage(left, top, right - left, bottom - top);
+                Image singlePixel = blockTexture.getScaledInstance(1, 1, 4);
                 BufferedImage singlePixelBuff = new BufferedImage(1, 1, imageBuff.getType());
-                Graphics2D gfx = singlePixelBuff.createGraphics();
-                gfx.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                gfx.drawImage(blockTexture, 0, 0, 1, 1, null);
+                Graphics gfx = singlePixelBuff.createGraphics();
+                gfx.drawImage(singlePixel, 0, 0, null);
                 gfx.dispose();
                 color = singlePixelBuff.getRGB(0, 0);
             } catch (RasterFormatException var12) {

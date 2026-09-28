@@ -89,28 +89,7 @@ public final class MapViewConstants {
         MapViewConstants.getLightMapInstance().lateInit(true, false);
     }
 
-    // DIAGNOSTIC (2026-09-27, Teil 26/27): Temporärer Kill-Switch, um bei einem gemeldeten,
-    // bisher trotz zweier behobener Bugs weiterhin bestehenden FPS-Einbruch auf einer
-    // konkreten Nutzer-Weltkarte per Bisektion festzustellen, welcher Teil des mapview-
-    // Moduls die Ursache ist - ohne dass der Nutzer einen Profiler installieren muss.
-    // Teil 26 (ein einziges Flag für BEIDE Pfade zusammen) hat bereits bestätigt: mapview
-    // ist die Ursache ("fps ist normal mit dem flag"). Teil 27 splittet das Flag in zwei
-    // unabhängige Hälften, damit die nächste Testrunde ohne erneuten Build zwischen
-    // Datenaufbau (clientTick -> WorldMapData.onTick(), inkl. periodischer Rescans) und
-    // Rendering (renderOverlay -> MapViewRenderer.onTickInGame(), inkl. drawMinimap +
-    // eigener periodischer Rescan) unterscheiden kann. Aktivierung: JVM-Argumente
-    // -Dschedulemc.disableMapviewTick=true und/oder -Dschedulemc.disableMapviewRender=true
-    // (z. B. in PrismLauncher unter Instance Settings -> Java -> JVM Args). Siehe CLAUDE.md
-    // Teil 26/27. **Nicht als dauerhaftes Feature gedacht** - nach Abschluss der Diagnose
-    // wieder entfernen, falls nicht explizit als dauerhafte Option gewünscht.
-    private static final boolean MAPVIEW_TICK_DISABLED = Boolean.getBoolean("schedulemc.disableMapviewTick");
-    private static final boolean MAPVIEW_RENDER_DISABLED = Boolean.getBoolean("schedulemc.disableMapviewRender");
-
     public static void clientTick() {
-        if (MAPVIEW_TICK_DISABLED) {
-            return;
-        }
-
         if (!initialized) {
             lateInit();
         }
@@ -122,10 +101,6 @@ public final class MapViewConstants {
     }
 
     public static void renderOverlay(GuiGraphics guiGraphics) {
-        if (MAPVIEW_RENDER_DISABLED) {
-            return;
-        }
-
         if (!initialized) {
             lateInit();
         }

@@ -2773,3 +2773,86 @@ mit derselben Zeitmess-Diagnose-vor-Fix-Disziplin wie in Teil 34.
 den `colorCacheMissCount`-Diagnose-Zähler zu entfernen, ohne dass der Nutzer bestätigt
 hat, dass die FPS jetzt auch beim Erkunden neuer Kartenbereiche normal bleiben (nicht
 nur beim ersten Weltbeitritt).
+
+---
+
+## Vollständiger Rollback von Teil 21-36 auf explizite Nutzeranfrage (2026-09-28, Teil 37)
+
+**Status:** ABGESCHLOSSEN — nicht erneut vorschlagen, diesen Rollback rückgängig zu
+machen oder die Teil-21-bis-36-Fixes erneut einzubauen, ohne dass das explizit
+gewünscht wird
+
+**Auslöser:** Nutzer-Anweisung, wörtlich: "mach es rückgängängig bis bevor wir das
+erste mal was an der minimap geändert haben!" — nach Durchsicht der gesamten
+oben dokumentierten Teil-21-bis-36-Historie (zwei Sessions FPS-Diagnose am
+mapview-Modul) wurde entschieden, den gesamten Änderungsblock zurückzunehmen, statt
+Teil 36 (den zuletzt gebauten, noch nicht vom Nutzer bestätigten `getScaledInstance()`-
+Fix) weiter zu verifizieren.
+
+**Umsetzung:** Per `git log --oneline -- src/main/java/de/rolandsw/schedulemc/mapview/`
+wurde `57ea67c` ("Fix always-on minimap subsystem causing low FPS with no mod content
+placed") als der ERSTE Commit dieser gesamten mapview-Änderungsserie identifiziert
+(= "Teil 21"); `3ae0c57` (unmittelbar davor) ist der Stand vor jeder Minimap-Änderung.
+Alle 9 Dateien, die zwischen `3ae0c57` und dem bisherigen `HEAD` (`22fe539`) unter
+`src/main/java/de/rolandsw/schedulemc/mapview/` geändert wurden, wurden per
+`git checkout 3ae0c57 -- <Datei>` vollständig auf ihren `3ae0c57`-Stand
+zurückgesetzt:
+
+- `MapViewConstants.java` (Kill-Switch-Flags `MAPVIEW_TICK_DISABLED`/
+  `MAPVIEW_RENDER_DISABLED` aus Teil 26/27 entfernt)
+- `core/model/MapChunk.java` (Teil 21: `isMarkedSurroundedByLoaded()`/
+  `pendingSurroundCheck`-Unterstützung entfernt)
+- `npc/NPCMapRenderer.java` (Teil 22: `cachedVisibleNPCs`-Drosselung entfernt)
+- `presentation/renderer/MapOverlayRenderer.java` (Teil 22: `scaleProj`-Parameter
+  von `renderNPCMarkers()` entfernt)
+- `presentation/renderer/MapViewRenderer.java` (Teil 21-31: Höhen-Vereinfachung,
+  alle `disableMapview*`-Bisektions-Flags, `scaleProj`-Weitergabe an
+  `renderNPCMarkers()` — alles entfernt, 512 Zeilen Netto-Änderung zurückgerollt)
+- `service/data/WorldMapData.java` (Teil 21/25: unbegrenzter Abwärts-Scan-Fix
+  in `getAndStoreData()` zurückgerollt)
+- `service/render/ColorCalculationService.java` (Teil 32/33/35/36: Gnadenfrist,
+  Bulk-Reload-Entkopplung, `getScaledInstance()`→Graphics2D-Fix, Diagnose-Zähler —
+  alles zurückgerollt)
+- `util/ChunkCache.java` (Teil 21: `pendingSurroundCheck`-Set-Optimierung entfernt)
+- `util/GLUtils.java` (Teil 33/34: Bulk-`setRGB()`-Fix + Timing-Diagnostik
+  zurückgerollt, wieder Pixel-für-Pixel-`setRGB()`-Loop)
+
+**Bewusst NICHT angefasst:** Alle anderen, im selben Zeitraum entstandenen, aber
+NICHT mapview-bezogenen Änderungen (z. B. Teil 23s O(n²)-NPC-Interaktions-Fix in
+`npc/life/social/NPCInteractionManager.java`, Wanted-Poster/Blitzer/Polizeifahrzeug-
+Features aus Teil 12-19) — diese sind keine Minimap-Änderungen und blieben
+unverändert bestehen, wie vom Nutzer verlangt ("was an der minimap geändert").
+
+**Bewusste, dem Nutzer bekannte Konsequenz dieses Rollbacks:** Mit diesem Rollback
+kehren mehrere zuvor real gefundene und behobene Bugs zurück:
+- NPC-Marker auf Minimap/Weltkarte sind wieder unsichtbar (Teil 22, `scaleProj`-Fix
+  entfernt).
+- Der ungedrosselte Per-Frame-AABB-Scan für NPC-Marker ist wieder aktiv (Teil 22).
+- Der unbegrenzte Abwärts-Scan pro Block-Spalte (bis zu 384 Iterationen) ist an
+  beiden Fundorten (Minimap-Rendering UND persistenter Kartendaten-Pfad) wieder
+  aktiv (Teil 21/24/25).
+- Der volle O(n²)-Chunk-Grid-Scan in `checkIfChunksBecameSurroundedByLoaded()` ist
+  wieder aktiv (Teil 21).
+- Der Pixel-für-Pixel-`setRGB()`-Loop und die unnötige wiederholte
+  16384×16384-Atlas-Neulesung sowie der `getScaledInstance()`-Aufruf im
+  Block-Farb-Cache-Miss-Pfad sind wieder aktiv (Teil 33/35/36).
+
+Dies ist eine explizite Nutzerentscheidung, keine versehentliche Regression — der
+Nutzer hat nach Durchsicht der vollständigen Historie ausdrücklich verlangt, ALLES
+zurückzunehmen, nicht nur einen Teil.
+
+**Verifikation:** Echter `./gradlew compileJava`-Lauf (JDK 17 Toolchain) — 0 Fehler,
+nur die 3 bekannten, session-unabhängigen Deprecation-Warnungen. Echter
+`./gradlew test`-Lauf — keine Failures/Errors. Beide Guard-Skripte
+(`check-german-strings.sh`, `repo_hygiene_check.sh`) weiterhin "OK". Repo-weiter
+Grep bestätigt: keine verbleibenden Referenzen auf `disableMapview*`/
+`MAPVIEW_TICK_DISABLED`/`MAPVIEW_RENDER_DISABLED`/`colorCacheMissCount` außerhalb
+von `docs/CHANGELOG.md` (dort als historische Notiz belassen, siehe eigene
+Einträge zu den Versionen 3.9.26-beta bis 3.9.37-beta).
+
+**Nicht vorschlagen:** einen der in Teil 21-36 dokumentierten Fixes erneut
+einzubauen, ohne dass das explizit gewünscht wird — die Abschnitte oben (Teil 21
+bis Teil 36) beschreiben jetzt NICHT MEHR den aktuellen Code-Stand, sondern nur
+noch die historische Diagnose-Reise, die zu diesem Rollback geführt hat. Falls das
+ursprüngliche FPS-Problem auf der Arnis-Karte weiterhin besteht, muss eine
+zukünftige Session bei Bedarf neu und unabhängig von dieser Fix-Serie ansetzen.

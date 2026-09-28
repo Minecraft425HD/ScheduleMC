@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
 import net.minecraft.world.level.Level;
@@ -43,12 +44,15 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class WorldMapData implements MapChangeListener {
     final MutableBlockPos blockPos = new MutableBlockPos(0, 0, 0);
@@ -242,19 +246,15 @@ public class WorldMapData implements MapChangeListener {
     }
 
     public void getAndStoreData(AbstractMapData mapData, Level world, LevelChunk chunk, MutableBlockPos pos, boolean underground, int startX, int startZ, int imageX, int imageY) {
-        // PERFORMANCE (2026-09-26, Teil 25): seafloorHeight/transparentHeight sind seit der
-        // Vereinfachung unten (kein Meeresboden-Durchscheinen, keine Transparenz-Ebene mehr)
-        // in JEDEM Aufrufpfad permanent auf ihrem Initialwert (bottomY/air) - berechnet wurde
-        // vorher nur der jetzt entfernte, teure Abwärts-Scan, der sie hätte ändern können.
         int bottomY = world.getMinBuildHeight();
         int surfaceHeight;
-        final int seafloorHeight = bottomY;
-        final int transparentHeight = bottomY;
+        int seafloorHeight = bottomY;
+        int transparentHeight = bottomY;
         int foliageHeight = bottomY;
         BlockState surfaceBlockState;
-        final BlockState transparentBlockState = BlockDatabase.air.defaultBlockState();
+        BlockState transparentBlockState = BlockDatabase.air.defaultBlockState();
         BlockState foliageBlockState = BlockDatabase.air.defaultBlockState();
-        final BlockState seafloorBlockState = BlockDatabase.air.defaultBlockState();
+        BlockState seafloorBlockState = BlockDatabase.air.defaultBlockState();
         pos.setXYZ(startX + imageX, 64, startZ + imageY);
         Biome biome;
         if (!chunk.isEmpty()) {
@@ -279,21 +279,85 @@ public class WorldMapData implements MapChangeListener {
                     }
                 }
             } else {
-                // PERFORMANCE (2026-09-26, Teil 25): dies war eine exakte Kopie desselben
-                // unbegrenzten Abwärts-Scans, der in MapViewRenderer.getPixelColor() bereits
-                // in Teil 24 entfernt wurde - nur eben im PERSISTENTEN Karten-Datenpfad
-                // (RegionCache.doLoadChunkData() -> hier), der bei jedem neu geladenen/
-                // geänderten Chunk läuft, unabhängig von der Live-Minimap-Anzeige. Das war
-                // der eigentliche, in Teil 24 übersehene zweite Fundort desselben Bugs -
-                // siehe CLAUDE.md Teil 25. Gleiche Vereinfachung: nur der oberste
-                // MOTION_BLOCKING-Block wird als Oberfläche genutzt, kein Abwärts-Scan nach
-                // einem "echten" opaken Block, kein Meeresboden-Durchscheinen, keine separate
-                // Foliage-Ebene (Nutzerdirektive aus Teil 24 gilt unverändert weiter).
-                surfaceHeight = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX() & 15, pos.getZ() & 15) + 1;
-                surfaceBlockState = chunk.getBlockState(pos.withXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY));
-                FluidState fluidState = surfaceBlockState.getFluidState();
+                transparentHeight = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX() & 15, pos.getZ() & 15) + 1;
+                transparentBlockState = chunk.getBlockState(pos.withXYZ(startX + imageX, transparentHeight - 1, startZ + imageY));
+                FluidState fluidState = transparentBlockState.getFluidState();
                 if (fluidState != Fluids.EMPTY.defaultFluidState()) {
-                    surfaceBlockState = fluidState.createLegacyBlock();
+                    transparentBlockState = fluidState.createLegacyBlock();
+                }
+
+                surfaceHeight = transparentHeight;
+                surfaceBlockState = transparentBlockState;
+                VoxelShape voxelShape;
+                boolean hasOpacity = transparentBlockState.getLightBlock(chunk, pos) > 0;
+                if (!hasOpacity && transparentBlockState.canOcclude() && transparentBlockState.useShapeForLightOcclusion()) {
+                    voxelShape = transparentBlockState.getFaceOcclusionShape(chunk, pos, Direction.DOWN);
+                    hasOpacity = Shapes.faceShapeOccludes(voxelShape, Shapes.empty());
+                    voxelShape = transparentBlockState.getFaceOcclusionShape(chunk, pos, Direction.UP);
+                    hasOpacity = hasOpacity || Shapes.faceShapeOccludes(Shapes.empty(), voxelShape);
+                }
+
+                while (!hasOpacity && surfaceHeight > bottomY) {
+                    foliageBlockState = surfaceBlockState;
+                    --surfaceHeight;
+                    surfaceBlockState = chunk.getBlockState(pos.withXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY));
+                    fluidState = surfaceBlockState.getFluidState();
+                    if (fluidState != Fluids.EMPTY.defaultFluidState()) {
+                        surfaceBlockState = fluidState.createLegacyBlock();
+                    }
+
+                    hasOpacity = surfaceBlockState.getLightBlock(chunk, pos) > 0;
+                    if (!hasOpacity && surfaceBlockState.canOcclude() && surfaceBlockState.useShapeForLightOcclusion()) {
+                        voxelShape = surfaceBlockState.getFaceOcclusionShape(chunk, pos, Direction.DOWN);
+                        hasOpacity = Shapes.faceShapeOccludes(voxelShape, Shapes.empty());
+                        voxelShape = surfaceBlockState.getFaceOcclusionShape(chunk, pos, Direction.UP);
+                        hasOpacity = hasOpacity || Shapes.faceShapeOccludes(Shapes.empty(), voxelShape);
+                    }
+                }
+
+                if (surfaceHeight == transparentHeight) {
+                    transparentHeight = bottomY;
+                    transparentBlockState = BlockDatabase.air.defaultBlockState();
+                    foliageBlockState = chunk.getBlockState(pos.withXYZ(startX + imageX, surfaceHeight, startZ + imageY));
+                }
+
+                if (foliageBlockState.getBlock() == Blocks.SNOW) {
+                    surfaceBlockState = foliageBlockState;
+                    foliageBlockState = BlockDatabase.air.defaultBlockState();
+                }
+
+                if (foliageBlockState == transparentBlockState) {
+                    foliageBlockState = BlockDatabase.air.defaultBlockState();
+                }
+
+                if (foliageBlockState != null && !(foliageBlockState.getBlock() instanceof AirBlock)) {
+                    foliageHeight = surfaceHeight + 1;
+                } else {
+                    foliageBlockState = BlockDatabase.air.defaultBlockState();
+                }
+
+                Block material = surfaceBlockState.getBlock();
+                if (material == Blocks.WATER || material == Blocks.ICE) {
+                    seafloorHeight = surfaceHeight;
+
+                    for (seafloorBlockState = chunk.getBlockState(pos.withXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY)); seafloorBlockState.getLightBlock(chunk, pos) < 5 && !(seafloorBlockState.getBlock() instanceof LeavesBlock) && seafloorHeight > bottomY + 1; seafloorBlockState = chunk.getBlockState(pos.withXYZ(startX + imageX, seafloorHeight - 1, startZ + imageY))) {
+                        material = seafloorBlockState.getBlock();
+                        if (transparentHeight == bottomY && material != Blocks.ICE && material != Blocks.WATER && seafloorBlockState.blocksMotion()) {
+                            transparentHeight = seafloorHeight;
+                            transparentBlockState = seafloorBlockState;
+                        }
+
+                        if (foliageHeight == bottomY && seafloorHeight != transparentHeight && transparentBlockState != seafloorBlockState && material != Blocks.ICE && material != Blocks.WATER && !(material instanceof AirBlock) && material != Blocks.BUBBLE_COLUMN) {
+                            foliageHeight = seafloorHeight;
+                            foliageBlockState = seafloorBlockState;
+                        }
+
+                        --seafloorHeight;
+                    }
+
+                    if (seafloorBlockState.getBlock() == Blocks.WATER) {
+                        seafloorBlockState = BlockDatabase.air.defaultBlockState();
+                    }
                 }
             }
 

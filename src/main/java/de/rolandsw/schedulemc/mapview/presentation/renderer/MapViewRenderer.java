@@ -36,6 +36,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import de.rolandsw.schedulemc.mapview.util.ARGBCompat;
@@ -49,11 +50,15 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -86,6 +91,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
     private ResourceLocation[] mapResources;
     private final DynamicMoveableTexture[] mapImagesFiltered = new DynamicMoveableTexture[5];
     private final DynamicMoveableTexture[] mapImagesUnfiltered = new DynamicMoveableTexture[5];
+    private BlockState transparentBlockState;
     private BlockState surfaceBlockState;
     // SICHERHEIT: volatile für Thread-Safety zwischen Render und Game Thread
     private volatile boolean imageChanged = true;
@@ -252,19 +258,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
         if (minecraft != null) {
             while (!Thread.currentThread().isInterrupted()) {
                 if (this.world != null) {
-                    // DIAGNOSTIC (2026-09-27, Teil 29): disableMapviewDraw (nur der
-                    // drawMinimap()/upload()-Aufruf) allein hat NICHT geholfen (weiterhin
-                    // 3 FPS) - die Ursache liegt also nicht im GPU-Textur-Upload selbst,
-                    // sondern entweder in der übrigen onTickInGame()-Buchhaltung oder in
-                    // diesem asynchronen mapCalc()-Aufruf hier (läuft zwar auf einem
-                    // eigenen Worker-Thread, könnte aber durch CPU-Kontention/GC-Druck
-                    // trotzdem den Render-Thread ausbremsen). Dieses Flag deaktiviert NUR
-                    // den mapCalc()-Aufruf (inkl. des direkt folgenden centerChunks()/
-                    // checkIfChunksChanged()), lässt aber die Wait/Notify-Schleife selbst
-                    // weiterlaufen - damit lässt sich isolieren, ob die asynchrone
-                    // Neuberechnung die Ursache ist. Siehe CLAUDE.md Teil 29.
-                    boolean calcDisabled = Boolean.getBoolean("schedulemc.disableMapviewCalc");
-                    if (!calcDisabled && this.options.minimapAllowed) {
+                    if (this.options.minimapAllowed) {
                         try {
                             this.mapCalc(this.doFullRender);
                             if (!this.doFullRender) {
@@ -337,38 +331,19 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             }
         }
 
-        // DIAGNOSTIC (2026-09-27, Teil 31): disableMapviewBookkeeping (Teil 30, alle drei
-        // Teile zusammen) hat den Fix bestätigt - 100 FPS. Jetzt in drei unabhängige Flags
-        // aufgesplittet, um herauszufinden, WELCHER der drei Teile es tatsächlich ist.
-        // Jedes Flag deaktiviert NUR seinen eigenen Teil; das alte Sammel-Flag
-        // (disableMapviewBookkeeping) bleibt als "alle drei" Abkürzung erhalten. Siehe
-        // CLAUDE.md Teil 31.
-        boolean bookkeepingDisabled = Boolean.getBoolean("schedulemc.disableMapviewBookkeeping");
-        boolean checkForChangesDisabled = bookkeepingDisabled || Boolean.getBoolean("schedulemc.disableMapviewCheckForChanges");
-        boolean ownRefreshDisabled = bookkeepingDisabled || Boolean.getBoolean("schedulemc.disableMapviewOwnRefresh");
-        boolean lightingDisabled = bookkeepingDisabled || Boolean.getBoolean("schedulemc.disableMapviewLighting");
-
         // Performance-Optimierung: Throttle checkForChanges - nur alle 20 Ticks (1x/Sek)
-        if (!checkForChangesDisabled && this.timer % 20 == 0) {
+        if (this.timer % 20 == 0) {
             this.checkForChanges();
         }
 
-        // Periodic chunk refresh for minimap to detect block changes.
-        // PERFORMANCE (2026-09-26): previously ran unconditionally every 2 seconds even when
-        // the minimap itself is disabled (minimapAllowed=false) - this data is exclusively
-        // consumed by mapCalc() below, which is already gated by minimapAllowed, so scanning
-        // an unused chunk radius here was pure waste. Gated to match.
-        if (!ownRefreshDisabled && this.options.minimapAllowed) {
-            long now = System.currentTimeMillis();
-            if (now - lastPeriodicRefresh >= PERIODIC_REFRESH_INTERVAL_MS) {
-                lastPeriodicRefresh = now;
-                refreshNearbyChunks();
-            }
+        // Periodic chunk refresh for minimap to detect block changes
+        long now = System.currentTimeMillis();
+        if (now - lastPeriodicRefresh >= PERIODIC_REFRESH_INTERVAL_MS) {
+            lastPeriodicRefresh = now;
+            refreshNearbyChunks();
         }
 
-        if (!lightingDisabled) {
-            this.lightingState.calculateCurrentLightAndSkyColor(this.timer);
-        }
+        this.lightingState.calculateCurrentLightAndSkyColor(this.timer);
 
         // Performance-Optimierung: Throttle map updates - nur wenn sich Player bewegt hat oder throttle-Intervall erreicht
         int currentX = MinecraftAccessor.xCoord();
@@ -447,16 +422,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             this.error = "";
         }
 
-        // DIAGNOSTIC (2026-09-27, Teil 28): weiterer Bisektionsschritt, nachdem Teil 27
-        // bestätigt hat, dass die Render-Seite (onTickInGame) die Ursache ist, nicht die
-        // Tick-/Datenaufbau-Seite. Dieses Flag deaktiviert NUR den eigentlichen
-        // Minimap-Zeichenaufruf (drawMinimap -> renderMap -> mapImages[zoom].upload(),
-        // ein synchroner GPU-Textur-Upload auf dem Render-Thread), während
-        // checkForChanges()/refreshNearbyChunks()/der mapCalc()-Anstoß weiterhin laufen -
-        // damit lässt sich unterscheiden, ob der Textur-Upload selbst oder die übrige
-        // Buchhaltung in onTickInGame die eigentliche Ursache ist. Siehe CLAUDE.md Teil 28.
-        boolean drawDisabled = Boolean.getBoolean("schedulemc.disableMapviewDraw");
-        if (!drawDisabled && enabled && MapDataManager.mapOptions.minimapAllowed) {
+        if (enabled && MapDataManager.mapOptions.minimapAllowed) {
             this.drawMinimap(drawContext);
         }
 
@@ -568,7 +534,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             // Render NPCs auf Fullscreen-Karte
             this.overlayRenderer.renderNPCMarkers(drawContext, this.scWidth / 2, this.scHeight / 2,
                     Math.min(this.scWidth, this.scHeight), (float) this.zoomScale, true,
-                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ, scaleProj);
+                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ);
             this.drawArrow(drawContext, this.scWidth / 2, this.scHeight / 2, scaleProj);
         } else {
             this.renderMap(drawContext, mapX, mapY, scScale, scaleProj);
@@ -578,7 +544,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                     this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ);
             // Render NPCs auf Minimap
             this.overlayRenderer.renderNPCMarkers(drawContext, mapX, mapY, 64, (float) this.zoomScale, false,
-                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ, scaleProj);
+                    this.direction, this.scWidth, this.scHeight, this.lastX, this.lastZ);
             this.drawArrow(drawContext, mapX, mapY, scaleProj);
         }
     }
@@ -838,13 +804,25 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
     private int getPixelColor(boolean needBiome, boolean needHeightAndID, boolean needTint, boolean needLight, boolean nether, boolean caves, ClientLevel world, int zoom, int multi, int startX, int startZ, int imageX, int imageY) {
         int surfaceHeight = Short.MIN_VALUE;  // NOPMD
+        int seafloorHeight = Short.MIN_VALUE;
+        int transparentHeight = Short.MIN_VALUE;
         int foliageHeight = Short.MIN_VALUE;  // NOPMD
         int surfaceColor;
+        int seafloorColor = 0;
+        int transparentColor = 0;
+        int foliageColor = 0;
         this.surfaceBlockState = null;  // NOPMD – default when needHeightAndID=false; overwritten only in conditional branches
+        this.transparentBlockState = BlockDatabase.air.defaultBlockState();
         BlockState foliageBlockState = BlockDatabase.air.defaultBlockState();
+        BlockState seafloorBlockState = BlockDatabase.air.defaultBlockState();
         boolean surfaceBlockChangeForcedTint = false;
+        boolean transparentBlockChangeForcedTint = false;
+        boolean foliageBlockChangeForcedTint = false;
+        boolean seafloorBlockChangeForcedTint = false;
         int surfaceBlockStateID;
+        int transparentBlockStateID;
         int foliageBlockStateID;
+        int seafloorBlockStateID;
         MutableBlockPos blockPos = BlockPositionCache.get();
         MutableBlockPos tempBlockPos = BlockPositionCache.get();
         blockPos.withXYZ(startX + imageX, 64, startZ + imageY);
@@ -877,20 +855,88 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                         cachedChunkZ = chunkZ;
                     }
                     LevelChunk chunk = cachedChunk;
-                    // PERFORMANCE (2026-09-26, Teil 24): die Minimap zeigt jetzt bewusst nur noch den
-                    // obersten sichtbaren Block laut Vanilla-Heightmap - keine Suche nach einem "echten"
-                    // opaken Block darunter, kein Meeresboden-Durchscheinen, keine separate Foliage-
-                    // Ebene (Nutzeranfrage: "nur ... den letzten sichtbaren Block von oben ... ohne
-                    // Schatten oder Blöcke unterhalb der obersten Schicht"). Der alte Code lief bei
-                    // einem nicht-opaken obersten Block (Glas, Zaun, o. ä. - z. B. auf einer komplett
-                    // auf Void/geräumtem Untergrund gebauten Stadtkarte praktisch überall der Fall) pro
-                    // Spalte bis zu 384 Iterationen nach unten (bis world.getMinBuildHeight() = -64),
-                    // jede mit Block-Lookup + Licht-/Voxel-Shape-Berechnung - siehe CLAUDE.md Teil 24.
-                    surfaceHeight = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockPos.getX() & 15, blockPos.getZ() & 15) + 1;
-                    this.surfaceBlockState = world.getBlockState(blockPos.withXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY));
-                    FluidState fluidState = this.surfaceBlockState.getFluidState();
+                    transparentHeight = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockPos.getX() & 15, blockPos.getZ() & 15) + 1;
+                    this.transparentBlockState = world.getBlockState(blockPos.withXYZ(startX + imageX, transparentHeight - 1, startZ + imageY));
+                    FluidState fluidState = this.transparentBlockState.getFluidState();
                     if (fluidState != Fluids.EMPTY.defaultFluidState()) {
-                        this.surfaceBlockState = fluidState.createLegacyBlock();
+                        this.transparentBlockState = fluidState.createLegacyBlock();
+                    }
+
+                    surfaceHeight = transparentHeight;
+                    this.surfaceBlockState = this.transparentBlockState;
+                    VoxelShape voxelShape;
+                    tempBlockPos.setXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY);
+                    boolean hasOpacity = this.surfaceBlockState.getLightBlock(world, tempBlockPos) > 0;
+                    if (!hasOpacity && this.surfaceBlockState.canOcclude() && this.surfaceBlockState.useShapeForLightOcclusion()) {
+                        voxelShape = this.surfaceBlockState.getFaceOcclusionShape(world, tempBlockPos, Direction.DOWN);
+                        hasOpacity = Shapes.faceShapeOccludes(voxelShape, Shapes.empty());
+                        voxelShape = this.surfaceBlockState.getFaceOcclusionShape(world, tempBlockPos, Direction.UP);
+                        hasOpacity = hasOpacity || Shapes.faceShapeOccludes(Shapes.empty(), voxelShape);
+                    }
+
+                    while (!hasOpacity && surfaceHeight > world.getMinBuildHeight()) {
+                        foliageBlockState = this.surfaceBlockState;
+                        --surfaceHeight;
+                        this.surfaceBlockState = world.getBlockState(blockPos.withXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY));
+                        fluidState = this.surfaceBlockState.getFluidState();
+                        if (fluidState != Fluids.EMPTY.defaultFluidState()) {
+                            this.surfaceBlockState = fluidState.createLegacyBlock();
+                        }
+
+                        tempBlockPos.setXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY);
+                        hasOpacity = this.surfaceBlockState.getLightBlock(world, tempBlockPos) > 0;
+                        if (!hasOpacity && this.surfaceBlockState.canOcclude() && this.surfaceBlockState.useShapeForLightOcclusion()) {
+                            voxelShape = this.surfaceBlockState.getFaceOcclusionShape(world, tempBlockPos, Direction.DOWN);
+                            hasOpacity = Shapes.faceShapeOccludes(voxelShape, Shapes.empty());
+                            voxelShape = this.surfaceBlockState.getFaceOcclusionShape(world, tempBlockPos, Direction.UP);
+                            hasOpacity = hasOpacity || Shapes.faceShapeOccludes(Shapes.empty(), voxelShape);
+                        }
+                    }
+
+                    if (surfaceHeight == transparentHeight) {
+                        transparentHeight = Short.MIN_VALUE;
+                        this.transparentBlockState = BlockDatabase.air.defaultBlockState();
+                        foliageBlockState = world.getBlockState(blockPos.withXYZ(startX + imageX, surfaceHeight, startZ + imageY));
+                    }
+
+                    if (foliageBlockState.getBlock() == Blocks.SNOW) {
+                        this.surfaceBlockState = foliageBlockState;
+                        foliageBlockState = BlockDatabase.air.defaultBlockState();
+                    }
+
+                    if (foliageBlockState == this.transparentBlockState) {
+                        foliageBlockState = BlockDatabase.air.defaultBlockState();
+                    }
+
+                    if (foliageBlockState != null && !(foliageBlockState.getBlock() instanceof AirBlock)) {
+                        foliageHeight = surfaceHeight + 1;
+                    } else {
+                        foliageHeight = Short.MIN_VALUE;
+                    }
+
+                    Block material = this.surfaceBlockState.getBlock();
+                    if (material == Blocks.WATER || material == Blocks.ICE) {
+                        seafloorHeight = surfaceHeight;
+
+                        for (seafloorBlockState = world.getBlockState(blockPos.withXYZ(startX + imageX, surfaceHeight - 1, startZ + imageY)); seafloorBlockState.getLightBlock(world, blockPos.withXYZ(startX + imageX, seafloorHeight - 1, startZ + imageY)) < 5 && !(seafloorBlockState.getBlock() instanceof LeavesBlock)
+                                && seafloorHeight > world.getMinBuildHeight() + 1; seafloorBlockState = world.getBlockState(blockPos.withXYZ(startX + imageX, seafloorHeight - 1, startZ + imageY))) {
+                            material = seafloorBlockState.getBlock();
+                            if (transparentHeight == Short.MIN_VALUE && material != Blocks.ICE && material != Blocks.WATER && Heightmap.Types.MOTION_BLOCKING.isOpaque().test(seafloorBlockState)) {
+                                transparentHeight = seafloorHeight;
+                                this.transparentBlockState = seafloorBlockState;
+                            }
+
+                            if (foliageHeight == Short.MIN_VALUE && seafloorHeight != transparentHeight && this.transparentBlockState != seafloorBlockState && material != Blocks.ICE && material != Blocks.WATER && !(material instanceof AirBlock) && material != Blocks.BUBBLE_COLUMN) {
+                                foliageHeight = seafloorHeight;
+                                foliageBlockState = seafloorBlockState;
+                            }
+
+                            --seafloorHeight;
+                        }
+
+                        if (seafloorBlockState.getBlock() == Blocks.WATER) {
+                            seafloorBlockState = BlockDatabase.air.defaultBlockState();
+                        }
                     }
                 } else {
                     surfaceHeight = this.getNetherHeight(startX + imageX, startZ + imageY);
@@ -914,10 +960,40 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
                 this.mapData[zoom].setHeight(imageX, imageY, surfaceHeight);
                 this.mapData[zoom].setBlockstateID(imageX, imageY, surfaceBlockStateID);
+                if (this.options.biomes && this.transparentBlockState != this.mapData[zoom].getTransparentBlockstate(imageX, imageY)) {
+                    transparentBlockChangeForcedTint = true;
+                }
+
+                this.mapData[zoom].setTransparentHeight(imageX, imageY, transparentHeight);
+                transparentBlockStateID = BlockDatabase.getStateId(this.transparentBlockState);
+                this.mapData[zoom].setTransparentBlockstateID(imageX, imageY, transparentBlockStateID);
+                if (this.options.biomes && foliageBlockState != this.mapData[zoom].getFoliageBlockstate(imageX, imageY)) {
+                    foliageBlockChangeForcedTint = true;
+                }
+
+                this.mapData[zoom].setFoliageHeight(imageX, imageY, foliageHeight);
+                foliageBlockStateID = BlockDatabase.getStateId(foliageBlockState);
+                this.mapData[zoom].setFoliageBlockstateID(imageX, imageY, foliageBlockStateID);
+                if (this.options.biomes && seafloorBlockState != this.mapData[zoom].getOceanFloorBlockstate(imageX, imageY)) {
+                    seafloorBlockChangeForcedTint = true;
+                }
+
+                this.mapData[zoom].setOceanFloorHeight(imageX, imageY, seafloorHeight);
+                seafloorBlockStateID = BlockDatabase.getStateId(seafloorBlockState);
+                this.mapData[zoom].setOceanFloorBlockstateID(imageX, imageY, seafloorBlockStateID);
             } else {
                 surfaceHeight = this.mapData[zoom].getHeight(imageX, imageY);
                 surfaceBlockStateID = this.mapData[zoom].getBlockstateID(imageX, imageY);
                 this.surfaceBlockState = BlockDatabase.getStateById(surfaceBlockStateID);
+                transparentHeight = this.mapData[zoom].getTransparentHeight(imageX, imageY);
+                transparentBlockStateID = this.mapData[zoom].getTransparentBlockstateID(imageX, imageY);
+                this.transparentBlockState = BlockDatabase.getStateById(transparentBlockStateID);
+                foliageHeight = this.mapData[zoom].getFoliageHeight(imageX, imageY);
+                foliageBlockStateID = this.mapData[zoom].getFoliageBlockstateID(imageX, imageY);
+                foliageBlockState = BlockDatabase.getStateById(foliageBlockStateID);
+                seafloorHeight = this.mapData[zoom].getOceanFloorHeight(imageX, imageY);
+                seafloorBlockStateID = this.mapData[zoom].getOceanFloorBlockstateID(imageX, imageY);
+                seafloorBlockState = BlockDatabase.getStateById(seafloorBlockStateID);
             }
 
             if (surfaceHeight == Short.MIN_VALUE) {
@@ -947,9 +1023,7 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 surfaceColor = this.colorManager.getBlockColorWithDefaultTint(blockPos, surfaceBlockStateID);
             }
 
-            // Bewusst KEIN applyHeight()-Relief-Schatten mehr, kein Meeresboden-/Transparenz-/
-            // Foliage-Layer-Blending - die Minimap zeigt nur noch den flachen, obersten sichtbaren
-            // Block (Nutzeranfrage, siehe CLAUDE.md Teil 24).
+            surfaceColor = this.applyHeight(surfaceColor, nether, caves, world, zoom, multi, startX, startZ, imageX, imageY, surfaceHeight, solid, 1);
             int light;
             if (needLight) {
                 light = this.getLight(surfaceColor, this.surfaceBlockState, world, startX + imageX, startZ + imageY, surfaceHeight, solid);
@@ -964,7 +1038,143 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
                 surfaceColor = ColorUtils.colorMultiplier(surfaceColor, light);
             }
 
-            color24 = surfaceColor;
+            if (this.options.waterTransparency && seafloorHeight != Short.MIN_VALUE) {
+                if (!this.options.biomes) {
+                    seafloorColor = this.colorManager.getBlockColorWithDefaultTint(blockPos, seafloorBlockStateID);
+                } else {
+                    seafloorColor = this.colorManager.getBlockColor(blockPos, seafloorBlockStateID, biome);
+                    int tint;
+                    if (!needTint && !seafloorBlockChangeForcedTint) {
+                        tint = this.mapData[zoom].getOceanFloorBiomeTint(imageX, imageY);
+                    } else {
+                        blockPos.setXYZ(startX + imageX, seafloorHeight - 1, startZ + imageY);
+                        tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, seafloorBlockState, seafloorBlockStateID, blockPos, tempBlockPos, startX, startZ);
+                        this.mapData[zoom].setOceanFloorBiomeTint(imageX, imageY, tint);
+                    }
+
+                    if (tint != -1) {
+                        seafloorColor = ColorUtils.colorMultiplier(seafloorColor, tint);
+                    }
+                }
+
+                seafloorColor = this.applyHeight(seafloorColor, nether, caves, world, zoom, multi, startX, startZ, imageX, imageY, seafloorHeight, solid, 0);
+                int seafloorLight;
+                if (needLight) {
+                    seafloorLight = this.getLight(seafloorColor, seafloorBlockState, world, startX + imageX, startZ + imageY, seafloorHeight, solid);
+                    blockPos.setXYZ(startX + imageX, seafloorHeight, startZ + imageY);
+                    BlockState blockStateAbove = world.getBlockState(blockPos);
+                    Block materialAbove = blockStateAbove.getBlock();
+                    if (this.options.lightmap && materialAbove == Blocks.ICE) {
+                        int multiplier = minecraft.options.ambientOcclusion().get() ? 200 : 120;
+                        seafloorLight = ColorUtils.colorMultiplier(seafloorLight, 0xFF000000 | multiplier << 16 | multiplier << 8 | multiplier);
+                    }
+
+                    this.mapData[zoom].setOceanFloorLight(imageX, imageY, seafloorLight);
+                } else {
+                    seafloorLight = this.mapData[zoom].getOceanFloorLight(imageX, imageY);
+                }
+
+                if (seafloorLight == 0) {
+                    seafloorColor = 0;
+                } else if (seafloorLight != 255) {
+                    seafloorColor = ColorUtils.colorMultiplier(seafloorColor, seafloorLight);
+                }
+            }
+
+            if (this.options.blockTransparency) {
+                if (transparentHeight != Short.MIN_VALUE && this.transparentBlockState != null && this.transparentBlockState != BlockDatabase.air.defaultBlockState()) {
+                    if (this.options.biomes) {
+                        transparentColor = this.colorManager.getBlockColor(blockPos, transparentBlockStateID, biome);
+                        int tint;
+                        if (!needTint && !transparentBlockChangeForcedTint) {
+                            tint = this.mapData[zoom].getTransparentBiomeTint(imageX, imageY);
+                        } else {
+                            blockPos.setXYZ(startX + imageX, transparentHeight - 1, startZ + imageY);
+                            tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, this.transparentBlockState, transparentBlockStateID, blockPos, tempBlockPos, startX, startZ);
+                            this.mapData[zoom].setTransparentBiomeTint(imageX, imageY, tint);
+                        }
+
+                        if (tint != -1) {
+                            transparentColor = ColorUtils.colorMultiplier(transparentColor, tint);
+                        }
+                    } else {
+                        transparentColor = this.colorManager.getBlockColorWithDefaultTint(blockPos, transparentBlockStateID);
+                    }
+
+                    transparentColor = this.applyHeight(transparentColor, nether, caves, world, zoom, multi, startX, startZ, imageX, imageY, transparentHeight, solid, 3);
+                    int transparentLight;
+                    if (needLight) {
+                        transparentLight = this.getLight(transparentColor, this.transparentBlockState, world, startX + imageX, startZ + imageY, transparentHeight, solid);
+                        this.mapData[zoom].setTransparentLight(imageX, imageY, transparentLight);
+                    } else {
+                        transparentLight = this.mapData[zoom].getTransparentLight(imageX, imageY);
+                    }
+
+                    if (transparentLight == 0) {
+                        transparentColor = 0;
+                    } else if (transparentLight != 255) {
+                        transparentColor = ColorUtils.colorMultiplier(transparentColor, transparentLight);
+                    }
+                }
+
+                if (foliageHeight != Short.MIN_VALUE && foliageBlockState != null && foliageBlockState != BlockDatabase.air.defaultBlockState()) {
+                    if (!this.options.biomes) {
+                        foliageColor = this.colorManager.getBlockColorWithDefaultTint(blockPos, foliageBlockStateID);
+                    } else {
+                        foliageColor = this.colorManager.getBlockColor(blockPos, foliageBlockStateID, biome);
+                        int tint;
+                        if (!needTint && !foliageBlockChangeForcedTint) {
+                            tint = this.mapData[zoom].getFoliageBiomeTint(imageX, imageY);
+                        } else {
+                            blockPos.setXYZ(startX + imageX, foliageHeight - 1, startZ + imageY);
+                            tint = this.colorManager.getBiomeTint(this.mapData[zoom], world, foliageBlockState, foliageBlockStateID, blockPos, tempBlockPos, startX, startZ);
+                            this.mapData[zoom].setFoliageBiomeTint(imageX, imageY, tint);
+                        }
+
+                        if (tint != -1) {
+                            foliageColor = ColorUtils.colorMultiplier(foliageColor, tint);
+                        }
+                    }
+
+                    foliageColor = this.applyHeight(foliageColor, nether, caves, world, zoom, multi, startX, startZ, imageX, imageY, foliageHeight, solid, 2);
+                    int foliageLight;
+                    if (needLight) {
+                        foliageLight = this.getLight(foliageColor, foliageBlockState, world, startX + imageX, startZ + imageY, foliageHeight, solid);
+                        this.mapData[zoom].setFoliageLight(imageX, imageY, foliageLight);
+                    } else {
+                        foliageLight = this.mapData[zoom].getFoliageLight(imageX, imageY);
+                    }
+
+                    if (foliageLight == 0) {
+                        foliageColor = 0;
+                    } else if (foliageLight != 255) {
+                        foliageColor = ColorUtils.colorMultiplier(foliageColor, foliageLight);
+                    }
+                }
+            }
+
+            if (seafloorColor != 0 && seafloorHeight > Short.MIN_VALUE) {
+                color24 = seafloorColor;
+                if (foliageColor != 0 && foliageHeight <= surfaceHeight) {
+                    color24 = ColorUtils.colorAdder(foliageColor, seafloorColor);
+                }
+
+                if (transparentColor != 0 && transparentHeight <= surfaceHeight) {
+                    color24 = ColorUtils.colorAdder(transparentColor, color24);
+                }
+
+                color24 = ColorUtils.colorAdder(surfaceColor, color24);
+            } else {
+                color24 = surfaceColor;
+            }
+
+            if (foliageColor != 0 && foliageHeight > surfaceHeight) {
+                color24 = ColorUtils.colorAdder(foliageColor, color24);
+            }
+
+            if (transparentColor != 0 && transparentHeight > surfaceHeight) {
+                color24 = ColorUtils.colorAdder(transparentColor, color24);
+            }
 
             if (this.options.biomeOverlay == 2) {
                 int bc = 0;
@@ -987,6 +1197,30 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
 
         // ColorUtils methods output ARGB format, convert to ABGR for NativeImage
         return MapViewHelper.doSlimeAndGrid(ARGBCompat.toABGR(color24), world, worldX, worldZ);
+    }
+
+    private int getBlockHeight(boolean nether, boolean caves, Level world, int x, int z) {
+        MutableBlockPos blockPos = BlockPositionCache.get();
+        int playerHeight = MinecraftAccessor.yCoord();
+        blockPos.setXYZ(x, playerHeight, z);
+        LevelChunk chunk = (LevelChunk) world.getChunk(blockPos);
+        int height = chunk.getHeight(Heightmap.Types.MOTION_BLOCKING, blockPos.getX() & 15, blockPos.getZ() & 15) + 1;
+        BlockState blockState = world.getBlockState(blockPos.withXYZ(x, height - 1, z));
+        FluidState fluidState = this.transparentBlockState.getFluidState();
+        if (fluidState != Fluids.EMPTY.defaultFluidState()) {
+            blockState = fluidState.createLegacyBlock();
+        }
+
+        while (blockState.getLightBlock(world, blockPos.withXYZ(x, height - 1, z)) == 0 && height > world.getMinBuildHeight()) {
+            --height;
+            blockState = world.getBlockState(blockPos.withXYZ(x, height - 1, z));
+            fluidState = this.surfaceBlockState.getFluidState();
+            if (fluidState != Fluids.EMPTY.defaultFluidState()) {
+                blockState = fluidState.createLegacyBlock();
+            }
+        }
+        BlockPositionCache.release(blockPos);
+        return (nether || caves) && height > playerHeight ? this.getNetherHeight(x, z) : height;
     }
 
     private int getNetherHeight(int x, int z) {
@@ -1019,6 +1253,148 @@ public class MapViewRenderer implements Runnable, MapChangeListener {
             BlockPositionCache.release(blockPos);
             return this.world.getMinBuildHeight() - 1;
         }
+    }
+
+    private int getSeafloorHeight(Level world, int x, int z, int height) {
+        MutableBlockPos blockPos = BlockPositionCache.get();
+        int h = height;
+        for (BlockState blockState = world.getBlockState(blockPos.withXYZ(x, h - 1, z)); blockState.getLightBlock(world, blockPos.withXYZ(x, h - 1, z)) < 5 && !(blockState.getBlock() instanceof LeavesBlock) && h > world.getMinBuildHeight() + 1; blockState = world.getBlockState(blockPos.withXYZ(x, h - 1, z))) {
+            --h;
+        }
+        BlockPositionCache.release(blockPos);
+        return h;
+    }
+
+    private int getTransparentHeight(boolean nether, boolean caves, Level world, int x, int z, int height) {
+        MutableBlockPos blockPos = BlockPositionCache.get();
+        int transHeight;
+        if (!caves && !nether) {
+            transHeight = world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockPos.withXYZ(x, height, z)).getY();
+            if (transHeight <= height) {
+                transHeight = Short.MIN_VALUE;
+            }
+        } else {
+            transHeight = Short.MIN_VALUE;
+        }
+
+        BlockState blockState = world.getBlockState(blockPos.withXYZ(x, transHeight - 1, z));
+        Block material = blockState.getBlock();
+        if (transHeight == height + 1 && material == Blocks.SNOW) {
+            transHeight = Short.MIN_VALUE;
+        }
+
+        if (material == Blocks.BARRIER) {
+            ++transHeight;
+            blockState = world.getBlockState(blockPos.withXYZ(x, transHeight - 1, z));
+            material = blockState.getBlock();
+            if (material instanceof AirBlock) {
+                transHeight = Short.MIN_VALUE;
+            }
+        }
+        BlockPositionCache.release(blockPos);
+        return transHeight;
+    }
+
+    private int applyHeight(int color24, boolean nether, boolean caves, Level world, int zoom, int multi, int startX, int startZ, int imageX, int imageY, int height, boolean solid, int layer) {
+        if (color24 != this.colorManager.getAirColor() && color24 != 0 && (this.options.heightmap || this.options.slopemap) && !solid) {
+            int heightComp = -1;
+            int diff;
+            double sc = 0.0;
+            if (!this.options.slopemap) {
+                diff = height - this.lastY;
+                sc = Math.log10(Math.abs(diff) / 8.0 + 1.0) / 1.8;
+                if (diff < 0) {
+                    sc = 0.0 - sc;
+                }
+            } else {
+                if (imageX > 0 && imageY < 32 * multi - 1) {
+                    if (layer == 0) {
+                        heightComp = this.mapData[zoom].getOceanFloorHeight(imageX - 1, imageY + 1);
+                    }
+
+                    if (layer == 1) {
+                        heightComp = this.mapData[zoom].getHeight(imageX - 1, imageY + 1);
+                    }
+
+                    if (layer == 2) {
+                        heightComp = height;
+                    }
+
+                    if (layer == 3) {
+                        heightComp = this.mapData[zoom].getTransparentHeight(imageX - 1, imageY + 1);
+                        if (heightComp == Short.MIN_VALUE) {
+                            Block block = BlockDatabase.getStateById(this.mapData[zoom].getTransparentBlockstateID(imageX, imageY)).getBlock();
+                            if (block == Blocks.GLASS || block instanceof StainedGlassBlock) {
+                                heightComp = this.mapData[zoom].getHeight(imageX - 1, imageY + 1);
+                            }
+                        }
+                    }
+                } else {
+                    if (layer == 0) {
+                        int baseHeight = this.getBlockHeight(nether, caves, world, startX + imageX - 1, startZ + imageY + 1);
+                        heightComp = this.getSeafloorHeight(world, startX + imageX - 1, startZ + imageY + 1, baseHeight);
+                    }
+
+                    if (layer == 1) {
+                        heightComp = this.getBlockHeight(nether, caves, world, startX + imageX - 1, startZ + imageY + 1);
+                    }
+
+                    if (layer == 2) {
+                        heightComp = height;
+                    }
+
+                    if (layer == 3) {
+                        int baseHeight = this.getBlockHeight(nether, caves, world, startX + imageX - 1, startZ + imageY + 1);
+                        heightComp = this.getTransparentHeight(nether, caves, world, startX + imageX - 1, startZ + imageY + 1, baseHeight);
+                        if (heightComp == Short.MIN_VALUE) {
+                            MutableBlockPos blockPos = BlockPositionCache.get();
+                            BlockState blockState = world.getBlockState(blockPos.withXYZ(startX + imageX, height - 1, startZ + imageY));
+                            BlockPositionCache.release(blockPos);
+                            Block block = blockState.getBlock();
+                            if (block == Blocks.GLASS || block instanceof StainedGlassBlock) {
+                                heightComp = baseHeight;
+                            }
+                        }
+                    }
+                }
+
+                if (heightComp == Short.MIN_VALUE) {
+                    heightComp = height;
+                }
+
+                diff = heightComp - height;
+                if (diff != 0) {
+                    sc = diff > 0 ? 1.0 : -1.0;
+                    sc /= 8.0;
+                }
+
+                if (this.options.heightmap) {
+                    diff = height - this.lastY;
+                    double heightsc = Math.log10(Math.abs(diff) / 8.0 + 1.0) / 3.0;
+                    sc = diff > 0 ? sc + heightsc : sc - heightsc;
+                }
+            }
+
+            int alpha = color24 >> 24 & 0xFF;
+            int r = color24 >> 16 & 0xFF;
+            int g = color24 >> 8 & 0xFF;
+            int b = color24 & 0xFF;
+            if (sc > 0.0) {
+                r += (int) (sc * (255 - r));
+                g += (int) (sc * (255 - g));
+                b += (int) (sc * (255 - b));
+            } else if (sc < 0.0) {
+                sc = Math.abs(sc);
+                r -= (int) (sc * r);
+                g -= (int) (sc * g);
+                b -= (int) (sc * b);
+            }
+
+            int result = alpha * 16777216 + r * 65536 + g * 256 + b;
+            return result;
+        }
+
+        return color24;
     }
 
     private int getLight(int color24, BlockState blockState, Level world, int x, int z, int height, boolean solid) {
